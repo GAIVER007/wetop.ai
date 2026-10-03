@@ -29,6 +29,37 @@ async function settleStreaming(page: Page): Promise<void> {
     .catch(() => undefined);
 }
 
+/**
+ * Смена темы меняет цвета не мгновенно: `premium.css` даёт всем `button`, `a`, `input`, `select` и
+ * `textarea` переход `--ease` (180 мс) по фону, кромке и цвету текста, а сам `data-theme` ставит
+ * слушатель React, то есть мгновением позже, чем вернётся `emulateMedia`. Спеки с axe в двух темах
+ * переключают тему и сразу замеряют контраст, попадая в это окно: axe видит цвета, которых нет ни в
+ * одной теме (замер 03.10.2026 на `/guests/birthdays`: подпись поиска `#8192a9` на фоне `#353d4a`,
+ * 3.45:1 — при том, что в настоящей тёмной теме та же подпись даёт 6.48:1 и норму проходит).
+ * Отсюда «блуждающий» красный: падает тот спек, чей замер попал в 180 мс. Причина чинится здесь,
+ * а не в тестах и не в токенах (тот же разбор, что у анимации панели в срезе B4 03.10.2026).
+ */
+const THEME_APPLY_MS = 400;
+const THEME_TRANSITION_MS = 600;
+
+async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference'): Promise<void> {
+  // Выражения строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
+  if (scheme === 'light' || scheme === 'dark') {
+    await page
+      .waitForFunction(`document.documentElement.dataset.theme === '${scheme}'`, null, {
+        timeout: THEME_APPLY_MS,
+      })
+      .catch(() => undefined);
+  }
+  await page
+    .waitForFunction(
+      "!document.getAnimations().some((a) => a.constructor.name === 'CSSTransition')",
+      null,
+      { timeout: THEME_TRANSITION_MS },
+    )
+    .catch(() => undefined);
+}
+
 export * from '@playwright/test';
 
 /**
@@ -78,6 +109,11 @@ export const test = base.extend<{ tour: boolean }>({
       const response = await reload(options);
       await settleStreaming(page);
       return response;
+    };
+    const emulateMedia = page.emulateMedia.bind(page);
+    page.emulateMedia = async (options) => {
+      await emulateMedia(options);
+      if (options?.colorScheme) await settleTheme(page, options.colorScheme);
     };
     await use(page);
   },

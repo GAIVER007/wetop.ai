@@ -5613,3 +5613,4 @@
 | 03.10.2026 21:03 | unit | ✅ 3097 из 3100, пропущено 3 | 1 мин 26 с | cc065a8 | [лог](logs/2026-10-03T16-03-19Z-unit-be63.log) |  |
 | 03.10.2026 23:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ❌ упало 62 из 62 | 1 мин | 6668c76 +1 | [лог](logs/2026-10-03T18-09-50Z-e2e-bc36.log) | все разделы, карточки и печать открываются; desktop/mobile без переполнения |
 | 03.10.2026 23:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ✅ 62 из 62 | 3 мин 30 с | e482f62 | [лог](logs/2026-10-03T18-11-10Z-e2e-fbce.log) |  |
+| 04.10.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/theme-transition.spec.ts tests/ui/guests-birthdays.spec.ts tests/ui/beauty-branch.spe | ✅ 46 из 46 | 4 мин 32 с | 02e70a6 +2 | [лог](logs/2026-10-03T19-46-51Z-e2e-ff4d.log) | переход темы: ожидание в фикстуре, сторож, три бывших красных и салонные |

@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 03.10.2026 17:47 Алматы · vm
+# коммит 8700292 (ci-release-gate)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-47-50Z-integration-d758.json' 'tests/integration/integrity-guards.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+ ❯ |integration| tests/integration/integrity-guards.test.ts (5 tests | 1 failed) 609ms
+   ❯ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ дубль (property_id, external_id) отвергает база, а не только код; NULL у ручных броней различны 179ms
+     ✓ платёж, разнесение и возврат на ноль и в минус отвергает база 67ms
+     ✓ журнал действий только дописывается: UPDATE и DELETE отвергаются, уборка проходит с отметкой 70ms
+     ✓ блокировка перепроверяет проживания внутри транзакции — заселённую ячейку не закрыть 22ms
+     × блокировка ждёт категорийный замок брони, а не пролезает мимо него 213ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/integrity-guards.test.ts > предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) > блокировка ждёт категорийный замок брони, а не пролезает мимо него
+AssertionError: expected 'done' to be 'waiting' // Object.is equality
+
+Expected: "waiting"
+Received: "done"
+
+ ❯ tests/integration/integrity-guards.test.ts:155:19
+    153|     // пока «бронь» держит категорию, блокировка не проходит
+    154|     const early = await Promise.race([block.then(() => 'done'), new Pr…
+    155|     expect(early).toBe('waiting');
+       |                   ^
+    156|     release();
+    157|     const done = await block;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  12:47:51
+   Duration  3.15s (transform 44%, tests 34%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-47-50Z-integration-d758.json
+
+# код выхода 1 · 4 с

@@ -5485,3 +5485,5 @@
 | 03.10.2026 18:17 | integration | ✅ 238 из 238 | 1 мин 1 с | cd08acf | [лог](logs/2026-10-03T13-17-37Z-integration-566b.log) |  |
 | 03.10.2026 18:19 | e2e | ❌ упало 3 из 25 | 1 мин 12 с | cd08acf | [лог](logs/2026-10-03T13-19-14Z-e2e-e1bd.log) | шахматка показывает 88 ячеек, и занятость на экране совпадает с данными |
 | 03.10.2026 18:20 | e2e | ✅ 25 из 25 | 55 с | cd08acf | [лог](logs/2026-10-03T13-20-42Z-e2e-092b.log) |  |
+| 03.10.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 39 из 825 | 1 ч 11 мин | cd08acf | [лог](logs/2026-10-03T13-21-43Z-e2e-f427.log) | calendar and keyboard produce the same period |
+| 03.10.2026 19:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-promo-field.spec.ts --workers=1) | ❌ упало 1 из 2 | 1 мин 1 с | 7a9cd49 | [лог](logs/2026-10-03T14-53-58Z-e2e-583c.log) | пустой промокод в запрос не попадает |

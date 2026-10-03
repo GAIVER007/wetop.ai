@@ -5321,3 +5321,13 @@
 | 03.10.2026 15:08 | typecheck | ✅ без ошибок | 25 с | 2ea6042 | [лог](logs/2026-10-03T10-08-30Z-typecheck-aa50.log) |  |
 | 03.10.2026 15:09 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 34 с | 2ea6042 | [лог](logs/2026-10-03T10-09-04Z-e2e-d525.log) |  |
 | 03.10.2026 15:09 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 2ea6042 | [лог](logs/2026-10-03T10-09-46Z-unit-08af.log) |  |
+| 03.10.2026 16:25 | unit (частично: packages/domain/src/beauty/beauty.test.ts) | ❌ код выхода 1 | 1 с | 50494b7 +1 | [лог](logs/2026-10-03T11-25-46Z-unit-1795.log) | (файл не выполнился) |
+| 03.10.2026 16:26 | unit (частично: packages/domain/src/beauty/beauty.test.ts) | ✅ 17 из 17 | 1 с | 50494b7 +4 | [лог](logs/2026-10-03T11-26-44Z-unit-d38d.log) |  |
+| 03.10.2026 16:27 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +5 | [лог](logs/2026-10-03T11-27-59Z-integration-acc1.log) | (файл не выполнился) |
+| 03.10.2026 16:31 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-31-51Z-integration-af0e.log) | (файл не выполнился) |
+| 03.10.2026 16:33 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-33-44Z-integration-0fba.log) | (файл не выполнился) |
+| 03.10.2026 16:34 | integration (частично: tests/integration/beauty-domain.test.ts) | ✅ 11 из 11 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-34-40Z-integration-e54a.log) |  |
+| 03.10.2026 16:34 | integration | ✅ 245 из 245 | 55 с | 50494b7 +9 | [лог](logs/2026-10-03T11-34-48Z-integration-4b6b.log) |  |
+| 03.10.2026 16:35 | typecheck | ✅ без ошибок | 33 с | 50494b7 +9 | [лог](logs/2026-10-03T11-35-46Z-typecheck-6802.log) |  |
+| 03.10.2026 16:36 | lint | ✅ без ошибок | 20 с | 50494b7 +9 | [лог](logs/2026-10-03T11-36-23Z-lint-b5d0.log) |  |
+| 03.10.2026 16:36 | unit | ✅ 2868 из 2871, пропущено 3 | 1 мин 22 с | 50494b7 +8 | [лог](logs/2026-10-03T11-36-46Z-unit-eef2.log) |  |

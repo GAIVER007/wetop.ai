@@ -1842,12 +1842,14 @@ businesses(id, organization_id)`, чтобы не разъехаться (уро
 запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
 механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
 
-### 19.1. Уточнение перед фазой 3 (v2.9, ПРЕДЛОЖЕНО 03.10.2026, ждёт утверждения владельца)
+### 19.1. Уточнение перед фазой 3 (v2.9, УТВЕРЖДЕНО владельцем 03.10.2026, ADR-138)
 
 **Статус.** Раздел §19 выше утверждён ADR-104 как состав и связи и сам требует уточнения планом среза
 («Перед фазой 3 раздел уточняется планом среза»). Здесь поля, типы, ограничения, RLS и порядок миграции.
-План, `plans/beauty-phase3-2026-10-03.md`. **Кода по этому подразделу нет и не будет до утверждения
-владельцем** (`AGENTS.md` §2).
+План, `plans/beauty-phase3-2026-10-03.md`. **Утверждено владельцем 03.10.2026** («да давай делай», ADR-138);
+по разделу сделан срез B1: миграция `20261003000043_beauty_domain`, модели в `schema.prisma`, домен
+`packages/domain/src/beauty/`, отчёт `reports/beauty-b1-2026-10-03/README.md`. **Миграцию на рабочей базе
+применяет владелец** (`AGENTS.md` §15).
 
 **Поправка к §19, не новое решение.** В §19 у `Customer` указан `business_id` FK NOT NULL со ссылкой на
 развилку Q-198. **Q-198 закрыт владельцем 27.09.2026** (freeze-решение №2, оно же в §17.3 и в
@@ -1945,22 +1947,34 @@ EXCLUDE USING gist (
 #### RLS (дополнение к §17.3)
 
 У `locations` нет `organization_id` по §18.3, поэтому Beauty не ложится ни на правило «своя
-`organization_id`», ни на `app_property_visible`. Предложение: две функции рядом с существующей,
-`app_business_visible(business_id)` и `app_location_visible(location_id)`, обе `SET search_path = ''`.
+`organization_id`», ни на `app_property_visible`. **Сделано без новых функций** (поправка к предложению,
+срез B1): у `locations` в миграции `…030` уже есть образец «через родителя»,
+`EXISTS (SELECT 1 FROM businesses parent WHERE parent."id" = …)`, и политика родителя сама режет чужие
+строки. Применён он; функции `app_business_visible` и `app_location_visible` не понадобились.
 
 | Правило | Таблицы |
 |---|---|
 | `organization_id = app_current_org()` | `customers` |
-| бизнес своей организации, `app_business_visible(business_id)` | `employees`, `beauty_services`, `customer_businesses` |
-| филиал своей организации, `app_location_visible(location_id)` | `appointments`, `working_hours`, `location_services`, `employee_locations` |
-| через родителя (`EXISTS` к `employees`) | `employee_services`, `time_offs` |
+| через родителя-`businesses` | `employees`, `beauty_services`, `customer_businesses` |
+| через родителя-`locations` | `appointments`, `working_hours`, `location_services`, `employee_locations` |
+| через родителя-`employees` | `employee_services`, `time_offs` |
+
+Все десять таблиц вписаны в `RLS_TENANT_TABLES` (`packages/database/src/rls.ts`): реестр и база сверяются
+тестом `rls-isolation`.
+
+**Триггерные функции принадлежности `search_path` не закрепляют** и пишут имена таблиц без схемы, как
+`cash_operations_category_guard` в §21: те же таблицы живут и в схеме `pms_test` (ADR-042), и одна функция
+должна работать в обеих. Закреплённый путь ломает интеграционные тесты (проверено на B1).
 
 #### Миграция
 
 Одна миграция `20261003000043_beauty_domain` с `down.sql` (`AGENTS.md` §14): enum'ы, десять таблиц,
-ограничения, триггеры принадлежности, exclusion constraint, RLS и права `wetop_app`. Проверка до
-применения: `check-migrations` на всей цепочке с откатами, затем up → down → up на данных локальной базы.
-**На рабочей базе применяет владелец** (`AGENTS.md` §15), до выкладки кода.
+ограничения, триггеры принадлежности, exclusion constraint и RLS. Права `wetop_app` отдельной строкой не
+выдаются: `ALTER DEFAULT PRIVILEGES` из миграции `…026` накрывает таблицы, созданные позже.
+**Сделано в срезе B1 и проверено:** цепочка из 46 миграций на чистой базе, откат этой миграции возвращает
+схему в прежнее состояние, своего дрейфа схемы она не даёт (разбор общего FAIL скрипта, в отчёте
+`reports/beauty-b1-2026-10-03/README.md`). **На рабочей базе применяет владелец** (`AGENTS.md` §15), до
+выкладки кода.
 
 #### Чего подраздел не вводит
 

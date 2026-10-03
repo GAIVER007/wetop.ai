@@ -43,7 +43,7 @@ export const viewport = {
 
 /** Public entry screens must never start authenticated hotel requests from the workspace shell. */
 function isPublicEntryPath(path: string): boolean {
-  return ['/create', '/login', '/register', '/invite', '/auth/fallback'].some(
+  return ['/create', '/login', '/register', '/invite', '/auth/fallback', '/status'].some(
     (entry) => path === entry || path.startsWith(`${entry}/`),
   );
 }

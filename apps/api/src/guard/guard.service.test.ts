@@ -550,6 +550,23 @@ describe('GuardService: стойка и остатки в канале', () => {
     });
   });
 
+  it('сверка для владельца (X3, ADR-141): время последнего чтения и открытое расхождение с числом ночей', async () => {
+    const t = setup();
+    expect(await t.guard.reconciliation()).toEqual({ lastCheckedAt: null, mismatch: null });
+    t.state.lastAvailabilityReadAt = new Date('2026-10-03T03:00:00Z');
+    t.state.avail = {
+      pms: grid({ MALE: { '2026-09-14': 0, '2026-09-15': 0 } }),
+      channel: grid({ MALE: { '2026-09-14': 2, '2026-09-15': 1 } }),
+    };
+    t.state.lastAvailabilityReadAt = null;
+    await t.guard.tick(NIGHT);
+    t.state.lastAvailabilityReadAt = new Date('2026-10-03T03:00:00Z');
+    const r = await t.guard.reconciliation();
+    expect(r.lastCheckedAt).toBe('2026-10-03T03:00:00.000Z');
+    expect(r.mismatch).toMatchObject({ nights: 2 });
+    expect(r.mismatch!.title).toContain('Канал видит больше мест');
+  });
+
   const sameGrid = () => ({
     pms: grid({ MALE: { '2026-09-14': 1 } }),
     channel: grid({ MALE: { '2026-09-14': 1 } }),

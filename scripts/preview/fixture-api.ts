@@ -2780,6 +2780,17 @@ function read(path: string, q: URLSearchParams): unknown {
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
+  // X3 (ADR-141): сверка остатков у сторожа; «attention» — канал видит больше мест
+  if (path === '/guard/reconciliation') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    return {
+      lastCheckedAt: ago(300),
+      mismatch:
+        channexMode === 'attention'
+          ? { title: 'Канал видит больше мест, чем есть: ночей 2', since: ago(299), nights: 2 }
+          : null,
+    };
+  }
   if (path === '/guard/status') {
     const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
@@ -3827,7 +3838,11 @@ function read(path: string, q: URLSearchParams): unknown {
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
-      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+      return {
+        ...base,
+        lastWebhookAt: ago(125),
+        lastPullAt: ago(180),
+      };
     if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
     if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
@@ -4155,6 +4170,20 @@ createServer(async (req, res) => {
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    // Публичный статус сервиса (H14, ADR-141): у стенда каналы с перебоями в режиме «attention»
+    if (path === '/status/public') {
+      const channels = channexMode === 'attention' ? 'degraded' : 'ok';
+      return send(200, {
+        checkedAt: '2026-10-03T09:00:00.000Z',
+        overall: channels,
+        components: [
+          { key: 'app', label: 'Рабочее место и вход', state: 'ok' },
+          { key: 'database', label: 'Хранение данных', state: 'ok' },
+          { key: 'channels', label: 'Обмен с каналами продаж', state: channels },
+          { key: 'booking', label: 'Бронирование с сайта', state: 'ok' },
+        ],
+      });
+    }
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),

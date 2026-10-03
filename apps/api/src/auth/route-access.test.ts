@@ -104,6 +104,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // неисправности — работа смены; пробная тревога — настройка оповещений
   'GET /guard/status': 'desk',
   'GET /guard/incidents': 'desk',
+  'GET /guard/reconciliation': 'desk',
   'POST /guard/incidents/:id/acknowledge': 'desk',
   'POST /guard/incidents/:id/resolve': 'desk',
   'POST /guard/tick': 'desk',
@@ -282,6 +283,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
+  // H14 (ADR-141): страница статуса сервиса без входа
+  'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
   // ADR-141, DATA_MODEL §24: бронь из чата — узкий ключ записи продавца сверяет контроллер
   'POST /bot/booking-intents': 'public',
@@ -312,7 +315,9 @@ async function routes(): Promise<Record<string, RouteAccess | 'public' | undefin
         const path = Reflect.getMetadata(PATH_METADATA, handler) as string | undefined;
         const method = Reflect.getMetadata(METHOD_METADATA, handler) as RequestMethod | undefined;
         if (path === undefined || method === undefined) continue;
-        const full = `/${[base, path].filter(Boolean).join('/')}`.replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+        const full = `/${[base, path].filter(Boolean).join('/')}`
+          .replace(/\/+/g, '/')
+          .replace(/(.)\/$/, '$1');
         const key = `${RequestMethod[method]} ${full}`;
         const isPublic =
           Reflect.getMetadata(PUBLIC_ROUTE, handler) ?? Reflect.getMetadata(PUBLIC_ROUTE, cls);

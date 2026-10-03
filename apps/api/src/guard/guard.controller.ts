@@ -59,6 +59,12 @@ export class GuardController {
     };
   }
 
+  /** Сверка остатков с каналом (X3, ADR-141): обзор «Каналов» показывает её владельцу подключённого объекта */
+  @Get('reconciliation')
+  reconciliation() {
+    return this.guard.reconciliation();
+  }
+
   @Get('incidents')
   list(@Query('status') status?: string, @Query('limit') limit?: string) {
     const n = Math.min(Math.max(Number(limit) || 100, 1), 500);

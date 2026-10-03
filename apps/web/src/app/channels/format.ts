@@ -34,3 +34,57 @@ export const EVENT_TYPE_RU: Record<string, string> = {
   booking_modification: 'изменение',
   booking_cancellation: 'отмена',
 };
+
+/** Сверка давнее суток с запасом: сторож сверяет раз в сутки, после 36 часов это уже повод посмотреть */
+export const RECONCILE_STALE_MS = 36 * 3_600_000;
+
+export interface ReconciliationView {
+  tone: 'ok' | 'warn' | 'danger' | 'muted';
+  value: string;
+  sub: string;
+}
+
+/**
+ * «Сверка с каналом» на обзоре (X3, ADR-141): ежедневная сверка остатков PMS с тем, что видит канал, словами.
+ * Расхождение важнее давности; без данных API — «нет данных», не «всё хорошо».
+ */
+export function reconciliationView(
+  r:
+    | { lastCheckedAt: string | null; mismatch: { since: string; nights: number | null } | null }
+    | null
+    | undefined,
+  clock: PropertyClock,
+  now: number = Date.now(),
+): ReconciliationView {
+  if (!r) return { tone: 'muted', value: 'нет данных', sub: 'обновите страницу' };
+  if (r.mismatch) {
+    const nights = r.mismatch.nights;
+    return {
+      tone: 'danger',
+      value: nights ? `расхождение: ${nights} ${nightsWord(nights)}` : 'есть расхождение',
+      sub: `канал видит больше мест, чем есть, с ${eventTime(r.mismatch.since, clock)}; сторож запустил полную выгрузку`,
+    };
+  }
+  if (!r.lastCheckedAt)
+    return { tone: 'muted', value: 'ещё не было', sub: 'сверка идёт раз в сутки' };
+  const stale = now - Date.parse(r.lastCheckedAt) > RECONCILE_STALE_MS;
+  return stale
+    ? {
+        tone: 'warn',
+        value: 'давно не было',
+        sub: `последняя ${eventTime(r.lastCheckedAt, clock)}`,
+      }
+    : {
+        tone: 'ok',
+        value: 'расхождений нет',
+        sub: `проверено ${eventTime(r.lastCheckedAt, clock)}`,
+      };
+}
+
+function nightsWord(n: number): string {
+  const tail = n % 10;
+  const hundred = n % 100;
+  if (tail === 1 && hundred !== 11) return 'ночь';
+  if (tail >= 2 && tail <= 4 && (hundred < 12 || hundred > 14)) return 'ночи';
+  return 'ночей';
+}

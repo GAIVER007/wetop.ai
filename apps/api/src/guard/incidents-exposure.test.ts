@@ -45,12 +45,20 @@ describe('инциденты сторожа не доходят до обычн�
       'guard/guard.module.ts',
       'guard/guard.service.ts',
       'guard/incidents.repository.ts',
+      'health/health.module.ts',
       'web-booking/web-booking.module.ts',
       'web-booking/web-booking.service.ts',
     ]);
     const booking = sources(API_SRC).find((f) => f.rel === 'web-booking/web-booking.service.ts')!.text;
     const calls = [...booking.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]);
     expect(new Set(calls)).toEqual(new Set(['record']));
+    // Страница статуса сервиса (H14, ADR-141) публичная: читает открытые неисправности, но наружу отдаёт только виды,
+    // сведённые доменной `publicStatus` в четыре слова. Ни заголовков, ни подробностей, ни объекта в ответе нет.
+    const health = sources(API_SRC).find((f) => f.rel === 'health/health.module.ts')!.text;
+    expect(new Set([...health.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]))).toEqual(
+      new Set(['open']),
+    );
+    expect(health).toMatch(/openKinds: open\.map\(\(i\) => i\.kind\)/);
   });
 
   it('контроллер сторожа, отдающий инциденты, закрыт защитником организации подключённого объекта', () => {

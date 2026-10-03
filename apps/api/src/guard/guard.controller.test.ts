@@ -40,3 +40,11 @@ describe('«Проверить сейчас» и полная сверка', () 
     expect(tick).toHaveBeenCalledWith(expect.any(Date), { all: true });
   });
 });
+
+describe('сверка остатков с каналом видна владельцу подключённого объекта (X3, ADR-141)', () => {
+  it('маршрут отдаёт ровно то, что считает сторож', async () => {
+    const reconciliation = vi.fn(async () => ({ lastCheckedAt: null, mismatch: null }));
+    const guard = new GuardController({ reconciliation } as never, {} as never, {} as never);
+    expect(await guard.reconciliation()).toEqual({ lastCheckedAt: null, mismatch: null });
+  });
+});

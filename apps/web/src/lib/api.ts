@@ -161,6 +161,20 @@ async function getJson<T>(path: string): Promise<T> {
 /** Для страниц, которым нужен произвольный путь API (журнал). */
 export const getJsonPublic = getJson;
 
+/** Публичный статус сервиса (H14, ADR-141): четыре части словами, без входа */
+export interface PublicServiceStatus {
+  checkedAt: string;
+  overall: 'ok' | 'degraded' | 'down';
+  components: Array<{
+    key: 'app' | 'database' | 'channels' | 'booking';
+    label: string;
+    state: 'ok' | 'degraded' | 'down';
+  }>;
+}
+export const statusApi = {
+  public: () => getJson<PublicServiceStatus>('/status/public'),
+};
+
 export interface OnboardingStatus {
   needed: boolean;
   name: string;
@@ -2434,8 +2448,14 @@ export const supportApi = {
     ),
 };
 
+/** X3 (ADR-141): сверка остатков с каналом от сторожа; только организации подключённого объекта */
+export interface ChannelReconciliation {
+  lastCheckedAt: string | null;
+  mismatch: { title: string; since: string; nights: number | null } | null;
+}
 export const guardApi = {
   status: () => getJson<GuardStatus>('/guard/status'),
+  reconciliation: () => getJson<ChannelReconciliation>('/guard/reconciliation'),
   incidents: (status: 'open' | 'all', limit = 100) =>
     getJson<Incident[]>(`/guard/incidents?status=${status}&limit=${limit}`),
   acknowledge: (id: string) =>

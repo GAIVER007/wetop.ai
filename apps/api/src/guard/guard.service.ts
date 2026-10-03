@@ -196,6 +196,33 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
+  /**
+   * Сверка остатков с каналом для владельца (X3, ADR-141): когда сторож последний раз читал остатки у канала и есть ли
+   * открытое расхождение «канал видит больше мест». Неисправности — на всю установку, поэтому отдаётся только через
+   * контроллер сторожа под `IntegrationOwnerGuard` (организация подключённого объекта), не через «Каналы».
+   */
+  async reconciliation(): Promise<{
+    lastCheckedAt: string | null;
+    mismatch: { title: string; since: string; nights: number | null } | null;
+  }> {
+    const [checked, open] = await Promise.all([
+      this.probes.lastAvailabilityReadAt().catch(() => null),
+      this.repo.open(),
+    ]);
+    const oversell = open.find((i) => i.kind === 'ari.oversell');
+    const nights = (oversell?.details as { nights?: unknown[] } | null)?.nights;
+    return {
+      lastCheckedAt: checked?.toISOString() ?? null,
+      mismatch: oversell
+        ? {
+            title: oversell.title,
+            since: oversell.firstSeenAt.toISOString(),
+            nights: Array.isArray(nights) ? nights.length : null,
+          }
+        : null,
+    };
+  }
+
   status() {
     return {
       running: this.timer !== null,

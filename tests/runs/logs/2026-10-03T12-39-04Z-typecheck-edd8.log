@@ -1,0 +1,19 @@
+# Типы (typecheck) · 03.10.2026 17:39 Алматы · vm
+# коммит 1c6ae3e (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 13
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/channels/inbound.controller.test.ts(616,37): error TS2339: Property 'channel' does not exist on type 'ReservationState'.
+apps/api/src/channels/inbound.controller.test.ts(617,39): error TS2339: Property 'channel' does not exist on type 'ReservationState'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 24 с

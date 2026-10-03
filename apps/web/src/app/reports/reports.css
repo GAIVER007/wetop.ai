@@ -98,3 +98,10 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
+
+/* Телефон: поле периода мельче 16 px заставляет iOS зумить страницу при фокусе (DESIGN.md). */
+@media (max-width: 600px) {
+  .reports-toolbar .field--inline .inp {
+    font-size: var(--text-lg);
+  }
+}

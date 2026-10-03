@@ -393,6 +393,10 @@
   }
 }
 @media (max-width: 600px) {
+  /* 17 px, иначе iOS зумит страницу при фокусе поиска и выбора статуса и не возвращает (DESIGN.md) */
+  .reservations-toolbar .inp {
+    font-size: var(--text-lg);
+  }
   .page:has(> .reservations-controls) > .page__head {
     flex-direction: row;
     align-items: center;

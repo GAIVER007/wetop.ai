@@ -148,3 +148,49 @@ test('телефон: кнопки, поля и вкладки разделов 
     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
   }
 });
+
+test('телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе', async ({ page }) => {
+  test.slow(); // обход 17 разделов
+  // Safari на iPhone увеличивает страницу, когда поле мельче 16 px, и обратно сам не возвращает:
+  // человек правит период или ищет бронь на зумленном экране. Замер 03.10: 13 px у полей периода
+  // Главной, 14 px у «Броней», «Финансов», «Кассы» и «Отчётов» — плотные полосы разделов
+  // перебивали общее правило (`.finance-toolbar .field--inline .inp` специфичнее `.workspace .inp`).
+  for (const route of [
+    '/today',
+    '/chessboard',
+    '/reservations',
+    '/reservations/new',
+    '/guests',
+    '/finance',
+    '/finance?tab=cash',
+    '/management/analytics',
+    '/reports',
+    '/rates',
+    '/inventory',
+    '/rooms/categories',
+    '/rooms/availability',
+    '/channels',
+    '/hotel-settings',
+    '/ai-agents',
+    '/team',
+  ]) {
+    await page.goto(route);
+    await expect(page.getByRole('main')).toBeVisible();
+    const small = await page.evaluate(() =>
+      [...document.querySelectorAll('input, select, textarea')]
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          const type = (el as HTMLInputElement).type;
+          if (['checkbox', 'radio', 'hidden'].includes(type)) return false;
+          return r.height > 0 && r.width > 0 && parseFloat(getComputedStyle(el).fontSize) < 16;
+        })
+        .map(
+          (el) =>
+            `${el.getAttribute('aria-label') || (el as HTMLInputElement).name || el.tagName}=${Math.round(
+              parseFloat(getComputedStyle(el).fontSize),
+            )}px`,
+        ),
+    );
+    expect([...new Set(small)], `${route}: поля мельче 16 px — ${small.join(', ')}`).toEqual([]);
+  }
+});

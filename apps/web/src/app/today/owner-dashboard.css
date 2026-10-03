@@ -357,5 +357,7 @@
   .owner-toolbar input {
     width: auto;
     flex: 1 1 120px;
+  /* 17 px, иначе iOS зумит страницу при фокусе и не возвращает (DESIGN.md) */
+    font-size: var(--text-lg);
   }
 }

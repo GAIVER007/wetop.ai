@@ -528,6 +528,10 @@
   .finance-tabs button {
     min-height: var(--touch-target);
   }
+  /* 17 px, иначе iOS зумит страницу при фокусе и не возвращает (DESIGN.md) */
+  .finance-toolbar .field--inline .inp {
+    font-size: var(--text-lg);
+  }
 }
 
 /* сверка кассы (§21.4): строка состояния под плитками и галочка поправки в панели */

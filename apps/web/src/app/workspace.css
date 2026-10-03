@@ -614,6 +614,16 @@ dialog::backdrop {
   .icon-button {
     min-height: 44px;
   }
+  /* Поле мельче 16 px заставляет iOS зумить страницу при фокусе и обратно уже не возвращает
+   * (DESIGN.md «на телефоне поля — 16 px»). Селектор на класс поверхности, чтобы перебить
+   * плотные размеры разделов: `.owner-toolbar input` 13 px, `.finance-toolbar .inp` и поиск
+   * броней 14 px — медиазапрос специфичности не добавляет. */
+  .workspace .inp,
+  .workspace input,
+  .workspace select,
+  .workspace textarea {
+    font-size: var(--text-lg);
+  }
   .toolbar {
     gap: 12px;
   }

@@ -5499,3 +5499,7 @@
 | 03.10.2026 19:11 | typecheck | ✅ без ошибок | 33 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-11-27Z-typecheck-cf36.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | lint | ✅ без ошибок | 22 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-12-02Z-lint-96cc.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/no-hardcoded-utc5.test.ts packages/dom | ✅ 47 из 47 | 7 с | 5fabb2c +5 | [лог](logs/2026-10-03T14-12-35Z-unit-0f69.log) | Дни рождения T0: сторожа дизайна, домен и API гостей |
+| 03.10.2026 19:57 | typecheck | ✅ без ошибок | 36 с | b7abae2 | [лог](logs/2026-10-03T14-57-13Z-typecheck-be3e.log) |  |
+| 03.10.2026 19:57 | lint | ✅ без ошибок | 21 с | b7abae2 | [лог](logs/2026-10-03T14-57-50Z-lint-7f3b.log) |  |
+| 03.10.2026 19:58 | unit | ✅ 3014 из 3017, пропущено 3 | 1 мин 28 с | b7abae2 | [лог](logs/2026-10-03T14-58-11Z-unit-5ec1.log) |  |
+| 03.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --worker | ✅ 30 из 30 | 1 мин 49 с | b7abae2 | [лог](logs/2026-10-03T14-59-46Z-e2e-32e4.log) |  |

@@ -24,6 +24,8 @@ for (const [name, width, height] of [
     await page.setViewportSize({ width, height });
     await page.goto('/finance');
     await expect(main.getByTestId('finance-charges')).toBeVisible();
+    // «Проживание по категориям» с 01.10 свёрнуто под раскрывашкой: раскрыть, чтобы проверить и его таблицу
+    await main.locator('.finance-category-details > summary').click();
     for (const id of ['finance-charges', 'finance-money']) {
       const tables = main.getByTestId(id).locator('table');
       const n = await tables.count();

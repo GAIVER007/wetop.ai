@@ -23,23 +23,25 @@ test('вошедший видит ожидающие приглашения и �
   page,
 }) => {
   await login(page);
-  await page.goto('/profile/access');
+  // команда и приглашения с 02.10 — на странице «Сотрудники» (TEAM1, ADR-136), форма — панелью из шапки
+  await page.goto('/team');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Сотрудники', level: 1 })).toBeVisible();
   await expect(main).not.toContainText('войдёт по коду');
   const list = main.getByTestId('invite-list');
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
 
-  await main.getByLabel('Почта приглашённого').fill('admin@wetop.test');
-  await main.getByRole('button', { name: 'Отправить приглашение' }).click();
-  await expect(main.getByRole('alert')).toHaveText('Этот человек уже в организации.');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const panel = page.getByRole('dialog', { name: 'Пригласить сотрудника' });
+  await panel.getByLabel('Почта приглашённого').fill('admin@wetop.test');
+  await panel.getByRole('button', { name: 'Отправить приглашение' }).click();
+  await expect(panel.getByRole('alert')).toHaveText('Этот человек уже в организации.');
 
-  await main.getByLabel('Почта приглашённого').fill('Novyj@Example.com');
-  await main.getByRole('button', { name: 'Отправить приглашение' }).click();
+  await panel.getByLabel('Почта приглашённого').fill('Novyj@Example.com');
+  await panel.getByRole('button', { name: 'Отправить приглашение' }).click();
+  // почта приведена к нижнему регистру, новое приглашение сразу в списке «Ожидают ответа»
   await expect(list).toContainText('novyj@example.com');
-  await expect(list).toContainText('приглашение отправлено');
-  await expect(main.getByLabel('Почта приглашённого')).toHaveValue('');
 });
 
 test('без сессии формы приглашения нет', async ({ page }) => {

@@ -66,12 +66,13 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
 
-test('телефон: сетка календаря выше сводки «На стойке»', async ({ page }) => {
-  // На 812 px высоты сводка (≈465 px) выталкивала сетку за первый экран: сначала работа, потом сводка
+test('телефон: сетка календаря на первом экране, сводка дня её не выталкивает', async ({ page }) => {
+  // На 812 px высоты сводка (≈465 px) выталкивала сетку за первый экран: сначала работа, потом сводка.
+  // С 03.10 сводка дня — панель «Сегодня» рядом с сеткой, на узких экранах её нет (день живёт на Главной)
   await page.goto('/chessboard');
   const board = await page.locator('.board-wrap').boundingBox();
-  const strip = await page.locator('.desk-strip').boundingBox();
-  expect(board!.y).toBeLessThan(strip!.y);
+  expect(board!.y).toBeLessThan((page.viewportSize()?.height ?? 812) / 2);
+  await expect(page.locator('.board-day-panel')).toBeHidden();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {

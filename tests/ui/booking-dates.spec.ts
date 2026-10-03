@@ -110,16 +110,17 @@ test('failed quote and availability can be retried without reopening', async ({
 });
 
 test('calendar and keyboard produce the same period', async ({ page }) => {
-  await page.goto('/reservations/new?arrival=2026-10-01&departure=2026-10-02');
+  // Даты в будущем: зашитые «текущие» даты краснеют, как только становятся прошлыми (03.10.2026).
+  await page.goto('/reservations/new?arrival=2029-02-01&departure=2029-02-02');
   const form = page.getByTestId('new-reservation-form');
   await form.getByRole('button', { name: 'Открыть календарь' }).nth(1).click();
-  await page.getByRole('button', { name: '4 октября 2026', exact: true }).click();
-  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-04');
+  await page.getByRole('button', { name: '4 февраля 2029', exact: true }).click();
+  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2029-02-04');
   await expect(form.getByTestId('booking-digest')).toContainText('3 ночи');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
   const price = await form.locator('.booking-create__price strong').innerText();
-  await form.getByLabel('Выезд', { exact: true }).fill('2026-10-02');
-  await form.getByLabel('Выезд', { exact: true }).fill('2026-10-04');
+  await form.getByLabel('Выезд', { exact: true }).fill('2029-02-02');
+  await form.getByLabel('Выезд', { exact: true }).fill('2029-02-04');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
   await expect(form.locator('.booking-create__price strong')).toHaveText(price);
 });

@@ -5590,6 +5590,10 @@
 | 03.10.2026 23:21 | lint | ✅ без ошибок | 22 с | d3917b0 | [лог](logs/2026-10-03T18-21-07Z-lint-d45f.log) |  |
 | 03.10.2026 23:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 guests-design pii-storage booking-dates rates incidents unified-sections finance channel-effic | ✅ 79 из 79 | 4 мин 29 с | d3917b0 | [лог](logs/2026-10-03T18-21-29Z-e2e-2d28.log) |  |
 | 03.10.2026 23:26 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 38 с | d3917b0 | [лог](logs/2026-10-03T18-26-04Z-unit-c2b3.log) |  |
+| 04.10.2026 00:18 | e2e (частично: -c tests/ui/playwright.config.ts --workers=1 --repeat-each=5 tests/ui/login-access.spec.ts) | ❌ упало 1 из 75 | 4 мин 37 с | ff2b775 | [лог](logs/2026-10-03T19-18-53Z-e2e-1828.log) | верный пароль открывает рабочее место, выход возвращает форму главной |
+| 04.10.2026 00:23 | e2e (частично: -c tests/ui/playwright.config.ts --workers=1 --repeat-each=10 tests/ui/login-access.spec.ts) | ✅ 150 из 150 | 7 мин 10 с | ff2b775 +1 | [лог](logs/2026-10-03T19-23-53Z-e2e-c85b.log) |  |
+| 04.10.2026 00:31 | lint | ✅ без ошибок | 19 с | ff2b775 +1 | [лог](logs/2026-10-03T19-31-07Z-lint-408f.log) |  |
+| 04.10.2026 00:31 | typecheck | ✅ без ошибок | 34 с | ff2b775 +1 | [лог](logs/2026-10-03T19-31-26Z-typecheck-3908.log) |  |
 | 03.10.2026 23:30 | unit (частично: packages/domain/src/market) | ❌ упало 2 из 19 | 1 с | 33292e4 +1 | [лог](logs/2026-10-03T18-30-44Z-unit-5232.log) | M1.2 red: истории ночи нет |
 | 03.10.2026 23:30 | unit (частично: packages/domain/src/market) | ✅ 19 из 19 | 1 с | 33292e4 +2 | [лог](logs/2026-10-03T18-30-56Z-unit-0cc9.log) | M1.2 green: история ночи |
 | 03.10.2026 23:31 | unit (частично: apps/api/src/auth/route-access.test.ts packages/domain/src/market) | ❌ упало 1 из 21 | 4 с | 33292e4 +3 | [лог](logs/2026-10-03T18-31-04Z-unit-4a2c.log) | M1.2 red: маршрута истории ночи нет |

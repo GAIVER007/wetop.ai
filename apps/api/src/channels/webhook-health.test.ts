@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { ChannelsRepository } from './channels.repository';
+import type { ChannelsRepository, ChannexGateway } from './channels.repository';
 import type { InboundBookingsService } from './inbound.service';
-import { WebhookHealthService } from './webhook-health.service';
+import {
+  PROBE_EVERY_MS,
+  REGISTRATION_EVERY_MS,
+  WebhookHealthService,
+} from './webhook-health.service';
+import { ChannexSyncService, WEBHOOK_PATH } from './sync.service';
 
 const utc = (s: string) => new Date(s);
 function make(events: { webhook: Date | null; pullBooking: Date | null }) {
@@ -231,5 +236,77 @@ describe('WebhookHealthService — проба зарегистрированно
     expect(h.suspect).toBe(false);
     expect(broken.snapshot().callbackReachable).toBeNull();
     expect(svc).toBeDefined();
+  });
+});
+
+/**
+ * Письмо Channex 03.10.2026: «You don't need to pull webhooks on a constant basis». Настоящий ChannexSyncService и
+ * поддельный Channex, который считает запросы списка webhook: за сутки сторож спрашивает Channex один раз, а наш
+ * собственный адрес проверяет каждые пять минут, как раньше.
+ */
+describe('WebhookHealthService: Channex о webhook спрашивается раз в сутки', () => {
+  const PERMANENT = 'https://api.wetop.test';
+  const quietRepo = {
+    async lastEventAt() {
+      return null;
+    },
+    mappings: async () => [{ providerPropertyId: 'prop-1' }],
+  } as unknown as ChannelsRepository;
+  const inbound = {
+    async pull() {
+      return { received: 0, outcomes: [], acknowledged: 0 };
+    },
+  } as unknown as InboundBookingsService;
+
+  function setup(gatewayFails = false) {
+    process.env.PUBLIC_API_URL = PERMANENT;
+    let lists = 0;
+    const gateway = {
+      listWebhooks: async () => {
+        lists += 1;
+        if (gatewayFails) throw new Error('Channex 502');
+        return [
+          {
+            id: 'wh-1',
+            type: 'webhook',
+            attributes: {
+              callback_url: `${PERMANENT}${WEBHOOK_PATH}`,
+              event_mask: 'booking',
+              is_active: true,
+              send_data: true,
+            },
+            relationships: { property: { data: { id: 'prop-1', type: 'property' } } },
+          },
+        ];
+      },
+    } as unknown as ChannexGateway;
+    const sync = new ChannexSyncService(gateway, quietRepo);
+    const probed: string[] = [];
+    const svc = new WebhookHealthService(quietRepo, inbound, sync, async (url) => {
+      probed.push(url);
+      return true;
+    });
+    svc.retryDelayMs = 0;
+    return { svc, probed, lists: () => lists };
+  }
+
+  it('сутки тиков раз в минуту: один запрос списка webhook, проба своего адреса каждые 5 минут', async () => {
+    const { svc, probed, lists } = setup();
+    const t0 = Date.parse('2026-10-03T10:00:00Z');
+    for (let m = 0; m < 24 * 60; m += 1) await svc.tick(new Date(t0 + m * 60_000));
+    expect(lists()).toBe(1);
+    expect(probed).toHaveLength((24 * 60 * 60_000) / PROBE_EVERY_MS);
+    expect(new Set(probed)).toEqual(new Set([`${PERMANENT}${WEBHOOK_PATH}`]));
+    await svc.tick(new Date(t0 + REGISTRATION_EVERY_MS));
+    expect(lists()).toBe(2);
+  });
+
+  it('Channex не ответил: повтор не на каждом тике, а со следующей пробой через 5 минут', async () => {
+    const { svc, probed, lists } = setup(true);
+    const t0 = Date.parse('2026-10-03T10:00:00Z');
+    for (let m = 0; m < 10; m += 1) await svc.tick(new Date(t0 + m * 60_000));
+    expect(lists()).toBe(2);
+    expect(probed).toEqual([]);
+    expect(svc.snapshot().callbackReachable).toBeNull();
   });
 });

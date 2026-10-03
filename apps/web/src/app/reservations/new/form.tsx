@@ -62,15 +62,21 @@ export function NewReservationForm(props: {
   useEffect(() => {
     if (!validDates) return;
     const key = `${arrival} ${departure} ${retry}`;
-    if (lastChecked.current === key) return;
+    // даты вернулись к уже проверенным (02 → 04 → 02 быстрее задержки): ответ на них уже в состоянии,
+    // а флаг проверки поставил промежуточный шаг — без сброса кнопка «Создать бронь» осталась бы выключенной
+    if (lastChecked.current === key) {
+      setChecking(false);
+      return;
+    }
     let active = true;
     setChecking(true);
     setAvailabilityError('');
     const timer = window.setTimeout(() => {
-      lastChecked.current = key;
       void checkBookingAvailability(arrival, departure)
         .then((result) => {
           if (!active) return;
+          // проверенными считаются только даты, ответ на которые принят: оборванный запрос повторится
+          lastChecked.current = key;
           setChecking(false);
           setAvailability(result.availability);
           setAvailabilityError(result.error);

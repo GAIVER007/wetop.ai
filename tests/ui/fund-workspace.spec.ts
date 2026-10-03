@@ -55,8 +55,9 @@ test('availability preserves exact unit and dates; responsive category design', 
   const link = page.locator('.fund-book-unit').first();
   await expect(link).toHaveAttribute('href', /arrival=2026-09-24&departure=2026-09-27&unit=/);
   await link.click();
+  // новая бронь открывается панелью поверх «Свободных мест» (перехват `@drawer/(.)reservations/new`)
   await expect(
-    page.getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }),
+    page.getByRole('dialog').getByRole('heading', { name: 'Новая бронь', exact: true }),
   ).toBeVisible();
   for (const width of [1440, 768, 320]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -96,12 +97,8 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   ).toBeVisible();
   await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
   await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
-  // раздел переименован: вкладка фонда и заголовок — «Свободные места», маршрут прежний
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Номерной фонд', exact: true })
-      .getByRole('link', { name: 'Свободные места' }),
-  ).toBeVisible();
+  // раздел переименован: заголовок «Свободные места», маршрут прежний; отдельной вкладки фонда
+  // с 01.10 нет (меню по задачам, `reports/workspace-order-2026-10-01.md`)
   await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
   // пресет дат сохраняет число гостей
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(

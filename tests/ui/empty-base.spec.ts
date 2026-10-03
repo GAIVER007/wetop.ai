@@ -30,7 +30,7 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/journal', title: /Журнал/ },
   { route: '/incidents', title: /Неисправност/ },
   { route: '/channels', title: /Подключени|Channex|Каналы/ },
-  { route: '/connections', title: /Интеграции/ },
+  { route: '/connections', title: /Подключения/ },
   { route: '/website', title: /Сайт и онлайн-бронирование/ },
   { route: '/website/analytics', title: /Сайт и онлайн-бронирование/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
@@ -62,7 +62,8 @@ test('пустая база: шахматка показывает все мес
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {
   await page.goto('/today');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('c-arrivals')).toContainText('0');
+  // компактная Главная (30.09): заезды и выезды одной плиткой «0 / 0»
+  await expect(main.getByTestId('owner-movements')).toContainText('0 / 0');
   const text = (await main.innerText()).replace(/\s+/g, ' ');
   expect(text).toMatch(/Заезд|Выезд|Проживают/);
 });

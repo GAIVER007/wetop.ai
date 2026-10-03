@@ -1,6 +1,7 @@
 import { expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const screenshotDir = 'reports/premium-ui';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

@@ -11,7 +11,8 @@ import { expect, test } from './fixtures';
  * Стенд UI-тестов: восемь базовых броней недели (R01–R04, M01, M02, F01, F03) и брони, заведённые
  * здесь; гости вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const headers = { 'x-wetop-test-client': '1' };
 const add = (date: string, n: number) => {
   const d = new Date(`${date}T12:00:00Z`);

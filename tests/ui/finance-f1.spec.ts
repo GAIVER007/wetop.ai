@@ -8,7 +8,8 @@ import { expect, test, type Page } from './fixtures';
  * чтение», сбой одного запроса. Брони подставного API — вымышленные (ADR-010): 20260913-TESTAA и TEST1…8,
  * из них TEST4 уже выехала с остатком — её долг просрочен (Q-207). «К сбору» — сумма строк списка (Q-206).
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const report = 'reports/finance-compact-2026-10-01/debts';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

@@ -13,7 +13,8 @@ import { expect, test } from '@playwright/test';
  * 4) Правило «плитки финансов в одну колонку» (≤520 px) стояло в файле раньше правила «две колонки»
  *    (≤800 px) и при равной специфичности никогда не применялось.
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const PHONE = { width: 390, height: 844 };
 
 test.beforeEach(async ({ page, request }) => {
@@ -22,8 +23,23 @@ test.beforeEach(async ({ page, request }) => {
 });
 
 test('телефон: низ страницы не прячется под нижней навигацией', async ({ page }) => {
+  test.slow(); // обход 13 разделов: на холодном `next dev` первая сборка каждого занимает секунды
   // Экраны без собственных `:has()`-компенсаций — они и страдали; у /channels своё правило 16px
-  for (const route of ['/guests', '/finance', '/rates', '/inventory', '/channels']) {
+  for (const route of [
+    '/guests',
+    '/finance',
+    '/rates',
+    '/inventory',
+    '/channels',
+    '/today',
+    '/reservations',
+    '/management/analytics',
+    '/reports',
+    '/rooms/categories',
+    '/hotel-settings',
+    '/ai-agents',
+    '/team',
+  ]) {
     await page.goto(route);
     const nav = page.locator('.bottom-navigation');
     await expect(nav).toBeVisible();
@@ -66,12 +82,14 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
 
-test('телефон: сетка календаря выше сводки «На стойке»', async ({ page }) => {
-  // На 812 px высоты сводка (≈465 px) выталкивала сетку за первый экран: сначала работа, потом сводка
+test('телефон: управление календаря не отнимает у сетки пол-экрана', async ({ page }) => {
+  // Замер 03.10 на 390 px: заголовок с кнопкой, период, сегмент, «Даты», «Помощь» и строка поиска
+  // уводили сетку на 434 px из 844 — до первой строки номеров уходила половина экрана.
   await page.goto('/chessboard');
   const board = await page.locator('.board-wrap').boundingBox();
-  const strip = await page.locator('.desk-strip').boundingBox();
-  expect(board!.y).toBeLessThan(strip!.y);
+  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThan(380);
+  // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
+  await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
@@ -94,4 +112,39 @@ test('телефон: месяц цен не растягивается на ч�
   expect(count).toBeGreaterThan(27);
   const height = (await cal.boundingBox())!.height;
   expect(height / count, `высота дня ${Math.round(height / count)} px`).toBeLessThan(80);
+});
+
+test('телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px', async ({ page }) => {
+  test.slow(); // обход 14 разделов
+  // ADR-134 свёл телефонный блок workspace.css в @media (max-width: 360px), и на 361–600 px правило
+  // «.btn, .inp, .icon-button — 44 px» перестало действовать: кнопки падали до 36 px. Свои компактные
+  // размеры «Каналов» (36 px) и вкладки «Финансов» (37 px) перебивали общее правило и на 375 px.
+  for (const route of [
+    '/channels',
+    '/finance',
+    '/finance?tab=cash',
+    '/guests',
+    '/rates',
+    '/today',
+    '/reservations',
+    '/management/analytics',
+    '/reports',
+    '/inventory',
+    '/rooms/categories',
+    '/hotel-settings',
+    '/ai-agents',
+    '/team',
+  ]) {
+    await page.goto(route);
+    await expect(page.getByRole('main')).toBeVisible();
+    const small = await page.evaluate(() =>
+      [...document.querySelectorAll('button, select, input, a.btn')]
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          return r.height > 0 && r.width > 0 && r.height < 44;
+        })
+        .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+    );
+    expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
+  }
 });

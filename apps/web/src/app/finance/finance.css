@@ -319,10 +319,14 @@
 .finance-controls {
   margin-bottom: 16px;
 }
-.finance-toolbar .inp,
-.finance-toolbar .btn {
-  min-height: 36px;
-  font-size: 13px;
+/* Компактная полоса периода: 36 px только на компьютере. Селектор специфичнее общего
+ * «.inp на телефоне 44 px», поэтому без этой рамки поля дат остаются мелкими (DESIGN.md). */
+@media (min-width: 601px) {
+  .finance-toolbar .inp,
+  .finance-toolbar .btn {
+    min-height: 36px;
+    font-size: 13px;
+  }
 }
 .finance-kpis {
   gap: 8px;
@@ -515,6 +519,14 @@
   .cash-category-add {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+}
+
+/* Телефон: вкладки раздела и кнопки полосы периода, цели нажатия не ниже 44 px (DESIGN.md).
+ * Вкладки стояли 37 px, «Показать» 36 px: это основная навигация экрана, пальцем мимо. */
+@media (max-width: 600px) {
+  .finance-tabs button {
+    min-height: var(--touch-target);
   }
 }
 

@@ -7,7 +7,8 @@ import { expect, test } from './fixtures';
  * поступление и расход мимо счетов броней, перевод с комиссией, статьи, аннулирование и общая лента
  * операций с отбором по источнику. Данные подставного API вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const report = 'reports/finance-cash-2026-10-02';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

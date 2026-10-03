@@ -63,13 +63,17 @@
 .channels-period .field {
   flex: 0 1 180px;
 }
-.channels-period input,
-.channels-period select,
-.channels-period button {
-  min-height: 36px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  font-size: 13px;
+/* Компактная полоса периода: 36 px только на компьютере. На телефоне цель нажатия не ниже 44 px
+ * (DESIGN.md), иначе это правило перебивает общее и даёт поля и кнопку по 36–40 px. */
+@media (min-width: 601px) {
+  .channels-period input,
+  .channels-period select,
+  .channels-period button {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 13px;
+  }
 }
 .channels-period label {
   font-size: 12px;

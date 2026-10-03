@@ -343,3 +343,19 @@
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
+
+/* Телефон: Главная задумана плотной, но пальцем по 28–40 px не попасть — цели ≥44 px (DESIGN.md).
+ * Поля периода, «Показать», стрелки дня у графиков и ссылки под ними держат высоту; на компьютере
+ * плотность не меняется. */
+@media (max-width: 600px) {
+  .owner-toolbar input,
+  .owner-toolbar .btn,
+  .owner-bottom__actions > .btn,
+  .owner-charts .bars-day .btn--sm {
+    min-height: var(--touch-target);
+  }
+  .owner-toolbar input {
+    width: auto;
+    flex: 1 1 120px;
+  }
+}

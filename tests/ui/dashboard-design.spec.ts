@@ -10,7 +10,8 @@ import { expect, test } from '@playwright/test';
  * колонкой «Загрузка» в таблице «По категориям»; подписи плиток склеивались через « · » (§14); на
  * телефоне таблица «По категориям» из пяти колонок обрезалась прокруткой без признака.
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const OVERVIEW = '/management/analytics';
 
 test.beforeEach(async ({ request }) => {
@@ -126,7 +127,7 @@ test('главная: быстрые действия называют числ�
   );
 
   // день без броней: ни одной мёртвой кнопки — каждая ведёт туда, где действие начинается
-  await request.post('http://127.0.0.1:4311/__test/control', { data: { noBookings: true } });
+  await request.post(`${fixture}/__test/control`, { data: { noBookings: true } });
   await page.goto('/today');
   await page
     .getByTestId('owner-dashboard')

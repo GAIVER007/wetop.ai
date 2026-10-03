@@ -9,7 +9,8 @@ import { expect, test } from '@playwright/test';
  * выдвижной панели за кнопкой «Изменить цены»; фильтры перезагружают данные сами, кнопки «Показать»
  * нет. Поля и testid'ы формы не менялись — их водит запись сертификации Channex.
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

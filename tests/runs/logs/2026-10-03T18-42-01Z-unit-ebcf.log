@@ -1,0 +1,61 @@
+# Модульные (unit) · 03.10.2026 23:42 Алматы · vm
+# коммит 33292e4 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-42-01Z-unit-ebcf.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'apps/web/src/lib'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 127ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 67ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 59ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 699ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 695ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 898ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 870ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 63ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 52ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 50ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 39ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 53ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 11ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 14ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 11ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 11ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 13ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 10ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 8ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 6ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 10ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 6ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 3ms
+
+ Test Files  43 passed (43)
+      Tests  331 passed (331)
+   Start at  18:42:02
+   Duration  3.51s (tests 45%, import 28%, transform 24%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-42-01Z-unit-ebcf.json
+
+# код выхода 0 · 4 с

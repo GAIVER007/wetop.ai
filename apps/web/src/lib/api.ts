@@ -2491,3 +2491,98 @@ export const branchesApi = {
     timezone: string;
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };
+
+// ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
+export type MarketSource = 'MANUAL' | 'AI_AGENT';
+export interface MarketCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface MarketCell {
+  date: string;
+  /** Загрузка в базисных пунктах (85,5 % = 8 550); null — нет данных */
+  bp: number | null;
+  deltaBp: number | null;
+  source: MarketSource | null;
+}
+export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
+export interface MarketInsight {
+  kind: MarketInsightKind;
+  from: string;
+  to: string;
+  nights: number;
+  marketBp: number | null;
+  ownBp: number | null;
+  competitors?: string[];
+}
+export interface MarketView {
+  today: string;
+  from: string;
+  days: number;
+  board: {
+    dates: string[];
+    asOf: string;
+    compareDays: number;
+    own: Array<{ date: string; bp: number | null }>;
+    competitors: Array<{
+      id: string;
+      name: string;
+      distanceM: number | null;
+      unitsTotal: number | null;
+      url: string | null;
+      cells: MarketCell[];
+      sources: MarketSource[];
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; bp: number | null; count: number }>;
+    gap: Array<{ date: string; bp: number | null }>;
+    summary: {
+      marketBp: number | null;
+      ownBp: number | null;
+      gapBp: number | null;
+      highDemandNights: number;
+      competitors: number;
+      competitorsWithData: number;
+    };
+    insights: MarketInsight[];
+  };
+  competitors: MarketCompetitor[];
+}
+export interface MarketNightHistory {
+  stayDate: string;
+  competitors: Array<{ id: string; name: string; distanceM: number | null }>;
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  pickupBp: number | null;
+}
+export const marketApi = {
+  night: (date: string) =>
+    getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
+  occupancy: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
+  },
+  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+  updateCompetitor: (id: string, body: unknown) =>
+    sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
+  writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/occupancy`,
+      { entries },
+    ),
+};

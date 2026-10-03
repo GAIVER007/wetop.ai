@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
  * меню шапки и карта разделов на первом экране ведут на эти блоки.
  */
 const BLOCKS = [
-  { id: 'audience', title: /Hospitality/ },
+  { id: 'audience', title: /Отели, хостелы и апартаменты/ },
   { id: 'features', title: /Что умеет WETOP/ },
   { id: 'sales', title: /Откуда приходят брони/ },
   { id: 'ai-sellers', title: /ИИ-продавец/ },
@@ -133,11 +133,62 @@ test('первый экран: карта разделов ведёт на бл�
   }
   const hrefs = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
   for (const href of hrefs) expect(['#features', '#sales', '#team', '#ai-sellers']).toContain(href);
-  await expect(map).toContainText(/Hospitality/);
-  await expect(map).toContainText(/Beauty/);
+  await expect(map.locator('.vertical-status')).toHaveCount(0);
   await expect(page.locator('.hero')).toContainText(/Схема разделов/);
   await tiles.filter({ hasText: 'Продажи' }).click();
   await expect(page.locator('#sales')).toBeInViewport();
+});
+
+/**
+ * 03.10.2026, решение владельца: внутренней дорожной карты на странице нет. «Направления», «Первое направление:
+ * Hospitality», «Следующее направление» и «подключить его пока нельзя» говорили посетителю, что продукт недоделан,
+ * а салону, что ему сюда нельзя. Салоны теперь зовут словами, но без обещания функций, которых в системе нет.
+ */
+test('на главной нет дорожной карты направлений', async ({ page }) => {
+  await page.goto('/');
+  const text = await page.locator('main').innerText();
+  for (const word of [
+    'Первое направление',
+    'Следующее направление',
+    'Hospitality',
+    'Beauty',
+    'пока нельзя',
+  ]) {
+    expect(text, `слово дорожной карты на главной: ${word}`).not.toContain(word);
+  }
+});
+
+test('салоны и студии названы среди тех, кого подключаем, со ссылкой написать', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const invite = page.locator('#audience .invite');
+  await expect(invite).toBeVisible();
+  await expect(invite).toContainText(/Салоны и студии/);
+  await expect(invite).toContainText(/подключаем/i);
+  // приглашение ведёт на почту из site.config.ts, а не на регистрацию: салонных функций в системе ещё нет
+  await expect(invite.locator('a[href^="mailto:"]')).toHaveCount(1);
+  await expect(invite.locator('[data-auth="register"]')).toHaveCount(0);
+  // записи, мастера и расписание услуг не обещаются (DESIGN.md §19.9)
+  const text = await page.locator('main').innerText();
+  for (const word of ['журнал записи', 'мастеров', 'онлайн-запись']) {
+    expect(text, `обещание салонной функции: ${word}`).not.toContain(word);
+  }
+});
+
+/**
+ * У стеклянной второй кнопки кромка белая: на стекле это блик, а на сплошной панели главной (ADR-132)
+ * она исчезает, и кнопка читается как обычный текст. Поймано на приглашении салонам 03.10.2026.
+ */
+test('на сплошной главной кромка второй кнопки видна, а не белая по белому', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const borders = await page
+    .locator('main .btn--secondary')
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).borderColor));
+  expect(borders.length, 'вторых кнопок на главной нет').toBeGreaterThan(0);
+  for (const color of borders) {
+    expect(color, 'белая кромка на белой панели').not.toMatch(/^rgba?\(255,\s*255,\s*255/);
+  }
 });
 
 test('меню шапки ведёт на блоки, а не на абстрактные разделы', async ({ page }) => {

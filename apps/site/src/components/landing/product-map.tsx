@@ -33,16 +33,6 @@ export function ProductMap() {
           </li>
         ))}
       </ul>
-      <div className="product-map__foot">
-        <span className="vertical-status vertical-status--live">
-          <span className="vertical-status__dot" aria-hidden="true" />
-          {map.live}
-        </span>
-        <span className="vertical-status">
-          <span className="vertical-status__dot" aria-hidden="true" />
-          {map.next}
-        </span>
-      </div>
     </div>
   );
 }

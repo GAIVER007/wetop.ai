@@ -3,6 +3,7 @@ import {
   channelCodeOf,
   channelKey,
   channexUniqueIdOf,
+  revisionChannelLabel,
   KNOWN_CHANNEL_KEYS,
   otaChannelKey,
   otaChannelLabel,
@@ -153,5 +154,22 @@ describe('channexUniqueIdOf: как бронь канала будет назы�
   it('каналы без Channex — null', () => {
     expect(channexUniqueIdOf('OneTwoTrip', '1')).toBeNull();
     expect(channexUniqueIdOf('Bronevik.com', '1')).toBeNull();
+  });
+});
+
+describe('имя канала брони из Channex (ADR-138): по коду unique_id, одно на канал', () => {
+  it('известные каналы объекта — одним именем при любых написаниях ota_name', () => {
+    expect(revisionChannelLabel('BDC-9996013801', 'BookingCom')).toBe('Booking.com');
+    expect(revisionChannelLabel('EXP-1695093244', 'A-Expedia')).toBe('Expedia');
+    expect(revisionChannelLabel('CTP-1', 'Ctrip')).toBe('Trip.com');
+    expect(revisionChannelLabel('OVK-1', 'Emerging Travel Group')).toBe('Ostrovok.ru');
+  });
+  it('новый канал, подключённый в менеджере каналов, — именем из справочника кодов, а не «как прислали»', () => {
+    expect(revisionChannelLabel('ABB-HM123', 'AirBNB')).toBe('Airbnb');
+    expect(revisionChannelLabel('HBD-77', 'hotelbeds')).toBe('Hotelbeds');
+  });
+  it('код неизвестен — имя канала как пришло; имени нет — слово «Канал»', () => {
+    expect(revisionChannelLabel('ZZZ-1', 'Some OTA')).toBe('Some OTA');
+    expect(revisionChannelLabel('local-1', '  ')).toBe('Канал');
   });
 });

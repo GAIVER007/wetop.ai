@@ -3745,6 +3745,7 @@ function read(path: string, q: URLSearchParams): unknown {
       checkedAt: new Date().toISOString(),
       environment: 'staging',
       propertyConnected: true,
+      inbound: { lastEventAt: ago(1), failedEvents7d: channelCatalog === 'empty' ? 0 : 2 },
       state: ready ? 'READY' : 'UNREACHABLE',
       message: ready
         ? 'Каналы загружены из менеджера каналов'

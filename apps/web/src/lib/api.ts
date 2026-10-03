@@ -1006,6 +1006,8 @@ export interface ChannelCatalog {
   checkedAt: string;
   environment: 'staging' | 'production' | 'custom';
   propertyConnected: boolean;
+  /** Приём броней целиком: последнее входящее событие и все ошибки приёма за 7 дней */
+  inbound: { lastEventAt: string | null; failedEvents7d: number };
   state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'UNREACHABLE';
   message: string;
   connections: ChannelConnectionRow[];

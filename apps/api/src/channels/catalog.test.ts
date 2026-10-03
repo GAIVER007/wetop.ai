@@ -112,6 +112,21 @@ describe('Каналы: подключённые и все доступные (C
     expect(r.connections[0]!.lastBookingAt).toBe(day(2));
   });
 
+  it('сводка приёма: последнее событие из менеджера каналов и все ошибки приёма за 7 дней, даже без имени канала', async () => {
+    const c = context({
+      activity: {
+        reservations: [],
+        events: [
+          { uniqueId: 'BDC-1', otaName: 'Booking.com', status: 'PROCESSED', receivedAt: day(2) },
+          { uniqueId: null, otaName: null, status: 'FAILED', receivedAt: day(1) },
+          { uniqueId: 'AGO-1', otaName: 'Agoda', status: 'FAILED', receivedAt: day(9) },
+        ],
+      },
+    });
+    const r = await c.service.list();
+    expect(r.inbound).toEqual({ lastEventAt: day(1), failedEvents7d: 1 });
+  });
+
   it('брони мимо подключений — «Источники вне Channex»: канал без подключения и прямые источники', async () => {
     const r = await context().service.list();
     expect(r.outside).toEqual([

@@ -97,6 +97,12 @@ describe('Channel API: каталог и подключения (только ч
     });
   });
 
+  it('канал объекта называется так же, как у броней: Emerging Travel Group → Ostrovok.ru', () => {
+    const ostrovok = { ...custom, code: 'Ostrovok', title: 'Emerging Travel Group' };
+    expect(toAdapterView(ostrovok).title).toBe('Ostrovok.ru');
+    expect(toAdapterView({ ...custom, title: 'Klook' }).title).toBe('Klook');
+  });
+
   it('адаптер каталога наружу без полей формы', () => {
     expect(toAdapterView(booking)).toEqual({
       code: 'BookingCom',

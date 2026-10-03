@@ -55,6 +55,19 @@ export async function ChannelList({ sp }: { sp: Record<string, string | undefine
           )}
         </Alert>
       )}
+      {data.inbound.failedEvents7d > 0 && (
+        <Alert boxed data-testid="channel-inbound-failed">
+          Не приняты брони из каналов за 7 дней: {data.inbound.failedEvents7d}. Их нет на календаре, пока
+          причина не исправлена. <Link href="/channels/events?status=FAILED">Разобрать</Link>
+        </Alert>
+      )}
+      <p className="note" data-testid="channel-inbound">
+        Брони из подключённых каналов приходят сами: сразу по уведомлению менеджера каналов и проверкой его
+        ленты каждые 5 минут.{' '}
+        {data.inbound.lastEventAt
+          ? `Последняя получена ${clock.moment(data.inbound.lastEventAt)}.`
+          : 'За 30 дней броней из каналов не было.'}
+      </p>
       {data.environment === 'staging' && data.state === 'READY' && (
         <p className="note" data-testid="channel-list-staging">
           Тестовый контур менеджера каналов: каналы здесь тестовые, настоящие брони через них не

@@ -167,6 +167,13 @@ export class ChannelCatalogService {
       bookings.set(key, row);
     }
     const events = new Map<string, { last: string | null; failed7d: number }>();
+    // Сводка приёма броней целиком: и события без имени канала (несопоставленная комната, сбой разбора)
+    const inbound = { lastEventAt: null as string | null, failedEvents7d: 0 };
+    for (const e of activity.events) {
+      inbound.lastEventAt = latest(inbound.lastEventAt, e.receivedAt);
+      if (e.status === 'FAILED' && now.getTime() - Date.parse(e.receivedAt) <= 7 * DAY)
+        inbound.failedEvents7d += 1;
+    }
     for (const e of activity.events) {
       if (!e.uniqueId && !e.otaName) continue;
       const key = channex.channelKey(e.uniqueId ?? '', e.otaName ?? '');
@@ -180,6 +187,7 @@ export class ChannelCatalogService {
       checkedAt: now.toISOString(),
       environment: environmentOf(channexBase()),
       propertyConnected: !!propertyId,
+      inbound,
     };
     const outsideOf = (connected: Set<string>): Outside[] =>
       [...bookings.entries()]

@@ -52,6 +52,12 @@ test('вкладка «Каналы»: подключённые с ID, назв�
   );
   await expect(page.getByTestId('channel-outside-row').first()).toContainText('OneTwoTrip');
   await expect(page.getByTestId('channel-list-staging')).toBeVisible();
+  // приём броней виден целиком: когда пришла последняя и сколько не принято
+  await expect(page.getByTestId('channel-inbound')).toContainText('Последняя получена');
+  await expect(page.getByTestId('channel-inbound-failed')).toContainText('за 7 дней: 2');
+  await expect(
+    page.getByTestId('channel-inbound-failed').getByRole('link', { name: 'Разобрать' }),
+  ).toHaveAttribute('href', '/channels/events?status=FAILED');
 });
 
 test('поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых', async ({

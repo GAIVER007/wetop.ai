@@ -5441,3 +5441,15 @@
 | 03.10.2026 17:29 | lint | ✅ без ошибок | 19 с | d950eb4 +21 | [лог](logs/2026-10-03T12-29-53Z-lint-98b0.log) |  |
 | 03.10.2026 17:30 | unit | ✅ 2989 из 2992, пропущено 3 | 1 мин 21 с | d950eb4 +19 | [лог](logs/2026-10-03T12-30-13Z-unit-13a5.log) |  |
 | 03.10.2026 17:31 | unit (частично: packages/integrations apps/api/src/channels) | ✅ 304 из 304 | 6 с | d950eb4 +19 | [лог](logs/2026-10-03T12-31-53Z-unit-0614.log) |  |
+| 03.10.2026 17:36 | unit (частично: packages/integrations/src/channex/channel-names.test.ts) | ❌ упало 3 из 14 | 1 с | 1c6ae3e +2 | [лог](logs/2026-10-03T12-36-35Z-unit-d400.log) | имя канала брони из Channex (ADR-138): по коду unique_id, одно на канал известные каналы объекта — одним именем при любых написаниях ota_name |
+| 03.10.2026 17:36 | unit (частично: packages/integrations/src/channex/channel-names.test.ts) | ✅ 14 из 14 | 1 с | 1c6ae3e +3 | [лог](logs/2026-10-03T12-36-36Z-unit-afa2.log) |  |
+| 03.10.2026 17:37 | unit (частично: apps/api/src/channels/inbound.controller.test.ts) | ❌ упало 1 из 24 | 3 с | 1c6ae3e +4 | [лог](logs/2026-10-03T12-37-02Z-unit-1f5f.log) | inbound bookings from Channex (contract on fakes) канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справоч |
+| 03.10.2026 17:37 | unit (частично: apps/api/src/channels packages/integrations) | ✅ 308 из 308 | 6 с | 1c6ae3e +5 | [лог](logs/2026-10-03T12-37-09Z-unit-1da3.log) |  |
+| 03.10.2026 17:37 | unit (частично: apps/api/src/channels/catalog.test.ts packages/integrations/src/channex/channel-connections.test.ts) | ❌ упало 1 из 16 | 2 с | 1c6ae3e +8 | [лог](logs/2026-10-03T12-37-29Z-unit-6b64.log) | Каналы: подключённые и все доступные (Channel API Channex) сводка приёма: последнее событие из менеджера каналов и все ошибки приёма за 7 дней, даже без имени к |
+| 03.10.2026 17:37 | unit (частично: apps/api/src/channels/catalog.test.ts) | ✅ 9 из 9 | 2 с | 1c6ae3e +9 | [лог](logs/2026-10-03T12-37-39Z-unit-bef8.log) |  |
+| 03.10.2026 17:38 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 14 из 14 | 42 с | 1c6ae3e +13 | [лог](logs/2026-10-03T12-38-10Z-e2e-79dc.log) |  |
+| 03.10.2026 17:39 | typecheck | ❌ ошибок: 2 | 24 с | 1c6ae3e +13 | [лог](logs/2026-10-03T12-39-04Z-typecheck-edd8.log) | TS2339 |
+| 03.10.2026 17:39 | lint | ✅ без ошибок | 19 с | 1c6ae3e +13 | [лог](logs/2026-10-03T12-39-28Z-lint-aaf5.log) |  |
+| 03.10.2026 17:39 | unit | ✅ 2995 из 2998, пропущено 3 | 1 мин 22 с | 1c6ae3e +12 | [лог](logs/2026-10-03T12-39-48Z-unit-0e67.log) |  |
+| 03.10.2026 17:41 | typecheck | ✅ без ошибок | 23 с | 1c6ae3e +13 | [лог](logs/2026-10-03T12-41-20Z-typecheck-df6d.log) |  |
+| 03.10.2026 17:41 | unit (частично: apps/api/src/channels/inbound.controller.test.ts) | ✅ 24 из 24 | 3 с | 1c6ae3e +12 | [лог](logs/2026-10-03T12-41-44Z-unit-5196.log) |  |

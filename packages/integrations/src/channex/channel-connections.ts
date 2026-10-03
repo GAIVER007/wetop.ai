@@ -5,7 +5,7 @@
  * (Booking.com, Agoda, Expedia, Emerging Travel Group: ID объекта в канале — поле `hotel_id`); окно Channex —
  * channel-iframe.md. Наружу из пакета уходят нейтральные виды без кодов полей формы (ADR-004).
  */
-import { otaChannelKey } from './channel-names';
+import { otaChannelKey, otaChannelLabel } from './channel-names';
 import type { ChannexResource } from './client';
 
 /** `Channels.ChannelAdapterParam`: поле формы подключения */
@@ -111,7 +111,8 @@ export function toConnectionView(
     id: r.id,
     adapterCode: a.channel,
     channelKey: otaChannelKey(adapter?.title ?? a.channel) || otaChannelKey(a.channel),
-    channelTitle: adapter?.title ?? a.channel,
+    // каналы объекта — нашим именем, тем же, что у броней («Ostrovok.ru», а не «Emerging Travel Group»)
+    channelTitle: otaChannelLabel(adapter?.title ?? a.channel),
     connectionTitle: a.title,
     channelPropertyId: connectionChannelPropertyId(a.settings, adapter),
     active: a.is_active === true,
@@ -125,7 +126,7 @@ export function toAdapterView(a: ChannexChannelAdapter): ChannelAdapterView {
   return {
     code: a.code,
     channelKey: otaChannelKey(a.title) || otaChannelKey(a.code),
-    title: a.title,
+    title: otaChannelLabel(a.title),
     kind: a.kind,
     canLoadFutureReservations: (a.actions ?? []).includes('load_future_reservations'),
   };

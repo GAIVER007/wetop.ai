@@ -22,3 +22,11 @@ On application errors revert the application image first. Additive enum can rema
 Pilot rollout: REGISTRATION_OPEN remains the existing API gate; Beauty/Food allowlists are server-only and default empty. Do not configure real pilot email values until owner authorizes the target rollout. Site deep links alone never open access.
 
 Prerequisite for MV2 production rollout: first owner-applied and verified MV1 enum migration. Do not enable the FOOD_SERVICE allowlist on a database that still has only two enum values.
+
+## MV2 acceptance and release checklist, 04.10.2026
+
+PR #239 merged into main at a4fac4b68acbc8f6d84e1c2350c5060a4832fa32. MV2 accepted and closed. No production rollout authorized by this acceptance. Real pilot allowlists remain unset.
+
+Before a separately authorized production release: validated backup; owner-applied migration 51 and enum verification; full auth/registration smoke; Hospitality signup smoke; real email verification smoke; pilot deny smoke with empty/nonmatching allowlist; pilot allow smoke using a synthetic test email. Record actual evidence, do not infer mail delivery from API success.
+
+registrationContext() is only the first-Business registration-completion helper. Earliest ACTIVE Business is not a future generic selector for multi-business organizations.

@@ -2730,3 +2730,7 @@ BusinessVertical расширяется FOOD_SERVICE. Canonical источник
 ### MV2 registration execution, 04.10.2026
 
 Утверждённый MV2 использует существующие Organization/Business/Location/User/Membership, без schema migration. Первый Business получает явный canonical vertical в атомарной регистрации; Location наследует его через FK. Только Hospitality создаёт Property. Verification и resend не пересоздают Business/Location. Старый hotelName-only запрос поддерживается как Hospitality compatibility; новые Beauty/Food flows требуют verified Business/Location context.
+
+### MV3 OnboardingProgress, утверждено владельцем 04.10.2026
+
+Для серверного resume предлагается `OnboardingProgress` / `onboarding_progress`: `location_id` UUID PK/FK -> Location (0..1 state на Location); `flow_version` integer; `current_step` varchar(50); `draft` JSONB с валидируемым содержимым текущего adapter; `completed_at` nullable timestamptz; `updated_at` timestamptz. Не добавлять vertical или organization_id: ownership выводится через существующую цепочку Location -> Business -> Organization, RLS проверяет эту цепочку. State не является источником прав или vertical. Domain данные создаются только настоящим adapter после валидации. Миграция и rollback должны быть отдельным reviewable срезом. Владелец явно подтвердил серверную OnboardingProgress в ответ на предложение модели.

@@ -79,6 +79,7 @@ model Location {
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  onboardingProgress OnboardingProgress?
   business     Business      @relation(fields: [businessId], references: [id])
   property     Property?
   sellerAgents SellerAgent[]
@@ -2042,4 +2043,16 @@ model Appointment {
   @@index([employeeId, startsAt])
   @@index([customerId])
   @@map("appointments")
+}
+
+/// MV3 server resume, approved 04.10.2026. Vertical is derived from Location.Business.
+model OnboardingProgress {
+  locationId String @id @map("location_id") @db.Uuid
+  flowVersion Int @map("flow_version")
+  currentStep String @map("current_step") @db.VarChar(50)
+  draft Json @default("{}")
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  @@map("onboarding_progress")
 }

@@ -1,0 +1,56 @@
+# Модульные (unit) · 04.10.2026 19:04 Алматы · MacBook-Air-Urij.local
+# коммит 07f5cf1 (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-04-54Z-unit-3dc0.json' 'apps/api/src/hotel/onboarding.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests | 2 failed) 19ms
+   ✓ OnboardingService (9)
+     ✓ status: пустой объект просит онбординг, отдаёт имя и валюту 2ms
+     ✓ status: объект с категориями онбординг не просит 0ms
+     ✓ provision: заводит номера, тариф, связи и цены под объект своей организации 4ms
+     ✓ provision: повторный онбординг закрыт — объект уже настроен 1ms
+     ✓ provision: пустой список категорий — 400, а не 500 0ms
+     ✓ provision: негодная цена — 400 с текстом из домена 1ms
+     ✓ онбординг только для вошедшего человека: служебный ходок и вошедший без организации не проходят 0ms
+     ✓ status: у организации нет объекта (после сброса) — онбординг нужен, имя — организации, объект не создаётся 0ms
+     ✓ provision: у организации нет объекта — создаёт его в цепочке и заводит номера под ним 1ms
+   × MV3 rejects explicit BEAUTY Business in legacy hotel onboarding 6ms
+   × MV3 rejects explicit FOOD_SERVICE Business in legacy hotel onboarding 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/onboarding.test.ts > MV3 rejects explicit BEAUTY Business in legacy hotel onboarding
+ FAIL  |unit| apps/api/src/hotel/onboarding.test.ts > MV3 rejects explicit FOOD_SERVICE Business in legacy hotel onboarding
+AssertionError: promise resolved "{ needed: true, …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "currency": "KZT",
++   "name": "Гостиница Пример",
++   "needed": true,
+  }
+
+ ❯ apps/api/src/hotel/onboarding.test.ts:297:64
+    295|   const { service, rec } = makeDb({ property: null });
+    296|   const actor = { userId: 'u-1', organizationId: 'org-1', role: 'OWNER…
+    297|   await expect(withSignedInUser(actor, () => service.status())).reject…
+       |                                                                ^
+    298|   await expect(withSignedInUser(actor, () => service.provision(SETUP, …
+    299|   expect(rec.businesses).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  18:04:56
+   Duration  1.04s (transform 63%, import 34%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-04-54Z-unit-3dc0.json
+
+# код выхода 1 · 2 с

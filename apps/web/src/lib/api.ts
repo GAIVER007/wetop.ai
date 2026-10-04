@@ -3000,3 +3000,20 @@ export const marketApi = {
       { entries },
     ),
 };
+
+export interface SharedOnboardingState {
+  vertical: BusinessVertical;
+  businessId: string;
+  locationId: string;
+  flowVersion: number;
+  currentStep: string;
+  draft: Record<string, unknown>;
+  completedAt: string | null;
+  updatedAt: string | null;
+  canEdit: boolean;
+}
+export const sharedOnboardingApi = {
+  status: () => getJson<SharedOnboardingState>('/onboarding'),
+  save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
+    sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+};

@@ -26,6 +26,7 @@ import {
   currentLocationId,
   currentOrganizationId,
   currentScope,
+  currentVertical,
   hasSignedInActor,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -94,6 +95,8 @@ export class OnboardingService {
   /** Организация вошедшего; служебный ходок сюда не ходит — онбординг только для человека. */
   private organizationId(): string {
     if (!hasSignedInActor()) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+    if (currentBusinessId() && currentVertical() !== 'HOSPITALITY')
+      throw new ForbiddenException('Гостиничная настройка недоступна для выбранного бизнеса');
     const organizationId = currentOrganizationId();
     if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
     return organizationId;
@@ -279,6 +282,12 @@ export class OnboardingService {
             days: dates.length,
           },
         },
+      });
+      // Shared adapter completion is committed with actual inventory and rates.
+      const locationId = currentLocationId();
+      if (locationId) await tx.onboardingProgress.updateMany({
+        where: { locationId, location: { business: { organizationId } } },
+        data: { completedAt: new Date() },
       });
     });
 

@@ -2,7 +2,7 @@
   "name": "@pms/site",
   "version": "0.0.0",
   "private": true,
-  "description": "Главная wetop.ai: о платформе, блог, вход и заявка на пробный период. Статическая сборка для Cloudflare Pages",
+  "description": "Главная wetop.ai: о платформе, блог, вход и регистрация. Статическая сборка для Cloudflare Pages",
   "scripts": {
     "dev": "next dev --port 3002 --hostname 127.0.0.1",
     "build": "next build",

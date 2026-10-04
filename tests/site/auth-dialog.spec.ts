@@ -151,6 +151,7 @@ test('«Получить доступ» при открытой регистра
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+  await expect(dialog).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(page).toHaveURL(`${SITE_ORIGIN}/`); // не раздел «Как начать»
   await page.waitForTimeout(300); // окно появляется за 180 мс
   await page.screenshot({ path: 'test-results/site-auth-2-register.png' });

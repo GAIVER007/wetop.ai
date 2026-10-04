@@ -1,3 +1,4 @@
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
 import { UnitsService } from './units.service';
@@ -5,6 +6,7 @@ import { Access } from '../auth/access.decorator';
 
 /** Ячейка: карточка, блокировки, статус уборки. */
 @Access('desk')
+@RequiresBusinessCapability('hospitality.inventory')
 @Controller('units')
 export class UnitsController {
   constructor(@Inject(UnitsService) private readonly service: UnitsService) {}

@@ -1,0 +1,6 @@
+localhost:55753 synthetic database only
+Populated Food rollback refusal: PASS
+Food row preserved after refusal: PASS
+Down enum: HOSPITALITY,BEAUTY
+Up enum: HOSPITALITY,BEAUTY,FOOD_SERVICE
+Business count unchanged: 1 -> 1

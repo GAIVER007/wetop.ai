@@ -5493,3 +5493,13 @@ Existing access rules, price formulas, category locks and allocation exclusion r
 **Решение.** Выбран третий вариант. Главная прямо называет WETOP системой управления отелем из одного окна. Десктоп сохраняет полный порядок подтвержденных продуктовых блоков, а экран до 768 px получает нижнюю навигацию из четырех пунктов с safe-area. Статический HTML, Tailwind CDN, Three.js, вымышленные показатели и неподтвержденные обещания из макетов не переносятся. Салоны и студии остаются отдельным приглашением без обещания несуществующих функций.
 
 **Последствия.** Источником истины остаются `DESIGN.md`, словарь сайта и существующие React-компоненты. Новая нижняя панель показывается только на главной и не меняет навигацию внутренних страниц. Проверки обязательны на 390 и 1440 px, с клавиатурным фокусом и без горизонтального переполнения.
+
+
+## ADR-MV1-20261004: multi-vertical foundation
+
+Статус: принято владельцем 04.10.2026, master plan и MV1 подтверждены в чате.
+Проблема: платформа должна понимать FOOD_SERVICE, сохранив существующий Hospitality и появившийся Beauty. Варианты: независимые приложения, универсальный booking domain, composition registry над отдельными доменами. Решение: canonical Business.vertical HOSPITALITY/BEAUTY/FOOD_SERVICE, общий registry capabilities/availability, server resolution по проверенной цепочке и capability boundary после actor scope. Причина: одна организация может иметь разные бизнесы, клиентский указатель не выдаёт права. Последствия: legacy Hospitality работает через прежнюю Property chain; service Channex scope сохраняется; Beauty/Food PILOT; selector, новые домены и UI вне MV1.
+
+Параллельная работа прямо разрешена владельцем новым поручением. Используется отдельный clone и отдельная localhost PostgreSQL, общие файлы/индекс/БД другой сессии не меняются. После MV1 STOP; MV2 только после отдельного подтверждения.
+
+Принятые продуктовые ограничения: vertical меняет только OWNER полностью пустого Business без domain/integration/agent/public widget; Beauty appointment 1 Customer/Service/Employee/Location, статусы SCHEDULED/CONFIRMED/IN_PROGRESS/COMPLETED/CANCELLED/NO_SHOW, service duration и buffers; Food без объединения столов, без депозитов/POS/Menu, duration от ServicePeriod, unassigned reservation и walk-in разрешены, Customer + CustomerBusiness общий. Расхождение существующей Beauty schema с этими v1 правилами исправляется отдельным review до Beauty slice, не MV1.

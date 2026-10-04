@@ -26,6 +26,7 @@ datasource db {
 enum BusinessVertical {
   HOSPITALITY
   BEAUTY
+  FOOD_SERVICE
 }
 
 /// Удаления строк нет, как во всём §13 — только архив.

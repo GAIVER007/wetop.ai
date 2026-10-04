@@ -6008,3 +6008,25 @@
 | 04.10.2026 15:46 | lint | ✅ без ошибок | 14 с | 6f3191b +3 | [лог](logs/2026-10-04T10-46-19Z-lint-2c62.log) | календарь без повторных чисел в пустых ячейках |
 | 04.10.2026 15:46 | typecheck | ❌ ошибок: 6 | 17 с | 6f3191b +3 | [лог](logs/2026-10-04T10-46-38Z-typecheck-2453.log) | календарь без повторных чисел в пустых ячейках |
 | 04.10.2026 15:47 | typecheck | ✅ без ошибок | 16 с | 6f3191b +3 | [лог](logs/2026-10-04T10-47-07Z-typecheck-7bf5.log) | календарь без повторных чисел, после штатного prisma generate |
+| 04.10.2026 17:00 | unit (частично: packages/domain/src/verticals/registry.test.ts) | ❌ код выхода 1 | 4 с | 1909267 +1 | [лог](logs/2026-10-04T12-00-22Z-unit-228b.log) | MV1 canonical contract red |
+| 04.10.2026 17:00 | unit (частично: apps/api/src/auth/business-vertical.test.ts) | ❌ код выхода 1 | 2 с | 1909267 +2 | [лог](logs/2026-10-04T12-00-43Z-unit-b210.log) | MV1 server capability boundary red |
+| 04.10.2026 17:01 | unit (частично: packages/database/src/vertical-contract.test.ts) | ❌ упало 1 из 1 | 2 с | 1909267 +3 | [лог](logs/2026-10-04T12-01-01Z-unit-169e.log) | MV1 FOOD_SERVICE persistence red on current schema |
+| 04.10.2026 17:01 | unit (частично: packages/domain/src/verticals/registry.test.ts packages/database/src/vertical-contract.test.ts apps/api/src/auth/business-vertical.test.ts) | ✅ 21 из 21 | 2 с | 1909267 +10 | [лог](logs/2026-10-04T12-01-51Z-unit-7d08.log) | MV1 canonical and capability green |
+| 04.10.2026 17:02 | unit (частично: apps/api/src/auth/capability-boundary.test.ts) | ❌ упало 3 из 4 | 3 с | 1909267 +12 | [лог](logs/2026-10-04T12-02-30Z-unit-d4ac.log) | MV1 cross-vertical HTTP boundary red on existing interceptor |
+| 04.10.2026 17:03 | unit (частично: apps/api/src/auth/capability-boundary.test.ts apps/api/src/auth/business-vertical.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/ | ✅ 46 из 46 | 2 с | 1909267 +24 | [лог](logs/2026-10-04T12-03-38Z-unit-ff68.log) | MV1 HTTP capability green and scope regression |
+| 04.10.2026 17:03 | typecheck | ❌ ошибок: 2 | 1 мин 2 с | 1909267 +24 | [лог](logs/2026-10-04T12-03-51Z-typecheck-c2bb.log) | MV1 canonical type propagation |
+| 04.10.2026 17:04 | unit | ❌ упало 21 из 3285, пропущено 4 | 2 мин 18 с | 1909267 +24 | [лог](logs/2026-10-04T12-04-03Z-unit-5a8f.log) | MV1 full Hospitality and platform unit regression |
+| 04.10.2026 17:07 | typecheck | ✅ без ошибок | 47 с | 1909267 +22 | [лог](logs/2026-10-04T12-07-09Z-typecheck-5588.log) | MV1 LocationRef canonical contract corrected |
+| 04.10.2026 17:07 | lint | ✅ без ошибок | 47 с | 1909267 +22 | [лог](logs/2026-10-04T12-07-21Z-lint-46fc.log) | MV1 lint |
+| 04.10.2026 17:08 | integration (частично: tests/integration/mv1-vertical-boundary.test.ts tests/integration/request-scope.test.ts tests/integration/rls-isolation.test.ts) | ✅ 14 из 14 | 5 с | 1909267 +23 | [лог](logs/2026-10-04T12-08-53Z-integration-663d.log) | MV1 isolated HTTP and RLS integration |
+| 04.10.2026 17:09 | integration | ✅ 312 из 321, пропущено 9 | 1 мин 40 с | 1909267 +23 | [лог](logs/2026-10-04T12-09-59Z-integration-3646.log) | MV1 full isolated DB regression |
+| 04.10.2026 17:09 | unit | ❌ упало 3 из 3285, пропущено 4 | 4 мин 16 с | 1909267 +22 | [лог](logs/2026-10-04T12-09-59Z-unit-fb11.log) | MV1 full regression with stable shell locale and bounded workers |
+| 04.10.2026 17:14 | unit (частично: apps/api/src/auth/capability-boundary.test.ts) | ❌ упало 1 из 5 | 3 с | 1909267 +22 | [лог](logs/2026-10-04T12-14-57Z-unit-06e6.log) | MV1 public provider regression red |
+| 04.10.2026 17:15 | unit (частично: apps/api/src/auth/capability-boundary.test.ts) | ✅ 5 из 5 | 2 с | 1909267 +22 | [лог](logs/2026-10-04T12-15-36Z-unit-2cff.log) | MV1 public provider regression green |
+| 04.10.2026 17:16 | lint | ✅ без ошибок | 1 мин 1 с | 1909267 +23 | [лог](logs/2026-10-04T12-16-03Z-lint-3e03.log) | MV1 final lint |
+| 04.10.2026 17:16 | typecheck | ❌ ошибок: 2 | 1 мин 12 с | 1909267 +23 | [лог](logs/2026-10-04T12-16-03Z-typecheck-f6b6.log) | MV1 final types |
+| 04.10.2026 17:16 | integration | ✅ 312 из 321, пропущено 9 | 2 мин 49 с | 1909267 +23 | [лог](logs/2026-10-04T12-16-03Z-integration-4bbb.log) | MV1 final full isolated DB regression |
+| 04.10.2026 17:25 | lint | ✅ без ошибок | 1 мин 9 с | 1909267 +23 | [лог](logs/2026-10-04T12-25-16Z-lint-b700.log) |  |
+| 04.10.2026 17:25 | typecheck | ✅ без ошибок | 1 мин 17 с | 1909267 +23 | [лог](logs/2026-10-04T12-25-16Z-typecheck-a300.log) |  |
+| 04.10.2026 17:25 | integration | ✅ 312 из 321, пропущено 9 | 1 мин 58 с | 1909267 +23 | [лог](logs/2026-10-04T12-25-16Z-integration-1904.log) | MV1 final stable full integration |
+| 04.10.2026 17:25 | unit | ✅ 3282 из 3286, пропущено 4 | 4 мин 4 с | 1909267 +22 | [лог](logs/2026-10-04T12-25-16Z-unit-d2d4.log) | MV1 final stable full unit |

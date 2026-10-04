@@ -1,0 +1,18 @@
+# Модульные (unit) · 04.10.2026 17:01 Алматы · MacBook-Air-Urij.local
+# коммит 1909267 (codex/mv1-vertical-foundation-20261004), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-01-51Z-unit-7d08.json' 'packages/domain/src/verticals/registry.test.ts' 'packages/database/src/vertical-contract.test.ts' 'apps/api/src/auth/business-vertical.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| packages/database/src/vertical-contract.test.ts (1 test) 3ms
+ ✓ |unit| packages/domain/src/verticals/registry.test.ts (12 tests) 4ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 5ms
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  16:01:53
+   Duration  682ms (transform 57%, import 40%, tests 2%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-01-51Z-unit-7d08.json
+
+# код выхода 0 · 2 с

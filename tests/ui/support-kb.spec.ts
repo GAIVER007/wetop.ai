@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -8,7 +8,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * публикация с подтверждением, «На основании» у диалога, черновик из закрытого обращения. Только главный
  * администратор. Стенд — `scripts/preview/fixture-api.ts`; всё вымышленное.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SIGNED = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const CLOSED = '9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a';
 const SHOTS = 'reports/ai-agents-s3-2026-09-29';

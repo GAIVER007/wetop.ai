@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Показатели за период» без повторов (правила 21.09.2026). С A1 (ADR-103) блок жил на
@@ -10,7 +11,7 @@ import { expect, test } from '@playwright/test';
  * колонкой «Загрузка» в таблице «По категориям»; подписи плиток склеивались через « · » (§14); на
  * телефоне таблица «По категориям» из пяти колонок обрезалась прокруткой без признака.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const OVERVIEW = '/management/analytics';
 
 test.beforeEach(async ({ request }) => {

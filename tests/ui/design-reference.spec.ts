@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
  * design/reference/current/<экран>-<тема>.png, 1440×1000. Это не эталон Playwright: эталоны
  * страницы компонентов живут в design/reference/kit (шаг 4).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const dir = 'design/reference/current';
 const booking = '20260913-TESTAA';
 

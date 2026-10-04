@@ -5491,6 +5491,24 @@
 | 03.10.2026 16:02 | e2e | ❌ упало 1 из 25 | 1 мин 14 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-02-39Z-e2e-bf13.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:04 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-04-23Z-e2e-097f.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:06 | e2e | ✅ 25 из 25 | 1 мин 5 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-06-15Z-e2e-66e7.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:58 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:390 --workers=1) | ❌ код выхода 1 | 5 с | c861e1e +3 | [лог](logs/2026-10-03T11-58-58Z-e2e-8058.log) | (ошибка вне тестов) |
+| 03.10.2026 16:59 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:390 --workers=1) | ❌ код выхода 1 | 22 с | c861e1e +3 | [лог](logs/2026-10-03T11-59-41Z-e2e-9fb5.log) | (ошибка вне тестов) |
+| 03.10.2026 17:00 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1) | ❌ упало 1 из 1 | 2 мин 17 с | c861e1e +3 | [лог](logs/2026-10-03T12-00-46Z-e2e-da1a.log) | «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) |
+| 03.10.2026 17:06 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1 --timeout=150000) | ❌ упало 1 из 1 | 2 мин 25 с | c861e1e +3 | [лог](logs/2026-10-03T12-06-48Z-e2e-fe2b.log) | «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) |
+| 03.10.2026 17:10 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1 --timeout=150000) | ✅ 1 из 1 | 3 мин 31 с | c861e1e +3 | [лог](logs/2026-10-03T12-10-40Z-e2e-6a71.log) |  |
+| 03.10.2026 17:39 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts --workers=1 --timeout=120000) | ✅ 18 из 18 | 6 мин 37 с | c861e1e +3 | [лог](logs/2026-10-03T12-39-21Z-e2e-afeb.log) |  |
+| 03.10.2026 17:46 | typecheck | ❌ ошибок: 642 | 48 с | c861e1e +3 | [лог](logs/2026-10-03T12-46-47Z-typecheck-136d.log) | TS7006 |
+| 03.10.2026 17:48 | typecheck | ✅ без ошибок | 19 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-08Z-typecheck-c84a.log) |  |
+| 03.10.2026 17:48 | lint | ✅ без ошибок | 12 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-34Z-lint-33f9.log) |  |
+| 03.10.2026 17:51 | lint | ✅ без ошибок | 1 мин 1 с | c861e1e +2 | [лог](logs/2026-10-03T12-51-54Z-lint-4942.log) |  |
+| 03.10.2026 18:16 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ❌ упало 1 из 2 | 3 с | 481b537 +1 | [лог](logs/2026-10-03T13-16-48Z-unit-1f0c.log) | адрес подставного API в наборе UI ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API |
+| 03.10.2026 18:17 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 481b537 +1 | [лог](logs/2026-10-03T13-17-00Z-unit-36ed.log) |  |
+| 03.10.2026 18:17 | typecheck | ✅ без ошибок | 44 с | 481b537 +50 | [лог](logs/2026-10-03T13-17-09Z-typecheck-4e3b.log) |  |
+| 03.10.2026 18:18 | lint | ✅ без ошибок | 42 с | 481b537 +50 | [лог](logs/2026-10-03T13-18-09Z-lint-bd2c.log) |  |
+| 03.10.2026 18:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/housekeeping.spec.ts tests/ui/rates-range.spec.ts tests/ui/support-queue.spec.ts tests/ui/ses | ❌ упало 3 из 34 | 13 мин 44 с | 481b537 +50 | [лог](logs/2026-10-03T13-19-53Z-e2e-a5bd.log) | «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет |
+| 03.10.2026 18:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/sessions.spec.ts tests/ui/support-queue.spec.ts --workers=1 --timeout=120000) | ✅ 14 из 14 | 3 мин 27 с | 481b537 +50 | [лог](logs/2026-10-03T13-34-23Z-e2e-21cc.log) |  |
+| 03.10.2026 18:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/ai-se | ❌ упало 16 из 186 | 57 мин 54 с | 34f83c8 | [лог](logs/2026-10-03T13-53-56Z-e2e-1989.log) | доступность всех разделов: dark, 390px |
+| 03.10.2026 19:52 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/booking-dates.spec.ts tests/ui/branches.spec.ts tests/ui/categories-screens.spec.ts tests/ui/chan | ❌ упало 6 из 29 | 7 мин 1 с | 34f83c8 +6 | [лог](logs/2026-10-03T14-52-54Z-e2e-be0a.log) | calendar and keyboard produce the same period |
 | 03.10.2026 16:24 | typecheck | ✅ без ошибок | 1 мин 10 с | c861e1e +1 | [лог](logs/2026-10-03T11-24-37Z-typecheck-76f4.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
 | 03.10.2026 16:25 | lint | ✅ без ошибок | 6 мин 22 с | c861e1e +1 | [лог](logs/2026-10-03T11-25-49Z-lint-4abc.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
 | 03.10.2026 16:32 | unit | ❌ упало 3 из 2921, пропущено 4 | 2 мин 13 с | c861e1e | [лог](logs/2026-10-03T11-32-14Z-unit-51a7.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
@@ -5560,6 +5578,7 @@
 | 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
 | 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
 | 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |
+| 03.10.2026 18:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex empty-base dashboard-design design-refresh dashboard-resilience ai-ag | ⏹ прерван | 31 мин 41 с | b7f04bd | [лог](logs/2026-10-03T13-19-32Z-e2e-7c1f.log) | триаж устаревших UI-спеков на main 1b47b23d (red) |
 | 03.10.2026 19:18 | typecheck | ✅ без ошибок | 34 с | 90081e4 +50 | [лог](logs/2026-10-03T14-18-01Z-typecheck-8479.log) | B4: слияние с main, миграция перенумерована в 044 |
 | 03.10.2026 19:19 | unit | ✅ 3047 из 3050, пропущено 3 | 1 мин 23 с | 90081e4 +50 | [лог](logs/2026-10-03T14-19-03Z-unit-a9ba.log) | B4: слитое дерево, миграция 044 |
 | 03.10.2026 19:21 | integration | ❌ упало 1 из 276 | 1 мин 1 с | e774d10 | [лог](logs/2026-10-03T14-21-52Z-integration-c412.log) | B4: слитое дерево на локальной базе контейнера |
@@ -5600,6 +5619,7 @@
 | 03.10.2026 19:11 | typecheck | ✅ без ошибок | 33 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-11-27Z-typecheck-cf36.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | lint | ✅ без ошибок | 22 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-12-02Z-lint-96cc.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/no-hardcoded-utc5.test.ts packages/dom | ✅ 47 из 47 | 7 с | 5fabb2c +5 | [лог](logs/2026-10-03T14-12-35Z-unit-0f69.log) | Дни рождения T0: сторожа дизайна, домен и API гостей |
+| 03.10.2026 20:02 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex ai-agents-create.spec.ts:33) | ❌ упало 2 из 6 | 5 мин 3 с | 986670a | [лог](logs/2026-10-03T15-02-36Z-e2e-41d2.log) | red: заголовки экранов ожидания «Подключений»; разбор зависания /ai-agents |
 | 03.10.2026 20:03 | typecheck | ✅ без ошибок | 2 мин 7 с | 74f3bc8 +1 | [лог](logs/2026-10-03T15-03-13Z-typecheck-c4ba.log) | итоговая проверка main 74f3bc82 |
 | 03.10.2026 20:43 | e2e (частично: tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/das | ❌ упало 4 из 32 | 1 мин 42 с | 74f3bc8 +12 | [лог](logs/2026-10-03T15-43-29Z-e2e-015e.log) | показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек |
 | 03.10.2026 20:45 | typecheck | ✅ без ошибок | 14 с | 74f3bc8 +12 | [лог](logs/2026-10-03T15-45-27Z-typecheck-77f4.log) |  |
@@ -5811,6 +5831,19 @@
 | 03.10.2026 23:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 35 с | 33292e4 +13 | [лог](logs/2026-10-03T18-40-57Z-e2e-dd70.log) | M1.2: рынок целиком, ширина панели |
 | 03.10.2026 23:41 | lint | ✅ без ошибок | 19 с | 33292e4 +14 | [лог](logs/2026-10-03T18-41-41Z-lint-abc6.log) |  |
 | 03.10.2026 23:42 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/lib) | ✅ 331 из 331 | 4 с | 33292e4 +12 | [лог](logs/2026-10-03T18-42-01Z-unit-ebcf.log) | M1.2: сторожа дизайна |
+| 04.10.2026 11:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex ai-agents-create.spec.ts:33) | ❌ упало 2 из 11 | 51 с | 01b6a94 | [лог](logs/2026-10-04T06-19-11Z-e2e-d938.log) | red: заголовки экранов ожидания «Подключений» на слитом main; стенд на локальном диске |
+| 04.10.2026 11:20 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec empty-base unified-sections loading-performance) | ✅ 49 из 49 | 5 мин 12 с | 57a4d4c +2 | [лог](logs/2026-10-04T06-20-30Z-e2e-0913.log) | green: заголовки экранов ожидания «Подключений» |
+| 04.10.2026 11:25 | typecheck | ✅ без ошибок | 29 с | 0dcc46b | [лог](logs/2026-10-04T06-25-56Z-typecheck-2145.log) |  |
+| 04.10.2026 11:26 | lint | ✅ без ошибок | 12 с | 0dcc46b | [лог](logs/2026-10-04T06-26-26Z-lint-be4d.log) |  |
+| 04.10.2026 12:08 | unit (частично: tests/unit/design-slop.test.ts tests/unit/no-vendor-name.test.ts tests/unit/no-hardcoded-utc5.test.ts apps/web) | ✅ 579 из 579 | 1 мин 12 с | dc8e374 | [лог](logs/2026-10-04T07-08-28Z-unit-9ef6.log) | сторожа стойки после правки экранов ожидания |
+| 04.10.2026 11:21 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 2 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-21-36Z-unit-f1be.log) |  |
+| 04.10.2026 11:21 | typecheck | ✅ без ошибок | 1 мин 32 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-21-47Z-typecheck-d564.log) |  |
+| 04.10.2026 11:23 | lint | ✅ без ошибок | 1 мин 8 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-23-30Z-lint-090c.log) |  |
+| 04.10.2026 11:24 | unit | ✅ 3055 из 3059, пропущено 4 | 1 мин 19 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-24-54Z-unit-46e4.log) |  |
+| 04.10.2026 11:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-dnd.spec.ts tests/ | ❌ код выхода 1 | 5 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-26-27Z-e2e-31b7.log) | (ошибка вне тестов) |
+| 04.10.2026 11:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-dnd.spec.ts tests/ | ❌ упало 7 из 85, пропущено 3 | 48 мин 50 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-27-13Z-e2e-40d0.log) | боковое окно компактно, псевдонимная бронь и мобильный экран |
+| 04.10.2026 12:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/booking-compact.spec.ts tests/ui/guests-birthdays.spec.ts test | ✅ 20 из 20 | 3 мин 50 с | 6db785d | [лог](logs/2026-10-04T07-16-36Z-e2e-b7f8.log) |  |
+| 04.10.2026 12:21 | integration | ✅ 0 из 241, пропущено 241 | 3 мин 22 с | 6db785d | [лог](logs/2026-10-04T07-21-00Z-integration-50a1.log) |  |
 | 04.10.2026 10:13 | typecheck | ✅ без ошибок | 40 мин 31 с | 1e1ee7a | [лог](logs/2026-10-04T05-13-55Z-typecheck-f01e.log) |  |
 | 04.10.2026 11:18 | lint | ✅ без ошибок | 10 с | 1e1ee7a | [лог](logs/2026-10-04T06-18-38Z-lint-1865.log) |  |
 | 04.10.2026 11:19 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/app/today/owner-metrics.test.ts) | ✅ 13 из 13 | 3 с | 1e1ee7a | [лог](logs/2026-10-04T06-19-18Z-unit-fb3f.log) |  |
@@ -5846,3 +5879,29 @@
 | 04.10.2026 12:31 | e2e (частично: tests/ui/design-refresh.spec.ts tests/ui/empty-base.spec.ts tests/ui/onboarding.spec.ts tests/ui/real-data.spec.ts tests/ui/workspace.spec.ts tes | ❌ упало 1 из 10 | 4 мин 8 с | 354b82d +7 | [лог](logs/2026-10-04T07-31-10Z-e2e-98c2.log) | обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия |
 | 04.10.2026 12:36 | e2e (частично: tests/ui/workspace.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 -g обзор: очередь) | ✅ 1 из 1 | 1 мин 27 с | 354b82d +7 | [лог](logs/2026-10-04T07-36-05Z-e2e-fc0f.log) |  |
 | 04.10.2026 11:52 | unit (частично: scripts/design apps/web/src) | ✅ 592 из 592 | 8 с | 27376a9 | [лог](logs/2026-10-04T06-52-21Z-unit-1d96.log) | слияние main 354b82d9: красный build-tokens закрыт на main |
+| 04.10.2026 12:11 | typecheck | ✅ без ошибок | 2 мин 59 с | 66e7925 | [лог](logs/2026-10-04T07-11-33Z-typecheck-ec6c.log) |  |
+| 04.10.2026 12:14 | lint | ✅ без ошибок | 39 с | 66e7925 | [лог](logs/2026-10-04T07-14-34Z-lint-e653.log) |  |
+| 04.10.2026 12:27 | typecheck | ❌ ошибок: 234 | 3 мин 13 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-27-35Z-typecheck-43c1.log) | TS2339 |
+| 04.10.2026 12:31 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 8 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-31-00Z-unit-d7da.log) |  |
+| 04.10.2026 12:31 | typecheck | ✅ без ошибок | 3 мин 38 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-31-40Z-typecheck-129c.log) |  |
+| 04.10.2026 12:35 | lint | ❌ ошибок: 1 | 1 мин 56 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-35-35Z-lint-49e1.log) | @typescript-eslint/no-unused-vars |
+| 04.10.2026 12:37 | unit | ❌ упало 20 из 3225, пропущено 4 | 3 мин 20 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-37-39Z-unit-6c4d.log) | ari.sh на сервере (Docker) файл записан, а процесс выключателя не увидел — это ОШИБКА, а не успех |
+| 04.10.2026 12:41 | lint | ✅ без ошибок | 46 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-41-33Z-lint-f798.log) |  |
+| 04.10.2026 12:42 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/guard-run.test.ts tests/unit/db-backup-offsite.test.ts tests/unit/db-restore-prod.test.ts tests/unit/a | ✅ 50 из 51, пропущено 1 | 55 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-42-41Z-unit-2f8e.log) |  |
+| 04.10.2026 12:43 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 50 из 50 | 12 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-43-50Z-unit-7f9b.log) |  |
+| 04.10.2026 12:45 | unit | ❌ упало 1 из 3225, пропущено 4 | 1 мин 16 с | 65e7c07 | [лог](logs/2026-10-04T07-45-11Z-unit-02f5.log) | котировка продавца /bot/availability предел частоты на организацию — 429, ключ платформы в ответе не всплывает |
+| 04.10.2026 12:46 | unit (частично: apps/api/src/web-booking/bot-quote.controller.test.ts) | ✅ 19 из 19 | 3 с | 65e7c07 | [лог](logs/2026-10-04T07-46-38Z-unit-25b4.log) |  |
+| 04.10.2026 12:47 | typecheck | ✅ без ошибок | 20 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-24Z-typecheck-fd47.log) |  |
+| 04.10.2026 12:47 | lint | ✅ без ошибок | 15 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-45Z-lint-5ea8.log) |  |
+| 04.10.2026 12:48 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 680bac4 +1 | [лог](logs/2026-10-04T07-48-01Z-unit-a582.log) |  |
+| 04.10.2026 13:00 | typecheck | ✅ без ошибок | 3 мин 20 с | 22150d8 | [лог](logs/2026-10-04T08-00-10Z-typecheck-d8bd.log) |  |
+| 04.10.2026 13:03 | lint | ✅ без ошибок | 41 с | 22150d8 | [лог](logs/2026-10-04T08-03-32Z-lint-aced.log) |  |
+| 04.10.2026 13:04 | unit | ❌ упало 5 из 3225, пропущено 4 | 2 мин 27 с | 22150d8 | [лог](logs/2026-10-04T08-04-22Z-unit-87b5.log) | scripts/ops/auto-deploy.sh владелец применил миграции и назвал вершину — выкладывает ровно её |
+| 04.10.2026 13:06 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec) | ✅ 19 из 19 | 2 мин 36 с | 22150d8 | [лог](logs/2026-10-04T08-06-53Z-e2e-737d.log) | итоговое дерево перед вливанием в main |
+| 04.10.2026 13:09 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/db-backup-offsite.test.ts) | ✅ 27 из 28, пропущено 1 | 29 с | 22150d8 | [лог](logs/2026-10-04T08-09-42Z-unit-6062.log) | повтор пяти таймаутов полного unit под нагрузкой |
+| 04.10.2026 12:57 | typecheck | ✅ без ошибок | 3 мин 6 с | 046a3ed +14 | [лог](logs/2026-10-04T07-57-38Z-typecheck-1d98.log) |  |
+| 04.10.2026 13:01 | lint | ✅ без ошибок | 1 мин 28 с | 046a3ed +14 | [лог](logs/2026-10-04T08-01-37Z-lint-cd65.log) |  |
+| 04.10.2026 13:03 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts scripts/design/build-tokens.test.ts apps/web/src/app/today/owner-metrics.test.t | ✅ 40 из 40 | 10 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-12Z-unit-5132.log) |  |
+| 04.10.2026 13:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/today-attentio | ✅ 26 из 26 | 4 мин 30 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-31Z-e2e-174f.log) |  |
+| 04.10.2026 13:10 | typecheck | ❌ ошибок: 95 | 17 с | 5b4c4de | [лог](logs/2026-10-04T08-10-33Z-typecheck-2c64.log) | TS1002 |
+| 04.10.2026 13:11 | typecheck | ✅ без ошибок | 1 мин 14 с | 50ed25e | [лог](logs/2026-10-04T08-11-14Z-typecheck-96a6.log) | повтор после удаления оборванного кэша стенда .next-ui |

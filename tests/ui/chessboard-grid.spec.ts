@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 2 (ТЗ — plans/tz-chessboard-v2-2026-09-27.md): сетка.
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * на пользователя и строка категории прилипает под шапкой дат (§13).
  */
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('колонка места объясняет себя подсказкой: вид, код и состояние уборки', async ({ page }) => {

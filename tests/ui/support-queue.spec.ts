@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -7,7 +7,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * обращения, «помощник не отвечает», телефон. Стенд — `scripts/preview/fixture-api.ts`; все, кто пишет, вымышленные.
  */
 // Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SIGNED = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const WAITING = '8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f';
 const CLOSED = '9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a';

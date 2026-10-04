@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Цикл уборки в календаре и в карточке ячейки (22.09.2026, поручение владельца по снимку: «построй логику
@@ -11,7 +12,7 @@ import AxeBuilder from '@axe-core/playwright';
  * «проверено, доступна»; меню и кнопки карточки предлагают только следующий шаг (и возврат в уборку),
  * а API отказывает перепрыгнуть проверку. Фикстура: R01 и M01 требуют уборки, остальные проверены.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

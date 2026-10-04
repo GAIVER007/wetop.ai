@@ -128,3 +128,16 @@ export const test = base.extend<{ tour: boolean }>({
 });
 
 export { expect };
+
+/**
+ * Адрес подставного API для запросов спека (`__test/reset`, `__test/control`). Дерево делят несколько сессий, и
+ * 4311 бывает занят соседним прогоном: `playwright.alt.config.ts` поднимает свой стенд и передаёт его адрес
+ * `UI_FIXTURE_API` (календарные спеки задавали тот же стенд через `FIXTURE_PORT`, поэтому понимаем и его).
+ * Спек, у которого адрес зашит константой, в этом случае сбрасывает и настраивает ЧУЖУЮ фикстуру,
+ * а страницу читает со своей. 03.10.2026 так падал `ai-seller.spec` на «Коде для сайта»: `sellerHosts: []` уехал
+ * соседу, своя фикстура осталась с доменом, и подсказка «сайта нет» на странице не появлялась.
+ */
+const fixturePort = process.env['FIXTURE_PORT'];
+export const FIXTURE_API =
+  process.env['UI_FIXTURE_API'] ??
+  (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');

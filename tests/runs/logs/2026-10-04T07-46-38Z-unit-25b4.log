@@ -1,0 +1,16 @@
+# Модульные (unit) · 04.10.2026 12:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 65e7c07 (claude/laughing-roentgen-24fee8)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-46-38Z-unit-25b4.json' 'apps/api/src/web-booking/bot-quote.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 264ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  00:46:39
+   Duration  1.81s (transform 46%, import 38%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-46-38Z-unit-25b4.json
+
+# код выхода 0 · 3 с

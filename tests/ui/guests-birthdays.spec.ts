@@ -1,12 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Дни рождения» (Q-249 T0, образец Lite PMS): строка в панели «Сегодня» календаря и страница
  * `/guests/birthdays` из уже хранимой даты рождения гостя. Панель «Сегодня» стоит слева от
  * управления календарём (владелец 03.10: «календарь справа, остальное слева»).
  */
-const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const H = { 'x-wetop-test-client': '1' };
 
 test.beforeEach(async ({ request }) => {

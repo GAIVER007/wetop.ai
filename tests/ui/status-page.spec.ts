@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Страница статуса сервиса (H14, ADR-144): открывается без входа, говорит словами, работает ли WETOP,
  * по четырём частям. Смотрят её, когда войти не выходит, поэтому ни входа, ни меню рабочего места на ней нет.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });

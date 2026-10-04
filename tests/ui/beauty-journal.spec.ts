@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page, APIRequestContext } from '@playwright/test';
 
 /**
@@ -11,7 +11,7 @@ const SNAPSHOTS = 'reports/beauty-b5-2026-10-03';
 const DAY = '2026-10-12';
 
 async function openSalon(page: Page, request: APIRequestContext) {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { HEADER_GROWTH_PX } from './fixtures';
+import { FIXTURE_API, HEADER_GROWTH_PX } from './fixtures';
 
 /**
  * «Тарифы и цены» v2 (27.09.2026, ТЗ владельца, ADR-111, RT1).
@@ -10,7 +10,7 @@ import { HEADER_GROWTH_PX } from './fixtures';
  * выдвижной панели за кнопкой «Изменить цены»; фильтры перезагружают данные сами, кнопки «Показать»
  * нет. Поля и testid'ы формы не менялись — их водит запись сертификации Channex.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

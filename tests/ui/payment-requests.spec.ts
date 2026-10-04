@@ -1,12 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Запросы оплаты» в «Счетах» брони (DATA_MODEL §24, ADR-144): администратор выставляет счёт Kaspi по телефону или
  * вставляет ссылку банка, копирует гостю готовый текст на нужном языке, «Оплачено» превращает запрос в платёж на
  * счёт проживания; оплаченный не отменяется; ссылка не https — отказ словами, ввод не теряется.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const NUMBER = '20260913-TESTAA';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

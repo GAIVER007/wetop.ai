@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -16,7 +16,7 @@ import AxeBuilder from '@axe-core/playwright';
 const STATES = ['default', 'hover', 'focus', 'active', 'disabled', 'loading', 'error', 'selected'];
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('обе темы на одной странице, у интерактивных компонентов восемь состояний', async ({

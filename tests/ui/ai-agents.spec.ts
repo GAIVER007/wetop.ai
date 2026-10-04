@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -10,7 +10,7 @@ import type { Page } from '@playwright/test';
  * business-ai-seller-sa2-2026-09-30.md §4). Партнёр видит AI-продавца; карточка WETOP Support — только у главного
  * администратора. Старый адрес `/ai-seller` работает. Стенд — `scripts/preview/fixture-api.ts`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // снимки SA1 (`reports/business-ai-seller-sa1-2026-09-29/`) остаются как были; каталог с новой кнопкой снимается в отчёт SA2
 const SHOTS = 'reports/unified-sections-2026-10-01/agents';
 

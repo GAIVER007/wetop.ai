@@ -1,0 +1,101 @@
+# Сквозные (e2e) · 04.10.2026 11:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 01b6a94 (claude/ui-stale-specs-2026-10-03)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'integrations-channex' 'ai-agents-create.spec.ts:33'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (6.7s)
+  ✓   2 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (2.9s)
+  ✓   3 tests/ui/integrations-channex.spec.ts:77:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (2.0s)
+  ✓   4 tests/ui/integrations-channex.spec.ts:94:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (1.8s)
+  ✓   5 tests/ui/integrations-channex.spec.ts:107:1 › интеграция у другой организации: проверить нельзя, это сказано словами (1.7s)
+  ✓   6 tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (1.5s)
+  ✓   7 tests/ui/integrations-channex.spec.ts:130:1 › телефон: страница без прокрутки вбок (985ms)
+  ✘   8 tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (3.6s)
+  ✘   9 tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (4.0s)
+  ✓  10 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, light (5.5s)
+  ✓  11 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, dark (6.2s)
+
+
+  1) tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').filter({ has: getByTestId('connections-loading') }).getByRole('heading', { level: 1 })
+    Expected: "Подключения"
+    Received: "Интеграции"
+    Timeout:  2000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').filter({ has: getByTestId('connections-loading') }).getByRole('heading', { level: 1 }) with timeout 2000ms
+      - waiting for getByRole('main').filter({ has: getByTestId('connections-loading') }).getByRole('heading', { level: 1 })
+        21 × locator resolved to <h1 class="page__title">Интеграции</h1>
+           - unexpected value "Интеграции"
+
+
+      157 |     // заголовок ищем в той же разметке, что и экран ожидания: настоящая страница его не подменит
+      158 |     const waiting = page.getByRole('main').filter({ has: page.getByTestId(loading) });
+    > 159 |     await expect(waiting.getByRole('heading', { level: 1 })).toHaveText(title, { timeout: 2000 });
+          |                                                              ^
+      160 |   });
+      161 |
+      162 | for (const theme of ['light', 'dark'] as const) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP--claude-worktrees-dreamy-lederberg-a39394/b22b7482-dffc-49ee-99f8-80a1f1fce68b/scratchpad/ui-wt/tests/ui/integrations-channex.spec.ts:159:62
+
+    Error Context: test-results/integrations-channex--conn-824f9-ловок-тот-же-что-у-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex--conn-824f9-ловок-тот-же-что-у-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex--conn-824f9-ловок-тот-же-что-у-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').filter({ has: getByTestId('channex-loading') }).getByRole('heading', { level: 1 })
+    Expected: "Подключение каналов"
+    Received: "Менеджер каналов"
+    Timeout:  2000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').filter({ has: getByTestId('channex-loading') }).getByRole('heading', { level: 1 }) with timeout 2000ms
+      - waiting for getByRole('main').filter({ has: getByTestId('channex-loading') }).getByRole('heading', { level: 1 })
+        19 × locator resolved to <h1 class="page__title">Менеджер каналов</h1>
+           - unexpected value "Менеджер каналов"
+
+
+      157 |     // заголовок ищем в той же разметке, что и экран ожидания: настоящая страница его не подменит
+      158 |     const waiting = page.getByRole('main').filter({ has: page.getByTestId(loading) });
+    > 159 |     await expect(waiting.getByRole('heading', { level: 1 })).toHaveText(title, { timeout: 2000 });
+          |                                                              ^
+      160 |   });
+      161 |
+      162 | for (const theme of ['light', 'dark'] as const) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP--claude-worktrees-dreamy-lederberg-a39394/b22b7482-dffc-49ee-99f8-80a1f1fce68b/scratchpad/ui-wt/tests/ui/integrations-channex.spec.ts:159:62
+
+    Error Context: test-results/integrations-channex--conn-d6c94-ловок-тот-же-что-у-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex--conn-d6c94-ловок-тот-же-что-у-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex--conn-d6c94-ловок-тот-же-что-у-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы 
+    tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы 
+  9 passed (49.6s)
+
+# код выхода 1 · 51 с

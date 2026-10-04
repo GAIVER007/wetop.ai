@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Пробный период 14 дней и «только чтение» после него (Q-144 — Б, Q-141 — А, ADR-102). Стойка показывает полосу на
  * каждом экране, вход не закрыт; главный администратор подтверждает оплату в «Платформа → Организации».
  * Сам запрет записи проверяет API (`apps/api/src/auth/auth.guard.test.ts`), здесь — что видит человек.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);

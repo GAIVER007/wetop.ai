@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Главная, PR A3 (ТЗ `plans/tz-today-2026-09-27.md` §5, §12.1; план `plans/today-a3-2026-09-28.md`): «Требуют внимания» —
  * одна очередь Critical → Warning → Info, у каждой строки одно действие. Числа берутся из того же подставного API, что
  * рисует экран: тест сверяет очередь с данными, а не с заученными числами.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 
 type Row = {

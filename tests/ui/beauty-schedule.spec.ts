@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page, APIRequestContext } from '@playwright/test';
 
 /**
@@ -31,7 +31,7 @@ async function addBranch(page: Page, name: string) {
 }
 
 async function openSalon(page: Page, request: APIRequestContext, second = false) {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -110,7 +110,7 @@ test('наложение интервалов в одном дне не уход
   await expect(panel.getByLabel('Среда: начало').first()).toHaveValue('09:00');
   await expect(panel.getByLabel('Среда: конец').nth(1)).toHaveValue('18:00');
   // и до сервера такая неделя не доходит: отказ дал разбор домена прямо в браузере
-  const sent = await request.get('http://127.0.0.1:4311/__test/hits');
+  const sent = await request.get(`${FIXTURE_API}/__test/hits`);
   const { byRequest } = (await sent.json()) as { byRequest: Record<string, number> };
   expect(
     Object.keys(byRequest).filter((key) => key.includes('/working-hours')),
@@ -144,7 +144,7 @@ test('отсутствие предупреждает о записях, сни�
 
   // у мастера уже есть запись в эти дни: срез B5 записи ещё не делает, стенд их подставляет
   const id = await main.getByTestId('beauty-schedule-master').inputValue();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { beautyAppointments: [{ employeeId: id, date: '2026-11-11' }] },
   });
 

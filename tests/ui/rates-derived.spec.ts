@@ -125,6 +125,7 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync(SHOTS, { recursive: true });
     const main = page.getByRole('main');
     const axe = async () => {
+      await expect(page).toHaveTitle(/.+/);
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();

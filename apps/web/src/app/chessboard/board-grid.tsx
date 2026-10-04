@@ -1013,38 +1013,12 @@ export function ChessboardGrid({
                   data-testid="date-col"
                   data-date={d}
                   scope="col"
-                  aria-label={`${d}, ${weekday(d)}, свободно ${board.summary[d]!.free}, занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
+                  aria-label={`${d}, ${weekday(d)}`}
                   className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                 >
                   <div className="board-day-date">
                     <div className="board__d">{d.slice(8)}</div>
                     <div className="board__wd">{weekday(d)}</div>
-                  </div>
-                  <div className="board-day-metrics">
-                    <div
-                      className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
-                      title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
-                    >
-                      {board.summary[d]!.free === 0 ? (
-                        <>
-                          <span className="board__free-word">мест </span>нет
-                        </>
-                      ) : (
-                        <>
-                          <span className="board__free-word">своб. </span>
-                          {board.summary[d]!.free}
-                        </>
-                      )}
-                    </div>
-                    <div
-                      className="board__occ"
-                      title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
-                    >
-                      <span className="board__occ-word">занято </span>
-                      {/* В testid только число занятых: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
-                      <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
-                      <span className="board-occ-total"> / {board.rows.length}</span>
-                    </div>
                   </div>
                 </th>
               ))}

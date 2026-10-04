@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 04.10.2026 19:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит bc9b179 (codex/calendar-clean-summary), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/guests-birthdays.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:19806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: http://127.0.0.1:3002 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 9 с

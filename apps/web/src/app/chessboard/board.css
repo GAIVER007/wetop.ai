@@ -574,40 +574,24 @@
   color: var(--warning);
 }
 
-/* шапка даты: число, день недели, свободно (главное число смены) и занято (по нему сверяют) */
+/* Шапка даты: только число и день недели. Сводка фонда показана один раз над календарём. */
 .board .board__d {
   width: var(--space-8);
   height: var(--space-8);
   font-size: var(--text-xl);
   font-weight: 600;
 }
-.board-day-date,
-.board-day-metrics {
+.board-day-date {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-}
-.board-day-metrics {
-  margin-top: var(--space-1);
-  flex-wrap: wrap;
-  gap: 0 var(--space-2);
-}
-.board-day-metrics > div {
-  white-space: nowrap;
 }
 .board .board__d {
   display: inline-grid;
   place-items: center;
   margin: 0;
   border-radius: var(--radius-control);
-}
-.board .board-occ-total {
-  display: none;
-}
-.board__occ-word,
-.board__free-word {
-  font-weight: var(--weight-regular);
 }
 .board th.is-today .board__d {
   background: var(--primary);
@@ -616,26 +600,6 @@
 .board .board__wd {
   margin-top: 1px;
   font-size: var(--text-xs);
-}
-.board .board__free-count {
-  margin-top: 3px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--success);
-  font-variant-numeric: tabular-nums;
-}
-.board .board__free-count.is-full {
-  color: var(--danger);
-}
-.board .board__occ {
-  margin-top: 1px;
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--muted);
-}
-.board .board-day-metrics .board__free-count,
-.board .board-day-metrics .board__occ {
-  margin-top: 0;
 }
 
 /* выходные — нейтральная подложка, а не цвет «свободно» */
@@ -731,7 +695,7 @@
   font-size: var(--text-xs);
 }
 
-/* Месяц и неделя: колонка 24 px — у шапки нет боковых отступов, слово «своб.» скрыто, числа мельче.
+/* Месяц и неделя: колонка 24 px, у шапки нет боковых отступов, числа мельче.
    Иначе последняя дата вылезала за контейнер на 768 px (tests/ui/chessboard-month.spec.ts). */
 .board--month thead th,
 .board--week thead th {
@@ -742,26 +706,9 @@
 .board--week .board__d {
   max-width: 100%;
 }
-.board--month .board__free-count,
-.board--month .board__occ {
-  font-size: var(--text-xs);
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.board--month .board__free-word {
-  display: none;
-}
-.board--month .board__occ-word {
-  display: none;
-}
-.board--month .board-day-date,
-.board--month .board-day-metrics {
+.board--month .board-day-date {
   flex-direction: column;
   gap: 0;
-}
-.board--month .board-day-metrics {
-  margin-top: 0;
 }
 .board--month .board__d {
   width: var(--space-6);
@@ -875,16 +822,9 @@
   .board--week {
     --board-caption-end: 8px;
   }
-  .board--week .board-day-date,
-  .board--week .board-day-metrics {
+  .board--week .board-day-date {
     flex-direction: column;
     gap: 0;
-  }
-  .board--week .board-day-metrics {
-    margin-top: 0;
-  }
-  .board--week .board__occ-word {
-    display: none;
   }
   .board--week .board__d {
     width: var(--space-6);
@@ -895,8 +835,7 @@
     margin-left: 0;
   }
 
-  .board--week .board-stay-nights,
-  .board--week .board__free-word {
+  .board--week .board-stay-nights {
     display: none;
   }
 }

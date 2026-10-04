@@ -148,12 +148,17 @@ describe.skipIf(!url)(
       seen.length = 0;
       const property = await admin.property.findFirstOrThrow({ select: { id: true } });
       const revisionId = `role-q225-${Date.now().toString(36)}`;
+      const providerPropertyId = `chx-role-test-${revisionId}`;
+      const mapping = await admin.channelMapping.create({
+        data: { propertyId: property.id, provider: 'channex', providerPropertyId },
+        select: { id: true },
+      });
       const rev = {
         type: 'booking_revision',
         id: revisionId,
         attributes: {
           id: revisionId,
-          property_id: 'chx-role-test',
+          property_id: providerPropertyId,
           booking_id: 'bk-role-test',
           unique_id: `BDC-${revisionId}`,
           ota_reservation_code: 'role-test',
@@ -208,6 +213,7 @@ describe.skipIf(!url)(
         if (before === undefined) delete process.env['INTEGRATION_PROPERTY_ID'];
         else process.env['INTEGRATION_PROPERTY_ID'] = before;
         await admin.externalEvent.deleteMany({ where: { externalEventId: revisionId } });
+        await admin.channelMapping.delete({ where: { id: mapping.id } });
       }
       expect(events.length).toBeGreaterThan(0);
       // локально служебный пул подключается ролью владельца базы, на сервере — wetop_service; важно одно: не wetop_app

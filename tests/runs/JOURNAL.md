@@ -6002,3 +6002,4 @@
 | 04.10.2026 15:00 | lint | ✅ без ошибок | 10 с | 7400821 | [лог](logs/2026-10-04T10-00-11Z-lint-c6f6.log) |  |
 | 04.10.2026 15:03 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ❌ упало 1 из 62 | 1 с | 2142b73 +4 | [лог](logs/2026-10-04T10-03-13Z-unit-7764.log) | миграции: у каждой есть откат (AGENTS.md §14) 20261003000044_membership_contacts — есть migration.sql и down.sql |
 | 04.10.2026 15:03 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 61 из 61 | 1 с | 2142b73 +4 | [лог](logs/2026-10-04T10-03-25Z-unit-ee15.log) |  |
+| 04.10.2026 15:12 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 50 из 50 | 1 мин 3 с | f6d1784 | [лог](logs/2026-10-04T10-12-38Z-e2e-aa08.log) | сайт из main f6d17846; на домене та же сборка (хэши файлов стилей и скриптов совпали) |

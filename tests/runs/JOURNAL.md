@@ -5851,3 +5851,5 @@
 | 04.10.2026 11:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/status-page.spec.ts tests/ui/channels-reconcile.spec.ts tests/ui/channels-compact.spec.ts tests/u | ✅ 132 из 132 | 8 мин 22 с | de3029c | [лог](logs/2026-10-04T06-40-02Z-e2e-29ff.log) | слияние main 04.10: срезы ADR-144 и соседи |
 | 04.10.2026 11:38 | unit (частично: scripts/design/build-tokens.test.ts tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts) | ✅ 25 из 25 | 15 с | 1f9a2f0 +1 | [лог](logs/2026-10-04T06-38-16Z-unit-76ea.log) |  |
 | 04.10.2026 11:52 | unit (частично: scripts/design apps/web/src) | ✅ 592 из 592 | 8 с | 27376a9 | [лог](logs/2026-10-04T06-52-21Z-unit-1d96.log) | слияние main 354b82d9: красный build-tokens закрыт на main |
+| 04.10.2026 12:11 | typecheck | ✅ без ошибок | 2 мин 59 с | 66e7925 | [лог](logs/2026-10-04T07-11-33Z-typecheck-ec6c.log) |  |
+| 04.10.2026 12:14 | lint | ✅ без ошибок | 39 с | 66e7925 | [лог](logs/2026-10-04T07-14-34Z-lint-e653.log) |  |

@@ -127,4 +127,69 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
       }),
     ).rejects.toThrow();
   });
+
+  it('сборщик (M2a): видит конкурентов всех объектов, пишет AI_AGENT в объект конкурента, ручной ввод дня не трогает', async () => {
+    const org = await db.organization.create({ data: { name: 'Рынок сборщик' }, select: { id: true } });
+    const other = await db.$transaction((tx) =>
+      createPropertyInChain(tx, org.id, { name: 'Рынок сборщик', ...NEW_PROPERTY_DEFAULTS }),
+    );
+    const mine = await repo.createCompetitor({ name: 'Сосед для сборщика' }, audit);
+    const theirs = await db.competitor.create({ data: { propertyId: other.id, name: 'Сосед другого объекта' } });
+    await db.competitor.create({ data: { propertyId: other.id, name: 'Убранный сосед', active: false } });
+
+    const targets = await repo.collectorTargets();
+    const names = targets.map((t) => t.name);
+    expect(names).toEqual(expect.arrayContaining(['Сосед для сборщика', 'Сосед другого объекта']));
+    expect(names).not.toContain('Убранный сосед');
+    const target = (await repo.collectorTarget(theirs.id))!;
+    expect(target).toMatchObject({ propertyId: other.id, propertyName: 'Рынок сборщик' });
+    expect(target.timezone).toBeTruthy();
+
+    // человек сегодня уже внёс ночь 2031-07-02 у своего соседа
+    await repo.writeReadings(mine, '2031-07-01', [{ date: '2031-07-02', bp: 9000 }], 'MANUAL', audit);
+    const own = (await repo.collectorTarget(mine))!;
+    const result = await repo.writeCollected(
+      own,
+      '2031-07-01',
+      [
+        { date: '2031-07-02', bp: 4000 },
+        { date: '2031-07-03', bp: 6100 },
+      ],
+      { entityType: 'Competitor', entityId: mine, action: 'market.occupancy.collected', after: {} },
+    );
+    expect(result).toEqual({ saved: 1, kept: 1 });
+    const rows = await db.competitorOccupancy.findMany({
+      where: { competitorId: mine },
+      orderBy: { stayDate: 'asc' },
+      select: { propertyId: true, occupancyBp: true, source: true, createdById: true },
+    });
+    expect(rows).toEqual([
+      { propertyId, occupancyBp: 9000, source: 'MANUAL', createdById: null },
+      { propertyId, occupancyBp: 6100, source: 'AI_AGENT', createdById: null },
+    ]);
+    // повтор сборщика заменяет своё значение того же дня, а не добавляет второе
+    await repo.writeCollected(own, '2031-07-01', [{ date: '2031-07-03', bp: 6300 }], {
+      entityType: 'Competitor',
+      entityId: mine,
+      action: 'market.occupancy.collected',
+      after: {},
+    });
+    expect(await db.competitorOccupancy.count({ where: { competitorId: mine } })).toBe(2);
+    const log = await db.auditLog.findFirst({
+      where: { entityType: 'Competitor', entityId: mine, action: 'market.occupancy.collected' },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(log?.after).toMatchObject({ saved: 1, kept: 1 });
+
+    // снимок другого объекта ложится в его объект
+    await repo.writeCollected(target, '2031-07-01', [{ date: '2031-07-02', bp: 5000 }], {
+      entityType: 'Competitor',
+      entityId: theirs.id,
+      action: 'market.occupancy.collected',
+      after: {},
+    });
+    expect(
+      await db.competitorOccupancy.findFirst({ where: { competitorId: theirs.id }, select: { propertyId: true } }),
+    ).toEqual({ propertyId: other.id });
+  });
 });

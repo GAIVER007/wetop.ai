@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 04.10.2026 00:46 Алматы · vm
+# коммит ba73071 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/fiscal-receipt.spec.ts' 'tests/ui/payment-requests.spec.ts' 'tests/ui/finance.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/fiscal-receipt.spec.ts:26:1 › гость попросил чек: номер из кассы ложится к платежу (3.4s)
+  ✓   2 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 1440px (3.0s)
+  ✓   3 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 390px (3.2s)
+  ✓   4 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 1440px (3.1s)
+  ✓   5 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 390px (3.2s)
+  ✓   6 tests/ui/payment-requests.spec.ts:21:1 › Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт (2.5s)
+  ✓   7 tests/ui/payment-requests.spec.ts:47:1 › ссылка банка не https — отказ словами, ссылка и сумма остаются в форме (1.8s)
+  ✓   8 tests/ui/payment-requests.spec.ts:60:1 › отмена ожидающего запроса с подтверждением; ссылка банка попадает в текст (2.4s)
+  ✓   9 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: light, 1440 px (2.8s)
+  ✓  10 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: light, 390 px (2.7s)
+  ✓  11 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: dark, 1440 px (2.8s)
+  ✓  12 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: dark, 390 px (2.6s)
+
+  12 passed (41.2s)
+
+# код выхода 0 · 42 с

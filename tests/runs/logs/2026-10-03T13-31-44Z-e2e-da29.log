@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 03.10.2026 18:31 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-schedule.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/beauty-schedule.spec.ts:65:1 › неделя мастера ставится и читается словами (6.9s)
+  ✓  2 tests/ui/beauty-schedule.spec.ts:84:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (6.0s)
+  ✓  3 tests/ui/beauty-schedule.spec.ts:104:1 › два интервала через перерыв сохраняются (6.6s)
+  ✓  4 tests/ui/beauty-schedule.spec.ts:120:1 › отсутствие предупреждает о записях, снимается с вопросом (6.6s)
+  ✓  5 tests/ui/beauty-schedule.spec.ts:155:1 › отсутствие с концом раньше начала не уходит на сервер (5.6s)
+  ✓  6 tests/ui/beauty-schedule.spec.ts:167:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (9.9s)
+  ✓  7 tests/ui/beauty-schedule.spec.ts:203:1 › график на телефоне: без прокрутки вбок (4.8s)
+  ✓  8 tests/ui/beauty-schedule.spec.ts:214:3 › график доступен в светлой теме (6.7s)
+  ✓  9 tests/ui/beauty-schedule.spec.ts:214:3 › график доступен в тёмной теме (6.6s)
+
+  9 passed (1.1m)
+
+# код выхода 0 · 1 мин 7 с

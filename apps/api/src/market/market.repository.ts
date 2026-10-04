@@ -56,8 +56,39 @@ export interface MarketRepository {
     source: ObservationSource,
     audit: MarketAudit,
   ): Promise<boolean>;
+  /** M2a: действующие конкуренты всех объектов для сборщика (служебная роль базы) */
+  collectorTargets(): Promise<CollectorTarget[]>;
+  /** M2a: действующий конкурент с объектом и его поясом; null: нет или убран из списка */
+  collectorTarget(id: string): Promise<CollectorTarget | null>;
+  /**
+   * M2a: снимки сборщика дня `observedOn` источником AI_AGENT, в объект из строки конкурента. Ночь, которую в этот же
+   * день внёс человек, сборщик не трогает (`kept`). Одной транзакцией с журналом.
+   */
+  writeCollected(
+    target: CollectorTarget,
+    observedOn: string,
+    entries: CollectedEntry[],
+    audit: MarketAudit,
+  ): Promise<{ saved: number; kept: number }>;
 }
 export const MARKET_REPOSITORY = Symbol('MARKET_REPOSITORY');
+
+/** Конкурент глазами сборщика: что искать и куда писать. Объект берётся отсюда, а не из запроса */
+export interface CollectorTarget {
+  id: string;
+  name: string;
+  url: string | null;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  propertyId: string;
+  propertyName: string;
+  timezone: string;
+}
+
+export interface CollectedEntry {
+  date: string;
+  bp: number;
+}
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -234,5 +265,72 @@ export class PrismaMarketRepository implements MarketRepository {
       await writeAudit(tx, audit);
     });
     return true;
+  }
+
+  private async targets(where: { id?: string }): Promise<CollectorTarget[]> {
+    const rows = await this.prisma.db.competitor.findMany({
+      where: { ...where, active: true },
+      orderBy: [{ propertyId: 'asc' }, { name: 'asc' }],
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        distanceM: true,
+        unitsTotal: true,
+        property: { select: { id: true, name: true, timezone: true } },
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      url: r.url,
+      distanceM: r.distanceM,
+      unitsTotal: r.unitsTotal,
+      propertyId: r.property.id,
+      propertyName: r.property.name,
+      timezone: r.property.timezone,
+    }));
+  }
+
+  collectorTargets(): Promise<CollectorTarget[]> {
+    return this.targets({});
+  }
+
+  async collectorTarget(id: string): Promise<CollectorTarget | null> {
+    return (await this.targets({ id }))[0] ?? null;
+  }
+
+  async writeCollected(
+    target: CollectorTarget,
+    observedOn: string,
+    entries: CollectedEntry[],
+    audit: MarketAudit,
+  ): Promise<{ saved: number; kept: number }> {
+    const day = asDate(observedOn);
+    return this.prisma.db.$transaction(async (tx) => {
+      const manual = await tx.competitorOccupancy.findMany({
+        where: {
+          competitorId: target.id,
+          observedOn: day,
+          source: 'MANUAL',
+          stayDate: { in: entries.map((e) => asDate(e.date)) },
+        },
+        select: { stayDate: true },
+      });
+      const human = new Set(manual.map((m) => iso(m.stayDate)));
+      let saved = 0;
+      for (const e of entries) {
+        if (human.has(e.date)) continue;
+        const key = { competitorId: target.id, stayDate: asDate(e.date), observedOn: day };
+        await tx.competitorOccupancy.upsert({
+          where: { competitorId_stayDate_observedOn: key },
+          create: { ...key, propertyId: target.propertyId, occupancyBp: e.bp, source: 'AI_AGENT', createdById: null },
+          update: { occupancyBp: e.bp, source: 'AI_AGENT', createdById: null, observedAt: new Date() },
+        });
+        saved += 1;
+      }
+      await writeAudit(tx, { ...audit, after: { ...audit.after, saved, kept: human.size } });
+      return { saved, kept: human.size };
+    });
   }
 }

@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 04.10.2026 01:04 Алматы · vm
+# коммит d9314ea (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/form910.spec.ts' 'tests/ui/reports-hub.spec.ts' 'tests/ui/navigation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог (2.5s)
+  ✓   2 tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px (1.7s)
+  ✓   3 tests/ui/form910.spec.ts:26:5 › доступность: light, 390px (1.7s)
+  ✓   4 tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px (1.7s)
+  ✓   5 tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px (1.7s)
+  ✓   6 tests/ui/navigation.spec.ts:49:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.2s)
+  ✓   7 tests/ui/navigation.spec.ts:90:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.3s)
+  ✓   8 tests/ui/navigation.spec.ts:117:1 › все пункты меню открывают существующие страницы (17.7s)
+  ✓   9 tests/ui/navigation.spec.ts:165:3 › меню телефона и планшета ровное и доступное: light (3.8s)
+  ✓  10 tests/ui/navigation.spec.ts:165:3 › меню телефона и планшета ровное и доступное: dark (4.4s)
+  ✓  11 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (1.3s)
+  ✓  12 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (2.2s)
+  ✓  13 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (2.1s)
+  ✓  14 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (1.2s)
+  ✓  15 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (2.0s)
+  ✓  16 tests/ui/reports-hub.spec.ts:206:1 › телефон: карточки без горизонтальной прокрутки (1.3s)
+  ✓  17 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, light (2.2s)
+  ✓  18 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, dark (2.1s)
+
+  18 passed (1.1m)
+
+# код выхода 0 · 1 мин 6 с

@@ -14,6 +14,7 @@ import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
+import { PaymentRequestsPanel } from './payment-requests';
 import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { FinanceLine } from '../finance-line';
@@ -69,21 +70,24 @@ export default async function ReservationPage({
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   // журнал — владельцу и управляющему (ADR-107): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
   const access = deskShell();
-  const [ratePlans, finance, services, summary, periodResults, piiStorage] = await Promise.all([
-    reservationsApi.ratePlans().catch(() => null),
-    financeApi.reservation(r.confirmationNumber).catch(() => null),
-    financeApi.services().catch(() => null),
-    api.inventorySummary().catch(() => null),
-    Promise.all(
-      [...periods.values()].map((it) =>
-        tooLong(it)
-          ? Promise.resolve(null)
-          : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+  const [ratePlans, finance, services, summary, periodResults, piiStorage, paymentRequests] =
+    await Promise.all([
+      reservationsApi.ratePlans().catch(() => null),
+      financeApi.reservation(r.confirmationNumber).catch(() => null),
+      financeApi.services().catch(() => null),
+      api.inventorySummary().catch(() => null),
+      Promise.all(
+        [...periods.values()].map((it) =>
+          tooLong(it)
+            ? Promise.resolve(null)
+            : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+        ),
       ),
-    ),
-    // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
-    api.piiStorage(),
-  ]);
+      // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
+      api.piiStorage(),
+      // запросы оплаты (DATA_MODEL §24, ADR-144): отказ гасит только свой блок
+      financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
+    ]);
   const desk = await access;
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
@@ -242,8 +246,7 @@ export default async function ReservationPage({
                   // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
                   <Alert boxed tone="warning" data-testid="tentative-callout">
                     Бронь не подтверждена: канал прислал предварительный статус, и подтверждение
-                    приходит оттуда же. Место за ней держится и второй раз не
-                    продаётся.
+                    приходит оттуда же. Место за ней держится и второй раз не продаётся.
                   </Alert>
                 )}
                 {/* Следующее действие смены — первым; ссылки на вкладки ловит RecordTabs (без записи в историю) */}
@@ -368,12 +371,20 @@ export default async function ReservationPage({
               <>
                 <SectionTitle id="booking-finance">Счета</SectionTitle>
                 {finance && services ? (
-                  <FinancePanel
-                    number={r.confirmationNumber}
-                    finance={finance}
-                    services={services}
-                    today={today}
-                  />
+                  <>
+                    <PaymentRequestsPanel
+                      number={r.confirmationNumber}
+                      propertyName={paymentRequests?.propertyName ?? ''}
+                      requests={paymentRequests?.requests ?? null}
+                      folios={finance.folios}
+                    />
+                    <FinancePanel
+                      number={r.confirmationNumber}
+                      finance={finance}
+                      services={services}
+                      today={today}
+                    />
+                  </>
                 ) : (
                   <Alert boxed>
                     Не удалось загрузить счета или каталог услуг. Финансовые действия недоступны до

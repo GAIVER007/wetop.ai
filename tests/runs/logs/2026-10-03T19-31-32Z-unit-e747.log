@@ -1,0 +1,90 @@
+# Модульные (unit) · 04.10.2026 00:31 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-31-32Z-unit-e747.json' 'apps/api/src/guard' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 30438  - 10/03/2026, 7:31:34 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 30438  - 10/03/2026, 7:31:34 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 30438  - 10/03/2026, 7:31:34 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (36 tests) 107ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (4 tests) 8ms
+ ❯ |unit| apps/api/src/guard/incidents-exposure.test.ts (3 tests | 1 failed) 27ms
+   ❯ инциденты сторожа не доходят до обычной организации (3)
+     × таблицу читают только сторож и ворота служебной роли, из бронирования с сайта — одна запись 24ms
+     ✓ контроллер сторожа, отдающий инциденты, закрыт защитником организации подключённого объекта 1ms
+     ✓ помощник поддержки и его доменная часть об инцидентах не знают 1ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 13ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 351ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 53ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 51ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(243) } to deeply equal { 'GET /branches': 'desk', …(242) }
+
+- Expected
++ Received
+
+@@ -67,10 +67,11 @@
+    "GET /finance/reservations/:number": "desk",
+    "GET /finance/reservations/:number/payment-requests": "desk",
+    "GET /finance/services": "desk",
+    "GET /finance/services-report": "reports",
+    "GET /guard/incidents": "desk",
++   "GET /guard/reconciliation": "desk",
+    "GET /guard/status": "desk",
+    "GET /guests": "desk",
+    "GET /guests/:id": "desk",
+    "GET /guests/:id/preview": "desk",
+    "GET /guests/birthdays": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:341:20
+    339|       .map(([key]) => key);
+    340|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    341|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    342|   });
+    343|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/guard/incidents-exposure.test.ts > инциденты сторожа не доходят до обычной организации > таблицу читают только сторож и ворота служебной роли, из бронирования с сайта — одна запись
+AssertionError: expected [ …(8) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -2,8 +2,9 @@
+    "database/integration-tables.ts",
+    "guard/guard.controller.ts",
+    "guard/guard.module.ts",
+    "guard/guard.service.ts",
+    "guard/incidents.repository.ts",
++   "health/health.module.ts",
+    "web-booking/web-booking.module.ts",
+    "web-booking/web-booking.service.ts",
+  ]
+
+ ❯ apps/api/src/guard/incidents-exposure.test.ts:42:22
+     40|       .map((f) => f.rel)
+     41|       .sort();
+     42|     expect(touching).toEqual([
+       |                      ^
+     43|       'database/integration-tables.ts',
+     44|       'guard/guard.controller.ts',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  2 failed | 55 passed (57)
+   Start at  19:31:33
+   Duration  3.72s (transform 54%, import 37%, tests 8%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-31-32Z-unit-e747.json
+
+# код выхода 1 · 5 с

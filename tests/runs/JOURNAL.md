@@ -5905,3 +5905,4 @@
 | 04.10.2026 13:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/today-attentio | ✅ 26 из 26 | 4 мин 30 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-31Z-e2e-174f.log) |  |
 | 04.10.2026 13:10 | typecheck | ❌ ошибок: 95 | 17 с | 5b4c4de | [лог](logs/2026-10-04T08-10-33Z-typecheck-2c64.log) | TS1002 |
 | 04.10.2026 13:11 | typecheck | ✅ без ошибок | 1 мин 14 с | 50ed25e | [лог](logs/2026-10-04T08-11-14Z-typecheck-96a6.log) | повтор после удаления оборванного кэша стенда .next-ui |
+| 04.10.2026 13:15 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 207d04f | [лог](logs/2026-10-04T08-15-50Z-unit-bcd1.log) |  |

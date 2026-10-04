@@ -66,7 +66,7 @@ def test_lead_hook_takes_providers_from_the_factory(runner) -> None:
 
 
 def test_model_sees_both_tools(runner) -> None:
-    """Реестр отдан каскаду: без этого модель про наличие и цену не спросит. С 03.10 (ADR-143) у продавца
+    """Реестр отдан каскаду: без этого модель про наличие и цену не спросит. С 03.10 (ADR-144) у продавца
     ещё бронь из чата: предложение и оформление после явного «да» гостя."""
     from src.ai.llm import get_cascade_client
 

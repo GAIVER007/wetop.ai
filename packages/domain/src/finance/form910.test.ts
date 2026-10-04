@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { halfYearMonths, incomeFor910 } from './form910';
 
-describe('доход для формы 910 (K7, ADR-143)', () => {
+describe('доход для формы 910 (K7, ADR-144)', () => {
   it('полугодие — шесть месяцев с границами в датах объекта', () => {
     expect(halfYearMonths(2026, 1)[0]).toEqual({ month: '2026-01', from: '2026-01-01', to: '2026-01-31' });
     expect(halfYearMonths(2026, 1)[1]).toEqual({ month: '2026-02', from: '2026-02-01', to: '2026-02-28' });

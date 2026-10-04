@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test } from './fixtures';
 
 /**
- * «Скачать CSV» на экране «Брони» (H11, ADR-143): тот же отбор в файл для Excel, без имён и контактов гостей.
+ * «Скачать CSV» на экране «Брони» (H11, ADR-144): тот же отбор в файл для Excel, без имён и контактов гостей.
  */
 const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 test.beforeEach(async ({ request }) => {

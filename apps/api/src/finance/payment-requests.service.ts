@@ -56,7 +56,7 @@ async function lockedWrite<T>(write: Promise<T>): Promise<T> {
   }
 }
 
-/** Запросы оплаты (DATA_MODEL §24, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод в брони */
+/** Запросы оплаты (DATA_MODEL §24, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод в брони */
 @Injectable()
 export class PaymentRequestsService {
   constructor(

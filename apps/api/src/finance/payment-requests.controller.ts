@@ -13,7 +13,7 @@ import { Access } from '../auth/access.decorator';
 import { PaymentRequestsService } from './payment-requests.service';
 
 /**
- * Запросы оплаты (DATA_MODEL §24, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод в брони; «Оплачено»
+ * Запросы оплаты (DATA_MODEL §24, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод в брони; «Оплачено»
  * превращает запрос в обычный платёж. Право — стойка: оплату принимает администратор смены.
  */
 @Access('desk')

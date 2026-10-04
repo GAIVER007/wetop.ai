@@ -52,7 +52,7 @@ describe('инциденты сторожа не доходят до обычн�
     const booking = sources(API_SRC).find((f) => f.rel === 'web-booking/web-booking.service.ts')!.text;
     const calls = [...booking.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]);
     expect(new Set(calls)).toEqual(new Set(['record']));
-    // Страница статуса сервиса (H14, ADR-143) публичная: читает открытые неисправности, но наружу отдаёт только виды,
+    // Страница статуса сервиса (H14, ADR-144) публичная: читает открытые неисправности, но наружу отдаёт только виды,
     // сведённые доменной `publicStatus` в четыре слова. Ни заголовков, ни подробностей, ни объекта в ответе нет.
     const health = sources(API_SRC).find((f) => f.rel === 'health/health.module.ts')!.text;
     expect(new Set([...health.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]))).toEqual(

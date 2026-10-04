@@ -76,7 +76,7 @@ describe('GET /health', () => {
   });
 });
 
-describe('GET /status/public (H14, ADR-143)', () => {
+describe('GET /status/public (H14, ADR-144)', () => {
   let app: INestApplication;
   const queryRaw = vi.fn();
   const findMany = vi.fn();

@@ -793,7 +793,7 @@ enum PaymentStatus {
 }
 
 /// Счёт гостя — один на проживание (ADR-014). Создаётся вместе с проживанием.
-/// DATA_MODEL §24: запрос оплаты (ADR-143)
+/// DATA_MODEL §24: запрос оплаты (ADR-144)
 enum PaymentRequestStatus {
   PENDING
   PAID
@@ -994,7 +994,7 @@ model CashReconciliation {
   @@map("cash_reconciliations")
 }
 
-/// DATA_MODEL §24 (03.10.2026, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту
+/// DATA_MODEL §24 (03.10.2026, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту
 /// проживания. «Оплачено» создаёт обычный Payment и закрывает запрос одной транзакцией.
 model PaymentRequest {
   id          String               @id @default(uuid()) @db.Uuid
@@ -1024,7 +1024,7 @@ model PaymentRequest {
   @@map("payment_requests")
 }
 
-/// DATA_MODEL §26 (03.10.2026, ADR-143): фискальный чек, выданный по запросу гостя. Номер — из кассы объекта,
+/// DATA_MODEL §26 (03.10.2026, ADR-144): фискальный чек, выданный по запросу гостя. Номер — из кассы объекта,
 /// один чек на платёж; адаптер облачной кассы допишет внешний id без смены таблицы (Q-263)
 model FiscalReceipt {
   id         String   @id @default(uuid()) @db.Uuid
@@ -1043,7 +1043,7 @@ model FiscalReceipt {
   @@map("fiscal_receipts")
 }
 
-/// DATA_MODEL §25 (контракт 30.09.2026, ADR-143): намерение брони ИИ-продавца
+/// DATA_MODEL §25 (контракт 30.09.2026, ADR-144): намерение брони ИИ-продавца
 enum SellerBookingIntentState {
   QUOTED
   CONFIRMED

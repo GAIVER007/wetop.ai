@@ -1,6 +1,6 @@
 # Срез 2 плана развития: запросы оплаты в брони, Kaspi и ссылка банка (03.10.2026)
 
-Основание: ADR-143 (Р4: Kaspi и Halyk у объекта есть, привязка разрешена), план
+Основание: ADR-144 (Р4: Kaspi и Halyk у объекта есть, привязка разрешена), план
 `plans/wetop-unified-roadmap-2026-10-03.md` (H3, K3, K4, X2), модель `DATA_MODEL.md` §24.
 
 ## Почему так
@@ -13,7 +13,7 @@
 
 ## Что сделано
 
-1. **Модель** `payment_requests` (§24) и миграция `20261003000045_payment_requests` с `down.sql`: способ только
+1. **Модель** `payment_requests` (§24) и миграция `20261003000046_payment_requests` с `down.sql`: способ только
    KASPI, HALYK, BANK_TRANSFER_PERSON, CARD_TERMINAL; ссылка только `https://`; CHECK «оплачен ⇔ есть платёж»,
    «закрыт ⇔ есть время закрытия»; RLS `rls_tenant` по объекту, таблица в `RLS_TENANT_TABLES`.
 2. **Домен** `packages/domain/src/finance/payment-request.ts`: разбор формы (сумма в тенге с пробелами и запятой) и
@@ -39,5 +39,5 @@ Red: домен (`…18-26-53Z-unit-082c.log`, модуля нет), маршр�
 
 ## За владельцем
 
-Миграция `20261003000045_payment_requests` на рабочей базе до выкладки кода (`docs/deploy.md` §1д,
+Миграция `20261003000046_payment_requests` на рабочей базе до выкладки кода (`docs/deploy.md` §1д,
 `--migrations-applied`); Q-262 (банк и документация API для автоматических ссылок).

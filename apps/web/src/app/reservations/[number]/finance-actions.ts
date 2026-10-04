@@ -205,7 +205,7 @@ export async function stayExtraAction(
   return done(number);
 }
 
-/** Запрос оплаты (DATA_MODEL §24, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод */
+/** Запрос оплаты (DATA_MODEL §24, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод */
 export async function createPaymentRequestAction(
   number: string,
   prev: FinanceActionResult,

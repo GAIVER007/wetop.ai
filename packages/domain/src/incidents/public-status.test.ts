@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { publicStatus } from './public-status';
 
-/** Страница статуса сервиса (H14, ADR-143): наружу только общие слова, внутренние неисправности не видны */
+/** Страница статуса сервиса (H14, ADR-144): наружу только общие слова, внутренние неисправности не видны */
 describe('публичный статус сервиса', () => {
   it('всё работает', () => {
     const s = publicStatus({ databaseUp: true, openKinds: [] });

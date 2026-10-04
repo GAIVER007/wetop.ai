@@ -143,7 +143,7 @@ describe('промокод в запросе виджета (DATA_MODEL §20)', 
   });
 });
 
-describe('язык гостя в запросе брони (ADR-143, срез «подтверждение брони»)', () => {
+describe('язык гостя в запросе брони (ADR-144, срез «подтверждение брони»)', () => {
   it('без языка — русский', () => {
     const r = parseBookingRequest(good, today);
     expect(r.ok && r.value.lang).toBe('ru');

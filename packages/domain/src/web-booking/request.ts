@@ -34,7 +34,7 @@ export interface QuoteRequest {
   promoCode: string | null;
 }
 
-/** Языки гостя: письмо подтверждения и виджет (ADR-143). Русский по умолчанию. */
+/** Языки гостя: письмо подтверждения и виджет (ADR-144). Русский по умолчанию. */
 export const GUEST_LANGS = ['ru', 'kk', 'en', 'zh'] as const;
 export type GuestLang = (typeof GUEST_LANGS)[number];
 
@@ -47,7 +47,7 @@ export function parseGuestLang(v: unknown): GuestLang {
 
 export interface BookingRequest extends QuoteRequest {
   categoryCode: string;
-  /** Язык гостя (ADR-143) */
+  /** Язык гостя (ADR-144) */
   lang: GuestLang;
   guest: { firstName: string; lastName: string; phone: string; email: string | null };
   comment: string | null;

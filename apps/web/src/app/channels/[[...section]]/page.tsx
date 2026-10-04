@@ -163,7 +163,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       .then((r) => r.rows)
       .catch(() => null),
     api.inventorySummary().catch(() => null),
-    // X3 (ADR-143): сверка остатков у сторожа; чужой организации и без права — 403, тогда «не известно»
+    // X3 (ADR-144): сверка остатков у сторожа; чужой организации и без права — 403, тогда «не известно»
     guardApi.reconciliation().catch(() => null),
   ]);
   const outbox = loadedOutbox.ok ? loadedOutbox.r : null;
@@ -209,7 +209,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       .sort()
       .at(-1) ?? null;
   const failedTotal = (outbox?.failed ?? 0) + (failedEvents ?? 0);
-  // X3 (ADR-143): ежедневная сверка остатков с каналом видна владельцу, не только сторожу
+  // X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу, не только сторожу
   const reconcile = reconciliationView(reconciliation, clock);
   /**
    * Наблюдаемые OTA (Q-205, дополнение владельца к ADR-112): «Booking.com — работает» запрещено,
@@ -241,7 +241,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         summary={summary}
       >
         <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)}>
-          {/* X3 (ADR-143): ежедневная сверка остатков с каналом видна владельцу; подробности в подсказке */}
+          {/* X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу; подробности в подсказке */}
           {!notConnected && (
             <span
               className={`state-bar__sub${reconcile.tone === 'danger' ? ' danger-text' : ''}`}

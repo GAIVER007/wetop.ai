@@ -59,7 +59,7 @@ export class GuardController {
     };
   }
 
-  /** Сверка остатков с каналом (X3, ADR-143): обзор «Каналов» показывает её владельцу подключённого объекта */
+  /** Сверка остатков с каналом (X3, ADR-144): обзор «Каналов» показывает её владельцу подключённого объекта */
   @Get('reconciliation')
   reconciliation() {
     return this.guard.reconciliation();

@@ -190,7 +190,7 @@ const createBooking = async (dto: { arrivalDate: string; departureDate: string }
   };
 };
 const reservations = { create: vi.fn(createBooking) };
-/** Письма гостю (ADR-143): только заглушка, живых писем в тестах нет */
+/** Письма гостю (ADR-144): только заглушка, живых писем в тестах нет */
 const mailer = new mail.StubMailSender();
 
 const booking = () => ({
@@ -596,7 +596,7 @@ describe('виджет бронирования /w/*', () => {
 
   // Аудит 26.09, С-33: после записи брони шли привязка сессии и журнал без защиты. Их сбой отдавал гостю ошибку, кнопка
   // снова была активна, и повтор создавал вторую настоящую бронь.
-  describe('письмо гостю с подтверждением (ADR-143)', () => {
+  describe('письмо гостю с подтверждением (ADR-144)', () => {
     const lettersTo = (to: string) => mailer.sent.filter((m) => m.to === to);
     it('почта в форме: письмо уходит на настоящий адрес из формы, а в бронь пишется псевдоним; в журнале адреса нет', async () => {
       const before = lettersTo('a@example.com').length;

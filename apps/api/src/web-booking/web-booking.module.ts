@@ -82,11 +82,11 @@ export class WidgetCorsMiddleware implements NestMiddleware {
   providers: [
     PrismaService,
     WebBookingService,
-    // ADR-143, DATA_MODEL §25: бронь из чата ИИ-продавца
+    // ADR-144, DATA_MODEL §25: бронь из чата ИИ-продавца
     BookingIntentsService,
     TurnstileService,
     WidgetCorsMiddleware,
-    // ADR-143: письмо гостю с подтверждением; без настроенной почты — null, бронь идёт без письма
+    // ADR-144: письмо гостю с подтверждением; без настроенной почты — null, бронь идёт без письма
     { provide: BOOKING_MAILER, useFactory: () => bookingMailerFromEnv() },
     // журнал неисправностей для алерта С-7 (booking.flood): своя привязка порта, без всего GuardModule
     { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },

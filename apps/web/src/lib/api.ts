@@ -162,7 +162,7 @@ async function getJson<T>(path: string): Promise<T> {
 /** Для страниц, которым нужен произвольный путь API (журнал). */
 export const getJsonPublic = getJson;
 
-/** Публичный статус сервиса (H14, ADR-143): четыре части словами, без входа */
+/** Публичный статус сервиса (H14, ADR-144): четыре части словами, без входа */
 export interface PublicServiceStatus {
   checkedAt: string;
   overall: 'ok' | 'degraded' | 'down';
@@ -1410,7 +1410,7 @@ export interface FinanceFolio {
   refundedMinor: string;
   balanceMinor: string;
 }
-/** Запрос оплаты (DATA_MODEL §24, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод */
+/** Запрос оплаты (DATA_MODEL §24, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод */
 export interface PaymentRequest {
   id: string;
   folioId: string;
@@ -1552,7 +1552,7 @@ export interface CashCategory {
   active: boolean;
 }
 export const financeApi = {
-  // запросы оплаты (DATA_MODEL §24, ADR-143)
+  // запросы оплаты (DATA_MODEL §24, ADR-144)
   paymentRequests: (number: string) =>
     getJson<PaymentRequests>(
       `/finance/reservations/${encodeURIComponent(number)}/payment-requests`,
@@ -2479,7 +2479,7 @@ export const supportApi = {
     ),
 };
 
-/** X3 (ADR-143): сверка остатков с каналом от сторожа; только организации подключённого объекта */
+/** X3 (ADR-144): сверка остатков с каналом от сторожа; только организации подключённого объекта */
 export interface ChannelReconciliation {
   lastCheckedAt: string | null;
   mismatch: { title: string; since: string; nights: number | null } | null;

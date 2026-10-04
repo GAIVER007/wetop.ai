@@ -37,7 +37,7 @@ export interface NewPaymentRequest {
   note: string | null;
 }
 
-/** Запросы оплаты (DATA_MODEL §24, ADR-143). Поиск — только внутри объекта: чужой запрос по известному id не найдётся */
+/** Запросы оплаты (DATA_MODEL §24, ADR-144). Поиск — только внутри объекта: чужой запрос по известному id не найдётся */
 export interface PaymentRequestsRepository {
   propertyName(): Promise<string>;
   /** null — брони нет */

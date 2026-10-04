@@ -118,7 +118,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/folios/:id/close': 'desk',
   'POST /finance/payments': 'desk',
   'POST /finance/payments/:id/receipt': 'desk',
-  // Запросы оплаты (DATA_MODEL §24, ADR-143): администратор выставляет счёт и отмечает оплату
+  // Запросы оплаты (DATA_MODEL §24, ADR-144): администратор выставляет счёт и отмечает оплату
   'GET /finance/reservations/:number/payment-requests': 'desk',
   'POST /finance/reservations/:number/payment-requests': 'desk',
   'POST /finance/payment-requests/:id/paid': 'desk',
@@ -294,10 +294,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
-  // H14 (ADR-143): страница статуса сервиса без входа
+  // H14 (ADR-144): страница статуса сервиса без входа
   'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
-  // ADR-143, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
+  // ADR-144, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
   'POST /bot/booking-intents': 'public',
   'POST /bot/booking-intents/confirm': 'public',
   'POST /wizard/session': 'public',

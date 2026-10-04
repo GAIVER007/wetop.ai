@@ -20,7 +20,7 @@ const row = {
   primaryGuest: { id: 'g1', label: 'Вымышленный Гость', phone: '+77010000000', email: 'x@example.invalid' },
 };
 
-describe('reservationsCsv (H11, ADR-143)', () => {
+describe('reservationsCsv (H11, ADR-144)', () => {
   it('шапка, BOM, CRLF и «;», как у выгрузок финансов; имён и контактов гостей в файле нет', () => {
     const csv = reservationsCsv([row]);
     expect(csv.startsWith('\uFEFF')).toBe(true);

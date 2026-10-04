@@ -89,7 +89,7 @@ function GrantedSectionLinks({
   ...props
 }: LinksProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <SectionLinks sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS)} {...props} />;
+  return <SectionLinks sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
 }
 
 function SectionLinks({

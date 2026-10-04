@@ -1,0 +1,64 @@
+# Модульные (unit) · 04.10.2026 00:14 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-14-15Z-unit-71d5.json' 'apps/api/src/channels'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/channels/connection.test.ts (12 tests) 14ms
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 6809  - 10/03/2026, 7:14:18 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 6827  - 10/03/2026, 7:14:18 PM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 6827  - 10/03/2026, 7:14:18 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (12 tests) 26ms
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 360ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (10 tests) 365ms
+[Nest] 6834  - 10/03/2026, 7:14:19 PM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (12 tests) 22ms
+ ✓ |unit| apps/api/src/channels/catalog.test.ts (10 tests) 19ms
+ ✓ |unit| apps/api/src/channels/integration-command.test.ts (6 tests) 13ms
+ ✓ |unit| apps/api/src/channels/ari-ranges.test.ts (16 tests) 11ms
+ ✓ |unit| apps/api/src/channels/integration-property.test.ts (11 tests) 12ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (10 tests) 17ms
+ ✓ |unit| apps/api/src/channels/integration-owner.test.ts (7 tests) 19ms
+ ✓ |unit| apps/api/src/channels/integration-scope.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (7 tests) 10ms
+ ✓ |unit| apps/api/src/channels/operator-access.test.ts (5 tests) 15ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 10ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 10ms
+[Nest] 6918  - 10/03/2026, 7:14:21 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 6918  - 10/03/2026, 7:14:21 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 9ms
+[Nest] 6932  - 10/03/2026, 7:14:21 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 7ms
+[Nest] 6932  - 10/03/2026, 7:14:21 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 6932  - 10/03/2026, 7:14:21 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓ |unit| apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/channels/outbox-enqueue.test.ts (2 tests) 15ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/channels/gateway-failure.test.ts (4 tests) 10ms
+
+ Test Files  23 passed (23)
+      Tests  202 passed (202)
+   Start at  19:14:16
+   Duration  5.12s (import 58%, transform 33%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-14-15Z-unit-71d5.json
+
+# код выхода 0 · 6 с

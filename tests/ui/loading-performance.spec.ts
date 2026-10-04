@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-const API = 'http://127.0.0.1:4311';
+const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });

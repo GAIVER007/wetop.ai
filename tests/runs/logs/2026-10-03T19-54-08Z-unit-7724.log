@@ -1,0 +1,30 @@
+# Модульные (unit) · 04.10.2026 00:54 Алматы · vm
+# коммит 3cafa82 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-54-08Z-unit-7724.json' 'apps/web/src/app/reservations/reservations-csv.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/reservations-csv.test.ts [ apps/web/src/app/reservations/reservations-csv.test.ts ]
+Error: Cannot find module './reservations-csv' imported from /home/user/wetop.ai/apps/web/src/app/reservations/reservations-csv.test.ts
+ ❯ apps/web/src/app/reservations/reservations-csv.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { reservationsCsv } from './reservations-csv';
+       | ^
+      3|
+      4| const row = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:54:08
+   Duration  202ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-54-08Z-unit-7724.json
+
+# код выхода 1 · 1 с

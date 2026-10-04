@@ -64,6 +64,15 @@ class FakeRepo implements MarketRepository {
     this.audits.push(audit);
     return true;
   }
+  async collectorTargets() {
+    return [];
+  }
+  async collectorTarget() {
+    return null;
+  }
+  async writeCollected() {
+    return { saved: 0, kept: 0 };
+  }
 }
 
 const own: OwnOccupancySource = {

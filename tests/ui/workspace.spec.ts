@@ -2,7 +2,7 @@ import { expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const booking = '20260913-TESTAA';
 const screenshots = resolve('reports/hostel-frontend/screenshots');
 test.beforeEach(async ({ request }) => {
@@ -591,9 +591,15 @@ test('групповая бронь: разные категории сохра�
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
   await expect(second.getByLabel('Количество мест')).toHaveValue('4');
-  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
-  expect(commands[0].body.items).toHaveLength(2);
-  expect(commands[0].body.items[1]).toMatchObject({
+  // Журнал команд пишет и `POST /reservations/quote` (правка 02.10), поэтому команду создания берём
+  // по пути, как в channel-booking-number и pii-storage: первой записью ложится запрос цены
+  const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+    path: string;
+    body: { items: Array<Record<string, unknown>> };
+  }>;
+  const created = commands.filter((c) => c.path === '/reservations').at(-1)?.body;
+  expect(created?.items).toHaveLength(2);
+  expect(created?.items[1]).toMatchObject({
     accommodationTypeCode: 'MALE',
     quantity: 4,
     unitCode: null,
@@ -650,7 +656,7 @@ test('обзор: очередь «Требуют внимания» ведёт 
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: '+ Новая бронь', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();

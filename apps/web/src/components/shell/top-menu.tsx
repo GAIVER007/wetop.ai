@@ -94,7 +94,7 @@ interface TabsProps {
 
 function GrantedTabs({ desk, ...props }: TabsProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <Tabs sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS)} {...props} />;
+  return <Tabs sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
 }
 
 function Tabs({ sections, id, active, open, setOpen }: TabsProps & { sections: MenuSection[] }) {

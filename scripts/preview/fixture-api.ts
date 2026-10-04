@@ -3,6 +3,7 @@ import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
@@ -1274,6 +1275,28 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
+let receipts = new Map<string, { number: string; issuedAt: string }>();
+// ── запросы оплаты (DATA_MODEL §24, ADR-144) ──
+let paymentRequests: Array<{
+  id: string;
+  number: string;
+  folioId: string;
+  amountMinor: string;
+  currency: string;
+  method: 'KASPI' | 'HALYK' | 'BANK_TRANSFER_PERSON' | 'CARD_TERMINAL';
+  link: string | null;
+  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentId: string | null;
+  note: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}> = [];
+const paymentRequestsOf = (number: string) => ({
+  confirmationNumber: number,
+  propertyName: 'Luxx Aparts',
+  requests: paymentRequests.filter((r) => r.number === number).reverse(),
+});
 // ── касса (DATA_MODEL §21): статьи и операции мимо счетов броней ──
 const cashCategorySeed = [
   { id: 'ui-cashcat-start', kind: 'INCOME' as const, name: 'Начальный остаток', active: true },
@@ -1753,6 +1776,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
+        receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
         refundedMinor: '0',
@@ -1765,6 +1789,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
+        receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
         refundedMinor: '0',
@@ -2817,6 +2842,17 @@ function read(path: string, q: URLSearchParams): unknown {
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
+  // X3 (ADR-144): сверка остатков у сторожа; «attention» — канал видит больше мест
+  if (path === '/guard/reconciliation') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    return {
+      lastCheckedAt: ago(300),
+      mismatch:
+        channexMode === 'attention'
+          ? { title: 'Канал видит больше мест, чем есть: ночей 2', since: ago(299), nights: 2 }
+          : null,
+    };
+  }
   if (path === '/guard/status') {
     const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
@@ -3477,6 +3513,10 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       }),
     };
+  if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+    const r = getCard(decodeURIComponent(path.split('/')[3]!));
+    return r ? paymentRequestsOf(r.confirmationNumber) : undefined;
+  }
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
     return r ? finance(r) : undefined;
@@ -3863,7 +3903,11 @@ function read(path: string, q: URLSearchParams): unknown {
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
-      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+      return {
+        ...base,
+        lastWebhookAt: ago(125),
+        lastPullAt: ago(180),
+      };
     if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
     if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
@@ -4286,6 +4330,84 @@ function marketRoute(
 }
 
 const fixtureBranches: Array<Record<string, unknown>> = [];
+
+/** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
+interface FixtureBeautyService {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  location: { enabled: boolean; priceOverrideMinor: string | null; durationOverrideMinutes: number | null } | null;
+}
+interface FixtureBeautyEmployee {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+/** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
+interface FixtureWorkingInterval {
+  employeeId: string;
+  locationId: string;
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+interface FixtureTimeOff {
+  id: string;
+  employeeId: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  appointments: number;
+}
+const fixtureBeautyServices: FixtureBeautyService[] = [];
+const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
+const fixtureBeautyHours: FixtureWorkingInterval[] = [];
+function clockMin(value: string): number {
+  const [hh, mm] = value.split(':');
+  return Number(hh) * 60 + Number(mm);
+}
+
+/** «9:00», «0900», «9.30» → «09:00», как `normalizeClockTime` домена (SET2) */
+function clock(value: string): string {
+  const m = /^(\d{1,2})[:.](\d{2})$/.exec(value.trim()) ?? /^(\d{2})(\d{2})$/.exec(value.trim());
+  if (!m) return '';
+  const h = Number(m[1]);
+  if (h > 23 || Number(m[2]) > 59) return '';
+  return `${String(h).padStart(2, '0')}:${m[2]}`;
+}
+const fixtureBeautyTimeOffs: FixtureTimeOff[] = [];
+/** Записи мастера: до B5 стенду хватало даты, теперь это сами записи журнала */
+interface FixtureAppointment {
+  id: string;
+  locationId: string;
+  employeeId: string;
+  serviceId: string;
+  customer: { id: string; name: string; phone: string | null };
+  date: string;
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
+const fixtureAppointments: FixtureAppointment[] = [];
+const NEXT_STATUS: Record<string, string[]> = {
+  BOOKED: ['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  CONFIRMED: ['DONE', 'NO_SHOW', 'CANCELLED'],
+  DONE: [],
+  NO_SHOW: [],
+  CANCELLED: [],
+};
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -4308,6 +4430,20 @@ createServer(async (req, res) => {
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    // Публичный статус сервиса (H14, ADR-144): у стенда каналы с перебоями в режиме «attention»
+    if (path === '/status/public') {
+      const channels = channexMode === 'attention' ? 'degraded' : 'ok';
+      return send(200, {
+        checkedAt: '2026-10-03T09:00:00.000Z',
+        overall: channels,
+        components: [
+          { key: 'app', label: 'Рабочее место и вход', state: 'ok' },
+          { key: 'database', label: 'Хранение данных', state: 'ok' },
+          { key: 'channels', label: 'Обмен с каналами продаж', state: channels },
+          { key: 'booking', label: 'Бронирование с сайта', state: 'ok' },
+        ],
+      });
+    }
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -4348,6 +4484,12 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/reset') {
       fixtureBranches.length = 0;
+      fixtureBeautyServices.length = 0;
+      fixtureBeautyEmployees.length = 0;
+      fixtureBeautyHours.length = 0;
+      fixtureBeautyTimeOffs.length = 0;
+      fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
       hits.clear();
@@ -4416,6 +4558,8 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      receipts = new Map();
+      paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
       cashOps = [];
       cashRecs = [];
@@ -4441,6 +4585,16 @@ createServer(async (req, res) => {
       noBookings = body['noBookings'] === true;
       if (typeof body['onboardingNeeded'] === 'boolean')
         onboardingNeeded = body['onboardingNeeded'];
+      // записи мастера на даты: срез B5 их ещё не делает, а наложение отсутствия показать надо (B4)
+      if (Array.isArray(body['beautyAppointments'])) {
+        fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
+        for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
+          fixtureBeautyAppointments.push({
+            employeeId: String(row['employeeId'] ?? ''),
+            date: String(row['date'] ?? ''),
+          });
+      }
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       if (body['analyticsHistory'] === true) seedAnalyticsHistory();
@@ -4941,21 +5095,453 @@ createServer(async (req, res) => {
       if (!who) return send(200, { user: null });
       // Match production whoami: organization is a sibling of user.
       const { organization, ...user } = signedInView(who);
+      // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
+      const pointer = String(req.headers['x-wetop-scope'] ?? '');
+      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
+        context: {
+          scope: scoped ? 'LOCATION' : 'ORGANIZATION',
+          businessId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
+        },
       });
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
       const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      // Филиал салона объекта не имеет (DATA_MODEL §19): настоящий API здесь отвечает 404
+      if (selected && (selected as Record<string, unknown>)['vertical'] === 'BEAUTY')
+        return send(404, { message: 'У этого филиала нет объекта' });
       const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
       return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
     }
+    // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path.startsWith('/beauty/')) {
+      const current = fixtureBranches.find((b) => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const locationId = current ? String((current as Record<string, unknown>)['locationId']) : null;
+      const locationCurrency = current ? String((current as Record<string, unknown>)['currency'] ?? 'KZT') : null;
+      const effective = (s: FixtureBeautyService) => {
+        if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
+        if (!locationCurrency) return null;
+        const own = s.location;
+        if (!own || !own.enabled) return { sellable: false, reason: 'NOT_ENABLED' };
+        if (own.priceOverrideMinor === null && s.currency !== locationCurrency)
+          return { sellable: false, reason: 'CURRENCY_MISMATCH' };
+        return {
+          sellable: true,
+          priceMinor: own.priceOverrideMinor ?? s.priceMinor,
+          currency: own.priceOverrideMinor === null ? s.currency : locationCurrency,
+          durationMinutes: own.durationOverrideMinutes ?? s.durationMinutes,
+          overridden: own.priceOverrideMinor !== null || own.durationOverrideMinutes !== null,
+        };
+      };
+      const serviceList = () => ({
+        locationId,
+        locationCurrency,
+        items: fixtureBeautyServices.map((s) => ({ ...s, effective: effective(s) })),
+      });
+      if (path === '/beauty/services' && req.method === 'GET') return send(200, serviceList());
+      if (path === '/beauty/services' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите название услуги' });
+        const minutes = Number(body['durationMinutes']);
+        if (!Number.isInteger(minutes) || minutes <= 0)
+          return send(400, { message: 'Длительность услуги: целое число минут больше нуля' });
+        if (!/^\d+$/.test(String(body['priceMinor'] ?? '')))
+          return send(400, { message: 'Цена услуги: целое число в тиынах, не меньше нуля' });
+        const row: FixtureBeautyService = {
+          id: `svc-${fixtureBeautyServices.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          category: String(body['category'] ?? '').trim() || null,
+          durationMinutes: minutes,
+          priceMinor: String(body['priceMinor']),
+          currency: String(body['currency'] ?? 'KZT'),
+          active: body['active'] !== false,
+          location: null,
+        };
+        fixtureBeautyServices.push(row);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const patchService = /^\/beauty\/services\/([^/]+)$/.exec(path);
+      if (patchService && req.method === 'PATCH') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(patchService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['category'] !== undefined) row.category = String(body['category']).trim() || null;
+        if (body['durationMinutes'] !== undefined) row.durationMinutes = Number(body['durationMinutes']);
+        if (body['priceMinor'] !== undefined) row.priceMinor = String(body['priceMinor']);
+        if (body['currency'] !== undefined) row.currency = String(body['currency']);
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const locationService = /^\/beauty\/services\/([^/]+)\/location$/.exec(path);
+      if (locationService && req.method === 'PUT') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(locationService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (!locationId)
+          return send(400, { message: 'Выберите филиал: цену и доступность услуги задаёт он' });
+        const price = String(body['priceOverrideMinor'] ?? '');
+        const duration = String(body['durationOverrideMinutes'] ?? '');
+        if (price && !/^\d+$/.test(price))
+          return send(400, { message: 'Цена филиала: целое число в тиынах, не меньше нуля' });
+        row.location = {
+          enabled: Boolean(body['enabled']),
+          priceOverrideMinor: price || null,
+          durationOverrideMinutes: duration ? Number(duration) : null,
+        };
+        return send(200, serviceList());
+      }
+      if (path === '/beauty/employees' && req.method === 'GET')
+        return send(200, { locationId, items: fixtureBeautyEmployees });
+      if (path === '/beauty/employees' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите имя мастера' });
+        const row: FixtureBeautyEmployee = {
+          id: `emp-${fixtureBeautyEmployees.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          phone: String(body['phone'] ?? '').trim() || null,
+          email: String(body['email'] ?? '').trim().toLowerCase() || null,
+          active: body['active'] !== false,
+          locationIds: locationId ? [locationId] : [],
+          serviceIds: [],
+        };
+        fixtureBeautyEmployees.push(row);
+        return send(200, row);
+      }
+      const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
+      if (patchEmployee && req.method === 'PATCH') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(patchEmployee[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
+        if (body['email'] !== undefined) row.email = String(body['email']).trim().toLowerCase() || null;
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, row);
+      }
+      const employeeServices = /^\/beauty\/employees\/([^/]+)\/services$/.exec(path);
+      if (employeeServices && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeServices[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['serviceIds']) ? (body['serviceIds'] as string[]) : [];
+        if (ids.some((id) => !fixtureBeautyServices.some((s) => s.id === id)))
+          return send(400, { message: 'Среди выбранных услуг есть чужая' });
+        row.serviceIds = [...new Set(ids)];
+        return send(200, row);
+      }
+      // График мастера (срез B4): неделя в этом филиале, отсутствия на сеть и филиалы мастера
+      const week = (employeeId: string) =>
+        [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({
+          weekday,
+          intervals: fixtureBeautyHours
+            .filter((h) => h.employeeId === employeeId && h.locationId === locationId && h.weekday === weekday)
+            .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom))
+            .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+        }));
+      const timeOffsOf = (employeeId: string) =>
+        fixtureBeautyTimeOffs
+          .filter((t) => t.employeeId === employeeId)
+          .sort((a, b) => a.dateFrom.localeCompare(b.dateFrom))
+          .map((row) => ({
+            id: row.id,
+            dateFrom: row.dateFrom,
+            dateTo: row.dateTo,
+            reason: row.reason,
+            appointments: row.appointments,
+          }));
+      const salonLocations = () =>
+        fixtureBranches
+          .filter((b) => b['vertical'] === 'BEAUTY')
+          .map((b) => ({ id: String(b['locationId']), name: String(b['name']) }));
+      const scheduleView = (employeeId: string | null) => {
+        const chosen = employeeId
+          ? (fixtureBeautyEmployees.find((e) => e.id === employeeId) ?? null)
+          : (fixtureBeautyEmployees.find((e) => e.active && locationId !== null && e.locationIds.includes(locationId)) ??
+            fixtureBeautyEmployees.find((e) => e.active) ??
+            fixtureBeautyEmployees[0] ??
+            null);
+        return {
+          location: locationId
+            ? { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: String(current?.['timezone'] ?? 'Asia/Almaty') }
+            : null,
+          employees: fixtureBeautyEmployees.map((e) => ({
+            id: e.id,
+            name: e.name,
+            active: e.active,
+            worksHere: locationId !== null && e.locationIds.includes(locationId),
+          })),
+          employee: chosen
+            ? {
+                id: chosen.id,
+                name: chosen.name,
+                active: chosen.active,
+                worksHere: locationId !== null && chosen.locationIds.includes(locationId),
+                locationIds: chosen.locationIds,
+              }
+            : null,
+          locations: salonLocations().map((l) => ({
+            ...l,
+            assigned: chosen ? chosen.locationIds.includes(l.id) : false,
+          })),
+          week: chosen ? week(chosen.id) : [],
+          timeOffs: chosen ? timeOffsOf(chosen.id) : [],
+        };
+      };
+      if (path === '/beauty/schedule' && req.method === 'GET') {
+        const wanted = url.searchParams.get('employee');
+        if (wanted && !fixtureBeautyEmployees.some((e) => e.id === wanted))
+          return send(404, { message: 'Мастер не найден' });
+        return send(200, scheduleView(wanted));
+      }
+      const workingHours = /^\/beauty\/employees\/([^/]+)\/working-hours$/.exec(path);
+      if (workingHours && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(workingHours[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (!locationId) return send(409, { message: 'Сначала выберите филиал' });
+        if (!row.locationIds.includes(locationId))
+          return send(409, { message: 'Мастер в этом филиале не работает: сначала поставьте его в филиал' });
+        const list = Array.isArray(body['intervals']) ? (body['intervals'] as Array<Record<string, unknown>>) : [];
+        const parsed = list.map((i) => ({
+          weekday: Number(i['weekday']),
+          timeFrom: clock(String(i['timeFrom'] ?? '')),
+          timeTo: clock(String(i['timeTo'] ?? '')),
+        }));
+        if (parsed.some((i) => !i.timeFrom || !i.timeTo))
+          return send(400, { message: 'Время графика в часах и минутах, например 09:00' });
+        if (parsed.some((i) => i.timeTo <= i.timeFrom))
+          return send(400, { message: 'Конец рабочего времени должен быть позже начала' });
+        const sorted = [...parsed].sort((a, b) => a.weekday - b.weekday || a.timeFrom.localeCompare(b.timeFrom));
+        for (let i = 1; i < sorted.length; i += 1)
+          if (sorted[i]!.weekday === sorted[i - 1]!.weekday && sorted[i]!.timeFrom < sorted[i - 1]!.timeTo)
+            return send(400, { message: 'Интервалы в одном дне накладываются друг на друга' });
+        for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+          if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === locationId)
+            fixtureBeautyHours.splice(i, 1);
+        for (const i of sorted)
+          fixtureBeautyHours.push({ employeeId: row.id, locationId, ...i });
+        return send(200, { week: week(row.id) });
+      }
+      const timeOffs = /^\/beauty\/employees\/([^/]+)\/time-offs$/.exec(path);
+      if (timeOffs && req.method === 'POST') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(timeOffs[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const dateFrom = String(body['dateFrom'] ?? '');
+        const dateTo = String(body['dateTo'] ?? '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(dateTo))
+          return send(400, { message: 'Дата отсутствия в виде ГГГГ-ММ-ДД' });
+        if (dateTo < dateFrom)
+          return send(400, { message: 'Отсутствие: конец раньше начала, проверьте даты' });
+        const affected = fixtureBeautyAppointments.filter(
+          (a) => a.employeeId === row.id && a.date >= dateFrom && a.date <= dateTo,
+        ).length;
+        fixtureBeautyTimeOffs.push({
+          id: `off-${fixtureBeautyTimeOffs.length + 1}-0000-4000-8000-000000000000`,
+          employeeId: row.id,
+          dateFrom,
+          dateTo,
+          reason: String(body['reason'] ?? '').trim() || null,
+          appointments: affected,
+        });
+        return send(200, { timeOffs: timeOffsOf(row.id), affected });
+      }
+      const dropTimeOff = /^\/beauty\/employees\/([^/]+)\/time-offs\/([^/]+)$/.exec(path);
+      if (dropTimeOff && req.method === 'DELETE') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(dropTimeOff[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const index = fixtureBeautyTimeOffs.findIndex(
+          (t) => t.id === decodeURIComponent(dropTimeOff[2]!) && t.employeeId === row.id,
+        );
+        if (index < 0) return send(404, { message: 'Отсутствие не найдено' });
+        fixtureBeautyTimeOffs.splice(index, 1);
+        return send(200, { timeOffs: timeOffsOf(row.id) });
+      }
+      // Журнал записей дня (срез B5). Стенд живёт в поясе Asia/Almaty, как филиал фикстуры
+      const dayOf = (iso: string) => new Date(new Date(iso).getTime() + 5 * 3600_000).toISOString().slice(0, 10);
+      const minutesOfIso = (iso: string) => {
+        const at = new Date(new Date(iso).getTime() + 5 * 3600_000);
+        return at.getUTCHours() * 60 + at.getUTCMinutes();
+      };
+      const isoOf = (date: string, minutes: number) =>
+        new Date(Date.parse(`${date}T00:00:00Z`) + (minutes - 300) * 60_000).toISOString();
+      const effectiveOf = (s: FixtureBeautyService) => {
+        const own = s.location;
+        const price = own?.priceOverrideMinor ?? s.priceMinor;
+        const duration = own?.durationOverrideMinutes ?? s.durationMinutes;
+        const sellable = Boolean(s.active && own?.enabled && (own.priceOverrideMinor !== null || s.currency === locationCurrency));
+        return { sellable, price, duration };
+      };
+      const dayView = (date: string) => {
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const columns = fixtureBeautyEmployees
+          .filter((e) => e.active && locationId !== null && e.locationIds.includes(locationId))
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            intervals: fixtureBeautyHours
+              .filter((h) => h.employeeId === e.id && h.locationId === locationId && h.weekday === weekday)
+              .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+            timeOff: fixtureBeautyTimeOffs.some((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo),
+            timeOffReason: fixtureBeautyTimeOffs.find((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo)?.reason ?? null,
+            serviceIds: e.serviceIds,
+          }));
+        const rows = fixtureAppointments
+          .filter((a) => a.locationId === locationId && a.date === date)
+          .sort((a, b) => a.startMinutes - b.startMinutes)
+          .map((a) => ({
+            id: a.id,
+            employeeId: a.employeeId,
+            serviceId: a.serviceId,
+            serviceName: fixtureBeautyServices.find((s) => s.id === a.serviceId)?.name ?? 'Услуга',
+            customer: a.customer,
+            startsAt: isoOf(a.date, a.startMinutes),
+            endsAt: isoOf(a.date, a.endMinutes),
+            startMinutes: a.startMinutes,
+            endMinutes: a.endMinutes,
+            status: a.status,
+            next: NEXT_STATUS[a.status] ?? [],
+            priceMinor: a.priceMinor,
+            currency: a.currency,
+            notes: a.notes,
+          }));
+        const edges = columns.flatMap((c) => c.intervals).flatMap((i) => [clockMin(i.timeFrom), clockMin(i.timeTo)]);
+        const spans = rows.flatMap((r) => [r.startMinutes, r.endMinutes]);
+        return {
+          location: { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: 'Asia/Almaty', currency: locationCurrency },
+          date,
+          columns,
+          appointments: rows,
+          services: fixtureBeautyServices.map((s) => {
+            const e = effectiveOf(s);
+            return {
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              sellable: e.sellable,
+              durationMinutes: e.duration,
+              priceMinor: String(e.price),
+              currency: s.location?.priceOverrideMinor ? String(locationCurrency) : s.currency,
+            };
+          }),
+          bounds: {
+            fromMinutes: Math.min(480, ...edges, ...spans),
+            toMinutes: Math.max(1200, ...edges, ...spans),
+          },
+        };
+      };
+      if (path === '/beauty/appointments' && req.method === 'GET')
+        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+      if (path === '/beauty/appointments' && req.method === 'POST') {
+        const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
+        if (!employee) return send(404, { message: 'Мастер не найден' });
+        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        if (!svc) return send(404, { message: 'Услуга не найдена' });
+        const eff = effectiveOf(svc);
+        if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const date = dayOf(startsAt);
+        const startMinutes = minutesOfIso(startsAt);
+        const endMinutes = startMinutes + eff.duration;
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const works = fixtureBeautyHours.some(
+          (h) => h.employeeId === employee.id && h.locationId === locationId && h.weekday === weekday &&
+            clockMin(h.timeFrom) <= startMinutes && endMinutes <= clockMin(h.timeTo),
+        );
+        if (fixtureBeautyTimeOffs.some((t) => t.employeeId === employee.id && t.dateFrom <= date && date <= t.dateTo))
+          return send(409, { message: 'У мастера в этот день отсутствие' });
+        if (!works) return send(409, { message: 'Мастер в это время не работает' });
+        if (
+          fixtureAppointments.some(
+            (a) => a.employeeId === employee.id && a.date === date && a.status !== 'CANCELLED' &&
+              a.status !== 'NO_SHOW' && a.startMinutes < endMinutes && startMinutes < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        const name = [String(body['firstName'] ?? '').trim(), String(body['lastName'] ?? '').trim()]
+          .filter(Boolean)
+          .join(' ');
+        if (!String(body['customerId'] ?? '') && !name)
+          return send(400, { message: 'Выберите клиента или впишите имя' });
+        fixtureAppointments.push({
+          id: `apt-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+          locationId: String(locationId),
+          employeeId: employee.id,
+          serviceId: svc.id,
+          customer: {
+            id: `cus-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+            name: name || 'Клиент',
+            phone: String(body['phone'] ?? '').trim() || null,
+          },
+          date,
+          startMinutes,
+          endMinutes,
+          status: 'BOOKED',
+          priceMinor: String(eff.price),
+          currency: String(locationCurrency),
+          notes: String(body['notes'] ?? '').trim() || null,
+        });
+        return send(200, dayView(date));
+      }
+      const moveAppointment = /^\/beauty\/appointments\/([^/]+)$/.exec(path);
+      if (moveAppointment && req.method === 'PATCH') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(moveAppointment[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        if (!(NEXT_STATUS[row.status] ?? []).length)
+          return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const length = row.endMinutes - row.startMinutes;
+        const nextStart = startsAt ? minutesOfIso(startsAt) : row.startMinutes;
+        const nextDate = startsAt ? dayOf(startsAt) : row.date;
+        const employeeId = String(body['employeeId'] ?? '') || row.employeeId;
+        if (
+          fixtureAppointments.some(
+            (a) => a.id !== row.id && a.employeeId === employeeId && a.date === nextDate &&
+              a.status !== 'CANCELLED' && a.status !== 'NO_SHOW' &&
+              a.startMinutes < nextStart + length && nextStart < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        row.employeeId = employeeId;
+        row.date = nextDate;
+        row.startMinutes = nextStart;
+        row.endMinutes = nextStart + length;
+        return send(200, dayView(row.date));
+      }
+      const appointmentStatus = /^\/beauty\/appointments\/([^/]+)\/status$/.exec(path);
+      if (appointmentStatus && req.method === 'POST') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(appointmentStatus[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        const to = String(body['status'] ?? '');
+        if (!(NEXT_STATUS[row.status] ?? []).includes(to))
+          return send(409, { message: 'Из этого состояния запись так не меняют' });
+        row.status = to as FixtureAppointment['status'];
+        return send(200, dayView(row.date));
+      }
+      const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);
+      if (employeeLocations && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeLocations[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['locationIds']) ? (body['locationIds'] as string[]) : [];
+        const known = salonLocations().map((l) => l.id);
+        if (ids.some((id) => !known.includes(id)))
+          return send(400, { message: 'Среди выбранных филиалов есть чужой' });
+        for (const gone of row.locationIds.filter((id) => !ids.includes(id))) {
+          for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+            if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === gone)
+              fixtureBeautyHours.splice(i, 1);
+        }
+        row.locationIds = [...new Set(ids)];
+        return send(200, scheduleView(row.id));
+      }
+      return send(404, { message: 'Нет такого маршрута салона' });
+    }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
       if (req.method === 'POST') {
-        const item = { ...branch, ...body, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
+        const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+        const item = { ...branch, ...body, vertical, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
         if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
         return send(200, item);
       }
@@ -6374,6 +6960,83 @@ createServer(async (req, res) => {
         active: true,
       });
       return send(201, [...cashCategories]);
+    }
+    // запросы оплаты (DATA_MODEL §24): те же отказы и коды, что у API
+    if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+      const number = decodeURIComponent(path.split('/')[3]!);
+      const methodCode = String(body['method'] ?? '');
+      if (!['KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'CARD_TERMINAL'].includes(methodCode))
+        return send(400, { message: 'Способ: Kaspi, Halyk, перевод или терминал' });
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? '').replace(/\s/g, ''));
+      } catch {
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      }
+      if (amountMinor <= 0n)
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      const link = typeof body['link'] === 'string' && body['link'] ? body['link'] : null;
+      if (link && !link.startsWith('https://'))
+        return send(400, { message: 'Ссылка: адрес банка, начинается с https://, до 500 знаков' });
+      paymentRequests.push({
+        id: `00000000-0000-4000-8000-${String(paymentRequests.length + 1).padStart(12, '0')}`,
+        number,
+        folioId: String(body['folioId']),
+        amountMinor: amountMinor.toString(),
+        currency: 'KZT',
+        method: methodCode as 'KASPI',
+        link,
+        status: 'PENDING',
+        paymentId: null,
+        note: null,
+        createdAt: `${today}T10:00:00Z`,
+        closedAt: null,
+      });
+      return send(201, paymentRequestsOf(number));
+    }
+    if (/^\/finance\/payment-requests\/[^/]+\/(paid|cancel)$/.test(path)) {
+      const [, , , id, verb] = path.split('/');
+      const r = paymentRequests.find((x) => x.id === id);
+      if (!r) return send(404, { message: `Запрос оплаты ${id} не найден` });
+      if (r.status !== 'PENDING')
+        return send(409, {
+          message:
+            verb === 'cancel' && r.status === 'PAID'
+              ? 'Оплаченный запрос не отменяется: верните деньги возвратом платежа'
+              : r.status === 'PAID'
+                ? 'Запрос уже оплачен'
+                : 'Запрос уже отменён',
+        });
+      r.closedAt = `${today}T11:00:00Z`;
+      if (verb === 'cancel') {
+        r.status = 'CANCELLED';
+        return send(200, paymentRequestsOf(r.number));
+      }
+      r.status = 'PAID';
+      r.paymentId = `ui-payment-request-${r.id.slice(-4)}`;
+      paid.set(r.folioId, (paid.get(r.folioId) ?? 0n) + BigInt(r.amountMinor));
+      paymentLines.push({
+        folioId: r.folioId,
+        amountMinor: r.amountMinor,
+        method: r.method,
+        note: 'Оплата по запросу',
+        id: r.paymentId,
+      });
+      return send(200, paymentRequestsOf(r.number));
+    }
+    const receiptMatch = path.match(/^\/finance\/payments\/([^/]+)\/receipt$/);
+    if (receiptMatch) {
+      const paymentId = decodeURIComponent(receiptMatch[1]!);
+      let receiptNumber: string;
+      try {
+        receiptNumber = parseReceiptNumber(body['number']);
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      const was = receipts.get(paymentId);
+      if (was) return send(409, { message: `Чек по этому платежу уже выдан: ${was.number}` });
+      receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
+      return send(200, { paymentId, number: receiptNumber });
     }
     if (path === '/finance/payments') {
       try {

@@ -522,3 +522,21 @@
     order: 3;
   }
 }
+
+/* Телефон: Главная задумана плотной, но пальцем по 28–34 px не попасть, а поле мельче 16 px заставляет
+ * iOS зумить страницу при фокусе и обратно не возвращает (DESIGN.md: цели ≥44 px, поля 16 px). Плотные
+ * размеры выше специфичнее общего правила телефона, поэтому держим их здесь, рядом с самими правилами.
+ * На компьютере плотность не меняется. 17 px: в шкале проекта 16 нет, `--text-lg` выше порога зума. */
+@media (max-width: 600px) {
+  .owner-toolbar input,
+  .owner-toolbar .btn,
+  .owner-row-label .btn,
+  .owner-charts .bars-day .btn--sm {
+    min-height: var(--touch-target);
+  }
+  .owner-toolbar input {
+    width: auto;
+    flex: 1 1 120px;
+    font-size: var(--text-lg);
+  }
+}

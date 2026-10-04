@@ -43,59 +43,46 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     today,
   );
   return (
-    <Page
-      title="Главная"
-      width="full"
-      actions={<DashboardRefresh />}
-    >
+    <Page title="Главная" width="full" actions={<DashboardRefresh />}>
       <div className="owner-dashboard" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <div className="owner-operations owner-panel" role="status">
-              Загружаем данные гостиницы…
-            </div>
-          }
-        >
-          <OwnerOperations date={today} />
-        </Suspense>
-      <div className="owner-toolbar">
-        <h2>Деньги и аналитика</h2>
-        <nav aria-label="Период финансов">
-          {[
-            ['today', 'Сегодня'],
-            ['week', '7 дней'],
-            ['month', 'Месяц'],
-          ].map(([id, label]) => (
-            <Link
-              key={id}
-              href={`/today?period=${id}`}
-              aria-current={period.preset === id ? 'page' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <form action="/today" key={`${period.from}|${period.to}`}>
-          <input type="hidden" name="period" value="custom" />
-          <input
-            aria-label="Начало периода"
-            type="date"
-            name="from"
-            defaultValue={period.from}
-            required
-          />
-          <span>—</span>
-          <input
-            aria-label="Конец периода"
-            type="date"
-            name="to"
-            defaultValue={period.to}
-            required
-          />
-          <button className="btn btn--secondary">Показать</button>
-        </form>
-      </div>
-      {period.error && <Alert>{period.error}</Alert>}
+        <div className="owner-toolbar">
+          <h2>Деньги</h2>
+          <nav aria-label="Период финансов">
+            {[
+              ['today', 'Сегодня'],
+              ['week', '7 дней'],
+              ['month', 'Месяц'],
+            ].map(([id, label]) => (
+              <Link
+                key={id}
+                href={`/today?period=${id}`}
+                aria-current={period.preset === id ? 'page' : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <form action="/today" key={`${period.from}|${period.to}`}>
+            <input type="hidden" name="period" value="custom" />
+            <input
+              aria-label="Начало периода"
+              type="date"
+              name="from"
+              defaultValue={period.from}
+              required
+            />
+            <span>–</span>
+            <input
+              aria-label="Конец периода"
+              type="date"
+              name="to"
+              defaultValue={period.to}
+              required
+            />
+            <button className="btn btn--secondary">Показать</button>
+          </form>
+        </div>
+        {period.error && <Alert>{period.error}</Alert>}
         <Suspense
           key={`${period.from}|${period.to}`}
           fallback={
@@ -105,6 +92,15 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           }
         >
           <CurrencyFinance period={period} today={today} />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className="owner-riskbar owner-panel" role="status">
+              Загружаем риски на сегодня…
+            </div>
+          }
+        >
+          <OwnerOperations date={today} />
         </Suspense>
       </div>
     </Page>

@@ -94,7 +94,7 @@ test('после запуска отеля Главная без «Первых 
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
   await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-  await expect(main.getByRole('article', { name: 'Загрузка на сегодня' })).toBeVisible();
+  await expect(main.getByTestId('owner-net-cash')).toBeVisible();
 });
 
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {

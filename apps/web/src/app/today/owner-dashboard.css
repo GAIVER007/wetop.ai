@@ -77,6 +77,12 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
+.owner-performance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
 .owner-stat,
 .owner-panel,
 .owner-bottom {
@@ -90,6 +96,14 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+}
+.owner-stat--featured {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+.owner-stat--featured > span,
+.owner-stat--featured strong {
+  color: var(--primary);
 }
 .owner-stat > span {
   font-size: var(--text-xs);
@@ -111,7 +125,7 @@
 }
 .owner-charts {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.1fr;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
   gap: 8px;
 }
 .owner-panel {
@@ -224,6 +238,39 @@
   display: grid;
   gap: 16px;
 }
+.owner-riskbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-control);
+}
+.owner-riskbar__debt {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.owner-riskbar__debt > span:first-child,
+.owner-riskbar__debt small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.owner-riskbar__debt small {
+  grid-column: 1 / -1;
+}
+.owner-riskbar__debt strong {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+}
+.owner-riskbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 @media (min-width: 1600px) and (min-height: 900px) {
   .owner-stat {
     padding: 16px;
@@ -246,10 +293,7 @@
     gap: 8px;
   }
   .owner-charts {
-    grid-template-columns: 1fr 1fr;
-  }
-  .owner-charts > article:last-child {
-    grid-column: 1/-1;
+    grid-template-columns: 1fr;
   }
   .owner-bottom {
     grid-template-columns: 1fr 1fr;
@@ -268,6 +312,22 @@
   }
   .owner-charts {
     grid-template-columns: 1fr;
+  }
+  .owner-stats--money {
+    grid-template-columns: 1fr 1fr;
+  }
+  .owner-stat--featured {
+    grid-column: 1 / -1;
+  }
+  .owner-performance {
+    grid-template-columns: 1fr 1fr;
+  }
+  .owner-riskbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .owner-riskbar__actions .btn {
+    width: 100%;
   }
   .owner-toolbar form {
     flex-wrap: wrap;
@@ -355,7 +415,7 @@
   font-size: var(--text-xs);
 }
 .owner-toolbar {
-  margin: 16px 0 0;
+  margin: 0 0 8px;
 }
 .owner-toolbar h2 {
   margin: 0 8px 0 0;

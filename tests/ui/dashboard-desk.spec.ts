@@ -19,7 +19,7 @@ test('3. одна очередь внимания в панели; выбор ф
   page,
 }) => {
   await page.goto('/today?date=2027-06-01');
-  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await expect(page.locator('#day-attention')).toHaveCount(1);
   await expect(page.locator('#day-attention .attention-list')).toBeVisible();
@@ -102,7 +102,7 @@ test('9. размеры шрифта на главной и в «Аналити�
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/today');
     const main = page.getByRole('main');
-    await expect(main.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+    await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
 
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
     // число плитки денег — --text-3xl (26 px с 29.09)
@@ -139,7 +139,11 @@ test('10. заголовок страницы и панели брони — п�
   await page.goto('/today');
   // с 03.10 быстрых действий на Главной нет: бронь открывается из очереди «Требуют внимания»
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
-  await page.locator('#day-attention').getByRole('link', { name: /20260913-TEST4/ }).first().click();
+  await page
+    .locator('#day-attention')
+    .getByRole('link', { name: /20260913-TEST4/ })
+    .first()
+    .click();
   const drawer = page.locator('.booking-drawer .page__title');
   await expect(drawer).toBeVisible();
   expect(await fontSize(drawer)).toBe('22px'); // --text-2xl

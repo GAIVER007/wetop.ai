@@ -19,7 +19,6 @@ import { loadGuardStatus } from './guard-status';
 import { DayAttention } from './day-attention';
 import { DashboardDetails } from './owner-controls';
 import { moneyBarHeight } from './owner-metrics';
-import { TodayWidgets } from './today-widgets';
 
 const loadPeriod = cache((from: string, to: string) =>
   dashboardApi.period(from, to).catch((error: unknown) => {
@@ -34,6 +33,7 @@ function Metric({
   href,
   id,
   delta,
+  featured = false,
 }: {
   label: string;
   value: string;
@@ -42,9 +42,10 @@ function Metric({
   id?: string;
   /** изменение к прошлому отрезку той же длины; без базы не показывается */
   delta?: Delta | undefined;
+  featured?: boolean;
 }) {
   return (
-    <div className="owner-stat" data-testid={id}>
+    <div className={`owner-stat${featured ? ' owner-stat--featured' : ''}`} data-testid={id}>
       <span>{label}</span>
       <strong>{href ? <Link href={href}>{value}</Link> : value}</strong>
       <small>
@@ -80,6 +81,8 @@ export async function OwnerFinance({
   const money = (value: string | bigint) => formatMoney(value, currency);
   const finance = `/finance?from=${period.from}&to=${period.to}`;
   const analytics = `/management/analytics?period=custom&from=${period.from}&to=${period.to}`;
+  const netCash = BigInt(c.payments.totalMinor) - BigInt(c.refundsMinor);
+  const previousNetCash = BigInt(p.payments.totalMinor) - BigInt(p.refundsMinor);
   const max = c.daily.reduce(
     (value, day) => (BigInt(day.revenueMinor) > value ? BigInt(day.revenueMinor) : value),
     0n,
@@ -93,7 +96,32 @@ export async function OwnerFinance({
           </span>
           <Link href={finance}>Все операции</Link>
         </div>
-        <div className="owner-stats">
+        <div className="owner-stats owner-stats--money">
+          <Metric
+            label="Чистое движение"
+            value={money(netCash)}
+            note="Оплаты минус возвраты. Это не прибыль."
+            delta={deltaPercent(netCash, previousNetCash)}
+            href={finance}
+            id="owner-net-cash"
+            featured
+          />
+          <Metric
+            label="Получено оплат"
+            value={money(c.payments.totalMinor)}
+            note="деньги, принятые за период"
+            delta={deltaPercent(BigInt(c.payments.totalMinor), BigInt(p.payments.totalMinor))}
+            href={finance}
+            id="owner-paid"
+          />
+          <Metric
+            label="Возвраты"
+            value={money(c.refundsMinor)}
+            note="возвращено гостям за период"
+            delta={deltaPercent(BigInt(c.refundsMinor), BigInt(p.refundsMinor))}
+            href={finance}
+            id="owner-refunds"
+          />
           <Metric
             label="Начислено"
             value={money(c.revenue.totalMinor)}
@@ -102,16 +130,8 @@ export async function OwnerFinance({
             href={finance}
             id="owner-charged"
           />
-          <Metric
-            label="Получено оплат"
-            value={money(c.payments.totalMinor)}
-            note={
-              <span data-testid="owner-refunds">Возвраты: {money(c.refundsMinor)}</span>
-            }
-            delta={deltaPercent(BigInt(c.payments.totalMinor), BigInt(p.payments.totalMinor))}
-            href={finance}
-            id="owner-paid"
-          />
+        </div>
+        <div className="owner-performance" aria-label="Показатели продаж">
           <Metric
             label="Средняя цена ночи"
             value={c.adrMinor ? money(c.adrMinor) : '—'}
@@ -135,7 +155,7 @@ export async function OwnerFinance({
         </div>
       </section>
       <section className="owner-charts" aria-label="Аналитика за выбранный период">
-        <article className="owner-panel">
+        <article className="owner-panel owner-panel--revenue">
           <header>
             <h2>Начисления по дням</h2>
             <Link href={analytics}>Отчёт</Link>
@@ -150,26 +170,6 @@ export async function OwnerFinance({
             }))}
           />
           <p className="owner-caption">Только проживание, по дате заезда</p>
-        </article>
-        <article className="owner-panel">
-          <header>
-            <h2>Загрузка, {formatPercent(c.occupancy.percent)}</h2>
-            <Link
-              href={`/management/analytics/occupancy?period=custom&from=${period.from}&to=${period.to}`}
-            >
-              Фонд
-            </Link>
-          </header>
-          <DayBars
-            testId="owner-occupancy-chart"
-            today={today}
-            days={c.daily.map((day) => ({
-              date: day.date,
-              height: day.percent,
-              facts: `${formatPercent(day.percent)}, занято ${day.occupied}`,
-            }))}
-          />
-          <p className="owner-caption">Номера и койки; блокировки входят в фонд</p>
         </article>
         <article className="owner-panel">
           <header>
@@ -246,22 +246,21 @@ export async function OwnerOperations({ date }: { date: string }) {
     );
   const [day, board, guard] = result;
   return (
-    <section className="owner-operations" aria-label="Гостиница сегодня">
-      <div className="owner-row-label">
-        <h2>Сегодня</h2>
-        <span>{displayDate(date, 'numeric')}</span>
+    <section className="owner-riskbar" aria-label="Риски на сегодня" data-testid="owner-risks">
+      <div className="owner-riskbar__debt">
+        <span>К оплате у выезжающих</span>
         <span className="owner-debt">
-          К оплате у выезжающих:{' '}
           <Suspense fallback={<strong>…</strong>}>
             <DebtAmount minor={day.debtMinor} />
           </Suspense>
         </span>
+        <small>{displayDate(date, 'numeric')}</small>
+      </div>
+      <div className="owner-riskbar__actions">
         <DashboardDetails title="Требуют внимания">
           <DayAttention day={day} board={board} guard={guard} isToday />
         </DashboardDetails>
-        <Link href={`/chessboard?from=${date}&to=${date}`}>Календарь</Link>
       </div>
-      <TodayWidgets day={day} board={board} />
     </section>
   );
 }

@@ -6,24 +6,20 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('главная: «Гостиница сегодня» на первом экране, кнопки брони нет', async ({ page }) => {
-  // Главная владельца (03.10.2026): сверху виджеты «Сегодня», бронь заводится в «Календаре» и «Бронях»;
-  // на телефоне первым экраном загрузка дня
+test('главная: деньги на первом экране, кнопки брони нет', async ({ page }) => {
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(
-      page.getByRole('article', { name: 'Загрузка на сегодня' }).getByTestId('c-occupancy'),
-    ).toBeInViewport();
-    const hotel = page.getByRole('region', { name: 'Гостиница сегодня' });
-    await expect(hotel).toBeAttached();
+    await expect(page.getByTestId('owner-net-cash')).toBeInViewport();
+    const risks = page.getByRole('region', { name: 'Риски на сегодня' });
+    await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
       .getByRole('button', { name: 'Требуют внимания', exact: true });
     await expect(attention).toBeAttached();
     if (width === 1440) {
-      await expect(hotel).toBeInViewport({ ratio: 1 });
+      await expect(risks).toBeInViewport({ ratio: 1 });
       await expect(attention).toBeInViewport();
     }
   }
@@ -73,15 +69,15 @@ test('период Главной и «Аналитики» на телефон�
   }
 });
 
-test('главная: финансы за выбранный период, гостиница за сегодня; месяц целиком в «Аналитике»', async ({
+test('главная: финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике»', async ({
   page,
 }) => {
-  // Главная владельца (30.09.2026): ?period= задаёт финансы, «Гостиница сегодня» всегда о сегодняшнем дне
+  // ?period= задаёт финансы, полоса рисков всегда о сегодняшнем дне
   await page.goto('/today?period=month');
   await expect(
     page.getByRole('navigation', { name: 'Период финансов' }).getByRole('link', { name: 'Месяц' }),
   ).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toContainText(
+  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toContainText(
     /\d{2}\.\d{2}\.\d{4}/,
   );
   await expect(page.getByTestId('period-caption')).toHaveCount(0);

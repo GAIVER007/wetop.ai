@@ -521,7 +521,7 @@ function summarize(
           : unit
             ? `ячейка ${unit}`
             : 'ячейка назначается позже';
-    return `${category?.name ?? dash}, ${where}, ${pluralRu(adults, ['гость', 'гостя', 'гостей'])}`;
+    return `${category?.name ?? dash}, ${where}, ${pluralRu(adults * quantity, ['гость', 'гостя', 'гостей'])}`;
   });
   return {
     nights,
@@ -746,7 +746,7 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
-      <Field label="Гостей">
+      <Field label="Гостей на место">
         <Input
           type="number"
           name={field('adults')}

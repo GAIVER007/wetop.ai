@@ -762,11 +762,38 @@ test('гости: удаление документа переспрашивае
 
 test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
   await page.goto('/reservations/new?unit=M03');
-  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей', { exact: true });
+  const guests = page
+    .getByTestId('placement-fields')
+    .first()
+    .getByLabel('Гостей на место', { exact: true });
   // койка в общем номере — один гость
   await expect(guests).toHaveAttribute('max', '1');
   await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
   await expect(guests).toHaveAttribute('max', '2');
+});
+
+test('групповая бронь: три места показывают трёх гостей в итогах', async ({ page }) => {
+  await page.goto('/reservations/new?unit=M03');
+  for (const [quantity, guests] of [
+    ['1', '1 гость'],
+    ['2', '2 гостя'],
+    ['3', '3 гостя'],
+  ]) {
+    await page.getByLabel('Количество мест', { exact: true }).fill(quantity!);
+    await page.getByLabel('Количество мест', { exact: true }).blur();
+    await expect(page.getByTestId('booking-summary')).toContainText(guests!);
+  }
+  await page
+    .getByTestId('new-reservation-form')
+    .locator('summary', { hasText: 'Дополнительно' })
+    .click();
+  await page.getByRole('button', { name: '+ Добавить размещение' }).click();
+  const second = page.getByTestId('placement-fields').nth(1);
+  await second.getByLabel('Категория *').selectOption('ROOM');
+  await second.getByLabel('Гостей на место').fill('2');
+  await second.getByLabel('Гостей на место').blur();
+  await expect(page.getByTestId('booking-summary')).toContainText('3 гостя');
+  await expect(page.getByTestId('booking-summary')).toContainText('2 гостя');
 });
 
 test('тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы»', async ({

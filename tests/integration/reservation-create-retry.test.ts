@@ -5,6 +5,9 @@ import { createPrismaClient, type Db } from '@pms/database';
 import { PrismaReservationsRepository } from '../../apps/api/src/reservations/reservations.repository';
 import { ReservationsService } from '../../apps/api/src/reservations/reservations.service';
 import { NoopAriPublisher } from '../../apps/api/src/channels/ari-publisher';
+import { PrismaChannelsRepository } from '../../apps/api/src/channels/channels.repository';
+import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { withIntegrationPropertyScope } from '../../apps/api/src/auth/request-context';
 
 const url = process.env.DATABASE_URL;
 const local = url && ['127.0.0.1', 'localhost'].includes(new URL(url).hostname);
@@ -33,7 +36,14 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
     });
   });
   afterAll(async () => {
-    await db?.$disconnect();
+    if (!db) return;
+    try {
+      const records = await db.reservation.findMany({ where: { notes: marker } });
+      for (const record of records) await service().cancel(record.confirmationNumber);
+      await db.inventoryUnit.updateMany({ where: { code: unitCode }, data: { active: false } });
+    } finally {
+      await db.$disconnect();
+    }
   });
   const service = () =>
     new ReservationsService(
@@ -110,6 +120,20 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
               .toISOString()
               .slice(0, 10),
           };
+          const typeId = (await tx.inventoryUnit.findFirstOrThrow({ where: { code: unitCode } }))
+            .accommodationTypeId;
+          const propertyId = (
+            await tx.inventoryUnit.findFirstOrThrow({ where: { code: unitCode } })
+          ).propertyId;
+          const channels = new PrismaChannelsRepository({ db: tx } as unknown as PrismaService);
+          const soldBefore = await withIntegrationPropertyScope(propertyId, () =>
+            channels.soldItems(input.arrivalDate, input.departureDate),
+          );
+          const freeBefore = await repo.categoryAvailability(
+            typeId,
+            input.arrivalDate,
+            input.departureDate,
+          );
           const first = await svc.create(input);
           const itemId = first.items[0]!.id;
           // Local synthetic guest card prerequisite, independent of pseudonymized creation mode.
@@ -120,11 +144,18 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
             where: { id: stored.primaryGuestId! },
             data: { citizenship: 'KAZ' },
           });
+          await svc.checkIn(first.confirmationNumber, itemId);
+          const extended = await svc.extend(first.confirmationNumber, itemId, { nights: 1 });
+          input.departureDate = extended.items[0]!.departureDate;
+          const target = (await repo.freeUnits(typeId, today, input.departureDate))[0]!;
+          await svc.assign(first.confirmationNumber, itemId, {
+            unitCode: target.code,
+            fromDate: today,
+          });
           const charges = await tx.charge.findMany({
             where: { folio: { reservationItemId: itemId } },
             orderBy: { id: 'asc' },
           });
-          await svc.checkIn(first.confirmationNumber, itemId);
           await svc.checkOut(first.confirmationNumber, itemId, { withDebt: true });
           expect(await tx.allocation.count({ where: { reservationItemId: itemId } })).toBe(0);
           expect(
@@ -133,19 +164,79 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
               orderBy: { id: 'asc' },
             }),
           ).toEqual(charges);
-          const unit = await tx.inventoryUnit.findFirstOrThrow({ where: { code: unitCode } });
+          const unit = await tx.inventoryUnit.findFirstOrThrow({ where: { code: target.code } });
           expect(unit.housekeepingStatus).toBe('DIRTY');
           await repo.setUnitHousekeeping(unit.id, 'DIRTY', 'CLEAN');
           await repo.setUnitHousekeeping(unit.id, 'CLEAN', 'INSPECTED');
-          const next = await svc.create({ ...input, creationKey: randomUUID() });
+          expect(
+            await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate),
+          ).toBe(freeBefore);
+          const sold = await withIntegrationPropertyScope(unit.propertyId, () =>
+            channels.soldItems(input.arrivalDate, input.departureDate),
+          );
+          expect(sold.filter((s) => s.accommodationTypeCode === 'L-DOUBLE')).toEqual(
+            soldBefore.filter((s) => s.accommodationTypeCode === 'L-DOUBLE'),
+          );
+          const group = {
+            ...input,
+            creationKey: randomUUID(),
+            items: [
+              {
+                accommodationTypeCode: 'L-DOUBLE',
+                ratePlanCode: 'L-BASE',
+                adults: 1,
+                quantity: freeBefore,
+              },
+            ],
+          };
+          const quote = await svc.create(group, { preview: true });
+          const next = await svc.create({ ...group, expectedTotalMinor: quote.totalMinor });
           expect(next.confirmationNumber).not.toBe(first.confirmationNumber);
+          expect(next.items).toHaveLength(freeBefore);
+          expect(
+            await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate),
+          ).toBe(0);
           expect(
             await tx.allocation.count({ where: { reservationItemId: next.items[0]!.id } }),
           ).toBe(1);
+          const reloaded = await repo.card(next.confirmationNumber);
+          expect(reloaded?.items).toHaveLength(freeBefore);
+          expect(new Set(reloaded!.items.map((i) => i.unitCode)).size).toBe(freeBefore);
+          await svc.cancel(next.confirmationNumber);
+          expect(
+            await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate),
+          ).toBe(freeBefore);
           throw new Rollback();
         },
         { timeout: 60000 },
       ),
     ).rejects.toBeInstanceOf(Rollback);
+  });
+  it('две одновременные продажи всей категории сохраняют только одну группу', async () => {
+    const repo = new PrismaReservationsRepository(db, propertyName);
+    const typeId = (await db.inventoryUnit.findFirstOrThrow({ where: { code: unitCode } }))
+      .accommodationTypeId;
+    let input = payload(randomUUID(), 240);
+    let free = await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate);
+    for (let offset = 241; free < 2 && offset < 270; offset++) {
+      input = payload(randomUUID(), offset);
+      free = await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate);
+    }
+    expect(free).toBeGreaterThan(1);
+    const group = {
+      ...input,
+      items: [
+        { accommodationTypeCode: 'L-DOUBLE', ratePlanCode: 'L-BASE', adults: 1, quantity: free },
+      ],
+    };
+    const guests = await db.guest.count();
+    const results = await Promise.allSettled([
+      service().create(group),
+      service().create({ ...group, creationKey: randomUUID() }),
+    ]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(results.filter((r) => r.status === 'rejected')).toHaveLength(1);
+    expect(await db.guest.count()).toBe(guests + 1);
+    expect(await repo.categoryAvailability(typeId, input.arrivalDate, input.departureDate)).toBe(0);
   });
 });

@@ -177,6 +177,8 @@ test('сопоставление: названия Channex вместо id, не
   const base = main.getByTestId('mapping-rate-plans').getByRole('row', { name: /Стандартный/ });
   await expect(base).toContainText('2 из 3');
   await expect(base).toContainText('Не во всех категориях');
+  await expect(main).toContainText('Сопоставлено тарифов: 1');
+  await expect(main).not.toContainText('В каналы уходит один тариф');
   // id Channex в таблицах не показываются — только раскрывашкой «Технические детали»
   await expect(categoriesTable).not.toContainText('ui-rt-room');
   const tech = main.getByTestId('mapping-tech');
@@ -199,6 +201,7 @@ test('сопоставление: названия Channex вместо id, не
   await page.goto('/channels/mapping');
   await expect(main.getByTestId('mapping-categories')).toBeVisible();
   await expect(main.getByTestId('mapping-plans-error')).toBeVisible();
+  await expect(main).toContainText('Сопоставлено тарифов: 1');
   // телефон: таблицы без прокрутки вбок
   await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
   await page.setViewportSize({ width: 390, height: 844 });

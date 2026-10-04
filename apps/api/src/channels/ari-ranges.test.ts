@@ -24,6 +24,29 @@ const stay = (
 ): StaySpan => ({ categoryCode, arrivalDate, departureDate, status });
 
 describe('changedNightRanges', () => {
+  it('карточка завершённой брони передаёт очищенные назначения в расчёт изменений', () => {
+    const item = {
+      accommodationTypeCode: 'single',
+      arrivalDate: '2026-10-04',
+      departureDate: '2026-10-08',
+      status: 'CHECKED_OUT',
+      unitCode: null,
+    };
+    expect(
+      changedNightRanges(
+        [stay('single', '2026-10-04', '2026-10-08')],
+        cardStays({ items: [item] }),
+      ),
+    ).toEqual([{ categoryCode: 'single', from: '2026-10-04', toExclusive: '2026-10-08' }]);
+  });
+  it('выезд в день заезда освобождает весь остаток срока без изменения плановых дат', () => {
+    const before = stay('single', '2026-10-04', '2026-10-08', 'CHECKED_IN');
+    const after = { ...before, status: 'CHECKED_OUT', allocationEndDates: [] };
+    expect(changedNightRanges([before], [after])).toEqual([
+      { categoryCode: 'single', from: '2026-10-04', toExclusive: '2026-10-08' },
+    ]);
+  });
+
   it('новая бронь — ровно её ночи', () => {
     expect(changedNightRanges([], [stay('single', '2026-12-15', '2026-12-17')])).toEqual([
       { categoryCode: 'single', from: '2026-12-15', toExclusive: '2026-12-17' },

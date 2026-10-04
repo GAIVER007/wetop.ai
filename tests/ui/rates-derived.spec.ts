@@ -60,6 +60,15 @@ test('производный тариф: добавить, условия сло
   await edit.getByLabel('Скидка, %').fill('20');
   await edit.getByRole('button', { name: 'Сохранить условия' }).click();
   await expect(row).toContainText('−20% от «Стандартный»');
+  await row.getByRole('button', { name: 'Раннее бронирование' }).click();
+  await edit.getByRole('button', { name: 'Отключить тариф', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.reload();
+  await expect(planRow(page, 'Раннее бронирование')).toContainText('не действует');
+  await row.getByRole('button', { name: 'Раннее бронирование' }).click();
+  await edit.getByRole('button', { name: 'Включить тариф', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(row.getByText('не действует')).toHaveCount(0);
 });
 
 test('промокоды: вкладка, добавить, повтор кода — ошибка, выключить', async ({ page }) => {

@@ -593,8 +593,17 @@ async function Mapping() {
           )
         )}
         <p className="note">
-          В каналы уходит один тариф: он сопоставлен с каждой категорией объекта. Остальные тарифы
-          работают только в WETOP — это не ошибка.
+          Сопоставлено тарифов:{' '}
+          {
+            new Set(
+              mapping
+                .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+                .map((m) => m.localRatePlanId),
+            ).size
+          }
+          . Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений
+          доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или
+          успешную передачу цен.
         </p>
       </section>
       <details className="context-help" data-testid="mapping-tech">

@@ -206,7 +206,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const local = await this.repo.localSetup(ratePlanCode);
     if (!local.ratePlan)
       throw new UnprocessableEntityException(
-        `Тариф ${ratePlanCode} не найден — сначала импорт тарифов`,
+        `Тариф ${ratePlanCode} не найден или отключён. Выберите действующий тариф`,
       );
     const ratePlan = local.ratePlan;
     const today = await this.repo.today();

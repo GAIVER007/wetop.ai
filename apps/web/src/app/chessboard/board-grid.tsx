@@ -1531,8 +1531,6 @@ function Cell({
           aria-hidden="true"
           {...free}
         >
-          {/* число месяца в пустой клетке — ориентир при прокрутке длинного периода */}
-          <span className="board__free-day">{Number(cell.date.slice(8))}</span>
         </Link>
       ) : (
         <Link

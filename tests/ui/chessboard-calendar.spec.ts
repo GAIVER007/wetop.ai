@@ -59,11 +59,10 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('пустая клетка подписана числом месяца', async ({ page }) => {
+test('пустая клетка не дублирует дату из шапки календаря', async ({ page }) => {
   await page.goto('/chessboard');
   const free = page.getByTestId('free-cell').first();
   await expect(free).toBeAttached();
-  const date = await free.getAttribute('href');
-  const day = Number(/arrival=\d{4}-\d{2}-(\d{2})/.exec(date ?? '')?.[1]);
-  await expect(free.locator('.board__free-day')).toHaveText(String(day));
+  await expect(free).toHaveText('');
+  await expect(free.locator('.board__free-day')).toHaveCount(0);
 });

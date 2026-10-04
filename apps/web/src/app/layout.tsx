@@ -10,10 +10,12 @@ import { OnboardingGate } from './onboarding-gate';
 import { PropertyTimeProvider } from '../components/property-time';
 import { DeskAccessProvider } from '../components/desk-access';
 import { AccessGate } from '../components/access-gate';
-import { hotelApi, propertyTimezone } from '../lib/hotel-api';
+import { hotelApi } from '../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../lib/property-time';
+import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
-import { ApiError, branchesApi } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { selectedBeautyBranch, workspaceTimezone } from '../lib/workspace-context';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
@@ -29,8 +31,8 @@ import './control.css';
 import './glass.css';
 
 export const metadata = {
-  title: 'WETOP · Управление гостиницей',
-  description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
+  title: 'WETOP: рабочее пространство',
+  description: 'Рабочее пространство вашего бизнеса.',
 };
 
 // Без viewport-fit=cover env(safe-area-inset-*) на iPhone равны нулю, и нижняя навигация (ADR-050)
@@ -49,18 +51,19 @@ function isPublicEntryPath(path: string): boolean {
 }
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
+  if ((await deskShell()).vertical === 'BEAUTY') {
+    const branch = await selectedBeautyBranch().catch(() => null);
+    return branch
+      ? field === 'name'
+        ? branch.name
+        : (branch.address ?? 'Салон')
+      : 'Выберите филиал';
+  }
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
   });
-  if (hotel) return hotel.property[field];
-  // Филиал салона объекта не имеет (DATA_MODEL §19, срез B2): в карточке его имя, а не «объект не загружен»
-  const salon = await branchesApi
-    .list()
-    .then(({ items }) => items.find((item) => item.vertical === 'BEAUTY') ?? null)
-    .catch(() => null);
-  if (salon) return field === 'name' ? salon.name : (salon.address ?? 'Салон');
-  return field === 'name' ? 'Объект не загружен' : 'Настройки объекта';
+  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта');
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */
@@ -94,7 +97,7 @@ export default async function RootLayout({
   const desk = deskShell();
   // Пояс объекта для календарей и времени в клиентских компонентах (С-13) — тоже обещанием. Отказ API или
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
-  const timezone = propertyTimezone().catch(() => FALLBACK_TIMEZONE);
+  const timezone = workspaceTimezone().catch(() => FALLBACK_TIMEZONE);
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -139,9 +142,13 @@ export default async function RootLayout({
         </ThemeProvider>
         {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
         <Suspense fallback={null}>
-          <AssistantWidget />
+          <WorkspaceAssistant desk={desk} />
         </Suspense>
       </body>
     </html>
   );
+}
+
+async function WorkspaceAssistant({ desk }: { desk: Promise<DeskShell> }) {
+  return (await desk).vertical === 'BEAUTY' ? null : <AssistantWidget />;
 }

@@ -14,11 +14,24 @@ import './beauty.css';
  * Это аналог шахматки по роли на экране, но своя таблица и свой экран: общей таблицы броней и общего
  * «ресурса» у вертикалей нет (ADR-104). Столбцы это мастера филиала, строки время, плитка это запись.
  */
-export default async function BeautyPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function BeautyPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const { date } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
-  const loaded = await beautyApi.day(date).then(
-    (value) => ({ ok: true as const, value }),
+  const loaded = await Promise.all([
+    beautyApi.day(date),
+    beautyApi.customers(),
+    beautyApi.employees(),
+  ]).then(
+    (value) => ({
+      ok: true as const,
+      value: value[0],
+      customers: value[1].items,
+      employees: value[2].items,
+    }),
     (error: unknown) => {
       // управление самого Next (переход на вход) пропускаем дальше, иначе страница его проглотит
       unstable_rethrow(error);
@@ -35,10 +48,15 @@ export default async function BeautyPage({ searchParams }: { searchParams: Promi
   return (
     <Page
       className="beauty-page"
-      title={loaded.value.location.name ?? 'Салон'}
-      subtitle="Журнал записей: кто и когда придёт к мастерам этого филиала."
+      title="Календарь"
+      subtitle={loaded.value.location.name ?? 'Записи филиала'}
     >
-      <JournalBoard day={loaded.value} readOnly={shell.readOnly} />
+      <JournalBoard
+        day={loaded.value}
+        customers={loaded.customers}
+        employees={loaded.employees}
+        readOnly={shell.readOnly}
+      />
     </Page>
   );
 }

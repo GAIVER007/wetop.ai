@@ -46,7 +46,7 @@ async function openSalon(page: Page, request: APIRequestContext, second = false)
     .filter({ hasText: 'Студия Айна' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/beauty');
+  await page.waitForURL('**/calendar');
 }
 
 async function addMaster(page: Page, name: string) {
@@ -86,7 +86,9 @@ test('неделя мастера ставится и читается слов�
 
   await page.goto('/beauty/schedule');
   // «9:00» приводится к «09:00» тем же правилом, что время заезда объекта (SET2)
-  await expect(main.getByRole('row').filter({ hasText: 'Понедельник' })).toContainText('09:00 до 18:00');
+  await expect(main.getByRole('row').filter({ hasText: 'Понедельник' })).toContainText(
+    '09:00 до 18:00',
+  );
   await expect(main.getByRole('row').filter({ hasText: 'Вторник' })).toContainText('Выходной');
   await expect(main.getByTestId('beauty-schedule-summary')).toContainText('9 часов');
   await page.screenshot({ path: `${SNAPSHOTS}/schedule-1440.png`, fullPage: true });
@@ -124,15 +126,19 @@ test('два интервала через перерыв сохраняются
   await addMaster(page, 'Дина');
   await page.goto('/beauty/schedule');
   const panel = await setWeek(page, 'Пятница', '09:00', '13:00');
-  await panel.getByRole('group').filter({ hasText: 'Пятница' }).getByRole('button', { name: 'Ещё интервал', exact: true }).click();
+  await panel
+    .getByRole('group')
+    .filter({ hasText: 'Пятница' })
+    .getByRole('button', { name: 'Ещё интервал', exact: true })
+    .click();
   await panel.getByLabel('Пятница: начало').nth(1).fill('14:00');
   await panel.getByLabel('Пятница: конец').nth(1).fill('20:00');
   await panel.getByRole('button', { name: 'Сохранить график', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('График сохранён');
   await page.goto('/beauty/schedule');
-  await expect(page.getByRole('main').getByRole('row').filter({ hasText: 'Пятница' })).toContainText(
-    '09:00 до 13:00, 14:00 до 20:00',
-  );
+  await expect(
+    page.getByRole('main').getByRole('row').filter({ hasText: 'Пятница' }),
+  ).toContainText('09:00 до 13:00, 14:00 до 20:00');
 });
 
 test('отсутствие предупреждает о записях, снимается с вопросом', async ({ page, request }) => {
@@ -174,7 +180,10 @@ test('отсутствие с концом раньше начала не ухо
   await openSalon(page, request);
   await addMaster(page, 'Дина');
   await page.goto('/beauty/schedule');
-  await page.getByRole('main').getByRole('button', { name: 'Добавить отсутствие', exact: true }).click();
+  await page
+    .getByRole('main')
+    .getByRole('button', { name: 'Добавить отсутствие', exact: true })
+    .click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('С какого дня').fill('2026-11-14');
   await panel.getByLabel('По какой день включительно').fill('2026-11-12');
@@ -212,7 +221,9 @@ test('мастер переставляется между филиалами, �
   await again.getByRole('button', { name: 'Сохранить филиалы', exact: true }).click();
   await expect(again.getByRole('status')).toContainText('Филиалы мастера сохранены');
   await page.goto('/beauty/schedule');
-  await expect(main.getByTestId('beauty-schedule-summary')).toContainText('в этом филиале не работает');
+  await expect(main.getByTestId('beauty-schedule-summary')).toContainText(
+    'в этом филиале не работает',
+  );
   await expect(main.getByRole('row').filter({ hasText: 'Понедельник' })).toContainText('Выходной');
   // мастер, который здесь не работает, графика в этом филиале и не получит
   await expect(main.getByRole('button', { name: 'Изменить график', exact: true })).toHaveCount(0);
@@ -249,7 +260,10 @@ for (const theme of ['light', 'dark'] as const) {
     expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
 
     // панель графика тоже проверяем: в ней вся правка недели
-    await page.getByRole('main').getByRole('button', { name: 'Изменить график', exact: true }).click();
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: 'Изменить график', exact: true })
+      .click();
     const panel = page.getByRole('dialog');
     await expect(panel).toBeVisible();
     await settled(panel);

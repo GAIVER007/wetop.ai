@@ -38,6 +38,11 @@ export async function saveBeautyService(
   try {
     if (id) await beautyApi.updateService(id, body);
     else await beautyApi.createService(body);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/services');
     return { message: id ? 'Услуга сохранена' : 'Услуга добавлена' };
   } catch (e) {
@@ -56,6 +61,11 @@ export async function saveLocationService(
       priceOverrideMinor: text(form, 'priceOverrideMinor'),
       durationOverrideMinutes: text(form, 'durationOverrideMinutes'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/services');
     return { message: 'Настройки филиала сохранены' };
   } catch (e) {
@@ -81,6 +91,11 @@ export async function saveBeautyEmployee(
     // умения приходят одним списком: снятые галочки должны сниматься, а не копиться
     const serviceIds = form.getAll('serviceIds').filter((v): v is string => typeof v === 'string');
     await beautyApi.setEmployeeServices(saved.id, serviceIds);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/masters');
     return { message: id ? 'Мастер сохранён' : 'Мастер добавлен' };
   } catch (e) {
@@ -101,6 +116,11 @@ export async function saveBeautyWorkingHours(
   }
   try {
     await beautyApi.setWorkingHours(id, intervals);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     return { message: 'График сохранён' };
   } catch (e) {
@@ -119,6 +139,11 @@ export async function addBeautyTimeOff(
       dateTo: text(form, 'dateTo'),
       reason: text(form, 'reason'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     // записи отсутствие не отменяет: это деньги, решение владельца по Q-252 ещё не принято
     return {
@@ -137,6 +162,11 @@ export async function removeBeautyTimeOff(
 ): Promise<SaveResult> {
   try {
     await beautyApi.removeTimeOff(employeeId, timeOffId);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     return { message: 'Отсутствие снято' };
   } catch (e) {
@@ -153,9 +183,22 @@ export async function saveBeautyEmployeeLocations(
   const locationIds = form.getAll('locationIds').filter((v): v is string => typeof v === 'string');
   try {
     await beautyApi.setEmployeeLocations(id, locationIds);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     return { message: 'Филиалы мастера сохранены' };
   } catch (e) {
     return failed(e, 'Не удалось сохранить филиалы мастера.');
+  }
+}
+
+export async function loadBeautySchedule(employeeId: string) {
+  try {
+    return { data: await beautyApi.schedule(employeeId) };
+  } catch (error) {
+    return { error: failed(error, 'Не удалось загрузить график').error };
   }
 }

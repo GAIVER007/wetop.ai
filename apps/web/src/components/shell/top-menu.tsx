@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useRef, useState } from 'react';
 import {
   CLOSED_ACCESS,
-  PENDING_ACCESS,
   activeMenuRoute,
   menuSectionsFor,
   type MenuSection,
@@ -68,7 +67,7 @@ export function TopMenu({
     >
       <div className="topmenu__tabs">
         {/* пока API не ответил — вкладки как у администратора: они появляются, а не исчезают (ADR-107) */}
-        <Suspense fallback={<Tabs sections={menuSectionsFor(PENDING_ACCESS)} {...tabs} />}>
+        <Suspense fallback={null}>
           <GrantedTabs desk={desk} {...tabs} />
         </Suspense>
       </div>

@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { onboardingFlow } from '@pms/domain';
 import { Alert, Button, Field, Input } from '../../../components/ui';
@@ -13,6 +14,7 @@ export function OnboardingShell({
   initial: SharedOnboardingState;
   hotel: OnboardingStatus | null;
 }) {
+  const router = useRouter();
   const [state, setState] = useState(initial);
   const [draft, setDraft] = useState(initial.draft);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,10 @@ export function OnboardingShell({
       const result = await saveOnboarding({ action, draft, updatedAt: state.updatedAt });
       if (result.error || !result.state) {
         setError(result.error);
+        return;
+      }
+      if (result.state.vertical === 'BEAUTY' && result.state.completedAt) {
+        router.replace('/calendar');
         return;
       }
       setState(result.state);

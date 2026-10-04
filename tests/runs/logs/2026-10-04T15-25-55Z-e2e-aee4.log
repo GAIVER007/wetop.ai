@@ -1,0 +1,67 @@
+# Сквозные (e2e) · 04.10.2026 20:25 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:97598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:97661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete (1.5m)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Услуга', { exact: true })
+
+
+      70 |   const panel = page.getByRole('dialog');
+      71 |   await panel.getByLabel('Имя клиента', { exact: true }).fill(name);
+    > 72 |   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
+         |                                                     ^
+      73 |   await panel.getByLabel('Время', { exact: true }).fill(time);
+      74 |   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
+      75 |   return panel;
+        at book (/Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:72:53)
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:129:16
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete
+  5 did not run
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 1 мин 37 с

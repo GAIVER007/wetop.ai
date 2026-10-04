@@ -12,6 +12,7 @@ export default async function SetupPage() {
   const { context } = await authApi.me();
   if (!context?.businessId || !context.locationId) redirect('/register/complete');
   const state = await sharedOnboardingApi.status();
+  if (state.vertical === 'BEAUTY' && state.completedAt) redirect('/calendar');
   const hotel = state.vertical === 'HOSPITALITY' ? await onboardingApi.status() : null;
   if (hotel && !hotel.needed) redirect('/today');
   return <OnboardingShell initial={state} hotel={hotel} />;

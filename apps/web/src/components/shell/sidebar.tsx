@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useState } from 'react';
 import {
   CLOSED_ACCESS,
-  PENDING_ACCESS,
   activeMenuRoute,
   menuSections,
   menuSectionsFor,
@@ -50,9 +49,7 @@ export function Sidebar({
       </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
         {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
-        <Suspense
-          fallback={<SectionLinks sections={menuSectionsFor(PENDING_ACCESS)} {...links} />}
-        >
+        <Suspense fallback={null}>
           <GrantedSectionLinks desk={desk} {...links} />
         </Suspense>
       </nav>
@@ -89,7 +86,12 @@ function GrantedSectionLinks({
   ...props
 }: LinksProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <SectionLinks sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
+  return (
+    <SectionLinks
+      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      {...props}
+    />
+  );
 }
 
 function SectionLinks({

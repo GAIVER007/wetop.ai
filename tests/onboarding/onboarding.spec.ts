@@ -44,9 +44,15 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
     await expect(main.getByText('Сохранённый филиал', { exact: true })).toBeVisible();
     await main.getByRole('button', { name: 'Завершить настройку' }).click();
-    await expect(main.getByRole('status')).toContainText('Пилот');
-    await page.reload();
-    await expect(main.getByRole('status')).toContainText('Пилот');
+    if (vertical === 'BEAUTY') {
+      await expect(page).toHaveURL(/\/calendar$/);
+      await page.reload();
+      await expect(page).toHaveURL(/\/calendar$/);
+    } else {
+      await expect(main.getByRole('status')).toContainText('Пилот');
+      await page.reload();
+      await expect(main.getByRole('status')).toContainText('Пилот');
+    }
     const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
     expect(calls.some((p) => p.startsWith('/hotel'))).toBe(false);
   });

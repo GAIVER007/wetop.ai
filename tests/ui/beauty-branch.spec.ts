@@ -37,7 +37,7 @@ async function createAndOpenSalon(page: Page, name: string) {
     .filter({ hasText: name })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/beauty');
+  await page.waitForURL('**/calendar');
 }
 
 test('салон заводится той же формой и открывается своим рабочим местом', async ({
@@ -47,10 +47,9 @@ test('салон заводится той же формой и открывае
   await signIn(page, request);
   await createAndOpenSalon(page, 'Студия Айна');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Студия Айна');
-  // главный экран салона это журнал записей (срез B5); честность осталась отдельной строкой
-  await expect(main).toContainText('Журнал записей');
-  await expect(main.getByTestId('beauty-journal-note')).toContainText('пока нет');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Календарь');
+  await expect(main).toContainText('Студия Айна');
+  await expect(main.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
 });
 
@@ -63,10 +62,14 @@ test('в салоне меню без гостиничных разделов: �
   // до переключения это обычная гостиница
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
   await createAndOpenSalon(page, 'Студия Айна');
-  await expect(menu.getByRole('link', { name: 'Салон', exact: true })).toBeVisible();
-  for (const label of ['Календарь', 'Брони', 'Номерной фонд', 'Гости']) {
+  await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
+  for (const label of ['Сегодня', 'Брони', 'Номерной фонд', 'Гости']) {
     await expect(menu.getByRole('link', { name: label, exact: true })).toHaveCount(0);
   }
+  await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
+    'href',
+    '/calendar',
+  );
   await expect(menu.getByRole('link', { name: 'Сотрудники', exact: true })).toBeVisible();
 });
 
@@ -79,6 +82,7 @@ test('карточка объекта показывает имя салона, 
   const header = page.locator('.workspace-header');
   await expect(header).toContainText('Студия Айна');
   await expect(header).not.toContainText('Объект не загружен');
+  await expect(header.getByTestId('data-freshness')).toHaveCount(0);
 });
 
 test('салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки', async ({
@@ -89,7 +93,7 @@ test('салон на телефоне: нижняя панель своих р�
   await createAndOpenSalon(page, 'Студия Айна');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Студия Айна');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${SNAPSHOTS}/salon-390.png`, fullPage: true });
 });

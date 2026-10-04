@@ -5577,3 +5577,13 @@ inside writes. Appointment transitions reject stale concurrent state. Existing G
 cross-location overlap authority. A minimal CustomerBusiness-filtered list exposes beauty.customers.
 Consequences: legacy no-scope Beauty requests must select context; Hospitality compatibility unchanged.
 No UI, production deployment or migration in MV4. MV5 requires separate approval.
+
+## ADR-MV5: Beauty workspace over accepted API (2026-10-04)
+
+Problem: existing Beauty UI uses legacy paths and hotel shell metadata, lacks operational list and mobile timeline.
+Options: new salon app; extend shared WETOP components over MV4. Owner approved second option.
+Decision: canonical /calendar landing and five work routes selected by verified Business.vertical.
+Reuse existing forms, permissions and canWrite; exact selected Location supplies shell metadata.
+Appointments use server eligibility, price snapshots and next transitions. CustomerBusiness list is read-only.
+Employee schedule stays on existing API. Existing Beauty paths remain compatible.
+Consequences: no schema, domain or backend contract changes; production excluded. MV6 needs separate approval.

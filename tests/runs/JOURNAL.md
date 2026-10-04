@@ -5933,3 +5933,7 @@
 | 04.10.2026 13:10 | typecheck | ❌ ошибок: 95 | 17 с | 5b4c4de | [лог](logs/2026-10-04T08-10-33Z-typecheck-2c64.log) | TS1002 |
 | 04.10.2026 13:11 | typecheck | ✅ без ошибок | 1 мин 14 с | 50ed25e | [лог](logs/2026-10-04T08-11-14Z-typecheck-96a6.log) | повтор после удаления оборванного кэша стенда .next-ui |
 | 04.10.2026 14:04 | e2e (частично: tests/e2e/desk-day.spec.ts --workers=1) | ✅ 2 из 2 | 1 мин 17 с | 207d04f +1 | [лог](logs/2026-10-04T09-04-08Z-e2e-d2ef.log) |  |
+| 04.10.2026 14:08 | typecheck | ✅ без ошибок | 30 с | 4c705dc | [лог](logs/2026-10-04T09-08-02Z-typecheck-04c7.log) | после третьего слияния с main |
+| 04.10.2026 14:08 | lint | ✅ без ошибок | 16 с | 4c705dc | [лог](logs/2026-10-04T09-08-33Z-lint-047a.log) | после третьего слияния с main |
+| 04.10.2026 14:08 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/fixture-isolation.spec.ts | ❌ упало 1 из 13 | 1 мин 21 с | 4c705dc | [лог](logs/2026-10-04T09-08-49Z-e2e-fedc.log) | контракты после третьего слияния с main |
+| 04.10.2026 14:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/fixture-isolation.spec.ts | ✅ 13 из 13 | 1 мин 28 с | 4c705dc +1 | [лог](logs/2026-10-04T09-12-08Z-e2e-610d.log) | контракты после усиления теста нижнего отступа |

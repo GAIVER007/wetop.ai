@@ -72,10 +72,17 @@ test('ноутбук: под содержимым нет пустой полос
   // этот отступ достался таблице
   for (const route of ['/finance', '/reports', '/channels', '/incidents']) {
     await page.goto(route);
-    const pad = await page
-      .locator('.page:visible')
-      .first()
-      .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
-    expect(pad, `${route}: нижний отступ ${pad} px`).toBeLessThanOrEqual(32);
+    await expect(page.getByRole('main')).toBeVisible();
+    // опрос, а не разовый замер: пока страница показывает экран загрузки, у `.page` нет итогового отступа
+    await expect
+      .poll(
+        () =>
+          page
+            .locator('.page:visible')
+            .first()
+            .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom)),
+        { message: `${route}: нижний отступ страницы не больше 32 px` },
+      )
+      .toBeLessThanOrEqual(32);
   }
 });

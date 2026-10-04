@@ -5894,3 +5894,8 @@
 | 04.10.2026 12:47 | typecheck | ✅ без ошибок | 20 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-24Z-typecheck-fd47.log) |  |
 | 04.10.2026 12:47 | lint | ✅ без ошибок | 15 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-45Z-lint-5ea8.log) |  |
 | 04.10.2026 12:48 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 680bac4 +1 | [лог](logs/2026-10-04T07-48-01Z-unit-a582.log) |  |
+| 04.10.2026 13:00 | typecheck | ✅ без ошибок | 3 мин 20 с | 22150d8 | [лог](logs/2026-10-04T08-00-10Z-typecheck-d8bd.log) |  |
+| 04.10.2026 13:03 | lint | ✅ без ошибок | 41 с | 22150d8 | [лог](logs/2026-10-04T08-03-32Z-lint-aced.log) |  |
+| 04.10.2026 13:04 | unit | ❌ упало 5 из 3225, пропущено 4 | 2 мин 27 с | 22150d8 | [лог](logs/2026-10-04T08-04-22Z-unit-87b5.log) | scripts/ops/auto-deploy.sh владелец применил миграции и назвал вершину — выкладывает ровно её |
+| 04.10.2026 13:06 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec) | ✅ 19 из 19 | 2 мин 36 с | 22150d8 | [лог](logs/2026-10-04T08-06-53Z-e2e-737d.log) | итоговое дерево перед вливанием в main |
+| 04.10.2026 13:09 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/db-backup-offsite.test.ts) | ✅ 27 из 28, пропущено 1 | 29 с | 22150d8 | [лог](logs/2026-10-04T08-09-42Z-unit-6062.log) | повтор пяти таймаутов полного unit под нагрузкой |

@@ -5899,3 +5899,7 @@
 | 04.10.2026 13:04 | unit | ❌ упало 5 из 3225, пропущено 4 | 2 мин 27 с | 22150d8 | [лог](logs/2026-10-04T08-04-22Z-unit-87b5.log) | scripts/ops/auto-deploy.sh владелец применил миграции и назвал вершину — выкладывает ровно её |
 | 04.10.2026 13:06 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec) | ✅ 19 из 19 | 2 мин 36 с | 22150d8 | [лог](logs/2026-10-04T08-06-53Z-e2e-737d.log) | итоговое дерево перед вливанием в main |
 | 04.10.2026 13:09 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/db-backup-offsite.test.ts) | ✅ 27 из 28, пропущено 1 | 29 с | 22150d8 | [лог](logs/2026-10-04T08-09-42Z-unit-6062.log) | повтор пяти таймаутов полного unit под нагрузкой |
+| 04.10.2026 12:57 | typecheck | ✅ без ошибок | 3 мин 6 с | 046a3ed +14 | [лог](logs/2026-10-04T07-57-38Z-typecheck-1d98.log) |  |
+| 04.10.2026 13:01 | lint | ✅ без ошибок | 1 мин 28 с | 046a3ed +14 | [лог](logs/2026-10-04T08-01-37Z-lint-cd65.log) |  |
+| 04.10.2026 13:03 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts scripts/design/build-tokens.test.ts apps/web/src/app/today/owner-metrics.test.t | ✅ 40 из 40 | 10 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-12Z-unit-5132.log) |  |
+| 04.10.2026 13:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/today-attentio | ✅ 26 из 26 | 4 мин 30 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-31Z-e2e-174f.log) |  |

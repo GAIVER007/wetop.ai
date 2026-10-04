@@ -169,7 +169,7 @@ test('первый экран говорит, что это за система 
   // страницы (plans/site-home-clear-blocks-2026-10-01.md), без вымышленных имён и сумм.
   await expect(hero.locator('.hero__seal')).toHaveCount(0);
   await expect(hero.locator('.hero__word')).toHaveCount(0);
-  await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
+  await expect(hero.locator('.hero__status')).toHaveText(/Подключаем партнёров вручную/);
   const map = hero.getByRole('list', { name: /Разделы WETOP/ });
   await expect(map).toBeVisible();
   await expect(hero.locator('.vertical-status'), 'состояние направлений на первом экране').toHaveCount(

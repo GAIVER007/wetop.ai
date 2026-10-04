@@ -2721,3 +2721,8 @@ seller_agents, `organization_id`, `property_id` (выводятся из аге�
 5. Адаптер облачной кассы добавит внешний идентификатор и состояние отправки, не меняя смысла строки.
 
 **Миграция** `20261003000048_fiscal_receipts` с `down.sql`; на рабочей базе применяет владелец.
+
+
+## MV1 amendment, 04.10.2026, утверждён владельцем
+
+BusinessVertical расширяется FOOD_SERVICE. Canonical источник только Business.vertical, без нового vertical на Organization/Location. HOSPITALITY доступен, BEAUTY/FOOD_SERVICE PILOT, публичная регистрация закрыта до operational acceptance. MV1 не меняет Beauty tables, financial logic и Hospitality Guest. Новые Food tables не вводятся. Additive enum migration с guarded down; при FOOD_SERVICE rows откат останавливается без потери данных. Production migration отдельно.

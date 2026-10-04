@@ -3,7 +3,8 @@ import { can, type MembershipRole, type Permission } from '@pms/domain';
 
 /** Рабочая область запроса (Platform P2, К1; план P2 §3–§4, ADR-120): вычисляется API, снаружи не приходит */
 export type RequestScope = 'ORGANIZATION' | 'BUSINESS' | 'LOCATION';
-export type BusinessVertical = 'HOSPITALITY' | 'BEAUTY';
+export type { BusinessVertical } from '@pms/domain';
+import type { BusinessVertical } from '@pms/domain';
 
 /**
  * Кто делает текущий запрос — чтобы `audit_logs.user_id` заполнялся сам, а не в каждом репозитории руками

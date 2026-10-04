@@ -789,14 +789,15 @@
   text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
+  /* Одна строка управления вместо двух: период, сегмент, «Даты» и «Помощь» — элементы одного
+   * переносящегося ряда (у .board-period и .board-bar на телефоне своей рамки нет). */
   .board-controls {
-    display: block;
-  }
-  .board-controls .board-period {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-2);
+  }
+  .board-controls .board-period {
+    display: contents;
   }
   /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
    * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
@@ -809,10 +810,28 @@
   .page:has(> .board-wrap) > .page__head .btn--secondary {
     display: none;
   }
+  /* «Новая бронь» осталась одна — ставим её рядом с заголовком: общее правило телефона
+   * (.page__actions width:100%) уводило кнопку на свою строку и отнимало у сетки 34 px. */
+  .page:has(> .board-wrap) > .page__head .page__actions {
+    width: auto;
+    margin-left: auto;
+  }
+  /* «Даты» и «Помощь» встают в ряд к сегменту 7/14/30, а не отдельной строкой: своей рамки
+   * у .board-bar на телефоне нет, раскрытые формы по-прежнему берут строку целиком (order ниже). */
+  .board-controls .board-bar {
+    display: contents;
+  }
+  /* Подсказка остаётся в первой строке рядом со стрелками дат (контракт chessboard-week C1
+   * «не выходит за экран на телефоне»), а сегмент и «Даты» идут во вторую: две строки вместо трёх. */
+  .board-controls .board-period > .seg,
+  .board-controls .board-custom-range > .btn {
+    order: 1;
+  }
   .board-controls .board-date-nav {
     display: grid;
     grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target) auto;
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .board-period-label {
     font-size: var(--text-sm);
@@ -841,7 +860,7 @@
   .board-controls .board-custom-range[data-open='true'] .board-range-form {
     display: grid;
     flex: 1 1 100%;
-    order: 1;
+    order: 2;
   }
   .board-controls .board-bar > .board-help {
     width: auto;
@@ -849,7 +868,7 @@
   }
   .board-controls .board-bar > .board-help[open] {
     flex-basis: 100%;
-    order: 2;
+    order: 3;
   }
   .board-controls .board-range-form .inp {
     height: var(--touch-target);
@@ -939,15 +958,16 @@
   .board-range-form > .btn {
     grid-column: 1 / -1;
   }
-  /* Своя строка целиком: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` (basis 0) переключатель
-     сжимался до 13 px между «Новая бронь» и стрелками дат, а ссылки «Неделя · 14 дней · Месяц» оставались
-     под ними с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
+  /* Ширина по содержимому: своей строки сегменту больше не нужно, рядом встают «Даты» (03.10).
+     basis 0 по-прежнему нельзя: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` переключатель
+     сжимался до 13 px, а ссылки оставались с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
   .board-period .seg {
-    flex: 1 1 100%;
+    flex: 0 1 auto;
     min-width: 0;
   }
   .board-period .seg a {
     display: inline-flex;
+    white-space: nowrap;
     align-items: center;
     justify-content: center;
     flex: 1;

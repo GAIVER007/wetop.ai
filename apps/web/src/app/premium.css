@@ -50,7 +50,8 @@ h1,h2,h3 { letter-spacing: -.035em; }
 .page { padding: var(--space-6); max-width: none; margin: 0; }
 .page--narrow { max-width: 800px; margin: 0 auto; }
 .page--medium { max-width: 1400px; margin: 0 auto; }
-.page__head { margin-bottom: 24px; gap: 16px; }
+/* 16 px под заголовком: 24 px добавляли полосу пустоты на каждом экране (03.10) */
+.page__head { margin-bottom: 16px; gap: 16px; }
 .page__title { font-size: var(--text-4xl); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; }
 .page__subtitle { margin-top: 8px; color: var(--muted); font-size: var(--text-md); }
 .page__actions { gap: 8px; }

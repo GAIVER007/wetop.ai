@@ -1,0 +1,1484 @@
+# Сквозные (e2e) · 03.10.2026 19:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 18e89ed (claude/mobile-rest-screens), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/reservations-design.spec.ts' 'tests/ui/reservations-states.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/analytics-design.spec.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/analytics-occupancy.spec.ts' 'tests/ui/analytics-units.spec.ts' 'tests/ui/reports-hub.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 86 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-design.spec.ts:19:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (18.3s)
+  ✓   2 tests/ui/analytics-design.spec.ts:49:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (7.6s)
+  ✓   3 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (3.8s)
+  ✘   4 tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки (3.5s)
+  ✘   5 tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (3.6s)
+  ✓   6 tests/ui/analytics-occupancy.spec.ts:147:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (10.0s)
+  ✓   7 tests/ui/analytics-occupancy.spec.ts:182:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (5.0s)
+  ✓   8 tests/ui/analytics-occupancy.spec.ts:210:1 › старые адреса: «Статистика» с датой и некорректная дата (8.3s)
+  ✘   9 tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день (20.1s)
+  ✓  10 tests/ui/analytics-occupancy.spec.ts:239:1 › телефон: без прокрутки вбок, строка категории — карточкой (1.4s)
+  ✓  11 tests/ui/analytics-occupancy.spec.ts:268:1 › снимки для визуального гейта AN2 (1.4m)
+  ✓  12 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (6.7s)
+  ✓  13 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (9.2s)
+  ✓  14 tests/ui/analytics-units.spec.ts:119:1 › отказ API — словами на своём экране, не падение страницы (9.9s)
+  ✓  15 tests/ui/analytics-units.spec.ts:131:1 › телефон: таблица без горизонтальной прокрутки страницы (9.2s)
+  ✓  16 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, light (8.2s)
+  ✓  17 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, dark (9.7s)
+  ✓  18 tests/ui/analytics-v2.spec.ts:58:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (13.2s)
+  ✘  19 tests/ui/analytics-v2.spec.ts:77:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (19.0s)
+  ✘  20 tests/ui/analytics-v2.spec.ts:111:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (25.4s)
+  ✘  21 tests/ui/analytics-v2.spec.ts:136:1 › рост отмен — красный, падение — зелёный; сравнение выключается (20.1s)
+  ✘  22 tests/ui/analytics-v2.spec.ts:149:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (19.6s)
+  ✘  23 tests/ui/analytics-v2.spec.ts:172:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (22.9s)
+  ✓  24 tests/ui/analytics-v2.spec.ts:189:1 › телефон: без прокрутки вбок, плитки в две колонки (8.7s)
+  ✓  25 tests/ui/analytics-v2.spec.ts:200:1 › снимки для визуального гейта AN1 (48.3s)
+  ✓  26 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (25.3s)
+  ✘  27 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (28.8s)
+  ✘  28 tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed (24.1s)
+  ✓  29 tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (6.2s)
+  ✘  30 tests/ui/fund-workspace.spec.ts:134:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (46.3s)
+  ✘  31 tests/ui/fund-workspace.spec.ts:213:1 › AV4: a category without places stays on screen with the nearest availability (24.1s)
+  ✘  32 tests/ui/fund-workspace.spec.ts:258:1 › dark categories and availability; invalid dates and empty onboarding (40.1s)
+  ✓  33 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (19.1s)
+  ✓  34 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (5.2s)
+  ✓  35 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (21.8s)
+  ✓  36 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (12.0s)
+  ✓  37 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (13.5s)
+  ✓  38 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (11.0s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  39 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (26.0s)
+  ✓  40 tests/ui/guests-design.spec.ts:417:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (40.2s)
+  ✓  41 tests/ui/guests-design.spec.ts:491:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (9.8s)
+  ✓  42 tests/ui/inventory-catalog.spec.ts:11:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (10.9s)
+  ✓  43 tests/ui/inventory-catalog.spec.ts:33:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (21.6s)
+  ✓  44 tests/ui/inventory-catalog.spec.ts:54:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (12.0s)
+  ✓  45 tests/ui/inventory-catalog.spec.ts:97:1 › пустой поиск объясняется, сброс возвращает фонд (6.7s)
+  ✓  46 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: light (51.3s)
+  ✓  47 tests/ui/inventory-catalog.spec.ts:108:3 › каталог адаптивен и доступен: dark (45.9s)
+  ✓  48 tests/ui/inventory-catalog.spec.ts:141:1 › пустой фонд отличается от пустого поиска (7.3s)
+  ✓  49 tests/ui/inventory-catalog.spec.ts:149:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (10.3s)
+  ✓  50 tests/ui/inventory-catalog.spec.ts:171:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (24.2s)
+  ✓  51 tests/ui/inventory-catalog.spec.ts:219:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (12.0s)
+  ✓  52 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: light (18.5s)
+  ✓  53 tests/ui/inventory-catalog.spec.ts:244:3 › панель места доступна: dark (19.4s)
+  ✓  54 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (11.6s)
+  ✓  55 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (6.6s)
+  ✓  56 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (9.6s)
+  ✓  57 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (5.0s)
+  ✓  58 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (7.9s)
+  ✓  59 tests/ui/reports-hub.spec.ts:206:1 › телефон: карточки без горизонтальной прокрутки (3.5s)
+  ✓  60 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, light (7.8s)
+  ✓  61 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, dark (9.7s)
+  ✓  62 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (12.9s)
+  ✓  63 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (8.7s)
+  ✓  64 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (8.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  65 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (20.6s)
+  ✓  66 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (21.1s)
+  ✘  67 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (11.3m)
+  ✘  68 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (2.8s)
+  ✘  69 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (2.3s)
+  ✘  70 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (1.0s)
+  ✘  71 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (946ms)
+  ✘  72 tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (1.3s)
+  ✘  73 tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (933ms)
+  ✘  74 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (890ms)
+  ✘  75 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light (1.3s)
+  ✘  76 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark (1.3s)
+  ✘  77 tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список (1.2s)
+  ✘  78 tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше (1.4s)
+  ✘  79 tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» (1.1s)
+  ✘  80 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light (1.3s)
+  ✘  81 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark (1.0s)
+  ✘  82 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (920ms)
+  ✘  83 tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку (1.4s)
+  ✘  84 tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (1.6s)
+  ✘  85 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light (2.0m)
+  ✘  86 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark (2.0m)
+
+
+  1) tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 1
+    Received:    0
+
+      100 |   const block = int(await cells.nth(4).innerText());
+      101 |   expect(units).toBe(36);
+    > 102 |   expect(block).toBeGreaterThanOrEqual(1);
+          |                 ^
+      103 |   // места категории не теряются: занято + свободно + блок = весь фонд категории
+      104 |   expect(occupied + freeNow + block).toBe(units);
+      105 |   // загрузка = занято / весь фонд, а не занято / (фонд − блок)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-occupancy.spec.ts:102:17
+
+    Error Context: test-results/analytics-occupancy-знамен-8b12e-о-остаётся-в-фонде-загрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-occupancy-знамен-8b12e-о-остаётся-в-фонде-загрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-occupancy-знамен-8b12e-о-остаётся-в-фонде-загрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      134 |   await page.goto('/management/analytics/occupancy');
+      135 |   const before = int(await main.getByTestId('pa-kpi-unassigned').innerText());
+    > 136 |   expect(before).toBeGreaterThanOrEqual(3);
+          |                  ^
+      137 |   const male = main
+      138 |     .getByTestId('statistics-table')
+      139 |     .locator('tbody tr')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-occupancy.spec.ts:136:18
+
+    Error Context: test-results/analytics-occupancy-без-ра-d1dda-живания-и-ссылка-разместить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-occupancy-без-ра-d1dda-живания-и-ссылка-разместить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-occupancy-без-ра-d1dda-живания-и-ссылка-разместить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('statistics-error')
+    Expected substring: "Повторить загрузку"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('statistics-error') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('statistics-error')
+
+
+      229 |   await expect(main.getByTestId('pa-toolbar')).toBeVisible();
+      230 |   const failure = main.getByTestId('statistics-error');
+    > 231 |   await expect(failure).toContainText('Повторить загрузку');
+          |                         ^
+      232 |   await expect(main.locator('.kpi__value')).toHaveCount(0);
+      233 |   await page.request.post(`${fixture}/__test/control`, { data: { analyticsHistory: true } });
+      234 |   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-occupancy.spec.ts:231:25
+
+    Error Context: test-results/analytics-occupancy-сбой-A-3dfa1-ода-и-повторяет-тот-же-день/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-occupancy-сбой-A-3dfa1-ода-и-повторяет-тот-же-день/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-occupancy-сбой-A-3dfa1-ода-и-повторяет-тот-же-день/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/analytics-v2.spec.ts:77:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+    Expected substring: "п.п."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+
+
+      91 |   await expect(kpis.locator('.kpi')).toHaveCount(4);
+      92 |   // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
+    > 93 |   await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+         |                                                                  ^
+      94 |   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
+      95 |   await main.locator('.pa-details > summary').click();
+      96 |   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:93:66
+
+    Error Context: test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/analytics-v2.spec.ts:111:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').locator('.kpi--occupancy .kpi-delta--down')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').locator('.kpi--occupancy .kpi-delta--down') with timeout 15000ms
+      - waiting for getByRole('main').locator('.kpi--occupancy .kpi-delta--down')
+
+
+      46 |   await expect(
+      47 |     page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 | }
+      50 |
+      51 | test.beforeEach(async ({ page }) => {
+        at expectOccupancyDirection (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:48:5)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:121:3
+
+    Error Context: test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/analytics-v2.spec.ts:136:1 › рост отмен — красный, падение — зелёный; сравнение выключается 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').locator('.kpi--cancelled .kpi-delta')
+    Expected substring: "▲"
+    Received string:    "— нет данных для сравнения"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').locator('.kpi--cancelled .kpi-delta') with timeout 15000ms
+      - waiting for getByRole('main').locator('.kpi--cancelled .kpi-delta')
+        32 × locator resolved to <span class="kpi-delta kpi-delta--none">…</span>
+           - unexpected value "— нет данных для сравнения"
+
+
+      139 |   // на стенде доля отмен в этом месяце выше прошлого: стрелка вверх, но тон «плохо»
+      140 |   const cancelled = main.locator('.kpi--cancelled .kpi-delta');
+    > 141 |   await expect(cancelled).toContainText('▲');
+          |                           ^
+      142 |   await expect(cancelled).toHaveClass(/kpi-delta--down/);
+      143 |   await main.getByTestId('pa-compare-toggle').click();
+      144 |   await expect(page).toHaveURL(/compare=0/);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:141:27
+
+    Error Context: test-results/analytics-v2-рост-отмен-—--dfb3e-лёный-сравнение-выключается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-рост-отмен-—--dfb3e-лёный-сравнение-выключается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-рост-отмен-—--dfb3e-лёный-сравнение-выключается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/analytics-v2.spec.ts:149:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('pa-kpis').locator('.kpi-delta--none')
+    Expected: 4
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('pa-kpis').locator('.kpi-delta--none') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-kpis').locator('.kpi-delta--none')
+        31 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      159 |   await page.goto(`/management/analytics?period=custom&from=${first(-2)}&to=${last(-2)}`);
+      160 |   const kpis = main.getByTestId('pa-kpis');
+    > 161 |   await expect(kpis.locator('.kpi-delta--none')).toHaveCount(4);
+          |                                                  ^
+      162 |   await main.locator('.pa-details > summary').click();
+      163 |   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi-delta--none')).toHaveCount(2);
+      164 |   await expect(kpis).not.toContainText('100 %');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:161:50
+
+    Error Context: test-results/analytics-v2-база-сравнени-10f26-100-пустой-период-—-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-база-сравнени-10f26-100-пустой-период-—-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-база-сравнени-10f26-100-пустой-период-—-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/analytics-v2.spec.ts:172:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-error')
+    Expected substring: "Повторить загрузку"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('pa-error') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-error')
+
+
+      177 |   await page.goto('/management/analytics?period=week');
+      178 |   await expect(main.getByTestId('pa-toolbar')).toBeVisible();
+    > 179 |   await expect(main.getByTestId('pa-error')).toContainText('Повторить загрузку');
+          |                                              ^
+      180 |   await page.request.post(`${fixture}/__test/control`, { data: { analyticsHistory: true } });
+      181 |   await page.goto('/management/analytics?fund=apartments');
+      182 |   await expect(main.getByTestId('pa-fund').getByRole('link', { name: 'Все' })).toHaveAttribute(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/analytics-v2.spec.ts:179:46
+
+    Error Context: test-results/analytics-v2-сбой-API-не-у-6f70f-стный-тип-фонда-—-весь-фонд/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-сбой-API-не-у-6f70f-стный-тип-фонда-—-весь-фонд/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-сбой-API-не-у-6f70f-стный-тип-фонда-—-весь-фонд/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 })
+
+
+      58 |   await expect(
+      59 |     page.getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }),
+    > 60 |   ).toBeVisible();
+         |     ^
+      61 |   for (const width of [1440, 768, 320]) {
+      62 |     await page.setViewportSize({ width, height: 1000 });
+      63 |     await page.goto('/rooms/categories');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/fund-workspace.spec.ts:60:5
+
+    Error Context: test-results/fund-workspace-availabilit-7f64f--responsive-category-design/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('navigation', { name: 'Номерной фонд', exact: true }).getByRole('link', { name: 'Свободные места' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('navigation', { name: 'Номерной фонд', exact: true }).getByRole('link', { name: 'Свободные места' }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Номерной фонд', exact: true }).getByRole('link', { name: 'Свободные места' })
+
+
+      102 |       .getByRole('navigation', { name: 'Номерной фонд', exact: true })
+      103 |       .getByRole('link', { name: 'Свободные места' }),
+    > 104 |   ).toBeVisible();
+          |     ^
+      105 |   await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
+      106 |   // пресет дат сохраняет число гостей
+      107 |   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/fund-workspace.spec.ts:104:5
+
+    Error Context: test-results/fund-workspace-guests-filt-ddaa3-oggle-shows-all-tab-renamed/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-guests-filt-ddaa3-oggle-shows-all-tab-renamed/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-guests-filt-ddaa3-oggle-shows-all-tab-renamed/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/fund-workspace.spec.ts:134:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('new-reservation-form').locator('[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        67 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      160 |   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
+      161 |   await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
+    > 162 |   await form.locator('[name="source"]').selectOption('PHONE');
+          |                                         ^
+      163 |   await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
+      164 |   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+      165 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/fund-workspace.spec.ts:162:41
+
+    Error Context: test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/fund-workspace.spec.ts:213:1 › AV4: a category without places stays on screen with the nearest availability 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Нет мест на эти даты' }).locator('article').filter({ hasText: 'Двухместный номер' }).getByText('Нет мест на весь период')
+
+
+      229 |   const soldOut = page.getByRole('region', { name: 'Нет мест на эти даты' });
+      230 |   const room = soldOut.locator('article').filter({ hasText: 'Двухместный номер' });
+    > 231 |   await expect(room.getByText('Нет мест на весь период')).toBeVisible();
+          |                                                           ^
+      232 |   await expect(room.getByText('Ближайшая доступность')).toBeVisible();
+      233 |   const link = room.getByRole('link', { name: /^Посмотреть варианты: Двухместный номер с / });
+      234 |   const next = new URL((await link.getAttribute('href'))!, 'http://x').searchParams;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/fund-workspace.spec.ts:231:59
+
+    Error Context: test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV4-a-categ-8a120-th-the-nearest-availability/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/fund-workspace.spec.ts:258:1 › dark categories and availability; invalid dates and empty onboarding 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Начните с категории размещения' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Начните с категории размещения' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Начните с категории размещения' })
+
+
+      282 |   await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+      283 |   await page.goto('/rooms/categories');
+    > 284 |   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();
+          |                                                                                       ^
+      285 |   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+      286 |   await expect(page.getByRole('dialog', { name: 'Создать категорию' })).toBeVisible();
+      287 |   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/fund-workspace.spec.ts:284:87
+
+    Error Context: test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('reservations-error')
+    Expected substring: "Проверьте подключение и повторите запрос"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('reservations-error') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('reservations-error')
+
+
+      23 |   await expect(main.getByLabel('Поиск броней')).toHaveValue('Тестовый');
+      24 |   const failure = main.getByTestId('reservations-error');
+    > 25 |   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+         |                         ^
+      26 |   await expect(failure.getByRole('button', { name: 'Повторить загрузку' })).toBeVisible();
+      27 |   // не «0 бронирований» и не пустое состояние
+      28 |   await expect(main.getByTestId('reservations-empty')).toHaveCount(0);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-states.spec.ts:25:25
+
+    Error Context: test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/control
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 51
+
+
+      43 |   request,
+      44 | }) => {
+    > 45 |   await request.post(`${API}/__test/control`, {
+         |                 ^
+      46 |     data: { failPath: '/hotel/reservations', failStatus: 400 },
+      47 |   });
+      48 |   await page.goto('/reservations');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-states.spec.ts:45:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/control
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 2
+
+
+      10 |
+      11 | test.afterEach(async ({ request }) => {
+    > 12 |   await request.post(`${API}/__test/control`, { data: {} });
+         |                 ^
+      13 | });
+      14 |
+      15 | test('отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-states.spec.ts:12:17
+
+    Error Context: test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/control
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 50
+
+
+      54 |
+      55 | test('пока список идёт — скелетон с подписью словом, затем таблица', async ({ page, request }) => {
+    > 56 |   await request.post(`${API}/__test/control`, {
+         |                 ^
+      57 |     data: { delayPath: '/hotel/reservations', delayMs: 2500 },
+      58 |   });
+      59 |   await page.goto('/reservations', { waitUntil: 'commit' });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-states.spec.ts:56:17
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/control
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - content-type: application/json
+        - content-length: 2
+
+
+      10 |
+      11 | test.afterEach(async ({ request }) => {
+    > 12 |   await request.post(`${API}/__test/control`, { data: {} });
+         |                 ^
+      13 | });
+      14 |
+      15 | test('отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-states.spec.ts:12:17
+
+    Error Context: test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:59:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-быст-91310-на-сервере-и-живут-в-адресе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-быст-91310-на-сервере-и-живут-в-адресе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-быст-91310-на-сервере-и-живут-в-адресе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:109:9
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-соче-86644-восстанавливается-из-адреса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-соче-86644-восстанавливается-из-адреса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-соче-86644-восстанавливается-из-адреса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:143:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-ссыл-715b9-щения-—-и-прежний-date-день/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-ссыл-715b9-щения-—-и-прежний-date-день/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-ссыл-715b9-щения-—-и-прежний-date-день/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:176:9
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-пуст-3e081-еизвестное-условие-—-ошибка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-пуст-3e081-еизвестное-условие-—-ошибка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-пуст-3e081-еизвестное-условие-—-ошибка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:198:9
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light ───────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:223:11
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark ────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест назначены) и неоплаченная — как в R1 */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:223:11
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R2: быстрые виды отбирают на сервере и живут в адресе', async ({ page, request }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r2.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-стоп-гейт-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест) и неоплаченная с телефоном (вымышленный, ADR-010) */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:62:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест) и неоплаченная с телефоном (вымышленный, ADR-010) */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:105:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест) и неоплаченная с телефоном (вымышленный, ADR-010) */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:127:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light ───────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест) и неоплаченная с телефоном (вымышленный, ADR-010) */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:146:27
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark ────────
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      17 | /** Витрина design-seed + групповая бронь (2 из 3 мест) и неоплаченная с телефоном (вымышленный, ADR-010) */
+      18 | async function seedShowcase(request: APIRequestContext) {
+    > 19 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      20 |   expect((await request.post(`${fixture}/__test/design-seed`)).ok()).toBe(true);
+      21 |   const post = (data: Record<string, unknown>) =>
+      22 |     request.post(`${fixture}/reservations`, { headers: { 'x-wetop-test-client': '1' }, data });
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:19:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:146:27
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      53 |
+      54 | test.afterEach(async ({ request }) => {
+    > 55 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      56 | });
+      57 |
+      58 | test('R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2-r3.spec.ts:55:17
+
+    Error Context: test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 |  * и неоплаченная брони; финансы отмены (DSG-CANC/RFND/RETD/CPAID) задаёт сама витрина */
+      21 | async function seedShowcase(request: APIRequestContext) {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 |   const seeded = await request.post(`${fixture}/__test/design-seed`);
+      24 |   expect(seeded.ok()).toBe(true);
+      25 |   const group = await request.post(`${fixture}/reservations`, {
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:22:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:75:25
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      66 |
+      67 | test.afterEach(async ({ request }) => {
+    > 68 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      69 | });
+      70 |
+      71 | test('R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:68:17
+
+    Error Context: test-results/reservations-v2-R1-панель--6f9cf-сы-и-статус-словами-о-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-панель--6f9cf-сы-и-статус-словами-о-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-панель--6f9cf-сы-и-статус-словами-о-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 |  * и неоплаченная брони; финансы отмены (DSG-CANC/RFND/RETD/CPAID) задаёт сама витрина */
+      21 | async function seedShowcase(request: APIRequestContext) {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 |   const seeded = await request.post(`${fixture}/__test/design-seed`);
+      24 |   expect(seeded.ok()).toBe(true);
+      25 |   const group = await request.post(`${fixture}/reservations`, {
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:22:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:131:9
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      66 |
+      67 | test.afterEach(async ({ request }) => {
+    > 68 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      69 | });
+      70 |
+      71 | test('R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:68:17
+
+    Error Context: test-results/reservations-v2-R1-плотнос-75079-я-и-переживает-перезагрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-плотнос-75079-я-и-переживает-перезагрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-плотнос-75079-я-и-переживает-перезагрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте 
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      20 |  * и неоплаченная брони; финансы отмены (DSG-CANC/RFND/RETD/CPAID) задаёт сама витрина */
+      21 | async function seedShowcase(request: APIRequestContext) {
+    > 22 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      23 |   const seeded = await request.post(`${fixture}/__test/design-seed`);
+      24 |   expect(seeded.ok()).toBe(true);
+      25 |   const group = await request.post(`${fixture}/reservations`, {
+        at seedShowcase (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:22:17)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:159:9
+
+    Error: apiRequestContext.post: connect ECONNREFUSED 127.0.0.1:4311
+    Call log:
+      - → POST http://127.0.0.1:4311/__test/reset
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      66 |
+      67 | test.afterEach(async ({ request }) => {
+    > 68 |   await request.post(`${fixture}/__test/reset`);
+         |                 ^
+      69 | });
+      70 |
+      71 | test('R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:68:17
+
+    Error Context: test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-«только-1359f--брони»-нет-полоса-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light ──────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.screenshot: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('reservations-table').locator('tbody tr').filter({ hasText: '20260913-NEW1' })
+
+
+      207 |       .locator('tbody tr')
+      208 |       .filter({ hasText: created.group })
+    > 209 |       .screenshot({ path: `${report}/${theme}-group-row.png` });
+          |        ^
+      210 |     // отменённые и их финансы одним экраном (§16): «—», «к возврату», «возвращено», «оплачено»
+      211 |     await page.goto('/reservations?status=CANCELLED');
+      212 |     await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(4);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:209:8
+
+    Error Context: test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark ───────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.screenshot: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('reservations-table').locator('tbody tr').filter({ hasText: '20260913-NEW1' })
+
+
+      207 |       .locator('tbody tr')
+      208 |       .filter({ hasText: created.group })
+    > 209 |       .screenshot({ path: `${report}/${theme}-group-row.png` });
+          |        ^
+      210 |     // отменённые и их финансы одним экраном (§16): «—», «к возврату», «возвращено», «оплачено»
+      211 |     await page.goto('/reservations?status=CANCELLED');
+      212 |     await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(4);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/reservations-v2.spec.ts:209:8
+
+    Error Context: test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-R1-стоп-гейт-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33 failed
+    tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки 
+    tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить 
+    tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день 
+    tests/ui/analytics-v2.spec.ts:77:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+    tests/ui/analytics-v2.spec.ts:111:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение 
+    tests/ui/analytics-v2.spec.ts:136:1 › рост отмен — красный, падение — зелёный; сравнение выключается 
+    tests/ui/analytics-v2.spec.ts:149:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами 
+    tests/ui/analytics-v2.spec.ts:172:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд 
+    tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+    tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed 
+    tests/ui/fund-workspace.spec.ts:134:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+    tests/ui/fund-workspace.spec.ts:213:1 › AV4: a category without places stays on screen with the nearest availability 
+    tests/ui/fund-workspace.spec.ts:258:1 › dark categories and availability; invalid dates and empty onboarding 
+    tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями 
+    tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения 
+    tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица 
+    tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе 
+    tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса 
+    tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день 
+    tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка 
+    tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+    tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light ─────────
+    tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark ──────────
+    tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список 
+    tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше 
+    tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» 
+    tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light ─────────
+    tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark ──────────
+    tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони 
+    tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку 
+    tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте 
+    tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light ────────────
+    tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark ─────────────
+  53 passed (37.4m)
+
+# код выхода 1 · 37 мин 33 с

@@ -55,7 +55,7 @@
 
 /* ---------- группы и карточки */
 .reports-group {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4); /* 16: группы ближе друг к другу, хаб влезает в экран ноутбука */
 }
 .report-card {
   display: flex;
@@ -97,4 +97,11 @@
 .report-card__hint {
   font-size: var(--text-xs);
   color: var(--muted);
+}
+
+/* Телефон: поле периода мельче 16 px заставляет iOS зумить страницу при фокусе (DESIGN.md). */
+@media (max-width: 600px) {
+  .reports-toolbar .field--inline .inp {
+    font-size: var(--text-lg);
+  }
 }

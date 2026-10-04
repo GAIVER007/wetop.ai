@@ -74,9 +74,9 @@ test('пустая категория без цены — форма проси�
 
 /**
  * «Первые шаги» сняты с Главной по слову владельца 29.09.2026 («не нравится, убери»): после «Запустить отель» Главная
- * открывается без панели-подсказки, первая бронь создаётся кнопкой «Новая бронь» в шапке страницы.
+ * открывается без панели-подсказки. С 03.10.2026 кнопки «Новая бронь» на Главной нет: бронь заводится в «Календаре».
  */
-test('после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке', async ({
+test('после запуска отеля Главная без «Первых шагов» и без кнопки брони', async ({
   page,
   request,
 }) => {
@@ -93,10 +93,8 @@ test('после запуска отеля Главная без «Первых 
   await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
-  await expect(main.getByRole('link', { name: '+ Новая бронь', exact: true })).toHaveAttribute(
-    'href',
-    '/reservations/new',
-  );
+  await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
+  await expect(main.getByRole('article', { name: 'Загрузка на сегодня' })).toBeVisible();
 });
 
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {

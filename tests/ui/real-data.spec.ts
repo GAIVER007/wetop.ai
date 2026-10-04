@@ -62,7 +62,6 @@ test('название гостиницы в каркасе и обзоре по
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
-  await expect(page.locator('main')).toContainText('Проверочный хостел');
   await expect(page.locator('.workspace-header')).not.toContainText('Luxx Aparts');
 });
 

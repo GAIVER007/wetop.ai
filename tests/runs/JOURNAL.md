@@ -5869,6 +5869,8 @@
 | 04.10.2026 11:38 | integration | ✅ 307 из 307 | 1 мин 7 с | de3029c | [лог](logs/2026-10-04T06-38-39Z-integration-cddc.log) | слияние main 04.10 |
 | 04.10.2026 11:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/status-page.spec.ts tests/ui/channels-reconcile.spec.ts tests/ui/channels-compact.spec.ts tests/u | ✅ 132 из 132 | 8 мин 22 с | de3029c | [лог](logs/2026-10-04T06-40-02Z-e2e-29ff.log) | слияние main 04.10: срезы ADR-144 и соседи |
 | 04.10.2026 11:38 | unit (частично: scripts/design/build-tokens.test.ts tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts) | ✅ 25 из 25 | 15 с | 1f9a2f0 +1 | [лог](logs/2026-10-04T06-38-16Z-unit-76ea.log) |  |
+| 04.10.2026 12:31 | e2e (частично: tests/ui/design-refresh.spec.ts tests/ui/empty-base.spec.ts tests/ui/onboarding.spec.ts tests/ui/real-data.spec.ts tests/ui/workspace.spec.ts tes | ❌ упало 1 из 10 | 4 мин 8 с | 354b82d +7 | [лог](logs/2026-10-04T07-31-10Z-e2e-98c2.log) | обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия |
+| 04.10.2026 12:36 | e2e (частично: tests/ui/workspace.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 -g обзор: очередь) | ✅ 1 из 1 | 1 мин 27 с | 354b82d +7 | [лог](logs/2026-10-04T07-36-05Z-e2e-fc0f.log) |  |
 | 04.10.2026 11:52 | unit (частично: scripts/design apps/web/src) | ✅ 592 из 592 | 8 с | 27376a9 | [лог](logs/2026-10-04T06-52-21Z-unit-1d96.log) | слияние main 354b82d9: красный build-tokens закрыт на main |
 | 04.10.2026 12:27 | typecheck | ❌ ошибок: 234 | 3 мин 13 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-27-35Z-typecheck-43c1.log) | TS2339 |
 | 04.10.2026 12:31 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 8 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-31-00Z-unit-d7da.log) |  |
@@ -5880,3 +5882,6 @@
 | 04.10.2026 12:43 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 50 из 50 | 12 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-43-50Z-unit-7f9b.log) |  |
 | 04.10.2026 12:45 | unit | ❌ упало 1 из 3225, пропущено 4 | 1 мин 16 с | 65e7c07 | [лог](logs/2026-10-04T07-45-11Z-unit-02f5.log) | котировка продавца /bot/availability предел частоты на организацию — 429, ключ платформы в ответе не всплывает |
 | 04.10.2026 12:46 | unit (частично: apps/api/src/web-booking/bot-quote.controller.test.ts) | ✅ 19 из 19 | 3 с | 65e7c07 | [лог](logs/2026-10-04T07-46-38Z-unit-25b4.log) |  |
+| 04.10.2026 12:47 | typecheck | ✅ без ошибок | 20 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-24Z-typecheck-fd47.log) |  |
+| 04.10.2026 12:47 | lint | ✅ без ошибок | 15 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-45Z-lint-5ea8.log) |  |
+| 04.10.2026 12:48 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 680bac4 +1 | [лог](logs/2026-10-04T07-48-01Z-unit-a582.log) |  |

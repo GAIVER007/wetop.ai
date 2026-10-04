@@ -60,7 +60,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </Suspense>
       <div className="owner-toolbar">
         <h2>Деньги и аналитика</h2>
-        <nav aria-label="Период для денег и аналитики">
+        <nav aria-label="Период финансов">
           {[
             ['today', 'Сегодня'],
             ['week', '7 дней'],

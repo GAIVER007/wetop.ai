@@ -22,6 +22,7 @@ import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
+import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
@@ -50,6 +51,7 @@ import { DataConnectionModule } from './database/connection';
     RatesModule,
     UnitsModule,
     GuestsModule,
+    TasksModule,
     AuditModule,
     FinanceModule,
     MarketModule,

@@ -1,0 +1,222 @@
+# Сквозные (e2e) · 04.10.2026 12:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/requests.spec.ts' '--config' 'tests/ui/playwright.std-alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 52 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.8s)
+  ✓   2 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.4s)
+  ✓   3 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (9.9s)
+  ✓   4 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (2.2s)
+  ✓   5 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (1.8s)
+  ✓   6 tests/ui/requests.spec.ts:78:3 › экран /today: данные берутся одним запросом на путь (1.2s)
+  ✓   7 tests/ui/requests.spec.ts:78:3 › экран /chessboard: данные берутся одним запросом на путь (1.4s)
+  ✓   8 tests/ui/requests.spec.ts:78:3 › экран /reservations: данные берутся одним запросом на путь (1.2s)
+  ✓   9 tests/ui/requests.spec.ts:78:3 › экран /guests: данные берутся одним запросом на путь (1.4s)
+  ✓  10 tests/ui/requests.spec.ts:78:3 › экран /inventory: данные берутся одним запросом на путь (2.3s)
+  ✓  11 tests/ui/requests.spec.ts:78:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.8s)
+  ✓  12 tests/ui/requests.spec.ts:78:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.4s)
+  ✓  13 tests/ui/requests.spec.ts:78:3 › экран /rates: данные берутся одним запросом на путь (2.3s)
+  ✓  14 tests/ui/requests.spec.ts:78:3 › экран /management/analytics: данные берутся одним запросом на путь (2.2s)
+  ✓  15 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.9s)
+  ✓  16 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.4s)
+  ✓  17 tests/ui/requests.spec.ts:78:3 › экран /finance: данные берутся одним запросом на путь (1.7s)
+  ✓  18 tests/ui/requests.spec.ts:78:3 › экран /reports: данные берутся одним запросом на путь (1.8s)
+  ✓  19 tests/ui/requests.spec.ts:78:3 › экран /channels: данные берутся одним запросом на путь (1.5s)
+  ✓  20 tests/ui/requests.spec.ts:78:3 › экран /connections/channex: данные берутся одним запросом на путь (1.3s)
+  ✓  21 tests/ui/requests.spec.ts:78:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.8s)
+  ✓  22 tests/ui/requests.spec.ts:78:3 › экран /channels/sync: данные берутся одним запросом на путь (1.5s)
+  ✓  23 tests/ui/requests.spec.ts:78:3 › экран /channels/events: данные берутся одним запросом на путь (1.6s)
+  ✓  24 tests/ui/requests.spec.ts:78:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  25 tests/ui/requests.spec.ts:78:3 › экран /website/booking: данные берутся одним запросом на путь (3.0s)
+  ✓  26 tests/ui/requests.spec.ts:78:3 › экран /website/analytics: данные берутся одним запросом на путь (2.5s)
+  ✓  27 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.1s)
+  ✓  28 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (4.8s)
+  ✓  29 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (9.1s)
+  ✓  30 tests/ui/requests.spec.ts:78:3 › экран /team: данные берутся одним запросом на путь (6.0s)
+  ✓  31 tests/ui/requests.spec.ts:78:3 › экран /connections: данные берутся одним запросом на путь (32.1s)
+  ✓  32 tests/ui/requests.spec.ts:78:3 › экран /ai-agents: данные берутся одним запросом на путь (22.8s)
+  ✓  33 tests/ui/requests.spec.ts:78:3 › экран /website/settings: данные берутся одним запросом на путь (33.8s)
+  ✓  34 tests/ui/requests.spec.ts:78:3 › экран /incidents: данные берутся одним запросом на путь (10.9s)
+  ✘  35 tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь (13.4s)
+  ✓  36 tests/ui/requests.spec.ts:78:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (11.0s)
+  ✓  37 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (18.3s)
+  ✘  38 tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (51.6s)
+  ✓  39 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (14.5s)
+  ✓  40 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (31.5s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  41 tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (37.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1879629421'
+[WebServer] }
+  ✘  42 tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (48.7s)
+  ✓  43 tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль (10.6s)
+  ✓  44 tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий (33.9s)
+  ✓  45 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px (58.7s)
+  ✓  46 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px (35.0s)
+  ✓  47 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px (1.1m)
+  ✓  48 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px (1.4m)
+  ✓  49 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (44.1s)
+  ✘  50 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (47.6s)
+  ✓  51 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (21.8s)
+  ✓  52 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (5.7s)
+
+
+  1) tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь ────────
+
+    Error: apiRequestContext.get: read ECONNRESET
+    Call log:
+      - → GET http://127.0.0.1:4311/__test/hits
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      32 |
+      33 | async function hits(request: import('@playwright/test').APIRequestContext): Promise<Hits> {
+    > 34 |   const res = await request.get(`${API}/__test/hits`);
+         |                             ^
+      35 |   expect(res.ok(), 'фикстура не отдала счётчик запросов').toBe(true);
+      36 |   return (await res.json()) as Hits;
+      37 | }
+        at hits (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/requests.spec.ts:34:29)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/requests.spec.ts:82:40
+
+    Error Context: test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TESTAA", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/fixtures.ts:72:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:95:14
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByTestId('invite-role-fixed')
+    Expected substring: "Управляющий приглашает администраторов"
+    Received string:    ""
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByTestId('invite-role-fixed') with timeout 15000ms
+      - waiting for getByRole('dialog').getByTestId('invite-role-fixed')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      228 |   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+      229 |   const drawer = page.getByRole('dialog');
+    > 230 |   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
+          |                                                         ^
+      231 |     'Управляющий приглашает администраторов',
+      232 |   );
+      233 |   await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/roles.spec.ts:230:57
+
+    Error Context: test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-управляющий-всё-кром-7423a-торов-и-отключает-только-их/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку ──────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3100/ai-seller/dialogs", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/fixtures.ts:72:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/top-menu.spec.ts:139:14
+
+    Error Context: test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь ─────────
+    tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их 
+    tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку ───────────────────
+  48 passed (14.6m)
+
+# код выхода 1 · 14 мин 40 с

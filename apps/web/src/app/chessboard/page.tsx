@@ -322,6 +322,7 @@ function DayPanel({
         {birthdays !== null
           ? row('birthdays', 'Дни рождения', String(birthdays), '/guests/birthdays')
           : <span />}
+        {row('tasks', 'Задачи', String(day.counts.tasksOpen), '/tasks')}
         <div className="board-day-panel__row">
           <span>Свободно</span>
           <b>

@@ -50,6 +50,8 @@ import {
   countGuestNights,
   summarizeGuestStays,
   upcomingBirthday,
+  parseTaskInput,
+  taskBucket,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -387,6 +389,30 @@ let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
 const extraGuests = new Map<string, GuestCard>();
+/** Задачи стойки (DATA_MODEL §22): память фикстуры, сбрасывается вместе со стендом */
+interface FixtureTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+}
+const taskStore = new Map<string, FixtureTask>();
+const tasksList = () => {
+  const rows = [...taskStore.values()].sort(
+    (a, b) => a.dueDate.localeCompare(b.dueDate) || (a.dueTime ?? '').localeCompare(b.dueTime ?? ''),
+  );
+  const tasks = rows.map((r) => ({ ...r, bucket: taskBucket({ dueDate: r.dueDate, done: r.doneAt !== null }, today) }));
+  const n = (b: string) => tasks.filter((x) => x.bucket === b).length;
+  return { today, tasks, counts: { overdue: n('overdue'), today: n('today'), upcoming: n('upcoming'), done: n('done') } };
+};
 /** Порядок появления карточек — «новые брони» (R2): у карточек подставного API нет момента создания */
 const cardSeen = new Map<string, number>();
 function initializeRecords() {
@@ -1464,6 +1490,7 @@ function desk(date: string): DeskDay {
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
       overdueArrivals: overdueArrivals.length,
+      tasksOpen: [...taskStore.values()].filter((x) => !x.doneAt && x.dueDate <= date).length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -3339,6 +3366,7 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   }
   // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/tasks') return tasksList();
   if (path === '/guests/birthdays') {
     const from = q.get('from') || today;
     const days = Number(q.get('days') || 1);
@@ -4324,6 +4352,7 @@ createServer(async (req, res) => {
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
+      taskStore.clear();
       resetUiAuth();
       resetAccess();
       resetSupport();
@@ -6482,6 +6511,29 @@ createServer(async (req, res) => {
         },
       ];
       return send(201, getGuest(id));
+    }
+    if (path === '/tasks' && req.method === 'POST') {
+      const parsed = parseTaskInput(body, 'create');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      const task: FixtureTask = {
+        id: `00000000-0000-4000-8000-${String(taskStore.size + 1).padStart(12, '0')}`,
+        title: v.title!, note: v.note ?? null, dueDate: v.dueDate!, dueTime: v.dueTime ?? null,
+        priority: v.priority ?? 'NORMAL', assigneeUserId: v.assigneeUserId ?? null,
+        assigneeName: v.assigneeUserId ? uiUser.name : null, reservationNumber: v.reservationNumber ?? null,
+        guestId: v.guestId ?? null, doneAt: null, createdAt: new Date().toISOString(),
+      };
+      taskStore.set(task.id, task);
+      return send(201, task);
+    }
+    if (path.startsWith('/tasks/') && req.method === 'PATCH') {
+      const task = taskStore.get(decodeURIComponent(path.split('/')[2]!));
+      if (!task) return send(404, { message: 'Задача не найдена' });
+      const parsed = parseTaskInput(body, 'update');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const { done, ...rest } = parsed.value;
+      Object.assign(task, rest, done === undefined ? {} : { doneAt: done ? new Date().toISOString() : null });
+      return send(200, task);
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);

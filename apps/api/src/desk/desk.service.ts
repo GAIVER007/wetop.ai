@@ -34,6 +34,8 @@ export interface DeskDay {
     toCheckIn: number;
     toCheckOut: number;
     overdueArrivals: number;
+    /** открытые задачи стойки со сроком не позже этого дня */
+    tasksOpen: number;
   };
   debtMinor: string;
 }
@@ -48,7 +50,7 @@ export class DeskService {
   async today(date?: string): Promise<DeskDay> {
     const day = date ?? (await this.repo.today());
     if (!ISO.test(day)) throw new BadRequestException('date — дата YYYY-MM-DD');
-    const stays = await this.repo.stays(day);
+    const [stays, tasksOpen] = await Promise.all([this.repo.stays(day), this.repo.openTasksDue(day)]);
     const row = (s: DeskStay): DeskRow => ({
       itemId: s.itemId,
       confirmationNumber: s.confirmationNumber,
@@ -104,6 +106,7 @@ export class DeskService {
           .length,
         toCheckOut: departures.filter((d) => d.status === 'CHECKED_IN').length,
         overdueArrivals: overdueArrivals.length,
+        tasksOpen,
       },
       // Только долги: переплата одного гостя не должна прятать долг другого
       debtMinor: departures

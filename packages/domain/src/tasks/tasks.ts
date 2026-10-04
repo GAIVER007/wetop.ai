@@ -12,7 +12,8 @@ export interface TaskInput {
   dueTime?: string | null;
   priority?: TaskPriority;
   assigneeUserId?: string | null;
-  reservationId?: string | null;
+  /** номер брони (confirmationNumber): так связь ставится из карточки брони */
+  reservationNumber?: string | null;
   guestId?: string | null;
   done?: boolean;
 }
@@ -20,8 +21,8 @@ export interface TaskInput {
 type Parsed = { ok: true; value: TaskInput } | { ok: false; reason: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const LINKS = ['assigneeUserId', 'reservationId', 'guestId'] as const;
-const KNOWN = new Set(['title', 'note', 'dueDate', 'dueTime', 'priority', 'done', ...LINKS]);
+const LINKS = ['assigneeUserId', 'guestId'] as const;
+const KNOWN = new Set(['title', 'note', 'dueDate', 'dueTime', 'priority', 'done', 'reservationNumber', ...LINKS]);
 
 const isDate = (v: unknown): v is string =>
   typeof v === 'string' &&
@@ -77,6 +78,12 @@ export function parseTaskInput(body: unknown, mode: 'create' | 'update'): Parsed
         return { ok: false, reason: `${k} — идентификатор или null` };
       v[k] = id as string | null;
     }
+  if ('reservationNumber' in b) {
+    const n = b['reservationNumber'];
+    if (n !== null && !(typeof n === 'string' && n.trim() !== '' && n.length <= 60))
+      return { ok: false, reason: 'Номер брони — текст или null' };
+    v.reservationNumber = n === null ? null : (n as string).trim();
+  }
   if ('done' in b) {
     if (typeof b['done'] !== 'boolean') return { ok: false, reason: 'done — да или нет' };
     v.done = b['done'];

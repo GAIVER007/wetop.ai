@@ -1298,6 +1298,34 @@ export interface GuestDirectoryResult {
   };
   rows: GuestDirectoryRow[];
 }
+/** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */
+export interface DeskTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+  bucket: 'overdue' | 'today' | 'upcoming' | 'done';
+}
+export interface DeskTasksList {
+  today: string;
+  tasks: DeskTask[];
+  counts: { overdue: number; today: number; upcoming: number; done: number };
+}
+export const tasksApi = {
+  list: () => getJson<DeskTasksList>('/tasks'),
+  create: (body: unknown) => sendJson<DeskTask>('POST', '/tasks', body),
+  update: (id: string, body: unknown) =>
+    sendJson<DeskTask>('PATCH', `/tasks/${encodeURIComponent(id)}`, body),
+};
+
 /** «Дни рождения» (Q-249 T0): гость, дата дня рождения в окне и сколько исполняется */
 export interface GuestBirthday {
   id: string;
@@ -1602,6 +1630,7 @@ export interface DeskDay {
   overdueArrivals: DeskRow[];
   counts: {
     overdueArrivals: number;
+    tasksOpen: number;
     arrivals: number;
     departures: number;
     inHouse: number;

@@ -88,6 +88,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /guests/:id': 'desk',
   // «Гости v2» (G1–G3): каталог и предпросмотр гостя — работа смены
   'GET /guests/birthdays': 'desk',
+  // Задачи стойки (DATA_MODEL §22): работа смены, все роли объекта
+  'GET /tasks': 'desk',
+  'POST /tasks': 'desk',
+  'PATCH /tasks/:id': 'desk',
   'GET /guests/directory': 'desk',
   'GET /guests/:id/preview': 'desk',
   'PATCH /guests/:id': 'desk',

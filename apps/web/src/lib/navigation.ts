@@ -82,6 +82,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'guests',
         description: 'Карточки гостей и история проживания.',
       },
+      {
+        // Задачи стойки (DATA_MODEL §22, ADR-143): вход из панели «Сегодня» календаря, отдельного пункта меню нет
+        href: '/tasks',
+        requires: 'desk',
+        label: 'Задачи',
+        icon: 'check',
+        description: 'Что сделать смене: срок, приоритет, ответственный.',
+      },
     ],
   },
   {

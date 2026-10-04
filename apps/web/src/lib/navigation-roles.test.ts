@@ -10,7 +10,7 @@ import {
   navigationItems,
   pageOpen,
   routeRule,
-  sidebarSectionsFor,
+  menuSectionsFor,
   type NavigationAccess,
 } from './navigation';
 
@@ -25,8 +25,8 @@ const access = (role: NavigationAccess['role'], platform = false): NavigationAcc
   role,
 });
 const hrefs = (a: NavigationAccess) =>
-  sidebarSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
-const everything = sidebarSectionsFor(access(null, true)).flatMap((s) =>
+  menuSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
+const everything = menuSectionsFor(access(null, true)).flatMap((s) =>
   s.items.map((i) => i.href),
 );
 
@@ -41,16 +41,23 @@ describe('меню по ролям', () => {
       '/chessboard',
       '/reservations',
       '/guests',
-      '/ai-agents',
       '/finance',
+      // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
+      '/market',
+      '/ai-agents',
+      '/reports',
       '/management/analytics',
+      '/incidents',
     ]);
-    expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
+      'chessboard',
+      'reservations',
       'guests',
-      'sales',
       'finance',
-      'analytics',
+      'sales',
+      'reports',
+      'settings',
     ]);
   });
 
@@ -159,8 +166,8 @@ describe('«ИИ-агенты» (S0)', () => {
 });
 
 it('сотрудники доступны в настройках только владельцу и управляющему', () => {
-  expect(routeRule('/staff')?.requires).toBe('staff');
-  expect(hrefs(access('OWNER'))).toContain('/staff');
-  expect(hrefs(access('MANAGER'))).toContain('/staff');
-  expect(hrefs(access('STAFF'))).not.toContain('/staff');
+  expect(routeRule('/team')?.requires).toBe('staff');
+  expect(hrefs(access('OWNER'))).toContain('/team');
+  expect(hrefs(access('MANAGER'))).toContain('/team');
+  expect(hrefs(access('STAFF'))).not.toContain('/team');
 });

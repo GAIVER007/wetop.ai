@@ -1,0 +1,83 @@
+# Модульные (unit) · 03.10.2026 23:29 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-29-04Z-unit-1261.json' 'apps/api/src/finance/payment-requests.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/payment-requests.controller.test.ts (0 test)
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 60ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 58ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/payment-requests.controller.test.ts [ apps/api/src/finance/payment-requests.controller.test.ts ]
+Error: Cannot find module './payment-requests.controller' imported from /home/user/wetop.ai/apps/api/src/finance/payment-requests.controller.test.ts
+ ❯ apps/api/src/finance/payment-requests.controller.test.ts:7:1
+      5| import { afterAll, beforeAll, beforeEach, describe, expect, it } from …
+      6| import { FINANCE_REPOSITORY, FinanceStateError, FolioClosedError } fro…
+      7| import { PaymentRequestsController } from './payment-requests.controll…
+       | ^
+      8| import {
+      9|   PAYMENT_REQUESTS_REPOSITORY,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(235) } to deeply equal { 'GET /branches': 'desk', …(239) }
+
+- Expected
++ Received
+
+@@ -63,11 +63,10 @@
+    "GET /finance/cash": "desk",
+    "GET /finance/debts": "reports",
+    "GET /finance/operations": "reports",
+    "GET /finance/report": "reports",
+    "GET /finance/reservations/:number": "desk",
+-   "GET /finance/reservations/:number/payment-requests": "desk",
+    "GET /finance/services": "desk",
+    "GET /finance/services-report": "reports",
+    "GET /guard/incidents": "desk",
+    "GET /guard/status": "desk",
+    "GET /guests": "desk",
+@@ -184,15 +183,12 @@
+    "POST /finance/cash/transfers": "desk",
+    "POST /finance/charges/:id/void": "refunds",
+    "POST /finance/folios/:id/charges": "desk",
+    "POST /finance/folios/:id/close": "desk",
+    "POST /finance/folios/:id/stay-extras": "desk",
+-   "POST /finance/payment-requests/:id/cancel": "desk",
+-   "POST /finance/payment-requests/:id/paid": "desk",
+    "POST /finance/payments": "desk",
+    "POST /finance/payments/:id/refunds": "refunds",
+-   "POST /finance/reservations/:number/payment-requests": "desk",
+    "POST /guard/alert/test": "settings",
+    "POST /guard/incidents/:id/acknowledge": "desk",
+    "POST /guard/incidents/:id/resolve": "desk",
+    "POST /guard/tick": "desk",
+    "POST /guests/:id/documents": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:334:20
+    332|       .map(([key]) => key);
+    333|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    334|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    335|   });
+    336|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 1 passed (2)
+   Start at  18:29:05
+   Duration  3.29s (transform 73%, import 25%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-29-04Z-unit-1261.json
+
+# код выхода 1 · 4 с

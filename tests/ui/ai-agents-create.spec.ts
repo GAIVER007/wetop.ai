@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -9,7 +9,7 @@ import type { Page } from '@playwright/test';
  * даёт второго агента, страница агента без фальшивых шагов, кнопка и форма для разных ролей и режимов, оформление в двух темах
  * и на телефоне. Запись в базу и права сервера доказывают API-тесты; стенд, `scripts/preview/fixture-api.ts`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/unified-sections-2026-10-01/create-agent';
 const FREE = { sellerApplied: true, sellerExtraLocation: true };
 
@@ -74,7 +74,10 @@ test('свободный филиал: кнопка активна, форма �
   await page.getByRole('button', { name: 'Использовать эту редакцию' }).click();
   await page.getByLabel('Как агент должен отвечать').fill('Проверенная тестовая инструкция Аси.');
   await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Инструкция сохранена');
+  // на странице агента есть и статус Telegram-панели: берём именно сообщение о сохранении
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Инструкция сохранена' }),
+  ).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
     'Проверенная тестовая инструкция Аси.',

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const shots = 'reports/categories-v2-c1-2026-09-27';
 
 /**
@@ -46,6 +47,12 @@ test('categories C1: five Luxx-shaped rows, filters, row menu, long name — lig
   // у категорий с фондом число единиц — ссылка в состав (ТЗ §10)
   await expect(
     rows.filter({ hasText: 'Мужской общий номер' }).getByRole('link', { name: '36 коек' }),
+  ).toBeVisible();
+  // «Тип продажи» больше не колонка: тип виден по значку у названия и слову фонда («36 коек»);
+  // «Активна» — текстом, бейджи только у исключений (упрощение 02.10, как в «Номерах и койках»)
+  await expect(page.getByRole('columnheader', { name: 'Тип продажи' })).toHaveCount(0);
+  await expect(
+    rows.filter({ hasText: 'Мужской общий номер' }).getByText('активна', { exact: true }),
   ).toBeVisible();
   await page.screenshot({ path: `${shots}/categories-light-1440.png`, fullPage: true });
 

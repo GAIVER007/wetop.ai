@@ -1,0 +1,20 @@
+# Модульные (unit) · 04.10.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит c19dd4b (claude/desk-tasks)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-58-14Z-unit-13e1.json' 'packages/domain/src/tasks/tasks.test.ts' 'apps/api/src/tasks/tasks.controller.test.ts' 'apps/api/src/desk/desk.controller.test.ts' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 4ms
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (2 tests) 72ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 363ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 382ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 40ms
+
+ Test Files  5 passed (5)
+      Tests  16 passed (16)
+   Start at  02:58:15
+   Duration  2.32s (transform 46%, import 36%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-58-14Z-unit-13e1.json
+
+# код выхода 0 · 3 с

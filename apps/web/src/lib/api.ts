@@ -8,16 +8,21 @@ export type { ActionPreview } from './action-preview';
 import type {
   AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelEfficiency,
   ChannelState,
   DashboardFund,
   DashboardPeriod,
   InviteRole,
   MembershipRole,
+  UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
 import type {
   SupportLastMessage,
   SupportPriority,
+  SupportCategory,
+  SupportCategoryCounts,
+  SupportCategoryFilter,
   SupportQueue,
   SupportQueueCounts,
 } from './support-queue';
@@ -157,6 +162,20 @@ async function getJson<T>(path: string): Promise<T> {
 /** Для страниц, которым нужен произвольный путь API (журнал). */
 export const getJsonPublic = getJson;
 
+/** Публичный статус сервиса (H14, ADR-144): четыре части словами, без входа */
+export interface PublicServiceStatus {
+  checkedAt: string;
+  overall: 'ok' | 'degraded' | 'down';
+  components: Array<{
+    key: 'app' | 'database' | 'channels' | 'booking';
+    label: string;
+    state: 'ok' | 'degraded' | 'down';
+  }>;
+}
+export const statusApi = {
+  public: () => getJson<PublicServiceStatus>('/status/public'),
+};
+
 export interface OnboardingStatus {
   needed: boolean;
   name: string;
@@ -178,7 +197,8 @@ export const onboardingApi = {
 
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, string | null>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
+  update: (patch: Record<string, string | null>) =>
+    sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
 /** Услуга каталога «Настроек объекта» (SET3): весь каталог, с архивными; код — ссылка для правки, в стойке не виден */
@@ -197,7 +217,8 @@ export type CatalogServiceInput = {
 };
 export const serviceCatalogApi = {
   list: () => getJson<CatalogService[]>('/hotel/services'),
-  create: (input: CatalogServiceInput) => sendJson<CatalogService>('POST', '/hotel/services', input),
+  create: (input: CatalogServiceInput) =>
+    sendJson<CatalogService>('POST', '/hotel/services', input),
   update: (code: string, input: CatalogServiceInput) =>
     sendJson<CatalogService>('PATCH', `/hotel/services/${encodeURIComponent(code)}`, input),
 };
@@ -486,14 +507,26 @@ export const authApi = {
       organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
+      /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
+      context?: {
+        scope?: string | null;
+        businessId?: string | null;
+        locationId?: string | null;
+        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+      } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
     return {
       ...result,
-      user: result.user ? {
-        ...result.user,
-        organization: result.organization !== undefined ? result.organization : (result.user.organization ?? null),
-      } : null,
+      user: result.user
+        ? {
+            ...result.user,
+            organization:
+              result.organization !== undefined
+                ? result.organization
+                : (result.user.organization ?? null),
+          }
+        : null,
     };
   },
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
@@ -509,7 +542,12 @@ export const authApi = {
     ),
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }, info?: AuthClientInfo) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body, info ? authHeaders(info) : {}),
+    sendJson<{ ok: boolean }>(
+      'POST',
+      '/auth/password-reset/confirm',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
@@ -603,6 +641,20 @@ export const authApi = {
       method: 'PATCH',
       headers: authHeaders(info, token),
       body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Телефон и должность сотрудника (TEAM2, Q-244); пустое поле стирает значение */
+  setMemberDetails: async (
+    token: string,
+    userId: string,
+    details: { phone: string; position: string },
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/details`, {
+      method: 'PATCH',
+      headers: authHeaders(info, token),
+      body: JSON.stringify(details),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
@@ -702,7 +754,12 @@ export const reservationsApi = {
   /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
   nearest: (arrival: string, departure: string, guests: number) =>
     getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
-  quote: (body: unknown) => sendJson<{ totalMinor: string; currency: string }>('POST', '/reservations/quote', body),
+  quote: (body: unknown) =>
+    sendJson<{
+      totalMinor: string;
+      currency: string;
+      nights?: Array<{ date: string; priceMinor: string }>;
+    }>('POST', '/reservations/quote', body),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -819,13 +876,21 @@ export const ratesApi = {
   /** Производный тариф (D4, DATA_MODEL §20): процент от тарифа-родителя, окно продаж, минимум ночей */
   createDerived: (input: DerivedPlanInput & { name: string; parentCode: string }) =>
     sendJson<RatePlanRow>('POST', '/rates/plans/derived', input),
-  updateDerived: (code: string, input: Partial<DerivedPlanInput> & { name?: string; active?: boolean }) =>
-    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}/derived`, input),
+  updateDerived: (
+    code: string,
+    input: Partial<DerivedPlanInput> & { name?: string; active?: boolean },
+  ) => sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}/derived`, input),
   promoCodes: () => getJson<PromoCodeRow[]>('/rates/promo-codes'),
-  createPromo: (input: PromoCodeInput) => sendJson<PromoCodeRow>('POST', '/rates/promo-codes', input),
+  createPromo: (input: PromoCodeInput) =>
+    sendJson<PromoCodeRow>('POST', '/rates/promo-codes', input),
   updatePromo: (
     code: string,
-    input: { active?: boolean; maxUses?: number | null; stayFrom?: string | null; stayTo?: string | null },
+    input: {
+      active?: boolean;
+      maxUses?: number | null;
+      stayFrom?: string | null;
+      stayTo?: string | null;
+    },
   ) => sendJson<PromoCodeRow>('PATCH', `/rates/promo-codes/${encodeURIComponent(code)}`, input),
 };
 export interface DerivedPlanInput {
@@ -957,7 +1022,71 @@ export const channelsApi = {
       '/channels/channex/webhook/test',
       {},
     ),
+  /** Раздел «Каналы» (ADR-140): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
+  catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
+  /** Канал отдаёт уже сделанные у него будущие брони (только владельцу, только каналу с этим действием) */
+  loadFutureReservations: (connectionId: string) =>
+    sendJson<{ channel: string }>(
+      'POST',
+      `/channels/channex/channels/${encodeURIComponent(connectionId)}/load-future-reservations`,
+      {},
+    ),
+  /** Окно Channex для подключения и настройки канала: одноразовый адрес, только владельцу */
+  connectSession: (channel?: string) =>
+    sendJson<{ url: string; expiresInMinutes: number }>(
+      'POST',
+      '/channels/channex/channels/connect-session',
+      channel ? { channel } : {},
+    ),
 };
+/** Статус канала по фактам (ADR-140): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
+export type ChannelStatus = 'WORKING' | 'ENABLED' | 'ERRORS' | 'OFF' | 'REMOVING';
+export interface ChannelConnectionRow {
+  id: string;
+  adapterCode: string;
+  channelKey: string;
+  channelTitle: string;
+  connectionTitle: string;
+  channelPropertyId: string | null;
+  active: boolean;
+  removalDate: string | null;
+  mappedRatePlans: number;
+  actions: string[];
+  shortCode: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+  lastEventAt: string | null;
+  failedEvents7d: number;
+  status: ChannelStatus;
+}
+export interface ChannelAdapterRow {
+  code: string;
+  channelKey: string;
+  title: string;
+  kind: string;
+  canLoadFutureReservations: boolean;
+  shortCode: string | null;
+  connected: boolean;
+}
+export interface ChannelOutsideRow {
+  key: string;
+  source: string;
+  label: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+}
+export interface ChannelCatalog {
+  checkedAt: string;
+  environment: 'staging' | 'production' | 'custom';
+  propertyConnected: boolean;
+  /** Приём броней целиком: последнее входящее событие и все ошибки приёма за 7 дней */
+  inbound: { lastEventAt: string | null; failedEvents7d: number };
+  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'UNREACHABLE';
+  message: string;
+  connections: ChannelConnectionRow[];
+  adapters: ChannelAdapterRow[] | null;
+  outside: ChannelOutsideRow[];
+}
 export interface ChannelConnection {
   checkedAt: string;
   environment: 'staging' | 'production' | 'custom';
@@ -1229,8 +1358,46 @@ export interface GuestDirectoryResult {
   };
   rows: GuestDirectoryRow[];
 }
+/** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */
+export interface DeskTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+  bucket: 'overdue' | 'today' | 'upcoming' | 'done';
+}
+export interface DeskTasksList {
+  today: string;
+  tasks: DeskTask[];
+  counts: { overdue: number; today: number; upcoming: number; done: number };
+}
+export const tasksApi = {
+  list: () => getJson<DeskTasksList>('/tasks'),
+  create: (body: unknown) => sendJson<DeskTask>('POST', '/tasks', body),
+  update: (id: string, body: unknown) =>
+    sendJson<DeskTask>('PATCH', `/tasks/${encodeURIComponent(id)}`, body),
+};
+
+/** «Дни рождения» (Q-249 T0): гость, дата дня рождения в окне и сколько исполняется */
+export interface GuestBirthday {
+  id: string;
+  firstName: string;
+  lastName: string;
+  date: string;
+  age: number;
+}
 export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  birthdays: (from: string, days: number) =>
+    getJson<GuestBirthday[]>(`/guests/birthdays?from=${encodeURIComponent(from)}&days=${days}`),
   directory: (query: Record<string, string>) =>
     getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
   preview: (id: string) => getJson<GuestPreview>(`/guests/${encodeURIComponent(id)}/preview`),
@@ -1265,6 +1432,8 @@ export interface FinancePaymentLine {
   paidAt: string;
   note: string | null;
   externalReference: string | null;
+  /** DATA_MODEL §26: чек по запросу гостя; старый API поля не отдаёт */
+  receipt?: { number: string; issuedAt: string } | null;
   paymentAmountMinor: string;
   allocatedMinor: string;
   refundedMinor: string;
@@ -1295,6 +1464,26 @@ export interface FinanceFolio {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** Запрос оплаты (DATA_MODEL §24, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод */
+export interface PaymentRequest {
+  id: string;
+  folioId: string;
+  amountMinor: string;
+  currency: string;
+  method: 'KASPI' | 'HALYK' | 'BANK_TRANSFER_PERSON' | 'CARD_TERMINAL';
+  link: string | null;
+  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentId: string | null;
+  note: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}
+export interface PaymentRequests {
+  confirmationNumber: string;
+  propertyName: string;
+  requests: PaymentRequest[];
+}
+
 export interface ReservationFinance {
   confirmationNumber: string;
   currency: string;
@@ -1324,6 +1513,23 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** Отчёт по услугам за период (REP2): свод начислений-услуг; `code: null` — начисления вручную */
+export interface PeriodServices {
+  from: string;
+  to: string;
+  currency: string;
+  count: number;
+  /** равен строке SERVICE в `chargesByKind` сводки — то же окно и те же правила */
+  totalMinor: string;
+  rows: Array<{
+    code: string | null;
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
+}
 /** «Брони с остатком к сбору» за период (ADR-113): остаток — по всему счёту брони, как на карточке */
 export interface PeriodDebts {
   from: string;
@@ -1348,6 +1554,7 @@ export interface PeriodDebts {
   truncated: boolean;
 }
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
+export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
   from: string;
   to: string;
@@ -1355,36 +1562,111 @@ export interface PeriodOperations {
   total: number;
   paidMinor: string;
   refundedMinor: string;
+  /** касса (DATA_MODEL §21): проведённые поступления и расходы по отбору; комиссии — в расходах */
+  incomeMinor: string;
+  expenseMinor: string;
   methods: Array<{ method: string; count: number }>;
   rows: Array<{
-    kind: 'PAYMENT' | 'REFUND';
+    kind: OperationKind;
     id: string;
     at: string;
     localAt: string;
     method: string;
+    methodTo: string | null;
     amountMinor: string;
     status: 'COMPLETED' | 'VOIDED';
     confirmationNumber: string | null;
     reservations: number;
     guestLabel: string | null;
+    category: string | null;
+    note: string | null;
   }>;
   truncated: boolean;
 }
+/** Остатки кассы по способам (DATA_MODEL §21) — за всё время; статьи и сверки — тем же ответом */
+export interface CashBalances {
+  currency: string;
+  totalMinor: string;
+  balances: Array<{ method: string; balanceMinor: string }>;
+  categories: CashCategory[];
+  /** последняя сверка по каждому способу (§21.4) */
+  reconciliations: Array<{
+    method: string;
+    at: string;
+    localAt: string;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+  }>;
+}
+export interface CashCategory {
+  id: string;
+  kind: 'INCOME' | 'EXPENSE';
+  name: string;
+  active: boolean;
+}
 export const financeApi = {
+  // запросы оплаты (DATA_MODEL §24, ADR-144)
+  paymentRequests: (number: string) =>
+    getJson<PaymentRequests>(
+      `/finance/reservations/${encodeURIComponent(number)}/payment-requests`,
+    ),
+  createPaymentRequest: (number: string, body: unknown) =>
+    sendJson<PaymentRequests>(
+      'POST',
+      `/finance/reservations/${encodeURIComponent(number)}/payment-requests`,
+      body,
+    ),
+  markPaymentRequestPaid: (id: string) =>
+    sendJson<PaymentRequests>(
+      'POST',
+      `/finance/payment-requests/${encodeURIComponent(id)}/paid`,
+      {},
+    ),
+  cancelPaymentRequest: (id: string) =>
+    sendJson<PaymentRequests>(
+      'POST',
+      `/finance/payment-requests/${encodeURIComponent(id)}/cancel`,
+      {},
+    ),
   operations: (
     from: string,
     to: string,
-    filter: { type?: string | undefined; method?: string | undefined; limit?: number } = {},
+    filter: {
+      type?: string | undefined;
+      method?: string | undefined;
+      source?: string | undefined;
+      limit?: number;
+    } = {},
   ) => {
     const qs = new URLSearchParams({ from, to });
     if (filter.type) qs.set('type', filter.type);
     if (filter.method) qs.set('method', filter.method);
+    if (filter.source) qs.set('source', filter.source);
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  // касса (DATA_MODEL §21)
+  cash: () => getJson<CashBalances>('/finance/cash'),
+  createCashCategory: (body: unknown) =>
+    sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
+  updateCashCategory: (id: string, body: unknown) =>
+    sendJson<CashCategory[]>('PATCH', `/finance/cash/categories/${encodeURIComponent(id)}`, body),
+  createCashOperation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/operations', body),
+  createCashTransfer: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/transfers', body),
+  createCashReconciliation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/reconciliations', body),
+  voidCashOperation: (id: string) =>
+    sendJson<CashBalances>('POST', `/finance/cash/operations/${encodeURIComponent(id)}/void`, {}),
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  servicesReport: (from: string, to: string) =>
+    getJson<PeriodServices>(
+      `/finance/services-report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   debts: (from: string, to: string) =>
     getJson<PeriodDebts>(
@@ -1418,6 +1700,12 @@ export const financeApi = {
       'POST',
       `/finance/folios/${encodeURIComponent(folioId)}/close`,
       {},
+    ),
+  issueReceipt: (paymentId: string, number: string) =>
+    sendJson<{ paymentId: string; number: string }>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/receipt`,
+      { number },
     ),
   refund: (paymentId: string, body: unknown) =>
     sendJson<ReservationFinance>(
@@ -1453,6 +1741,7 @@ export interface DeskDay {
   overdueArrivals: DeskRow[];
   counts: {
     overdueArrivals: number;
+    tasksOpen: number;
     arrivals: number;
     departures: number;
     inHouse: number;
@@ -1478,6 +1767,33 @@ export const dashboardApi = {
     getJson<DashboardView>(
       `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
     ),
+  /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
+  units: (from: string, to: string, fund: DashboardFund = 'all') =>
+    getJson<UnitStats>(
+      `/desk/dashboard/units?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+    ),
+  /** «Эффективность каналов» (ADR-141): доход, ночи и средняя стоимость по каналу; под правом отчётов */
+  channels: (q: {
+    from: string;
+    to: string;
+    compareFrom?: string | undefined;
+    compareTo?: string | undefined;
+    channel?: string | undefined;
+    sort?: string | undefined;
+    empty?: boolean | undefined;
+  }) => {
+    const p = new URLSearchParams({ from: q.from, to: q.to });
+    if (q.compareFrom && q.compareTo) {
+      p.set('compareFrom', q.compareFrom);
+      p.set('compareTo', q.compareTo);
+    }
+    if (q.channel) p.set('channel', q.channel);
+    if (q.sort && q.sort !== 'revenue') p.set('sort', q.sort);
+    if (q.empty) p.set('empty', '1');
+    return getJson<{ current: ChannelEfficiency; previous: ChannelEfficiency | null }>(
+      `/desk/dashboard/channels?${p.toString()}`,
+    );
+  },
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────
@@ -1712,7 +2028,12 @@ export interface SellerFactsPayload {
   check_in: string;
   check_out: string;
   currency: string;
-  categories: Array<{ name: string; kind: 'room' | 'bed'; capacity: number; price_minor: number | null }>;
+  categories: Array<{
+    name: string;
+    kind: 'room' | 'bed';
+    capacity: number;
+    price_minor: number | null;
+  }>;
 }
 
 /** Цена категории глазами стойки: что ушло продавцу и почему (ADR-081, Q-179) */
@@ -1856,21 +2177,59 @@ export interface BusinessAgentView {
   updatedAt: string;
 }
 
-export interface AgentInstructionView { text: string; saved: boolean; updatedAt: string | null }
-export interface AgentInstructionPreview { text: string; warnings: string[] }
+export interface AgentInstructionView {
+  text: string;
+  saved: boolean;
+  updatedAt: string | null;
+}
+export interface AgentInstructionPreview {
+  text: string;
+  warnings: string[];
+}
 
 export interface TelegramStatusView {
-  set: boolean; state: 'NOT_CONNECTED' | 'CONFIGURED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
-  username: string | null; allowedUserIds: string[]; lastReceivedAt: string | null; lastSentAt: string | null; error: string | null;
+  set: boolean;
+  state: 'NOT_CONNECTED' | 'CONFIGURED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
+  username: string | null;
+  allowedUserIds: string[];
+  lastReceivedAt: string | null;
+  lastSentAt: string | null;
+  error: string | null;
 }
 export const businessAgentsApi = {
-  telegram: (id: string) => getJson<TelegramStatusView>(`/ai-seller/agents/${encodeURIComponent(id)}/telegram`),
-  checkTelegram: (id: string, token: string) => sendJson<{valid: boolean; username: string | null; conflict: boolean}>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/check`, {token}),
-  connectTelegram: (id: string, token: string, allowedUserIds: string[]) => sendJson<TelegramStatusView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/telegram`, {token, allowedUserIds}),
-  disconnectTelegram: (id: string) => sendJson<TelegramStatusView>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/disconnect`, {}),
-  instruction: (id: string) => getJson<AgentInstructionView>(`/ai-seller/agents/${encodeURIComponent(id)}/instruction`),
-  saveInstruction: (id: string, text: string) => sendJson<AgentInstructionView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/instruction`, { text }),
-  generateInstruction: (id: string, story: string) => sendJson<AgentInstructionPreview>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/instruction/generate`, { story }),
+  telegram: (id: string) =>
+    getJson<TelegramStatusView>(`/ai-seller/agents/${encodeURIComponent(id)}/telegram`),
+  checkTelegram: (id: string, token: string) =>
+    sendJson<{ valid: boolean; username: string | null; conflict: boolean }>(
+      'POST',
+      `/ai-seller/agents/${encodeURIComponent(id)}/telegram/check`,
+      { token },
+    ),
+  connectTelegram: (id: string, token: string, allowedUserIds: string[]) =>
+    sendJson<TelegramStatusView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/telegram`, {
+      token,
+      allowedUserIds,
+    }),
+  disconnectTelegram: (id: string) =>
+    sendJson<TelegramStatusView>(
+      'POST',
+      `/ai-seller/agents/${encodeURIComponent(id)}/telegram/disconnect`,
+      {},
+    ),
+  instruction: (id: string) =>
+    getJson<AgentInstructionView>(`/ai-seller/agents/${encodeURIComponent(id)}/instruction`),
+  saveInstruction: (id: string, text: string) =>
+    sendJson<AgentInstructionView>(
+      'PUT',
+      `/ai-seller/agents/${encodeURIComponent(id)}/instruction`,
+      { text },
+    ),
+  generateInstruction: (id: string, story: string) =>
+    sendJson<AgentInstructionPreview>(
+      'POST',
+      `/ai-seller/agents/${encodeURIComponent(id)}/instruction/generate`,
+      { story },
+    ),
   options: () => getJson<AgentOptionsView>('/ai-seller/agents/options'),
   get: (id: string) => getJson<BusinessAgentView>(`/ai-seller/agents/${encodeURIComponent(id)}`),
   /** `Idempotency-Key` — повтор той же отправки возвращает того же агента; организацию и автора называет сервер */
@@ -1892,7 +2251,9 @@ export const sellerApi = {
   saveLlmKey: (key: string) =>
     sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
   checkLlmKey: (key: string) =>
-    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', { key }),
+    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', {
+      key,
+    }),
   /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */
   whatsapp: () => getJson<SellerWhatsAppView>('/ai-seller/whatsapp'),
   saveWhatsApp: (input: { phoneNumberId: string; token?: string; appSecret?: string }) =>
@@ -2012,6 +2373,9 @@ export interface SupportQueueItem {
   lastActivityAt: string | null;
   messages: number;
   lastMessage: SupportLastMessage | null;
+  /** Первое сообщение пользователя: по нему API считает категорию */
+  firstMessage: SupportLastMessage | null;
+  category: SupportCategory;
   waitingSince: string | null;
   closed: boolean;
   priority: SupportPriority;
@@ -2072,9 +2436,15 @@ export const supportApi = {
     getJson<{ items: SellerConversationRow[] }>(
       `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
     ),
-  queue: (queue: SupportQueue) =>
-    getJson<{ queue: SupportQueue; items: SupportQueueItem[]; counts: SupportQueueCounts }>(
-      `/platform/support/queue?queue=${encodeURIComponent(queue)}`,
+  queue: (queue: SupportQueue, category: SupportCategoryFilter = 'all') =>
+    getJson<{
+      queue: SupportQueue;
+      category: SupportCategoryFilter;
+      items: SupportQueueItem[];
+      counts: SupportQueueCounts;
+      categoryCounts: SupportCategoryCounts;
+    }>(
+      `/platform/support/queue?queue=${encodeURIComponent(queue)}&category=${encodeURIComponent(category)}`,
     ),
   conversation: (id: string) =>
     getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
@@ -2120,8 +2490,7 @@ export const supportApi = {
       `/platform/support/kb${qs ? `?${qs}` : ''}`,
     );
   },
-  kbRead: (id: string) =>
-    getJson<SupportKbEntry>(`/platform/support/kb/${encodeURIComponent(id)}`),
+  kbRead: (id: string) => getJson<SupportKbEntry>(`/platform/support/kb/${encodeURIComponent(id)}`),
   kbCreate: (body: Record<string, unknown>) =>
     sendJson<SupportKbEntry>('POST', '/platform/support/kb', body),
   kbUpdate: (id: string, body: Record<string, unknown>) =>
@@ -2165,8 +2534,14 @@ export const supportApi = {
     ),
 };
 
+/** X3 (ADR-144): сверка остатков с каналом от сторожа; только организации подключённого объекта */
+export interface ChannelReconciliation {
+  lastCheckedAt: string | null;
+  mismatch: { title: string; since: string; nights: number | null } | null;
+}
 export const guardApi = {
   status: () => getJson<GuardStatus>('/guard/status'),
+  reconciliation: () => getJson<ChannelReconciliation>('/guard/reconciliation'),
   incidents: (status: 'open' | 'all', limit = 100) =>
     getJson<Incident[]>(`/guard/incidents?status=${status}&limit=${limit}`),
   acknowledge: (id: string) =>
@@ -2204,9 +2579,15 @@ export interface AuthMember {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: string | null;
   you: boolean;
   removable: boolean;
   roleEditable: boolean;
+  /** Телефон и должность в организации (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  detailsEditable: boolean;
 }
 
 export interface AuthInvitePreview {
@@ -2251,28 +2632,56 @@ export const inventoryEditorApi = {
     ),
 };
 
-
 /** Visitor address for the API's per-address wizard limit (proxy, not the browser) — never counted if absent. */
 const ipHeader = (ip?: string | null): Record<string, string> =>
   ip ? { 'cf-connecting-ip': ip } : {};
 
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
-  open: (token: string, ref: string, ip?: string | null) => sendJson<import('./wizard-types').WizardState>(
-    'POST', '/wizard/session', { ref }, { ...(token ? { 'x-wizard-token': token } : {}), ...ipHeader(ip) },
-  ),
-  save: (token: string, body: unknown) => sendJson<import('./wizard-types').WizardState>(
-    'PATCH', '/wizard/config', body, { 'x-wizard-token': token },
-  ),
+  open: (token: string, ref: string, ip?: string | null) =>
+    sendJson<import('./wizard-types').WizardState>(
+      'POST',
+      '/wizard/session',
+      { ref },
+      { ...(token ? { 'x-wizard-token': token } : {}), ...ipHeader(ip) },
+    ),
+  save: (token: string, body: unknown) =>
+    sendJson<import('./wizard-types').WizardState>('PATCH', '/wizard/config', body, {
+      'x-wizard-token': token,
+    }),
 };
 
-export interface SellerAgentCard {id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}
+export interface SellerAgentCard {
+  id: string;
+  name: string;
+  scenario: string;
+  lifecycle: string;
+  profile: Record<string, string>;
+  updatedAt: string;
+}
 export const sellerAgentsApi = {
-  create: (id:string,profile:Record<string,string>) => sendJson<{id:string}>('POST','/seller-agents',{id,profile}),
-  get: (id:string) => getJson<SellerAgentCard>('/seller-agents/'+encodeURIComponent(id)),
-  update: (id:string,body:unknown) => sendJson<{id:string;updatedAt:string}>('PATCH','/seller-agents/'+encodeURIComponent(id),body),
-  list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),
-  claim: (token:string) => sendJson<{id:string}>('POST','/seller-agents/claim',{}, {'x-wizard-token':token}),
+  create: (id: string, profile: Record<string, string>) =>
+    sendJson<{ id: string }>('POST', '/seller-agents', { id, profile }),
+  get: (id: string) => getJson<SellerAgentCard>('/seller-agents/' + encodeURIComponent(id)),
+  update: (id: string, body: unknown) =>
+    sendJson<{ id: string; updatedAt: string }>(
+      'PATCH',
+      '/seller-agents/' + encodeURIComponent(id),
+      body,
+    ),
+  list: () =>
+    getJson<{
+      items: Array<{
+        id: string;
+        name: string;
+        scenario: string;
+        lifecycle: string;
+        profile: Record<string, string>;
+        updatedAt: string;
+      }>;
+    }>('/seller-agents'),
+  claim: (token: string) =>
+    sendJson<{ id: string }>('POST', '/seller-agents/claim', {}, { 'x-wizard-token': token }),
 };
 
 export interface BranchItem {
@@ -2281,6 +2690,8 @@ export interface BranchItem {
   address: string | null;
   currency: string;
   timezone: string;
+  /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
+  vertical: 'HOSPITALITY' | 'BEAUTY';
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };
@@ -2302,5 +2713,276 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
+    vertical?: 'HOSPITALITY' | 'BEAUTY';
   }) => sendJson<BranchItem>('POST', '/branches', body),
+};
+
+/** Каталог салона (DATA_MODEL §19.1, срез B3). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+export interface BeautyServiceRow {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  /** Что про услугу говорит текущий филиал; null, значит он её не включал */
+  location: {
+    enabled: boolean;
+    priceOverrideMinor: string | null;
+    durationOverrideMinutes: number | null;
+  } | null;
+  /** Действующая цена в филиале, посчитанная домéном; null, когда филиал не выбран */
+  effective:
+    | { sellable: true; priceMinor: string; currency: string; durationMinutes: number; overridden: boolean }
+    | { sellable: false; reason: 'SERVICE_INACTIVE' | 'NOT_ENABLED' | 'CURRENCY_MISMATCH' }
+    | null;
+}
+
+export interface BeautyEmployeeRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+
+export interface BeautyWorkingInterval {
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+
+export interface BeautyWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+
+export interface BeautyTimeOff {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  /** сколько уже созданных записей попадает в эти дни: отсутствие их не отменяет (Q-252) */
+  appointments: number;
+}
+
+/** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
+export interface BeautySchedule {
+  location: { id: string; name: string | null; timezone: string | null } | null;
+  employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
+  employee: {
+    id: string;
+    name: string;
+    active: boolean;
+    worksHere: boolean;
+    locationIds: string[];
+  } | null;
+  locations: Array<{ id: string; name: string; assigned: boolean }>;
+  week: BeautyWeekDay[];
+  timeOffs: BeautyTimeOff[];
+}
+
+/** Журнал записей салона за день (срез B5): мастера столбцами, записи плитками */
+export interface BeautyDayColumn {
+  id: string;
+  name: string;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+  timeOff: boolean;
+  timeOffReason: string | null;
+  serviceIds: string[];
+}
+
+export interface BeautyAppointmentRow {
+  id: string;
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  customer: { id: string; name: string; phone: string | null };
+  startsAt: string;
+  endsAt: string;
+  /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+
+export interface BeautyDay {
+  location: { id: string; name: string | null; timezone: string; currency: string };
+  date: string;
+  columns: BeautyDayColumn[];
+  appointments: BeautyAppointmentRow[];
+  services: Array<{
+    id: string;
+    name: string;
+    category: string | null;
+    sellable: boolean;
+    durationMinutes: number;
+    priceMinor: string;
+    currency: string;
+  }>;
+  bounds: { fromMinutes: number; toMinutes: number };
+}
+
+export const beautyApi = {
+  services: () =>
+    getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
+      '/beauty/services',
+    ),
+  createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
+  updateService: (id: string, body: unknown) =>
+    sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
+  setLocationService: (id: string, body: unknown) =>
+    sendJson<{ items: BeautyServiceRow[] }>(
+      'PUT',
+      `/beauty/services/${encodeURIComponent(id)}/location`,
+      body,
+    ),
+  employees: () =>
+    getJson<{ locationId: string | null; items: BeautyEmployeeRow[] }>('/beauty/employees'),
+  createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
+  updateEmployee: (id: string, body: unknown) =>
+    sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
+  setEmployeeServices: (id: string, serviceIds: string[]) =>
+    sendJson<BeautyEmployeeRow>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/services`,
+      { serviceIds },
+    ),
+  schedule: (employee?: string) =>
+    getJson<BeautySchedule>(
+      employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
+    ),
+  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[]) =>
+    sendJson<{ week: BeautyWeekDay[] }>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/working-hours`,
+      { intervals },
+    ),
+  addTimeOff: (id: string, body: unknown) =>
+    sendJson<{ timeOffs: BeautyTimeOff[]; affected: number }>(
+      'POST',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs`,
+      body,
+    ),
+  removeTimeOff: (id: string, timeOffId: string) =>
+    sendJson<{ timeOffs: BeautyTimeOff[] }>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs/${encodeURIComponent(timeOffId)}`,
+      undefined,
+    ),
+  setEmployeeLocations: (id: string, locationIds: string[]) =>
+    sendJson<BeautySchedule>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/locations`,
+      { locationIds },
+    ),
+  day: (date?: string) =>
+    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+  createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
+  moveAppointment: (id: string, body: unknown) =>
+    sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
+  setAppointmentStatus: (id: string, status: string) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
+};
+
+// ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
+export type MarketSource = 'MANUAL' | 'AI_AGENT';
+export interface MarketCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface MarketCell {
+  date: string;
+  /** Загрузка в базисных пунктах (85,5 % = 8 550); null — нет данных */
+  bp: number | null;
+  deltaBp: number | null;
+  source: MarketSource | null;
+}
+export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
+export interface MarketInsight {
+  kind: MarketInsightKind;
+  from: string;
+  to: string;
+  nights: number;
+  marketBp: number | null;
+  ownBp: number | null;
+  competitors?: string[];
+}
+export interface MarketView {
+  today: string;
+  from: string;
+  days: number;
+  board: {
+    dates: string[];
+    asOf: string;
+    compareDays: number;
+    own: Array<{ date: string; bp: number | null }>;
+    competitors: Array<{
+      id: string;
+      name: string;
+      distanceM: number | null;
+      unitsTotal: number | null;
+      url: string | null;
+      cells: MarketCell[];
+      sources: MarketSource[];
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; bp: number | null; count: number }>;
+    gap: Array<{ date: string; bp: number | null }>;
+    summary: {
+      marketBp: number | null;
+      ownBp: number | null;
+      gapBp: number | null;
+      highDemandNights: number;
+      competitors: number;
+      competitorsWithData: number;
+    };
+    insights: MarketInsight[];
+  };
+  competitors: MarketCompetitor[];
+}
+export interface MarketNightHistory {
+  stayDate: string;
+  competitors: Array<{ id: string; name: string; distanceM: number | null }>;
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  pickupBp: number | null;
+}
+export const marketApi = {
+  night: (date: string) =>
+    getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
+  occupancy: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
+  },
+  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+  updateCompetitor: (id: string, body: unknown) =>
+    sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
+  writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/occupancy`,
+      { entries },
+    ),
 };

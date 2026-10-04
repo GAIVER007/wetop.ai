@@ -10,13 +10,6 @@ import { OwnerFinance, OwnerOperations } from './owner-dashboard';
 import { DashboardRefresh } from './owner-controls';
 import './owner-dashboard.css';
 
-async function PropertyCaption() {
-  const hotel = await hotelApi.settings().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
-  });
-  return <span className="owner-property">{hotel?.property.name ?? 'Объект не загружен'}</span>;
-}
 async function CurrencyFinance({
   period,
   today,
@@ -40,24 +33,33 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const period = resolvePeriod(
-    { preset: sp.period, from: sp.from, to: sp.to, date: sp.date },
+    {
+      // «Сегодня» уже показывают виджеты сверху; деньгам по умолчанию нужен отрезок, где есть что сравнить
+      preset: sp.period ?? (sp.from || sp.to || sp.date ? undefined : 'month'),
+      from: sp.from,
+      to: sp.to,
+      date: sp.date,
+    },
     today,
   );
   return (
     <Page
       title="Главная"
       width="full"
-      actions={
-        <>
-          <DashboardRefresh />
-          <Link className="btn btn-secondary" href="/branches">Все филиалы</Link>
-          <Link className="btn" href="/reservations/new">
-            + Новая бронь
-          </Link>
-        </>
-      }
+      actions={<DashboardRefresh />}
     >
+      <div className="owner-dashboard" data-testid="owner-dashboard">
+        <Suspense
+          fallback={
+            <div className="owner-operations owner-panel" role="status">
+              Загружаем данные гостиницы…
+            </div>
+          }
+        >
+          <OwnerOperations date={today} />
+        </Suspense>
       <div className="owner-toolbar">
+        <h2>Деньги и аналитика</h2>
         <nav aria-label="Период финансов">
           {[
             ['today', 'Сегодня'],
@@ -92,12 +94,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           />
           <button className="btn btn--secondary">Показать</button>
         </form>
-        <Suspense fallback={<span className="owner-property">Загружаем объект…</span>}>
-          <PropertyCaption />
-        </Suspense>
       </div>
       {period.error && <Alert>{period.error}</Alert>}
-      <div className="owner-dashboard" data-testid="owner-dashboard">
         <Suspense
           key={`${period.from}|${period.to}`}
           fallback={
@@ -107,15 +105,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           }
         >
           <CurrencyFinance period={period} today={today} />
-        </Suspense>
-        <Suspense
-          fallback={
-            <div className="owner-operations owner-panel" role="status">
-              Загружаем данные гостиницы…
-            </div>
-          }
-        >
-          <OwnerOperations date={today} />
         </Suspense>
       </div>
     </Page>

@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-const fixture = 'http://127.0.0.1:4311';
+import { FIXTURE_API, expect, test } from './fixtures';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
@@ -82,7 +82,7 @@ test('ошибочные даты шахматки и месяца тарифо�
     '/chessboard?from=wrong&to=2026-09-20',
   ]) {
     await page.goto(route);
-    await expect(page.getByRole('heading', { name: /Тарифы и цены|Шахматка/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Тарифы и цены|Календарь/ })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
     // форма исправления: у тарифов с 27.09 (ADR-111) кнопки нет — месяц перезагружает данные сам
     if (route.startsWith('/rates'))

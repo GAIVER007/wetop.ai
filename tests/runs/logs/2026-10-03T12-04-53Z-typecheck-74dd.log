@@ -1,0 +1,23 @@
+# Типы (typecheck) · 03.10.2026 17:04 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/beauty-branch.test.ts(69,20): error TS2339: Property 'vertical' does not exist on type '{ location: { businessId: string; }; locationId: string; id: string; name: string; address: string | null; timezone: string; currency: string; _count: { accommodationTypes: number; inventoryUnits: number; }; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/beauty/page.tsx(17,26): error TS2339: Property 'context' does not exist on type '{ user: { organization: SignedInOrganization | null; id: string; email: string; name: string | null; organizationId: string; role?: MembershipRole; platformAdmin?: boolean; } | null; organization?: SignedInOrganization | null; expiresAt?: string; access?: DeskAccessView; }'.
+apps/web/src/components/top-nav.tsx(276,6): error TS2375: Type '{ access: NavigationAccess; path: string; vertical: "HOSPITALITY" | "BEAUTY" | undefined; }' is not assignable to type '{ access: NavigationAccess; path: string; vertical?: "HOSPITALITY" | "BEAUTY"; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'vertical' are incompatible.
+    Type '"HOSPITALITY" | "BEAUTY" | undefined' is not assignable to type '"HOSPITALITY" | "BEAUTY"'.
+      Type 'undefined' is not assignable to type '"HOSPITALITY" | "BEAUTY"'.
+
+# код выхода 1 · 32 с

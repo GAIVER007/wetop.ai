@@ -1,0 +1,67 @@
+# Модульные (unit) · 04.10.2026 12:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0b97470 (claude/desk-tasks), незакоммиченных файлов набора: 142
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-49-37Z-unit-6810.json' 'packages/domain/src/tasks' 'apps/api/src/tasks' 'apps/api/src/desk' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/guests' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'tests/unit/build-tokens.test.ts' 'apps/web/src/lib'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 66ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 78ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 33ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 19ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 554ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 552ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 617ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 603ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 22ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 21ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 20ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 3ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 150ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 174ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (16 tests) 212ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 17ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 5ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 5ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 5ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 3ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 5ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 8ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 8ms
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 3ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 8ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 2ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 2ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 3ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 3ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 3ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests) 3ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 2ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 19ms
+
+ Test Files  49 passed (49)
+      Tests  367 passed (367)
+   Start at  00:49:38
+   Duration  1.91s (transform 37%, import 33%, tests 28%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-49-37Z-unit-6810.json
+
+# код выхода 0 · 2 с

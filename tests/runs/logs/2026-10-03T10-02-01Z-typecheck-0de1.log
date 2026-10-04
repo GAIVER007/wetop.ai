@@ -1,0 +1,21 @@
+# Типы (typecheck) · 03.10.2026 15:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 29
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.service.ts(825,67): error TS2353: Object literal may only specify known properties, and 'excludeSandbox' does not exist in type '{ mode?: string; limit?: number; }'.
+apps/api/src/ai-seller/seller.service.ts(886,61): error TS2554: Expected 0 arguments, but got 1.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.service.ts(825,67): error TS2353: Object literal may only specify known properties, and 'excludeSandbox' does not exist in type '{ mode?: string; limit?: number; }'.
+apps/api/src/ai-seller/seller.service.ts(886,61): error TS2554: Expected 0 arguments, but got 1.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 32 с

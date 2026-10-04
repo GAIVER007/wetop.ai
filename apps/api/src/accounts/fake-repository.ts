@@ -267,7 +267,49 @@ export class FakeAccountsRepository implements AccountsRepository {
         name: null,
         role: a.role,
         joinedAt: new Date('2026-09-01T00:00:00.000Z'),
+        // u-admin2 ещё не входил: список отдаёт null, а не undefined (TEAM1)
+        lastLoginAt: a.userId === 'u-admin2' ? null : new Date('2026-09-20T10:00:00.000Z'),
+        phone: this.details.get(a.userId)?.phone ?? null,
+        position: this.details.get(a.userId)?.position ?? null,
       }));
+  }
+
+  /** Телефон и должность по человеку (v2.10) и что ушло в журнал */
+  readonly details = new Map<string, { phone: string | null; position: string | null }>();
+  readonly detailChanges: Array<{
+    organizationId: string;
+    userId: string;
+    by: string;
+    positionBefore: string | null;
+    positionAfter: string | null;
+    phoneChanged: boolean;
+  }> = [];
+
+  async setMemberDetails(input: {
+    organizationId: string;
+    userId: string;
+    phone: string | null;
+    position: string | null;
+    by: string;
+    roles: readonly MembershipRole[] | null;
+  }): Promise<MemberWrite> {
+    const a = this.accounts.find(
+      (x) => x.userId === input.userId && x.organizationId === input.organizationId,
+    );
+    if (!a) return { outcome: 'missing', role: null };
+    const role = this.roleOverride.get(input.userId) ?? a.role;
+    if (input.roles && !input.roles.includes(role)) return { outcome: 'role', role };
+    const before = this.details.get(input.userId) ?? { phone: null, position: null };
+    this.details.set(input.userId, { phone: input.phone, position: input.position });
+    this.detailChanges.push({
+      organizationId: input.organizationId,
+      userId: input.userId,
+      by: input.by,
+      positionBefore: before.position,
+      positionAfter: input.position,
+      phoneChanged: before.phone !== input.phone,
+    });
+    return { outcome: 'done', role };
   }
 
   async removeMember(input: {

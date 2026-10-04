@@ -1,0 +1,605 @@
+# Сквозные (e2e) · 03.10.2026 17:16 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/integrations-channex.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (2.2s)
+  ✓   2 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (1.1s)
+  ✓   3 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.1s)
+  ✓   4 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (1.1s)
+  ✓   5 tests/ui/channels-list.spec.ts:22:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (1.4s)
+  ✓   6 tests/ui/channels-list.spec.ts:41:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (2.8s)
+  ✓   7 tests/ui/channels-list.spec.ts:52:1 › владелец открывает окно Channex; после «Готово» окно закрывается (2.4s)
+  ✓   8 tests/ui/channels-list.spec.ts:62:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (2.5s)
+  ✓   9 tests/ui/channels-list.spec.ts:72:1 › Channex не ответил: причина словами, брони мимо подключений видны (1.8s)
+  ✓  10 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 1440px (3.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  11 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 390px (2.9s)
+  ✓  12 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 1440px (2.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Канал или ID в канале"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  13 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 390px (2.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="list/" loading={[...]}>
+[WebServer]         <Suspense name="list/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/channels/..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <ChannelSalesPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <ChannelList>
+[WebServer]                             <div className="stack chan..." data-testid="channel-list">
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               <form className="channel-li..." role="search" action="/channels/...">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="view"
+[WebServer]                                   value="available"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="search"
+[WebServer]                                     name="q"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     placeholder="Найти канал"
+[WebServer]                                     aria-label="Найти канал"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  14 tests/ui/channels-list.spec.ts:99:1 › снимок «Все доступные» и окна Channex (3.3s)
+  ✓  15 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (2.2s)
+  ✓  16 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (1.6s)
+  ✘  17 tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу (17.0s)
+  ✓  18 tests/ui/channex-screens.spec.ts:146:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (4.0s)
+  ✓  19 tests/ui/channex-screens.spec.ts:216:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.4s)
+  ✓  20 tests/ui/channex-screens.spec.ts:276:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.9s)
+  ✓  21 tests/ui/channex-screens.spec.ts:295:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (1.7s)
+  ✓  22 tests/ui/channex-screens.spec.ts:324:1 › события: фильтры, поиск и постраничность на своей вкладке (4.0s)
+  ✓  23 tests/ui/channex-screens.spec.ts:358:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (3.7s)
+  ✓  24 tests/ui/channex-screens.spec.ts:367:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (4.4s)
+  ✓  25 tests/ui/channex-screens.spec.ts:416:1 › приём брони: ревизия с двоеточиями в номере открывается (986ms)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:156:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   154 |         /* тело не JSON */
+[WebServer]   155 |       }
+[WebServer] > 156 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   157 |   }
+[WebServer]   158 |   return (await res.json()) as T;
+[WebServer]   159 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  26 tests/ui/channex-screens.spec.ts:430:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.2s)
+  ✓  27 tests/ui/channex-screens.spec.ts:450:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (7.0s)
+  ✓  28 tests/ui/channex-screens.spec.ts:518:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (8.8s)
+  ✓  29 tests/ui/channex-screens.spec.ts:610:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (9.5s)
+  ✘  30 tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок (17.1s)
+  ✘  31 tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад (15.9s)
+  ✘  32 tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке (16.0s)
+  ✘  33 tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния (16.0s)
+  ✘  34 tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» (16.1s)
+  ✘  35 tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты (17.0s)
+  ✘  36 tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто (16.8s)
+  ✘  37 tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок (16.0s)
+  ✘  38 tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light (16.8s)
+  ✘  39 tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark (16.9s)
+
+
+  1) tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Подключения"
+    Received: "Подключение каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        2 × locator resolved to <h1 class="page__title">Каналы продаж</h1>
+          - unexpected value "Каналы продаж"
+        - waiting for "http://127.0.0.1:3100/connections/channex" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/connections/channex"
+        29 × locator resolved to <h1 class="page__title">Подключение каналов</h1>
+           - unexpected value "Подключение каналов"
+
+
+      111 |   await signIn(page);
+      112 |   await page.goto('/channels/connections');
+    > 113 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+          |                                                         ^
+      114 |   await expect(main).toContainText('Тестовая');
+      115 |   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
+      116 |   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:113:57
+
+    Error Context: test-results/channex-screens-подключени-18423-одключения-только-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Менеджер каналов"
+    Received: "Подключение каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Подключение каналов</h1>
+           - unexpected value "Подключение каналов"
+
+
+      45 |   await expect(page).toHaveURL(/\/connections\/channex$/);
+      46 |   const main = page.getByRole('main');
+    > 47 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
+         |                                                         ^
+      48 |   await expect(main.getByRole('link', { name: 'Интеграции' })).toHaveAttribute(
+      49 |     'href',
+      50 |     '/connections',
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:47:57
+
+    Error Context: test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-работ-ecd97-ытий-ключей-и-лишних-кнопок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Требует внимания"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      101 |   await page.goto('/connections/channex');
+      102 |   const main = page.getByRole('main');
+    > 103 |   await expect(main.getByTestId('integration-health')).toHaveText('Требует внимания');
+          |                                                        ^
+      104 |   const issues = main.getByTestId('integration-issues');
+      105 |   await expect(issues).toContainText(/Очередь в каналы стоит \d+ мин/);
+      106 |   await expect(issues.getByRole('link', { name: 'Открыть очередь' })).toHaveAttribute(
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:103:56
+
+    Error Context: test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-устар-e8113--очередь-обмен-часами-назад/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Требует внимания"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      123 |   await page.goto('/connections/channex');
+      124 |   const main = page.getByRole('main');
+    > 125 |   await expect(main.getByTestId('integration-health')).toHaveText('Требует внимания');
+          |                                                        ^
+      126 |   await expect(main.getByTestId('integration-issues')).toHaveText(/Webhook не отвечает/);
+      127 |   await expect(main.getByTestId('channex-webhook')).toHaveText('не отвечает');
+      128 | });
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:125:56
+
+    Error Context: test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-webho-51b27--и-тот-же-вывод-на-карточке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Не подключено"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      134 |   await page.goto('/connections/channex');
+      135 |   const main = page.getByRole('main');
+    > 136 |   await expect(main.getByTestId('integration-health')).toHaveText('Не подключено');
+          |                                                        ^
+      137 |   await expect(main.getByTestId('integration-connect')).toContainText('Подключает поддержка WETOP');
+      138 |   await expect(main.getByTestId('channex-settings')).toHaveCount(0);
+      139 |   await expect(main.getByRole('link', { name: 'Каналы продаж' })).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:136:56
+
+    Error Context: test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-не-по-8de67-алы-продаж»-и-без-состояния/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Не подключено"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      144 |   await control(page, { channex: 'no-key' satisfies Mode });
+      145 |   await page.goto('/connections/channex');
+    > 146 |   await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
+          |                                                                          ^
+      147 |     'Не подключено',
+      148 |   );
+      149 | });
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:146:74
+
+    Error Context: test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-ключ-не-задан-—-тоже-«не-подключено»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      155 |   const main = page.getByRole('main');
+      156 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+    > 157 |   await expect(main.getByTestId('integration-health')).toHaveText('Работает');
+          |                                                        ^
+      158 |   await expect(main.getByRole('button', { name: 'Проверить соединение' })).toBeEnabled();
+      159 |   await expect(main.getByTestId('channex-read-only')).toContainText('после оплаты подписки');
+      160 |   await expect(main.getByTestId('channex-manage')).not.toContainText('владелец настраивает');
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:157:56
+
+    Error Context: test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-тольк-ce045-ны-изменения-—-после-оплаты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-health')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-health')
+
+
+      168 |   await page.goto('/connections/channex');
+      169 |   const main = page.getByRole('main');
+    > 170 |   await expect(main.getByTestId('integration-health')).toHaveText('Работает');
+          |                                                        ^
+      171 |   await expect(main.getByTestId('integration-tech')).toHaveCount(0);
+      172 |   await expect(main).not.toContainText('ui-property');
+      173 |   await expect(main.getByTestId('channex-manage')).not.toContainText('владелец настраивает');
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:170:56
+
+    Error Context: test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-управ-8f031-ладельца-сотруднику-закрыто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('integration-health')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByTestId('integration-health')
+
+
+      183 |   await page.setViewportSize({ width: 390, height: 844 });
+      184 |   await page.goto('/connections/channex');
+    > 185 |   await expect(page.getByTestId('integration-health')).toBeVisible();
+          |                                                        ^
+      186 |   const layout = await page.evaluate(() => {
+      187 |     const w = globalThis as unknown as {
+      188 |       innerWidth: number;
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:185:56
+
+    Error Context: test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-телефон-страница-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light ───
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Менеджер каналов"
+    Received: "Подключение каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Подключение каналов</h1>
+           - unexpected value "Подключение каналов"
+
+
+      203 |       await control(page, { channex: mode, ...extra });
+      204 |       await page.goto('/connections/channex');
+    > 205 |       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+          |                                                                               ^
+      206 |         'Менеджер каналов',
+      207 |       );
+      208 |       await page.mouse.move(0, 0);
+        at shot (/home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:205:79)
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:216:5
+
+    Error Context: test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-INT2--0f5b7--снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark ────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Менеджер каналов"
+    Received: "Подключение каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Подключение каналов</h1>
+           - unexpected value "Подключение каналов"
+
+
+      203 |       await control(page, { channex: mode, ...extra });
+      204 |       await page.goto('/connections/channex');
+    > 205 |       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+          |                                                                               ^
+      206 |         'Менеджер каналов',
+      207 |       );
+      208 |       await page.mouse.move(0, 0);
+        at shot (/home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:205:79)
+        at /home/user/wetop.ai/tests/ui/integrations-channex.spec.ts:216:5
+
+    Error Context: test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-channex-INT2--00e2e-т-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11 failed
+    tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу 
+    tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок 
+    tests/ui/integrations-channex.spec.ts:97:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад 
+    tests/ui/integrations-channex.spec.ts:121:1 › webhook не отвечает: причина словами и тот же вывод на карточке 
+    tests/ui/integrations-channex.spec.ts:130:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния 
+    tests/ui/integrations-channex.spec.ts:143:1 › ключ не задан — тоже «не подключено» ─────────────
+    tests/ui/integrations-channex.spec.ts:151:1 › только чтение: состояние и проверка доступны, изменения — после оплаты 
+    tests/ui/integrations-channex.spec.ts:163:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто 
+    tests/ui/integrations-channex.spec.ts:181:1 › телефон: страница без прокрутки вбок ─────────────
+    tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, light ─────
+    tests/ui/integrations-channex.spec.ts:197:3 › INT2, стоп-гейт: снимки для владельца, dark ──────
+  28 passed (4.8m)
+
+# код выхода 1 · 4 мин 48 с

@@ -1,9 +1,9 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';
 const APP = 'http://127.0.0.1:3100';
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // ADR-131: прежние проверки формы перенесены на реальную главную, не на заменитель /login.
 test.beforeEach(async ({ request }) => {
   await request.post(API + '/__test/reset');
@@ -43,7 +43,12 @@ test('верный пароль открывает рабочее место, в
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page).toHaveURL(APP + '/today');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  // клик до гидратации шапки теряется (меню не открывается): повторяем, пока меню не раскрыто
+  const profile = page.getByRole('button', { name: 'Меню администратора' });
+  await expect(async () => {
+    if ((await profile.getAttribute('aria-expanded')) !== 'true') await profile.click();
+    await expect(profile).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
+  }).toPass();
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
 });
@@ -127,7 +132,7 @@ test('заголовок прежнего Cloudflare Access не подстав�
   await expect(dialog(page).getByLabel('Почта')).toHaveValue('');
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
 });
-test('управление командой и сессиями открывается в профиле, не на входе', async ({ page }) => {
+test('сеансы открываются в профиле, команда в «Сотрудниках», не на входе', async ({ page }) => {
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
@@ -137,7 +142,10 @@ test('управление командой и сессиями открывае
     page.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId('session-list')).toBeVisible();
-  await expect(page.getByTestId('team')).toBeVisible();
+  // команда с 02.10.2026 в разделе «Сотрудники» (TEAM1), в профиле только личные сеансы
+  await expect(page.getByTestId('team')).toHaveCount(0);
+  await page.goto('/team');
+  await expect(page.getByTestId('member-row').first()).toBeVisible();
 });
 test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
   await page.goto('/login');

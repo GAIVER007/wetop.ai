@@ -1,0 +1,27 @@
+# Модульные (unit) · 04.10.2026 14:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2a4336e (HEAD)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-16-57Z-unit-51b8.json' 'tests/unit/guard-run.test.ts' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/db0f8bca-525a-4dd2-a7aa-626d9b96733e/scratchpad/fix
+
+[Nest] 77039  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (29 tests) 547ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (53 tests) 592ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5808ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1877ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 793ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1018ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 632ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 902ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 561ms
+
+ Test Files  3 passed (3)
+      Tests  90 passed (90)
+   Start at  02:17:01
+   Duration  6.06s (tests 52%, import 36%, transform 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T09-16-57Z-unit-51b8.json
+
+# код выхода 0 · 10 с

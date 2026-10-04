@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Витрина шагов «Свободных мест» для визуального подтверждения владельца (ТЗ — ADR-110,
@@ -8,7 +9,7 @@ import { test, expect } from '@playwright/test';
  */
 const DIR = 'reports/availability-av4-2026-09-29';
 const URL = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
-const FIXTURE = 'http://127.0.0.1:4311';
+const FIXTURE = FIXTURE_API;
 
 // Даты в полях — как на машине владельца (ru), а не en-US хрома CI
 test.use({ locale: 'ru-RU' });

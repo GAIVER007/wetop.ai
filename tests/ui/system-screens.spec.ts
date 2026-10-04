@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * D4 «Журнал и неисправности» (tasks/todo.md): выборка журнала названа словами, разделы — чипами, отказ API не
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * последним операциям, время в `<time>`; у «Неисправностей» отказ состояния сторожа — сбой с повтором, пустые
  * таблицы говорят, что это значит; на телефоне строки читаются без прокрутки вбок; загрузка — словом.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -241,7 +241,7 @@ test('аналитика и статистика: пустое состояни�
   });
   await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
-    'Считаем загрузку по шахматке',
+    'Считаем загрузку по календарю',
   );
   await expect(main.getByTestId('statistics-table')).toBeVisible({ timeout: 15_000 });
 });

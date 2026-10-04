@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * WET-02 (ТЗ QA 01.10.2026): групповая бронь на койки. Поле «Гостей» относится к одному месту, API заводит столько
  * проживаний, сколько мест, поэтому форма до отправки называет общее число гостей: подпись поля, подсказка под
  * группой, липкая строка сути и блок «Проверить детали брони» говорят одно и то же. Стенд: подставной API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);

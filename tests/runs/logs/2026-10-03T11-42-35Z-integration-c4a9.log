@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 03.10.2026 16:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-42-35Z-integration-c4a9.json' 'tests/integration/manager-role.test.ts' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 1531ms
+   ✓ роли управляющего и администратора (integration, DATABASE_URL required) (8)
+     ✓ в типе роли три значения — владелец, управляющий, администратор 584ms
+     ✓ сотрудники по порядку ролей; отключение и смена роли — вместе с записью в журнале организации 443ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 908ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  04:42:48
+   Duration  21.60s (transform 54%, import 30%, tests 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-42-35Z-integration-c4a9.json
+
+# код выхода 0 · 38 с

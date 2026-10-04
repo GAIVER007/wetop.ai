@@ -146,12 +146,12 @@ test('главная: «Войти» и «Регистрация», шаги п�
 });
 
 /**
- * Позиционирование 29.09.2026 (решение владельца, ADR-104: WETOP — платформа для сервисного бизнеса).
- * Первый экран говорит о платформе, а не о гостинице: общий операционный экран «Сегодня» с клиентами, филиалами,
- * задачами, продажами и финансами; ни номеров, ни койко-мест, ни каналов OTA. Hospitality показан ниже как
- * работающее направление, Beauty — как следующее, с явной пометкой, что подключить его пока нельзя.
+ * Позиционирование 29.09.2026 (решение владельца, ADR-104: WETOP, платформа для сервисного бизнеса) плюс правка
+ * 03.10.2026: заголовок остаётся про платформу, а лид говорит прямо, что это онлайн-система для отеля, хостела
+ * и апартаментов, и что салоны и студии подключаем. Дорожной карты направлений («Первое направление»,
+ * «Следующее направление», «подключить пока нельзя») на странице нет.
  */
-test('первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее', async ({
+test('первый экран говорит, что это за система и для кого; дорожной карты направлений нет', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -161,9 +161,9 @@ test('первый экран — центр управления сервисн
   await expect(hero.getByRole('heading', { level: 1 })).toContainText(
     /Центр управления сервисным бизнесом/,
   );
-  await expect(hero).toContainText(
-    /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\sв\sодном\sрабочем\sпространстве/,
-  );
+  // 03.10.2026: лид говорит прямо, что это онлайн-система и для кого, и зовёт салоны (решение владельца)
+  await expect(hero).toContainText(/Онлайн-система\sдля\sотеля,\sхостела\sи\sапартаментов/);
+  await expect(hero).toContainText(/Подключаем\sсалоны\sи\sстудии/);
   // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
   // одна плашка, без круглой печати. С 01.10.2026 справа карта разделов: шесть областей платформы ссылками на блоки
   // страницы (plans/site-home-clear-blocks-2026-10-01.md), без вымышленных имён и сумм.
@@ -172,17 +172,22 @@ test('первый экран — центр управления сервисн
   await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
   const map = hero.getByRole('list', { name: /Разделы WETOP/ });
   await expect(map).toBeVisible();
+  await expect(hero.locator('.vertical-status'), 'состояние направлений на первом экране').toHaveCount(
+    0,
+  );
   for (const section of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
     await expect(map).toContainText(section);
   }
 
-  const verticals = page.locator('#audience');
-  await expect(verticals.getByRole('heading', { level: 2 })).toContainText(/Hospitality/);
-  await expect(verticals).toContainText(/Хостелы/);
-  const beauty = verticals.locator('.vertical-next');
-  await expect(beauty).toContainText(/Beauty/);
-  await expect(beauty).toContainText(/Следующее направление/);
-  await expect(beauty).toContainText(/пока нельзя/);
+  const audience = page.locator('#audience');
+  await expect(audience.getByRole('heading', { level: 2 })).toContainText(
+    /Отели, хостелы и апартаменты/,
+  );
+  await expect(audience).toContainText(/Хостелы/);
+  // 03.10.2026: вместо карточки «Beauty, подключить пока нельзя» приглашение салонам написать
+  const invite = audience.locator('.invite');
+  await expect(invite).toContainText(/Салоны и студии/);
+  await expect(invite).toContainText(/подключаем/i);
   // Первый экран идёт раньше разделов про гостиницу
   const order = await page
     .locator('main section')

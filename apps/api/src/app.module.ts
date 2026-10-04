@@ -17,11 +17,14 @@ import { ChessboardModule } from './chessboard/chessboard.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
+import { MarketModule } from './market/market.module';
 import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
+import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
@@ -42,6 +45,7 @@ import { DataConnectionModule } from './database/connection';
     // главный администратор: организации и их расширения (ADR-083)
     PlatformModule,
     InventoryModule,
+    BeautyModule,
     HotelModule,
     ChessboardModule,
     ReservationsModule,
@@ -49,8 +53,10 @@ import { DataConnectionModule } from './database/connection';
     RatesModule,
     UnitsModule,
     GuestsModule,
+    TasksModule,
     AuditModule,
     FinanceModule,
+    MarketModule,
     DeskModule,
     DashboardModule,
     AnalyticsModule,

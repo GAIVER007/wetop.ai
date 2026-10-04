@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 04.10.2026 12:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 354b82d (claude/owner-home-20261003), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/design-refresh.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/owner-dashboard.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '-g' 'главная|Главная|название гостиницы|обзор: очередь|owner dashboard|dashboard period|пустая база: главная|после запуска отеля'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › главная: «Гостиница сегодня» на первом экране, кнопки брони нет (15.3s)
+  ✓   2 tests/ui/design-refresh.spec.ts:76:1 › главная: финансы за выбранный период, гостиница за сегодня; месяц целиком в «Аналитике» (26.7s)
+  ✓   3 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (13.9s)
+  ✓   4 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (32.9s)
+  ✓   5 tests/ui/owner-dashboard.spec.ts:13:1 › owner dashboard: today widgets and money, no desk buttons, no expenses tile (5.9s)
+  ✓   6 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (11.8s)
+  ✓   7 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps operations visible when finance fails (5.2s)
+  ✓   8 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (11.7s)
+  ✓   9 tests/ui/real-data.spec.ts:59:1 › название гостиницы в каркасе и обзоре поступает из backend (7.7s)
+  ✘  10 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (39.1s)
+
+
+  1) tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /#booking-finance$/
+    Received string:  "http://127.0.0.1:3109/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        29 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3109/today"
+
+
+      662 |   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+      663 |   await departureDebt.click();
+    > 664 |   await expect(page).toHaveURL(/#booking-finance$/);
+          |                      ^
+      665 |   await expect(page.locator('#booking-finance')).toBeInViewport();
+      666 | });
+      667 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/224c2f74-eb93-4118-97ea-d4be74862d1c/scratchpad/home-wt/tests/ui/workspace.spec.ts:664:22
+
+    Error Context: test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия 
+  9 passed (3.9m)
+
+# код выхода 1 · 4 мин 8 с

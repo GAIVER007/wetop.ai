@@ -1,4 +1,3 @@
-import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { redirect } from 'next/navigation';
 import { ApiError, authApi } from '../../../lib/api';
 import { clientInfo, sessionToken } from '../../../lib/session';
@@ -14,14 +13,7 @@ export default async function AccessPage() {
     throw error;
   });
   if (!me.user) redirect(publicAuthUrl('login', '/profile/access'));
-  const role = me.user.role ? parseMembershipRole(me.user.role) : null;
-  const team = !!me.user.organization && !!role && canManageStaff(role);
-  const info = await clientInfo();
-  // Ошибку загрузки показываем границей ошибок, а не выдаём за пустую команду.
-  const [invites, members, sessions] = await Promise.all([
-    team ? authApi.invites(token, info) : [],
-    team ? authApi.members(token, info) : [],
-    authApi.sessions(token, info),
-  ]);
-  return <AccessPanel user={me.user} invites={invites} members={members} sessions={sessions} />;
+  // Команда переехала на «Сотрудников» (TEAM1): здесь остались личные сеансы
+  const sessions = await authApi.sessions(token, await clientInfo());
+  return <AccessPanel user={me.user} sessions={sessions} />;
 }

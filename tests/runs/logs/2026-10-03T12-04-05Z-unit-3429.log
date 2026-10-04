@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 17:04 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-04-05Z-unit-3429.json' 'packages/integrations/src/channex/channel-connections.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/integrations/src/channex/channel-connections.test.ts (6 tests) 50ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:04:06
+   Duration  328ms (transform 66%, tests 25%, import 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-04-05Z-unit-3429.json
+
+# код выхода 0 · 1 с

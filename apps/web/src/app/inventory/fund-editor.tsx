@@ -422,7 +422,7 @@ export function FundEditorDialog({
                   />
                 </Field>
               ) : (
-                <Field label="Обозначение номера в шахматке">
+                <Field label="Обозначение номера в календаре">
                   <Input name="codes" required maxLength={100} placeholder="201" />
                 </Field>
               )}
@@ -440,7 +440,7 @@ export function FundEditorDialog({
                 </span>
                 <span>{choices.find((c) => c.code === selected)?.name}</span>
                 {dorm && roomPreview.codes.length > 0 && (
-                  <span>На шахматке: {roomPreview.codes.join(', ')}</span>
+                  <span>В календаре: {roomPreview.codes.join(', ')}</span>
                 )}
               </div>
               <p className="muted">

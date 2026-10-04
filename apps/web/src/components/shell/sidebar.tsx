@@ -1,99 +1,57 @@
 'use client';
 import Link from 'next/link';
-import { Suspense, use, useEffect, useId, useState, type ReactNode } from 'react';
+import { Suspense, use, useEffect, useId, useState } from 'react';
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
-  sidebarSections,
-  sidebarSectionsFor,
-  activeNavigation,
-  type SidebarSection,
+  activeMenuRoute,
+  menuSections,
+  menuSectionsFor,
+  type MenuSection,
 } from '../../lib/navigation';
 import type { DeskPerson, DeskShell } from '../../lib/desk-person';
 import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
-import { BranchSwitcher } from './branch-switcher';
+import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './property-block';
 import { cx } from '../ui';
-/** Server-rendered text slots keep late metadata independent of the interactive shell. */
-export interface PropertyIdentity {
-  name: ReactNode;
-  address: ReactNode;
-}
+export type { PropertyIdentity } from './property-block';
+
+/**
+ * Меню телефона и планшета (до 960 px, окно «Навигация»): те же разделы, что в строке вкладок шапки
+ * (ADR-134), раздел из одного пункта прямой ссылкой, группа раскрывашкой; внизу пробный срок,
+ * свежесть Channex и кто вошёл.
+ */
 export function Sidebar({
   path,
   close,
-  collapsed,
-  onCollapse,
   property,
   desk,
 }: {
   path: string;
   close?: () => void;
-  collapsed?: boolean;
-  onCollapse?: () => void;
   property?: PropertyIdentity | null;
   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
   desk?: Promise<DeskShell> | undefined;
 }) {
-  const route = activeNavigation(path)?.href;
-  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Номерной фонд» ADR-108,
-  // «Каналы продаж» ADR-112)
-  const active = route?.startsWith('/hotel-settings')
-    ? '/hotel-settings'
-    : route?.startsWith('/rooms')
-      ? '/inventory'
-      : route?.startsWith('/channels')
-        ? '/channels'
-        : route;
-  const activeSection = sidebarSections.find((section) =>
+  const active = activeMenuRoute(path);
+  const activeSection = menuSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;
-  const [expanded, setExpanded] = useState<string | null>(activeSection ?? 'guests');
+  const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
   const id = useId();
   useEffect(() => {
     if (activeSection) setExpanded(activeSection);
   }, [activeSection, path]);
-  const links: LinksProps = {
-    id,
-    active,
-    activeSection,
-    expanded,
-    setExpanded,
-    collapsed,
-    onCollapse,
-    close,
-  };
+  const links: LinksProps = { id, active, activeSection, expanded, setExpanded, close };
   return (
-    <div className={cx('sidebar-shell', collapsed && 'is-compact')}>
-      <div className="brand-row">
-        <Link
-          className="workspace-brand"
-          href="/today"
-          aria-label="WETOP — Сегодня"
-          onClick={() => close?.()}
-        >
-          <span className="workspace-mark">W</span>
-          <span className="brand-name">
-            WETOP<span>.AI</span>
-          </span>
-        </Link>
-        {onCollapse && (
-          <button
-            className="icon-button sidebar-collapse"
-            aria-label={collapsed ? 'Развернуть панель' : 'Свернуть панель'}
-            onClick={onCollapse}
-          >
-            <Icon name={collapsed ? 'expand' : 'collapse'} />
-          </button>
-        )}
-      </div>
+    <div className="sidebar-shell">
       <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
         <GrantedProperty desk={desk} property={property} close={close} path={path} />
       </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
         {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
         <Suspense
-          fallback={<SectionLinks sections={sidebarSectionsFor(PENDING_ACCESS)} {...links} />}
+          fallback={<SectionLinks sections={menuSectionsFor(PENDING_ACCESS)} {...links} />}
         >
           <GrantedSectionLinks desk={desk} {...links} />
         </Suspense>
@@ -123,8 +81,6 @@ interface LinksProps {
   activeSection: string | undefined;
   expanded: string | null;
   setExpanded: (value: string | null) => void;
-  collapsed: boolean | undefined;
-  onCollapse: (() => void) | undefined;
   close: (() => void) | undefined;
 }
 
@@ -133,7 +89,7 @@ function GrantedSectionLinks({
   ...props
 }: LinksProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <SectionLinks sections={sidebarSectionsFor(shell?.access ?? CLOSED_ACCESS)} {...props} />;
+  return <SectionLinks sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
 }
 
 function SectionLinks({
@@ -143,14 +99,12 @@ function SectionLinks({
   activeSection,
   expanded,
   setExpanded,
-  collapsed,
-  onCollapse,
   close,
-}: LinksProps & { sections: SidebarSection[] }) {
+}: LinksProps & { sections: MenuSection[] }) {
   return (
     <>
       {sections.map((section) => {
-        const open = !collapsed && expanded === section.id;
+        const open = expanded === section.id;
         const selected = activeSection === section.id;
         const panelId = `${id}-${section.id}`;
         // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой
@@ -162,8 +116,6 @@ function SectionLinks({
                 href={single.href}
                 prefetch={false}
                 onClick={() => close?.()}
-                data-tour={`section-${section.id}`}
-                title={collapsed ? section.label : undefined}
                 className={cx('sidebar-section-toggle', selected && 'has-current-page')}
                 aria-current={single.href === active ? 'page' : undefined}
               >
@@ -177,15 +129,10 @@ function SectionLinks({
             <button
               type="button"
               className={cx('sidebar-section-toggle', selected && 'has-current-page')}
-              data-tour={`section-${section.id}`}
               aria-label={section.label}
               aria-expanded={open}
               aria-controls={panelId}
-              title={collapsed ? section.label : undefined}
-              onClick={() => {
-                setExpanded(open ? null : section.id);
-                if (collapsed) onCollapse?.();
-              }}
+              onClick={() => setExpanded(open ? null : section.id)}
             >
               <Icon name={section.icon} />
               <span>{section.label}</span>
@@ -209,54 +156,8 @@ function SectionLinks({
             </div>
           </div>
         );
-      })}{' '}
+      })}
     </>
-  );
-}
-
-/** Authenticated users select an accessible branch in place. API enforces membership scope. */
-function GrantedProperty({
-  desk,
-  ...props
-}: {
-  desk: Promise<DeskShell> | undefined;
-  property?: PropertyIdentity | null | undefined;
-  close: (() => void) | undefined;
-  path: string;
-}) {
-  const shell = desk ? use(desk) : null;
-  const settings = Boolean(shell?.person);
-  return <PropertyBlock {...props} settings={settings} />;
-}
-
-function PropertyBlock({
-  property,
-  settings,
-  close,
-  path = '/today',
-}: {
-  property?: PropertyIdentity | null | undefined;
-  settings: boolean;
-  path?: string;
-  close: (() => void) | undefined;
-}) {
-  const identity = (
-    <>
-      <span className="property-mark">
-        <Icon name="inventory" />
-      </span>
-      <div>
-        <strong>{property?.name ?? 'Объект не загружен'}</strong>
-        <span>{property?.address ?? 'Настройки объекта'}</span>
-      </div>
-    </>
-  );
-  return settings ? (
-    <BranchSwitcher path={path} close={close}>
-      {identity}
-    </BranchSwitcher>
-  ) : (
-    <div className="workspace-property">{identity}</div>
   );
 }
 
@@ -265,7 +166,7 @@ function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const trial = desk ? use(desk).trial : null;
   if (!trial) return null;
   return (
-    <p className="sidebar-trial" data-testid="trial-line" data-tour="trial">
+    <p className="sidebar-trial" data-testid="trial-line">
       <Icon name="clock" width={16} />
       <span>{trial}</span>
     </p>
@@ -277,7 +178,7 @@ function GrantedFooterPerson({ desk }: { desk: Promise<DeskShell> | undefined })
   return <FooterPerson person={shell?.person ?? null} />;
 }
 
-/** Подпись внизу панели: кто вошёл и его роль; вошедшего нет — прежняя «Администратор» */
+/** Подпись внизу меню: кто вошёл и его роль; вошедшего нет — прежняя «Администратор» */
 function FooterPerson({ person }: { person: DeskPerson | null }) {
   return (
     <>

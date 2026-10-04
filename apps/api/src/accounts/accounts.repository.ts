@@ -65,6 +65,11 @@ export interface MemberRecord {
   name: string | null;
   role: MembershipRole;
   joinedAt: Date;
+  /** Последний вход в систему (`users.last_login_at`, TEAM1): не входил — null */
+  lastLoginAt: Date | null;
+  /** Рабочий телефон и должность в этой организации (`memberships`, v2.10, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
 }
 
 export interface AccountsRepository {
@@ -152,6 +157,19 @@ export interface AccountsRepository {
     role: MembershipRole;
     by: string;
     from: readonly MembershipRole[];
+  }): Promise<MemberWrite>;
+  /**
+   * Телефон и должность (v2.10, Q-244) и запись в журнал организации (`membership.details.updated`: должность было и
+   * стало, телефон только отметкой: номер в журнал не пишется) одной транзакцией. `roles`: чьи контакты можно
+   * менять, сверка под блокировкой строки, как у отключения; `null`: человек правит себя.
+   */
+  setMemberDetails(input: {
+    organizationId: string;
+    userId: string;
+    phone: string | null;
+    position: string | null;
+    by: string;
+    roles: readonly MembershipRole[] | null;
   }): Promise<MemberWrite>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие

@@ -21,20 +21,15 @@ test('главная открывается с корня; заезд на да�
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  // день по умолчанию — сегодня
-  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+  // деньги по умолчанию за месяц, виджеты сверху всегда о сегодняшнем дне (03.10.2026)
+  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
 
   // Только видимый блок: Next также содержит скрытые потоковые сегменты.
   const strip = page.getByRole('region', { name: 'Гостиница сегодня' });
-  const arrivals = async () =>
-    Number(
-      (await strip.getByTestId('owner-movements').locator('strong').innerText())
-        .split('/')[0]
-        ?.trim(),
-    );
+  const arrivals = async () => Number(await strip.getByTestId('tw-arrivals').innerText());
 
   // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
   // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.
@@ -74,7 +69,7 @@ test('главная открывается с корня; заезд на да�
       'нет ячейки',
     );
   // Операции относятся к сегодняшнему дню.
-  await expect(strip).toContainText('Гостиница сегодня');
+  await expect(strip).toBeVisible();
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
@@ -91,7 +86,7 @@ test('главная открывается с корня; заезд на да�
   await page.goto(`/management/analytics?period=custom&from=${day}&to=${plus(1)}`);
   await expect(page.getByRole('main').getByTestId('pa-chart-occupancy')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('pa-compare')).toContainText('Сравнение с');
-  // «Загрузка» за тот же день: бронь без ячейки — в «Без размещения», категории — из шахматки
+  // «Загрузка» за тот же день: бронь без ячейки — в «Без размещения», категории — из календаря
   await page.goto(`/management/analytics/occupancy?date=${day}`);
   expect(
     Number(await page.getByRole('main').getByTestId('pa-kpi-unassigned').innerText()),
@@ -106,10 +101,11 @@ test('главная открывается с корня; заезд на да�
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByLabel('Конец периода')).toHaveValue('2026-08-15');
   expect(await arrivals()).toBe(before + 1);
-  await expect(strip.getByRole('link', { name: 'Шахматка', exact: true })).toHaveAttribute(
-    'href',
-    `/chessboard?from=${today}&to=${today}`,
-  );
+  await expect(
+    page
+      .getByRole('article', { name: 'Загрузка на сегодня' })
+      .getByRole('link', { name: /Занято/ }),
+  ).toHaveAttribute('href', `/chessboard?from=${today}&to=${today}`);
   await page.goto('/management/analytics?date=2026-08-15');
   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
 });

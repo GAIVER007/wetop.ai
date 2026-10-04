@@ -1,9 +1,9 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import { chooseSource } from './booking-form';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const booking = '20260913-TESTAA';
 const screenshots = resolve('reports/hostel-frontend/screenshots');
 test.beforeEach(async ({ request }) => {
@@ -37,7 +37,7 @@ test('все разделы, карточки и печать открывают
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
-    ['/chessboard', 'Шахматка'],
+    ['/chessboard', 'Календарь'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
@@ -112,13 +112,14 @@ test('все разделы, карточки и печать открывают
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Регистрационная карта');
-  await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+  await expect(page.locator('.workspace-header')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
+  // строка разделов в шапке (ADR-134): группа «Продажи» раскрывает список под вкладкой
+  const sidebar = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
@@ -129,7 +130,9 @@ test('вложенные разделы: раскрытие, один актив
   await sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
-  await sales.click();
+  // переход закрывает список; вкладка группы помечена текущим экраном
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
+  await expect(sales).toHaveClass(/has-current-page/);
   await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
@@ -173,11 +176,11 @@ test('доступность переносит даты и свободное �
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
-  // компактная форма (01.10): боковое окно без повторного заголовка, имя окна и есть «Новая бронь»;
+  // заголовок страницы в компактной панели скрыт (booking-compact): проверяем саму панель и форму;
   // перехватывающий маршрут на холодном `next dev` собирается дольше обычных 15 с
-  await expect(page.getByRole('dialog', { name: 'Новая бронь', exact: true })).toBeVisible({
-    timeout: 45_000,
-  });
+  const bookingDrawer = page.getByRole('dialog', { name: 'Новая бронь', exact: true });
+  await expect(bookingDrawer).toBeVisible({ timeout: 45_000 });
+  await expect(bookingDrawer.getByTestId('new-reservation-form')).toBeVisible();
   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
@@ -285,7 +288,7 @@ test('показатели за период: готовые отрезки и �
   await openMenu.click();
   await page
     .getByRole('dialog', { name: 'Навигация' })
-    .getByRole('link', { name: 'Шахматка', exact: true })
+    .getByRole('link', { name: 'Календарь', exact: true })
     .click();
   await expect(page).toHaveURL(/\/chessboard/);
   await expect(page.getByRole('dialog', { name: 'Навигация' })).not.toBeVisible();
@@ -305,9 +308,9 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
-  await board.getByLabel('Категория на шахматке').selectOption('MALE');
+  await board.getByLabel('Категория в календаре').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
-  await board.getByLabel('Поиск на шахматке').fill('M03');
+  await board.getByLabel('Поиск в календаре').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
@@ -332,7 +335,7 @@ test('шахматка: подсказка закрывается щелчком
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
   // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
-  const search = page.getByRole('main').getByLabel('Поиск на шахматке');
+  const search = page.getByRole('main').getByLabel('Поиск в календаре');
   await search.click();
   await expect(help).not.toHaveAttribute('open', '');
   await search.fill('R0');
@@ -367,13 +370,16 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  // номер даёт фикстура по длине журнала команд, а в журнале теперь и POST /reservations/quote
+  // компактной формы: ровно два создания проверяем по самому журналу, номер не зашиваем
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   await expect(page.getByTestId('stay-row')).toContainText('M03');
   await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
-  const commands = await response.json();
-  expect(commands).toHaveLength(2);
-  expect(commands[1].body).toMatchObject({
+  const commands = (await response.json()) as Array<{ path: string; body: object }>;
+  const creates = commands.filter((c) => c.path === '/reservations');
+  expect(creates).toHaveLength(2);
+  expect(creates[1]!.body).toMatchObject({
     guest: { email: 'new@example.invalid', middleName: 'Тестович' },
     items: [{ accommodationTypeCode: 'MALE', unitCode: 'M03', quantity: 1 }],
   });
@@ -517,10 +523,20 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  // группы «Контроль» в меню с 01.10 нет (план навигации по задачам): к неисправностям ведёт ссылка
-  // «Контроль системы» с Главной
-  await page.getByRole('link', { name: 'Контроль системы', exact: true }).click();
-  await expect(page).toHaveURL(/\/incidents$/);
+  // «Неисправности» лежат в группе «Настройки» верхнего меню (ADR-134), и до раскрытия ссылка скрыта.
+  // Главная стримится, и клик по группе до гидрации теряется — жмём, пока ссылка не раскроется,
+  // но только если группа свёрнута: иначе щелчок её закроет
+  const control = page
+    .locator('.workspace-header .topmenu__group')
+    .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
+  const toggle = control.getByRole('button', { name: 'Настройки', exact: true });
+  await expect(async () => {
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
+      timeout: 1_500,
+    });
+  }).toPass({ timeout: 15_000 });
+  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();
@@ -545,8 +561,9 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  // компактная форма (01.10): ошибка у самого поля даты, введённое не подменяется
-  await expect(page.getByText('Введите корректную дату', { exact: true }).first()).toBeVisible();
+  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой; битый заезд делает
+  // некорректным и выезд — алертов два, проверяем поле заезда
+  await expect(page.locator('#booking-arrival-error')).toHaveText('Введите корректную дату');
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -574,9 +591,15 @@ test('групповая бронь: разные категории сохра�
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
   await expect(second.getByLabel('Количество мест')).toHaveValue('4');
-  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
-  expect(commands[0].body.items).toHaveLength(2);
-  expect(commands[0].body.items[1]).toMatchObject({
+  // Журнал команд пишет и `POST /reservations/quote` (правка 02.10), поэтому команду создания берём
+  // по пути, как в channel-booking-number и pii-storage: первой записью ложится запрос цены
+  const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+    path: string;
+    body: { items: Array<Record<string, unknown>> };
+  }>;
+  const created = commands.filter((c) => c.path === '/reservations').at(-1)?.body;
+  expect(created?.items).toHaveLength(2);
+  expect(created?.items[1]).toMatchObject({
     accommodationTypeCode: 'MALE',
     quantity: 4,
     unitCode: null,
@@ -610,14 +633,18 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия', async ({
+test('обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия', async ({
   page,
 }) => {
+  // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
+  // полосы «День стойки» и «Сегодня на стойке» с Главной сняты тем же срезом
   await page.goto('/today');
-  // сводная Главная владельца (01.10): очередь «Требуют внимания» открывается кнопкой в боковом окне
+  // сводная Главная владельца (01.10): очередь «Требуют внимания» открывается кнопкой в боковом окне.
+  // Диалог Overlay несёт собственный заголовок «Требуют внимания» (своё `<h2>`), поэтому `tasks` держит
+  // внутренний `region` DayAttention, а не весь диалог — иначе проверка заголовка найдёт два `<h2>`
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const tasks = page
-    .getByRole('dialog', { name: 'Требуют внимания' })
+    .getByRole('dialog', { name: 'Требуют внимания', exact: true })
     .getByRole('region', { name: 'Требуют внимания' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
   // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
@@ -642,11 +669,12 @@ test('обзор: задачи ведут к счетам, полоса стой
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
   // сводная Главная владельца (01.10) живёт сегодняшним днём: полосы «День стойки» и переключения дня нет
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'Требуют внимания' })).toHaveCount(0);
+  await expect(page.getByRole('dialog', { name: 'Требуют внимания', exact: true })).toHaveCount(0);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: /Новая бронь/ }).first()).toBeVisible();
+    // узкие экраны сохраняют действие: кнопка, открывающая очередь заново, остаётся доступна
+    await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
@@ -890,7 +918,7 @@ test('кнопки Channex отправляют команды один раз �
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
   // ручной обмен на «Обзоре» лежит под раскрытием «Активность каналов и ручной обмен» (01.10)
-  await page.getByTestId('channels-activity').locator('summary').click();
+  await page.getByTestId('channels-activity').locator('> summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
     const button = page.getByTestId(id).filter({ visible: true });
@@ -900,7 +928,7 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  // настройка подключения с 01.10 живёт на `/connections/channex` (`/channels/connections` уводит туда)
+  // настройка подключения с 01.10 живёт на `/connections/channex` (`/channels/connections` уводит туда, INT2)
   await page.goto('/connections/channex');
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
@@ -958,6 +986,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
     'Финансы за период',
   );
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
+  // «Долги» — отдельная вкладка финансов: сбой списка долгов виден на ней
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   /*
@@ -1095,7 +1125,9 @@ test('кнопки называют своё действие: гость зав
   await expect(page).toHaveURL(/\/reservations\/new$/);
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
-  await page.goto('/finance?debts=all');
+  await page.goto('/finance');
+  // список долгов с кнопками оплаты — на вкладке «Долги» финансов
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
@@ -1276,7 +1308,7 @@ test('шахматка: фильтр «Уборка» показывает гр�
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
-  const places = page.getByRole('main').getByLabel('Места на шахматке');
+  const places = page.getByRole('main').getByLabel('Места в календаре');
   await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
   await places.selectOption('cleaning');
   const dirty = await page.getByTestId('unit-row').count();
@@ -1289,7 +1321,7 @@ test('шахматка: фильтр «Уборка» показывает гр�
 /**
  * Срез 7.2 — три сцены показа Channex на сертификации. Очередь строками, ссылка входящей ревизии на
  * карточку брони и цепочка «ревизия → бронь → ячейка» проверяются в `channex-screens.spec.ts` на витрине
- * фикстуры; плашка «входящая бронь требует разбора» на шахматке (Q-135) — в `manager-actions.spec.ts`
+ * фикстуры; плашка «входящая бронь требует разбора» в календаре (Q-135) — в `manager-actions.spec.ts`
  * (`review-callout`). Здесь осталась третья сцена — правка цены в ячейке календаря. После слияния 19.09
  * их дубли из второй ветки ждали другие testid и другие слова — сведено к одному тесту на утверждение.
  */

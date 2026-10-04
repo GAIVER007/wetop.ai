@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -10,7 +10,7 @@ import { mkdirSync } from 'node:fs';
  * подтверждают, что снят настоящий экран, а не пустая страница.
  */
 const DIR = 'reports/chessboard-v2-pr2-2026-09-27/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -125,7 +125,7 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
   await page.getByRole('link', { name: '7 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await page.getByLabel('Категория на шахматке').selectOption('ROOM');
+  await page.getByLabel('Категория в календаре').selectOption('ROOM');
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.screenshot({ caret: 'initial', path: `${DIR}/filters-applied.png` });
 });

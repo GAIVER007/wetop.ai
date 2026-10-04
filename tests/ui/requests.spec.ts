@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Сколько рейсов к API стоит один экран. Разбор «всё тормозит» (16.09.2026): база в Сингапуре, стойка в
@@ -26,7 +26,8 @@ interface Hits {
   byRequest: Record<string, number>;
 }
 
-const API = 'http://127.0.0.1:4311';
+// адрес подставного API настраиваем: прогон на своих портах не ждёт общий стенд 4311 (приём support-queue)
+const API = FIXTURE_API;
 const SHELL = ['/system/freshness', '/auth/me'];
 
 async function hits(request: import('@playwright/test').APIRequestContext): Promise<Hits> {
@@ -47,9 +48,15 @@ for (const screen of [
   '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
+  // «По номерам» (REP3): один запрос /desk/dashboard/units
+  '/management/analytics/units',
   '/finance',
+  // хаб «Отчёты» (REP1): четыре источника данных, каждый — одним запросом
+  '/reports',
+  // печатные формы дня (REP4): один /desk/today на лист
+  '/reports/print?form=day',
   '/channels',
-  // `/channels/connections` с 01.10 уводит на `/connections/channex`: считаем целевой экран, а не переход
+  // «Подключения» каналов — redirect() на страницу настроек Channex (INT2): считается сам целевой экран
   '/connections/channex',
   '/channels/mapping',
   '/channels/sync',
@@ -60,6 +67,8 @@ for (const screen of [
   '/hotel-settings',
   '/hotel-settings/stay',
   '/hotel-settings/services',
+  // «Сотрудники» (TEAM1): люди и приглашения — по одному запросу
+  '/team',
   '/connections',
   // каталог «ИИ-агентов» (SA1): один запрос каталога, бот и объект API опрашивает сам
   '/ai-agents',

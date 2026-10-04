@@ -33,7 +33,7 @@ test('после входа рабочее место открывается, «
   await signIn(page);
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
   await page.goto('/chessboard');
-  await expect(page.getByRole('heading', { name: 'Шахматка' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Календарь' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Меню администратора' }).click();
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();

@@ -27,6 +27,7 @@ import {
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
   INVITE_ROLE_MESSAGE,
   INVITE_STAFF_ONLY_MESSAGE,
+  MEMBER_DETAILS_FORBIDDEN_MESSAGE,
   MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
   MEMBER_NOT_FOUND_MESSAGE,
   MEMBER_OWNER_MESSAGE,
@@ -226,6 +227,24 @@ export class AccountsController {
     return outcome.member;
   }
 
+  /** Телефон и должность (TEAM2, Q-244): свои: каждому с правом `staff`, чужие: тому, кто вправе отключить */
+  @Access('staff')
+  @Patch('members/:userId/details')
+  async setMemberDetails(
+    @Param('userId') userId: string,
+    @Body() body: unknown,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ userId: string; phone: string | null; position: string | null }> {
+    const outcome = await this.accounts.setMemberDetails(tokenFrom(cookie, authorization), userId, body);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (!outcome.ok)
+      throw 'message' in outcome
+        ? new BadRequestException(outcome.message)
+        : memberRefusal(outcome.reason);
+    return outcome.member;
+  }
+
   /** Кто зовёт и кого — по ключу из ссылки. Мёртвая ссылка — 404 одним текстом, без подробностей. */
   @Get('invites/:token')
   @Public()
@@ -283,9 +302,13 @@ interface MemberJson {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  lastLoginAt: string | null;
   you: boolean;
   removable: boolean;
   roleEditable: boolean;
+  phone: string | null;
+  position: string | null;
+  detailsEditable: boolean;
 }
 
 function memberJson(m: MemberView): MemberJson {
@@ -295,9 +318,13 @@ function memberJson(m: MemberView): MemberJson {
     name: m.name,
     role: m.role,
     joinedAt: m.joinedAt.toISOString(),
+    lastLoginAt: m.lastLoginAt ? m.lastLoginAt.toISOString() : null,
     you: m.you,
     removable: m.removable,
     roleEditable: m.roleEditable,
+    phone: m.phone,
+    position: m.position,
+    detailsEditable: m.detailsEditable,
   };
 }
 
@@ -318,6 +345,8 @@ function memberRefusal(reason: MemberRefusal): HttpException {
       return new BadRequestException(MEMBER_ROLE_MESSAGE);
     case 'owner-only':
       return new ForbiddenException(MEMBER_ROLE_OWNER_ONLY_MESSAGE);
+    case 'details-target':
+      return new ForbiddenException(MEMBER_DETAILS_FORBIDDEN_MESSAGE);
   }
 }
 

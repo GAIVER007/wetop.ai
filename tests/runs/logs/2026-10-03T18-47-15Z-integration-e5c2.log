@@ -1,0 +1,145 @@
+# Интеграционные (integration) · 03.10.2026 23:47 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-47-15Z-integration-e5c2.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:8909) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 732ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 367ms
+(node:8921) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 718ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 685ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 468ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 441ms
+ ✓ |integration| tests/integration/seller-scope-precheck.test.ts (9 tests) 529ms
+ ✓ |integration| tests/integration/manager-role.test.ts (6 tests) 345ms
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (13 tests) 449ms
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (7 tests) 420ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 337ms
+[Nest] 9008  - 10/03/2026, 6:47:27 PM    WARN [InboundBookingsService] ревизия role-q225-musquybl (BDC-role-q225-musquybl) отклонена: Комната 1 брони BDC-role-q225-musquybl: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 9008  - 10/03/2026, 6:47:27 PM    WARN [InboundBookingsService] ревизия role-q225-musquybl (BDC-role-q225-musquybl) отклонена: Комната 1 брони BDC-role-q225-musquybl: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 405ms
+ ✓ |integration| tests/integration/integration-tables-privileges.test.ts (17 tests) 80ms
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 341ms
+(node:9041) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/derived-rates-booking.test.ts (1 test) 461ms
+   ✓ derived rate plans and promo codes in a booking (integration, rolled back) (1)
+     ✓ prices by parent rates with the larger of plan and promo discount, enforces rules, keeps promo on extend 429ms
+ ✓ |integration| tests/integration/guest-directory.test.ts (1 test) 317ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 301ms
+ ✓ |integration| tests/integration/db-restore-prod.test.ts (2 tests) 4400ms
+   ✓ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     ✓ после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 1282ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 706ms
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 371ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 742ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 462ms
+ ✓ |integration| tests/integration/seller-agent-profiles.test.ts (7 tests) 381ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 273ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 49ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 231ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 281ms
+(node:9591) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 235ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 559ms
+   ✓ derived rate plans and promo codes API (1)
+     ✓ creates and edits a derived plan and a promo code with validation and audit 557ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 490ms
+   ✓ category without a rate plan, rate plan linked later (1)
+     ✓ requires an explicit choice, creates without a link on «later», links existing and new plans once 488ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 582ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 580ms
+ ✓ |integration| tests/integration/assistant-diagnostics.test.ts (4 tests) 369ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (6 tests) 339ms
+ ✓ |integration| tests/integration/rate-plan-penalty.test.ts (1 test) 359ms
+   ✓ rate plan cancellation rule (1)
+     ✓ counts reservations the rule can still affect and saves the rule with an audit row 357ms
+(node:9660) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (3 tests) 538ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 400ms
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 480ms
+   ✓ category usage for safe editing (1)
+     ✓ counts distinct reservations in history and ahead, and the Channex mapping, per category 478ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 206ms
+ ✓ |integration| tests/integration/requester-context.test.ts (6 tests) 271ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 387ms
+ ✓ |integration| tests/integration/derived-rate-plans.test.ts (1 test) 363ms
+   ✓ derived rate plans and promo codes: database guards (1)
+     ✓ accepts a valid derived plan and rejects every broken shape 361ms
+(node:9739) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/booking-existing-guest.test.ts (1 test) 301ms
+ ✓ |integration| tests/integration/integration-scope.test.ts (4 tests) 194ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 269ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 266ms
+ ✓ |integration| tests/integration/website-reservations.test.ts (1 test) 214ms
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 306ms
+ ✓ |integration| tests/integration/property-chain.test.ts (3 tests) 226ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 224ms
+ ✓ |integration| tests/integration/inventory-room-ari.test.ts (1 test) 562ms
+   ✓ новые места уходят в Channex (1)
+     ✓ комната в сопоставленной категории ставит в очередь остаток, в несопоставленной — нет 560ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 228ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 333ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 331ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 195ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 837ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 605ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 218ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 502ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 500ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 174ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 278ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 189ms
+ ✓ |integration| tests/integration/chessboard-unassigned.test.ts (1 test) 200ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 186ms
+ ✓ |integration| tests/integration/request-scope.test.ts (1 test) 242ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 177ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 416ms
+   ✓ онбординг без объекта: два одновременных сохранения (1)
+     ✓ объект один, одно сохранение проходит, второе — «отель уже настроен» 414ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 223ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 717ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 60 сохранений в одной сессии — отказ 428ms
+ ✓ |integration| tests/integration/seller-agents-migrated.test.ts (3 tests) 228ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 200ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 218ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 249ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 191ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 173ms
+ ✓ |integration| tests/integration/outbox-enqueue.test.ts (2 tests) 192ms
+(node:10114) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 593ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 439ms
+[Nest] 10124  - 10/03/2026, 6:48:14 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 209ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 236ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 178ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 538ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 409ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 140ms
+
+ Test Files  75 passed (75)
+      Tests  241 passed (241)
+   Start at  18:47:16
+   Duration  60.91s (tests 58%, import 36%, transform 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-47-15Z-integration-e5c2.json
+
+# код выхода 0 · 1 мин 2 с

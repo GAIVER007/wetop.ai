@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { chooseSource } from './booking-form';
+import { FIXTURE_API } from './fixtures';
 test('category creation, rename, room creation and reload', async ({ page }) => {
   await page.goto('/rooms/categories');
   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
@@ -36,7 +37,7 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
   await page.getByLabel('Корпус', { exact: true }).fill('Тестовый корпус');
   await page.getByLabel('Этаж', { exact: true }).fill('1');
   await page.getByLabel('Обозначение комнаты', { exact: true }).fill('TEST-201');
-  await page.getByLabel('Обозначение номера в шахматке').fill('TEST-201');
+  await page.getByLabel('Обозначение номера в календаре').fill('TEST-201');
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.reload();
@@ -55,12 +56,19 @@ test('availability preserves exact unit and dates; responsive category design', 
   await page.locator('.fund-availability summary').first().click();
   const link = page.locator('.fund-book-unit').first();
   await expect(link).toHaveAttribute('href', /arrival=2026-09-24&departure=2026-09-27&unit=/);
+  const unit = new URL((await link.getAttribute('href'))!, 'http://127.0.0.1').searchParams.get(
+    'unit',
+  );
   await link.click();
-  // компактная форма (01.10): бронь открывается боковым окном поверх поиска, без повторного заголовка
-  await expect(page.getByRole('dialog', { name: 'Новая бронь', exact: true })).toBeVisible({
-    timeout: 45_000,
-  });
-  await page.keyboard.press('Escape');
+  // форма брони с 01.10.2026 открывается панелью поверх экрана (перехват маршрута, `@drawer`),
+  // и в ней те же место и даты, что в выдаче
+  const form = page
+    .getByRole('dialog', { name: 'Новая бронь' })
+    .getByTestId('new-reservation-form');
+  await expect(form).toBeVisible({ timeout: 45_000 });
+  await expect(form.getByLabel('Заезд', { exact: true })).toHaveValue('2026-09-24');
+  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-09-27');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(unit!);
   for (const width of [1440, 768, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/rooms/categories');
@@ -99,9 +107,15 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   ).toBeVisible();
   await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
   await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
-  // раздел переименован: заголовок «Свободные места», маршрут прежний; отдельной вкладки фонда у поиска с 01.10
-  // нет (план навигации по задачам: старые ссылки сохранены), остались «Номера и койки» и «Категории»
+  // раздел переименован: заголовок «Свободные места», маршрут прежний. Отдельной вкладки фонда
+  // у поиска с 01.10.2026 нет (навигация по задачам, `plans/workspace-order-2026-10-01.md`),
+  // остались «Номера и койки» и «Категории»
   await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Номерной фонд', exact: true })
+      .getByRole('link', { name: 'Свободные места' }),
+  ).toHaveCount(0);
   await expect(
     page
       .getByRole('navigation', { name: 'Номерной фонд', exact: true })
@@ -119,7 +133,7 @@ test('AV2: price «from» — rooms for the whole stay, beds for every guest', a
   request,
 }) => {
   // ТЗ «Свободные места» §4 (ADR-110, закрытый Q-204); подставной API: номер 8 000 ₸, койка 4 000 ₸ за ночь
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
   const rows = page.locator('.fund-availability article');
   const room = rows.filter({ hasText: 'Двухместный номер' });
@@ -130,6 +144,9 @@ test('AV2: price «from» — rooms for the whole stay, beds for every guest', a
   await expect(bed.getByText('Итого от 24 000 ₸')).toBeVisible();
   await expect(bed.getByText('от 4 000 ₸ / койка / ночь')).toBeVisible();
   await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+  // тип и вместимость — одной строкой под именем, без отдельной метки типа (упрощение 02.10)
+  await expect(room.getByText('Номер целиком, до 2 гостей', { exact: true })).toBeVisible();
+  await expect(bed.getByText('Койко-место, 1 гость на койку', { exact: true })).toBeVisible();
 });
 
 test('AV3: places as a compact list; automatic choice and picked beds prefill the booking', async ({
@@ -137,7 +154,7 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   request,
 }) => {
   // ТЗ «Свободные места» §5–§6 (ADR-110): место назначает API по правилу Q-094, повторно ничего не вводится
-  const fixture = 'http://127.0.0.1:4311';
+  const fixture = FIXTURE_API;
   await request.post(`${fixture}/__test/reset`);
   const search = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
   await page.goto(search);
@@ -216,7 +233,7 @@ test('AV4: a category without places stays on screen with the nearest availabili
   request,
 }) => {
   // ТЗ «Свободные места» §7 (ADR-110): «с 1-го нет, но есть с N-го» — вместо того чтобы исчезнуть
-  const fixture = 'http://127.0.0.1:4311';
+  const fixture = FIXTURE_API;
   await request.post(`${fixture}/__test/reset`);
   // все двухместные закрыты на 1–4 октября: категория вмещает двоих, но мест на весь срок нет
   for (let i = 1; i <= 16; i += 1) {
@@ -260,7 +277,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.addInitScript(() => localStorage.setItem('wetop.theme', 'dark'));
   for (const path of ['/rooms/categories', '/rooms/availability']) {
     await page.goto(path);
@@ -280,12 +297,12 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   }
   await page.goto('/rooms/availability?arrival=2026-09-27&departure=2026-09-24');
   await expect(page.getByRole('main').getByText(/Выезд должен быть позже заезда/)).toBeVisible();
-  await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { empty: true } });
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();
   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
   await expect(page.getByRole('dialog', { name: 'Создать категорию' })).toBeVisible();
   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });

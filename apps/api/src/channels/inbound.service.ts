@@ -26,10 +26,44 @@ import {
   type UnitOfWork,
 } from '../reservations/reservations.repository';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from './ari-publisher';
+import { cardStays, envelopeOf, stayNightRanges, type AriRange, type StaySpan } from './ari-ranges';
 import { CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { runIntegrationCommand } from './integration-command';
 import { PROVIDER } from './sync.service';
+
+/**
+ * Ночи для дельты доступности по ревизии канала: проживания брони в PMS до и после разбора — в любом статусе —
+ * и комнаты самой ревизии. По новой брони Channex закрывает место сам (`allow_availability_autoupdate_on_confirmation`;
+ * изменение и отмену по совету hotels-collection.md он не считает, setup-plan.ts). Если стойка уже отразила то же
+ * изменение, разница PMS пуста, а число в канале могло сдвинуться: ему возвращаются числа PMS на все ночи брони,
+ * при любых настройках объекта в Channex. Ночи между старыми и новыми датами не входят: их не меняли ни PMS,
+ * ни канал (сертификация Channex §13: только изменения).
+ */
+function revisionNightRanges(
+  a: channex.ChannexBookingRevisionAttributes,
+  mappings: ChannelMappingRef[],
+  cards: Array<Parameters<typeof cardStays>[0]>,
+): AriRange[] {
+  const rooms: StaySpan[] = a.rooms.flatMap((room) => {
+    const code = room.room_type_id
+      ? mappings.find(
+          (m) => m.providerRoomTypeId === room.room_type_id && m.localAccommodationTypeCode,
+        )?.localAccommodationTypeCode
+      : null;
+    return code
+      ? [
+          {
+            categoryCode: code,
+            arrivalDate: room.checkin_date,
+            departureDate: room.checkout_date,
+            status: 'CONFIRMED',
+          },
+        ]
+      : [];
+  });
+  return stayNightRanges([...cards.flatMap((c) => cardStays(c)), ...rooms]);
+}
 
 export interface RevisionOutcome {
   revisionId: string;
@@ -39,8 +73,8 @@ export interface RevisionOutcome {
   confirmationNumber: string | null;
   error?: string;
   warnings: string[];
-  /** Затронутые категории и ночи — для дельты доступности */
-  affected?: { categoryCodes: string[]; from: string; toExclusive: string };
+  /** Ночи брони до и после ревизии и её комнат (`revisionNightRanges`) — для дельты доступности */
+  ranges?: AriRange[];
   /** Блоки соседних ночей, снятые вместе с отменённой бронью (ADR-021): дельта уходит после коммита */
   released?: Array<{ categoryCode: string; from: string; toExclusive: string }>;
 }
@@ -393,10 +427,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     }>,
     header: { arrivalDate: string; departureDate: string; totalAmountMinor: bigint },
     warnings: string[],
-    affectedOf: (
-      its: Array<{ accommodationTypeId: string; arrivalDate: string; departureDate: string }>,
-    ) => NonNullable<RevisionOutcome['affected']>,
-  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected'>> {
+    mappings: ChannelMappingRef[],
+  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'ranges'>> {
     const before = await repo.card(linked.confirmationNumber);
     const live = linked.items.filter((i) => i.status !== 'CANCELLED');
     const sameCurrency = a.currency === linked.currency;
@@ -425,20 +457,24 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       departureDate: header.departureDate,
       ...(sameCurrency ? { totalAmountMinor: header.totalAmountMinor } : {}),
       externalId: a.unique_id,
-      channel: a.ota_name,
+      channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
       ...(a.notes != null ? { notes: freeTextForStorage(a.notes) } : {}),
     });
+    const after = await repo.card(linked.confirmationNumber);
     await repo.audit({
       entityType: 'Reservation',
       entityId: linked.id,
       action: 'channex.booking.linked',
       before,
-      after: await repo.card(linked.confirmationNumber),
+      after,
     });
+    // Проживания связывание не меняет, но Channex, получив новую бронь, уже уменьшил у себя остаток по её комнатам,
+    // а стойка учла бронь раньше — по своим датам. На ночи обеих каналу возвращаются числа PMS, иначе место
+    // посчитано дважды (или, при других датах у стойки, недопродано).
     return {
       result: 'modified',
       confirmationNumber: linked.confirmationNumber,
-      affected: affectedOf(live),
+      ranges: revisionNightRanges(a, mappings, [before, after]),
     };
   }
 
@@ -637,15 +673,13 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     for (const w of outcome.warnings) this.log.warn(`ревизия ${rev.id} (${a.unique_id}): ${w}`);
     if (outcome.result !== 'failed')
       await this.viaChannex(() => this.gateway.ackBookingRevision(rev.id));
-    // Дельта доступности: категории и ночи ревизии (плюс прежние даты, если бронь уже была) и снятые блоки.
-    // Только после коммита разбора: остаток считается по базе, а до коммита отменённая бронь и блоки ещё в ней.
-    // Ревизия уже принята и подтверждена — сбой постановки её не рвёт: он пишется следом для сторожа.
-    if (outcome.affected && outcome.affected.categoryCodes.length)
-      await publishAfterCommit(this.publisher, {
-        categoryCodes: [...new Set(outcome.affected.categoryCodes)],
-        from: outcome.affected.from,
-        toExclusive: outcome.affected.toExclusive,
-      });
+    // Дельта доступности: ночи брони до и после ревизии (без промежутка между датами — сертификация Channex §13)
+    // и снятые блоки. Только после коммита разбора: остаток считается по базе, а до коммита отменённая бронь
+    // и блоки ещё в ней. Ревизия уже принята и подтверждена — сбой постановки её не рвёт: он пишется следом
+    // для сторожа.
+    const ranges = outcome.ranges ?? [];
+    const envelope = envelopeOf(ranges);
+    if (envelope) await publishAfterCommit(this.publisher, { ...envelope, ranges });
     for (const b of outcome.released ?? [])
       await publishAfterCommit(this.publisher, {
         categoryCodes: [b.categoryCode],
@@ -660,7 +694,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     a: channex.ChannexBookingRevisionAttributes,
     mappings: ChannelMappingRef[],
     warnings: string[],
-  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected' | 'released'>> {
+  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'ranges' | 'released'>> {
     // Порядок поиска важен для переезда с Legacy (CUTOVER §1, Q-034):
     // 1) unique_id — брони, которые PMS уже приняла от Channex;
     // 2) ota_reservation_code — брони, у которых externalId — номер брони НА СТОРОНЕ КАНАЛА, а unique_id
@@ -682,23 +716,6 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     // Та же бронь могла сейчас меняться на стойке: замок и свежее состояние после него (аудит 26.09, С-15)
     if (found) await repo.lockReservation(found.confirmationNumber);
     const existing = found ? await repo.reservationByNumber(found.confirmationNumber) : null;
-    const codeById = new Map(
-      mappings
-        .filter((m) => m.localAccommodationTypeId && m.localAccommodationTypeCode)
-        .map((m) => [m.localAccommodationTypeId!, m.localAccommodationTypeCode!]),
-    );
-    type Span = { accommodationTypeId: string; arrivalDate: string; departureDate: string };
-    const affectedOf = (its: Span[]) => ({
-      categoryCodes: its.map((i) => codeById.get(i.accommodationTypeId) ?? i.accommodationTypeId),
-      from: its.reduce(
-        (m, i) => (i.arrivalDate < m ? i.arrivalDate : m),
-        its[0]?.arrivalDate ?? a.arrival_date,
-      ),
-      toExclusive: its.reduce(
-        (m, i) => (i.departureDate > m ? i.departureDate : m),
-        its[0]?.departureDate ?? a.departure_date,
-      ),
-    });
     if (a.status === 'cancelled') {
       if (!existing) {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
@@ -750,7 +767,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       return {
         result: 'cancelled',
         confirmationNumber: existing.confirmationNumber,
-        affected: affectedOf(existing.items),
+        // и тогда, когда стойка отменила раньше канала: Channex по отмене вернул место у себя ещё раз
+        ranges: revisionNightRanges(a, mappings, [before, after]),
         released,
       };
     }
@@ -800,7 +818,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       const created = await repo.createReservation({
         confirmationNumber: a.unique_id,
         source: 'OTA',
-        channel: a.ota_name,
+        channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
         externalId: a.unique_id,
         status: 'CONFIRMED',
         ...header,
@@ -816,19 +834,24 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         await this.autoAssign(repo, itemId, items[i]!, a.unique_id, warnings);
         await this.recordPrepayment(repo, itemId, i, a, items[i]!.priceMinor);
       }
+      const after = await repo.card(a.unique_id);
       await repo.audit({
         entityType: 'Reservation',
         entityId: created.id,
         action: 'channex.booking.new',
-        after: await repo.card(a.unique_id),
+        after,
       });
-      return { result: 'created', confirmationNumber: a.unique_id, affected: affectedOf(items) };
+      return {
+        result: 'created',
+        confirmationNumber: a.unique_id,
+        ranges: revisionNightRanges(a, mappings, [after]),
+      };
     }
 
     // Первая ревизия брони, заранее заведённой стойкой по номеру площадки, связывает внешний ID,
     // не меняя гостя, статусы проживаний и назначения.
     if (byOtaCode && a.status === 'new')
-      return this.linkDeskReservation(repo, existing, a, items, header, warnings, affectedOf);
+      return this.linkDeskReservation(repo, existing, a, items, header, warnings, mappings);
 
     // Остальные известные брони обрабатываются как модификации.
     const before = await repo.card(existing.confirmationNumber);
@@ -882,20 +905,22 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       ...header,
       status: 'CONFIRMED',
       externalId: a.unique_id,
-      channel: a.ota_name,
+      channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
       notes: freeTextForStorage(a.notes),
     });
+    const after = await repo.card(existing.confirmationNumber);
     await repo.audit({
       entityType: 'Reservation',
       entityId: existing.id,
       action: 'channex.booking.modified',
       before,
-      after: await repo.card(existing.confirmationNumber),
+      after,
     });
+    // Перенос на неделю — старые и новые ночи брони; ночи между ними остаток не меняли и не уходят
     return {
       result: 'modified',
       confirmationNumber: existing.confirmationNumber,
-      affected: affectedOf([...existing.items, ...items]),
+      ranges: revisionNightRanges(a, mappings, [before, after]),
     };
   }
 }

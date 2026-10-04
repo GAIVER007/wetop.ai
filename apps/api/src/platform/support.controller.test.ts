@@ -579,7 +579,7 @@ describe('очередь техподдержки (S1)', () => {
     };
     const res = await api().get('/platform/support/queue').set(as('session-admin')).expect(200);
     expect(connection.bot.calls).toEqual([
-      { op: 'listConversations', args: [{ nonempty: true, closed: false, limit: 200 }] },
+      { op: 'listConversations', args: [{ nonempty: true, closed: false, limit: 200, excludeSandbox: true }] },
     ]);
     expect(res.body.items.map((i: { id: string }) => i.id)).toEqual([C, B, A]);
     expect(res.body.items[0]).toMatchObject({
@@ -612,17 +612,55 @@ describe('очередь техподдержки (S1)', () => {
     await api().get('/platform/support/queue?queue=needs_human').set(admin).expect(200);
     await api().get('/platform/support/queue?queue=closed').set(admin).expect(200);
     expect(connection.bot.calls.map((c) => c.args[0])).toEqual([
-      { nonempty: true, closed: false, limit: 200 },
-      { nonempty: true, closed: false, limit: 100, queue: 'waiting' },
-      { nonempty: true, closed: false, limit: 200 },
-      { nonempty: true, closed: false, limit: 100, mode: 'needs_human' },
-      { nonempty: true, closed: false, limit: 200 },
-      { nonempty: true, closed: true, limit: 100 },
+      { nonempty: true, closed: false, limit: 200, excludeSandbox: true },
+      { nonempty: true, closed: false, limit: 100, excludeSandbox: true, queue: 'waiting' },
+      { nonempty: true, closed: false, limit: 200, excludeSandbox: true },
+      { nonempty: true, closed: false, limit: 100, excludeSandbox: true, mode: 'needs_human' },
+      { nonempty: true, closed: false, limit: 200, excludeSandbox: true },
+      { nonempty: true, closed: true, limit: 100, excludeSandbox: true },
     ]);
     connection.bot.calls = [];
     await api().get('/platform/support/queue?queue=spam').set(admin).expect(400);
     expect(connection.bot.calls).toEqual([]);
     await api().get('/platform/support/queue').set(as('session-owner')).expect(403);
+  });
+
+  it('категория отбирает строки внутри статуса; числа по строкам статуса; чужая даёт 400', async () => {
+    connection.bot.replies.listConversations = {
+      items: [
+        row(A, { first_message: { role: 'user', text: 'Верните деньги за подписку', at: null } }),
+        row(B, { first_message: { role: 'user', text: 'Не сохраняется бронь, ошибка', at: null } }),
+        row(C, { first_message: null }),
+      ],
+    };
+    const admin = as('session-admin');
+    const all = await api().get('/platform/support/queue').set(admin).expect(200);
+    expect(all.body.items.map((i: { category: string }) => i.category).sort()).toEqual([
+      'error',
+      'other',
+      'payment',
+    ]);
+    expect(all.body.categoryCounts).toEqual({
+      all: 3,
+      platform: 0,
+      error: 1,
+      payment: 1,
+      access: 0,
+      other: 1,
+    });
+    expect(all.body.category).toBe('all');
+
+    const money = await api()
+      .get('/platform/support/queue?category=payment')
+      .set(admin)
+      .expect(200);
+    expect(money.body.items.map((i: { id: string }) => i.id)).toEqual([A]);
+    // Отбор делает платформа словами, помощнику про категорию знать нечего
+    expect(connection.bot.calls.every((c) => !('category' in (c.args[0] as object)))).toBe(true);
+
+    connection.bot.calls = [];
+    await api().get('/platform/support/queue?category=деньги').set(admin).expect(400);
+    expect(connection.bot.calls).toEqual([]);
   });
 
   it('закрыть обращение — помощнику и в журнал; карточка говорит, закрыт ли диалог', async () => {

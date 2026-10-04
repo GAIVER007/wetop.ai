@@ -1,0 +1,59 @@
+# Модульные (unit) · 03.10.2026 15:10 Алматы · vm
+# коммит a1a01d7 (double-shift), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T10-10-09Z-unit-b892.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (16 tests | 1 failed) 116ms
+   ❯ свой раннер CI (7)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 2ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 0ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 0ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     × прогон main не отменяется следующим пушем: иначе при частых слияниях у main нет ни одного итога 6ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 0ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 1ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 18ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 15ms
+     ✓ ветка самого репозитория и пуш в main выполняются 22ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 11ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 5ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 18ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 11ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > прогон main не отменяется следующим пушем: иначе при частых слияниях у main нет ни одного итога
+AssertionError: expected '  group: checks-${{ github.ref }}\n  …' to match /cancel-in-progress: \$\{\{ github\.ev…/
+
+- Expected:
+/cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/
+
++ Received:
+"  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+"
+
+ ❯ tests/unit/ci-runner.test.ts:74:36
+     72|   it('прогон main не отменяется следующим пушем: иначе при частых слия…
+     73|     const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(WORKFLOW)?…
+     74|     expect(withoutComments(block)).toMatch(/cancel-in-progress: \$\{\{…
+       |                                    ^
+     75|   });
+     76|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  03:10:09
+   Duration  335ms (tests 55%, transform 34%, import 9%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T10-10-09Z-unit-b892.json
+
+# код выхода 1 · 1 с

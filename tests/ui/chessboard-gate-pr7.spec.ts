@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -11,7 +11,7 @@ import { mkdirSync } from 'node:fs';
  * подтверждают, что снят нужный момент.
  */
 const DIR = 'reports/chessboard-v2-pr7-2026-09-29/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {
@@ -78,7 +78,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // 2. Окошко «Фильтры» с черновиком
     await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
-    const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+    const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
     await pop.getByRole('button', { name: 'Номера', exact: true }).click();
     await pop.getByRole('button', { name: 'С долгом', exact: true }).click();
     await expect(pop.getByTestId('filters-preview')).toContainText('Подходит');
@@ -91,26 +91,26 @@ for (const theme of ['light', 'dark'] as const) {
     await main.getByRole('button', { name: 'Сбросить', exact: true }).click();
 
     // 4. Поиск: совпадение обведено, остальное приглушено
-    await main.getByLabel('Поиск на шахматке').fill('Посетитель');
+    await main.getByLabel('Поиск в календаре').fill('Посетитель');
     await expect(main.locator('[data-match="hit"]').first()).toBeVisible();
     await shot('search');
-    await main.getByLabel('Поиск на шахматке').fill('Поискова');
+    await main.getByLabel('Поиск в календаре').fill('Поискова');
     await expect(main.locator('[data-match="hit"]').first()).toBeVisible();
     await shot('search-one');
 
     // 5. Ничего не найдено
-    await main.getByLabel('Поиск на шахматке').fill('Несуществующий гость');
+    await main.getByLabel('Поиск в календаре').fill('Несуществующий гость');
     await expect(main.getByTestId('board-empty')).toBeVisible();
     await shot('empty');
     await main.getByTestId('board-empty').getByRole('button', { name: 'Сбросить фильтры' }).click();
 
     // 6. Вид: компактный и подробный; мышь уводим с сетки, чтобы на снимке не было наведения
     await page.mouse.move(0, 0);
-    await main.getByLabel('Вид строк шахматки').selectOption('compact');
+    await main.getByLabel('Вид строк календаря').selectOption('compact');
     await shot('view-compact', false);
-    await main.getByLabel('Вид строк шахматки').selectOption('detailed');
+    await main.getByLabel('Вид строк календаря').selectOption('detailed');
     await shot('view-detailed', false);
-    await main.getByLabel('Вид строк шахматки').selectOption('normal');
+    await main.getByLabel('Вид строк календаря').selectOption('normal');
 
     // 7. Телефон: строка и окошко с категорией и местами
     await page.setViewportSize({ width: 390, height: 844 });

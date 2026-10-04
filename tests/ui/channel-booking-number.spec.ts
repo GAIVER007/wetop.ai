@@ -1,18 +1,21 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * ADR-071: ручная бронь OTA несёт канал и номер брони в канале. По номеру WETOP узнает бронь, когда канал
  * подключат к Channex, и не создаст вторую. Поля появляются только у источника OTA.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test('новая бронь OTA: канал и номер брони в канале обязательны и уходят в API', async ({
   page,
   request,
 }) => {
-  await request.post(`${fixture}/__test/control`, { data: {} });
+  // чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
+  await request.post(`${fixture}/__test/reset`);
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  // источник, канал и номер в канале с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await expect(form.locator('[name="externalId"]')).toHaveCount(0);
   await form.locator('[name="source"]').selectOption('OTA');

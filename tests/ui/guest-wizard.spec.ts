@@ -48,7 +48,7 @@ test('гостевой мастер: ручной ввод, живое прев�
   await page.reload();
   await expect(page.getByLabel('Название компании')).toHaveValue('Тестовый хостел');
   await expect(page.getByLabel('Имя ассистента')).toHaveValue('Тестовый помощник');
-  await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+  await expect(page.locator('.workspace-header')).toHaveCount(0);
 });
 
 test('отказ сохранения не теряет ввод и не показывает успешный результат', async ({ page }) => {

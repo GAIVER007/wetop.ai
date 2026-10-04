@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * red→green: он снимает артефакты гейта, а счётчики строк подтверждают, что снят настоящий экран.
  */
 const DIR = 'reports/chessboard-v2-pr3-2026-09-27/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const row = (code: string) => `[data-testid="unit-row"][data-unit-code="${code}"]`;
 
 for (const theme of ['light', 'dark'] as const) {

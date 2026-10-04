@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const shots = 'reports/categories-v2-c2-2026-09-28';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const hideDevOverlay = (page: Page) =>
@@ -64,7 +65,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
     'href',
     '/rates?category=MALE',
   );
-  await expect(bed.getByRole('link', { name: 'Открыть в шахматке' })).toHaveAttribute(
+  await expect(bed.getByRole('link', { name: 'Открыть в календаре' })).toHaveAttribute(
     'href',
     '/chessboard?category=MALE',
   );

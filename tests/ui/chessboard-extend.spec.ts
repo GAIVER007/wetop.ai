@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 /**
  * Доска по умолчанию — текущая неделя, а брони фикстуры стоят «вокруг сегодня»: в пятницу–воскресенье
@@ -8,7 +8,7 @@ import { test, expect } from './fixtures';
  */
 async function openAroundCheckout(page: Page, request: APIRequestContext, reservation: string) {
   const stay = (await (
-    await request.get(`http://127.0.0.1:4311/reservations/${reservation}`, {
+    await request.get(`${FIXTURE_API}/reservations/${reservation}`, {
       headers: { 'x-wetop-test-client': '1' },
     })
   ).json()) as { departureDate: string };
@@ -18,7 +18,7 @@ async function openAroundCheckout(page: Page, request: APIRequestContext, reserv
 }
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('правый край брони: продление на несколько ночей с подтверждением и отменой', async ({
@@ -63,7 +63,7 @@ test('мышь: правый край добавляет две ночи тол�
   await expect(dialog).toContainText('2 ноч');
   await expect(dialog).toContainText('₸');
   const commands = async () =>
-    (await (await request.get('http://127.0.0.1:4311/__test/commands')).json()).filter(
+    (await (await request.get(`${FIXTURE_API}/__test/commands`)).json()).filter(
       (c: { path: string }) => c.path.endsWith('/extend'),
     );
   expect(await commands()).toHaveLength(0);
@@ -89,7 +89,7 @@ test('отказ сохранения не удлиняет плашку, а о�
   await page.keyboard.press('Enter');
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/reservations/20260913-TEST3/items/ui-item-3/extend', failStatus: 409 },
   });
   await dialog.getByRole('button', { name: 'Продлить', exact: true }).click();
@@ -99,7 +99,7 @@ test('отказ сохранения не удлиняет плашку, а о�
   // видел прежнюю ошибку (1 раз из 5 у автора, 24.09.2026). Человек так быстро не жмёт — ждём, как он.
   await expect(page.getByTestId('drag-pending')).toHaveCount(0);
   await expect(handle).toBeEnabled();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/reservations/20260913-TEST3/items/ui-item-3/preview' },
   });
   await handle.focus();

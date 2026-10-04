@@ -7,6 +7,7 @@ import { EmptyState } from '../../../components/ui';
 import { deskShell } from '../../../lib/desk-shell';
 import { RatesTabs } from '../tabs';
 import { RatePlansTable } from '../plans-table';
+import { unstable_rethrow } from 'next/navigation';
 import '../rates.css';
 
 /**
@@ -18,7 +19,10 @@ export default async function RatePlansPage() {
   const { readOnly } = await deskShell();
   const plans = await ratesApi.plans().then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
   return (
     <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">

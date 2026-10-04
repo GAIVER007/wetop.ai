@@ -1,0 +1,16 @@
+# Модульные (unit) · 02.10.2026 18:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8d472 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-01-39Z-unit-d51b.json' 'packages/domain/src/finance/cash.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| packages/domain/src/finance/cash.test.ts (10 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  06:01:41
+   Duration  113ms (transform 66%, import 20%, tests 9%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-01-39Z-unit-d51b.json
+
+# код выхода 0 · 1 с

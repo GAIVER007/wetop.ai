@@ -38,11 +38,11 @@ export function BoardDateRange({
       <form id={id} method="get" className="board-range-form">
         <label className="field field--inline">
           <span>С</span>
-          <DateInput name="from" defaultValue={from} aria-label="Шахматка: с" />
+          <DateInput name="from" defaultValue={from} aria-label="Календарь: с" />
         </label>
         <label className="field field--inline">
           <span>По</span>
-          <DateInput name="to" rangeFromName="from" defaultValue={to} aria-label="Шахматка: по" />
+          <DateInput name="to" rangeFromName="from" defaultValue={to} aria-label="Календарь: по" />
         </label>
         <Button tone="secondary" type="submit">
           Применить

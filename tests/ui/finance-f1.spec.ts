@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Финансы за период», срез F1 (ADR-113, план `plans/finance-f1-2026-09-27.md`). Проверяет критерии среза и
@@ -8,7 +8,7 @@ import { expect, test, type Page } from './fixtures';
  * чтение», сбой одного запроса. Брони подставного API — вымышленные (ADR-010): 20260913-TESTAA и TEST1…8,
  * из них TEST4 уже выехала с остатком — её долг просрочен (Q-207). «К сбору» — сумма строк списка (Q-206).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-compact-2026-10-01/debts';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>
@@ -261,7 +261,7 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
 });
 
-test('F1: телефон — без прокрутки страницы вбок, итоги в две колонки, таблица долгов листается внутри', async ({
+test('F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -272,11 +272,12 @@ test('F1: телефон — без прокрутки страницы вбок
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );
+  // 201d35e1 (мобильная адаптация): на узком телефоне (≤520) итоги в одну колонку — суммы не переносятся
   const xs = await main
     .getByTestId('finance-kpis')
     .locator('.stat')
     .evaluateAll((tiles) => tiles.map((t) => Math.round(t.getBoundingClientRect().left)));
-  expect(new Set(xs).size).toBe(2);
+  expect(new Set(xs).size).toBe(1);
 });
 
 for (const theme of ['light', 'dark'] as const) {

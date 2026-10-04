@@ -1,0 +1,1071 @@
+# Сквозные (e2e) · 03.10.2026 23:09 Алматы · vm
+# коммит 6668c76 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 62 tests using 1 worker
+
+  ✘   1 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (57ms)
+  ✘   2 tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (53ms)
+  ✘   3 tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (58ms)
+  ✘   4 tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (59ms)
+  ✘   5 tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (61ms)
+  ✘   6 tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (53ms)
+  ✘   7 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (50ms)
+  ✘   8 tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (57ms)
+  ✘   9 tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (50ms)
+  ✘  10 tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions (54ms)
+  ✘  11 tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (51ms)
+  ✘  12 tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (46ms)
+  ✘  13 tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (54ms)
+  ✘  14 tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (72ms)
+  ✘  15 tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу (49ms)
+  ✘  16 tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (55ms)
+  ✘  17 tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (54ms)
+  ✘  18 tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления (51ms)
+  ✘  19 tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (50ms)
+  ✘  20 tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте (57ms)
+  ✘  21 tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (55ms)
+  ✘  22 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (53ms)
+  ✘  23 tests/ui/workspace.spec.ts:668:1 › ошибка буфера обмена видна, код остаётся доступен (51ms)
+  ✘  24 tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы (52ms)
+  ✘  25 tests/ui/workspace.spec.ts:697:1 › ошибка загрузки тарифов не позволяет включить виджет (50ms)
+  ✘  26 tests/ui/workspace.spec.ts:706:1 › номера: статус уборки, блокировка и снятие сохраняются (53ms)
+  ✘  27 tests/ui/workspace.spec.ts:736:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (48ms)
+  ✘  28 tests/ui/workspace.spec.ts:763:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (50ms)
+  ✘  29 tests/ui/workspace.spec.ts:772:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (56ms)
+  ✘  30 tests/ui/workspace.spec.ts:791:1 › неисправности: когда история обрезана, это написано (55ms)
+  ✘  31 tests/ui/workspace.spec.ts:799:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (55ms)
+  ✘  32 tests/ui/workspace.spec.ts:811:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (49ms)
+  ✘  33 tests/ui/workspace.spec.ts:837:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (52ms)
+  ✘  34 tests/ui/workspace.spec.ts:882:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (52ms)
+  ✘  35 tests/ui/workspace.spec.ts:937:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (55ms)
+  ✘  36 tests/ui/workspace.spec.ts:1004:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (49ms)
+  ✘  37 tests/ui/workspace.spec.ts:1033:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (65ms)
+  ✘  38 tests/ui/workspace.spec.ts:1057:1 › гости на сегодня: в списке все, а не первые двадцать пять (50ms)
+  ✘  39 tests/ui/workspace.spec.ts:1076:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (59ms)
+  ✘  40 tests/ui/workspace.spec.ts:1089:1 › общие настройки показывают адрес PMS без дублирования контента Channex (52ms)
+  ✘  41 tests/ui/workspace.spec.ts:1096:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (56ms)
+  ✘  42 tests/ui/workspace.spec.ts:1127:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (54ms)
+  ✘  43 tests/ui/workspace.spec.ts:1149:1 › фонд и категории открываются независимо от сбоя шахматки (51ms)
+  ✘  44 tests/ui/workspace.spec.ts:1170:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (49ms)
+  ✘  45 tests/ui/workspace.spec.ts:1186:1 › подключения каналов: время события — по Алматы, а не сырой UTC (51ms)
+  ✘  46 tests/ui/workspace.spec.ts:1205:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (54ms)
+  ✘  47 tests/ui/workspace.spec.ts:1220:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (52ms)
+  ✘  48 tests/ui/workspace.spec.ts:1233:1 › счета: приём оплаты подтверждается суммой на экране (48ms)
+  ✘  49 tests/ui/workspace.spec.ts:1250:1 › деньги за период: период длиннее года объясняется на странице (45ms)
+  ✘  50 tests/ui/workspace.spec.ts:1269:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (51ms)
+  ✘  51 tests/ui/workspace.spec.ts:1288:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (52ms)
+  ✘  52 tests/ui/workspace.spec.ts:1315:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (50ms)
+  ✘  53 tests/ui/workspace.spec.ts:1335:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (54ms)
+  ✘  54 tests/ui/workspace.spec.ts:1351:1 › каналы: входящая бронь ведёт на карточку брони (51ms)
+  ✘  55 tests/ui/workspace.spec.ts:1364:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (52ms)
+  ✘  56 tests/ui/workspace.spec.ts:1383:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (51ms)
+  ✘  57 tests/ui/workspace.spec.ts:1401:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (55ms)
+  ✘  58 tests/ui/workspace.spec.ts:1439:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (52ms)
+  ✘  59 tests/ui/workspace.spec.ts:1506:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (51ms)
+  ✘  60 tests/ui/workspace.spec.ts:1585:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (49ms)
+  ✘  61 tests/ui/workspace.spec.ts:1633:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (54ms)
+  ✘  62 tests/ui/workspace.spec.ts:1660:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (48ms)
+
+
+  1) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-обзор-очередь-«Т-99d0d-е-экраны-сохраняют-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/workspace.spec.ts:668:1 › ошибка буфера обмена видна, код остаётся доступен ─────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/workspace.spec.ts:697:1 › ошибка загрузки тарифов не позволяет включить виджет ──────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/workspace.spec.ts:706:1 › номера: статус уборки, блокировка и снятие сохраняются ────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/ui/workspace.spec.ts:736:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) tests/ui/workspace.spec.ts:763:1 › новая бронь: число гостей ограничено вместимостью выбранной категории 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) tests/ui/workspace.spec.ts:772:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) tests/ui/workspace.spec.ts:791:1 › неисправности: когда история обрезана, это написано ───────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-неисправности-когда-история-обрезана-это-написано/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неисправности-когда-история-обрезана-это-написано/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неисправности-когда-история-обрезана-это-написано/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) tests/ui/workspace.spec.ts:799:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) tests/ui/workspace.spec.ts:811:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) tests/ui/workspace.spec.ts:837:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) tests/ui/workspace.spec.ts:882:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) tests/ui/workspace.spec.ts:937:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) tests/ui/workspace.spec.ts:1004:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) tests/ui/workspace.spec.ts:1033:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) tests/ui/workspace.spec.ts:1057:1 › гости на сегодня: в списке все, а не первые двадцать пять 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) tests/ui/workspace.spec.ts:1076:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) tests/ui/workspace.spec.ts:1089:1 › общие настройки показывают адрес PMS без дублирования контента Channex 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) tests/ui/workspace.spec.ts:1096:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) tests/ui/workspace.spec.ts:1127:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  43) tests/ui/workspace.spec.ts:1149:1 › фонд и категории открываются независимо от сбоя шахматки ─
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  44) tests/ui/workspace.spec.ts:1170:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  45) tests/ui/workspace.spec.ts:1186:1 › подключения каналов: время события — по Алматы, а не сырой UTC 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46) tests/ui/workspace.spec.ts:1205:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  47) tests/ui/workspace.spec.ts:1220:1 › журнал: время операции — тем же способом, что и везде (по Алматы) 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  48) tests/ui/workspace.spec.ts:1233:1 › счета: приём оплаты подтверждается суммой на экране ──────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  49) tests/ui/workspace.spec.ts:1250:1 › деньги за период: период длиннее года объясняется на странице 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  50) tests/ui/workspace.spec.ts:1269:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  51) tests/ui/workspace.spec.ts:1288:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  52) tests/ui/workspace.spec.ts:1315:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  53) tests/ui/workspace.spec.ts:1335:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  54) tests/ui/workspace.spec.ts:1351:1 › каналы: входящая бронь ведёт на карточку брони ───────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  55) tests/ui/workspace.spec.ts:1364:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  56) tests/ui/workspace.spec.ts:1383:1 › незаезд: окно называет штраф суммой, а не «может начислиться» 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57) tests/ui/workspace.spec.ts:1401:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  58) tests/ui/workspace.spec.ts:1439:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  59) tests/ui/workspace.spec.ts:1506:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  60) tests/ui/workspace.spec.ts:1585:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  61) tests/ui/workspace.spec.ts:1633:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  62) tests/ui/workspace.spec.ts:1660:1 › отмена брони: окно называет, что сторнируется и будет ли штраф 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  62 failed
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+    tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+    tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API 
+    tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение 
+    tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки 
+    tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+    tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой 
+    tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API 
+    tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions 
+    tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи 
+    tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+    tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+    tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+    tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу ─
+    tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе 
+    tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем 
+    tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления 
+    tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы 
+    tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте ─
+    tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс 
+    tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия 
+    tests/ui/workspace.spec.ts:668:1 › ошибка буфера обмена видна, код остаётся доступен ───────────
+    tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы ─
+    tests/ui/workspace.spec.ts:697:1 › ошибка загрузки тарифов не позволяет включить виджет ────────
+    tests/ui/workspace.spec.ts:706:1 › номера: статус уборки, блокировка и снятие сохраняются ──────
+    tests/ui/workspace.spec.ts:736:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду 
+    tests/ui/workspace.spec.ts:763:1 › новая бронь: число гостей ограничено вместимостью выбранной категории 
+    tests/ui/workspace.spec.ts:772:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+    tests/ui/workspace.spec.ts:791:1 › неисправности: когда история обрезана, это написано ─────────
+    tests/ui/workspace.spec.ts:799:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+    tests/ui/workspace.spec.ts:811:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список 
+    tests/ui/workspace.spec.ts:837:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+    tests/ui/workspace.spec.ts:882:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+    tests/ui/workspace.spec.ts:937:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+    tests/ui/workspace.spec.ts:1004:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает 
+    tests/ui/workspace.spec.ts:1033:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке 
+    tests/ui/workspace.spec.ts:1057:1 › гости на сегодня: в списке все, а не первые двадцать пять ──
+    tests/ui/workspace.spec.ts:1076:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+    tests/ui/workspace.spec.ts:1089:1 › общие настройки показывают адрес PMS без дублирования контента Channex 
+    tests/ui/workspace.spec.ts:1096:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони 
+    tests/ui/workspace.spec.ts:1127:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи 
+    tests/ui/workspace.spec.ts:1149:1 › фонд и категории открываются независимо от сбоя шахматки ───
+    tests/ui/workspace.spec.ts:1170:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая 
+    tests/ui/workspace.spec.ts:1186:1 › подключения каналов: время события — по Алматы, а не сырой UTC 
+    tests/ui/workspace.spec.ts:1205:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами 
+    tests/ui/workspace.spec.ts:1220:1 › журнал: время операции — тем же способом, что и везде (по Алматы) 
+    tests/ui/workspace.spec.ts:1233:1 › счета: приём оплаты подтверждается суммой на экране ────────
+    tests/ui/workspace.spec.ts:1250:1 › деньги за период: период длиннее года объясняется на странице 
+    tests/ui/workspace.spec.ts:1269:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке 
+    tests/ui/workspace.spec.ts:1288:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту 
+    tests/ui/workspace.spec.ts:1315:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+    tests/ui/workspace.spec.ts:1335:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось 
+    tests/ui/workspace.spec.ts:1351:1 › каналы: входящая бронь ведёт на карточку брони ─────────────
+    tests/ui/workspace.spec.ts:1364:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь 
+    tests/ui/workspace.spec.ts:1383:1 › незаезд: окно называет штраф суммой, а не «может начислиться» 
+    tests/ui/workspace.spec.ts:1401:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет 
+    tests/ui/workspace.spec.ts:1439:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне 
+    tests/ui/workspace.spec.ts:1506:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне 
+    tests/ui/workspace.spec.ts:1585:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями 
+    tests/ui/workspace.spec.ts:1633:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории 
+    tests/ui/workspace.spec.ts:1660:1 › отмена брони: окно называет, что сторнируется и будет ли штраф 
+
+# код выхода 1 · 1 мин

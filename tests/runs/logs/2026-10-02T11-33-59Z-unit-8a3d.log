@@ -1,0 +1,78 @@
+# Модульные (unit) · 02.10.2026 16:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 20
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-33-59Z-unit-8a3d.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (24 tests | 1 failed) 159ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (14)
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 26ms
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 3ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 3ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 5ms
+     × ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 6ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 8ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 3ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 2ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 3ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 4ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 2ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 2ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 3ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 1ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (3)
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 4ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 5ms
+     ✓ отчёт за период администратор смотрит 1ms
+   ✓ касса: остатки, операции, переводы, статьи (DATA_MODEL §21) (7)
+     ✓ остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле 3ms
+     ✓ проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом 3ms
+     ✓ перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка» 4ms
+     ✓ статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами 1ms
+     ✓ аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409 3ms
+     ✓ статьи: стартовый набор, добавление, дубль — 400, выключение, неизвестная — 404 3ms
+     ✓ лента операций: source — только RESERVATIONS или CASH, новые типы в type 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400
+AssertionError: expected { kind: 'REFUND', id: 'R1', …(11) } to deeply equal { kind: 'REFUND', id: 'R1', …(8) }
+
+- Expected
++ Received
+
+  {
+    "amountMinor": "50000",
+    "at": "2026-10-04T05:00:00.000Z",
++   "category": null,
+    "confirmationNumber": "B-2",
+    "guestLabel": "Гость B-2",
+    "id": "R1",
+    "kind": "REFUND",
+    "localAt": "2026-10-04 10:00",
+    "method": "KASPI",
++   "methodTo": null,
++   "note": null,
+    "reservations": 1,
+    "status": "COMPLETED",
+  }
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:641:30
+    639|     ]);
+    640|     expect(all.body.rows.map((x: { id: string }) => x.id)).toEqual(['P…
+    641|     expect(all.body.rows[1]).toEqual({
+       |                              ^
+    642|       kind: 'REFUND',
+    643|       id: 'R1',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  04:33:59
+   Duration  810ms (transform 46%, import 32%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-33-59Z-unit-8a3d.json
+
+# код выхода 1 · 1 с

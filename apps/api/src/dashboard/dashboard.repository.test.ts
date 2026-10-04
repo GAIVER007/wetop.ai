@@ -51,6 +51,8 @@ describe('аналитика: тип категории, без ячейки п�
   afterEach(() => forgetPropertyRef());
 
   it('тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории', async () => {
+    // REP3: у номера '1' в каждом куске одна занятая клетка с заездом — ночи и заезды
+    // складываются по кускам, а куски не пересекаются, поэтому ничего не задваивается
     const unit = (code: string, kind: 'ROOM' | 'BED', typeCode: string, typeName: string) => ({
       unit: {
         id: code,
@@ -59,6 +61,7 @@ describe('аналитика: тип категории, без ячейки п�
         accommodationTypeCode: typeCode,
         accommodationTypeName: typeName,
       },
+      cells: code === '1' ? [{ state: 'OCCUPIED', isArrival: true }] : [],
     });
     const board = vi.fn().mockImplementation(async (from: string, to: string) => ({
       dates: from === to ? [from] : [from, to],
@@ -88,6 +91,20 @@ describe('аналитика: тип категории, без ячейки п�
       { code: 'DRM', name: 'Мужская общая', units: 2, kind: 'BED' },
     ]);
     expect(b.unassignedByCategory).toEqual({ DRM: 1, SGL: 1 });
+    // клетки до единицы: по одной занятой на кусок, сумма равна числу кусков
+    expect(b.units.find((u) => u.code === '1')).toEqual({
+      code: '1',
+      categoryCode: 'SGL',
+      categoryName: 'Одноместная',
+      kind: 'ROOM',
+      occupiedNights: board.mock.calls.length,
+      blockedNights: 0,
+      arrivals: board.mock.calls.length,
+    });
+    expect(b.units.find((u) => u.code === '5')).toMatchObject({
+      kind: 'BED',
+      occupiedNights: 0,
+    });
   });
 
   it('групповая бронь на три койки без места — три проживания, даже если период разбит на куски', async () => {
@@ -108,6 +125,7 @@ describe('аналитика: тип категории, без ячейки п�
             accommodationTypeCode: 'DRM',
             accommodationTypeName: 'Мужская общая',
           },
+          cells: [],
         },
       ],
       summary: {},

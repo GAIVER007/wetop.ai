@@ -1,0 +1,187 @@
+# Сквозные (e2e) · 04.10.2026 00:42 Алматы · vm
+# коммит ba73071 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/fiscal-receipt.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/fiscal-receipt.spec.ts:26:1 › гость попросил чек: номер из кассы ложится к платежу (45.2s)
+  ✘  2 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 1440px (17.8s)
+  ✘  3 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 390px (17.6s)
+  ✘  4 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 1440px (17.7s)
+  ✘  5 tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 390px (17.7s)
+
+
+  1) tests/ui/fiscal-receipt.spec.ts:26:1 › гость попросил чек: номер из кассы ложится к платежу ───
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form').getByLabel('Номер чека из кассы')
+
+
+      27 |   const row = await paidBooking(page);
+      28 |   const form = row.getByTestId('receipt-form');
+    > 29 |   await form.getByLabel('Номер чека из кассы').fill('  ФП 0001234  ');
+         |                                                ^
+      30 |   await form.getByRole('button', { name: 'чек выдан' }).click();
+      31 |   await expect(row.getByTestId('payment-receipt')).toHaveText('№ ФП 0001234');
+      32 |   await expect(row.getByTestId('receipt-form')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:29:48
+
+    Error Context: test-results/fiscal-receipt-гость-попро-1c6a1--из-кассы-ложится-к-платежу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-гость-попро-1c6a1--из-кассы-ложится-к-платежу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-гость-попро-1c6a1--из-кассы-ложится-к-платежу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 1440px ────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form') with timeout 15000ms
+      - waiting for getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+
+
+      39 |       await page.setViewportSize({ width, height: 900 });
+      40 |       const row = await paidBooking(page);
+    > 41 |       await expect(row.getByTestId('receipt-form')).toBeVisible();
+         |                                                     ^
+      42 |       const axe = await new AxeBuilder({ page }).include('main').analyze();
+      43 |       expect(axe.violations).toEqual([]);
+      44 |     });
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:41:53
+
+    Error Context: test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-cb1e1--колонкой-чека-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 390px ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form') with timeout 15000ms
+      - waiting for getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+
+
+      39 |       await page.setViewportSize({ width, height: 900 });
+      40 |       const row = await paidBooking(page);
+    > 41 |       await expect(row.getByTestId('receipt-form')).toBeVisible();
+         |                                                     ^
+      42 |       const axe = await new AxeBuilder({ page }).include('main').analyze();
+      43 |       expect(axe.violations).toEqual([]);
+      44 |     });
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:41:53
+
+    Error Context: test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-305a0-с-колонкой-чека-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 1440px ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form') with timeout 15000ms
+      - waiting for getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+
+
+      39 |       await page.setViewportSize({ width, height: 900 });
+      40 |       const row = await paidBooking(page);
+    > 41 |       await expect(row.getByTestId('receipt-form')).toBeVisible();
+         |                                                     ^
+      42 |       const axe = await new AxeBuilder({ page }).include('main').analyze();
+      43 |       expect(axe.violations).toEqual([]);
+      44 |     });
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:41:53
+
+    Error Context: test-results/fiscal-receipt-доступность-b71b3-с-колонкой-чека-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-b71b3-с-колонкой-чека-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-b71b3-с-колонкой-чека-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 390px ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form') with timeout 15000ms
+      - waiting for getByTestId('payment-row').filter({ hasText: 'Оплата по запросу' }).getByTestId('receipt-form')
+
+
+      39 |       await page.setViewportSize({ width, height: 900 });
+      40 |       const row = await paidBooking(page);
+    > 41 |       await expect(row.getByTestId('receipt-form')).toBeVisible();
+         |                                                     ^
+      42 |       const axe = await new AxeBuilder({ page }).include('main').analyze();
+      43 |       expect(axe.violations).toEqual([]);
+      44 |     });
+        at /home/user/wetop.ai/tests/ui/fiscal-receipt.spec.ts:41:53
+
+    Error Context: test-results/fiscal-receipt-доступность-7b570--с-колонкой-чека-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fiscal-receipt-доступность-7b570--с-колонкой-чека-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fiscal-receipt-доступность-7b570--с-колонкой-чека-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/fiscal-receipt.spec.ts:26:1 › гость попросил чек: номер из кассы ложится к платежу ────
+    tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 1440px ─────
+    tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: light, 390px ──────
+    tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 1440px ──────
+    tests/ui/fiscal-receipt.spec.ts:37:5 › доступность «Счетов» с колонкой чека: dark, 390px ───────
+
+# код выхода 1 · 2 мин 10 с

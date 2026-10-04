@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Срез 7.2 «Три экрана Channex» (plans/slice-7-2-channex-screens.md) на синтетическом API с витриной,
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * «Синхронизации» за «Техническими деталями», журнал входящих — на «Событиях», страница приёма брони
  * без персональных данных.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -71,9 +71,11 @@ test('обзор каналов: полоса состояния, вкладки
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
   // вкладки модуля — как у «Настроек гостиницы»
   const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
+  // настройка подключения с 01.10.2026 живёт в «Подключениях» (`/connections/channex`), вкладка ведёт туда
   await expect(nav.getByRole('link')).toHaveText([
     'Обзор',
-    'Подключения',
+    'Каналы',
+    'Настройка подключения',
     'Сопоставление',
     'Синхронизация',
     'События',
@@ -108,8 +110,10 @@ test('обзор каналов: полоса состояния, вкладки
 test('подключения каналов: настройка подключения только владельцу', async ({ page, request }) => {
   const main = page.getByRole('main');
   await signIn(page);
+  // старый адрес ведёт на общую страницу настройки Channex в «Подключениях» (01.10.2026)
   await page.goto('/channels/connections');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+  await expect(page).toHaveURL(/\/connections\/channex$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
   await expect(main).toContainText('Тестовая');
   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке
@@ -388,7 +392,7 @@ test('приём брони из канала: цепочка ревизия →
   await expect(page.getByRole('main').getByTestId('revision-unit')).toContainText(
     'R06, Двухместный номер',
   );
-  await expect(page.getByRole('link', { name: 'Открыть шахматку на эти даты' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Открыть календарь на эти даты' })).toHaveAttribute(
     'href',
     /\/chessboard\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/,
   );

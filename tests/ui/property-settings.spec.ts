@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * вкладки, без «Обновить» и без дубля часов заезда; «Основное» — три блока, сохранение в шапке с состоянием;
  * правила отмены ушли к тарифам. Схема и API не менялись — стенд тот же подставной API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set1-2026-09-27';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
@@ -51,7 +51,7 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toHaveCount(0);
   }
-  await expect(page.locator('.workspace-sidebar [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText('Объект');
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
@@ -74,7 +74,9 @@ test('старые адреса: часы — на «Проживание», п�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
+  // переход потоковый (redirect() после начала ответа): `goto` возвращается раньше, а холодная сборка
+  // `/rates/plans` в `next dev` на двухъядерном раннере GitHub дольше 15 с (release-checks 03.10.2026)
+  await expect(page).toHaveURL(/\/rates\/plans$/, { timeout: 40_000 });
   const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
   await expect(row).toContainText('Стоимость первой ночи');
   await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');

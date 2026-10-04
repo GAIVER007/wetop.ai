@@ -13,7 +13,7 @@ import { AccessGate } from '../components/access-gate';
 import { hotelApi, propertyTimezone } from '../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../lib/property-time';
 import { deskShell } from '../lib/desk-shell';
-import { ApiError } from '../lib/api';
+import { ApiError, branchesApi } from '../lib/api';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
@@ -53,7 +53,14 @@ async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
     if (error instanceof ApiError) return null;
     throw error;
   });
-  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта');
+  if (hotel) return hotel.property[field];
+  // Филиал салона объекта не имеет (DATA_MODEL §19, срез B2): в карточке его имя, а не «объект не загружен»
+  const salon = await branchesApi
+    .list()
+    .then(({ items }) => items.find((item) => item.vertical === 'BEAUTY') ?? null)
+    .catch(() => null);
+  if (salon) return field === 'name' ? salon.name : (salon.address ?? 'Салон');
+  return field === 'name' ? 'Объект не загружен' : 'Настройки объекта';
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */

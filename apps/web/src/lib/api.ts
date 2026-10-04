@@ -507,6 +507,13 @@ export const authApi = {
       organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
+      /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
+      context?: {
+        scope?: string | null;
+        businessId?: string | null;
+        locationId?: string | null;
+        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+      } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
     return {
@@ -2631,6 +2638,8 @@ export interface BranchItem {
   address: string | null;
   currency: string;
   timezone: string;
+  /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
+  vertical: 'HOSPITALITY' | 'BEAUTY';
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };
@@ -2652,7 +2661,183 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
+    vertical?: 'HOSPITALITY' | 'BEAUTY';
   }) => sendJson<BranchItem>('POST', '/branches', body),
+};
+
+/** Каталог салона (DATA_MODEL §19.1, срез B3). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+export interface BeautyServiceRow {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  /** Что про услугу говорит текущий филиал; null, значит он её не включал */
+  location: {
+    enabled: boolean;
+    priceOverrideMinor: string | null;
+    durationOverrideMinutes: number | null;
+  } | null;
+  /** Действующая цена в филиале, посчитанная домéном; null, когда филиал не выбран */
+  effective:
+    | { sellable: true; priceMinor: string; currency: string; durationMinutes: number; overridden: boolean }
+    | { sellable: false; reason: 'SERVICE_INACTIVE' | 'NOT_ENABLED' | 'CURRENCY_MISMATCH' }
+    | null;
+}
+
+export interface BeautyEmployeeRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+
+export interface BeautyWorkingInterval {
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+
+export interface BeautyWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+
+export interface BeautyTimeOff {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  /** сколько уже созданных записей попадает в эти дни: отсутствие их не отменяет (Q-252) */
+  appointments: number;
+}
+
+/** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
+export interface BeautySchedule {
+  location: { id: string; name: string | null; timezone: string | null } | null;
+  employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
+  employee: {
+    id: string;
+    name: string;
+    active: boolean;
+    worksHere: boolean;
+    locationIds: string[];
+  } | null;
+  locations: Array<{ id: string; name: string; assigned: boolean }>;
+  week: BeautyWeekDay[];
+  timeOffs: BeautyTimeOff[];
+}
+
+/** Журнал записей салона за день (срез B5): мастера столбцами, записи плитками */
+export interface BeautyDayColumn {
+  id: string;
+  name: string;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+  timeOff: boolean;
+  timeOffReason: string | null;
+  serviceIds: string[];
+}
+
+export interface BeautyAppointmentRow {
+  id: string;
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  customer: { id: string; name: string; phone: string | null };
+  startsAt: string;
+  endsAt: string;
+  /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+
+export interface BeautyDay {
+  location: { id: string; name: string | null; timezone: string; currency: string };
+  date: string;
+  columns: BeautyDayColumn[];
+  appointments: BeautyAppointmentRow[];
+  services: Array<{
+    id: string;
+    name: string;
+    category: string | null;
+    sellable: boolean;
+    durationMinutes: number;
+    priceMinor: string;
+    currency: string;
+  }>;
+  bounds: { fromMinutes: number; toMinutes: number };
+}
+
+export const beautyApi = {
+  services: () =>
+    getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
+      '/beauty/services',
+    ),
+  createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
+  updateService: (id: string, body: unknown) =>
+    sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
+  setLocationService: (id: string, body: unknown) =>
+    sendJson<{ items: BeautyServiceRow[] }>(
+      'PUT',
+      `/beauty/services/${encodeURIComponent(id)}/location`,
+      body,
+    ),
+  employees: () =>
+    getJson<{ locationId: string | null; items: BeautyEmployeeRow[] }>('/beauty/employees'),
+  createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
+  updateEmployee: (id: string, body: unknown) =>
+    sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
+  setEmployeeServices: (id: string, serviceIds: string[]) =>
+    sendJson<BeautyEmployeeRow>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/services`,
+      { serviceIds },
+    ),
+  schedule: (employee?: string) =>
+    getJson<BeautySchedule>(
+      employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
+    ),
+  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[]) =>
+    sendJson<{ week: BeautyWeekDay[] }>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/working-hours`,
+      { intervals },
+    ),
+  addTimeOff: (id: string, body: unknown) =>
+    sendJson<{ timeOffs: BeautyTimeOff[]; affected: number }>(
+      'POST',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs`,
+      body,
+    ),
+  removeTimeOff: (id: string, timeOffId: string) =>
+    sendJson<{ timeOffs: BeautyTimeOff[] }>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs/${encodeURIComponent(timeOffId)}`,
+      undefined,
+    ),
+  setEmployeeLocations: (id: string, locationIds: string[]) =>
+    sendJson<BeautySchedule>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/locations`,
+      { locationIds },
+    ),
+  day: (date?: string) =>
+    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+  createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
+  moveAppointment: (id: string, body: unknown) =>
+    sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
+  setAppointmentStatus: (id: string, status: string) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────

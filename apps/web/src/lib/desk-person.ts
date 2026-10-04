@@ -25,6 +25,11 @@ export interface DeskShell {
   tourKey: string | null;
   /** Пробный срок вышел или организация в «только чтение» (Q-144 — Б, ADR-102): полоса над экраном */
   readOnly: boolean;
+  /**
+   * Направление текущего филиала (Q-254, ADR-141): от него зависит набор разделов меню. Контекст запроса его
+   * уже несёт (Platform P2 К1). Нет филиала в указателе, значит гостиница, как было до среза B2.
+   */
+  vertical: 'HOSPITALITY' | 'BEAUTY';
 }
 
 export const CLOSED_SHELL: DeskShell = {
@@ -33,6 +38,7 @@ export const CLOSED_SHELL: DeskShell = {
   trial: null,
   tourKey: null,
   readOnly: false,
+  vertical: 'HOSPITALITY',
 };
 
 /** Нет права записи — то же правило, что у API (`canWrite` в домене). Нет организации в ответе — полосы нет. */
@@ -70,6 +76,7 @@ export const UNKNOWN_SHELL: DeskShell = {
   tourKey: null,
   // статус организации тоже неизвестен: полосу «только чтение» не обещаем, запись закроет API (ADR-102)
   readOnly: false,
+  vertical: 'HOSPITALITY',
 };
 
 type MeLike = Parameters<typeof deskAccessOf>[0] & {
@@ -80,6 +87,7 @@ type MeLike = Parameters<typeof deskAccessOf>[0] & {
     platformAdmin?: boolean;
     organization?: TrialOrganization | null;
   } | null;
+  context?: { vertical?: string | null } | null;
 };
 
 const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.slice(1);
@@ -108,5 +116,6 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     trial: trialLine(me.user.organization, new Date()),
     tourKey: tourKeyOf(me.user.email),
     readOnly: readOnlyOf(me.user.organization, new Date()),
+    vertical: me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
   };
 }

@@ -22,6 +22,8 @@ export async function selectBranch(form: FormData) {
     },
   );
   revalidatePath('/', 'layout');
+  // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
+  if (branch.vertical === 'BEAUTY') redirect('/beauty');
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))
@@ -33,16 +35,23 @@ export async function createBranch(
   form: FormData,
 ) {
   try {
+    const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
     await branchesApi.create({
       id: String(form.get('id')),
       name: String(form.get('name') ?? ''),
       address: String(form.get('address') ?? ''),
       currency: String(form.get('currency') ?? ''),
       timezone: String(form.get('timezone') ?? ''),
+      vertical,
     });
     revalidatePath('/branches');
     revalidatePath('/platform');
-    return { message: 'Филиал создан. Откройте его, чтобы добавить категории и номера.' };
+    return {
+      message:
+        vertical === 'BEAUTY'
+          ? 'Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.'
+          : 'Филиал создан. Откройте его, чтобы добавить категории и номера.',
+    };
   } catch (e) {
     return {
       error:

@@ -67,6 +67,18 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'fiscal_receipts',
   // Намерения брони ИИ-продавца (DATA_MODEL §25): политика — в миграции 20261003000047_seller_booking_intents
   'seller_booking_intents',
+  // Beauty-домен (DATA_MODEL §19.1): клиент несёт организацию в строке, остальное через родителя
+  // (бизнес, филиал, мастер), как у locations. Политики, в миграции 20261003000044_beauty_domain
+  'customers',
+  'customer_businesses',
+  'employees',
+  'employee_locations',
+  'beauty_services',
+  'location_services',
+  'employee_services',
+  'working_hours',
+  'time_offs',
+  'appointments',
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',

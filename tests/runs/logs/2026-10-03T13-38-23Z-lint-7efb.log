@@ -1,0 +1,11 @@
+# Линтер (lint) · 03.10.2026 18:38 Алматы · vm
+# коммит b31830a (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npx eslint .
+
+/home/user/wetop.ai/scripts/preview/fixture-api.ts
+  4756:31  error  '_skip' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 25 с

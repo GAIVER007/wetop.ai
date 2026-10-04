@@ -6122,3 +6122,11 @@
 | 04.10.2026 19:41 | typecheck | ✅ без ошибок | 22 с | bc9b179 +11 | [лог](logs/2026-10-04T14-41-50Z-typecheck-7b0a.log) | MV4 full root API web typecheck |
 | 04.10.2026 19:41 | unit | ✅ 3333 из 3337, пропущено 4 | 2 мин 42 с | bc9b179 +7 | [лог](logs/2026-10-04T14-41-50Z-unit-3890.log) | MV4 full unit acceptance |
 | 04.10.2026 19:44 | integration | ✅ 347 из 356, пропущено 9 | 36 с | bc9b179 +11 | [лог](logs/2026-10-04T14-44-53Z-integration-e9c9.log) | MV4 full integration and PostgreSQL concurrency acceptance |
+| 04.10.2026 19:47 | lint | ✅ без ошибок | 17 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-lint-8d6a.log) | MV4 final lint after main rebase |
+| 04.10.2026 19:47 | typecheck | ✅ без ошибок | 20 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-typecheck-8750.log) | MV4 final typecheck after main rebase |
+| 04.10.2026 19:47 | unit | ❌ упало 1 из 3337, пропущено 4 | 2 мин 35 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-unit-3851.log) | MV4 final unit after rebase on main 85afbb2c |
+| 04.10.2026 19:52 | lint | ✅ без ошибок | 17 с | fbabf71 +1 | [лог](logs/2026-10-04T14-52-05Z-lint-0f8e.log) | MV4 final snapshot-adjusted tree |
+| 04.10.2026 19:52 | typecheck | ✅ без ошибок | 19 с | fbabf71 +1 | [лог](logs/2026-10-04T14-52-05Z-typecheck-9464.log) | MV4 final snapshot-adjusted tree |
+| 04.10.2026 19:50 | unit | ❌ упало 1 из 3337, пропущено 4 | 2 мин 36 с | fbabf71 +1 | [лог](logs/2026-10-04T14-50-17Z-unit-8885.log) | MV4 final unit with stricter upstream calendar baseline 12 to 10 |
+| 04.10.2026 19:53 | unit (частично: apps/api/src/analytics/analytics.controller.test.ts) | ✅ 13 из 13 | 2 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-12Z-unit-cf7e.log) | MV4 investigate transient analytics socket hang up without source changes |
+| 04.10.2026 19:53 | unit | ✅ 3333 из 3337, пропущено 4 | 2 мин 35 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-25Z-unit-2bb5.log) | MV4 final full unit rerun after isolated analytics socket check; no source changes |

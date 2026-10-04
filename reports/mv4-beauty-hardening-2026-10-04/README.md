@@ -100,12 +100,24 @@ Beauty controllers/services и PostgreSQL. Только identity предост�
 
 | Набор | Результат | Лог |
 |---|---|---|
-| Unit | 3333 passed, 4 прежних skip | `tests/runs/logs/2026-10-04T14-41-50Z-unit-3890.log` |
+| Unit | 3333 passed, 4 прежних skip | `tests/runs/logs/2026-10-04T14-53-25Z-unit-2bb5.log` |
 | Integration | 347 passed, 9 прежних skip | `tests/runs/logs/2026-10-04T14-44-53Z-integration-e9c9.log` |
-| Typecheck root/API/web | PASS | `tests/runs/logs/2026-10-04T14-41-50Z-typecheck-7b0a.log` |
-| Lint | PASS | `tests/runs/logs/2026-10-04T14-41-50Z-lint-40f8.log` |
+| Typecheck root/API/web | PASS | `tests/runs/logs/2026-10-04T14-52-05Z-typecheck-9464.log` |
+| Lint | PASS | `tests/runs/logs/2026-10-04T14-52-05Z-lint-0f8e.log` |
+
+Перед PR ветка перенесена без конфликтов на main `85afbb2c` (правка Hospitality-календаря).
+Beauty/schema/auth в этом upstream-коммите не менялись. Integration fingerprint остался актуальным.
+Полный unit после rebase обнаружил устаревший design-slop baseline: CSS нарушений стало 10 вместо 12.
+Исправлен только счётчик `space-off-scale` для board.css, порог усилен, UI не менялся.
+Красный лог: `tests/runs/logs/2026-10-04T14-47-05Z-unit-3851.log`.
+Перед финальной публикацией такой же baseline fix пришёл в main `ca30eb34`.
+Ветка перенесена на него без изменения итогового кода; все четыре fingerprints актуальны.
+Изменение baseline больше не входит в diff PR MV4.
 
 В полном integration также прошли существующие Hospitality и MV2/MV3 regression tests.
+В одном повторном unit-прогоне был `socket hang up` в существующем analytics.controller.test.ts
+(`2026-10-04T14-50-17Z-unit-8885.log`). Отдельный повтор всех 13 analytics tests прошёл без изменений
+(`2026-10-04T14-53-12Z-unit-cf7e.log`). Причина транспортного сбоя окончательно не установлена. Финальный полный повтор без правок кода прошёл: 3333 passed.
 Новые skip, ослабление assertions и исключения из наборов не добавлялись.
 Финальный diff рассмотрен по scope, tenancy, capability/permission, транзакциям и audit.
 `git diff --check` для исходников и документов чистый; записанные runner logs сохраняются как raw evidence.

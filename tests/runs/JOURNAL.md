@@ -5614,3 +5614,4 @@
 | 03.10.2026 23:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 35 с | 33292e4 +13 | [лог](logs/2026-10-03T18-40-57Z-e2e-dd70.log) | M1.2: рынок целиком, ширина панели |
 | 03.10.2026 23:41 | lint | ✅ без ошибок | 19 с | 33292e4 +14 | [лог](logs/2026-10-03T18-41-41Z-lint-abc6.log) |  |
 | 03.10.2026 23:42 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/lib) | ✅ 331 из 331 | 4 с | 33292e4 +12 | [лог](logs/2026-10-03T18-42-01Z-unit-ebcf.log) | M1.2: сторожа дизайна |
+| 04.10.2026 11:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex ai-agents-create.spec.ts:33) | ❌ упало 2 из 11 | 51 с | 01b6a94 | [лог](logs/2026-10-04T06-19-11Z-e2e-d938.log) | red: заголовки экранов ожидания «Подключений» на слитом main; стенд на локальном диске |

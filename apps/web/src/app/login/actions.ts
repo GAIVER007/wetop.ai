@@ -33,7 +33,7 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  // Явный next из формы уважается как просили; без него решает роль (владелец на Главную, остальные на Календарь, ADR-146)
+  // Явный next из формы уважается как просили; без него решает роль (владелец на Главную, остальные на Календарь, ADR-147)
   redirect(landingPath(form.get('next'), role));
 }
 

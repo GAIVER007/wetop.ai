@@ -177,7 +177,7 @@ export function AuthDialog({ texts, urls }: Props) {
       return setError({ text: texts.errors.required, fallback: false });
     setPending(true);
     setError(null);
-    // Без явного next (окно открыто без него) стойка сама решает адрес по роли входящего (ADR-146):
+    // Без явного next (окно открыто без него) стойка сама решает адрес по роли входящего (ADR-147):
     // подставлять '/today' здесь означает никогда не дать роли сработать.
     const next = new URLSearchParams(window.location.search).get('next');
     const res = await post(urls.endpoint.login, {

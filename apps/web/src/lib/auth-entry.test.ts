@@ -28,7 +28,7 @@ describe('безопасный возврат после входа', () => {
   });
 });
 
-describe('посадочная страница после входа без явного next (ADR-146)', () => {
+describe('посадочная страница после входа без явного next (ADR-147)', () => {
   it.each([
     ['OWNER', '/today'],
     ['MANAGER', '/chessboard'],
@@ -43,7 +43,7 @@ describe('посадочная страница после входа без я�
   });
 });
 
-describe('landingPath: явный адрес побеждает, иначе роль решает (ADR-146)', () => {
+describe('landingPath: явный адрес побеждает, иначе роль решает (ADR-147)', () => {
   it('пустой, null или отсутствующий next решает роль', () => {
     expect(landingPath('', 'OWNER')).toBe('/today');
     expect(landingPath(null, 'MANAGER')).toBe('/chessboard');

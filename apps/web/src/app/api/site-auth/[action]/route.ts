@@ -46,7 +46,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
       const result = await authApi.login({ email, password }, info);
       return {
-        // Явный next (окно получило его из адреса) уважается как просили; без него решает роль (ADR-146)
+        // Явный next (окно получило его из адреса) уважается как просили; без него решает роль (ADR-147)
         body: { next: landingPath(field(body, 'next'), result.user?.role) },
         session: { token: result.token, expiresAt: result.expiresAt },
       };

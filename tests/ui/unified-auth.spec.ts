@@ -67,7 +67,7 @@ test('регистрация на главной → письмо → подтв
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Почта').fill('new@example.invalid');
   await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
-  await dialog.getByLabel('Название гостиницы').fill('Тестовый объект');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый объект');
   await dialog.getByLabel('Код страны').selectOption('KZ');
   await dialog.getByLabel('Телефон', { exact: true }).fill('7015554433');
   await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');

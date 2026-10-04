@@ -28,7 +28,7 @@ it('успешный вход возвращает разрешённый next, 
   expect(await response.json()).toEqual({ next: '/journal?page=2' });
   expect(response.headers.get('set-cookie')).toContain('HttpOnly');
 });
-/** Без явного next решает роль вошедшего (ADR-146): владельца на Главную, управляющего и администратора на Календарь */
+/** Без явного next решает роль вошедшего (ADR-147): владельца на Главную, управляющего и администратора на Календарь */
 it.each([
   ['OWNER', '/today'],
   ['MANAGER', '/chessboard'],

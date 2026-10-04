@@ -1,0 +1,19 @@
+# Модульные (unit) · 04.10.2026 11:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1f9a2f0 (claude/owner-home-20261003), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-38-16Z-unit-76ea.json' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/224c2f74-eb93-4118-97ea-d4be74862d1c/scratchpad/home-wt
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 1017ms
+   ✓ tokens.css генерируется из design/tokens.json (3)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 1004ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  23:38:27
+   Duration  1.87s (import 46%, tests 43%, transform 8%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-38-16Z-unit-76ea.json
+
+# код выхода 0 · 15 с

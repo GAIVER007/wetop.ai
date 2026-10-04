@@ -5748,3 +5748,4 @@
 | 04.10.2026 01:00 | integration | ✅ 0 из 294, пропущено 294 | 33 с | 7e7cf3d | [лог](logs/2026-10-03T20-00-30Z-integration-e3cd.log) | слитое дерево: Beauty + конкуренты в одной схеме |
 | 04.10.2026 01:01 | integration | ✅ 294 из 294 | 1 мин 2 с | 7e7cf3d | [лог](logs/2026-10-03T20-01-29Z-integration-acba.log) | слитое дерево: Beauty и конкуренты в одной схеме |
 | 04.10.2026 01:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/market.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/theme-transition.spec.ts  | ✅ 70 из 70 | 6 мин 38 с | 7e7cf3d | [лог](logs/2026-10-03T20-05-31Z-e2e-7336.log) | слитое дерево: рынок и каналы из main рядом с салоном |
+| 04.10.2026 11:38 | unit (частично: scripts/design/build-tokens.test.ts tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts) | ✅ 25 из 25 | 15 с | 1f9a2f0 +1 | [лог](logs/2026-10-04T06-38-16Z-unit-76ea.log) |  |

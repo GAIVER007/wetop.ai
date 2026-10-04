@@ -5937,3 +5937,8 @@
 | 04.10.2026 14:08 | lint | ✅ без ошибок | 16 с | 4c705dc | [лог](logs/2026-10-04T09-08-33Z-lint-047a.log) | после третьего слияния с main |
 | 04.10.2026 14:08 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/fixture-isolation.spec.ts | ❌ упало 1 из 13 | 1 мин 21 с | 4c705dc | [лог](logs/2026-10-04T09-08-49Z-e2e-fedc.log) | контракты после третьего слияния с main |
 | 04.10.2026 14:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/fixture-isolation.spec.ts | ✅ 13 из 13 | 1 мин 28 с | 4c705dc +1 | [лог](logs/2026-10-04T09-12-08Z-e2e-610d.log) | контракты после усиления теста нижнего отступа |
+| 04.10.2026 14:14 | unit (частично: tests/unit/desk-glass.test.ts tests/unit/design-rules.test.ts) | ✅ 3 из 3 | 2 с | 2a4336e | [лог](logs/2026-10-04T09-14-08Z-unit-fd52.log) |  |
+| 04.10.2026 14:14 | unit | ❌ упало 3 из 3225, пропущено 4 | 1 мин 41 с | 2a4336e | [лог](logs/2026-10-04T09-14-16Z-unit-4e33.log) | дежурный агент: платит ключ API, подписка только явно (ADR-137) заданы оба: платит ключ, токен подписки процессу агента не достаётся |
+| 04.10.2026 14:15 | typecheck | ✅ без ошибок | 30 с | 2a4336e | [лог](logs/2026-10-04T09-15-59Z-typecheck-4d82.log) |  |
+| 04.10.2026 14:16 | lint | ✅ без ошибок | 18 с | 2a4336e | [лог](logs/2026-10-04T09-16-29Z-lint-3fee.log) |  |
+| 04.10.2026 14:16 | unit (частично: tests/unit/guard-run.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/reservations/reservations.controller.test.ts) | ✅ 90 из 90 | 10 с | 2a4336e | [лог](logs/2026-10-04T09-16-57Z-unit-51b8.log) |  |

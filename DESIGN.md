@@ -1003,7 +1003,7 @@ Hospitality», «Следующее направление», плашки со�
 
 ```
 .panel  .stat  .kpi  .attention-card  .attention-summary  .section-card  .facts--card
-.chart  .chain__card  .empty-state  .tbl-wrap  .table-scroll  .desk-strip  .quick-action
+.chart  .chain__card  .empty-state  .tbl-wrap  .table-scroll
 .room-card  .rooms-link  .incident  .incident-history  .inventory-summary
 .inventory-categories  .inventory-card  .feature-pending  .onboarding__section
 .booking-head  .booking-footer  .finance-block  .reservations-controls

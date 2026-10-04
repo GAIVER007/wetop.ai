@@ -148,20 +148,19 @@ test('первый экран говорит, что это за система 
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  await expect(page).toHaveTitle(/центр управления сервисным бизнесом/i);
+  await expect(page).toHaveTitle(/управляйте отелем из одного окна/i);
   const hero = page.locator('.hero');
   await expect(hero.getByRole('heading', { level: 1 })).toContainText(
-    /Центр управления сервисным бизнесом/,
+    /Управляйте отелем из одного окна/,
   );
   // 03.10.2026: лид говорит прямо, что это онлайн-система и для кого, и зовёт салоны (решение владельца)
-  await expect(hero).toContainText(/Онлайн-система\sдля\sотеля,\sхостела\sи\sапартаментов/);
-  await expect(hero).toContainText(/Подключаем\sсалоны\sи\sстудии/);
+  await expect(hero).toContainText(/Шахматка,\sброни,\sгости,\sцены,\sоплаты/);
   // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
   // одна плашка, без круглой печати. С 01.10.2026 справа карта разделов: шесть областей платформы ссылками на блоки
   // страницы (plans/site-home-clear-blocks-2026-10-01.md), без вымышленных имён и сумм.
   await expect(hero.locator('.hero__seal')).toHaveCount(0);
   await expect(hero.locator('.hero__word')).toHaveCount(0);
-  await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
+  await expect(hero.locator('.hero__status')).toHaveText(/Система для отелей/);
   const map = hero.getByRole('list', { name: /Разделы WETOP/ });
   await expect(map).toBeVisible();
   await expect(hero.locator('.vertical-status'), 'состояние направлений на первом экране').toHaveCount(

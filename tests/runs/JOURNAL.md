@@ -5905,3 +5905,10 @@
 | 04.10.2026 12:47 | typecheck | ✅ без ошибок | 20 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-24Z-typecheck-fd47.log) |  |
 | 04.10.2026 12:47 | lint | ✅ без ошибок | 15 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-45Z-lint-5ea8.log) |  |
 | 04.10.2026 12:48 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 680bac4 +1 | [лог](logs/2026-10-04T07-48-01Z-unit-a582.log) |  |
+| 04.10.2026 12:50 | typecheck | ✅ без ошибок | 35 с | 798839a | [лог](logs/2026-10-04T07-50-19Z-typecheck-892b.log) | после слияния с main 04.10 (второе) |
+| 04.10.2026 12:50 | lint | ✅ без ошибок | 41 с | 798839a | [лог](logs/2026-10-04T07-50-55Z-lint-cc16.log) | после слияния с main 04.10 (второе) |
+| 04.10.2026 12:51 | unit | ❌ упало 7 из 3225, пропущено 4 | 1 мин 55 с | 798839a | [лог](logs/2026-10-04T07-51-45Z-unit-e2f8.log) | после слияния с main 04.10 (второе) |
+| 04.10.2026 12:54 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/mobile-adaptation.spec.ts tests/ui/desktop-compact.spec.ts tests/ui/fixture-isolation.spec.ts | ❌ упало 2 из 91 | 19 мин 20 с | 798839a | [лог](logs/2026-10-04T07-54-51Z-e2e-1f9f.log) | после второго слияния с main: мои контракты и соседние экраны |
+| 04.10.2026 13:14 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/finance-compact.spec.ts --workers=1) | ❌ упало 1 из 4 | 41 с | ac3da76 +1 | [лог](logs/2026-10-04T08-14-57Z-e2e-0675.log) | после второго слияния: desktop-compact без хаба отчётов, finance-compact повтор |
+| 04.10.2026 13:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts --workers=1) | ❌ код выхода 1 | 44 мин 14 с | ac3da76 +1 | [лог](logs/2026-10-04T08-15-52Z-e2e-570b.log) | desktop-compact повтор после сбоя сети macOS (ERR_NETWORK_IO_SUSPENDED на /team) |
+| 04.10.2026 14:01 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ✅ 11 из 11 | 5 мин 41 с | ac3da76 +1 | [лог](logs/2026-10-04T09-01-06Z-e2e-8e82.log) | контракты компьютера и телефона на слитом дереве, чистый повтор |

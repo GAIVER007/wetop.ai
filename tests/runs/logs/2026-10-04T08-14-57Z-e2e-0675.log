@@ -1,0 +1,111 @@
+# Сквозные (e2e) · 04.10.2026 13:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac3da76 (claude/mobile-rest-screens), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/finance-compact.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (22.1s)
+  ✓  2 tests/ui/desktop-compact.spec.ts:53:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.6s)
+  ✓  3 tests/ui/desktop-compact.spec.ts:70:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (3.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="finance/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <FinanceReportPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <section className="finance-co..." aria-label="Период">
+[WebServer]                         <form method="get" className="finance-to..." data-testid="period-form">
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     aria-label="Период: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" aria-label="Период: по">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     aria-label="Период: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  4 tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (2.1s)
+
+
+  1) tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3106/team
+    Call log:
+      - navigating to "http://127.0.0.1:3106/team", waiting until "load"
+
+
+      42 |     '/team',
+      43 |   ]) {
+    > 44 |     await page.goto(route);
+         |                ^
+      45 |     await expect(page.getByRole('main')).toBeVisible();
+      46 |     const over = await page.evaluate(
+      47 |       () => document.documentElement.scrollHeight - window.innerHeight,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/tests/ui/desktop-compact.spec.ts:44:16
+
+    Error Context: test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+  3 passed (39.3s)
+
+# код выхода 1 · 41 с

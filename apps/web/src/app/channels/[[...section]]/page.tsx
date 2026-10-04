@@ -381,9 +381,10 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               </p>
             ) : (
               <p className="note" data-testid="mapping-note">
-                Сопоставление — общее для всех каналов: категорий {mappedCategories}
-                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
-                {connection?.mappedRatePlans ?? '—'}.
+                Сопоставление общее для всех каналов: категорий {mappedCategories}
+                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифных планов{' '}
+                {connection?.mappedLocalRatePlans ?? 'неизвестно'}, сопоставлений тарифов{' '}
+                {connection?.mappedRatePlans ?? 'неизвестно'}.
               </p>
             ))}
         </section>

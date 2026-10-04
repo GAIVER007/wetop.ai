@@ -86,6 +86,8 @@ export class AuthorInterceptor implements NestInterceptor {
       assertBusinessCapability(vertical, capability);
       return;
     }
+    if (capability.startsWith('beauty.'))
+      throw new ForbiddenException('Выберите доступный бизнес Beauty');
     if (!this.prisma) throw new ForbiddenException('Не удалось проверить направление бизнеса');
     // Legacy organization/service requests bind to the same Property as the domain repository.
     const property = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);

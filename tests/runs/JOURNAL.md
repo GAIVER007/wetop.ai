@@ -6109,3 +6109,28 @@
 | 04.10.2026 19:39 | lint | ✅ без ошибок | 15 с | bc9b179 +6 | [лог](logs/2026-10-04T14-39-46Z-lint-baad.log) | календарь без повторной статистики: lint |
 | 04.10.2026 19:39 | typecheck | ❌ ошибок: 29 | 20 с | bc9b179 +6 | [лог](logs/2026-10-04T14-39-46Z-typecheck-9f91.log) | календарь без повторной статистики: typecheck |
 | 04.10.2026 19:40 | typecheck | ✅ без ошибок | 11 с | bc9b179 +6 | [лог](logs/2026-10-04T14-40-33Z-typecheck-de73.log) | календарь без повторной статистики: typecheck после prisma generate |
+| 04.10.2026 19:32 | unit (частично: apps/api/src/beauty/scope.test.ts) | ❌ упало 6 из 6 | 2 с | bc9b179 +1 | [лог](logs/2026-10-04T14-32-47Z-unit-08e4.log) | MV4 RED explicit scope and capability boundary |
+| 04.10.2026 19:34 | integration (частично: tests/integration/mv4-beauty.test.ts) | ❌ упало 5 из 5 | 2 с | bc9b179 +2 | [лог](logs/2026-10-04T14-34-15Z-integration-d053.log) | MV4 RED service eligibility write gate and concurrent transitions |
+| 04.10.2026 19:35 | unit (частично: apps/api/src/beauty/scope.test.ts) | ✅ 6 из 6 | 2 с | bc9b179 +5 | [лог](logs/2026-10-04T14-35-40Z-unit-b675.log) | MV4 GREEN explicit context and capability metadata |
+| 04.10.2026 19:35 | integration (частично: tests/integration/mv4-beauty.test.ts tests/integration/beauty-catalog.test.ts tests/integration/beauty-schedule.test.ts tests/integration | ✅ 40 из 40 | 3 с | bc9b179 +9 | [лог](logs/2026-10-04T14-35-52Z-integration-dbf2.log) | MV4 GREEN scope write gate eligibility concurrency and existing services |
+| 04.10.2026 19:36 | integration (частично: tests/integration/mv4-beauty.test.ts) | ❌ упало 2 из 7 | 2 с | bc9b179 +9 | [лог](logs/2026-10-04T14-36-46Z-integration-fd18.log) | MV4 RED customer visibility and archived customer eligibility |
+| 04.10.2026 19:39 | integration (частично: tests/integration/mv4-beauty.test.ts) | ✅ 22 из 22 | 3 с | bc9b179 +10 | [лог](logs/2026-10-04T14-39-16Z-integration-d125.log) | MV4 acceptance isolation RLS snapshots timezone readonly audit and concurrency |
+| 04.10.2026 19:39 | unit (частично: apps/api/src/beauty/scope.test.ts) | ❌ упало 1 из 7 | 2 с | bc9b179 +6 | [лог](logs/2026-10-04T14-39-47Z-unit-7e6c.log) | MV4 RED no-scope capability must not resolve legacy hotel |
+| 04.10.2026 19:40 | typecheck | ❌ ошибок: 6 | 14 с | bc9b179 +11 | [лог](logs/2026-10-04T14-40-22Z-typecheck-22ed.log) | MV4 full typecheck |
+| 04.10.2026 19:41 | integration (частично: tests/integration/mv4-beauty.test.ts) | ✅ 23 из 23 | 3 с | bc9b179 +11 | [лог](logs/2026-10-04T14-41-25Z-integration-4126.log) | MV4 acceptance including real HTTP capability and permission pipeline |
+| 04.10.2026 19:41 | lint | ✅ без ошибок | 20 с | bc9b179 +11 | [лог](logs/2026-10-04T14-41-50Z-lint-40f8.log) | MV4 full lint |
+| 04.10.2026 19:41 | typecheck | ✅ без ошибок | 22 с | bc9b179 +11 | [лог](logs/2026-10-04T14-41-50Z-typecheck-7b0a.log) | MV4 full root API web typecheck |
+| 04.10.2026 19:41 | unit | ✅ 3333 из 3337, пропущено 4 | 2 мин 42 с | bc9b179 +7 | [лог](logs/2026-10-04T14-41-50Z-unit-3890.log) | MV4 full unit acceptance |
+| 04.10.2026 19:44 | integration | ✅ 347 из 356, пропущено 9 | 36 с | bc9b179 +11 | [лог](logs/2026-10-04T14-44-53Z-integration-e9c9.log) | MV4 full integration and PostgreSQL concurrency acceptance |
+| 04.10.2026 19:47 | lint | ✅ без ошибок | 17 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-lint-8d6a.log) | MV4 final lint after main rebase |
+| 04.10.2026 19:47 | typecheck | ✅ без ошибок | 20 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-typecheck-8750.log) | MV4 final typecheck after main rebase |
+| 04.10.2026 19:47 | unit | ❌ упало 1 из 3337, пропущено 4 | 2 мин 35 с | fbabf71 | [лог](logs/2026-10-04T14-47-05Z-unit-3851.log) | MV4 final unit after rebase on main 85afbb2c |
+| 04.10.2026 19:52 | lint | ✅ без ошибок | 17 с | fbabf71 +1 | [лог](logs/2026-10-04T14-52-05Z-lint-0f8e.log) | MV4 final snapshot-adjusted tree |
+| 04.10.2026 19:52 | typecheck | ✅ без ошибок | 19 с | fbabf71 +1 | [лог](logs/2026-10-04T14-52-05Z-typecheck-9464.log) | MV4 final snapshot-adjusted tree |
+| 04.10.2026 19:50 | unit | ❌ упало 1 из 3337, пропущено 4 | 2 мин 36 с | fbabf71 +1 | [лог](logs/2026-10-04T14-50-17Z-unit-8885.log) | MV4 final unit with stricter upstream calendar baseline 12 to 10 |
+| 04.10.2026 19:53 | unit (частично: apps/api/src/analytics/analytics.controller.test.ts) | ✅ 13 из 13 | 2 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-12Z-unit-cf7e.log) | MV4 investigate transient analytics socket hang up without source changes |
+| 04.10.2026 19:53 | unit | ✅ 3333 из 3337, пропущено 4 | 2 мин 35 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-25Z-unit-2bb5.log) | MV4 final full unit rerun after isolated analytics socket check; no source changes |
+| 04.10.2026 20:07 | lint | ✅ без ошибок | 25 с | 3edd238 | [лог](logs/2026-10-04T15-07-04Z-lint-875d.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:07 | typecheck | ✅ без ошибок | 34 с | 3edd238 | [лог](logs/2026-10-04T15-07-03Z-typecheck-4ff1.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:07 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 2 с | 3edd238 | [лог](logs/2026-10-04T15-07-53Z-integration-56d3.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:08 | unit | ✅ 3339 из 3343, пропущено 4 | 3 мин 4 с | 3edd238 | [лог](logs/2026-10-04T15-08-51Z-unit-509f.log) | MV4 fresh main rebase validation |

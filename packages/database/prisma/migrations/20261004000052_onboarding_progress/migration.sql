@@ -5,7 +5,7 @@ CREATE TABLE "onboarding_progress" (
   "current_step" varchar(50) NOT NULL,
   "draft" jsonb NOT NULL DEFAULT '{}',
   "completed_at" timestamptz(6),
-  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL,
   CONSTRAINT "onboarding_draft_size" CHECK (octet_length("draft"::text) <= 65536)
 );
 ALTER TABLE "onboarding_progress" ENABLE ROW LEVEL SECURITY;

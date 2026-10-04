@@ -93,3 +93,25 @@ describe('Channex read-only connection check', () => {
     expect(JSON.stringify(r)).not.toContain('provider error details');
   });
 });
+
+it.each([0, 1, 2])('отдельно считает %s планов и связки с категориями', async (plans) => {
+  const c = context();
+  const links = Array.from({ length: plans }, (_, p) =>
+    Array.from({ length: 5 }, (_, room) => ({
+      providerPropertyId: 'test-property',
+      providerRoomTypeId: `room-${room}`,
+      providerRatePlanId: `rate-${p}-${room}`,
+      localRatePlanId: `plan-${p}`,
+    })),
+  ).flat();
+  c.repo.mappings.mockResolvedValue(links);
+  expect(await c.service.status()).toMatchObject({
+    mappedLocalRatePlans: plans,
+    mappedRatePlans: plans * 5,
+  });
+  c.repo.mappings.mockResolvedValue(links.filter((_, i) => i % 5 !== 4));
+  expect(await c.service.status()).toMatchObject({
+    mappedLocalRatePlans: plans,
+    mappedRatePlans: plans * 4,
+  });
+});

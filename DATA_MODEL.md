@@ -2762,3 +2762,17 @@ BusinessVertical расширяется FOOD_SERVICE. Canonical источник
 5. Суммы хранятся только в integer minor units. Количество и проценты хранятся в decimal-safe виде, не float.
 6. Продажа и списание не могут уменьшить остаток ниже нуля без отдельного утвержденного режима.
 7. Себестоимость продажи и цена продажи фиксируются снимком на момент операции.
+
+### MV4 acceptance: Beauty v1 boundaries (2026-10-04, утверждено владельцем)
+
+MV4 принимает существующую модель §19.1 и миграции 44/45. Новых сущностей, полей, связей или enum нет.
+Статусы Appointment сохраняются: BOOKED, CONFIRMED, DONE, NO_SHOW, CANCELLED. Одна запись:
+Customer + BeautyService + Employee + Location. Exclusion по Employee действует между всеми филиалами;
+CANCELLED/NO_SHOW интервал не удерживают. Цена и валюта Appointment остаются snapshot.
+
+Authenticated Beauty API требует явный проверенный ACTIVE Business с vertical BEAUTY, для филиальных
+операций также проверенный ACTIVE Location этого Business. Первый салон или филиал не выбирается автоматически.
+EmployeeService является явным допуском к услуге: пустой список не разрешает все услуги.
+CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
+создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
+Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.

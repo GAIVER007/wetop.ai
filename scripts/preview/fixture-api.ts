@@ -3910,6 +3910,7 @@ function read(path: string, q: URLSearchParams): unknown {
       propertyAccessible: true,
       // частичное сопоставление: две категории из трёх — как строки `/channels/channex/mapping`
       mappedCategories: channelMapping === 'partial' ? 2 : 3,
+      mappedLocalRatePlans: 1,
       mappedRatePlans: channelMapping === 'partial' ? 2 : 3,
       lastWebhookAt: null as string | null,
       lastPullAt: null as string | null,
@@ -5122,6 +5123,12 @@ createServer(async (req, res) => {
         return send(200, { ...invitePreview, setPasswordToken: token });
       }
       return send(200, invitePreview);
+    }
+    if (path === '/auth/registration-context') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+      // Базовая UI-организация не создаёт Business/Location нового онбординга.
+      return send(200, null);
     }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);

@@ -1,0 +1,30 @@
+# Модульные (unit) · 03.10.2026 20:37 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-37-08Z-unit-6dc2.json' 'apps/web/src/app/management/analytics/channels/query.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/channels/query.test.ts [ apps/web/src/app/management/analytics/channels/query.test.ts ]
+Error: Cannot find module './query' imported from /home/user/wetop.ai/apps/web/src/app/management/analytics/channels/query.test.ts
+ ❯ apps/web/src/app/management/analytics/channels/query.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { channelLabel, channelsCsv, channelsHref, parseChannelsQuery, …
+       | ^
+      3|
+      4| describe('«Эффективность каналов»: адрес отчёта, подписи, выгрузка', (…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:37:09
+   Duration  189ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-37-08Z-unit-6dc2.json
+
+# код выхода 1 · 1 с

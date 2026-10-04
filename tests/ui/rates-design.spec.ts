@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { HEADER_GROWTH_PX } from './fixtures';
 
 /**
  * «Тарифы и цены» v2 (27.09.2026, ТЗ владельца, ADR-111, RT1).
@@ -171,17 +172,17 @@ test('месяц из шести недель помещается на ноут
   const cal = main.getByTestId('rates-calendar');
   await expect(cal).toBeVisible();
   await page.screenshot({ path: 'reports/rates-compact-2026-09-30/desktop.png', fullPage: true });
+  // бюджет задан 30.09.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под месяц то же
   const before = await cal.boundingBox();
-  expect(before!.y + before!.height).toBeLessThanOrEqual(768);
+  expect(before!.y + before!.height).toBeLessThanOrEqual(768 + HEADER_GROWTH_PX);
   await main
     .getByTestId('rate-row-2026-08-01')
     .getByRole('button', { name: /^Выбрать/ })
     .click();
   const after = await cal.boundingBox();
   expect(after!.y).toBe(before!.y);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
-    true,
-  );
+  const height = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  expect(height).toBeLessThanOrEqual(HEADER_GROWTH_PX + 1);
   await page.getByRole('button', { name: 'Переключить тему' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.screenshot({

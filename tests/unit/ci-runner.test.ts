@@ -1,17 +1,19 @@
 /**
- * Свой раннер GitHub Actions (`scripts/ops/ci-runner`, разбор 21.09.2026).
+ * Проверки GitHub Actions и свой раннер (`scripts/ops/ci-runner`, разбор 21.09.2026).
  *
  * Держит то, что ломается молча и обнаруживается через неделю:
  *  1. раннеру дали сокет Docker — код из любой ветки получает root на машине, где рядом чужие проекты
  *     и боевая PMS;
- *  2. тяжёлые задачи вернулись на раннеры GitHub, где минуты выбраны и ничего не запускается;
- *  3. задача с базой уехала на свой раннер, где нет Docker для `services: postgres`, и падает не по делу.
- *  4. раннер на боевом сервере взял задачу из запроса на слияние из чужого форка (ADR-137, замечание ментора
- *     02.10.2026): защищает хук перед задачей в образе раннера, а не условие в checks.yml;
+ *  2. проверки вернулись на боевой сервер: 03.10.2026 свой раннер там (2 ядра на всё) поднимал нагрузку до
+ *     85 и ронял стойку, UI не помещался вовсе (ADR-139). Все проверки идут на раннерах GitHub, один раз на
+ *     кандидата в выкладку (release-checks.yml), иначе 2000 бесплатных минут кончаются за неделю (21.09.2026);
+ *  3. задача с базой уехала на свой раннер, где нет Docker для `services: postgres`, и падает не по делу;
+ *  4. раннер взял задачу из запроса на слияние из чужого форка (ADR-137, замечание ментора 02.10.2026):
+ *     защищает хук перед задачей в образе раннера; образ остаётся на случай отдельной машины под раннер;
  *  5. тесты бота выпали из проверок, и их красноту снова никто не видит (ADR-137).
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -19,7 +21,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
-const WORKFLOW = read('.github/workflows/checks.yml');
+const WORKFLOW_DIR = '.github/workflows';
+/** Все файлы проверок: имя → текст */
+const WORKFLOWS = Object.fromEntries(
+  readdirSync(join(ROOT, WORKFLOW_DIR))
+    .filter((f) => /\.ya?ml$/.test(f))
+    .map((f) => [f, read(`${WORKFLOW_DIR}/${f}`)]),
+);
+const RELEASE = WORKFLOWS['release-checks.yml'] ?? '';
 const COMPOSE = read('scripts/ops/ci-runner/compose.yml');
 const RUNNER_IMAGE = read('scripts/ops/ci-runner/Dockerfile');
 const HOOK = join(ROOT, 'scripts/ops/ci-runner/job-started.sh');
@@ -32,13 +41,14 @@ const withoutComments = (text: string): string =>
     .join('\n');
 
 /** Кусок файла от заголовка задачи до следующей задачи того же уровня */
-function job(name: string): string {
-  const start = WORKFLOW.indexOf(`\n  ${name}:\n`);
+function job(name: string, text = RELEASE): string {
+  const start = text.indexOf(`\n  ${name}:\n`);
   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
-  const rest = WORKFLOW.slice(start + 1);
+  const rest = text.slice(start + 1);
   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
   return next === -1 ? rest : rest.slice(0, next);
 }
+
 
 describe('свой раннер CI', () => {
   it('раннеру не дают сокет Docker: это был бы root на машине с чужими проектами', () => {
@@ -53,9 +63,40 @@ describe('свой раннер CI', () => {
     expect(run).toMatch(/cpus:/);
   });
 
-  it('тяжёлые задачи идут на свой раннер: минуты GitHub выбраны', () => {
-    for (const name of ['fast', 'ui-shard', 'ui', 'bot'])
-      expect(job(name), name).toMatch(/runs-on: \[self-hosted, linux, x64, wetop\]/);
+  it('ни одна проверка не идёт на боевой сервер и ни одна не запускается на каждый пуш (ADR-139)', () => {
+    for (const [file, text] of Object.entries(WORKFLOWS)) {
+      const run = withoutComments(text);
+      // свой раннер на боевом сервере 03.10.2026 поднимал нагрузку до 85 и ронял стойку
+      expect(run, file).not.toContain('self-hosted');
+      // на каждый пуш и PR бесплатных минут GitHub хватало на неделю (21.09.2026)
+      const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
+      expect(on, file).not.toMatch(/pull_request/);
+      expect(on, file).not.toMatch(/branches: \[[^\]]*\bmain\b/);
+    }
+  });
+
+  it('перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate', () => {
+    expect(RELEASE, '.github/workflows/release-checks.yml').not.toBe('');
+    const triggers = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '');
+    expect(triggers).toContain('workflow_dispatch:');
+    expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate\]/);
+    for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui'])
+      expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
+    const fast = withoutComments(job('fast'));
+    for (const step of ['npm run lint', 'npm run typecheck', 'vitest run --project unit', 'npm run site:check'])
+      expect(fast, step).toContain(step);
+    expect(withoutComments(job('ui-shard'))).toMatch(/shard: \[1, 2, 3\]/);
+    const summary = withoutComments(job('ui'));
+    expect(summary).toContain('needs: ui-shard');
+    expect(summary).toContain('test "$UI_RESULT" = success');
+    // новый кандидат заменяет прежний: его итог уже никому не нужен, а минуты тратятся
+    const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '';
+    expect(withoutComments(block)).toMatch(/cancel-in-progress: true/);
+    expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+contents: read/);
+  });
+
+  it('база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся', () => {
+    for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
   });
 
   it('тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота', () => {
@@ -70,12 +111,7 @@ describe('свой раннер CI', () => {
     expect(bot).toContain('sha256sum -c');
   });
 
-  it('на своём раннере Playwright ставится без --with-deps: sudo под no-new-privileges не работает', () => {
-    for (const name of ['fast', 'ui-shard']) {
-      const run = withoutComments(job(name));
-      expect(run, name).toContain('npx playwright install chromium');
-      expect(run, name).not.toContain('--with-deps');
-    }
+  it('образ раннера без sudo: под no-new-privileges он не работает', () => {
     const image = withoutComments(RUNNER_IMAGE);
     expect(image).not.toContain('sudoers');
     expect(image).not.toMatch(/apt-get install[^\n]*\bsudo\b/);
@@ -99,13 +135,9 @@ describe('свой раннер CI', () => {
     expect(wanted.filter((p) => !new RegExp(`(^|\\s)${p.replace(/[.+]/g, '\\$&')}(\\s|$)`, 'm').test(image))).toEqual([]);
   });
 
-  it('прогон main не отменяется следующим пушем: иначе при частых слияниях у main нет ни одного итога', () => {
-    const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(WORKFLOW)?.[1] ?? '';
-    expect(withoutComments(block)).toMatch(/cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
-  });
-
   it('проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория', () => {
-    expect(withoutComments(WORKFLOW)).not.toContain('pull_request_target');
+    for (const [file, text] of Object.entries(WORKFLOWS))
+      expect(withoutComments(text), file).not.toContain('pull_request_target');
   });
 
   it('задача с базой остаётся на GitHub: ей нужен Docker для services: postgres', () => {
@@ -113,6 +145,23 @@ describe('свой раннер CI', () => {
     expect(db).toMatch(/runs-on: ubuntu-24\.04/);
     expect(db).toContain('services:');
     expect(db).toContain('postgres');
+  });
+
+  it('эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release', () => {
+    // разбор 03.10.2026: эталоны, снятые не на раннере, расходились с проверкой release-checks
+    const text = WORKFLOWS['ui-snapshots.yml'] ?? '';
+    expect(text, '.github/workflows/ui-snapshots.yml').not.toBe('');
+    const run = withoutComments(text);
+    const triggers = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
+    expect(triggers.trim()).toBe('workflow_dispatch:');
+    // запись в репозиторий только у задачи со снимками, по умолчанию чтение
+    expect(/\npermissions:\n\s+contents: read/.test(run)).toBe(true);
+    expect(run).toContain('--update-snapshots=changed');
+    expect(run).toContain("git add -- 'design/reference/kit/*-linux.png'");
+    const pushes = [...run.matchAll(/git push[^\n]*/g)].map((m) => m[0]);
+    expect(pushes).toEqual(['git push origin "HEAD:refs/heads/$BRANCH"']);
+    expect(run).toMatch(/BRANCH: ci\/ui-snapshots-\$\{\{ github\.run_number \}\}/);
+    expect(run).not.toMatch(/--force|\+HEAD|refs\/heads\/(main|release)/);
   });
 });
 

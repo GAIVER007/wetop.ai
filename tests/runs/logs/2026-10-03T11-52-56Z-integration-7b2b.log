@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 03.10.2026 16:52 Алматы · vm
+# коммит 2c91a3a (merged-main), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T11-52-56Z-integration-7b2b.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/integration-tables-role.test.ts' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/main-snap
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 484ms
+[Nest] 18868  - 10/03/2026, 4:53:01 AM    WARN [InboundBookingsService] ревизия role-q225-musc1zh4 (BDC-role-q225-musc1zh4) отклонена: Комната 1 брони BDC-role-q225-musc1zh4: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 18868  - 10/03/2026, 4:53:01 AM    WARN [InboundBookingsService] ревизия role-q225-musc1zh4 (BDC-role-q225-musc1zh4) отклонена: Комната 1 брони BDC-role-q225-musc1zh4: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 635ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 71ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  04:52:57
+   Duration  4.38s (tests 41%, transform 38%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-03T11-52-56Z-integration-7b2b.json
+
+# код выхода 0 · 5 с

@@ -39,6 +39,12 @@ export class GuestsController {
     return this.service.search(q);
   }
 
+  // объявлен до ':id', как и «directory»
+  @Get('birthdays')
+  birthdays(@Query('from') from?: string, @Query('days') days?: string) {
+    return this.service.birthdays(from, days);
+  }
+
   // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
   @Get('directory')
   directory(

@@ -265,7 +265,9 @@ svg {
  * под нижнюю навигацию, у страниц во весь экран этот отступ достаётся таблице. */
 .workspace .page {
   max-width: 1680px;
-  padding: 28px 32px 24px;
+  /* Верхнее меню (ADR-134) сделало шапку на 28 px выше: отступы страницы ужаты на столько же, чтобы
+   * экраны, рассчитанные на ноутбук 1366×768 (настройки, тарифы, финансы), снова помещались */
+  padding: 16px 32px 24px;
 }
 .workspace .page--narrow {
   max-width: 1080px;
@@ -275,7 +277,7 @@ svg {
 }
 .workspace .page--full {
   max-width: none;
-  padding: 28px 24px 24px;
+  padding: 16px 24px 24px;
 }
 .page__head {
   align-items: center;

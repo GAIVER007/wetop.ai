@@ -240,4 +240,27 @@ describe('desk dashboard API', () => {
       .get('/desk/dashboard?from=05.10.2026&to=2026-10-05')
       .expect(400);
   });
+
+  it('эффективность каналов: строка канала, каналы без броней по запросу, сравнение и отборы проверяются', async () => {
+    const r = await request(app.getHttpServer())
+      .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&compareFrom=2025-10-01&compareTo=2025-10-31')
+      .expect(200);
+    expect(r.body.current.rows).toEqual([
+      expect.objectContaining({ label: 'Booking.com', revenueMinor: '300000', nights: 1, revenueShare: 100 }),
+    ]);
+    expect(r.body.previous.totals).toEqual({ revenueMinor: '0', nights: 0, adrMinor: null, bookings: 0 });
+    const all = await request(app.getHttpServer())
+      .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&empty=1')
+      .expect(200);
+    expect(all.body.previous).toBeNull();
+    expect(all.body.current.rows.map((x: { label: string }) => x.label)).toEqual(
+      expect.arrayContaining(['Booking.com', 'Agoda', 'Trip.com', 'Hostelworld']),
+    );
+    await request(app.getHttpServer())
+      .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&sort=price')
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&compareFrom=2025-10-01')
+      .expect(400);
+  });
 });

@@ -15,7 +15,7 @@ import {
   PENDING_ACCESS,
   activeNavigation,
   allowedItem,
-  phoneNavigation,
+  phoneNavigationFor,
   type NavigationAccess,
 } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
@@ -247,8 +247,16 @@ export function TopNav({
  * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
  * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
  */
-function BottomNavLinks({ access, path }: { access: NavigationAccess; path: string }) {
-  return phoneNavigation
+function BottomNavLinks({
+  access,
+  path,
+  vertical,
+}: {
+  access: NavigationAccess;
+  path: string;
+  vertical?: 'HOSPITALITY' | 'BEAUTY' | undefined;
+}) {
+  return phoneNavigationFor(vertical)
     .filter((item) => allowedItem(item, access))
     .map((n) => (
       <Link
@@ -264,7 +272,9 @@ function BottomNavLinks({ access, path }: { access: NavigationAccess; path: stri
 
 function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
   const shell = desk ? use(desk) : null;
-  return <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} />;
+  return (
+    <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} vertical={shell?.vertical} />
+  );
 }
 
 function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {

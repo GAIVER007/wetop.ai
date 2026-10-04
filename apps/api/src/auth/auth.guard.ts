@@ -86,6 +86,21 @@ const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
  */
 const ASSISTANT_ACT_ALLOWED = ['/assistant/actions/channel-pull', '/assistant/actions/channel-sync'];
 
+/**
+ * Ключ ИИ-сборщика загрузки конкурентов (`MARKET_COLLECT_KEY`, M2a, ADR-142, Q-260): список конкурентов всех объектов
+ * и запись снимков одного конкурента. Раздел стойки, брони, гости, деньги этим ключом не открываются; объект для записи
+ * берётся из строки конкурента, а не из запроса.
+ */
+const MARKET_COLLECT_LIST = '/market/collector/competitors';
+const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupancy$/;
+
+function marketCollectAllowed(method: unknown, url: unknown): boolean {
+  const path = pathOf(url);
+  if (path === null) return false;
+  if (method === 'GET') return path === MARKET_COLLECT_LIST;
+  return method === 'PUT' && MARKET_COLLECT_WRITE.test(path);
+}
+
 function pathOf(url: unknown): string | null {
   if (typeof url !== 'string') return null;
   return url.split('?')[0]!.replace(/\/+$/, '');
@@ -110,6 +125,7 @@ export type ServiceKeyKind =
   | 'assistant-read'
   | 'assistant-act'
   | 'seller-quote'
+  | 'market-collect'
   | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
@@ -125,6 +141,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (actKey && sameKey(presented, actKey)) return 'assistant-act';
   const quoteKey = process.env.SELLER_QUOTE_KEY?.trim();
   if (quoteKey && sameKey(presented, quoteKey)) return 'seller-quote';
+  const collectKey = process.env.MARKET_COLLECT_KEY?.trim();
+  if (collectKey && sameKey(presented, collectKey)) return 'market-collect';
   return 'unknown';
 }
 
@@ -213,6 +231,13 @@ export class SessionGuard implements CanActivate {
         return true;
       }
       throw new ForbiddenException('Ключ котировки продавца читает только наличие и цену');
+    }
+    if (key === 'market-collect') {
+      if (marketCollectAllowed(request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ сборщика пишет только загрузку конкурентов');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

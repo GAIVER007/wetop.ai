@@ -81,7 +81,9 @@ test('обзор за месяц: четыре основных показате
   const main = page.getByRole('main');
   await page.goto('/management/analytics');
   // по умолчанию — этот месяц; подпись словами
-  await expect(main.getByTestId('pa-period')).toContainText(/\d+ \S+ — \d+ \S+, 3[01] д/);
+  await expect(main.getByTestId('pa-period')).toContainText(
+    /\d+ \S+ \u2014 \d+ \S+, (28|29|30|31) д/,
+  );
   await expect(main.getByRole('link', { name: 'Этот месяц' })).toHaveAttribute(
     'aria-current',
     'page',

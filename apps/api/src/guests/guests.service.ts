@@ -7,7 +7,7 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { normalizeCitizenship } from '@pms/domain';
+import { normalizeCitizenship, upcomingBirthday } from '@pms/domain';
 import {
   PiiKeyMissingError,
   blankToNull,
@@ -79,6 +79,24 @@ function lastVisitWindow(
 @Injectable()
 export class GuestsService {
   constructor(@Inject(GUESTS_REPOSITORY) private readonly repo: GuestsRepository) {}
+
+  /** «Дни рождения» (Q-249 T0): гости с днём рождения в окне [from, from + days), по порядку дат */
+  async birthdays(from?: string, days?: string) {
+    if (!from || !/^\d{4}-\d{2}-\d{2}$/.test(from) || !Number.isFinite(Date.parse(from)))
+      throw new BadRequestException('from — дата в виде ГГГГ-ММ-ДД');
+    const window = Number(days ?? 1);
+    if (!Number.isInteger(window) || window < 1 || window > 31)
+      throw new BadRequestException('days — от 1 до 31');
+    const rows = await this.repo.withBirthDates();
+    return rows
+      .flatMap((g) => {
+        const next = upcomingBirthday(g.birthDate, from, window);
+        return next
+          ? [{ id: g.id, firstName: g.firstName, lastName: g.lastName, date: next.date, age: next.age }]
+          : [];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.lastName.localeCompare(b.lastName, 'ru'));
+  }
 
   async search(q?: string) {
     const query = (q ?? '').trim();

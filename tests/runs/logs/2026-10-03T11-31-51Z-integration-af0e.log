@@ -1,0 +1,53 @@
+# Интеграционные (integration) · 03.10.2026 16:31 Алматы · vm
+# коммит 50494b7 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T11-31-51Z-integration-af0e.json' 'tests/integration/beauty-domain.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 1; данные на месте
+ ❯ |integration| tests/integration/beauty-domain.test.ts (11 tests | 11 skipped) 293ms
+   ❯ Beauty: ограничения и триггеры базы (integration, DATA_MODEL §19.1) (11)
+     ↓ связка клиента с бизнесом: свой бизнес можно, чужая организация нет
+     ↓ мастер в филиале чужого бизнеса не работает
+     ↓ филиал включает только услуги своего бизнеса
+     ↓ мастер умеет только услуги своего бизнеса
+     ↓ график ставится только там, где мастер работает; конец позже начала
+     ↓ отсутствие: конец не раньше начала
+     ↓ записи одного мастера не пересекаются: это запрещает база
+     ↓ отменённая и незаезд место не держат
+     ↓ окно записи: конец позже начала
+     ↓ запись сходится по мастеру, услуге и клиенту с филиалом
+     ↓ все десять таблиц под RLS с политикой rls_tenant
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-domain.test.ts > Beauty: ограничения и триггеры базы (integration, DATA_MODEL §19.1)
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `P0001`. Message: `Филиал принадлежит другому бизнесу, мастер в нём работать не может`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ sql tests/integration/beauty-domain.test.ts:31:5
+     29|
+     30|   async function sql(text: string): Promise<void> {
+     31|     await db.$executeRawUnsafe(text);
+       |     ^
+     32|   }
+     33|
+ ❯ tests/integration/beauty-domain.test.ts:83:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 skipped (11)
+   Start at  11:31:52
+   Duration  1.91s (tests 39%, transform 39%, import 22%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T11-31-51Z-integration-af0e.json
+
+# код выхода 1 · 3 с

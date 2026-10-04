@@ -54,10 +54,19 @@ test('availability preserves exact unit and dates; responsive category design', 
   await page.locator('.fund-availability summary').first().click();
   const link = page.locator('.fund-book-unit').first();
   await expect(link).toHaveAttribute('href', /arrival=2026-09-24&departure=2026-09-27&unit=/);
+  const unit = new URL((await link.getAttribute('href'))!, 'http://127.0.0.1').searchParams.get(
+    'unit',
+  );
   await link.click();
-  await expect(
-    page.getByRole('heading', { name: 'Новая бронь', exact: true, level: 1 }),
-  ).toBeVisible();
+  // форма брони с 01.10.2026 открывается панелью поверх экрана (перехват маршрута, `@drawer`),
+  // и в ней те же место и даты, что в выдаче
+  const form = page
+    .getByRole('dialog', { name: 'Новая бронь' })
+    .getByTestId('new-reservation-form');
+  await expect(form).toBeVisible();
+  await expect(form.getByLabel('Заезд', { exact: true })).toHaveValue('2026-09-24');
+  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-09-27');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(unit!);
   for (const width of [1440, 768, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/rooms/categories');
@@ -96,12 +105,13 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   ).toBeVisible();
   await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
   await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
-  // раздел переименован: вкладка фонда и заголовок — «Свободные места», маршрут прежний
+  // раздел переименован: заголовок «Свободные места», маршрут прежний. Отдельной вкладки фонда
+  // у поиска с 01.10.2026 нет (навигация по задачам, `plans/workspace-order-2026-10-01.md`)
   await expect(
     page
       .getByRole('navigation', { name: 'Номерной фонд', exact: true })
       .getByRole('link', { name: 'Свободные места' }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
   // пресет дат сохраняет число гостей
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
@@ -159,6 +169,8 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await expect(form.locator('[name="adults"]')).toHaveValue('2');
   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
   await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
+  // источник с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');

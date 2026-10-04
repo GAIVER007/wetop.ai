@@ -5,7 +5,7 @@ import { expect, test, type Page } from './fixtures';
  * операционные блоки только на существующих данных. Ожидания берутся из того же подставного API,
  * что рисует экран, — тест сверяет экран с данными, а не с заученными числами.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 
 type Row = {
   confirmationNumber: string;
@@ -49,61 +49,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('заезды и выезды дня: строка на проживание, действие ведёт в существующий поток', async ({
-  page,
-}) => {
-  const d = await day(page);
-  await page.goto('/today');
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  const arrivals = page.getByRole('region', { name: 'Заезды' });
-  const departures = page.getByRole('region', { name: 'Выезды' });
-  // время — объекта, не брони: у брони его нет (пробел плана §3.1)
-  await expect(arrivals).toContainText('с 14:00');
-  await expect(departures).toContainText('до 12:00');
-
-  const pending = d.arrivals.filter((r) => r.status !== 'CHECKED_IN');
-  expect(pending.length).toBeGreaterThan(0);
-  for (const r of pending.slice(0, 6)) {
-    const row = arrivals.getByTestId('event-row').filter({ hasText: r.confirmationNumber });
-    await expect(row).toHaveCount(1);
-    if (!r.unitCode) {
-      await expect(row).toContainText('без ячейки');
-      await expect(row.getByRole('link', { name: 'Назначить' })).toHaveAttribute(
-        'href',
-        `/chessboard?from=${d.date}&to=${d.date}#unassigned-stays`,
-      );
-    } else {
-      await expect(row.getByRole('link', { name: 'Заселить' })).toHaveAttribute(
-        'href',
-        `/reservations/${r.confirmationNumber}#booking-actions`,
-      );
-    }
-    if (BigInt(r.balanceMinor) > 0n) {
-      await expect(row).toContainText('к оплате');
-      expect(digits((await row.textContent()) ?? '')).toContain(tenge(r.balanceMinor));
-    }
-  }
-
-  const staying = d.departures.filter((r) => r.status === 'CHECKED_IN');
-  for (const r of staying.slice(0, 6)) {
-    const row = departures.getByTestId('event-row').filter({ hasText: r.confirmationNumber });
-    await expect(row.getByRole('link', { name: 'Выселить' })).toHaveAttribute(
-      'href',
-      `/reservations/${r.confirmationNumber}#booking-actions`,
-    );
-  }
-  const gone = d.departures.filter((r) => r.status === 'CHECKED_OUT').length;
-  if (gone) await expect(departures).toContainText(`уже выехали: ${gone}`);
-  await expect(arrivals.getByRole('link', { name: /Все заезды дня/ })).toHaveAttribute(
-    'href',
-    `/reservations?arrival=${d.date}`,
-  );
-});
-
-test('номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта', async ({
+test('виджеты дня: загрузка, гости и состояние номеров — числа шахматки и стойки дня', async ({
   page,
 }) => {
   const d = await day(page);
@@ -112,31 +58,24 @@ test('номерной фонд и уборка: числа шахматки д�
   ).json();
   const s = board.summary[d.date]!;
   await page.goto('/today');
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  const fund = page.getByRole('region', { name: 'Номерной фонд' });
-  await expect(fund.getByTestId('fund-occupied')).toHaveText(String(s.occupied));
-  await expect(fund.getByTestId('fund-free')).toHaveText(String(s.free));
-  await expect(fund.getByTestId('fund-blocked')).toHaveText(String(s.blocked));
-  // занятость по категориям одной строкой: «Имя занято/всего»
-  const first = board.rows[0]!.unit;
-  const cat = board.byCategory[d.date]![first.accommodationTypeCode]!;
-  await expect(fund.getByTestId('fund-categories')).toContainText(
-    `${first.accommodationTypeName} ${cat.occupied}/${cat.units}`,
+  const load = page.getByRole('article', { name: 'Загрузка на сегодня' });
+  await expect(load.getByTestId('tw-occupied')).toHaveText(String(s.occupied));
+  await expect(load.getByTestId('c-free')).toHaveText(String(s.free));
+  await expect(load.getByTestId('tw-total')).toHaveText(String(s.occupied + s.free + s.blocked));
+  await expect(load.getByTestId('c-occupancy')).toContainText(
+    `${Math.round((s.occupied * 100) / (s.occupied + s.free + s.blocked))} %`,
   );
 
   const count = (status: string) =>
     board.rows.filter((r) => r.unit.housekeepingStatus === status).length;
-  const care = page.getByRole('region', { name: 'Уборка и неисправности' });
-  await expect(care.getByTestId('housekeeping-dirty')).toHaveText(String(count('DIRTY')));
-  await expect(care.getByTestId('housekeeping-clean')).toHaveText(String(count('CLEAN')));
-  await expect(care.getByTestId('housekeeping-inspected')).toHaveText(String(count('INSPECTED')));
+  const rooms = page.getByRole('article', { name: 'Состояние номеров' });
+  await expect(rooms.getByTestId('tw-dirty')).toHaveText(String(count('DIRTY')));
+  await expect(rooms.getByTestId('tw-clean')).toHaveText(String(count('CLEAN')));
+  await expect(rooms.getByTestId('tw-inspected')).toHaveText(String(count('INSPECTED')));
   const broken = board.rows.filter((r) =>
     ['MAINTENANCE', 'OUT_OF_ORDER'].includes(r.cells[0]?.blockType ?? ''),
   ).length;
-  await expect(care.getByTestId('repair-count')).toHaveText(String(broken));
+  await expect(rooms.getByTestId('tw-repair')).toHaveText(String(broken));
 });
 
 test('финансовые показатели совпадают с dashboard API и не подменяют расходы нулём', async ({
@@ -147,25 +86,22 @@ test('финансовые показатели совпадают с dashboard 
     await page.request.get(`${fixture}/desk/dashboard?from=${d.date}&to=${d.date}`, asClient)
   ).json();
   await signIn(page);
-  await page.goto('/today');
+  await page.goto('/today?period=today');
   for (const [id, amount] of [
     ['owner-charged', c.revenue.totalMinor],
     ['owner-paid', c.payments.totalMinor],
-    ['owner-refunds', c.refundsMinor],
   ]) {
     expect(digits(await page.getByTestId(id).locator('strong').innerText())).toBe(tenge(amount));
   }
-  await expect(page.getByTestId('owner-expenses')).toContainText('Не подключён');
+  expect(digits(await page.getByTestId('owner-refunds').innerText())).toBe(tenge(c.refundsMinor));
+  // учёта расходов в модели нет — плитки с прочерком тоже нет (решение владельца 03.10)
+  await expect(page.getByTestId('owner-expenses')).toHaveCount(0);
   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
 });
 test('финансы будущего периода не меняют текущую уборку', async ({ page }) => {
   await page.goto('/today?date=2027-06-01');
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
   await expect(
-    page.getByRole('region', { name: 'Уборка и неисправности' }).getByTestId('housekeeping-dirty'),
+    page.getByRole('article', { name: 'Состояние номеров' }).getByTestId('tw-dirty'),
   ).toBeVisible();
 });
 test('сбой сторожа не скрывает показатели и действия', async ({ page, request }) => {
@@ -173,8 +109,5 @@ test('сбой сторожа не скрывает показатели и де
   await page.goto('/today');
   await expect(page.getByTestId('owner-paid')).toBeVisible();
   await expect(page.getByTestId('owner-guests')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Контроль системы' })).toHaveAttribute(
-    'href',
-    '/incidents',
-  );
+  await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
 });

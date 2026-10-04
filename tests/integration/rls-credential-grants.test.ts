@@ -23,7 +23,10 @@ describe.skipIf(!url)(
   () => {
     let client: pg.Client;
     beforeAll(async () => {
-      client = new pg.Client({ connectionString: url });
+      // Схема набора integration (DATABASE_SCHEMA = pms_test, ADR-042), как у Prisma-клиента: на чистой базе CI
+      // в public таблиц нет, а на стенде разработчика public это рабочие данные
+      const schema = process.env.DATABASE_SCHEMA?.trim() || 'public';
+      client = new pg.Client({ connectionString: url, options: `-c search_path=${schema},public` });
       await client.connect();
     });
     afterAll(async () => {

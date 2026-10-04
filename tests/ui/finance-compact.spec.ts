@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { HEADER_GROWTH_PX } from './fixtures';
 // Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
 const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 test.beforeEach(async ({ request }) => {
@@ -17,8 +18,10 @@ test('финансы: обзор на ноутбуке, вкладки и пер
     fullPage: true,
     animations: 'disabled',
   });
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
-    true,
+  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под обзор то же
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  expect(overflow, 'обзор финансов не помещается на ноутбуке').toBeLessThanOrEqual(
+    HEADER_GROWTH_PX + 1,
   );
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   await expect(page.getByTestId('finance-operations')).toBeVisible();

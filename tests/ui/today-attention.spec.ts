@@ -5,7 +5,7 @@ import { expect, test } from './fixtures';
  * одна очередь Critical → Warning → Info, у каждой строки одно действие. Числа берутся из того же подставного API, что
  * рисует экран: тест сверяет очередь с данными, а не с заученными числами.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 
 type Row = {

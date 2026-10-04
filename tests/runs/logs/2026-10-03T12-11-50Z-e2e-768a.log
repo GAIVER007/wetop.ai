@@ -1,0 +1,203 @@
+# Сквозные (e2e) · 03.10.2026 17:11 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-branch.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-branch.spec.ts:39:1 › салон заводится той же формой и открывается своим рабочим местом (45.2s)
+  ✘  2 tests/ui/beauty-branch.spec.ts:54:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (45.2s)
+  ✘  3 tests/ui/beauty-branch.spec.ts:70:1 › карточка объекта показывает имя салона, а не «объект не загружен» (45.3s)
+  ✘  4 tests/ui/beauty-branch.spec.ts:81:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (45.3s)
+  ✘  5 tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в светлой теме (45.2s)
+  ✘  6 tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в тёмной теме (45.2s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:39:1 › салон заводится той же формой и открывается своим рабочим местом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:44:3
+
+    Error Context: test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-branch.spec.ts:54:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:62:3
+
+    Error Context: test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-branch.spec.ts:70:1 › карточка объекта показывает имя салона, а не «объект не загружен» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:75:3
+
+    Error Context: test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-branch.spec.ts:81:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:86:3
+
+    Error Context: test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в светлой теме ─────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:100:5
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в тёмной теме ──────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('row').filter({ hasText: 'Студия Айна' }).getByRole('button', { name: 'Открыть филиал', exact: true })
+
+
+      33 |     .filter({ hasText: name })
+      34 |     .getByRole('button', { name: 'Открыть филиал', exact: true })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.waitForURL('**/beauty');
+      37 | }
+      38 |
+        at createAndOpenSalon (/home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:35:6)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:100:5
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/beauty-branch.spec.ts:39:1 › салон заводится той же формой и открывается своим рабочим местом 
+    tests/ui/beauty-branch.spec.ts:54:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+    tests/ui/beauty-branch.spec.ts:70:1 › карточка объекта показывает имя салона, а не «объект не загружен» 
+    tests/ui/beauty-branch.spec.ts:81:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки 
+    tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в светлой теме ──────────────────────────
+    tests/ui/beauty-branch.spec.ts:95:3 › салон доступен и в тёмной теме ───────────────────────────
+
+# код выхода 1 · 4 мин 52 с

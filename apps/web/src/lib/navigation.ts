@@ -55,6 +55,34 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Рабочее место',
     items: [
       {
+        href: '/beauty',
+        requires: 'desk',
+        label: 'Салон',
+        icon: 'today',
+        description: 'Рабочее место салона: филиал, что уже работает и что настраивается.',
+      },
+      {
+        href: '/beauty/services',
+        requires: 'desk',
+        label: 'Услуги салона',
+        icon: 'rates',
+        description: 'Каталог услуг сети: длительность и цена, своя цена филиала.',
+      },
+      {
+        href: '/beauty/masters',
+        requires: 'desk',
+        label: 'Мастера',
+        icon: 'guests',
+        description: 'Мастера сети: филиалы, в которых работают, и что умеют.',
+      },
+      {
+        href: '/beauty/schedule',
+        requires: 'desk',
+        label: 'График',
+        icon: 'clock',
+        description: 'График мастера в филиале неделей, его отсутствия и филиалы, где он работает.',
+      },
+      {
         href: '/today',
         requires: 'desk',
         label: 'Главная',
@@ -123,6 +151,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             label: 'Тарифы',
             icon: 'rates',
             description: 'Календарь цен, ограничения и массовое редактирование.',
+          },
+          {
+            // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
+            href: '/market',
+            requires: 'reports',
+            label: 'Загрузка конкурентов',
+            icon: 'analytics',
+            description: 'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
           },
         ],
       },
@@ -334,6 +370,7 @@ export const menuSections: MenuSection[] = [
     icon: 'rates',
     items: [
       menuItem('/rates', 'Тарифы и цены'),
+      menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
       menuItem('/website'),
@@ -370,10 +407,45 @@ export const menuSections: MenuSection[] = [
   },
 ];
 
+/**
+ * Разделы салона (DATA_MODEL §19, решение Q-254 от 03.10.2026, ADR-141). Вертикаль филиала решает, какое меню
+ * видит человек: у салона нет ни объекта, ни броней, ни тарифов, поэтому гостиничные разделы ему не показываются,
+ * они просто не нашли бы объект. Здесь только то, что в салоне действительно работает; записи, мастера и услуги
+ * появятся срезами B3...B6, и до тех пор меню их не обещает (DESIGN.md §19.9 про честность экрана).
+ */
+export const beautyMenuSections: MenuSection[] = [
+  direct('salon', '/beauty', 'today', 'Салон'),
+  direct('beauty-services', '/beauty/services', 'rates', 'Услуги'),
+  direct('beauty-masters', '/beauty/masters', 'guests', 'Мастера'),
+  direct('beauty-schedule', '/beauty/schedule', 'clock', 'График'),
+  direct('team', '/team', 'guests'),
+  direct('journal', '/journal', 'journal'),
+  {
+    id: 'platform',
+    label: 'Платформа',
+    icon: 'system',
+    items: [menuItem('/platform')],
+  },
+];
+
 /** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
   .map((section) => section.items[0]!);
+
+/**
+ * То же для салона: разделы его вертикали (Q-254). Не передана, значит гостиница, как было до среза B2.
+ * В панель идут только одиночные вкладки: группы («Платформа», «Настройки») живут за кнопкой «Ещё».
+ */
+export function phoneNavigationFor(
+  vertical: 'HOSPITALITY' | 'BEAUTY' = 'HOSPITALITY',
+): NavigationItem[] {
+  if (vertical !== 'BEAUTY') return phoneNavigation;
+  return beautyMenuSections
+    .filter((section) => section.direct)
+    .slice(0, 4)
+    .map((section) => section.items[0]!);
+}
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
@@ -426,9 +498,15 @@ export function routeRule(
   return extra ?? activeNavigation(path);
 }
 
-/** Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается */
-export function menuSectionsFor(access: NavigationAccess): MenuSection[] {
-  return menuSections
+/**
+ * Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается. Вертикаль решает набор разделов
+ * (Q-254): у филиала-салона свой, гостиничный ему нечем наполнить. Не передана, значит гостиница, как было до B2.
+ */
+export function menuSectionsFor(
+  access: NavigationAccess,
+  vertical: 'HOSPITALITY' | 'BEAUTY' = 'HOSPITALITY',
+): MenuSection[] {
+  return (vertical === 'BEAUTY' ? beautyMenuSections : menuSections)
     .map((section) => ({
       ...section,
       items: section.items.filter((item) => allowedItem(item, access)),

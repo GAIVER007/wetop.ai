@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 03.10.2026 17:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит d2f4968 (claude/booking-price-nights), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1' 'booking-price-nights.spec.ts' 'chessboard-calendar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.3s)
+  ✓  2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (3.4s)
+  ✓  3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (2.2s)
+  ✓  4 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (3.3s)
+  ✓  5 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (8.0s)
+  ✓  6 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (9.2s)
+  ✓  7 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (4.6s)
+
+  7 passed (43.6s)
+
+# код выхода 0 · 45 с

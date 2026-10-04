@@ -8,6 +8,7 @@ export type { ActionPreview } from './action-preview';
 import type {
   AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelEfficiency,
   ChannelState,
   DashboardFund,
   DashboardPeriod,
@@ -490,6 +491,13 @@ export const authApi = {
       organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
+      /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
+      context?: {
+        scope?: string | null;
+        businessId?: string | null;
+        locationId?: string | null;
+        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+      } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
     return {
@@ -706,7 +714,12 @@ export const reservationsApi = {
   /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
   nearest: (arrival: string, departure: string, guests: number) =>
     getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
-  quote: (body: unknown) => sendJson<{ totalMinor: string; currency: string }>('POST', '/reservations/quote', body),
+  quote: (body: unknown) =>
+    sendJson<{ totalMinor: string; currency: string; nights?: Array<{ date: string; priceMinor: string }> }>(
+      'POST',
+      '/reservations/quote',
+      body,
+    ),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -956,7 +969,71 @@ export const channelsApi = {
       '/channels/channex/webhook/test',
       {},
     ),
+  /** Раздел «Каналы» (ADR-140): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
+  catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
+  /** Канал отдаёт уже сделанные у него будущие брони (только владельцу, только каналу с этим действием) */
+  loadFutureReservations: (connectionId: string) =>
+    sendJson<{ channel: string }>(
+      'POST',
+      `/channels/channex/channels/${encodeURIComponent(connectionId)}/load-future-reservations`,
+      {},
+    ),
+  /** Окно Channex для подключения и настройки канала: одноразовый адрес, только владельцу */
+  connectSession: (channel?: string) =>
+    sendJson<{ url: string; expiresInMinutes: number }>(
+      'POST',
+      '/channels/channex/channels/connect-session',
+      channel ? { channel } : {},
+    ),
 };
+/** Статус канала по фактам (ADR-140): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
+export type ChannelStatus = 'WORKING' | 'ENABLED' | 'ERRORS' | 'OFF' | 'REMOVING';
+export interface ChannelConnectionRow {
+  id: string;
+  adapterCode: string;
+  channelKey: string;
+  channelTitle: string;
+  connectionTitle: string;
+  channelPropertyId: string | null;
+  active: boolean;
+  removalDate: string | null;
+  mappedRatePlans: number;
+  actions: string[];
+  shortCode: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+  lastEventAt: string | null;
+  failedEvents7d: number;
+  status: ChannelStatus;
+}
+export interface ChannelAdapterRow {
+  code: string;
+  channelKey: string;
+  title: string;
+  kind: string;
+  canLoadFutureReservations: boolean;
+  shortCode: string | null;
+  connected: boolean;
+}
+export interface ChannelOutsideRow {
+  key: string;
+  source: string;
+  label: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+}
+export interface ChannelCatalog {
+  checkedAt: string;
+  environment: 'staging' | 'production' | 'custom';
+  propertyConnected: boolean;
+  /** Приём броней целиком: последнее входящее событие и все ошибки приёма за 7 дней */
+  inbound: { lastEventAt: string | null; failedEvents7d: number };
+  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'UNREACHABLE';
+  message: string;
+  connections: ChannelConnectionRow[];
+  adapters: ChannelAdapterRow[] | null;
+  outside: ChannelOutsideRow[];
+}
 export interface ChannelConnection {
   checkedAt: string;
   environment: 'staging' | 'production' | 'custom';
@@ -1228,8 +1305,18 @@ export interface GuestDirectoryResult {
   };
   rows: GuestDirectoryRow[];
 }
+/** «Дни рождения» (Q-249 T0): гость, дата дня рождения в окне и сколько исполняется */
+export interface GuestBirthday {
+  id: string;
+  firstName: string;
+  lastName: string;
+  date: string;
+  age: number;
+}
 export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  birthdays: (from: string, days: number) =>
+    getJson<GuestBirthday[]>(`/guests/birthdays?from=${encodeURIComponent(from)}&days=${days}`),
   directory: (query: Record<string, string>) =>
     getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
   preview: (id: string) => getJson<GuestPreview>(`/guests/${encodeURIComponent(id)}/preview`),
@@ -1552,6 +1639,28 @@ export const dashboardApi = {
     getJson<UnitStats>(
       `/desk/dashboard/units?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
     ),
+  /** «Эффективность каналов» (ADR-141): доход, ночи и средняя стоимость по каналу; под правом отчётов */
+  channels: (q: {
+    from: string;
+    to: string;
+    compareFrom?: string | undefined;
+    compareTo?: string | undefined;
+    channel?: string | undefined;
+    sort?: string | undefined;
+    empty?: boolean | undefined;
+  }) => {
+    const p = new URLSearchParams({ from: q.from, to: q.to });
+    if (q.compareFrom && q.compareTo) {
+      p.set('compareFrom', q.compareFrom);
+      p.set('compareTo', q.compareTo);
+    }
+    if (q.channel) p.set('channel', q.channel);
+    if (q.sort && q.sort !== 'revenue') p.set('sort', q.sort);
+    if (q.empty) p.set('empty', '1');
+    return getJson<{ current: ChannelEfficiency; previous: ChannelEfficiency | null }>(
+      `/desk/dashboard/channels?${p.toString()}`,
+    );
+  },
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────
@@ -2366,6 +2475,8 @@ export interface BranchItem {
   address: string | null;
   currency: string;
   timezone: string;
+  /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
+  vertical: 'HOSPITALITY' | 'BEAUTY';
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };
@@ -2387,5 +2498,276 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
+    vertical?: 'HOSPITALITY' | 'BEAUTY';
   }) => sendJson<BranchItem>('POST', '/branches', body),
+};
+
+/** Каталог салона (DATA_MODEL §19.1, срез B3). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+export interface BeautyServiceRow {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  /** Что про услугу говорит текущий филиал; null, значит он её не включал */
+  location: {
+    enabled: boolean;
+    priceOverrideMinor: string | null;
+    durationOverrideMinutes: number | null;
+  } | null;
+  /** Действующая цена в филиале, посчитанная домéном; null, когда филиал не выбран */
+  effective:
+    | { sellable: true; priceMinor: string; currency: string; durationMinutes: number; overridden: boolean }
+    | { sellable: false; reason: 'SERVICE_INACTIVE' | 'NOT_ENABLED' | 'CURRENCY_MISMATCH' }
+    | null;
+}
+
+export interface BeautyEmployeeRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+
+export interface BeautyWorkingInterval {
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+
+export interface BeautyWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+
+export interface BeautyTimeOff {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  /** сколько уже созданных записей попадает в эти дни: отсутствие их не отменяет (Q-252) */
+  appointments: number;
+}
+
+/** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
+export interface BeautySchedule {
+  location: { id: string; name: string | null; timezone: string | null } | null;
+  employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
+  employee: {
+    id: string;
+    name: string;
+    active: boolean;
+    worksHere: boolean;
+    locationIds: string[];
+  } | null;
+  locations: Array<{ id: string; name: string; assigned: boolean }>;
+  week: BeautyWeekDay[];
+  timeOffs: BeautyTimeOff[];
+}
+
+/** Журнал записей салона за день (срез B5): мастера столбцами, записи плитками */
+export interface BeautyDayColumn {
+  id: string;
+  name: string;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+  timeOff: boolean;
+  timeOffReason: string | null;
+  serviceIds: string[];
+}
+
+export interface BeautyAppointmentRow {
+  id: string;
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  customer: { id: string; name: string; phone: string | null };
+  startsAt: string;
+  endsAt: string;
+  /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+
+export interface BeautyDay {
+  location: { id: string; name: string | null; timezone: string; currency: string };
+  date: string;
+  columns: BeautyDayColumn[];
+  appointments: BeautyAppointmentRow[];
+  services: Array<{
+    id: string;
+    name: string;
+    category: string | null;
+    sellable: boolean;
+    durationMinutes: number;
+    priceMinor: string;
+    currency: string;
+  }>;
+  bounds: { fromMinutes: number; toMinutes: number };
+}
+
+export const beautyApi = {
+  services: () =>
+    getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
+      '/beauty/services',
+    ),
+  createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
+  updateService: (id: string, body: unknown) =>
+    sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
+  setLocationService: (id: string, body: unknown) =>
+    sendJson<{ items: BeautyServiceRow[] }>(
+      'PUT',
+      `/beauty/services/${encodeURIComponent(id)}/location`,
+      body,
+    ),
+  employees: () =>
+    getJson<{ locationId: string | null; items: BeautyEmployeeRow[] }>('/beauty/employees'),
+  createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
+  updateEmployee: (id: string, body: unknown) =>
+    sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
+  setEmployeeServices: (id: string, serviceIds: string[]) =>
+    sendJson<BeautyEmployeeRow>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/services`,
+      { serviceIds },
+    ),
+  schedule: (employee?: string) =>
+    getJson<BeautySchedule>(
+      employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
+    ),
+  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[]) =>
+    sendJson<{ week: BeautyWeekDay[] }>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/working-hours`,
+      { intervals },
+    ),
+  addTimeOff: (id: string, body: unknown) =>
+    sendJson<{ timeOffs: BeautyTimeOff[]; affected: number }>(
+      'POST',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs`,
+      body,
+    ),
+  removeTimeOff: (id: string, timeOffId: string) =>
+    sendJson<{ timeOffs: BeautyTimeOff[] }>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs/${encodeURIComponent(timeOffId)}`,
+      undefined,
+    ),
+  setEmployeeLocations: (id: string, locationIds: string[]) =>
+    sendJson<BeautySchedule>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/locations`,
+      { locationIds },
+    ),
+  day: (date?: string) =>
+    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+  createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
+  moveAppointment: (id: string, body: unknown) =>
+    sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
+  setAppointmentStatus: (id: string, status: string) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
+};
+
+// ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
+export type MarketSource = 'MANUAL' | 'AI_AGENT';
+export interface MarketCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface MarketCell {
+  date: string;
+  /** Загрузка в базисных пунктах (85,5 % = 8 550); null — нет данных */
+  bp: number | null;
+  deltaBp: number | null;
+  source: MarketSource | null;
+}
+export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
+export interface MarketInsight {
+  kind: MarketInsightKind;
+  from: string;
+  to: string;
+  nights: number;
+  marketBp: number | null;
+  ownBp: number | null;
+  competitors?: string[];
+}
+export interface MarketView {
+  today: string;
+  from: string;
+  days: number;
+  board: {
+    dates: string[];
+    asOf: string;
+    compareDays: number;
+    own: Array<{ date: string; bp: number | null }>;
+    competitors: Array<{
+      id: string;
+      name: string;
+      distanceM: number | null;
+      unitsTotal: number | null;
+      url: string | null;
+      cells: MarketCell[];
+      sources: MarketSource[];
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; bp: number | null; count: number }>;
+    gap: Array<{ date: string; bp: number | null }>;
+    summary: {
+      marketBp: number | null;
+      ownBp: number | null;
+      gapBp: number | null;
+      highDemandNights: number;
+      competitors: number;
+      competitorsWithData: number;
+    };
+    insights: MarketInsight[];
+  };
+  competitors: MarketCompetitor[];
+}
+export interface MarketNightHistory {
+  stayDate: string;
+  competitors: Array<{ id: string; name: string; distanceM: number | null }>;
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  pickupBp: number | null;
+}
+export const marketApi = {
+  night: (date: string) =>
+    getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
+  occupancy: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
+  },
+  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+  updateCompetitor: (id: string, body: unknown) =>
+    sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
+  writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/occupancy`,
+      { entries },
+    ),
 };

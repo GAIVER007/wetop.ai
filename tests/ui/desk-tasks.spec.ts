@@ -1,13 +1,13 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * «Задачи» стойки (DATA_MODEL §22, ADR-143): создать, закрыть и открыть снова, раскладка по срокам, счётчик
+ * «Задачи» стойки (DATA_MODEL §22, ADR-145): создать, закрыть и открыть снова, раскладка по срокам, счётчик
  * «Задачи» в панели «Сегодня» календаря, «только чтение», доступность. Подставной API разбирает ввод тем же
  * доменом, что настоящий. Задачи вымышленные (ADR-010).
  */
-const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const H = { 'x-wetop-test-client': '1' };
 const SHOTS = 'reports/desk-tasks-2026-10-04';
 

@@ -17,7 +17,7 @@ const WEB = 'http://127.0.0.1:3102';
 
 export default defineConfig({
   ...base,
-  testMatch: 'unified-auth.spec.ts',
+  testMatch: ['unified-auth.spec.ts', 'login-landing.spec.ts'],
   testIgnore: undefined as unknown as string,
   snapshotPathTemplate: undefined as unknown as string,
   use: { ...base.use, baseURL: WEB },

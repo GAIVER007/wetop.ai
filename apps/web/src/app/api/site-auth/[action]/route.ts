@@ -1,6 +1,6 @@
 import { ApiError } from '../../../../lib/api-error';
 import { authApi } from '../../../../lib/api';
-import { safeReturnPath } from '../../../../lib/auth-entry';
+import { landingPath } from '../../../../lib/auth-entry';
 import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
 
@@ -46,7 +46,8 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
       const result = await authApi.login({ email, password }, info);
       return {
-        body: { next: safeReturnPath(field(body, 'next')) },
+        // Явный next (окно получило его из адреса) уважается как просили; без него решает роль (ADR-147)
+        body: { next: landingPath(field(body, 'next'), result.user?.role) },
         session: { token: result.token, expiresAt: result.expiresAt },
       };
     },

@@ -28,6 +28,23 @@ it('успешный вход возвращает разрешённый next, 
   expect(await response.json()).toEqual({ next: '/journal?page=2' });
   expect(response.headers.get('set-cookie')).toContain('HttpOnly');
 });
+/** Без явного next решает роль вошедшего (ADR-147): владельца на Главную, управляющего и администратора на Календарь */
+it.each([
+  ['OWNER', '/today'],
+  ['MANAGER', '/chessboard'],
+  ['STAFF', '/chessboard'],
+] as const)('вход без next и ролью %s отдаёт %s', async (role, expected) => {
+  vi.spyOn(authApi, 'login').mockResolvedValue({
+    token: 'synthetic-session',
+    expiresAt: '2030-01-01T00:00:00Z',
+    user: { id: 'synthetic-user', email: 'user@example.invalid', role },
+  } as never);
+  const response = await POST(
+    request('login', { email: 'user@example.invalid', password: 'synthetic-pass', next: null }),
+    context('login'),
+  );
+  expect(await response.json()).toEqual({ next: expected });
+});
 it('браузер может подтвердить сохранение сессии без получения ключа', async () => {
   vi.spyOn(authApi, 'me').mockResolvedValue({ user: { id: 'synthetic-user' } } as never);
   const response = await GET(request('session'), context('session'));

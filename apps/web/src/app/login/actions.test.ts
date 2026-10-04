@@ -27,6 +27,24 @@ it('резервная форма возвращает на исходную с�
   expect(redirect).toHaveBeenLastCalledWith('/journal?page=2');
 });
 
+/** Без явного next решает роль вошедшего (ADR-146): владельца на Главную, остальных на Календарь */
+it.each([
+  ['OWNER', '/today'],
+  ['MANAGER', '/chessboard'],
+  ['STAFF', '/chessboard'],
+] as const)('без next и ролью %s уходит на %s', async (role, expected) => {
+  vi.spyOn(authApi, 'login').mockResolvedValue({
+    token: 'synthetic',
+    expiresAt: '2030-01-01T00:00:00Z',
+    user: { id: 'u-1', email: 'synthetic@example.invalid', role },
+  } as never);
+  const form = new FormData();
+  form.set('email', 'synthetic@example.invalid');
+  form.set('password', 'synthetic-password');
+  await signIn({ error: null }, form);
+  expect(redirect).toHaveBeenLastCalledWith(expected);
+});
+
 it('выход возвращает к единой форме на главной', async () => {
   vi.spyOn(authApi, 'logout').mockResolvedValue(undefined as never);
   await signOut();

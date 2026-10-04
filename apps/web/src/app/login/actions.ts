@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
 import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
-import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
+import { landingPath, publicAuthUrl } from '../../lib/auth-entry';
 
 /**
  * Серверные действия экрана входа. Два входа живут рядом, пока владелец не выбрал (Q-146):
@@ -24,14 +24,17 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
   const password = String(form.get('password') ?? '');
   if (!email || !password) return { error: 'Введите почту и пароль' };
 
+  let role: string | undefined;
   try {
     const result = await authApi.login({ email, password }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    role = result.user?.role;
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  redirect(safeReturnPath(form.get('next')));
+  // Явный next из формы уважается как просили; без него решает роль (владелец на Главную, остальные на Календарь, ADR-146)
+  redirect(landingPath(form.get('next'), role));
 }
 
 /** «Выйти»: сессия отзывается в базе (ключ мёртв, даже если его скопировали), cookie удаляется. Access — отдельный замок. */

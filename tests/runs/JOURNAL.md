@@ -5618,3 +5618,4 @@
 | 04.10.2026 11:20 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec empty-base unified-sections loading-performance) | ✅ 49 из 49 | 5 мин 12 с | 57a4d4c +2 | [лог](logs/2026-10-04T06-20-30Z-e2e-0913.log) | green: заголовки экранов ожидания «Подключений» |
 | 04.10.2026 11:25 | typecheck | ✅ без ошибок | 29 с | 0dcc46b | [лог](logs/2026-10-04T06-25-56Z-typecheck-2145.log) |  |
 | 04.10.2026 11:26 | lint | ✅ без ошибок | 12 с | 0dcc46b | [лог](logs/2026-10-04T06-26-26Z-lint-be4d.log) |  |
+| 04.10.2026 12:08 | unit (частично: tests/unit/design-slop.test.ts tests/unit/no-vendor-name.test.ts tests/unit/no-hardcoded-utc5.test.ts apps/web) | ✅ 579 из 579 | 1 мин 12 с | dc8e374 | [лог](logs/2026-10-04T07-08-28Z-unit-9ef6.log) | сторожа стойки после правки экранов ожидания |

@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 03.10.2026 16:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит ca50029 (claude/mobile-rest-screens)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 265ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 76 tests using 1 worker
+
+  ✓   1 tests/ui/channels-compact.spec.ts:7:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (7.4s)
+  ✓   2 tests/ui/channels-compact.spec.ts:28:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (1.9s)
+  ✓   3 tests/ui/channels-compact.spec.ts:49:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.8s)
+  ✓   4 tests/ui/channels-compact.spec.ts:57:1 › sync never calls an empty disconnected queue successful (2.2s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (2.2s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (2.8s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (3.2s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (6.3s)
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (4.1s)
+  ✓  10 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (8.4s)
+  ✓  11 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (10.5s)
+  ✓  12 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (1.6m)
+  ✘  13 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (2.1m)
+  ✓  14 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (21.6s)
+  ✓  15 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (7.5s)
+  ✓  16 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (3.8s)
+  ✓  17 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (12.2s)
+  ✓  18 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (17.4s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (6.9s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (27.4s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (18.4s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (14.9s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (25.0s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (31.4s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (41.2s)
+  ✘  26 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (2.7m)
+  ✘  27 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (2.9m)
+  ✓  28 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (14.2s)
+  ✘  29 tests/ui/dashboard-design.spec.ts:21:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (37.0s)
+  ✘  30 tests/ui/dashboard-design.spec.ts:58:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (48.2s)
+  ✘  31 tests/ui/dashboard-design.spec.ts:96:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (52.9s)
+  ✘  32 tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (55.0s)
+  ✘  33 tests/ui/finance-f1.spec.ts:53:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (57.4s)
+  ✘  34 tests/ui/finance-f1.spec.ts:106:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (50.9s)
+  ✘  35 tests/ui/finance-f1.spec.ts:156:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.5m)
+  ✘  36 tests/ui/finance-f1.spec.ts:187:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (58.3s)
+  ✘  37 tests/ui/finance-f1.spec.ts:229:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (1.1m)
+  ✓  38 tests/ui/finance-f1.spec.ts:245:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (5.6s)
+  ✓  39 tests/ui/finance-f1.spec.ts:265:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (4.2s)
+  ✓  40 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, light (12.5s)
+  ✓  41 tests/ui/finance-f1.spec.ts:285:3 › F1, стоп-гейт: снимки для владельца, dark (10.7s)
+  ✓  42 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (31.4s)
+  ✓  43 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (10.0s)
+  ✘  44 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (37.9s)
+
+# код выхода —, сигнал SIGTERM · 33 мин 14 с

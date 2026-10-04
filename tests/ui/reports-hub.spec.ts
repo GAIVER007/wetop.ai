@@ -95,9 +95,7 @@ test('хаб: заголовок, период месяцем, группы и �
   expect(digits(await value('report-overview').innerText())).toBe(
     String(dash.current.bookings.total),
   );
-  await expect(value('report-day')).toHaveText(
-    `${day.counts.arrivals} / ${day.counts.departures}`,
-  );
+  await expect(value('report-day')).toHaveText(`${day.counts.arrivals} / ${day.counts.departures}`);
   expect(digits(await value('report-inhouse').innerText())).toBe(String(day.counts.inHouse));
   // долг есть — карточка предупреждает тоном, а не только числом
   if (BigInt(debts.balanceMinor) > 0n)
@@ -225,7 +223,11 @@ for (const theme of ['light', 'dark'] as const) {
     expect(scan.violations.map((v) => v.id)).toEqual([]);
     await page.mouse.move(0, 0);
     mkdirSync(report, { recursive: true });
-    await page.screenshot({ path: `${report}/${theme}-1440.png`, caret: 'initial', fullPage: true });
+    await page.screenshot({
+      path: `${report}/${theme}-1440.png`,
+      caret: 'initial',
+      fullPage: true,
+    });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.screenshot({ path: `${report}/${theme}-390.png`, caret: 'initial', fullPage: true });
   });

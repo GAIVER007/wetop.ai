@@ -108,10 +108,7 @@ test('тип фонда режет строки; период из адреса 
   );
   // один день — та же вкладка со стрелками дня
   await page.goto(`/management/analytics/units?date=${today}`);
-  await expect(main.getByRole('link', { name: 'Сегодня' })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(main.getByRole('link', { name: 'Сегодня' })).toHaveAttribute('aria-current', 'page');
   await expect(main.getByTestId('pa-day-next')).toBeVisible();
   await expect(main.getByTestId('pa-units-meta')).toContainText('Занятость на');
 });
@@ -148,7 +145,11 @@ for (const theme of ['light', 'dark'] as const) {
     expect(scan.violations.map((v) => v.id)).toEqual([]);
     await page.mouse.move(0, 0);
     mkdirSync(report, { recursive: true });
-    await page.screenshot({ path: `${report}/${theme}-1440.png`, caret: 'initial', fullPage: true });
+    await page.screenshot({
+      path: `${report}/${theme}-1440.png`,
+      caret: 'initial',
+      fullPage: true,
+    });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.screenshot({ path: `${report}/${theme}-390.png`, caret: 'initial', fullPage: true });
   });

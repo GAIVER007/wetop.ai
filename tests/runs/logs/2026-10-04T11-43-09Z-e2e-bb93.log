@@ -1,0 +1,1366 @@
+# Сквозные (e2e) · 04.10.2026 16:43 Алматы · vm
+# коммит a3c969a (claude/intelligent-maxwell-mhyoxn)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/booking-group-guests.spec.ts' 'tests/ui/rate-plans.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 110 tests using 2 workers
+
+  ✓    1 tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей (3.1s)
+  ✓    3 tests/ui/booking-group-guests.spec.ts:46:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки (2.3s)
+  ✓    4 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (3.4s)
+  ✓    5 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (4.1s)
+  ✓    6 tests/ui/rate-plans.spec.ts:87:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (2.6s)
+  ✓    7 tests/ui/rate-plans.spec.ts:105:1 › «только чтение»: тарифы и правила видны, править нельзя (2.1s)
+  ✓    8 tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони (7.2s)
+  ✓    9 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: light (7.7s)
+  ✓   10 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: dark (7.8s)
+  ✓   11 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.9s)
+  ✓   12 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.2s)
+  ✘    2 tests/ui/fund-workspace.spec.ts:5:1 › category creation, rename, room creation and reload (45.3s)
+  ✓   13 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (2.0s)
+  ✘   14 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (2.9s)
+  ✘   16 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (3.1s)
+  ✘   17 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.1s)
+  ✓   15 tests/ui/fund-workspace.spec.ts:51:1 › availability preserves exact unit and dates; responsive category design (12.1s)
+  ✓   19 tests/ui/fund-workspace.spec.ts:92:1 › guests filter categories by capacity; toggle shows all; tab renamed (2.5s)
+  ✘   18 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.6s)
+  ✓   20 tests/ui/fund-workspace.spec.ts:131:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.9s)
+  ✓   21 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (2.2s)
+  ✘   23 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (2.3s)
+  ✓   22 tests/ui/fund-workspace.spec.ts:152:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (7.8s)
+  ✘   24 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.4s)
+  ✓   25 tests/ui/fund-workspace.spec.ts:231:1 › AV4: a category without places stays on screen with the nearest availability (2.8s)
+  ✘   26 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (4.3s)
+  ✘   28 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (2.4s)
+  ✓   27 tests/ui/fund-workspace.spec.ts:276:1 › dark categories and availability; invalid dates and empty onboarding (8.9s)
+  ✘   29 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (3.7s)
+  ✘   31 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.6s)
+  ✘   32 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (3.4s)
+  ✘   33 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (2.6s)
+  ✘   34 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.2s)
+  ✘   35 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (2.6s)
+  ✘   36 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (2.5s)
+  ✘   37 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (2.2s)
+  ✘   38 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (2.3s)
+  ✘   39 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (2.6s)
+  ✘   40 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.6s)
+  ✘   41 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.3s)
+  ✘   42 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.8s)
+  ✘   43 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (3.6s)
+  ✘   44 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (2.2s)
+  ✘   45 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (3.0s)
+  ✓   30 tests/ui/workspace.spec.ts:25:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (1.1m)
+  ✘   46 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (2.6s)
+  ✘   48 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (2.2s)
+  ✓   47 tests/ui/workspace.spec.ts:119:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (7.4s)
+  ✘   50 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (2.9s)
+  ✓   49 tests/ui/workspace.spec.ts:167:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (4.7s)
+  ✘   52 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.5s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓   51 tests/ui/workspace.spec.ts:191:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (5.6s)
+  ✓   53 tests/ui/workspace.spec.ts:216:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (6.2s)
+  ✓   54 tests/ui/workspace.spec.ts:245:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (7.0s)
+  ✓   55 tests/ui/workspace.spec.ts:297:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (4.3s)
+  ✓   56 tests/ui/workspace.spec.ts:330:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (3.5s)
+  ✓   57 tests/ui/workspace.spec.ts:353:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (3.8s)
+  ✓   58 tests/ui/workspace.spec.ts:388:1 › карточка: профиль гостя и заселение проходят через server actions (4.3s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   59 tests/ui/workspace.spec.ts:433:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.3s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:58:13)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   60 tests/ui/workspace.spec.ts:450:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.5s)
+  ✓   61 tests/ui/workspace.spec.ts:467:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.8s)
+  ✓   62 tests/ui/workspace.spec.ts:487:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.9s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   63 tests/ui/workspace.spec.ts:513:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.0s)
+  ✓   64 tests/ui/workspace.spec.ts:522:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.8s)
+  ✓   65 tests/ui/workspace.spec.ts:549:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.1s)
+  ✓   66 tests/ui/workspace.spec.ts:561:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.3s)
+  ✓   67 tests/ui/workspace.spec.ts:570:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.3s)
+  ✓   68 tests/ui/workspace.spec.ts:579:1 › групповая бронь: разные категории сохраняются при конфликте (2.3s)
+  ✓   69 tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (3.1s)
+  ✓   70 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (3.2s)
+  ✓   71 tests/ui/workspace.spec.ts:686:1 › ошибка буфера обмена видна, код остаётся доступен (1.9s)
+  ✓   72 tests/ui/workspace.spec.ts:704:1 › финансы: неверные даты можно исправить без падения страницы (2.5s)
+  ✓   73 tests/ui/workspace.spec.ts:715:1 › ошибка загрузки тарифов не позволяет включить виджет (1.1s)
+  ✓   74 tests/ui/workspace.spec.ts:724:1 › номера: статус уборки, блокировка и снятие сохраняются (3.2s)
+  ✓   75 tests/ui/workspace.spec.ts:754:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.6s)
+  ✓   76 tests/ui/workspace.spec.ts:781:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓   77 tests/ui/workspace.spec.ts:790:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.6s)
+  ✓   78 tests/ui/workspace.spec.ts:809:1 › неисправности: когда история обрезана, это написано (2.2s)
+  ✓   79 tests/ui/workspace.spec.ts:817:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.5s)
+  ✓   80 tests/ui/workspace.spec.ts:829:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (3.2s)
+  ✓   81 tests/ui/workspace.spec.ts:855:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.5s)
+  ✓   82 tests/ui/workspace.spec.ts:900:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (6.4s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:68:61)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   83 tests/ui/workspace.spec.ts:955:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (11.5s)
+  ✓   84 tests/ui/workspace.spec.ts:1023:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.8s)
+  ✓   85 tests/ui/workspace.spec.ts:1052:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (3.3s)
+  ✓   86 tests/ui/workspace.spec.ts:1076:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.9s)
+  ✓   87 tests/ui/workspace.spec.ts:1095:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (2.0s)
+  ✓   88 tests/ui/workspace.spec.ts:1108:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.0s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓   89 tests/ui/workspace.spec.ts:1115:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.9s)
+  ✓   90 tests/ui/workspace.spec.ts:1146:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.9s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:157:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   155 |         /* тело не JSON */
+[WebServer]   156 |       }
+[WebServer] > 157 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   158 |   }
+[WebServer]   159 |   return (await res.json()) as T;
+[WebServer]   160 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   91 tests/ui/workspace.spec.ts:1168:1 › фонд и категории открываются независимо от сбоя шахматки (4.0s)
+  ✓   92 tests/ui/workspace.spec.ts:1189:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.6s)
+  ✓   93 tests/ui/workspace.spec.ts:1205:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.3s)
+  ✓   94 tests/ui/workspace.spec.ts:1224:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.2s)
+  ✓   95 tests/ui/workspace.spec.ts:1239:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.1s)
+  ✓   96 tests/ui/workspace.spec.ts:1252:1 › счета: приём оплаты подтверждается суммой на экране (2.5s)
+  ✓   97 tests/ui/workspace.spec.ts:1269:1 › деньги за период: период длиннее года объясняется на странице (1.4s)
+  ✓   98 tests/ui/workspace.spec.ts:1288:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (2.6s)
+  ✓   99 tests/ui/workspace.spec.ts:1307:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (2.9s)
+  ✓  100 tests/ui/workspace.spec.ts:1334:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.7s)
+  ✓  101 tests/ui/workspace.spec.ts:1354:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.6s)
+  ✓  102 tests/ui/workspace.spec.ts:1370:1 › каналы: входящая бронь ведёт на карточку брони (2.3s)
+  ✓  103 tests/ui/workspace.spec.ts:1383:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (2.0s)
+  ✓  104 tests/ui/workspace.spec.ts:1402:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.2s)
+  ✓  105 tests/ui/workspace.spec.ts:1420:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  106 tests/ui/workspace.spec.ts:1458:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (3.8s)
+  ✓  107 tests/ui/workspace.spec.ts:1524:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (5.8s)
+  ✓  108 tests/ui/workspace.spec.ts:1603:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.7s)
+  ✓  109 tests/ui/workspace.spec.ts:1651:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (5.3s)
+  ✓  110 tests/ui/workspace.spec.ts:1678:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (2.0s)
+
+
+  1) tests/ui/fund-workspace.spec.ts:5:1 › category creation, rename, room creation and reload ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('fund-category-row').filter({ hasText: 'Тестовая категория изменена' }).getByRole('button', { name: 'Действия с категорией Тестовая категория изменена' })
+
+
+      33 |   await updated
+      34 |     .getByRole('button', { name: 'Действия с категорией Тестовая категория изменена' })
+    > 35 |     .click();
+         |      ^
+      36 |   await page.getByRole('menuitem', { name: 'Добавить номер', exact: true }).click();
+      37 |   await page.getByLabel('Корпус', { exact: true }).fill('Тестовый корпус');
+      38 |   await page.getByLabel('Этаж', { exact: true }).fill('1');
+        at /home/user/wetop.ai/tests/ui/fund-workspace.spec.ts:35:6
+
+    Error Context: test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь ─────────
+
+    Error: путь с данными запрошен повторно за один показ /guests: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /guests/directory?page=1&pageSize=100":1,"GET /inventory/summary":1,"GET /inventory/units":1,"GET /availability/offers?arrival=2026-09-24&departure=2026-09-27&guests=1":1,"GET /availability?arrival=2026-09-24&departure=2026-09-27":1,"GET /system/freshness":4}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-guests-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-guests-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-guests-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь ──────
+
+    Error: путь с данными запрошен повторно за один показ /inventory: {"GET /inventory/summary":1,"GET /inventory/units":2,"GET /inventory/categories":2,"GET /auth/me":2,"GET /hotel/settings":2,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /inventory/units",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /inventory/categories",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /rooms/categories: {"GET /inventory/categories":1,"GET /inventory/units":2,"GET /auth/me":2,"GET /hotel/settings":2,"GET /system/freshness":1,"GET /inventory/summary":1,"GET /availability/offers?arrival=2026-09-24&departure=2026-09-27&guests=1":1,"GET /availability?arrival=2026-09-24&departure=2026-09-27":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /inventory/units",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-rooms-categ-de857-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-rooms-categ-de857-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-rooms-categ-de857-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /rooms/availability: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /inventory/summary":2,"GET /inventory/units":2,"GET /availability/offers?arrival=2026-09-24&departure=2026-09-27&guests=3":1,"GET /availability?arrival=2026-09-24&departure=2026-09-27":1,"GET /availability/offers?arrival=2026-10-04&departure=2026-10-05&guests=1":1,"GET /availability?arrival=2026-10-04&departure=2026-10-05":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /inventory/summary",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /inventory/units",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-rooms-avail-b6a07-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-rooms-avail-b6a07-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-rooms-avail-b6a07-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /management/analytics: {"GET /hotel/settings":2,"GET /inventory/summary":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-01&departure=2026-10-04":1,"GET /system/pii-storage":1,"GET /auth/me":1,"GET /desk/dashboard?from=2026-10-01&to=2026-10-31":1,"POST /reservations/quote":1,"GET /system/freshness":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-management--f5016-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /management/analytics/occupancy: {"GET /hotel/settings":2,"GET /auth/me":1,"GET /desk/dashboard?from=2026-10-04&to=2026-10-04":1,"GET /system/freshness":3,"GET /inventory/summary":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-01&departure=2026-10-04":1,"GET /system/pii-storage":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-management--32435-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-management--32435-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-management--32435-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /management/analytics/units: {"GET /inventory/categories":1,"GET /inventory/units":1,"GET /auth/me":2,"GET /hotel/settings":2,"GET /desk/dashboard/units?from=2026-10-01&to=2026-10-31":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-management--1e0bd-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-management--1e0bd-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-management--1e0bd-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь ────────
+
+    Error: путь с данными запрошен повторно за один показ /finance: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /finance/operations?from=2026-10-01&limit=20&to=2026-10-31":1,"GET /finance/cash":1,"GET /finance/services-report?from=2026-10-01&to=2026-10-31":1,"GET /system/freshness":2,"GET /inventory/summary":1,"GET /inventory/units":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь ───────
+
+    Error: путь с данными запрошен повторно за один показ /reports: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /desk/today?date=2026-10-04":1,"GET /chessboard?from=2026-10-04&to=2026-10-04":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-01&to=2026-10-31":2,"GET /finance/report?from=2026-10-01&to=2026-10-31":1,"GET /finance/debts?from=2026-10-01&to=2026-10-31":1,"GET /desk/today":1,"GET /system/freshness":4}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /desk/dashboard?from=2026-10-01&to=2026-10-31",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-reports-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reports-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reports-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /reports/print?form=day: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /desk/today?date=2026-10-04":1,"GET /inventory/summary":1,"GET /guests/directory?page=1&pageSize=100&q=%D0%A2%D0%B5%D1%81%D1%82":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-reports-pri-a2ec3-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reports-pri-a2ec3-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reports-pri-a2ec3-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь ──────
+
+    Error: путь с данными запрошен повторно за один показ /channels: {"GET /system/freshness":4,"GET /auth/me":2,"GET /hotel/settings":2,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /channels/channex/events?limit=50&offset=0":1,"GET /inventory/summary":2,"GET /guard/reconciliation":1,"GET /hotel/channel-report?from=2026-10-01&status=ALL&to=2026-10-04":1,"GET /reservations/20260913-TESTAA":1,"GET /rate-plans":1,"GET /finance/reservations/20260913-TESTAA":1,"GET /finance/services":1,"GET /availability?arrival=2026-10-04&departure=2026-10-07":1,"GET /system/pii-storage":1,"GET /finance/reservations/20260913-TESTAA/payment-requests":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /inventory/summary",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /connections/channex: {"POST /reservations/quote":1,"GET /hotel/settings":2,"GET /auth/me":2,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /system/freshness":3,"GET /rates/options":1,"GET /channels/channex/mapping":1,"GET /channels/channex/content/names":1,"GET /rates?accommodationTypeCode=ROOM&from=2026-10-01&ratePlanCode=BASE&to=2026-10-31":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-connections-8df1f-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /channels/mapping: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /channels/channex/mapping":1,"GET /inventory/summary":1,"GET /rates/options":1,"GET /channels/channex/content/names":1,"GET /system/freshness":2,"GET /units/R01":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-ma-c9a54-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь ─
+
+    Error: путь с данными запрошен повторно за один показ /channels/sync: {"GET /auth/me":3,"GET /hotel/settings":3,"GET /channels/channex/outbox":1,"GET /channels/channex/outbox/rows?limit=50":1,"GET /channels/channex/connection":2,"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /inventory/summary":1,"GET /system/freshness":5,"GET /channels/channex/webhook/status":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    +   Array [
+    +     "GET /channels/channex/connection",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-sy-78efb-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /channels/events: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /channels/channex/events?limit=20&offset=0":2,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /channels/channex/events?limit=20&offset=0",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-ev-62b4b-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь ───────
+
+    Error: путь с данными запрошен повторно за один показ /website: {"GET /analytics/sites":3,"GET /auth/me":3,"GET /hotel/settings":3,"GET /analytics/sites/ui-site":3,"GET /system/freshness":4,"GET /rate-plans":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /analytics/sites",
+    +     3,
+    +   ],
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    +   Array [
+    +     "GET /analytics/sites/ui-site",
+    +     3,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-website-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /website/booking: {"GET /system/freshness":5,"GET /analytics/sites":2,"GET /auth/me":2,"GET /hotel/settings":2,"GET /analytics/sites/ui-site":2,"GET /rate-plans":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /analytics/sites",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /analytics/sites/ui-site",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-boo-2dad3-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /website/analytics: {"GET /analytics/sites":1,"GET /auth/me":2,"GET /hotel/settings":2,"GET /analytics/sites/ui-site/report":1,"GET /system/freshness":3,"GET /inventory/categories":1,"GET /inventory/units":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-ana-a3c9c-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /hotel-settings: {"GET /hotel/settings":3,"GET /auth/me":3,"GET /system/freshness":4}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-hotel-setti-0ec1b-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /hotel-settings/stay: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /system/freshness":4}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-hotel-setti-f23cb-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /hotel-settings/services: {"GET /hotel/settings":3,"GET /auth/me":3,"GET /hotel/services":1,"GET /system/freshness":5}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-hotel-setti-871f8-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-hotel-setti-871f8-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-hotel-setti-871f8-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь ──────────
+
+    Error: путь с данными запрошен повторно за один показ /team: {"GET /auth/me":4,"GET /hotel/settings":4,"GET /system/freshness":5,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/mapping":1,"GET /inventory/summary":1,"GET /desk/dashboard?from=2026-10-01&to=2026-10-31":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     4,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-team-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-team-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-team-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь ───
+
+    Error: путь с данными запрошен повторно за один показ /connections: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/mapping":1,"GET /inventory/summary":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-connections-a60a3-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь ─────
+
+    Error: путь с данными запрошен повторно за один показ /ai-agents: {"GET /auth/me":3,"GET /hotel/settings":3,"GET /channels/channex/connection":2,"GET /channels/channex/webhook/status":2,"GET /channels/channex/outbox":2,"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /channels/channex/events?limit=50&offset=0":1,"GET /inventory/summary":2,"GET /guard/reconciliation":1,"GET /hotel/channel-report?from=2026-10-01&status=ALL&to=2026-10-04":1,"GET /ai-seller/catalog":1,"GET /system/freshness":4,"GET /channels/channex/mapping":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     3,
+    +   ],
+    +   Array [
+    +     "GET /channels/channex/connection",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /channels/channex/webhook/status",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /channels/channex/outbox",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /inventory/summary",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-ai-agents-д-aeec1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-ai-agents-д-aeec1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-ai-agents-д-aeec1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /website/settings: {"GET /analytics/sites":1,"GET /auth/me":2,"GET /hotel/settings":2,"GET /analytics/sites/ui-site":1,"GET /desk/today?date=2026-10-04":1,"GET /chessboard?from=2026-10-04&to=2026-10-04":1,"GET /guard/status":1,"GET /desk/dashboard?from=2026-10-01&to=2026-10-31":1,"GET /system/freshness":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-website-set-855d1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь ─────
+
+    Error: путь с данными запрошен повторно за один показ /incidents: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /guard/status":1,"GET /guard/incidents?limit=100&status=open":1,"GET /guard/incidents?limit=200&status=all":1,"GET /system/freshness":3,"GET /channels/channex/connection":1,"GET /channels/channex/webhook/status":1,"GET /channels/channex/outbox":1,"GET /channels/channex/mapping":1,"GET /inventory/summary":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь ───────
+
+    Error: путь с данными запрошен повторно за один показ /journal: {"GET /auth/me":1,"GET /hotel/settings":2,"GET /audit?limit=200":1,"GET /system/freshness":2,"GET /inventory/summary":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-09&departure=2026-10-12":1,"GET /system/pii-storage":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-journal-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+
+    Error: путь с данными запрошен повторно за один показ /reservations/new?unit=M03: {"GET /channels/channex/events?limit=1&offset=0&status=FAILED":1,"GET /channels/channex/events?limit=50&offset=0":1,"GET /inventory/summary":2,"GET /guard/reconciliation":1,"GET /hotel/channel-report?from=2026-09-01&status=ALL&to=2026-09-30":1,"GET /hotel/settings":1,"GET /auth/me":1,"GET /rate-plans":1,"GET /availability?arrival=2026-10-04&departure=2026-10-05":1,"GET /system/pii-storage":1,"GET /system/freshness":3}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /inventory/summary",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-reservation-9e9b1-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29 failed
+    tests/ui/fund-workspace.spec.ts:5:1 › category creation, rename, room creation and reload ──────
+    tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь ──────────
+    tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь ───────
+    tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь ─────────
+    tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь ─────────
+    tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь ────────
+    tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь ───
+    tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь ─
+    tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь ─────────
+    tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь ─
+    tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь ──
+    tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь ────────────
+    tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь ─────
+    tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь ───────
+    tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь 
+    tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь ───────
+    tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь ─────────
+    tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь 
+  81 passed (5.9m)
+
+# код выхода 1 · 5 мин 55 с

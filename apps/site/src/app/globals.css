@@ -2537,3 +2537,38 @@ button {
   font-variant-numeric: tabular-nums;
   font-weight: 800;
 }
+
+/* Registration uses the existing site tokens; pilot access is verified by API. */
+.auth-verticals {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.auth-verticals legend {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.auth-vertical {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.auth-vertical:has(input:checked) {
+  border-color: var(--text);
+  background: var(--surface);
+}
+.auth-vertical:focus-within {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.auth-vertical small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.875rem;
+}

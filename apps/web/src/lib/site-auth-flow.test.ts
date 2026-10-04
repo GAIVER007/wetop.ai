@@ -13,6 +13,13 @@ const request = (action: string, body?: unknown) =>
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
 it('успешный вход возвращает разрешённый next, а сессию — только cookie', async () => {
+  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
+    businessId: 'synthetic-business',
+    locationId: 'synthetic-location',
+    vertical: 'HOSPITALITY',
+    businessName: 'Отель',
+    locationName: 'Филиал',
+  });
   vi.spyOn(authApi, 'login').mockResolvedValue({
     token: 'synthetic-session',
     expiresAt: '2030-01-01T00:00:00Z',
@@ -43,4 +50,46 @@ it('сбой API не выдаётся за отсутствующую сесс�
   vi.spyOn(authApi, 'me').mockRejectedValue(new ApiError(503, 'Нет связи с сервером'));
   const response = await GET(request('session'), context('session'));
   expect(response.status).toBe(503);
+});
+
+it('pilot login preserves cookie security and avoids Hospitality no-scope destination', async () => {
+  vi.spyOn(authApi, 'login').mockResolvedValue({
+    token: 'synthetic-pilot',
+    expiresAt: '2030-01-01T00:00:00Z',
+  } as never);
+  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
+    businessId: 'b',
+    locationId: 'l',
+    vertical: 'FOOD_SERVICE',
+    businessName: 'Пилот',
+    locationName: 'Филиал',
+  });
+  const response = await POST(
+    new Request('https://app.wetop.ai/api/site-auth/login', {
+      method: 'POST',
+      headers: { origin: 'https://wetop.ai', 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: 'pilot@example.invalid',
+        password: 'synthetic',
+        next: '/today',
+      }),
+    }),
+    context('login'),
+  );
+  expect(await response.json()).toEqual({ next: '/register/complete' });
+  expect(response.headers.get('set-cookie')).toContain('HttpOnly');
+});
+
+it('tampered registration vertical is rejected before forwarding', async () => {
+  const register = vi.spyOn(authApi, 'register');
+  const response = await POST(
+    new Request('https://app.wetop.ai/api/site-auth/register', {
+      method: 'POST',
+      headers: { origin: 'https://wetop.ai', 'content-type': 'application/json' },
+      body: JSON.stringify({ vertical: 'UNKNOWN', businessName: 'Тест' }),
+    }),
+    context('register'),
+  );
+  expect(response.status).toBe(400);
+  expect(register).not.toHaveBeenCalled();
 });

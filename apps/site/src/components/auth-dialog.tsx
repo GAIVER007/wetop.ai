@@ -1,6 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import {
+  BUSINESS_VERTICALS,
+  parseBusinessVertical,
+  verticalDefinition,
+  type BusinessVertical,
+} from '../../../../packages/domain/src/verticals/registry';
 import type { Dictionary } from '../i18n/types';
 import type { AuthMode } from '../lib/site';
 import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
@@ -63,6 +69,7 @@ const RESEND_PAUSE_S = 60;
  */
 export function AuthDialog({ texts, urls }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [vertical, setVertical] = useState<BusinessVertical>('HOSPITALITY');
   const [mode, setMode] = useState<AuthMode>('login');
   const [isOpen, setIsOpen] = useState(false);
   const [registration, setRegistration] = useState<Registration>('unknown');
@@ -91,6 +98,7 @@ export function AuthDialog({ texts, urls }: Props) {
     );
     const query = new URLSearchParams(window.location.search);
     setForm((f) => ({ ...f, phoneCountry: country, email: query.get('email') ?? '' }));
+    setVertical(parseBusinessVertical(query.get('vertical')) ?? 'HOSPITALITY');
     setPasswordJustSet(query.get('password') === 'set');
   }, []);
   const optionsAsked = useRef(false);
@@ -134,6 +142,12 @@ export function AuthDialog({ texts, urls }: Props) {
       const target = link.getAttribute('data-auth');
       if (target !== 'login' && target !== 'register') return;
       event.preventDefault();
+      if (target === 'register') {
+        const choice = parseBusinessVertical(
+          new URL((link as HTMLAnchorElement).href).searchParams.get('vertical'),
+        );
+        if (choice) setVertical(choice);
+      }
       open(target);
     };
     fromHash();
@@ -215,18 +229,28 @@ export function AuthDialog({ texts, urls }: Props) {
     setError({ text: message(res.data, texts.errors.network), fallback: false });
   };
 
+  const chooseVertical = (id: BusinessVertical) => {
+    setVertical(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set('vertical', id);
+    window.history.replaceState(null, '', url);
+  };
+  const registrationFallback = new URL(urls.register);
+  registrationFallback.searchParams.set('vertical', vertical);
+
   const submitRegister = async (event: FormEvent) => {
     event.preventDefault();
     const body = {
       email: form.email.trim(),
       name: form.name.trim(),
-      hotelName: form.hotelName.trim(),
+      vertical,
+      businessName: form.hotelName.trim(),
       password: form.password,
       phoneCountry: form.phoneCountry,
       phone: form.phone.trim(),
       privacyAccepted,
     };
-    if (!body.email || !body.name || !body.hotelName || !body.password || !body.phone) {
+    if (!body.email || !body.name || !body.businessName || !body.password || !body.phone) {
       return setError({ text: texts.errors.required, fallback: false });
     }
     if (!privacyAccepted) return setError({ text: texts.errors.privacy, fallback: false });
@@ -262,7 +286,9 @@ export function AuthDialog({ texts, urls }: Props) {
     <div className="auth-dialog__alert" role="alert">
       <span>{error.text}</span>
       {error.fallback ? (
-        <a href={mode === 'login' ? urls.login : urls.register}>{texts.errors.fallback}</a>
+        <a href={mode === 'login' ? urls.login : registrationFallback.toString()}>
+          {texts.errors.fallback}
+        </a>
       ) : null}
       {mode === 'login' && error.text.includes('Почта не подтверждена') && (
         <button
@@ -499,7 +525,33 @@ export function AuthDialog({ texts, urls }: Props) {
               ) : (
                 <form className="auth-form" onSubmit={submitRegister} noValidate>
                   <h2 className="auth-dialog__title">{texts.register.title}</h2>
-                  <p className="auth-dialog__lead">{texts.register.lead}</p>
+                  <p className="auth-dialog__lead">
+                    {vertical === 'HOSPITALITY' ? texts.register.lead : texts.register.pilotLead}
+                  </p>
+                  <fieldset className="auth-verticals">
+                    <legend>Чем вы управляете?</legend>
+                    {BUSINESS_VERTICALS.map((id) => (
+                      <label className="auth-vertical" key={id}>
+                        <input
+                          type="radio"
+                          name="vertical"
+                          value={id}
+                          checked={vertical === id}
+                          onChange={() => chooseVertical(id)}
+                          disabled={pending}
+                        />
+                        <span>
+                          {verticalDefinition(id).label}
+                          <small>{id === 'HOSPITALITY' ? 'Доступно' : 'Пилот'}</small>
+                        </span>
+                      </label>
+                    ))}
+                  </fieldset>
+                  {vertical !== 'HOSPITALITY' && (
+                    <p className="auth-form__hint" role="status">
+                      Подключение по приглашению
+                    </p>
+                  )}
                   <label className="auth-field">
                     <span className="auth-field__label">{texts.fields.name}</span>
                     <input
@@ -521,7 +573,7 @@ export function AuthDialog({ texts, urls }: Props) {
                     <input
                       className="auth-field__input"
                       type="text"
-                      name="hotelName"
+                      name="businessName"
                       autoComplete="organization"
                       required
                       maxLength={200}

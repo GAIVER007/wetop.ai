@@ -14,6 +14,7 @@ import type {
   DashboardPeriod,
   InviteRole,
   MembershipRole,
+  BusinessVertical,
   UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
@@ -142,8 +143,8 @@ async function sessionHeader(): Promise<Record<string, string>> {
   }
 }
 
-async function getJson<T>(path: string): Promise<T> {
-  const res = await backendFetch(path);
+async function getJson<T>(path: string, headers: Record<string, string> = {}): Promise<T> {
+  const res = await backendFetch(path, { headers });
   if (!res.ok) {
     // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
     let message = `API ${path}: HTTP ${res.status}`;
@@ -491,7 +492,18 @@ async function messageOf(res: Response): Promise<string> {
  * `login/actions.ts`, сюда он потом попадает сам, заголовком (см. sessionHeader); `/auth/me` и
  * `/auth/logout` общие — API узнаёт сессию любого входа.
  */
+export interface RegistrationContext {
+  businessId: string;
+  locationId: string;
+  vertical: BusinessVertical;
+  businessName: string;
+  locationName: string;
+}
+
 export const authApi = {
+  registrationContext: (token?: string) => getJson<RegistrationContext | null>(
+    '/auth/registration-context', token ? { authorization: `Bearer ${token}` } : {},
+  ),
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
   login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
@@ -512,7 +524,7 @@ export const authApi = {
         scope?: string | null;
         businessId?: string | null;
         locationId?: string | null;
-        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+        vertical?: BusinessVertical | null;
       } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
@@ -557,7 +569,9 @@ export const authApi = {
     body: {
       email: string;
       name: string;
-      hotelName: string;
+      hotelName?: string;
+      businessName?: string;
+      vertical?: BusinessVertical;
       password: string;
       phoneCountry: string;
       phone: string;

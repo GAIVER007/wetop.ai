@@ -1,0 +1,32 @@
+# Модульные (unit) · 04.10.2026 17:44 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-44-01Z-unit-8206.json' 'apps/api/src/auth/registration-context.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| apps/api/src/auth/registration-context.test.ts (1 test | 1 failed) 4ms
+   × first registration context is resolved only inside the signed-in organization 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/registration-context.test.ts > first registration context is resolved only inside the signed-in organization
+TypeError: auth.registrationContext is not a function
+ ❯ apps/api/src/auth/registration-context.test.ts:11:104
+      9|     location: { findFirst: async (query: unknown) => { calls.push(quer…
+     10|   } } as never, {} as never);
+     11|   const result = await (auth as unknown as { registrationContext: (org…
+       |                                                                                                        ^
+     12|   expect(calls[0]).toMatchObject({ where: { organizationId: 'own', sta…
+     13|   expect(calls[1]).toMatchObject({ where: { businessId: 'b', status: '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  16:44:03
+   Duration  990ms (transform 56%, import 43%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-44-01Z-unit-8206.json
+
+# код выхода 1 · 3 с

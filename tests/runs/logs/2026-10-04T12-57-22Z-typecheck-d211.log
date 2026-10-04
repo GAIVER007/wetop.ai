@@ -1,0 +1,19 @@
+# Типы (typecheck) · 04.10.2026 17:57 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 23
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/mv2-registration.test.ts(115,34): error TS2345: Argument of type '"race"' is not assignable to parameter of type '"HOSPITALITY" | "BEAUTY" | "FOOD_SERVICE" | undefined'.
+tests/integration/mv2-registration.test.ts(124,40): error TS2345: Argument of type '"denied"' is not assignable to parameter of type '"HOSPITALITY" | "BEAUTY" | "FOOD_SERVICE" | undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 11 с

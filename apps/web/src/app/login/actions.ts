@@ -1,4 +1,6 @@
 'use server';
+import { cookies } from 'next/headers';
+import { SCOPE_COOKIE } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
@@ -110,7 +112,9 @@ function errorText(e: unknown): string {
 export async function registerAction(input: {
   email: string;
   name: string;
-  hotelName: string;
+  hotelName?: string;
+  businessName?: string;
+  vertical?: import('@pms/domain').BusinessVertical;
   password: string;
   phoneCountry: string;
   phone: string;
@@ -133,13 +137,28 @@ export async function registerAction(input: {
  * человек назвал при регистрации, спрашивать его второй раз незачем.
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
+  let pilot: boolean;
   try {
     const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    const context = await authApi.registrationContext(result.token);
+    pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    if (context) {
+      (await cookies()).set(
+        SCOPE_COOKIE,
+        `business=${context.businessId};location=${context.locationId}`,
+        {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+        },
+      );
+    }
   } catch (e) {
     return { error: errorText(e) };
   }
-  redirect('/today');
+  redirect(pilot ? '/register/complete' : '/today');
 }
 
 export interface ResendState {

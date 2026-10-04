@@ -349,6 +349,20 @@ export default async function ReservationsPage({
             </Select>
           </FiltersToggle>
           <Button tone="secondary">Показать</Button>
+          {/* H11: тот же отбор в Excel; файл уходит из системы, поэтому без имён и контактов гостей */}
+          {!error && (result?.total ?? 0) > 0 && (
+            <a
+              href={`/reservations/export?${new URLSearchParams(
+                Object.fromEntries(Object.entries(apiQuery(f)).filter(([k]) => k !== 'page')),
+              )}`}
+              className="btn btn--secondary btn--sm reservations-export"
+              data-testid="reservations-export"
+              download
+            >
+              <Icon name="down" />
+              Скачать CSV
+            </a>
+          )}
         </form>
       </section>
       {error && (

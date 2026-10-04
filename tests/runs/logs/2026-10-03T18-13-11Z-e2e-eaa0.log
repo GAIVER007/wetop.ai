@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 03.10.2026 23:13 Алматы · vm
+# коммит aab4342 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.booking-widget.config.ts'
+
+Running 9 tests using 2 workers
+
+  ✓  1 tests/ui/booking-widget-langs.spec.ts:78:1 › по умолчанию русский; выбранный язык отмечен (526ms)
+  ✓  3 tests/ui/booking-widget-langs.spec.ts:86:1 › data-lang="en": английский с первого показа (290ms)
+  ✓  2 tests/ui/booking-widget-turnstile.spec.ts:122:1 › с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book (733ms)
+  ✓  5 tests/ui/booking-widget-turnstile.spec.ts:149:1 › токен одноразовый: после отказа проверка сбрасывается, кнопка ждёт нового токена (540ms)
+  ✓  4 tests/ui/booking-widget-langs.spec.ts:94:1 › гость переключает язык: даты и гости остаются, бронь уходит с языком, ответ на языке гостя (625ms)
+  ✓  6 tests/ui/booking-widget-turnstile.spec.ts:177:1 › токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки (322ms)
+  ✓  7 tests/ui/booking-widget-langs.spec.ts:119:1 › казахский: подписи формы и подсказка о письме подтверждения (332ms)
+  ✓  8 tests/ui/booking-widget-turnstile.spec.ts:191:1 › без публичного ключа форма как раньше: кнопка доступна, Cloudflare не грузится, токена в запросе нет (375ms)
+  ✓  9 tests/ui/booking-widget-turnstile.spec.ts:206:1 › скрипт Cloudflare не загрузился (блокировщик, сеть): гость видит понятный текст, брони не отправить (271ms)
+
+  9 passed (3.8s)
+
+# код выхода 0 · 5 с

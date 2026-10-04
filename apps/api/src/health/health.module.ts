@@ -1,17 +1,14 @@
 import 'reflect-metadata';
-import {
-  Controller,
-  Get,
-  Header,
-  HttpCode,
-  Inject,
-  Injectable,
-  Module,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Header, HttpCode, Inject, Injectable, Module, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { publicStatus, type PublicStatus } from '@pms/domain';
 import { Public } from '../auth/public.decorator';
 import { PrismaService } from '../database/prisma.provider';
+import {
+  INCIDENTS_REPOSITORY,
+  PrismaIncidentsRepository,
+  type IncidentsRepository,
+} from '../guard/incidents.repository';
 
 /**
  * Проверка живости для healthcheck Docker на сервере, `ari.sh` и `status.sh` на Mac (plans/server-kz-2026-09-17.md
@@ -82,8 +79,42 @@ class HealthController {
   }
 }
 
+/**
+ * Публичный статус сервиса (H14, ADR-144) для страницы `app.wetop.ai/status`: четыре части словами, без видов
+ * неисправностей, текстов и чисел сторожа (`publicStatus` в домене). Без входа: статус смотрят, когда войти не выходит.
+ * Сбой чтения неисправностей не роняет ответ: части без данных показываются «работает» только при живой базе.
+ */
+@Controller('status')
+class PublicStatusController {
+  constructor(
+    @Inject(HealthService) private readonly health: HealthService,
+    @Inject(INCIDENTS_REPOSITORY) private readonly incidents: IncidentsRepository,
+  ) {}
+
+  @Get('public')
+  @Public()
+  @Header('Cache-Control', 'no-store')
+  async status(): Promise<PublicStatus & { checkedAt: string }> {
+    const health = await this.health.check();
+    // Неисправности не прочитались: части по ним остаются «работает», а базу недоступной не объявляем, её проверяет
+    // SELECT 1 выше; сбой чтения журнала сторожа виден самому сторожу
+    const open = health.database === 'up' ? await this.incidents.open().catch(() => []) : [];
+    return {
+      checkedAt: new Date().toISOString(),
+      ...publicStatus({
+        databaseUp: health.database === 'up',
+        openKinds: open.map((i) => i.kind),
+      }),
+    };
+  }
+}
+
 @Module({
-  controllers: [HealthController],
-  providers: [PrismaService, HealthService],
+  controllers: [HealthController, PublicStatusController],
+  providers: [
+    PrismaService,
+    HealthService,
+    { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },
+  ],
 })
 export class HealthModule {}

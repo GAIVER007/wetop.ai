@@ -3,6 +3,7 @@ import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
@@ -1248,6 +1249,28 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
+let receipts = new Map<string, { number: string; issuedAt: string }>();
+// ── запросы оплаты (DATA_MODEL §24, ADR-144) ──
+let paymentRequests: Array<{
+  id: string;
+  number: string;
+  folioId: string;
+  amountMinor: string;
+  currency: string;
+  method: 'KASPI' | 'HALYK' | 'BANK_TRANSFER_PERSON' | 'CARD_TERMINAL';
+  link: string | null;
+  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentId: string | null;
+  note: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}> = [];
+const paymentRequestsOf = (number: string) => ({
+  confirmationNumber: number,
+  propertyName: 'Luxx Aparts',
+  requests: paymentRequests.filter((r) => r.number === number).reverse(),
+});
 // ── касса (DATA_MODEL §21): статьи и операции мимо счетов броней ──
 const cashCategorySeed = [
   { id: 'ui-cashcat-start', kind: 'INCOME' as const, name: 'Начальный остаток', active: true },
@@ -1726,6 +1749,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
+        receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
         refundedMinor: '0',
@@ -1738,6 +1762,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
+        receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
         refundedMinor: '0',
@@ -2790,6 +2815,17 @@ function read(path: string, q: URLSearchParams): unknown {
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
+  // X3 (ADR-144): сверка остатков у сторожа; «attention» — канал видит больше мест
+  if (path === '/guard/reconciliation') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    return {
+      lastCheckedAt: ago(300),
+      mismatch:
+        channexMode === 'attention'
+          ? { title: 'Канал видит больше мест, чем есть: ночей 2', since: ago(299), nights: 2 }
+          : null,
+    };
+  }
   if (path === '/guard/status') {
     const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
@@ -3449,6 +3485,10 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       }),
     };
+  if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+    const r = getCard(decodeURIComponent(path.split('/')[3]!));
+    return r ? paymentRequestsOf(r.confirmationNumber) : undefined;
+  }
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
     return r ? finance(r) : undefined;
@@ -3835,7 +3875,11 @@ function read(path: string, q: URLSearchParams): unknown {
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
-      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+      return {
+        ...base,
+        lastWebhookAt: ago(125),
+        lastPullAt: ago(180),
+      };
     if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
     if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
@@ -4358,6 +4402,20 @@ createServer(async (req, res) => {
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    // Публичный статус сервиса (H14, ADR-144): у стенда каналы с перебоями в режиме «attention»
+    if (path === '/status/public') {
+      const channels = channexMode === 'attention' ? 'degraded' : 'ok';
+      return send(200, {
+        checkedAt: '2026-10-03T09:00:00.000Z',
+        overall: channels,
+        components: [
+          { key: 'app', label: 'Рабочее место и вход', state: 'ok' },
+          { key: 'database', label: 'Хранение данных', state: 'ok' },
+          { key: 'channels', label: 'Обмен с каналами продаж', state: channels },
+          { key: 'booking', label: 'Бронирование с сайта', state: 'ok' },
+        ],
+      });
+    }
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -4471,6 +4529,8 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      receipts = new Map();
+      paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
       cashOps = [];
       cashRecs = [];
@@ -6871,6 +6931,83 @@ createServer(async (req, res) => {
         active: true,
       });
       return send(201, [...cashCategories]);
+    }
+    // запросы оплаты (DATA_MODEL §24): те же отказы и коды, что у API
+    if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+      const number = decodeURIComponent(path.split('/')[3]!);
+      const methodCode = String(body['method'] ?? '');
+      if (!['KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'CARD_TERMINAL'].includes(methodCode))
+        return send(400, { message: 'Способ: Kaspi, Halyk, перевод или терминал' });
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? '').replace(/\s/g, ''));
+      } catch {
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      }
+      if (amountMinor <= 0n)
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      const link = typeof body['link'] === 'string' && body['link'] ? body['link'] : null;
+      if (link && !link.startsWith('https://'))
+        return send(400, { message: 'Ссылка: адрес банка, начинается с https://, до 500 знаков' });
+      paymentRequests.push({
+        id: `00000000-0000-4000-8000-${String(paymentRequests.length + 1).padStart(12, '0')}`,
+        number,
+        folioId: String(body['folioId']),
+        amountMinor: amountMinor.toString(),
+        currency: 'KZT',
+        method: methodCode as 'KASPI',
+        link,
+        status: 'PENDING',
+        paymentId: null,
+        note: null,
+        createdAt: `${today}T10:00:00Z`,
+        closedAt: null,
+      });
+      return send(201, paymentRequestsOf(number));
+    }
+    if (/^\/finance\/payment-requests\/[^/]+\/(paid|cancel)$/.test(path)) {
+      const [, , , id, verb] = path.split('/');
+      const r = paymentRequests.find((x) => x.id === id);
+      if (!r) return send(404, { message: `Запрос оплаты ${id} не найден` });
+      if (r.status !== 'PENDING')
+        return send(409, {
+          message:
+            verb === 'cancel' && r.status === 'PAID'
+              ? 'Оплаченный запрос не отменяется: верните деньги возвратом платежа'
+              : r.status === 'PAID'
+                ? 'Запрос уже оплачен'
+                : 'Запрос уже отменён',
+        });
+      r.closedAt = `${today}T11:00:00Z`;
+      if (verb === 'cancel') {
+        r.status = 'CANCELLED';
+        return send(200, paymentRequestsOf(r.number));
+      }
+      r.status = 'PAID';
+      r.paymentId = `ui-payment-request-${r.id.slice(-4)}`;
+      paid.set(r.folioId, (paid.get(r.folioId) ?? 0n) + BigInt(r.amountMinor));
+      paymentLines.push({
+        folioId: r.folioId,
+        amountMinor: r.amountMinor,
+        method: r.method,
+        note: 'Оплата по запросу',
+        id: r.paymentId,
+      });
+      return send(200, paymentRequestsOf(r.number));
+    }
+    const receiptMatch = path.match(/^\/finance\/payments\/([^/]+)\/receipt$/);
+    if (receiptMatch) {
+      const paymentId = decodeURIComponent(receiptMatch[1]!);
+      let receiptNumber: string;
+      try {
+        receiptNumber = parseReceiptNumber(body['number']);
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      const was = receipts.get(paymentId);
+      if (was) return send(409, { message: `Чек по этому платежу уже выдан: ${was.number}` });
+      receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
+      return send(200, { paymentId, number: receiptNumber });
     }
     if (path === '/finance/payments') {
       try {

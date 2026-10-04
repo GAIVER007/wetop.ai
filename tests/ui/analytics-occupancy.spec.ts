@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -7,8 +7,7 @@ import { mkdirSync } from 'node:fs';
  * Койки», занято, свободно, заблокировано, без размещения, загрузка и сравнение категорий, «Открыть календарь»,
  * знаменатель прежний (заблокированные места — в фонде). Снимает стоп-гейт AN2.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/analytics-v2-an2-2026-09-28';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);

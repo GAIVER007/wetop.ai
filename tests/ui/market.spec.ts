@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 
 /**
  * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,
@@ -9,7 +9,7 @@ import { expect, test, devNoise, type Page } from './fixtures';
  * подсказки к цене, «убрать из списка», «только чтение». Подставной API считает тем же доменом, что API.
  * Отели вымышленные (ADR-010).
  */
-const API = process.env.UI_FIXTURE_API ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/market-competitors-2026-10-03';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 03.10.2026 23:29 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-29-51Z-integration-f667.json' 'tests/integration/payment-requests.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 352ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  18:29:52
+   Duration  2.51s (transform 53%, tests 26%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-29-51Z-integration-f667.json
+
+# код выхода 0 · 3 с

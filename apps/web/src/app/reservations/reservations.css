@@ -601,3 +601,10 @@
     padding: var(--space-2);
   }
 }
+
+/* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
+@media (max-width: 600px) {
+  .reservations-export {
+    display: none;
+  }
+}

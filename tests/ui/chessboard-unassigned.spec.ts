@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Шахматка v2» PR 6 — ящик «Брони без размещения» (ТЗ §11–12, пятый сценарий §64): две брони без
@@ -9,7 +9,7 @@ import { expect, test } from './fixtures';
  * существующая команда `assign`; в другую категорию — только после вопроса с разницей стоимости.
  * Гости вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {

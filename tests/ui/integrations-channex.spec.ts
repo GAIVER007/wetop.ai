@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Подключения → Channex» (`/connections/channex`). Срез INT2 (ADR-121, 28.09.2026) держал здесь отдельную страницу
@@ -10,7 +10,7 @@ import { expect, test, type Page } from './fixtures';
  * каждом состоянии подставного API, что ключей и сырых ответов на ней нет и что карточка на «Подключениях»
  * делает тот же вывод. Последний тест снимает экраны для владельца: обе темы, телефон.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int2-2026-09-28';
 
 type Mode = 'ok' | 'stale' | 'webhook' | 'foreign' | 'no-key';

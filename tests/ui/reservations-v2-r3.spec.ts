@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -8,8 +8,7 @@ import { mkdirSync } from 'node:fs';
  * скрыт, есть «Финансы» и «Открыть бронь»; «Оплата» на полосе теми же словами, что колонка списка.
  * Панель — одобренная карточка B3: её вкладки и полосу держит `manager-actions.spec.ts`.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/reservations-v2-r3-2026-09-28';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

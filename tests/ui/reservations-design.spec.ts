@@ -1,10 +1,10 @@
-import { expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 const report = 'reports/reservations-compact-2026-09-30';
 test.beforeEach(async ({ request }) => {
-  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('выбранный статус броней доступен с клавиатуры и объявлен текущим', async ({ page }) => {

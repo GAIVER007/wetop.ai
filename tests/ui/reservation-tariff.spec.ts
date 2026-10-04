@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Тариф при изменении брони (plans/wetop-domain-2026-09-14.md, Б1 и Б8).
  * Б1: форма смены дат отправляла первый тариф списка — бронь молча переходила на него и теряла штраф за отмену.
  * Б8: «+1 ночь» у проживания без тарифа (перенесено из Legacy) всегда получала отказ API и не давала выбрать тариф.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const number = '20260913-TESTAA';
 type Command = { method: string; path: string; body: Record<string, unknown> };
 const lastCommand = async (

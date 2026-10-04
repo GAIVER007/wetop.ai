@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -10,8 +10,7 @@ import { mkdirSync } from 'node:fs';
  * «⚠ без ячейки», групповая бронь с частичным назначением, пометки «заезд/выезд сегодня»,
  * плотность, «только чтение» после пробного срока (ADR-102).
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/reservations-v2-r1-2026-09-27';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Тарифы и цены» RT2 (28.09.2026, слово владельца «Начинай RT2», ADR-111, план §8): цена меняется на дату
@@ -7,8 +8,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
  * запросом (одна транзакция), новой логики цен нет. Витрина фикстуры: будни 10 000 ₸ за 2 гостей и
  * 8 000 ₸ за 1 гостя; 1 окт. 2026 — четверг.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

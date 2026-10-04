@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 04.10.2026 12:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6db785d (claude/laughing-roentgen-24fee8)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/channels-list.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (3.4s)
+  ✓   2 tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (4.4s)
+  ✓   3 tests/ui/booking-compact.spec.ts:64:1 › пустой филиал не позволяет создать бронь без категории (4.0s)
+  ✓   4 tests/ui/channels-list.spec.ts:24:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (7.0s)
+  ✓   5 tests/ui/channels-list.spec.ts:63:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (6.6s)
+  ✓   6 tests/ui/channels-list.spec.ts:78:1 › владелец открывает окно Channex; после «Готово» окно закрывается (4.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2019516460'
+[WebServer] }
+  ✓   7 tests/ui/channels-list.spec.ts:88:1 › владелец подтягивает будущие брони канала, который это умеет; у другого канала пункта нет (6.0s)
+  ✓   8 tests/ui/channels-list.spec.ts:101:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (6.9s)
+  ✓   9 tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны (3.7s)
+  ✓  10 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 1440px (8.2s)
+  ✓  11 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px (22.2s)
+  ✓  12 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 1440px (22.5s)
+  ✓  13 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 390px (12.6s)
+  ✓  14 tests/ui/channels-list.spec.ts:148:1 › снимок «Все доступные» и окна Channex (8.2s)
+  ✓  15 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (8.9s)
+  ✓  16 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (14.2s)
+  ✓  17 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (34.4s)
+  ✓  18 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (26.5s)
+  ✓  19 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (8.9s)
+  ✓  20 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (3.8s)
+
+  20 passed (3.8m)
+
+# код выхода 0 · 3 мин 50 с

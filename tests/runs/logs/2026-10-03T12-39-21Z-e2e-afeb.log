@@ -1,0 +1,64 @@
+# Сквозные (e2e) · 03.10.2026 17:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.ai-seller.local.config.ts' 'tests/ui/ai-seller.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (7.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2019516460'
+[WebServer] }
+  ✓   2 tests/ui/ai-seller.spec.ts:102:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (6.3s)
+  ✓   3 tests/ui/ai-seller.spec.ts:133:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (11.5s)
+  ✓   4 tests/ui/ai-seller.spec.ts:163:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (11.6s)
+  ✓   5 tests/ui/ai-seller.spec.ts:180:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (23.4s)
+  ✓   6 tests/ui/ai-seller.spec.ts:217:1 › продавец недоступен — метка, причина и обещание повтора (19.5s)
+  ✓   7 tests/ui/ai-seller.spec.ts:228:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (5.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   8 tests/ui/ai-seller.spec.ts:247:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (52.3s)
+  ✓   9 tests/ui/ai-seller.spec.ts:261:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (16.2s)
+  ✓  10 tests/ui/ai-seller.spec.ts:299:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (27.9s)
+  ✓  11 tests/ui/ai-seller.spec.ts:342:1 › карточка диалога по неизвестному id не падает, а говорит словами (9.5s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  12 tests/ui/ai-seller.spec.ts:348:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (31.8s)
+  ✓  13 tests/ui/ai-seller.spec.ts:376:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (28.8s)
+  ✓  14 tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (26.7s)
+  ✓  15 tests/ui/ai-seller.spec.ts:409:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (24.8s)
+  ✓  16 tests/ui/ai-seller.spec.ts:441:1 › снимки экранов раздела (37.4s)
+  ✓  17 tests/ui/ai-seller.spec.ts:469:1 › Все агенты возвращает в единый каталог, а не только к черновикам (21.3s)
+  ✓  18 tests/ui/ai-seller.spec.ts:478:1 › закрытое расширение: администратор видит действие для управления доступом (21.1s)
+
+  Slow test file: tests/ui/ai-seller.spec.ts (6.4m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  18 passed (6.6m)
+
+# код выхода 0 · 6 мин 37 с

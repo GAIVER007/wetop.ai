@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Компьютер: страница в один экран (поручение владельца 03.10 «максимально удобно и компактно,
@@ -13,8 +14,7 @@ import { expect, test } from '@playwright/test';
  * Что намеренно прокручивается и в этот список не входит: «Отчёты» на 1280 (хаб из пятнадцати
  * карточек), «Настройки объекта» (длинная форма), карточки записей и журнал.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const LAPTOP = { width: 1440, height: 900 };
 
 test.beforeEach(async ({ page, request }) => {

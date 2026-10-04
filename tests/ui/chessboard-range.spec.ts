@@ -1,5 +1,5 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 5 (ТЗ §31–32): создание брони выделением и щелчок по пустой клетке.
@@ -11,8 +11,7 @@ import { expect, test } from './fixtures';
  * Данные — базовые брони стенда (вымышленные, ADR-010): «Клиент Пример» (TEST1) — R02, три ночи с
  * сегодняшнего дня; R07 и R08 свободны; закрытую ночь тест ставит сам блокировкой через API стенда.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {

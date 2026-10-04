@@ -34,8 +34,21 @@ export interface QuoteRequest {
   promoCode: string | null;
 }
 
+/** Языки гостя: письмо подтверждения и виджет (ADR-144). Русский по умолчанию. */
+export const GUEST_LANGS = ['ru', 'kk', 'en', 'zh'] as const;
+export type GuestLang = (typeof GUEST_LANGS)[number];
+
+/** «EN-us» → en, «zh-CN» → zh, «kz» → kk; незнакомый язык — русский, а не отказ: бронь важнее языка письма */
+export function parseGuestLang(v: unknown): GuestLang {
+  const head = typeof v === 'string' ? v.trim().toLowerCase().split(/[-_]/)[0] : '';
+  if (head === 'kz') return 'kk';
+  return (GUEST_LANGS as readonly string[]).includes(head ?? '') ? (head as GuestLang) : 'ru';
+}
+
 export interface BookingRequest extends QuoteRequest {
   categoryCode: string;
+  /** Язык гостя (ADR-144) */
+  lang: GuestLang;
   guest: { firstName: string; lastName: string; phone: string; email: string | null };
   comment: string | null;
   visitorKey: string | null;
@@ -128,6 +141,7 @@ export function parseBookingRequest(raw: unknown, today: string): Parsed<Booking
       categoryCode,
       guest: { firstName, lastName, phone, email: emailRaw || null },
       comment: comment || null,
+      lang: parseGuestLang(b.lang),
       visitorKey: key(b.v),
       sessionKey: key(b.s),
     },

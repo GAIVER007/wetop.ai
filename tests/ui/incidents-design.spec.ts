@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { HEADER_GROWTH_PX } from './fixtures';
+import { FIXTURE_API, HEADER_GROWTH_PX } from './fixtures';
 
 /**
  * «Неисправности» без каши (поручение владельца 21.09.2026 по снимку рабочего экрана).
@@ -10,7 +10,7 @@ import { HEADER_GROWTH_PX } from './fixtures';
  * (`POST /__test/control {"incidentsMix": true}`). Проверяется не оформление, а чтение: что видно
  * без прокрутки, в каком порядке, сколько цветных плашек в строке и какими словами названо время.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

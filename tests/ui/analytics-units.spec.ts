@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * самого API фикстуры — итог обязан сходиться со строками.
  */
 // адрес подставного API настраиваем: прогон на своих портах не ждёт общий стенд 4311 (приём support-queue)
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/analytics-units-2026-10-02';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const monthFrom = `${today.slice(0, 8)}01`;

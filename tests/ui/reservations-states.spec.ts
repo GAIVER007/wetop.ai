@@ -1,12 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * B5 «Состояния в списке броней» (tasks/todo.md): отказ API не выглядит как ноль броней — заголовок,
  * фильтры и адрес с датами остаются, вместо строк экран сбоя со следующим шагом; «Повторить загрузку»
  * возвращает список с теми же условиями; пока данные идут, виден скелетон с подписью словом.
  */
-// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
-const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 
 test.afterEach(async ({ request }) => {

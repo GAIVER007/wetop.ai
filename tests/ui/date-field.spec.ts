@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Поле даты с календарём (21.09.2026, поручение владельца: «выбор даты удобнее»).
@@ -8,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
  * без отрезка «с … по», без стиля стойки. Стало: родное поле остаётся (ввод с клавиатуры, `fill()`
  * в тестах), а кнопка справа открывает наш месяц: стрелки, Enter, Escape, отрезок от парного поля.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

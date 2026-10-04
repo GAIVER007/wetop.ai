@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { piiStorage: 'pseudonymized' },
   });
 });
@@ -64,7 +64,7 @@ test('pending quote blocks submit and old responses cannot restore old period', 
   const form = page.getByTestId('new-reservation-form');
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });
   await expect(submit).toBeEnabled();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { piiStorage: 'pseudonymized', delayPath: '/reservations/quote', delayMs: 1800 },
   });
   await form.getByRole('button', { name: '2 ночи', exact: true }).click();
@@ -89,7 +89,7 @@ test('failed quote and availability can be retried without reopening', async ({
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });
   await expect(submit).toBeEnabled();
   for (const path of ['/reservations/quote', '/availability']) {
-    await request.post('http://127.0.0.1:4311/__test/control', {
+    await request.post(`${FIXTURE_API}/__test/control`, {
       data: { piiStorage: 'pseudonymized', failPath: path },
     });
     await form
@@ -101,7 +101,7 @@ test('failed quote and availability can be retried without reopening', async ({
     });
     await expect(retry).toBeVisible();
     await expect(submit).toBeDisabled();
-    await request.post('http://127.0.0.1:4311/__test/control', {
+    await request.post(`${FIXTURE_API}/__test/control`, {
       data: { piiStorage: 'pseudonymized' },
     });
     await retry.click();

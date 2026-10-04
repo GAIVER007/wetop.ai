@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * ADR-072: пока база не в Казахстане, WETOP не хранит имя, контакты, заметки и документы гостя. Формы стойки их
  * не спрашивают — режим читается у API заранее (`/system/pii-storage`), а не узнаётся отказом после ввода.
  * Фикстура по умолчанию отдаёт `real` (как в базе в РК), здесь переключается на `pseudonymized`.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 // чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
 test.beforeEach(async ({ request }) => {

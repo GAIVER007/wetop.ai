@@ -1,7 +1,7 @@
-import { test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('compact board: notebook viewport and remembered category overview', async ({ page }) => {

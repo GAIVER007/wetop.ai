@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Подключения → Channex» (`/connections/channex`). Срез INT2 (ADR-121, 28.09.2026) держал здесь отдельную страницу
@@ -10,7 +10,7 @@ import { expect, test, type Page } from './fixtures';
  * каждом состоянии подставного API, что ключей и сырых ответов на ней нет и что карточка на «Подключениях»
  * делает тот же вывод. Последний тест снимает экраны для владельца: обе темы, телефон.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int2-2026-09-28';
 
 type Mode = 'ok' | 'stale' | 'webhook' | 'foreign' | 'no-key';
@@ -141,6 +141,23 @@ test('телефон: страница без прокрутки вбок', asyn
   });
   expect(layout.content, 'экран шире телефона').toBeLessThanOrEqual(layout.viewport + 1);
 });
+
+// 03.10.2026: экраны ожидания остались с прежними названиями («Интеграции», «Менеджер каналов»), и заголовок
+// менялся на глазах, когда приходила страница
+for (const [route, loading, title] of [
+  ['/connections', 'connections-loading', 'Подключения'],
+  ['/connections/channex', 'channex-loading', 'Подключение каналов'],
+] as const)
+  test(`${route}: пока соединение проверяется, заголовок тот же, что у страницы`, async ({
+    page,
+  }) => {
+    await control(page, { delayPath: '/channels/channex/connection', delayMs: 8000 });
+    await page.goto(route, { waitUntil: 'commit' });
+    await expect(page.getByTestId(loading)).toBeVisible({ timeout: 30_000 });
+    // заголовок ищем в той же разметке, что и экран ожидания: настоящая страница его не подменит
+    const waiting = page.getByRole('main').filter({ has: page.getByTestId(loading) });
+    await expect(waiting.getByRole('heading', { level: 1 })).toHaveText(title, { timeout: 2000 });
+  });
 
 for (const theme of ['light', 'dark'] as const) {
   test(`снимки страницы настройки Channex для владельца, ${theme}`, async ({ page }) => {

@@ -1,0 +1,126 @@
+# Модульные (unit) · 04.10.2026 12:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит dc8e374 (claude/ui-stale-specs-2026-10-03)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-08-28Z-unit-9ef6.json' 'tests/unit/design-slop.test.ts' 'tests/unit/no-vendor-name.test.ts' 'tests/unit/no-hardcoded-utc5.test.ts' 'apps/web'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP--claude-worktrees-dreamy-lederberg-a39394/b22b7482-dffc-49ee-99f8-80a1f1fce68b/scratchpad/ui-wt
+
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 190ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 1099ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 766ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 2930ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 583ms
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 439ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 641ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 492ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 9ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 957ms
+   ✓ поля существующего API из форм стойки (7)
+     ✓ создаёт группу из разных категорий и сохраняет все позиции после отказа 879ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 666ms
+   ✓ handleSiteAuth — источник и форма запроса (6)
+     ✓ предварительный запрос своего сайта получает разрешение с куками 519ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 18ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 63ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 26ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 20ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 28ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 99ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 630ms
+   ✓ состояние сайта на обзоре (6)
+     ✓ заготовка с доменом-заглушкой не выглядит подключённым сайтом 355ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 231ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 89ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 26ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 16ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 1692ms
+   ✓ assistantApi.identity — подпись с сервера стойки (4)
+     ✓ отдаёт подпись и срок 1598ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (7 tests) 225ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 9ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (14 tests) 10ms
+ ✓ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests) 3829ms
+   ✓ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 2563ms
+     ✓ стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 1251ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 91ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 17ms
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 33ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 76ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (5 tests) 161ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 136ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 49ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 13ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 1206ms
+   ✓ отправляет один платёж с распределениями и сохраняет ввод при отказе API 365ms
+   ✓ сохраняет поля отдельной оплаты после отказа и сбрасывает их только после успеха 802ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 3257ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 2286ms
+   ✓ настройки не ответили в срок — пояс платформы, страница не ждёт 674ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 12ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 9ms
+ ✓ |unit| apps/web/src/next-rethrow.test.ts (3 tests) 42ms
+ ✓ |unit| apps/web/src/app/rates/range-summary.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 327ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 14ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 102ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 885ms
+   ✓ чтение тела с потолком (6)
+     ✓ тело в пределах потолка читается 468ms
+ ✓ |unit| tests/unit/no-vendor-name.test.ts (1 test) 2741ms
+   ✓ название поставщика менеджера каналов не видно пользователю (1)
+     ✓ нет слова «Channex» в текстах стойки, главной, API и бота 2621ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 495ms
+   ✓ успешный вход возвращает разрешённый next, а сессию — только cookie 471ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 212ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 152ms
+ ✓ |unit| apps/web/src/app/channels/channel-list.test.ts (3 tests) 170ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 10ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 90ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 500ms
+   ✓ отклоняет login-CSRF до вызова API 404ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 20ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 53ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 108ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 927ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 922ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 87ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (7 tests) 84ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 12ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 108ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 23ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 80ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 4ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 18ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 29ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 15ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 62ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 2ms
+
+ Test Files  82 passed (82)
+      Tests  579 passed (579)
+   Start at  00:09:00
+   Duration  39.79s (transform 64%, import 18%, tests 16%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T07-08-28Z-unit-9ef6.json
+
+# код выхода 0 · 1 мин 12 с

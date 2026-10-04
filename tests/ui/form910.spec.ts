@@ -1,11 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Доход для формы 910» (K7, ADR-144): шесть месяцев полугодия, поступило минус возвращено, итог за полугодие и
  * разбивка по способам. Вход — карточка на хабе «Отчёты».
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });

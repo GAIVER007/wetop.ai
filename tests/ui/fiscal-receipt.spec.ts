@@ -1,11 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Фискальный чек по запросу гостя (DATA_MODEL §26, ADR-144): касса объекта пробивает чек, администратор отмечает его
  * номер у платежа в «Счетах» брони. Пустой номер — отказ словами; после отметки форма уступает место номеру.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const NUMBER = '20260913-TESTAA';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

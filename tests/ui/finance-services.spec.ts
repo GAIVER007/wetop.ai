@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Отчёт по услугам (REP2, план `plans/reports-hub-2026-10-02.md` §3): вкладка «Услуги» на «Финансах» —
@@ -8,7 +8,7 @@ import { expect, test } from './fixtures';
  * (то же окно, те же правила), начисления без услуги справочника — строкой «Начислено вручную»;
  * CSV без обрезки; на хабе «Отчёты» — карточка из уже загруженной сводки.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-services-2026-10-02';
 
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);

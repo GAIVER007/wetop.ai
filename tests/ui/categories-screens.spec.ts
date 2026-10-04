@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const shots = 'reports/categories-v2-c1-2026-09-27';
 
 /**

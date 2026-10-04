@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /*
  * Главная владельца (03.10.2026, поручение владельца со снимком «Статистики» прежней PMS): сверху три
  * виджета «на сегодня», ниже деньги и аналитика за период. Кнопок смены («Новая бронь», «Работа с
  * гостями») и плитки «Расходы бизнеса» без учёта расходов на экране нет.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

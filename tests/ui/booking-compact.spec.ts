@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test('быстрые даты сохраняют гостя, заметки и позволяют создать бронь', async ({
   page,
   request,
 }) => {
   // чистый стенд: бронь соседнего спека на M03 заняла бы эти даты, и форма не дала бы создать эту
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
@@ -28,7 +28,7 @@ test('быстрые даты сохраняют гостя, заметки и �
 });
 
 test('боковое окно компактно, псевдонимная бронь и мобильный экран', async ({ page, request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { piiStorage: 'pseudonymized' },
   });
   await page.addInitScript(() => localStorage.setItem('wetop.theme', 'dark'));
@@ -58,11 +58,11 @@ test('боковое окно компактно, псевдонимная бр�
 });
 
 test.afterEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', { data: {} });
+  await request.post(`${FIXTURE_API}/__test/control`, { data: {} });
 });
 
 test('пустой филиал не позволяет создать бронь без категории', async ({ page, request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { empty: true } });
   await page.goto('/reservations/new');
   await expect(page.getByTestId('availability')).toContainText(/свободно|Не удалось/);
   await expect(page.getByRole('button', { name: 'Создать бронь', exact: true })).toBeDisabled();

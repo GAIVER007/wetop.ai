@@ -1,4 +1,4 @@
-import { expect, settleStreaming, test } from './fixtures';
+import { FIXTURE_API, expect, test, settleStreaming } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -6,7 +6,7 @@ import { mkdirSync } from 'node:fs';
  * проживающих» на `/reports/print` из одного `GET /desk/today`. Числа листа сверяются с ответом
  * самого API фикстуры; телефонов и документов на листе нет — бумага уходит из системы.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/reports-print-2026-10-03';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 

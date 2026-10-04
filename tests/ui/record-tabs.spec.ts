@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Locator, type Page } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**
@@ -11,7 +11,7 @@ import { cardTab } from '../e2e/card-tabs';
  * В точные миллисекунды тест не попадает, поэтому первый тест воспроизводит сам ингредиент: пока человек уже на
  * «Обзоре», роутер записывает старый адрес — и тут же приходит свежая разметка карточки с сервера.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const BOOKING = '20260913-TESTAA';
 
 test.beforeEach(async ({ request }) => {

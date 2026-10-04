@@ -104,10 +104,11 @@ test('главная открывается с корня; заезд на да�
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByLabel('Конец периода')).toHaveValue('2026-08-15');
   expect(await arrivals()).toBe(before + 1);
-  await expect(strip.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
-    'href',
-    `/chessboard?from=${today}&to=${today}`,
-  );
+  await expect(
+    page
+      .getByRole('article', { name: 'Загрузка на сегодня' })
+      .getByRole('link', { name: /Занято/ }),
+  ).toHaveAttribute('href', `/chessboard?from=${today}&to=${today}`);
   await page.goto('/management/analytics?date=2026-08-15');
   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
 });

@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * заезда и выезда — всегда 24 часа, ошибка у поля; каталог услуг — отбор по группе и статусу, новая услуга и правка
  * панелью, архив вместо удаления, код услуги не виден. Стенд — подставной API с тем же разбором, что у API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set2-set3-2026-09-28';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });

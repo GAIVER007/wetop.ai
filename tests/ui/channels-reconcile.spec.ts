@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Сверка с каналом» на обзоре каналов (X3, ADR-144): ежедневная сверка остатков PMS с тем, что видит канал, видна
  * владельцу. Свежая сверка — «расхождений нет»; канал видит больше мест — расхождение красным с числом ночей.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });

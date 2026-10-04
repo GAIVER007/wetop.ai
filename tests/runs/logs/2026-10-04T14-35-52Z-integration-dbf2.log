@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 04.10.2026 19:35 Алматы · MacBook-Air-Urij.local
+# коммит bc9b179 (codex/mv4-beauty-hardening-20261004), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-35-52Z-integration-dbf2.json' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/beauty-appointments.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (5 tests) 286ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 340ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 252ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 199ms
+
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  18:35:53
+   Duration  2.54s (tests 57%, import 28%, transform 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-35-52Z-integration-dbf2.json
+
+# код выхода 0 · 3 с

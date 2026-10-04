@@ -24,9 +24,10 @@ import {
   type AppointmentStatus,
 } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
-import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
+import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -55,7 +56,7 @@ export class BeautyAppointmentsService {
   /** День филиала: мастера столбцами, их рабочие часы, записи и услуги для формы */
   async day(rawDate?: string) {
     mayBeauty('desk');
-    const scope = await beautyScope(this.prisma);
+    const scope = await beautyScope(this.prisma, true);
     if (!scope.locationId || !scope.locationTimezone || !scope.locationCurrency)
       throw new ConflictException('Сначала выберите филиал');
     const locationId = scope.locationId;
@@ -173,8 +174,8 @@ export class BeautyAppointmentsService {
 
   /** Новая запись. Клиент либо выбран, либо заводится вместе с записью: своего экрана у клиентов ещё нет */
   async create(raw: unknown) {
-    mayBeauty('desk');
-    const scope = await beautyScope(this.prisma);
+    await mayBeautyWrite(this.prisma, 'desk');
+    const scope = await beautyScope(this.prisma, true);
     if (!scope.locationId) throw new ConflictException('Сначала выберите филиал');
     const parsed = parseAppointmentInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
@@ -185,12 +186,12 @@ export class BeautyAppointmentsService {
 
     const locationId = scope.locationId;
     const id = randomUUID();
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       let customerId: string;
       if (input.customer.kind === 'existing') {
         if (!UUID.test(input.customer.id)) throw new NotFoundException('Клиент не найден');
         const own = await tx.customer.findFirst({
-          where: { id: input.customer.id, organizationId: scope.organizationId },
+          where: { id: input.customer.id, organizationId: scope.organizationId, status: 'ACTIVE' },
           select: { id: true },
         });
         if (!own) throw new NotFoundException('Клиент не найден');
@@ -201,9 +202,10 @@ export class BeautyAppointmentsService {
         const known = input.customer.phone
           ? await tx.customer.findFirst({
               where: { organizationId: scope.organizationId, phone: input.customer.phone },
-              select: { id: true },
+              select: { id: true, status: true },
             })
           : null;
+        if (known && known.status !== 'ACTIVE') throw new ConflictException('Клиент в архиве');
         customerId = known?.id ?? randomUUID();
         if (!known)
           await tx.customer.create({
@@ -261,7 +263,7 @@ export class BeautyAppointmentsService {
 
   /** Перенос записи: другое время, другой мастер или другая услуга. Цена пересчитывается снимком заново */
   async move(id: string, raw: unknown) {
-    mayBeauty('desk');
+    await mayBeautyWrite(this.prisma, 'desk');
     const { scope, row } = await this.own(id);
     if (!nextStatuses(row.status as AppointmentStatus).length)
       throw new ConflictException('Запись закрыта, переносить её уже нельзя');
@@ -275,9 +277,9 @@ export class BeautyAppointmentsService {
     const plan = await this.planFor(scope, employeeId, serviceId, startsAt);
     await this.assertFree(employeeId, plan.startsAt, plan.endsAt, row.id);
 
-    await this.prisma.db.$transaction(async (tx) => {
-      await tx.appointment.update({
-        where: { id: row.id },
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const changed = await tx.appointment.updateMany({
+        where: { id: row.id, status: row.status, updatedAt: row.updatedAt },
         data: {
           employeeId,
           serviceId,
@@ -287,6 +289,7 @@ export class BeautyAppointmentsService {
           currency: plan.currency,
         },
       });
+      if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,
@@ -314,15 +317,16 @@ export class BeautyAppointmentsService {
 
   /** Состояние записи: подтвердили, выполнили, незаезд, отменили */
   async setStatus(id: string, raw: unknown) {
-    mayBeauty('desk');
+    await mayBeautyWrite(this.prisma, 'desk');
     const { scope, row } = await this.own(id);
     const body = (raw ?? {}) as Record<string, unknown>;
     const to = String(body['status'] ?? '') as AppointmentStatus;
     const change = statusChange(row.status as AppointmentStatus, to);
     if (!change.ok) throw new ConflictException(change.reason);
 
-    await this.prisma.db.$transaction(async (tx) => {
-      await tx.appointment.update({ where: { id: row.id }, data: { status: to } });
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const changed = await tx.appointment.updateMany({ where: { id: row.id, status: row.status, updatedAt: row.updatedAt }, data: { status: to } });
+      if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,
@@ -343,7 +347,7 @@ export class BeautyAppointmentsService {
   /** Запись своего филиала. Чужая и несуществующая одинаково не найдены */
   private async own(id: string) {
     if (!UUID.test(id)) throw new NotFoundException('Запись не найдена');
-    const scope = await beautyScope(this.prisma);
+    const scope = await beautyScope(this.prisma, true);
     if (!scope.locationId) throw new ConflictException('Сначала выберите филиал');
     const row = await this.prisma.db.appointment.findFirst({
       where: { id, locationId: scope.locationId },
@@ -353,6 +357,7 @@ export class BeautyAppointmentsService {
         serviceId: true,
         startsAt: true,
         status: true,
+        updatedAt: true,
         price: true,
       },
     });
@@ -386,7 +391,7 @@ export class BeautyAppointmentsService {
     });
     if (!employee) throw new NotFoundException('Мастер в этом филиале не работает');
     if (employee.status !== 'ACTIVE') throw new ConflictException('Мастер в архиве');
-    if (employee.services.length && !employee.services.some((s) => s.serviceId === serviceId))
+    if (!employee.services.some((s) => s.serviceId === serviceId))
       throw new ConflictException('Мастер эту услугу не оказывает');
 
     const service = await this.prisma.db.beautyService.findFirst({
@@ -518,6 +523,7 @@ function weekdayOf(date: string): number {
   return new Date(`${date}T00:00:00Z`).getUTCDay();
 }
 
+@RequiresBusinessCapability('beauty.appointments')
 @Access('desk')
 @Controller('beauty')
 export class BeautyAppointmentsController {

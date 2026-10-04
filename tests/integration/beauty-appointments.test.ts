@@ -41,6 +41,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
         organizationId: own.org,
         role,
         scope: 'LOCATION',
+        vertical: 'BEAUTY',
         businessId: own.business,
         locationId: own.location,
       },
@@ -49,7 +50,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
 
   async function seedOrg(o: { org: string; business: string; location: string }) {
     await db.$executeRawUnsafe(
-      `INSERT INTO "organizations" ("id", "name") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}')`,
+      `INSERT INTO "organizations" ("id", "name", "status") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}', 'ACTIVE')`,
     );
     await db.$executeRawUnsafe(
       `INSERT INTO "businesses" ("id", "organization_id", "name", "vertical", "updated_at")
@@ -111,6 +112,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
       catalog.createService({ name: 'Маникюр', durationMinutes: 60, priceMinor: '800000', currency: 'KZT' }),
     );
     serviceId = svc.id;
+    await as('OWNER', () => catalog.setEmployeeServices(employeeId, { serviceIds: [serviceId] }));
     await as('OWNER', () => catalog.setLocationService(serviceId, { enabled: true }));
     // понедельник с 09:00 до 18:00
     await as('OWNER', () =>

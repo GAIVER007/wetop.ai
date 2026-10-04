@@ -5564,3 +5564,16 @@ MV3 уточнение: владелец подтвердил серверную
 Решение: третий вариант. PrismaChessboardRepository применяет soldDeparture с фактическими концами назначений; незавершённые брони без назначения сохраняют удержание. Статус подключения добавляет вычисляемый mappedLocalRatePlans по уникальным localRatePlanId с providerRatePlanId; mappedRatePlans сохраняет значение числа внешних сопоставлений для совместимости. Экраны подписывают каждую единицу отдельно.
 Причина: одинаковые входные правила для quote, продажи, каналов и агрегатов, без изменения финансов и истории.
 Последствия: новые счётчики требуют одновременной выкладки API и web. Схема и миграции не меняются. Наличие сопоставлений не означает рабочую доставку OTA.
+## ADR-MV4: Acceptance of existing Beauty backend (2026-10-04)
+
+Problem: existing Beauty services predate canonical vertical capabilities and infer the first salon/branch.
+Options: rebuild domain; retain implicit context; harden existing domain with explicit verified context.
+Decision approved by owner: harden existing tables and API, no schema duplication or status renaming.
+Business.vertical remains source of truth. Beauty requests require explicit active owned Business;
+location operations require explicit active owned Location. Empty EmployeeService permits no appointment.
+CustomerBusiness governs customer listing; first appointment creates its association atomically.
+Existing organization permissions remain; canonical Beauty capabilities are added. READ_ONLY is checked
+inside writes. Appointment transitions reject stale concurrent state. Existing GiST exclusion remains
+cross-location overlap authority. A minimal CustomerBusiness-filtered list exposes beauty.customers.
+Consequences: legacy no-scope Beauty requests must select context; Hospitality compatibility unchanged.
+No UI, production deployment or migration in MV4. MV5 requires separate approval.

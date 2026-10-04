@@ -121,6 +121,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /finance/report': 'reports',
   'GET /finance/services-report': 'reports',
   'GET /desk/dashboard/units': 'reports',
+  'GET /desk/dashboard/channels': 'reports',
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
@@ -132,6 +133,13 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/transfers': 'desk',
   'POST /finance/cash/reconciliations': 'desk',
   'POST /finance/cash/operations/:id/void': 'refunds',
+
+  // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /market/occupancy': 'reports',
+  'GET /market/night': 'reports',
+  'POST /market/competitors': 'rates',
+  'PATCH /market/competitors/:id': 'rates',
+  'PUT /market/competitors/:id/occupancy': 'rates',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -171,6 +179,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /channels/channex/outbox/messages': 'channels',
   'POST /channels/channex/outbox/flush': 'channels',
   'GET /channels/channex/connection': 'channels',
+  'GET /channels/channex/channels': 'channels',
+  'POST /channels/channex/channels/connect-session': 'owner',
+  'POST /channels/channex/channels/:id/load-future-reservations': 'owner',
   'GET /channels/channex/content': 'channels',
   'GET /channels/channex/content/names': 'channels',
   'GET /hotel/channel-report': 'channels',

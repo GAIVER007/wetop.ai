@@ -284,6 +284,16 @@
   .owner-toolbar input {
     width: 120px;
   }
+  /* цели на телефоне не меньше 44 px (DESIGN.md: кнопки, поля и навигация): готовые отрезки, даты, «Показать» */
+  .owner-toolbar nav a,
+  .owner-toolbar input,
+  .owner-toolbar .btn {
+    min-height: var(--touch-target);
+  }
+  .owner-toolbar nav a {
+    display: inline-flex;
+    align-items: center;
+  }
   .owner-charts .bars {
     height: 100px;
   }

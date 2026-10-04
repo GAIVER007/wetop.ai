@@ -10,6 +10,8 @@ import { expect, test } from '@playwright/test';
 const BLOCKS = [
   { id: 'audience', title: /Отели, хостелы и апартаменты/ },
   { id: 'features', title: /Что умеет WETOP/ },
+  // фишка №1 (ADR-142): сразу за возможностями
+  { id: 'market', title: /Загрузка конкурентов/ },
   { id: 'sales', title: /Откуда приходят брони/ },
   { id: 'ai-sellers', title: /ИИ-продавец/ },
   { id: 'team', title: /Команда и доступ/ },
@@ -249,4 +251,17 @@ test('FAQ раскрывается без JavaScript-вкладок, перек�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.getByText('Можно продавать номера и отдельные койки?', { exact: true }).click();
   await expect(page.locator('#faq details[open]')).toContainText('отдельные единицы');
+});
+
+test('«Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const block = page.locator('#market');
+  await expect(block.locator('.seller-details__steps > li')).toHaveCount(4);
+  await expect(block.getByRole('complementary')).toContainText('Пример');
+  await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute('href', /\/market$/);
+  await expect(block).toContainText(/готовим/);
+  const axe = await new AxeBuilder({ page }).include('#market').analyze();
+  expect(axe.violations).toEqual([]);
 });

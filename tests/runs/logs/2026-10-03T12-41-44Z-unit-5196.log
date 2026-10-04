@@ -1,0 +1,22 @@
+# Модульные (unit) · 03.10.2026 17:41 Алматы · vm
+# коммит 1c6ae3e (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-41-44Z-unit-5196.json' 'apps/api/src/channels/inbound.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 8782  - 10/03/2026, 12:41:47 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 316ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  12:41:45
+   Duration  2.26s (transform 62%, import 23%, tests 15%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-41-44Z-unit-5196.json
+
+# код выхода 0 · 3 с

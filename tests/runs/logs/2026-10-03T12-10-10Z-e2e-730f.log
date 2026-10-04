@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 03.10.2026 17:10 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/channels-list.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/channels-list.spec.ts:14:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (3.3s)
+  ✘   2 tests/ui/channels-list.spec.ts:33:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (16.9s)
+  -   3 tests/ui/channels-list.spec.ts:43:1 › владелец открывает окно Channex; после «Готово» окно закрывается
+  -   4 tests/ui/channels-list.spec.ts:52:1 › администратор видит каналы, но не подключает
+  -   5 tests/ui/channels-list.spec.ts:61:1 › Channex не ответил: причина словами, брони мимо подключений видны
+  -   6 tests/ui/channels-list.spec.ts:71:5 › доступность и снимок: light, 1440px
+  -   7 tests/ui/channels-list.spec.ts:71:5 › доступность и снимок: light, 390px
+  -   8 tests/ui/channels-list.spec.ts:71:5 › доступность и снимок: dark, 1440px
+  -   9 tests/ui/channels-list.spec.ts:71:5 › доступность и снимок: dark, 390px
+  -  10 tests/ui/channels-list.spec.ts:86:1 › снимок «Все доступные» и окна Channex
+
+
+  1) tests/ui/channels-list.spec.ts:33:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('channel-adapter-row').filter({ hasText: 'Airbnb' }).getByTestId('channel-adapter-connect')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('channel-adapter-row').filter({ hasText: 'Airbnb' }).getByTestId('channel-adapter-connect') with timeout 15000ms
+      - waiting for getByTestId('channel-adapter-row').filter({ hasText: 'Airbnb' }).getByTestId('channel-adapter-connect')
+
+
+      38 |   await expect(rows).toHaveCount(7);
+      39 |   await expect(rows.filter({ hasText: 'Booking.com' })).toContainText('Подключён');
+    > 40 |   await expect(rows.filter({ hasText: 'Airbnb' }).getByTestId('channel-adapter-connect')).toBeVisible();
+         |                                                                                           ^
+      41 | });
+      42 |
+      43 | test('владелец открывает окно Channex; после «Готово» окно закрывается', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/channels-list.spec.ts:40:91
+
+    Error Context: test-results/channels-list-поиск-сужает-464a6-nex-с-отметкой-подключённых/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-list-поиск-сужает-464a6-nex-с-отметкой-подключённых/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-list-поиск-сужает-464a6-nex-с-отметкой-подключённых/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channels-list.spec.ts:33:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых 
+  8 did not run
+  1 passed (31.1s)
+
+# код выхода 1 · 32 с

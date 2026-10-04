@@ -1,0 +1,55 @@
+# Эталонные снимки дизайн-системы для Linux (`design/reference/kit/*-linux.png`) снимает только раннер GitHub
+# (дополнение к ADR-139, 03.10.2026). Проверку `design-system.spec.ts` в release-checks гоняет тот же раннер: та же
+# сборка Chromium и те же шрифты. Облачная сессия или свой сервер рисуют текст иначе, и снятые там эталоны расходятся
+# с раннером (эталоны от 29.09 разошлись с ним на всю ширину секции после верхнего меню ADR-134).
+# Запуск: Actions → ui-snapshots → Run workflow на нужной ветке. Новые эталоны приходят отдельной веткой
+# `ci/ui-snapshots-<номер запуска>`, её вливают в main обычным порядком. В main и release этот файл не пишет.
+name: ui-snapshots
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ui-snapshots-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  kit:
+    name: эталоны дизайн-системы (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      # только для ветки с новыми эталонами (шаг ниже); проверки запускает release-checks, у него права на чтение
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Снимки секций дизайн-системы с перезаписью разошедшихся
+        env:
+          UI_BROWSER_CHANNEL: chromium
+        run: >-
+          npx playwright test --config tests/ui/playwright.config.ts design-system.spec.ts
+          --grep "эталонные снимки" --update-snapshots=changed
+      - name: Новые эталоны отдельной веткой
+        env:
+          BRANCH: ci/ui-snapshots-${{ github.run_number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- 'design/reference/kit/*-linux.png'
+          if git diff --cached --quiet; then
+            echo "Эталоны совпадают с раннером, ветка не нужна" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "test(ui): design-system -linux references from the GitHub runner (ui-snapshots #${{ github.run_number }})"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "Новые эталоны: ветка $BRANCH" >> "$GITHUB_STEP_SUMMARY"

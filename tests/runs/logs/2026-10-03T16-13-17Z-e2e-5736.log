@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 03.10.2026 21:13 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 32
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.6s)
+  ✓   2 tests/ui/navigation.spec.ts:91:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.7s)
+  ✓   3 tests/ui/navigation.spec.ts:118:1 › все пункты меню открывают существующие страницы (13.0s)
+  ✓   4 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.9s)
+  ✓   5 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (3.9s)
+  ✓   6 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.4s)
+  ✓   7 tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   8 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.8s)
+  ✓   9 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.8s)
+  ✓  10 tests/ui/roles.spec.ts:146:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.9s)
+  ✓  11 tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.6s)
+  ✓  12 tests/ui/roles.spec.ts:263:1 › владелец: зовёт управляющего и администратора, меняет роль (3.0s)
+  ✓  13 tests/ui/roles.spec.ts:294:1 › администратор: сотрудниками ведают владелец и управляющий (1.9s)
+  ✓  14 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.3s)
+  ✓  15 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.2s)
+  ✓  16 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, light, 390px (5.2s)
+  ✓  17 tests/ui/roles.spec.ts:306:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.4s)
+  ✓  18 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.5s)
+  ✓  19 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (4.6s)
+  ✓  20 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (3.5s)
+  ✓  21 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.6s)
+
+  21 passed (1.8m)
+
+# код выхода 0 · 1 мин 48 с

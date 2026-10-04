@@ -5635,3 +5635,6 @@
 | 04.10.2026 11:23 | lint | ✅ без ошибок | 1 мин 8 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-23-30Z-lint-090c.log) |  |
 | 04.10.2026 11:24 | unit | ✅ 3055 из 3059, пропущено 4 | 1 мин 19 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-24-54Z-unit-46e4.log) |  |
 | 04.10.2026 11:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-dnd.spec.ts tests/ | ❌ код выхода 1 | 5 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-26-27Z-e2e-31b7.log) | (ошибка вне тестов) |
+| 04.10.2026 11:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-dnd.spec.ts tests/ | ❌ упало 7 из 85, пропущено 3 | 48 мин 50 с | 76a2d05 +50 | [лог](logs/2026-10-04T06-27-13Z-e2e-40d0.log) | боковое окно компактно, псевдонимная бронь и мобильный экран |
+| 04.10.2026 12:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-design.spec.ts tests/ui/booking-compact.spec.ts tests/ui/guests-birthdays.spec.ts test | ✅ 20 из 20 | 3 мин 50 с | 6db785d | [лог](logs/2026-10-04T07-16-36Z-e2e-b7f8.log) |  |
+| 04.10.2026 12:21 | integration | ✅ 0 из 241, пропущено 241 | 3 мин 22 с | 6db785d | [лог](logs/2026-10-04T07-21-00Z-integration-50a1.log) |  |

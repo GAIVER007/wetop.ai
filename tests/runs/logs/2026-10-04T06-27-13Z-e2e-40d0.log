@@ -1,0 +1,374 @@
+# Сквозные (e2e) · 04.10.2026 11:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 76a2d05 (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 148
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/analytics-channels.spec.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/market.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/incidents-design.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/unified-sections.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 85 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (20.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2019516460'
+[WebServer] }
+  ✓   2 tests/ui/ai-seller.spec.ts:102:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (13.2s)
+  ✓   3 tests/ui/ai-seller.spec.ts:133:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (13.9s)
+  ✓   4 tests/ui/ai-seller.spec.ts:163:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (30.6s)
+  ✓   5 tests/ui/ai-seller.spec.ts:180:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (30.8s)
+  ✓   6 tests/ui/ai-seller.spec.ts:217:1 › продавец недоступен — метка, причина и обещание повтора (13.1s)
+  ✓   7 tests/ui/ai-seller.spec.ts:228:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (3.7s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   8 tests/ui/ai-seller.spec.ts:247:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (29.2s)
+  ✓   9 tests/ui/ai-seller.spec.ts:261:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (12.2s)
+  ✓  10 tests/ui/ai-seller.spec.ts:299:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (12.9s)
+  ✓  11 tests/ui/ai-seller.spec.ts:342:1 › карточка диалога по неизвестному id не падает, а говорит словами (12.0s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames
+  ✓  12 tests/ui/ai-seller.spec.ts:348:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (30.0s)
+  ✓  13 tests/ui/ai-seller.spec.ts:376:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (22.3s)
+  ✓  14 tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (22.1s)
+  ✓  15 tests/ui/ai-seller.spec.ts:409:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (11.1s)
+  ✓  16 tests/ui/ai-seller.spec.ts:441:1 › снимки экранов раздела (29.6s)
+  ✓  17 tests/ui/ai-seller.spec.ts:469:1 › Все агенты возвращает в единый каталог, а не только к черновикам (31.9s)
+  ✓  18 tests/ui/ai-seller.spec.ts:478:1 › закрытое расширение: администратор видит действие для управления доступом (23.0s)
+  ✓  19 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (1.2m)
+  ✓  20 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение: из полосы отбора (30.4s)
+  ✓  21 tests/ui/analytics-channels.spec.ts:119:1 › CSV: те же строки и итог, с разделителем «;» и BOM (1.1m)
+  ✓  22 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API: словами, не падение страницы (57.6s)
+  ✓  23 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (14.2s)
+  ✓  24 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (33.0s)
+  ✓  25 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (32.0s)
+  ✓  26 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт: из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (46.5s)
+  ✓  27 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (10.8s)
+  ✘  28 tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (31.9s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  29 tests/ui/booking-compact.spec.ts:64:1 › пустой филиал не позволяет создать бронь без категории (10.5s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  30 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (11.8s)
+  ✓  31 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (16.8s)
+  ✓  32 tests/ui/channels-list.spec.ts:24:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (9.0s)
+  ✓  33 tests/ui/channels-list.spec.ts:63:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (16.2s)
+  ✓  34 tests/ui/channels-list.spec.ts:78:1 › владелец открывает окно Channex; после «Готово» окно закрывается (29.2s)
+  ✓  35 tests/ui/channels-list.spec.ts:88:1 › владелец подтягивает будущие брони канала, который это умеет; у другого канала пункта нет (21.8s)
+  ✓  36 tests/ui/channels-list.spec.ts:101:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (15.8s)
+  ✓  37 tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны (16.6s)
+  ✓  38 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 1440px (53.6s)
+  ✘  39 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px (2.2m)
+  -  40 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 1440px
+  -  41 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 390px
+  -  42 tests/ui/channels-list.spec.ts:148:1 › снимок «Все доступные» и окна Channex
+  ✘  43 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.7m)
+  ✘  44 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (2.4m)
+  ✘  45 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (3.8m)
+  ✘  46 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (2.2m)
+  ✓  47 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (1.6m)
+  ✓  48 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (46.9s)
+  ✓  49 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (27.7s)
+  ✓  50 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (19.9s)
+  ✓  51 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (3.8s)
+  ✓  52 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (2.9s)
+  ✓  53 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (5.9s)
+  ✓  54 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.1s)
+  ✓  55 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (7.0s)
+  ✓  56 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (9.4s)
+  ✓  57 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (13.7s)
+  ✓  58 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (20.8s)
+  ✓  59 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (38.1s)
+  ✓  60 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (31.6s)
+  ✓  61 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (9.4s)
+  ✓  62 tests/ui/finance-compact.spec.ts:8:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (48.1s)
+  ✘  63 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (31.9s)
+  ✓  64 tests/ui/guests-birthdays.spec.ts:52:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (25.0s)
+  ✓  65 tests/ui/incidents-design.spec.ts:20:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (13.1s)
+  ✓  66 tests/ui/incidents-design.spec.ts:61:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (4.8s)
+  ✓  67 tests/ui/incidents-design.spec.ts:85:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (2.4s)
+  ✓  68 tests/ui/incidents-design.spec.ts:100:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (12.2s)
+  ✓  69 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (15.2s)
+  ✓  70 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (11.9s)
+  ✓  71 tests/ui/market.spec.ts:148:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (6.1s)
+  ✓  72 tests/ui/market.spec.ts:164:3 › снимки и доступность: light (5.7s)
+  ✓  73 tests/ui/market.spec.ts:164:3 › снимки и доступность: dark (3.8s)
+  ✓  74 tests/ui/market.spec.ts:204:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.1s)
+  ✓  75 tests/ui/market.spec.ts:232:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (2.8s)
+  ✓  76 tests/ui/rates-design.spec.ts:19:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.4s)
+  ✓  77 tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.5s)
+  ✓  78 tests/ui/rates-design.spec.ts:95:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (1.7s)
+  ✓  79 tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (2.2s)
+  ✓  80 tests/ui/rates-design.spec.ts:132:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.4s)
+  ✓  81 tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (1.7s)
+  ✓  82 tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу (939ms)
+  ✓  83 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке (2.4s)
+  ✓  84 tests/ui/unified-sections.spec.ts:27:1 › интеграции: незавершённая настройка не называется подключением (2.7s)
+  ✓  85 tests/ui/unified-sections.spec.ts:33:1 › адаптивный обзор разделов (9.4s)
+
+
+  1) tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/20260913-NEW\d+$/
+    Received string:  "http://127.0.0.1:3100/reservations/new"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="dark">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/new"
+
+
+      55 |   expect(overflow).toBe(false);
+      56 |   await submit.click();
+    > 57 |   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+         |                      ^
+      58 | });
+      59 |
+      60 | test.afterEach(async ({ request }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/booking-compact.spec.ts:57:22
+
+    Error Context: test-results/booking-compact-боковое-ок-580b4-ная-бронь-и-мобильный-экран/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-compact-боковое-ок-580b4-ная-бронь-и-мобильный-экран/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-compact-боковое-ок-580b4-ная-бронь-и-мобильный-экран/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px ─────────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/channels-list-доступность-и-снимок-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-list-доступность-и-снимок-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-list-доступность-и-снимок-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/fixtures.ts:72:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/chessboard-design.spec.ts:13:14
+
+    Error Context: test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/fixtures.ts:72:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/chessboard-design.spec.ts:38:14
+
+    Error Context: test-results/chessboard-design-ручные-д-f1c89-асываются-при-смене-периода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-ручные-д-f1c89-асываются-при-смене-периода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-ручные-д-f1c89-асываются-при-смене-периода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 120000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+       95 |         audit.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+       96 |       ).toEqual([]);
+    >  97 |       await page.screenshot({
+          |                  ^
+       98 |         caret: 'initial',
+       99 |         path: `reports/chessboard-design-2026-09-20/${theme}-${width}.png`,
+      100 |       });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/chessboard-design.spec.ts:97:18
+
+    Error Context: test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: Test timeout of 120000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:72
+
+      70 |     const goto = page.goto.bind(page);
+      71 |     page.goto = async (url, options) => {
+    > 72 |       const response = await goto(url, options);
+         |                              ^
+      73 |       await settleStreaming(page);
+      74 |       return response;
+      75 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/fixtures.ts:72:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/chessboard-design.spec.ts:69:16
+
+    Error Context: test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-681d4-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests\/birthdays$/
+    Received string:  "http://127.0.0.1:3100/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        25 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/chessboard"
+
+
+      35 |   expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(navBox.x);
+      36 |   await panel.getByRole('link', { name: /Дни рождения/ }).click();
+    > 37 |   await expect(page).toHaveURL(/\/guests\/birthdays$/);
+         |                      ^
+      38 |   const todaySection = page.getByRole('region', { name: 'Сегодня' });
+      39 |   await expect(todaySection.getByRole('link', { name: 'Гость Тестовый' })).toHaveAttribute(
+      40 |     'href',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/guests-birthdays.spec.ts:37:22
+
+    Error Context: test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/ai-seller.spec.ts (6.0m)
+  Slow test file: tests/ui/analytics-channels.spec.ts (5.8m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  7 failed
+    tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран 
+    tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px ──────────────────────
+    tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ─────
+    tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода 
+    tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+    tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка 
+    tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+  3 did not run
+  75 passed (48.8m)
+
+# код выхода 1 · 48 мин 50 с

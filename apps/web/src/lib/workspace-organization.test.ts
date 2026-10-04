@@ -8,6 +8,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'reservations',
     'guests',
     'finance',
+    'bar',
     'sales',
     'reports',
     'inventory',

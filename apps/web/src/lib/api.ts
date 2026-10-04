@@ -3017,3 +3017,49 @@ export const sharedOnboardingApi = {
   save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
     sendJson<SharedOnboardingState>('POST', '/onboarding', body),
 };
+
+export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
+export interface BarProductRow {
+  id: string; code: string; name: string; categoryId: string | null; unitsPerPackage: number;
+  markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
+  category?: BarCategoryRow | null;
+}
+export interface BarSupplierRow { id: string; name: string; phone: string | null; email: string | null; active: boolean }
+export interface BarReceiptRow {
+  id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
+  totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
+}
+export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarSaleRow {
+  id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
+  lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
+}
+export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
+export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export const barApi = {
+  categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
+  createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
+  setCategoryActive: (id: string, active: boolean) => sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, { active }),
+  products: () => getJson<BarProductRow[]>('/bar/products'),
+  createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
+  setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
+  setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
+  suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
+  createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
+  setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),
+  receipts: () => getJson<BarReceiptRow[]>('/bar/receipts'),
+  stock: () => getJson<BarStockRow[]>('/bar/stock'),
+  sales: () => getJson<BarSaleRow[]>('/bar/sales'),
+  folios: () => getJson<BarFolioRow[]>('/bar/folios'),
+  movements: () => getJson<BarMovementRow[]>('/bar/movements'),
+  report: () => getJson<BarReport>('/bar/report'),
+  createReceipt: (body: unknown) => sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
+  postReceipt: (id: string) => sendJson<{ id: string; status: 'POSTED' }>('POST', `/bar/receipts/${encodeURIComponent(id)}/post`, {}),
+  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
+  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
+  reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
+  writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
+  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
+  inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
+};

@@ -3,6 +3,7 @@ export * from './property/index';
 export * from './inventory/index';
 export * from './chessboard/index';
 export * from './availability/index';
+export * from './bar/index';
 export * from './rates/index';
 export * from './reservations/index';
 export * from './guests/index';

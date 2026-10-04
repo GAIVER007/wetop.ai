@@ -42,6 +42,7 @@ describe('меню по ролям', () => {
       '/reservations',
       '/guests',
       '/finance',
+      '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/market',
       '/ai-agents',
@@ -55,6 +56,7 @@ describe('меню по ролям', () => {
       'reservations',
       'guests',
       'finance',
+      'bar',
       'sales',
       'reports',
       'settings',
@@ -84,6 +86,7 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('settings');
     expect(routeRule('/journal')?.requires).toBe('journal');
     expect(routeRule('/finance')?.requires).toBe('reports');
+    expect(routeRule('/bar')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 

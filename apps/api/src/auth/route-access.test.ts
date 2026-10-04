@@ -46,6 +46,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /auth/members': 'staff',
   'DELETE /auth/members/:userId': 'staff',
   'PATCH /auth/members/:userId': 'owner',
+  'PATCH /auth/members/:userId/details': 'staff',
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',

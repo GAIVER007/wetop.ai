@@ -644,6 +644,20 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
+  /** Телефон и должность сотрудника (TEAM2, Q-244); пустое поле стирает значение */
+  setMemberDetails: async (
+    token: string,
+    userId: string,
+    details: { phone: string; position: string },
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/details`, {
+      method: 'PATCH',
+      headers: authHeaders(info, token),
+      body: JSON.stringify(details),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
   /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
   inviteByToken: async (
     rawToken: string,
@@ -2565,6 +2579,10 @@ export interface AuthMember {
   you: boolean;
   removable: boolean;
   roleEditable: boolean;
+  /** Телефон и должность в организации (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  detailsEditable: boolean;
 }
 
 export interface AuthInvitePreview {

@@ -32,17 +32,20 @@ import {
   MEMBER_OWNER_MESSAGE,
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_DETAILS_FORBIDDEN_MESSAGE,
   MEMBER_SELF_MESSAGE,
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
   mayAssignPlanWithoutRates,
   parseInviteRole,
+  parseMemberDetails,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -1990,6 +1993,9 @@ interface FixtureMember {
   joinedAt: string;
   /** Последний вход, как отдаёт API (TEAM1): не входил — null */
   lastLoginAt: string | null;
+  /** Телефон и должность (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
 }
 interface FixtureInvite {
   id: string;
@@ -1999,8 +2005,11 @@ interface FixtureInvite {
   createdAt: string;
 }
 let uiTeam: FixtureMember[] = [];
+/** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
+let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
+  uiMyDetails = { phone: null, position: null };
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -2009,6 +2018,8 @@ function resetTeam() {
       role: 'MANAGER',
       joinedAt: '2026-09-02T09:00:00.000Z',
       lastLoginAt: '2026-09-28T14:30:00.000Z',
+      phone: '+77010000001',
+      position: 'Управляющий',
     },
     {
       userId: 'ui-admin',
@@ -2017,6 +2028,8 @@ function resetTeam() {
       role: 'STAFF',
       joinedAt: '2026-09-03T09:00:00.000Z',
       lastLoginAt: null,
+      phone: null,
+      position: null,
     },
   ];
   uiInvites = [
@@ -2047,6 +2060,8 @@ function teamView(me: UiUser) {
       role: uiRole,
       joinedAt: '2026-09-01T09:00:00.000Z',
       lastLoginAt: '2026-10-01T09:00:00.000Z',
+      phone: uiMyDetails.phone,
+      position: uiMyDetails.position,
     },
     ...uiTeam,
   ];
@@ -2064,6 +2079,7 @@ function teamView(me: UiUser) {
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
           !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(uiRole, m.role, you),
       };
     });
 }
@@ -5042,6 +5058,24 @@ createServer(async (req, res) => {
         return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
+    }
+    // Телефон и должность (TEAM2, Q-244): разбор и право: те же функции домена, что у API
+    const detailsMatch = /^\/auth\/members\/([^/]+)\/details$/.exec(path);
+    if (detailsMatch && req.method === 'PATCH') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const details = parseMemberDetails(body);
+      if (!details.ok) return send(400, { message: details.message });
+      const target = teamView(who).find((m) => m.userId === detailsMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (!canEditMemberDetails(uiRole, target.role, target.you))
+        return send(403, { message: MEMBER_DETAILS_FORBIDDEN_MESSAGE });
+      const next = { phone: details.phone, position: details.position };
+      if (target.you) uiMyDetails = next;
+      else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
+      return send(200, { userId: target.userId, ...next });
     }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);

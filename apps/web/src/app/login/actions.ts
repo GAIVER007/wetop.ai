@@ -221,6 +221,17 @@ export async function setMemberRoleAction(userId: string, role: string): Promise
   );
 }
 
+/** Телефон и должность сотрудника: проверку и слова отказа даёт API (TEAM2, Q-244) */
+export async function setMemberDetailsAction(
+  userId: string,
+  phone: string,
+  position: string,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberDetails(token, userId, { phone, position }, await clientInfo()),
+  );
+}
+
 /**
  * Принять приглашение по ссылке: членство заведено, а вместе с ним человек получает одноразовый ключ
  * и сразу задаёт себе пароль (ADR-053). Письма в этом пути нет: сама ссылка-приглашение и есть

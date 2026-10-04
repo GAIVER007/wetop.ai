@@ -86,6 +86,19 @@ describe.skipIf(!url)(
       });
     });
 
+    it('memberships: телефон и должность сотрудника (v2.10) wetop_app читает и пишет', async () => {
+      await inRollback(async () => {
+        for (const column of ['phone', 'position'])
+          for (const privilege of ['SELECT', 'UPDATE']) {
+            const { rows } = await client.query<{ ok: boolean }>(
+              `SELECT has_column_privilege('wetop_app', 'memberships', $1, $2) AS ok`,
+              [column, privilege],
+            );
+            expect(rows[0]!.ok, `memberships.${column}: ${privilege}`).toBe(true);
+          }
+      });
+    });
+
     it('users: только id, email, name, status, email_verified_at, last_login_at и только чтение', async () => {
       await inRollback(async () => {
         const id = randomUUID();

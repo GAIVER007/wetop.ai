@@ -92,6 +92,41 @@ test('«Отключить» — только после подтвержден�
   await expect(rows).toHaveCount(2);
 });
 
+test('телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await yurij.getByRole('button', { name: 'Изменить' }).click();
+  const drawer = page.getByRole('dialog');
+  await expect(drawer.getByRole('heading', { name: 'Юрий Тестов' })).toBeVisible();
+  await drawer.getByLabel('Телефон').fill('8 701 555 44 33');
+  await drawer.getByLabel('Должность').fill('Старший администратор');
+  await drawer.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(yurij).toContainText('Старший администратор');
+  await expect(yurij.getByRole('link', { name: '+77015554433' })).toHaveAttribute(
+    'href',
+    'tel:+77015554433',
+  );
+});
+
+test('неверный телефон: словами в панели, введённое не стирается', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/team');
+  const yurij = page.getByRole('main').getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await yurij.getByRole('button', { name: 'Изменить' }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Телефон').fill('12-34');
+  await drawer.getByLabel('Должность').fill('Кассир');
+  await drawer.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(drawer.getByRole('alert')).toContainText('Проверьте телефон');
+  await expect(drawer.getByLabel('Телефон')).toHaveValue('12-34');
+  await expect(drawer.getByLabel('Должность')).toHaveValue('Кассир');
+});
+
 test('управляющий: роль не меняет, приглашает только администраторов', async ({ page, request }) => {
   await signIn(page);
   await asRole(request, 'MANAGER');

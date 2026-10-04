@@ -5,6 +5,7 @@ import {
   INVITE_TTL_MS,
   MEMBERSHIP_ROLES,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
@@ -19,6 +20,7 @@ import {
   isEmailShaped,
   normalizeEmail,
   resetExpiry,
+  parseMemberDetails,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -67,11 +69,23 @@ export interface MemberView {
   removable: boolean;
   /** Этот вошедший может сменить ему роль (между управляющим и администратором) */
   roleEditable: boolean;
+  /** Телефон и должность в организации (v2.10, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  /** Этот вошедший может поменять ему телефон и должность */
+  detailsEditable: boolean;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
 export type MemberRefusal =
-  'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
+  | 'staff'
+  | 'missing'
+  | 'self'
+  | 'owner-target'
+  | 'manager-target'
+  | 'role'
+  | 'owner-only'
+  | 'details-target';
 
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
@@ -254,8 +268,44 @@ export class AccountsService {
         removable: !you && canRemoveMember(who.role, m.role),
         roleEditable:
           !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(who.role, m.role, you),
       };
     });
+  }
+
+  /** Телефон и должность (TEAM2, Q-244): свои: каждому, кому открыт раздел; чужие: тому, кто вправе отключить */
+  async setMemberDetails(
+    sessionToken: string | null,
+    userId: string,
+    raw: unknown,
+  ): Promise<
+    | { ok: true; member: { userId: string; phone: string | null; position: string | null } }
+    | { ok: false; reason: MemberRefusal }
+    | { ok: false; message: string }
+    | null
+  > {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    const details = parseMemberDetails(raw);
+    if (!details.ok) return { ok: false, message: details.message };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    const self = target.userId === who.userId;
+    if (!canEditMemberDetails(who.role, target.role, self))
+      return { ok: false, reason: 'details-target' };
+    // роль сверяется ещё раз в момент записи, как у отключения: владелец мог повысить человека
+    const write = await this.repo.setMemberDetails({
+      organizationId: who.organizationId,
+      userId,
+      phone: details.phone,
+      position: details.position,
+      by: who.userId,
+      roles: self ? null : invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role') return { ok: false, reason: 'details-target' };
+    return { ok: true, member: { userId, phone: details.phone, position: details.position } };
   }
 
   /**

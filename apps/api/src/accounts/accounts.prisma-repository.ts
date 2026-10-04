@@ -294,12 +294,16 @@ export class PrismaAccountsRepository implements AccountsRepository {
         select: {
           role: true,
           createdAt: true,
+          phone: true,
+          position: true,
           user: { select: { id: true, email: true, name: true, lastLoginAt: withLastLogin } },
         },
       });
     let rows: Array<{
       role: MembershipRole;
       createdAt: Date;
+      phone: string | null;
+      position: string | null;
       user: { id: string; email: string; name: string | null; lastLoginAt?: Date | null };
     }>;
     try {
@@ -316,6 +320,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
       role: m.role,
       joinedAt: m.createdAt,
       lastLoginAt: m.user.lastLoginAt ?? null,
+      phone: m.phone,
+      position: m.position,
     }));
   }
 
@@ -377,6 +383,49 @@ export class PrismaAccountsRepository implements AccountsRepository {
         },
       });
       return { outcome: 'done', role: before };
+    });
+  }
+
+  async setMemberDetails(input: {
+    organizationId: string;
+    userId: string;
+    phone: string | null;
+    position: string | null;
+    by: string;
+    roles: readonly MembershipRole[] | null;
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
+    return this.prisma.db.$transaction(async (tx) => {
+      const role = await lockedRole(tx, input.organizationId, input.userId);
+      if (!role) return { outcome: 'missing', role: null };
+      if (input.roles && !input.roles.includes(role)) return { outcome: 'role', role };
+      const key = {
+        userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
+      };
+      const before = await tx.membership.findUniqueOrThrow({
+        where: key,
+        select: { phone: true, position: true },
+      });
+      await tx.membership.update({
+        where: key,
+        data: { phone: input.phone, position: input.position },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'membership.details.updated',
+          // номер телефона в журнал не пишем: журнал только дописывается (v1.7), стереть его оттуда нельзя
+          before: { userId: input.userId, position: before.position },
+          after: {
+            userId: input.userId,
+            position: input.position,
+            phoneChanged: before.phone !== input.phone,
+          },
+        },
+      });
+      return { outcome: 'done', role };
     });
   }
 

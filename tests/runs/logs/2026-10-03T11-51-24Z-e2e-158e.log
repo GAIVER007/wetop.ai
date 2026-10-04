@@ -1,0 +1,77 @@
+# Сквозные (e2e) · 03.10.2026 16:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/team.spec.ts' '-g' 'TEAM2|неверный телефон'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить» — панель, после сохранения видны в строке (51.1s)
+  ✘  2 tests/ui/team.spec.ts:116:1 › неверный телефон — словами в панели, введённое не стирается (47.2s)
+
+
+  1) tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить» — панель, после сохранения видны в строке 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('member-row').filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Изменить' })
+
+
+      100 |   const main = page.getByRole('main');
+      101 |   const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+    > 102 |   await yurij.getByRole('button', { name: 'Изменить' }).click();
+          |                                                         ^
+      103 |   const drawer = page.getByRole('dialog');
+      104 |   await expect(drawer.getByRole('heading', { name: 'Юрий Тестов' })).toBeVisible();
+      105 |   await drawer.getByLabel('Телефон').fill('<телефон>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate/tests/ui/team.spec.ts:102:57
+
+    Error Context: test-results/team-телефон-и-должность-T-bfff9-е-сохранения-видны-в-строке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-телефон-и-должность-T-bfff9-е-сохранения-видны-в-строке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-телефон-и-должность-T-bfff9-е-сохранения-видны-в-строке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/team.spec.ts:116:1 › неверный телефон — словами в панели, введённое не стирается ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('member-row').filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Изменить' })
+
+
+      118 |   await page.goto('/team');
+      119 |   const yurij = page.getByRole('main').getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+    > 120 |   await yurij.getByRole('button', { name: 'Изменить' }).click();
+          |                                                         ^
+      121 |   const drawer = page.getByRole('dialog');
+      122 |   await drawer.getByLabel('Телефон').fill('12-34');
+      123 |   await drawer.getByLabel('Должность').fill('Кассир');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate/tests/ui/team.spec.ts:120:57
+
+    Error Context: test-results/team-неверный-телефон-—-сл-11997-нели-введённое-не-стирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-неверный-телефон-—-сл-11997-нели-введённое-не-стирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-неверный-телефон-—-сл-11997-нели-введённое-не-стирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить» — панель, после сохранения видны в строке 
+    tests/ui/team.spec.ts:116:1 › неверный телефон — словами в панели, введённое не стирается ──────
+
+# код выхода 1 · 2 мин 4 с

@@ -11,7 +11,9 @@ import {
   INVITE_STAFF_ONLY_MESSAGE,
   MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
   MEMBER_NOT_FOUND_MESSAGE,
+  MEMBER_DETAILS_FORBIDDEN_MESSAGE,
   MEMBER_OWNER_MESSAGE,
+  MEMBER_PHONE_MESSAGE,
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
   MEMBER_SELF_MESSAGE,
@@ -222,7 +224,7 @@ describe('сотрудники организации', () => {
     expect(res.body.message).toBe(INVITE_STAFF_ONLY_MESSAGE);
   });
 
-  it('без сессии — 401', async () => {
+  it('без сессии: 401', async () => {
     await http().get('/auth/members').expect(401);
     await http().delete('/auth/members/u-admin').expect(401);
   });
@@ -356,5 +358,101 @@ describe('отключение и смена роли — по роли в мо�
       .delete('/auth/members/u-admin')
       .set('Authorization', `Bearer ${token}`)
       .expect(404);
+  });
+});
+
+/** Телефон и должность (TEAM2, Q-244, DATA_MODEL v2.10 §13.3): правит тот, кто вправе отключить, и каждый свои */
+describe('телефон и должность сотрудника', () => {
+  const setDetails = (token: string, userId: string, body: Record<string, unknown>) =>
+    http()
+      .patch(`/auth/members/${userId}/details`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body);
+  const list = async (userId: string) =>
+    (
+      await http()
+        .get('/auth/members')
+        .set('Authorization', `Bearer ${await as(userId)}`)
+        .expect(200)
+    ).body as Array<Record<string, unknown>>;
+
+  beforeEach(() => {
+    repo.details.clear();
+    repo.detailChanges.length = 0;
+    repo.roleOverride.clear();
+  });
+
+  it('в списке: телефон и должность (пусто: null) и кому их можно править', async () => {
+    expect((await list('u-owner')).map((r) => [r.userId, r.phone, r.position, r.detailsEditable])).toEqual([
+      ['u-owner', null, null, true],
+      ['u-manager', null, null, true],
+      ['u-admin', null, null, true],
+      ['u-admin2', null, null, true],
+    ]);
+    expect((await list('u-manager')).map((r) => [r.userId, r.detailsEditable])).toEqual([
+      ['u-owner', false],
+      ['u-manager', true],
+      ['u-admin', true],
+      ['u-admin2', true],
+    ]);
+  });
+
+  it('владелец записывает администратору телефон и должность; в журнал: должность, телефон только отметкой', async () => {
+    const res = await setDetails(await as('u-owner'), 'u-admin', {
+      phone: '8 701 555 44 33',
+      position: 'Старший администратор',
+    }).expect(200);
+    expect(res.body).toEqual({
+      userId: 'u-admin',
+      phone: '+77015554433',
+      position: 'Старший администратор',
+    });
+    const row = (await list('u-owner')).find((r) => r.userId === 'u-admin')!;
+    expect([row.phone, row.position]).toEqual(['+77015554433', 'Старший администратор']);
+    expect(repo.detailChanges).toEqual([
+      {
+        organizationId: ORG,
+        userId: 'u-admin',
+        by: 'u-owner',
+        positionBefore: null,
+        positionAfter: 'Старший администратор',
+        phoneChanged: true,
+      },
+    ]);
+  });
+
+  it('не телефон: 400 словами, ничего не записано', async () => {
+    const res = await setDetails(await as('u-owner'), 'u-admin', { phone: '12-34', position: 'Кассир' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe(MEMBER_PHONE_MESSAGE);
+    expect(repo.detailChanges).toEqual([]);
+  });
+
+  it('управляющий правит себя и администраторов, но не владельца; администратор: никого; чужой: 404', async () => {
+    const manager = await as('u-manager');
+    await setDetails(manager, 'u-manager', { phone: '', position: 'Управляющий сменой' }).expect(200);
+    await setDetails(manager, 'u-admin', { phone: '', position: 'Ночной администратор' }).expect(200);
+    const owner = await setDetails(manager, 'u-owner', { phone: '', position: 'Директор' });
+    expect(owner.status).toBe(403);
+    expect(owner.body.message).toBe(MEMBER_DETAILS_FORBIDDEN_MESSAGE);
+    const admin = await setDetails(await as('u-admin'), 'u-admin', { phone: '', position: 'x' });
+    expect(admin.status).toBe(403);
+    expect(admin.body.message).toBe(INVITE_STAFF_ONLY_MESSAGE);
+    const other = await setDetails(await as('u-owner'), 'u-other', { phone: '', position: 'x' });
+    expect(other.status).toBe(404);
+    expect(other.body.message).toBe(MEMBER_NOT_FOUND_MESSAGE);
+    expect(repo.detailChanges.map((c) => c.userId)).toEqual(['u-manager', 'u-admin']);
+  });
+
+  it('роль сменилась между проверкой и записью: управляющий не правит нового управляющего', async () => {
+    repo.roleOverride.set('u-admin', 'MANAGER');
+    const res = await setDetails(await as('u-manager'), 'u-admin', { phone: '', position: 'x' });
+    expect(res.status).toBe(403);
+    expect(res.body.message).toBe(MEMBER_DETAILS_FORBIDDEN_MESSAGE);
+    expect(repo.detailChanges).toEqual([]);
+  });
+
+  it('без сессии: 401', async () => {
+    await http().patch('/auth/members/u-admin/details').send({ position: 'x' }).expect(401);
   });
 });

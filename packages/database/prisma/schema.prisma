@@ -1468,6 +1468,10 @@ model Membership {
   organizationId String         @map("organization_id") @db.Uuid
   role           MembershipRole @default(STAFF)
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// Рабочий телефон в этой организации, +E.164 (CHECK в миграции 044; DATA_MODEL v2.10, Q-244)
+  phone          String?        @db.VarChar(16)
+  /// Должность свободным текстом; права даёт роль, не должность
+  position       String?        @db.VarChar(100)
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])

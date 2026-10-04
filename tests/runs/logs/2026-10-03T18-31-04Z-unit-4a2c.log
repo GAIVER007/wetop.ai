@@ -1,0 +1,52 @@
+# Модульные (unit) · 03.10.2026 23:31 Алматы · vm
+# коммит 33292e4 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-31-04Z-unit-4a2c.json' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (19 tests) 12ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 47ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 45ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(240) } to deeply equal { 'GET /branches': 'desk', …(241) }
+
+- Expected
++ Received
+
+@@ -83,11 +83,10 @@
+    "GET /hotel/services": "settings",
+    "GET /hotel/settings": "desk",
+    "GET /inventory/categories": "property",
+    "GET /inventory/summary": "desk",
+    "GET /inventory/units": "desk",
+-   "GET /market/night": "reports",
+    "GET /market/occupancy": "reports",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+    "GET /platform/support/conversations/:id/actions": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:337:20
+    335|       .map(([key]) => key);
+    336|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    337|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    338|   });
+    339|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 20 passed (21)
+   Start at  18:31:05
+   Duration  3.17s (transform 68%, import 30%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-31-04Z-unit-4a2c.json
+
+# код выхода 1 · 4 с

@@ -28,7 +28,8 @@ test('показатели не пришли — экран открыт, пер
 
 test('период выбирается: «этот месяц» открывается с числами', async ({ page }) => {
   await page.goto('/management/analytics?period=month');
-  await expect(page.getByTestId('pa-period')).toContainText(/дн(я|ей)/);
+  // «31 день», «30 дней», «28 дней»: в месяце из 31 дня (октябрь) слово «день», не «дня»/«дней»
+  await expect(page.getByTestId('pa-period')).toContainText(/\d+ (день|дня|дней)/);
   await expect(page.getByTestId('pa-kpi-occupancy')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });

@@ -7,6 +7,10 @@ import { FIXTURE_API, expect, test } from './fixtures';
  */
 const fixture = FIXTURE_API;
 
+// чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
+test.beforeEach(async ({ request }) => {
+  await request.post(`${fixture}/__test/reset`);
+});
 test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
@@ -23,6 +27,7 @@ test('новая бронь без имени и контактов: компа�
     await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
   await expect(form.getByTestId('booking-summary')).toContainText('Автоматическая карточка');
   await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
@@ -45,6 +50,7 @@ test('бронь существующему гостю (G6) — без имён:
   await expect(form.getByTestId('booking-guest')).toContainText('Гость Тестовый');
   await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
   await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

@@ -61,6 +61,7 @@ describe('отбор гостей в адресе (G7, ТЗ §31)', () => {
       { last: 'period' },
       { last: 'period', from: '2026-09-10', to: '2026-09-01' },
       { last: 'period', from: '2026-02-30', to: '2026-03-01' },
+      { last: 'period', from: '2026-13-01', to: '2026-13-05' },
     ])
       expect(parseGuestFilters(bad).error).toMatch(/Период последнего визита/);
     expect(parseGuestFilters({ last: '7d', from: '2026-09-01', to: '2026-09-10' }).f.from).toBe('');

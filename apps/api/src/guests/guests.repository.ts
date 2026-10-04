@@ -126,6 +126,8 @@ export interface GuestDirectoryQuery {
 }
 export interface GuestsRepository {
   search(q: string, limit: number): Promise<GuestSummary[]>;
+  /** Гости организации с датой рождения: «Дни рождения» (Q-249 T0), окно считает домен */
+  withBirthDates(): Promise<Array<{ id: string; firstName: string; lastName: string; birthDate: string }>>;
   /** Справочник «Гости v2»: одна строка — один гость, состояние вычисляется из его проживаний */
   directory(query: GuestDirectoryQuery): Promise<GuestDirectoryResult>;
   byId(id: string): Promise<GuestProfile | null>;
@@ -176,6 +178,20 @@ export class PrismaGuestsRepository implements GuestsRepository {
     // вошедший без организации не видит ни одного гостя — как и объект в property-ref
     if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
     return { organizationId };
+  }
+  async withBirthDates() {
+    // ponytail: все гости с датой рождения в память, окно — в домене; при десятках тысяч гостей —
+    // перенести отбор по месяцу и дню в SQL (to_char(birth_date, 'MM-DD'))
+    const rows = await this.prisma.db.guest.findMany({
+      where: { AND: [this.visible(), { birthDate: { not: null } }] },
+      select: { id: true, firstName: true, lastName: true, birthDate: true },
+    });
+    return rows.map((g) => ({
+      id: g.id,
+      firstName: g.firstName,
+      lastName: g.lastName,
+      birthDate: iso(g.birthDate)!,
+    }));
   }
   async search(q: string, limit: number): Promise<GuestSummary[]> {
     const digits = q.replace(/\D/g, '');

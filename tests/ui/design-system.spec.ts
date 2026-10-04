@@ -8,7 +8,9 @@ import AxeBuilder from '@axe-core/playwright';
  *  — axe без нарушений в обеих темах;
  *  — при масштабе 200 % (720 CSS px) нет горизонтальной прокрутки;
  *  — снимки секций — эталон в design/reference/kit (первый прогон на новой машине:
- *    --update-snapshots; имя снимка включает платформу, шрифты у macOS и Linux разные);
+ *    --update-snapshots; имя снимка включает платформу, шрифты у macOS и Linux разные).
+ *    Эталоны `-linux` снимает только раннер GitHub, workflow `ui-snapshots` (03.10.2026): в облачной
+ *    сессии другая сборка Chromium, и снятое там с проверкой release-checks не совпадает;
  *  — новые компоненты работают с клавиатуры: меню, окно, уведомление, подсказка.
  */
 const STATES = ['default', 'hover', 'focus', 'active', 'disabled', 'loading', 'error', 'selected'];

@@ -118,6 +118,8 @@ export interface GuardProbes {
     pms: Map<string, Map<string, number>>;
     channel: Map<string, Map<string, number>>;
   } | null>;
+  /** Когда сторож последний раз читал остатки у Channex (журнал `channex.availabilityRead`); null, если не читал */
+  lastAvailabilityReadAt(): Promise<Date | null>;
 }
 
 export interface FixOutcome {

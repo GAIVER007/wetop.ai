@@ -74,7 +74,9 @@ test('старые адреса: часы — на «Проживание», п�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
+  // переход потоковый (redirect() после начала ответа): `goto` возвращается раньше, а холодная сборка
+  // `/rates/plans` в `next dev` на двухъядерном раннере GitHub дольше 15 с (release-checks 03.10.2026)
+  await expect(page).toHaveURL(/\/rates\/plans$/, { timeout: 40_000 });
   const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
   await expect(row).toContainText('Стоимость первой ночи');
   await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');

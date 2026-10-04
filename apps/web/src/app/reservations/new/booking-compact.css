@@ -231,3 +231,33 @@
   color: var(--danger);
   font-size: var(--text-sm);
 }
+
+/* Детализация цены по дням (образец Exely, 03.10): свёрнута, раскрывается по щелчку */
+.booking-create__nights {
+  margin: 0;
+}
+.booking-create__nights > summary {
+  cursor: pointer;
+  color: var(--primary);
+  font-size: var(--text-sm);
+  min-height: 24px;
+}
+.booking-create__nights-table {
+  margin-top: var(--space-2);
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.booking-create__nights-table th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+  padding: var(--space-1) var(--space-6) var(--space-1) 0;
+}
+.booking-create__nights-table td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.booking-create__nights-sum {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+}

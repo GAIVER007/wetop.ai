@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -11,8 +11,8 @@ import { mkdirSync } from 'node:fs';
  * артефакты гейта, а ожидания подтверждают, что снят нужный момент.
  */
 const DIR = 'reports/chessboard-v2-pr4-2026-09-28/gate';
-// порт стенда можно переопределить (FIXTURE_PORT) — параллельные сессии не делят 4311
-const fixture = `http://127.0.0.1:${process.env.FIXTURE_PORT || 4311}`;
+// адрес стенда общий для набора: `UI_FIXTURE_API` или `FIXTURE_PORT`, параллельные сессии не делят 4311
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const NUMBER = '20260913-TEST1';
 const ITEM = 'ui-item-1';

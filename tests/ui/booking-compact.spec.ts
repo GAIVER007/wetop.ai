@@ -4,7 +4,8 @@ test('быстрые даты сохраняют гостя, заметки и �
   page,
   request,
 }) => {
-  await request.post(`${FIXTURE_API}/__test/control`, { data: {} });
+  // чистый стенд: бронь соседнего спека на M03 заняла бы эти даты, и форма не дала бы создать эту
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');

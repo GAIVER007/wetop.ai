@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 03.10.2026 17:11 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/channels-list.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/channels-list.spec.ts:22:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (2.0s)
+  ✓   2 tests/ui/channels-list.spec.ts:41:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (3.6s)
+  ✓   3 tests/ui/channels-list.spec.ts:52:1 › владелец открывает окно Channex; после «Готово» окно закрывается (2.6s)
+  ✘   4 tests/ui/channels-list.spec.ts:62:1 › администратор видит каналы, но не подключает (16.8s)
+  -   5 tests/ui/channels-list.spec.ts:72:1 › Channex не ответил: причина словами, брони мимо подключений видны
+  -   6 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 1440px
+  -   7 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: light, 390px
+  -   8 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 1440px
+  -   9 tests/ui/channels-list.spec.ts:83:5 › доступность и снимок: dark, 390px
+  -  10 tests/ui/channels-list.spec.ts:99:1 › снимок «Все доступные» и окна Channex
+
+
+  1) tests/ui/channels-list.spec.ts:62:1 › администратор видит каналы, но не подключает ────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('channel-row')
+    Expected: 5
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('channel-row') with timeout 15000ms
+      - waiting for getByTestId('channel-row')
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      64 |   await signIn(page);
+      65 |   await page.goto('/channels/list');
+    > 66 |   await expect(page.getByTestId('channel-row')).toHaveCount(5);
+         |                                                 ^
+      67 |   await expect(page.getByTestId('channel-connect')).toHaveCount(0);
+      68 |   await page.goto('/channels/list?view=available');
+      69 |   await expect(page.getByTestId('channel-adapter-connect')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/channels-list.spec.ts:66:49
+
+    Error Context: test-results/channels-list-администратор-видит-каналы-но-не-подключает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-list-администратор-видит-каналы-но-не-подключает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-list-администратор-видит-каналы-но-не-подключает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channels-list.spec.ts:62:1 › администратор видит каналы, но не подключает ─────────────
+  6 did not run
+  3 passed (30.6s)
+
+# код выхода 1 · 32 с

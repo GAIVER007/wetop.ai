@@ -6,6 +6,8 @@ import {
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
+  buildChannelEfficiency,
+  type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
   type DashboardFund,
@@ -47,6 +49,7 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  upcomingBirthday,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -54,6 +57,14 @@ import {
   validateDerivedRule,
   normalizePromoCode,
   MAX_DISCOUNT_PERCENT,
+  MARKET_MAX_COMPETITORS,
+  MarketInputError,
+  buildMarketBoard,
+  buildNightHistory,
+  marketDates,
+  parseCompetitorInput,
+  parseOccupancyPercent,
+  type MarketReading,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -958,6 +969,8 @@ let showcase = false;
  * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
  */
 let channelMapping: 'none' | 'partial' = 'none';
+/** Раздел «Каналы» (ADR-140): '' — пять подключений; 'empty' — ни одного; 'down' — Channex не ответил */
+let channelCatalog: '' | 'empty' | 'down' = '';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -1573,6 +1586,40 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
+/** Проживания стенда в виде расчёта «Аналитики»: общий вход сводки и «Эффективности каналов» (ADR-141) */
+const dashboardStays = () =>
+  allCards().flatMap((r) =>
+    r.items.map((it) => ({
+      arrivalDate: it.arrivalDate,
+      departureDate: it.departureDate,
+      status: it.status,
+      // Q-209: бронь: это Reservation (номер брони стенда), статус: её собственный
+      reservationId: r.confirmationNumber,
+      reservationStatus: r.status,
+      adults: it.adults,
+      children: it.children,
+      priceMinor: BigInt(it.priceMinor),
+      source: r.source,
+      channel: r.channel,
+      categoryCode: it.accommodationTypeCode,
+    })),
+  );
+/** Ответ `GET /desk/dashboard/channels` стенда: текущий период и, если просили, период сравнения (ADR-141) */
+function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardStays>) {
+  const from = q.get('from') || today,
+    to = q.get('to') || today;
+  const opts = {
+    ...(q.get('channel') ? { channel: q.get('channel')! } : {}),
+    sort: (q.get('sort') || 'revenue') as ChannelEfficiencySort,
+    ...(q.get('empty') === '1' ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] } : {}),
+  };
+  const cf = q.get('compareFrom'),
+    ct = q.get('compareTo');
+  return {
+    current: buildChannelEfficiency(stays, from, to, opts),
+    previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
+  };
+}
 function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
@@ -1596,22 +1643,7 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
         byCategory: b.byCategory[date] ?? {},
       })),
       unassignedByCategory,
-      stays: allCards().flatMap((r) =>
-        r.items.map((it) => ({
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
-          reservationId: r.confirmationNumber,
-          reservationStatus: r.status,
-          adults: it.adults,
-          children: it.children,
-          priceMinor: BigInt(it.priceMinor),
-          source: r.source,
-          channel: r.channel,
-          categoryCode: it.accommodationTypeCode,
-        })),
-      ),
+      stays: dashboardStays(),
       charges: allCards().flatMap((r) =>
         r.items
           .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
@@ -2674,6 +2706,7 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard/channels') return channelsReport(q, []);
     if (path === '/desk/dashboard/units') {
       const from = q.get('from') || today,
         to = q.get('to') || today;
@@ -2944,6 +2977,8 @@ function read(path: string, q: URLSearchParams): unknown {
       fund as DashboardFund,
     );
   }
+  // «Эффективность каналов» (ADR-141): тот же доменный расчёт, что у API, по проживаниям стенда
+  if (path === '/desk/dashboard/channels') return channelsReport(q, dashboardStays());
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
@@ -3302,6 +3337,17 @@ function read(path: string, q: URLSearchParams): unknown {
       counts,
       rows: rows.slice((page - 1) * pageSize, page * pageSize),
     };
+  }
+  // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/guests/birthdays') {
+    const from = q.get('from') || today;
+    const days = Number(q.get('days') || 1);
+    return [guest, ...extraGuests.values()]
+      .flatMap((g) => {
+        const b = upcomingBirthday(g.birthDate, from, days);
+        return b ? [{ id: g.id, firstName: g.firstName, lastName: g.lastName, ...b }] : [];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
   }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
@@ -3677,6 +3723,99 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
+  // Раздел «Каналы» (ADR-140): подключения и каталог Channex; режим — `POST /__test/control { channelCatalog }`
+  if (path === '/channels/channex/channels') {
+    const ago = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString();
+    const conn = (
+      id: string,
+      adapterCode: string,
+      channelKey: string,
+      channelTitle: string,
+      hotel: string,
+      bookings30: number,
+      status: string,
+      extra: Record<string, unknown> = {},
+    ) => ({
+      id,
+      adapterCode,
+      channelKey,
+      channelTitle,
+      connectionTitle: '',
+      channelPropertyId: hotel,
+      active: status !== 'OFF' && status !== 'REMOVING',
+      removalDate: null,
+      mappedRatePlans: 3,
+      actions: [],
+      shortCode: null,
+      bookings30,
+      lastBookingAt: bookings30 ? ago(1) : null,
+      lastEventAt: bookings30 ? ago(1) : null,
+      failedEvents7d: 0,
+      status,
+      ...extra,
+    });
+    const adapters = [
+      ['Agoda', 'agoda', 'Agoda', 'ota', 'AGO'],
+      ['AirBNB', 'airbnb', 'Airbnb', 'ota', 'ABB'],
+      ['BookingCom', 'bookingcom', 'Booking.com', 'meta', 'BDC'],
+      ['Ctrip', 'ctrip', 'Trip.com', 'ota', null],
+      ['Expedia', 'expedia', 'Expedia', 'ota', 'EXP'],
+      ['Hostelworld', 'hostelworld', 'Hostelworld', 'ota', 'HWL'],
+      ['Ostrovok', 'ostrovok', 'Emerging Travel Group', 'ota', 'OVK'],
+    ] as const;
+    const connections =
+      channelCatalog === 'empty'
+        ? []
+        : [
+            conn('ui-ch-trip', 'Ctrip', 'ctrip', 'Trip.com', '132059275', 350, 'WORKING'),
+            conn('ui-ch-bdc', 'BookingCom', 'bookingcom', 'Booking.com', '14087887', 169, 'WORKING', {
+              shortCode: 'BDC',
+              actions: ['load_future_reservations'],
+            }),
+            conn('ui-ch-ago', 'Agoda', 'agoda', 'Agoda', '77196946', 107, 'ERRORS', {
+              failedEvents7d: 2,
+              shortCode: 'AGO',
+            }),
+            conn('ui-ch-hwl', 'Hostelworld', 'hostelworld', 'Hostelworld', '335147', 0, 'ENABLED', {
+              shortCode: 'HWL',
+            }),
+            conn('ui-ch-exp', 'Expedia', 'expedia', 'Expedia', '131927054', 0, 'REMOVING', {
+              removalDate: '2026-10-20',
+              shortCode: 'EXP',
+            }),
+          ];
+    const connected = new Set(connections.map((c) => c.adapterCode));
+    const ready = channelCatalog !== 'down';
+    return {
+      checkedAt: new Date().toISOString(),
+      environment: 'staging',
+      propertyConnected: true,
+      inbound: { lastEventAt: ago(1), failedEvents7d: channelCatalog === 'empty' ? 0 : 2 },
+      state: ready ? 'READY' : 'UNREACHABLE',
+      message: ready
+        ? 'Каналы загружены из менеджера каналов'
+        : 'Менеджер каналов не ответил — показаны только брони из WETOP',
+      connections: ready ? connections : [],
+      adapters: ready
+        ? adapters
+            .map(([code, channelKey, title, kind, shortCode]) => ({
+              code,
+              channelKey,
+              title,
+              kind,
+              canLoadFutureReservations: code === 'BookingCom',
+              shortCode,
+              connected: connected.has(code),
+            }))
+            .sort((a, b) => Number(b.connected) - Number(a.connected) || a.title.localeCompare(b.title))
+        : null,
+      outside: [
+        { key: 'OTA:onetwotrip', source: 'OTA', label: 'OneTwoTrip', bookings30: 3, lastBookingAt: ago(2) },
+        { key: 'DESK', source: 'DESK', label: null, bookings30: 12, lastBookingAt: ago(0) },
+        { key: 'WEBSITE', source: 'WEBSITE', label: null, bookings30: 4, lastBookingAt: ago(3) },
+      ],
+    };
+  }
   if (path === '/channels/channex/connection') {
     const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
     const base = {
@@ -3893,8 +4032,13 @@ function read(path: string, q: URLSearchParams): unknown {
     const base =
       channexLive()
         ? {
+            // поля как у API (`askWebhookStatus`): страница настройки Channex читает адрес и маску событий
             registered: true,
+            id: 'ui-webhook',
+            callbackUrl: 'https://api.example.invalid/channels/channex/webhook',
+            eventMask: 'booking',
             active: true,
+            sendData: true,
             expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
             secretConfigured: true,
             callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
@@ -3996,6 +4140,123 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+// ── Загрузка конкурентов (ADR-142): те же правила, что API, из домена ──────────────────────────
+interface FixtureCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+const marketCompetitors: FixtureCompetitor[] = [];
+let marketReadings: MarketReading[] = [];
+const resetMarket = () => {
+  marketCompetitors.length = 0;
+  marketReadings = [];
+};
+const marketPlus = (iso: string, n: number) => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+/** null — маршрут не рынка; иначе [код, тело] */
+function marketRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/market/')) return null;
+  const may = (p: 'reports' | 'rates') => can(uiRole, p);
+  try {
+    if (path === '/market/occupancy' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const from = q.get('from') || today;
+      const days = Number(q.get('days') ?? 14);
+      const asOf = q.get('asOf') || today;
+      const compare = Number(q.get('compare') ?? 1);
+      const dates = marketDates(from, days);
+      const active = marketCompetitors.filter((c) => c.active);
+      const chess = read('/chessboard', new URLSearchParams({ from, to: dates.at(-1)! })) as {
+        summary?: Record<string, { occupied: number; free: number; blocked: number }>;
+      };
+      const board = buildMarketBoard({
+        dates,
+        asOf,
+        compareDays: compare,
+        own: emptyFixture ? {} : (chess?.summary ?? {}),
+        competitors: active,
+        readings: marketReadings.filter((r) => active.some((c) => c.id === r.competitorId)),
+      });
+      return [200, { today, from, days, board, competitors: active }];
+    }
+    if (path === '/market/night' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const date = q.get('date') ?? '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [400, { message: 'date: ночь YYYY-MM-DD' }];
+      const active = marketCompetitors.filter((c) => c.active);
+      return [200, buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings })];
+    }
+    if (path === '/market/competitors' && method === 'POST') {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const input = parseCompetitorInput(body, 'create');
+      if (marketCompetitors.filter((c) => c.active).length >= MARKET_MAX_COMPETITORS)
+        return [409, { message: `В списке уже ${MARKET_MAX_COMPETITORS} конкурентов: уберите одного, чтобы добавить нового` }];
+      if (marketCompetitors.some((c) => c.name === input.name))
+        return [400, { message: `Конкурент «${input.name}» уже есть в списке` }];
+      const row: FixtureCompetitor = {
+        id: `00000000-0000-4000-8000-${String(marketCompetitors.length + 1).padStart(12, '0')}`,
+        name: input.name!,
+        distanceM: input.distanceM ?? null,
+        unitsTotal: input.unitsTotal ?? null,
+        url: input.url ?? null,
+        note: input.note ?? null,
+        active: true,
+      };
+      marketCompetitors.push(row);
+      return [201, row];
+    }
+    const m = /^\/market\/competitors\/([^/]+)(\/occupancy)?$/.exec(path);
+    if (m) {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
+      if (m[2] && method === 'PUT') {
+        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
+        const parsed = entries.map((e) => ({ date: String(e['date']), bp: parseOccupancyPercent(e['percent']) }));
+        for (const e of parsed) {
+          if (e.date < marketPlus(today, -30) || e.date > marketPlus(today, 365))
+            return [400, { message: `Ночь ${e.date}: можно от ${marketPlus(today, -30)} до ${marketPlus(today, 365)}` }];
+        }
+        for (const e of parsed) {
+          marketReadings = marketReadings.filter(
+            (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
+          );
+          if (e.bp !== null)
+            marketReadings.push({ competitorId: row.id, stayDate: e.date, observedOn: today, occupancyBp: e.bp, source: 'MANUAL' });
+        }
+        return [200, { saved: parsed.filter((e) => e.bp !== null).length, cleared: parsed.filter((e) => e.bp === null).length }];
+      }
+      if (!m[2] && method === 'PATCH') {
+        if (!row) return [404, { message: 'Конкурент не найден' }];
+        const patch = parseCompetitorInput(body, 'update');
+        if (patch.name && marketCompetitors.some((c) => c.id !== row.id && c.name === patch.name))
+          return [400, { message: `Конкурент «${patch.name}» уже есть в списке` }];
+        Object.assign(row, patch);
+        if (typeof body['active'] === 'boolean') row.active = body['active'];
+        return [200, row];
+      }
+    }
+    return [404, { message: 'Нет такого маршрута' }];
+  } catch (e) {
+    if (e instanceof MarketInputError) return [400, { message: e.message }];
+    throw e;
+  }
+}
+
 const fixtureBranches: Array<Record<string, unknown>> = [];
 createServer(async (req, res) => {
   try {
@@ -4039,8 +4300,27 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
+    if (path === '/__test/market' && req.method === 'POST') {
+      resetMarket();
+      for (const c of (body['competitors'] as Array<Partial<FixtureCompetitor>> | undefined) ?? [])
+        marketCompetitors.push({
+          id: String(c.id),
+          name: String(c.name),
+          distanceM: c.distanceM ?? null,
+          unitsTotal: c.unitsTotal ?? null,
+          url: c.url ?? null,
+          note: c.note ?? null,
+          active: c.active ?? true,
+        });
+      marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      return send(200, { ok: true, today });
+    }
     if (path === '/__test/reset') {
       fixtureBranches.length = 0;
+      resetMarket();
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4083,6 +4363,7 @@ createServer(async (req, res) => {
       ratesUnmapped = false;
       incidentHistory = 0;
       channelMapping = 'none';
+      channelCatalog = '';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
@@ -4137,6 +4418,8 @@ createServer(async (req, res) => {
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
+      channelCatalog =
+        body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -5890,6 +6173,13 @@ createServer(async (req, res) => {
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
+    // Окно Channex (ADR-140): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
+    if (/^\/channels\/channex\/channels\/[^/]+\/load-future-reservations$/.test(path))
+      return path.includes('/ui-ch-bdc/')
+        ? send(200, { channel: 'Booking.com' })
+        : send(409, { message: 'Канал не умеет отдавать будущие брони' });
+    if (path === '/channels/channex/channels/connect-session')
+      return send(200, { url: 'about:blank', expiresInMinutes: 15 });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
     const guardAction = /^\/guard\/incidents\/([^/]+)\/(acknowledge|resolve)$/.exec(path);
     if (guardAction && guardAction[1] !== 'ui-incident') {
@@ -6089,11 +6379,19 @@ createServer(async (req, res) => {
           sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
         0n,
       );
+      // разбивка по ночам, как у API: равная цена ночи, сумма ночей равна итогу
+      const perNight = nights > 0n ? total / nights : 0n;
+      const nightList = Array.from({ length: Number(nights) }, (_, i) => {
+        const d = new Date(`${arrival}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + i);
+        return { date: d.toISOString().slice(0, 10), priceMinor: perNight.toString() };
+      });
       return send(201, {
         arrivalDate: arrival,
         departureDate: departure,
         totalMinor: total.toString(),
         currency: 'KZT',
+        nights: nightList,
       });
     }
     if (path === '/reservations') {

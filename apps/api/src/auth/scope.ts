@@ -1,4 +1,5 @@
 import type { Db } from '@pms/database';
+import { parseBusinessVertical } from '@pms/domain';
 import type { BusinessVertical, RequestScope } from './request-context';
 
 /**
@@ -56,12 +57,18 @@ export async function resolveScope(
     where: { id: pointer.businessId, organizationId, status: 'ACTIVE' },
     select: { id: true, vertical: true },
   });
-  if (!business) return organization;
-  if (!pointer.locationId) return { scope: 'BUSINESS', businessId: business.id, vertical: business.vertical };
+  if (!business || !parseBusinessVertical(business.vertical)) return organization;
+  if (!pointer.locationId)
+    return { scope: 'BUSINESS', businessId: business.id, vertical: business.vertical };
   const location = await db.location.findFirst({
     where: { id: pointer.locationId, businessId: business.id, status: 'ACTIVE' },
     select: { id: true },
   });
   if (!location) return organization;
-  return { scope: 'LOCATION', businessId: business.id, locationId: location.id, vertical: business.vertical };
+  return {
+    scope: 'LOCATION',
+    businessId: business.id,
+    locationId: location.id,
+    vertical: business.vertical,
+  };
 }

@@ -1,0 +1,30 @@
+# Модульные (unit) · 04.10.2026 17:00 Алматы · MacBook-Air-Urij.local
+# коммит 1909267 (codex/mv1-vertical-foundation-20261004), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-00-22Z-unit-228b.json' 'packages/domain/src/verticals/registry.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| packages/domain/src/verticals/registry.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/verticals/registry.test.ts [ packages/domain/src/verticals/registry.test.ts ]
+Error: Cannot find module './registry' imported from /Users/urijzapojnov/wetop-mv1-20261004/packages/domain/src/verticals/registry.test.ts
+ ❯ packages/domain/src/verticals/registry.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { parseBusinessVertical, verticalDefinition, hasVerticalCapabil…
+       | ^
+      3|
+      4| describe('canonical business verticals', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:00:26
+   Duration  157ms (worker 96%, environment 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-00-22Z-unit-228b.json
+
+# код выхода 1 · 4 с

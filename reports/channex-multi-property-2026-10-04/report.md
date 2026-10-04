@@ -50,3 +50,7 @@ Final local verification after integration fixture correction:
 - Live staging mapping exists, exactly one active webhook, callback and header secret match.
   Empty authenticated callback request using WETOP-Integration-Check/1.0 returns expected HTTP 400.
   Python's default User-Agent received Cloudflare 403; the ordinary service request reaches API.
+
+CI rerun identified and fixed compact 1366x768 layout, stale validation text, explicit tariff selection
+in the UI fixture, and contrast preview inheriting a dark parent background. Contrast generator
+regression was red then green (15 tests). Seven browser regressions passed locally (1.8 min).

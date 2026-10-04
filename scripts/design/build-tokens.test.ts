@@ -41,6 +41,12 @@ const KNOWN_GAPS = [
 ];
 
 describe('tokens.css генерируется из design/tokens.json', () => {
+  it('контрастная тема задаёт светлый фон даже внутри тёмной темы', () => {
+    const block = buildTokensCss(tree).split("[data-theme='contrast'] {")[1]!.split('}')[0]!;
+    expect(block).toContain('--bg: #e9f0f8;');
+    expect(block).toContain('--surface: #ffffff;');
+    expect(block).toContain('--on-primary: #ffffff;');
+  });
   it('файл на диске совпадает с выводом генератора (ручная правка — красный тест)', () => {
     expect(readFileSync(resolve(ROOT, CSS_FILE), 'utf8')).toBe(buildTokensCss(tree));
   });

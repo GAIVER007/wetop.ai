@@ -912,6 +912,7 @@ test('кнопки Channex отправляют команды один раз �
   }
   // «Подключения» каналов переехали на /connections/channex (INT2)
   await page.goto('/connections/channex');
+  await page.getByLabel('Тариф для продажи в каналах').selectOption({ index: 1 });
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);

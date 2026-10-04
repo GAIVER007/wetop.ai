@@ -226,9 +226,9 @@ export function buildTokensCss(tree: TokenTree): string {
   for (const [name, spec] of Object.entries(tree.themes)) {
     const body: string[] = [`  color-scheme: ${spec.colorScheme};`];
     for (const t of tree.tokens) {
-      if (!(name in t.values)) continue;
+      if (!(name in t.values) && name !== 'contrast') continue;
       const note = t.deprecated && name === 'light' ? ' /* устарел */' : '';
-      body.push(`  ${t.cssVar}: ${toCss(t.type, t.values[name]!)};${note}`);
+      body.push(`  ${t.cssVar}: ${toCss(t.type, t.values[name] ?? t.values.light!)};${note}`);
     }
     if (body.length === 1) continue;
     const block = [`${spec.selector} {`, ...body, '}'];

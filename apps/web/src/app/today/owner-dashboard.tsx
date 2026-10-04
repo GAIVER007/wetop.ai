@@ -259,6 +259,7 @@ export async function OwnerOperations({ date }: { date: string }) {
         <DashboardDetails title="Требуют внимания">
           <DayAttention day={day} board={board} guard={guard} isToday />
         </DashboardDetails>
+        <Link href={`/chessboard?from=${date}&to=${date}`}>Календарь</Link>
       </div>
       <TodayWidgets day={day} board={board} />
     </section>

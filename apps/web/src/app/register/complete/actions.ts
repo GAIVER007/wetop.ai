@@ -19,5 +19,5 @@ export async function confirmRegistrationContext() {
     },
   );
   revalidatePath('/', 'layout');
-  redirect(context.vertical === 'HOSPITALITY' ? '/today' : '/register/complete');
+  redirect('/register/setup');
 }

@@ -5546,3 +5546,11 @@ Existing access rules, price formulas, category locks and allocation exclusion r
 Дата: 04.10.2026. Основание: прямое принятие MV1 и разрешение MV2 владельцем. Проблема: регистрация всегда создаёт гостиницу. Варианты: generic domain или shared chain с vertical adapters. Решение: shared Organization/Business/Location; Hospitality создаёт Property, pilot Beauty/Food без Property. DTO: explicit vertical + businessName; hotelName-only сохраняет старую Hospitality совместимость. Unknown vertical отвергается. Причина: сохраняет Luxx и canonical Business.vertical. Последствия: pilot gated на сервере, email confirmation не пересоздаёт цепочку; новые flows требуют explicit verified scope. Scope и checks в plans/mv2-registration-2026-10-04.md. Способ pilot authorization фиксируется после ответа владельца.
 
 MV2 pilot authorization, уточнение владельца 04.10.2026: серверный allowlist email отдельно по vertical, exact normalized match. Пустой список закрывает пилот. Не вводить invitation tables или public self-service release; env names и проверки в плане MV2.
+
+## ADR-MV3-20261004: общий onboarding registry и adapters
+
+Дата: 04.10.2026. Проблема: существующий onboarding знает только Hospitality. Варианты: три самостоятельных приложения или shared shell с adapters. Решение владельца: общий framework, server-resolved Business.vertical выбирает adapter; Hospitality сохраняет рабочие категории/фонд/тариф; Beauty/Food получают только shared setup. Причина: расширять реальные шаги в MV4/MV6 без fake domain UI. Последствия: registry и переходы независимы от хранения, explicit verified context обязателен для новых flows; выбор серверного хранилища предложен в DATA_MODEL и пока ожидает подтверждения.
+
+MV2 backlog: registrationContext() выбирает самый ранний ACTIVE Business и остаётся helper завершения первой регистрации. Не использовать как generic selector организации с несколькими Business. В MV3 контекст выбранного Business/Location должен приходить из проверенного scope; helper не менять в рамках принятого MV2.
+
+MV3 уточнение: владелец подтвердил серверную OnboardingProgress 04.10.2026. Применяется модель выше; migration только локально для доказательств, production не разрешён.

@@ -1,3 +1,4 @@
+import { SharedOnboardingModule } from './onboarding/onboarding.module';
 import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
@@ -68,6 +69,7 @@ import { DataConnectionModule } from './database/connection';
     // Раздел «ИИ-продавец»: профиль, прокси к продавцу, применение и сверка (ТЗ ред. 1, ADR-079)
     AiSellerModule,
     WizardModule,
+    SharedOnboardingModule,
   ],
   // Замок непубличных маршрутов. В боевом образе включён, пока не выключен явным AUTH_REQUIRED=0 (auth.guard.ts)
   providers: [

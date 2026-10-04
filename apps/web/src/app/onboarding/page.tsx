@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { onboardingApi } from '../../lib/api';
+import { authApi, onboardingApi } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { pageOpen } from '../../lib/navigation';
 import { Icon } from '../../components/icon';
@@ -12,6 +12,8 @@ import { OnboardingForm } from './onboarding-form';
  * номеров. Уже настроенный объект сюда не пускаем — незачем.
  */
 export default async function OnboardingPage() {
+  const verified = await authApi.me().catch(() => null);
+  if (verified?.context?.businessId && verified.context.locationId) redirect('/register/setup');
   const [status, desk] = await Promise.all([onboardingApi.status().catch(() => null), deskShell()]);
   if (status && !status.needed) redirect('/today');
   // номера и цены заводят владелец и управляющий (ADR-107): администратору — не форма и не «Нет доступа», а кто и что;

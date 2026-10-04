@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 04.10.2026 19:00 Алматы · MacBook-Air-Urij.local
+# коммит 07f5cf1 (codex/mv3-onboarding-20261004)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding/playwright.config.ts'
+[WebServer] (node:77306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:77367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe (4.6s)
+  ✓  2 tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe (3.9s)
+  ✓  3 tests/onboarding/onboarding.spec.ts:54:1 › READ_ONLY displays data without mutation controls (538ms)
+  ✓  4 tests/onboarding/onboarding.spec.ts:60:1 › Hospitality existing categories persist on reload and provision real inventory (1.7s)
+
+  4 passed (16.5s)
+
+# код выхода 0 · 18 с

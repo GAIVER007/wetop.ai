@@ -6064,3 +6064,42 @@
 | 04.10.2026 18:22 | lint | ✅ без ошибок | 29 с | 83ab0ef | [лог](logs/2026-10-04T13-22-38Z-lint-c03d.log) |  |
 | 04.10.2026 18:22 | integration | ✅ 318 из 327, пропущено 9 | 1 мин 9 с | 83ab0ef | [лог](logs/2026-10-04T13-22-28Z-integration-2e3f.log) | MV2 FINAL main QA merged, registration and Hospitality regression |
 | 04.10.2026 18:21 | unit | ✅ 3312 из 3316, пропущено 4 | 3 мин 14 с | 2d9adf6 +25 | [лог](logs/2026-10-04T13-21-39Z-unit-f94d.log) | MV2 FINAL integrated with main QA merge 2d9adf66 |
+| 04.10.2026 18:37 | unit (частично: packages/domain/src/onboarding/registry.test.ts) | ❌ код выхода 1 | 2 с | a4fac4b +1 | [лог](logs/2026-10-04T13-37-15Z-unit-5d25.log) | MV3 registry RED before implementation |
+| 04.10.2026 18:38 | unit (частично: packages/domain/src/onboarding/registry.test.ts) | ✅ 5 из 5 | 2 с | a4fac4b +3 | [лог](logs/2026-10-04T13-38-03Z-unit-da96.log) | MV3 registry GREEN |
+| 04.10.2026 18:38 | unit (частично: apps/api/src/onboarding/onboarding.test.ts) | ❌ код выхода 1 | 2 с | a4fac4b +4 | [лог](logs/2026-10-04T13-38-43Z-unit-8ecd.log) | MV3 scope and READ_ONLY RED |
+| 04.10.2026 18:40 | unit (частично: apps/api/src/onboarding/onboarding.test.ts) | ✅ 5 из 5 | 2 с | a4fac4b +10 | [лог](logs/2026-10-04T13-40-53Z-unit-10b9.log) | MV3 trusted scope GREEN |
+| 04.10.2026 18:42 | typecheck | ❌ ошибок: 18 | 29 с | a4fac4b +19 | [лог](logs/2026-10-04T13-42-31Z-typecheck-fefc.log) | MV3 first implementation type check |
+| 04.10.2026 18:44 | integration (частично: tests/integration/mv3-onboarding.test.ts) | ✅ 4 из 4 | 3 с | a4fac4b +11 | [лог](logs/2026-10-04T13-44-31Z-integration-a5b5.log) | MV3 local DB resume isolation concurrency |
+| 04.10.2026 18:45 | typecheck | ❌ ошибок: 3 | 27 с | a4fac4b +21 | [лог](logs/2026-10-04T13-45-20Z-typecheck-0dde.log) | MV3 scoped engine typecheck |
+| 04.10.2026 18:46 | unit (частично: apps/api/src/onboarding/onboarding.test.ts) | ❌ упало 1 из 6 | 2 с | a4fac4b +20 | [лог](logs/2026-10-04T13-46-24Z-unit-55c6.log) | MV3 READ_ONLY organization regression RED |
+| 04.10.2026 18:46 | unit (частично: apps/api/src/onboarding/onboarding.test.ts) | ✅ 6 из 6 | 2 с | a4fac4b +20 | [лог](logs/2026-10-04T13-46-47Z-unit-e7ee.log) | MV3 READ_ONLY organization GREEN |
+| 04.10.2026 18:46 | integration (частично: tests/integration/mv3-onboarding.test.ts) | ✅ 5 из 5 | 2 с | a4fac4b +12 | [лог](logs/2026-10-04T13-46-49Z-integration-fc6b.log) | MV3 actual READ_ONLY and RLS owner-positive check |
+| 04.10.2026 18:48 | e2e (частично: --config tests/onboarding/playwright.config.ts) | ❌ код выхода 1 | 2 с | a4fac4b +20 | [лог](logs/2026-10-04T13-48-29Z-e2e-03ba.log) | MV3 isolated browser real persistence; synthetic authentication |
+| 04.10.2026 18:48 | e2e (частично: --config tests/onboarding/playwright.config.ts) | ❌ код выхода 1 | 2 с | a4fac4b +20 | [лог](logs/2026-10-04T13-48-54Z-e2e-fd44.log) | MV3 isolated browser persistence and visual QA |
+| 04.10.2026 18:50 | typecheck | ✅ без ошибок | 24 с | a4fac4b +24 | [лог](logs/2026-10-04T13-50-24Z-typecheck-3de4.log) | MV3 full typecheck before browser retry |
+| 04.10.2026 18:49 | unit | ❌ упало 2 из 3328, пропущено 4 | 3 мин 13 с | a4fac4b +20 | [лог](logs/2026-10-04T13-49-05Z-unit-eafd.log) | MV3 full unit regression |
+| 04.10.2026 18:52 | e2e (частично: --config tests/onboarding/playwright.config.ts) | ✅ 4 из 4 | 19 с | a4fac4b +20 | [лог](logs/2026-10-04T13-52-46Z-e2e-0193.log) | MV3 browser actual persistence desktop mobile themes |
+| 04.10.2026 18:53 | unit (частично: tests/unit/design-slop.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/onboarding/onboarding.test.ts packages/domain/src/on | ❌ упало 1 из 51 | 3 с | a4fac4b +20 | [лог](logs/2026-10-04T13-53-21Z-unit-e044.log) | MV3 focused regression plus main baseline design diagnosis |
+| 04.10.2026 18:54 | lint | ✅ без ошибок | 43 с | a4fac4b +24 | [лог](logs/2026-10-04T13-54-39Z-lint-0ad7.log) | MV3 final lint |
+| 04.10.2026 18:54 | typecheck | ✅ без ошибок | 1 мин 4 с | a4fac4b +24 | [лог](logs/2026-10-04T13-54-39Z-typecheck-d253.log) | MV3 final typecheck |
+| 04.10.2026 18:54 | integration | ❌ упало 2 из 333, пропущено 9 | 1 мин 29 с | a4fac4b +12 | [лог](logs/2026-10-04T13-54-23Z-integration-5588.log) | MV3 full local integration regression |
+| 04.10.2026 18:54 | unit | ❌ упало 2 из 3328, пропущено 4 | 3 мин 28 с | a4fac4b +20 | [лог](logs/2026-10-04T13-54-39Z-unit-80d6.log) | MV3 final unit; pre-existing main owner-dashboard spacing failure tracked |
+| 04.10.2026 19:00 | e2e (частично: --config tests/onboarding/playwright.config.ts) | ✅ 4 из 4 | 18 с | 07f5cf1 | [лог](logs/2026-10-04T14-00-18Z-e2e-2cf2.log) | MV3 final browser actual local persistence with cleanup |
+| 04.10.2026 19:01 | lint | ✅ без ошибок | 39 с | 07f5cf1 | [лог](logs/2026-10-04T14-01-01Z-lint-d1af.log) | MV3 final lint after browser |
+| 04.10.2026 19:01 | typecheck | ✅ без ошибок | 45 с | 07f5cf1 | [лог](logs/2026-10-04T14-01-01Z-typecheck-c476.log) | MV3 final all types |
+| 04.10.2026 19:01 | integration | ✅ 324 из 333, пропущено 9 | 1 мин 25 с | 07f5cf1 | [лог](logs/2026-10-04T14-01-01Z-integration-e52b.log) | MV3 final RLS catalog and clean local fixture regression |
+| 04.10.2026 19:01 | unit | ✅ 3324 из 3328, пропущено 4 | 3 мин 26 с | 07f5cf1 | [лог](logs/2026-10-04T14-01-01Z-unit-b1d0.log) | MV3 final on fresh main b72c06fe |
+| 04.10.2026 19:04 | unit (частично: apps/api/src/hotel/onboarding.test.ts) | ❌ упало 2 из 11 | 2 с | 07f5cf1 +1 | [лог](logs/2026-10-04T14-04-54Z-unit-3dc0.log) | MV3 legacy hotel explicit pilot boundary RED |
+| 04.10.2026 19:05 | unit (частично: apps/api/src/hotel/onboarding.test.ts) | ✅ 11 из 11 | 2 с | 07f5cf1 +2 | [лог](logs/2026-10-04T14-05-14Z-unit-06fd.log) | MV3 legacy explicit pilot boundary GREEN |
+| 04.10.2026 19:05 | e2e (частично: --config tests/onboarding/playwright.config.ts) | ✅ 4 из 4 | 20 с | 07f5cf1 +2 | [лог](logs/2026-10-04T14-05-27Z-e2e-bbb2.log) | MV3 final browser with hotel vertical boundary |
+| 04.10.2026 19:06 | lint | ✅ без ошибок | 46 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-06-17Z-lint-38f0.log) | MV3 final boundary lint |
+| 04.10.2026 19:06 | typecheck | ✅ без ошибок | 53 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-06-17Z-typecheck-c039.log) | MV3 final boundary types |
+| 04.10.2026 19:06 | integration | ✅ 324 из 333, пропущено 9 | 1 мин 33 с | 07f5cf1 +2 | [лог](logs/2026-10-04T14-06-17Z-integration-6d9a.log) | MV3 final boundary integration regression |
+| 04.10.2026 19:05 | unit | ❌ упало 1 из 3330, пропущено 4 | 3 мин 36 с | 07f5cf1 +2 | [лог](logs/2026-10-04T14-05-28Z-unit-67d4.log) | MV3 final regression including legacy hotel boundary |
+| 04.10.2026 19:09 | unit (частично: apps/api/src/hotel/branch-context.test.ts apps/api/src/hotel/onboarding.test.ts) | ✅ 15 из 15 | 2 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-09-30Z-unit-0d8b.log) | MV3 verified Hospitality context fixture and pilot boundary |
+| 04.10.2026 19:09 | lint | ✅ без ошибок | 43 с | 07f5cf1 +4 | [лог](logs/2026-10-04T14-09-55Z-lint-c580.log) | MV3 accepted code lint |
+| 04.10.2026 19:09 | typecheck | ✅ без ошибок | 48 с | 07f5cf1 +4 | [лог](logs/2026-10-04T14-09-55Z-typecheck-8fb2.log) | MV3 accepted code types |
+| 04.10.2026 19:09 | integration | ❌ упало 1 из 333, пропущено 9 | 1 мин 29 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-09-55Z-integration-fb7c.log) | MV3 accepted code and verified scope fixture |
+| 04.10.2026 19:12 | integration (частично: tests/integration/inventory-editor.test.ts) | ✅ 1 из 1 | 5 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-12-45Z-integration-c093.log) | Verify transient inventory socket hang up without code changes |
+| 04.10.2026 19:09 | unit | ✅ 3326 из 3330, пропущено 4 | 3 мин 28 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-09-42Z-unit-df25.log) | MV3 final complete unit acceptance |
+| 04.10.2026 19:13 | integration | ✅ 324 из 333, пропущено 9 | 48 с | 07f5cf1 +3 | [лог](logs/2026-10-04T14-13-25Z-integration-0b9a.log) | MV3 final complete integration without parallel load |

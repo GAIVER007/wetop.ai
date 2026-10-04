@@ -21,6 +21,7 @@ export default async function RegistrationCompletePage() {
   const { context: verified } = await authApi.me();
   const selected =
     verified?.businessId === context.businessId && verified?.locationId === context.locationId;
+  if (selected) redirect('/register/setup');
   return (
     <main className="login-page registration-complete" id="main-content">
       <section className="login-form-panel">

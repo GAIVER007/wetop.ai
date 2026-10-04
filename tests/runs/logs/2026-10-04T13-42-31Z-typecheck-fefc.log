@@ -1,0 +1,39 @@
+# Типы (typecheck) · 04.10.2026 18:42 Алматы · MacBook-Air-Urij.local
+# коммит a4fac4b (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 19
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/onboarding/onboarding.module.ts(53,69): error TS2532: Object is possibly 'undefined'.
+apps/api/src/onboarding/onboarding.module.ts(75,42): error TS2532: Object is possibly 'undefined'.
+apps/api/src/onboarding/onboarding.module.ts(91,67): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/domain/src/onboarding/registry.test.ts(25,12): error TS2532: Object is possibly 'undefined'.
+packages/domain/src/onboarding/registry.ts(45,29): error TS2532: Object is possibly 'undefined'.
+packages/domain/src/onboarding/registry.ts(48,10): error TS2532: Object is possibly 'undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/onboarding/onboarding.module.ts(53,69): error TS2532: Object is possibly 'undefined'.
+apps/api/src/onboarding/onboarding.module.ts(75,42): error TS2532: Object is possibly 'undefined'.
+apps/api/src/onboarding/onboarding.module.ts(91,67): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+apps/api/src/onboarding/onboarding.test.ts(2,33): error TS2459: Module '"../auth/request-context"' declares 'RequestActor' locally, but it is not exported.
+packages/domain/src/onboarding/registry.ts(45,29): error TS2532: Object is possibly 'undefined'.
+packages/domain/src/onboarding/registry.ts(48,10): error TS2532: Object is possibly 'undefined'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/register/setup/shell.tsx(39,17): error TS2375: Type '{ hotelName: string; currency: string; embedded: true; initialRows: undefined; onRowsChange: (rows: Row[]) => void; readOnly: boolean; }' is not assignable to type '{ hotelName: string; currency: string; embedded?: boolean; initialRows?: Row[]; onRowsChange?: (rows: Row[]) => void; readOnly?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'initialRows' are incompatible.
+    Type 'undefined' is not assignable to type 'Row[]'.
+apps/web/src/app/register/setup/shell.tsx(40,62): error TS2532: Object is possibly 'undefined'.
+apps/web/src/app/register/setup/shell.tsx(41,16): error TS2532: Object is possibly 'undefined'.
+apps/web/src/app/register/setup/shell.tsx(44,233): error TS2538: Type 'undefined' cannot be used as an index type.
+packages/domain/src/onboarding/registry.ts(45,29): error TS2532: Object is possibly 'undefined'.
+packages/domain/src/onboarding/registry.ts(48,10): error TS2532: Object is possibly 'undefined'.
+
+# код выхода 1 · 29 с

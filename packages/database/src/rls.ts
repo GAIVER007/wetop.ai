@@ -12,6 +12,7 @@ import pg from 'pg';
 /** Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`) */
 export const RLS_TENANT_TABLES: readonly string[] = [
   'organizations',
+  'onboarding_progress',
   'memberships',
   'sessions',
   'invites',

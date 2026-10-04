@@ -1,0 +1,23 @@
+# Типы (typecheck) · 04.10.2026 18:45 Алматы · MacBook-Air-Urij.local
+# коммит a4fac4b (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 21
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/mv3-onboarding.test.ts(73,47): error TS2322: Type '"READ_ONLY"' is not assignable to type 'MembershipRole | null | undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/onboarding/onboarding.test.ts(20,35): error TS2345: Argument of type '{ businessId: undefined; userId: string | null; organizationId: string | null; role?: MembershipRole | null; platformAdmin?: boolean; organizationScope?: boolean; ... 4 more ...; integrationPropertyId?: string; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ businessId: undefined; userId: string | null; organizationId: string | null; role?: MembershipRole | null; platformAdmin?: boolean; organizationScope?: boolean; ... 4 more ...; integrationPropertyId?: string; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'businessId' are incompatible.
+      Type 'undefined' is not assignable to type 'string'.
+apps/api/src/onboarding/onboarding.test.ts(41,47): error TS2322: Type '"READ_ONLY"' is not assignable to type 'MembershipRole | null | undefined'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 27 с

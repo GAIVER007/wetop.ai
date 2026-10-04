@@ -166,3 +166,55 @@ export function ErrorDemo({ digest }: { digest: string }) {
     </div>
   );
 }
+
+/**
+ * Живой переключатель тем витрины: светлая, тёмная, с повышенной контрастностью.
+ * По умолчанию показывает все темы.
+ */
+export function ThemeSwitcher({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'all' | 'light' | 'dark' | 'contrast'>('all');
+  return (
+    <div>
+      <div className="kit-theme-bar" role="toolbar" aria-label="Переключение тем витрины">
+        <span className="kit-theme-bar__label">Режим просмотра:</span>
+        <div className="kit-theme-bar__seg">
+          <button
+            type="button"
+            aria-pressed={theme === 'all'}
+            className={`btn btn--sm ${theme === 'all' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('all')}
+          >
+            Все темы
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'light'}
+            className={`btn btn--sm ${theme === 'light' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('light')}
+          >
+            Только светлая
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'dark'}
+            className={`btn btn--sm ${theme === 'dark' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('dark')}
+          >
+            Только тёмная
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'contrast'}
+            className={`btn btn--sm ${theme === 'contrast' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('contrast')}
+          >
+            Повышенная контрастность
+          </button>
+        </div>
+      </div>
+      <div className={`kit-themes ${theme !== 'all' ? `kit-themes--filter-${theme}` : ''}`}>
+        {children}
+      </div>
+    </div>
+  );
+}

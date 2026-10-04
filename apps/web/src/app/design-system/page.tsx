@@ -28,6 +28,7 @@ import {
   DisabledTooltipDemo,
   ErrorDemo,
   MenuDemo,
+  ThemeSwitcher,
   ToastDemo,
   ToastStatic,
   TooltipDemo,
@@ -128,7 +129,7 @@ function Component({
   );
 }
 
-function Kit() {
+function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
   return (
     <>
       <section className="kit-component" data-component="tokens" aria-labelledby="kit-tokens">
@@ -316,9 +317,12 @@ function Kit() {
           />
         </State>
         <State name="error">
-          <Field label="Гражданство">
-            <Input defaultValue="" aria-invalid="true" aria-describedby="kit-inp-err" />
-            <Alert id="kit-inp-err">Заселение без гражданства не пройдёт</Alert>
+          <Field
+            controlId={`kit-${theme}-citizenship`}
+            label="Гражданство"
+            error="Заселение без гражданства не пройдёт"
+          >
+            <Input defaultValue="" />
           </Field>
         </State>
         <State name="selected">
@@ -972,19 +976,23 @@ export default function DesignSystemPage() {
   return (
     <Page
       title="Дизайн-система"
-      subtitle="Компоненты стойки в восьми состояниях, светлая и тёмная тема. Правила — DESIGN.md. Только при разработке."
+      subtitle="Компоненты стойки в восьми состояниях, светлая, тёмная и контрастная темы. Правила: DESIGN.md. Только при разработке."
       width="full"
     >
-      <div className="kit-themes">
+      <ThemeSwitcher>
         <div className="kit-theme" data-theme="light" data-testid="kit-light">
           <h2 className="kit-theme__title">Светлая тема</h2>
-          <Kit />
+          <Kit theme="light" />
         </div>
         <div className="kit-theme" data-theme="dark" data-testid="kit-dark">
           <h2 className="kit-theme__title">Тёмная тема</h2>
-          <Kit />
+          <Kit theme="dark" />
         </div>
-      </div>
+        <div className="kit-theme" data-theme="contrast" data-testid="kit-contrast">
+          <h2 className="kit-theme__title">Повышенная контрастность</h2>
+          <Kit theme="contrast" />
+        </div>
+      </ThemeSwitcher>
     </Page>
   );
 }

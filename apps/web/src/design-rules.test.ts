@@ -186,3 +186,31 @@ describe('план дизайн-системы §10: попутные дефек
     expect(workspaceCss).not.toMatch(/\.record-nav/);
   });
 });
+
+describe('DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid)', () => {
+  const globalsCss = readFileSync(join(SRC, 'app', 'globals.css'), 'utf8');
+  const uiSource = readFileSync(join(SRC, 'components', 'ui.tsx'), 'utf8');
+  it('наведение меняет фон, а не текст или границу', () => {
+    const hover = globalsCss.match(/\.inp:hover[^{]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(hover).toMatch(/background:/);
+    expect(hover).not.toMatch(/(?:^|\s)(?:color|border-color):/);
+  });
+
+  it('отключённое поле приглушено прозрачностью, а серый фон остаётся признаком readOnly', () => {
+    const disabled = globalsCss.match(/\.inp:disabled\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(disabled).toMatch(/opacity:/);
+    expect(disabled).not.toMatch(/background:/);
+  });
+
+  it('поле ввода имеет стили disabled и aria-invalid', () => {
+    expect(globalsCss).toMatch(/\.inp:disabled/);
+    expect(globalsCss).toMatch(/\.inp\[aria-invalid=["']true["']\]/);
+  });
+
+  it('Field связывает hint и error с контролом', () => {
+    expect(uiSource).toContain('controlId');
+    expect(uiSource).toContain("'aria-describedby'");
+    expect(uiSource).toContain("'aria-invalid'");
+    expect(uiSource).toContain('htmlFor={controlId}');
+  });
+});

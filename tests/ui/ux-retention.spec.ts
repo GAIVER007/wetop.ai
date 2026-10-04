@@ -119,7 +119,7 @@ test('владелец и управляющий правят сведения �
 
   await form.getByLabel('Почта').fill('не почта');
   await save.click();
-  await expect(form.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(form.getByRole('alert')).toContainText('Почта в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
 
   await control(request, { role: 'MANAGER' });

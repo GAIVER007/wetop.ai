@@ -22,6 +22,22 @@ const BLOCKS = [
 /** Блоки прежних версий главной: абстрактные лозунги, вкладки и дубли возможностей. Их на странице больше нет. */
 const GONE = ['about', 'workflow', 'product-details', 'toolkit', 'control'];
 
+test('новая главная сразу называет гостиничный продукт и дает мобильную навигацию', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    'Управляйте отелем из одного окна',
+  );
+  const mobileNav = page.getByRole('navigation', { name: 'Разделы главной' });
+  await expect(mobileNav).toBeVisible();
+  await expect(mobileNav.getByRole('link')).toHaveCount(4);
+  await expect(page.locator('main > div').first()).toHaveCSS('padding-bottom', /[1-9]/);
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(mobileNav).toBeHidden();
+});
+
 test('блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами', async ({ page }) => {
   await page.goto('/');
   const ids = await page
@@ -56,7 +72,7 @@ test('содержимое блоков видно сразу: без вклад
   await expect(page.locator('#sales a[href="/calculator/"]')).toBeVisible();
   await expect(page.locator('#team .card')).toHaveCount(3);
   await expect(page.locator('#ai-sellers')).toContainText(/отдельное расширение/i);
-  await expect(page.locator('#faq details')).toHaveCount(7);
+  await expect(page.locator('#faq details')).toHaveCount(6);
   await expect(page.locator('#faq details summary').first()).toBeVisible();
 });
 

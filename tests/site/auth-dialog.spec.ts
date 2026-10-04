@@ -151,12 +151,13 @@ test('«Получить доступ» при открытой регистра
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+  await expect(dialog).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(page).toHaveURL(`${SITE_ORIGIN}/`); // не раздел «Как начать»
   await page.waitForTimeout(300); // окно появляется за 180 мс
   await page.screenshot({ path: 'test-results/site-auth-2-register.png' });
 
   await dialog.getByLabel('Имя').fill('Дана Тестова');
-  await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
   // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
   await dialog.getByLabel('Код страны').selectOption('KZ');
   await dialog.getByLabel('Телефон').fill('701 555 44 33');
@@ -175,11 +176,11 @@ test('«Получить доступ» при открытой регистра
 
   await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   await expect(dialog).toContainText('dana@example.invalid');
-  await expect(dialog).toContainText('настройка гостиницы');
+  await expect(dialog).toContainText('настройка бизнеса');
   expect(calls.find((c) => c.path === 'register')?.body).toEqual({
     email: 'dana@example.invalid',
     name: 'Дана Тестова',
-    hotelName: 'Хостел «Тест»',
+    hotelName: 'Тестовый бизнес',
     password: 'parol-dlya-testa',
     phoneCountry: 'KZ',
     phone: '701 555 44 33',
@@ -246,7 +247,7 @@ test('снимки окна регистрации: светлая и тёмна
       const dialog = page.getByRole('dialog');
       await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
       await dialog.getByLabel('Имя').fill('Дана Тестова');
-      await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+      await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
       await dialog.getByLabel('Код страны').selectOption('KZ');
       await dialog.getByLabel('Телефон').fill('701 555 44 33');
       await page.waitForTimeout(300);

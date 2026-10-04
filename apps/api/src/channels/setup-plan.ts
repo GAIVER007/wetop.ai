@@ -13,6 +13,7 @@ export interface LocalPropertyForChannex {
   /** ISO 3166-1 alpha-2, у объекта KZ */
   country: string;
   city: string;
+  propertyType: string;
   address: string | null;
   email: string | null;
   phone: string | null;
@@ -67,7 +68,7 @@ export function buildChannexSetup(input: {
     timezone: input.property.timezone,
     country: input.property.country,
     city: input.property.city,
-    property_type: 'hostel',
+    property_type: input.property.propertyType,
     ...(input.property.address ? { address: input.property.address } : {}),
     ...(input.property.email ? { email: input.property.email } : {}),
     ...(input.property.phone ? { phone: input.property.phone } : {}),

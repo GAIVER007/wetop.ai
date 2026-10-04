@@ -66,11 +66,11 @@ describe('Channex read-only connection check', () => {
     const r = await c.service.status();
     expect(r.lastPullAt).toBe('2026-09-14T08:05:00.000Z');
   });
-  it('flags a mismatched configured property without making provider calls', async () => {
+  it('legacy configured property does not block another mapped branch', async () => {
     const c = context();
     vi.stubEnv('CHANNEX_PROPERTY_ID', 'different-property');
-    expect((await c.service.status()).state).toBe('MAPPING_MISMATCH');
-    expect(c.reader.getProperty).not.toHaveBeenCalled();
+    expect((await c.service.status()).state).toBe('READY');
+    expect(c.reader.getProperty).toHaveBeenCalledWith('test-property');
   });
   it.each([
     [401, 'DENIED'],

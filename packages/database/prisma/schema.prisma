@@ -100,8 +100,14 @@ model Property {
   address        String?
   /// Контакты объекта для печатных форм (v1.7, ADR-082): до них телефон и почта были зашиты в код
   /// печати и напечатались бы в договоре любой организации. Пустое — в формах прочерк.
-  phone          String?
-  email          String?
+  phone        String?
+  email        String?
+  /// ISO 3166-1 alpha-2 for Channex property creation. NULL until the owner supplies it.
+  countryCode  String?  @map("country_code") @db.VarChar(2)
+  /// City sent to Channex; not inferred from the free-form address.
+  city         String?  @db.VarChar(100)
+  /// One of the Channex hotels-collection property_type values.
+  channexPropertyType String? @map("channex_property_type") @db.VarChar(40)
   /// IANA timezone объекта, например Asia/Almaty
   timezone       String
   /// ISO 4217, на объекте KZT

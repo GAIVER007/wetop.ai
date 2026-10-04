@@ -17,14 +17,14 @@ async function fillRegister(page: Page, email = 'new@example.invalid') {
   const form = dialog(page);
   await form.getByLabel('Почта').fill(email);
   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
-  await form.getByLabel('Название гостиницы').fill('Тестовый объект');
+  await form.getByLabel('Название бизнеса').fill('Тестовый объект');
   await form.getByLabel('Код страны').selectOption('KZ');
   await form.getByLabel('Телефон', { exact: true }).fill('7015554433');
   await form.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
   await form.getByRole('checkbox').check();
   await expect(form.getByLabel('Почта')).toHaveValue(email);
   await expect(form.getByLabel('Имя', { exact: true })).toHaveValue('Тестовый Пользователь');
-  await expect(form.getByLabel('Название гостиницы')).toHaveValue('Тестовый объект');
+  await expect(form.getByLabel('Название бизнеса')).toHaveValue('Тестовый объект');
   await expect(form.getByLabel('Телефон', { exact: true })).toHaveValue('7015554433');
   await expect(form.getByLabel('Пароль', { exact: true })).toHaveValue('synthetic-password');
 }

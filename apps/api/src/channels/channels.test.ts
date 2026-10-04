@@ -15,6 +15,7 @@ const property = {
   timezone: 'Asia/Almaty',
   country: 'KZ',
   city: 'Алматы',
+  propertyType: 'hostel',
   address: null,
   email: null,
   phone: null,
@@ -48,6 +49,14 @@ const categories = [
 const ratePlan = { id: 'p2', code: 'rate-ota', name: 'Тестовый для ОТА +35%', currency: 'KZT' };
 
 describe('buildChannexSetup', () => {
+  it('uses the selected property type instead of the installation default', () => {
+    const plan = buildChannexSetup({
+      property: { ...property, propertyType: 'hotel' },
+      categories,
+      ratePlan,
+    });
+    expect(plan.property.property_type).toBe('hotel');
+  });
   it('maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each', () => {
     const plan = buildChannexSetup({ property, categories, ratePlan });
     expect(plan.property).toMatchObject({
@@ -310,14 +319,19 @@ describe('ARI values', () => {
   });
 });
 
-
 describe('lastPricedDate — граница выгрузки ограничений (Channex требует rate в каждом объекте)', () => {
   const occ = { A: 2, B: 1 };
   const rate = (
     accommodationTypeCode: string,
     date: string,
     occupancy: number,
-  ): LocalDailyRate => ({ date, accommodationTypeCode, ratePlanId: 'rp', occupancy, priceMinor: 1n });
+  ): LocalDailyRate => ({
+    date,
+    accommodationTypeCode,
+    ratePlanId: 'rp',
+    occupancy,
+    priceMinor: 1n,
+  });
   it('последний день с ценой по вместимости категории', () => {
     expect(
       lastPricedDate(
@@ -333,7 +347,6 @@ describe('lastPricedDate — граница выгрузки ограничен�
     expect(lastPricedDate([], occ)).toBeNull();
   });
 });
-
 
 describe('Full Sync: ограничения тянутся до конца окна (Channex — end dates aligned)', () => {
   it('хвост без цены закрыт stop_sell, но с перенесённой ценой; конец окна = доступности', () => {

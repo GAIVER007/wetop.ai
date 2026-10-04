@@ -21,7 +21,7 @@ import { channex } from '@pms/integrations';
 import { Access } from '../auth/access.decorator';
 import { CHANNELS_REPOSITORY, type MappingRow } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
-import { IntegrationOwnerGuard } from './integration-owner';
+import { ChannelOrganizationGuard } from './integration-owner';
 import { ChannelOperatorInterceptor } from './operator-access';
 
 /**
@@ -337,7 +337,7 @@ function environmentOf(base: string) {
 }
 
 @Access('channels')
-@UseGuards(IntegrationOwnerGuard)
+@UseGuards(ChannelOrganizationGuard)
 @Controller('channels/channex')
 @UseInterceptors(ChannelOperatorInterceptor)
 export class ChannelCatalogController {

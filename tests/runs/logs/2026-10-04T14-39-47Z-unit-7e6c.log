@@ -1,0 +1,48 @@
+# Модульные (unit) · 04.10.2026 19:39 Алматы · MacBook-Air-Urij.local
+# коммит bc9b179 (codex/mv4-beauty-hardening-20261004), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-39-47Z-unit-7e6c.json' 'apps/api/src/beauty/scope.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| apps/api/src/beauty/scope.test.ts (7 tests | 1 failed) 8ms
+   ✓ MV4 explicit Beauty boundary (6)
+     ✓ does not choose a salon without explicit Business 2ms
+     ✓ Business context does not choose the first Location 0ms
+     ✓ invalid explicit Location fails instead of degrading to Business 0ms
+     ✓ HOSPITALITY is rejected before domain access 0ms
+     ✓ FOOD_SERVICE is rejected before domain access 0ms
+     ✓ every existing Beauty handler has the canonical capability 0ms
+   × no-scope Beauty capability fails before legacy Property resolution 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/scope.test.ts > no-scope Beauty capability fails before legacy Property resolution
+AssertionError: expected error to be instance of ForbiddenException
+
+- Expected:
+[Function ForbiddenException]
+
++ Received:
+Error {
+  "message": "legacy Property must not be read",
+}
+
+ ❯ apps/api/src/beauty/scope.test.ts:71:68
+     69|     switchToHttp: () => ({ getRequest: () => ({ user: { id: 'user', or…
+     70|   const handle = vi.fn(() => of('not reached'));
+     71|   await expect(interceptor.intercept(context as never, { handle })).re…
+       |                                                                    ^
+     72|   expect(propertyRead).not.toHaveBeenCalled();
+     73|   expect(handle).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  18:39:48
+   Duration  692ms (transform 60%, import 39%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-39-47Z-unit-7e6c.json
+
+# код выхода 1 · 2 с

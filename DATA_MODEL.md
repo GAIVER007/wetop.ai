@@ -2734,3 +2734,17 @@ BusinessVertical расширяется FOOD_SERVICE. Canonical источник
 ### MV3 OnboardingProgress, утверждено владельцем 04.10.2026
 
 Для серверного resume предлагается `OnboardingProgress` / `onboarding_progress`: `location_id` UUID PK/FK -> Location (0..1 state на Location); `flow_version` integer; `current_step` varchar(50); `draft` JSONB с валидируемым содержимым текущего adapter; `completed_at` nullable timestamptz; `updated_at` timestamptz. Не добавлять vertical или organization_id: ownership выводится через существующую цепочку Location -> Business -> Organization, RLS проверяет эту цепочку. State не является источником прав или vertical. Domain данные создаются только настоящим adapter после валидации. Миграция и rollback должны быть отдельным reviewable срезом. Владелец явно подтвердил серверную OnboardingProgress в ответ на предложение модели.
+
+### MV4 acceptance: Beauty v1 boundaries (2026-10-04, утверждено владельцем)
+
+MV4 принимает существующую модель §19.1 и миграции 44/45. Новых сущностей, полей, связей или enum нет.
+Статусы Appointment сохраняются: BOOKED, CONFIRMED, DONE, NO_SHOW, CANCELLED. Одна запись:
+Customer + BeautyService + Employee + Location. Exclusion по Employee действует между всеми филиалами;
+CANCELLED/NO_SHOW интервал не удерживают. Цена и валюта Appointment остаются snapshot.
+
+Authenticated Beauty API требует явный проверенный ACTIVE Business с vertical BEAUTY, для филиальных
+операций также проверенный ACTIVE Location этого Business. Первый салон или филиал не выбирается автоматически.
+EmployeeService является явным допуском к услуге: пустой список не разрешает все услуги.
+CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
+создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
+Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.

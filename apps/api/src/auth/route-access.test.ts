@@ -67,6 +67,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /availability': 'desk',
   'GET /availability/offers': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
+  'GET /beauty/customers': 'desk',
   'GET /beauty/services': 'desk',
   'POST /beauty/services': 'rates',
   'PATCH /beauty/services/:id': 'rates',

@@ -129,3 +129,17 @@ MV1 строго: model/ADR amendment, FOOD_SERVICE enum, canonical vertical con
 ## Исполнение MV1 в отдельном checkout
 
 Владелец прямо разрешил параллельную работу последним поручением. Checkout /Users/urijzapojnov/wetop-mv1-20261004, ветка codex/mv1-vertical-foundation-20261004 от main 1909267e. База PostgreSQL только localhost:55753, отдельный PGDATA. Основное дерево и база соседней сессии не меняются. Impact main учтён: Beauty module уже существует, RequestActor сохраняет integrationPropertyId, Channex multi-property mapping не переписывается.
+
+
+## Уточнение владельца после MV3 (2026-10-04): MV4 Acceptance & Hardening
+
+MV3 принят и влит PR #240, merge bc9b179f. MV4 переопределён: принять и укрепить уже существующий
+Beauty backend (миграции 44/45), не создавать таблицы повторно. Исполнительный план:
+`plans/mv4-beauty-hardening-2026-10-04.md`; итог: `reports/mv4-beauty-hardening-2026-10-04/README.md`.
+
+Это решение заменяет прежнее описание Beauty v1 в пункте 3 выше: сохраняются BOOKED, CONFIRMED,
+DONE, NO_SHOW, CANCELLED. SCHEDULED, COMPLETED, IN_PROGRESS и buffer-поля сейчас не добавляются.
+Одна запись связывает одного Customer, BeautyService, Employee и Location. CANCELLED/NO_SHOW
+не удерживают слот; overlap одного Employee запрещён и между Locations. Explicit verified Business
+обязателен; для филиальных операций explicit verified Location. Beauty no-scope fallback закрывается.
+Production rollout отдельно; MV5 UI только после отдельного разрешения владельца.

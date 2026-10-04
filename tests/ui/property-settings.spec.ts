@@ -167,6 +167,18 @@ test('администратор и «только чтение» видят с�
   await expect(main.getByTestId('stay-settings')).toContainText('12:00');
 });
 
+test('данные объекта и каналов помещаются на экране ноутбука', async ({ page }) => {
+  await signIn(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/hotel-settings');
+  const form = page.getByTestId('hotel-settings-form');
+  for (const label of ['Тип размещения', 'ИИН/БИН']) {
+    const box = await form.getByLabel(label).boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(876);
+  }
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`снимки SET1 и доступность: ${theme}`, async ({ page, request }) => {
     test.setTimeout(180_000);

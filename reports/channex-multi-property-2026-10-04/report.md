@@ -35,3 +35,18 @@ Production metadata migration applied 04.10.2026: 3 columns, one known-property 
 other property metadata remains NULL. Existing property row count (2) and digest unchanged.
 Only approved 041 was applied from a migration snapshot excluding the five unrelated pending migrations.
 Initial release-checks was cancelled by @GAIVER007; owner approved rerun.
+
+Final local verification after integration fixture correction:
+- All integration tests: 79 files passed / 6 skipped, 305 tests passed / 9 skipped (125.52 s).
+- UI slice: 13 passed, including laptop layout and metadata save/reload.
+- CI candidate 04d57380: 3247 unit tests and 50 site tests passed; full migration rollback/schema
+  comparison passed. Integration found an obsolete installation-env fixture; it now creates and
+  cleans an explicit property mapping, preserving all database-role assertions (6/6 pass).
+- Laptop layout regression was red before assigning metadata/legal panels to the right-hand grid.
+- Approved production 046-050 applied after fresh backup wetop-20261004T105313Z.dump.
+  Old-data digests for properties, memberships, reservations, reservation_items, folios, payments
+  and guests unchanged. Four new tables, four tenant policies, four application grants and two
+  membership columns verified. Prisma reports schema up to date.
+- Live staging mapping exists, exactly one active webhook, callback and header secret match.
+  Empty authenticated callback request using WETOP-Integration-Check/1.0 returns expected HTTP 400.
+  Python's default User-Agent received Cloudflare 403; the ordinary service request reaches API.

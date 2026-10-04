@@ -18,6 +18,7 @@ const SKIP = [
   '/invite',
   '/password-reset',
   '/profile/access',
+  '/status',
 ];
 
 export function needsOnboardingRedirect(input: {

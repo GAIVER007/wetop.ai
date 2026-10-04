@@ -132,6 +132,8 @@ model Property {
   cashCategories      CashCategory[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  paymentRequests     PaymentRequest[]
+  fiscalReceipts      FiscalReceipt[]
   competitors         Competitor[]
   competitorOccupancy CompetitorOccupancy[]
   services            Service[]
@@ -139,6 +141,8 @@ model Property {
   inventoryUnits      InventoryUnit[]
   externalEvents      ExternalEvent[]
   channelOutbox       ChannelOutbox[]
+
+  sellerBookingIntents SellerBookingIntent[]
 
   @@index([organizationId])
   @@map("properties")
@@ -198,6 +202,8 @@ model AccommodationType {
   dailyRates      DailyRate[]
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
+
+  sellerBookingIntents SellerBookingIntent[]
 
   @@unique([propertyId, code])
   @@map("accommodation_types")
@@ -320,6 +326,8 @@ model Reservation {
   primaryGuest Guest?            @relation("primaryGuest", fields: [primaryGuestId], references: [id])
   items        ReservationItem[]
   webSessions  WebSession[]
+
+  sellerBookingIntent SellerBookingIntent?
 
   @@unique([propertyId, creationKey])
   @@unique([propertyId, confirmationNumber])
@@ -559,6 +567,8 @@ model RatePlan {
   parent          RatePlan?                   @relation("RatePlanDerived", fields: [parentRatePlanId], references: [id], onDelete: Restrict)
   derived         RatePlan[]                  @relation("RatePlanDerived")
 
+  sellerBookingIntents SellerBookingIntent[]
+
   @@unique([propertyId, code])
   @@index([parentRatePlanId])
   @@map("rate_plans")
@@ -790,6 +800,13 @@ enum PaymentStatus {
 }
 
 /// Счёт гостя — один на проживание (ADR-014). Создаётся вместе с проживанием.
+/// DATA_MODEL §24: запрос оплаты (ADR-144)
+enum PaymentRequestStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
 model Folio {
   id                String      @id @default(uuid()) @db.Uuid
   reservationItemId String      @unique @map("reservation_item_id") @db.Uuid
@@ -802,6 +819,7 @@ model Folio {
   charges         Charge[]
   allocations     PaymentAllocation[]
   refunds         Refund[]
+  paymentRequests PaymentRequest[]
 
   @@map("folios")
 }
@@ -868,6 +886,8 @@ model Payment {
   property    Property            @relation(fields: [propertyId], references: [id])
   allocations PaymentAllocation[]
   refunds     Refund[]
+  request     PaymentRequest?
+  receipt     FiscalReceipt?
 
   @@unique([propertyId, externalReference])
   @@index([propertyId, paidAt])
@@ -979,6 +999,99 @@ model CashReconciliation {
 
   @@index([propertyId, method, createdAt])
   @@map("cash_reconciliations")
+}
+
+/// DATA_MODEL §24 (03.10.2026, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту
+/// проживания. «Оплачено» создаёт обычный Payment и закрывает запрос одной транзакцией.
+model PaymentRequest {
+  id          String               @id @default(uuid()) @db.Uuid
+  propertyId  String               @map("property_id") @db.Uuid
+  folioId     String               @map("folio_id") @db.Uuid
+  /// integer minor units (тиын), ADR-008; > 0
+  amount      BigInt
+  currency    String               @db.Char(3)
+  /// KASPI, HALYK, BANK_TRANSFER_PERSON, CARD_TERMINAL (CHECK в миграции)
+  method      PaymentMethod
+  /// только https://, до 500 знаков
+  link        String?
+  status      PaymentRequestStatus @default(PENDING)
+  paymentId   String?              @unique @map("payment_id") @db.Uuid
+  note        String?
+  createdById String?              @map("created_by_id") @db.Uuid
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  closedAt    DateTime?            @map("closed_at") @db.Timestamptz(6)
+
+  property  Property @relation(fields: [propertyId], references: [id])
+  folio     Folio    @relation(fields: [folioId], references: [id])
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id])
+
+  @@index([folioId])
+  @@index([propertyId, status])
+  @@map("payment_requests")
+}
+
+/// DATA_MODEL §26 (03.10.2026, ADR-144): фискальный чек, выданный по запросу гостя. Номер — из кассы объекта,
+/// один чек на платёж; адаптер облачной кассы допишет внешний id без смены таблицы (Q-263)
+model FiscalReceipt {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  paymentId  String   @unique @map("payment_id") @db.Uuid
+  /// номер чека или фискальный признак из кассы, 1–64 знака
+  number     String
+  issuedAt   DateTime @default(now()) @map("issued_at") @db.Timestamptz(6)
+  issuedById String?  @map("issued_by_id") @db.Uuid
+
+  property Property @relation(fields: [propertyId], references: [id])
+  payment  Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  issuedBy User?    @relation(fields: [issuedById], references: [id])
+
+  @@index([propertyId, issuedAt])
+  @@map("fiscal_receipts")
+}
+
+/// DATA_MODEL §25 (контракт 30.09.2026, ADR-144): намерение брони ИИ-продавца
+enum SellerBookingIntentState {
+  QUOTED
+  CONFIRMED
+  REJECTED
+}
+
+/// DATA_MODEL §25: котировка из чата живёт 30 минут; подтверждение создаёт бронь с creationKey = id
+model SellerBookingIntent {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  agentId             String                   @map("agent_id") @db.Uuid
+  organizationId      String                   @map("organization_id") @db.Uuid
+  propertyId          String                   @map("property_id") @db.Uuid
+  conversationId      String                   @map("conversation_id") @db.VarChar(64)
+  /// whatsapp | widget (CHECK в миграции)
+  channel             String                   @db.VarChar(16)
+  channelMessageId    String?                  @map("channel_message_id") @db.VarChar(128)
+  accommodationTypeId String                   @map("accommodation_type_id") @db.Uuid
+  ratePlanId          String                   @map("rate_plan_id") @db.Uuid
+  arrivalDate         DateTime                 @map("arrival_date") @db.Date
+  departureDate       DateTime                 @map("departure_date") @db.Date
+  adults              Int
+  /// integer minor units (тиын), ADR-008; > 0
+  totalMinor          BigInt                   @map("total_minor")
+  currency            String                   @db.Char(3)
+  expiresAt           DateTime                 @map("expires_at") @db.Timestamptz(6)
+  state               SellerBookingIntentState @default(QUOTED)
+  reservationId       String?                  @unique @map("reservation_id") @db.Uuid
+  requestHash         String                   @map("request_hash") @db.VarChar(64)
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  agent             SellerAgent       @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  property          Property          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id], onDelete: Restrict)
+  ratePlan          RatePlan          @relation(fields: [ratePlanId], references: [id], onDelete: Restrict)
+  reservation       Reservation?      @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+
+  @@unique([agentId, channelMessageId])
+  @@index([agentId, conversationId, createdAt])
+  @@map("seller_booking_intents")
 }
 
 // ───────────────────────── §23 Загрузка конкурентов ─────────────────────────
@@ -1248,6 +1361,8 @@ model Organization {
   auditLogs      AuditLog[]
   customers      Customer[]
 
+  sellerBookingIntents SellerBookingIntent[]
+
   @@map("organizations")
 }
 
@@ -1281,6 +1396,8 @@ model User {
   auditLogs           AuditLog[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  paymentRequests     PaymentRequest[]
+  fiscalReceipts      FiscalReceipt[]
   competitorsCreated  Competitor[]
   competitorReadings  CompetitorOccupancy[]
   userErrors          UserError[]
@@ -1546,6 +1663,8 @@ model SellerAgent {
   draft          WizardDraft?
   /// Рабочий профиль продавца этого агента (`seller_profiles`, DATA_MODEL §20.2); у агентов мастера пусто
   workingProfile SellerProfile?
+
+  bookingIntents SellerBookingIntent[]
 
   @@index([organizationId])
   @@index([locationId])

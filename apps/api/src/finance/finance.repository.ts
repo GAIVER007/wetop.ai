@@ -61,6 +61,8 @@ export interface AllocationRecord {
     paidAt: string;
     note: string | null;
     externalReference: string | null;
+    /** DATA_MODEL §26: чек, выданный по запросу гостя; null — не выдавали */
+    receipt: { number: string; issuedAt: string } | null;
   };
 }
 export interface RefundRecord {
@@ -311,7 +313,10 @@ export interface FinanceRepository {
   cashBalanceSources(): Promise<CashBalanceSources>;
   /** Статьи кассы; пустой справочник заполняется стартовым набором (Q-236) */
   cashCategories(): Promise<CashCategoryRecord[]>;
-  createCashCategory(c: { kind: 'INCOME' | 'EXPENSE'; name: string }, audit?: AuditEntry): Promise<string>;
+  createCashCategory(
+    c: { kind: 'INCOME' | 'EXPENSE'; name: string },
+    audit?: AuditEntry,
+  ): Promise<string>;
   /** false — статьи нет у этого объекта */
   updateCashCategory(
     id: string,
@@ -336,6 +341,11 @@ export interface FinanceRepository {
   createPayment(p: NewPayment, audit?: AuditEntry): Promise<string>;
   paymentById(id: string): Promise<PaymentRecord | null>;
   createRefund(r: NewRefund, audit?: AuditEntry): Promise<string>;
+  /**
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §26): только у проведённого платежа объекта, один чек на платёж.
+   * Под блокировкой строки платежа; аннулированный — `FinanceStateError`, повтор — `FinanceStateError` («уже выдан»).
+   */
+  issueReceipt(paymentId: string, number: string, audit: AuditEntry): Promise<void>;
   /** Закрыть счёт вручную (DATA_MODEL §6, Folio.status): гость рассчитался, начислений больше не будет */
   closeFolio(id: string, audit?: AuditEntry): Promise<void>;
   audit(
@@ -352,7 +362,7 @@ export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
  * Клиент внутри транзакции: те же таблицы, что у `PrismaService.db`, но без вложенных транзакций.
  * Тип берём от самого клиента, чтобы он не разошёлся со схемой.
  */
-type TxClient = PrismaService['db'];
+export type TxClient = PrismaService['db'];
 
 /** Счёт закрыт или его нет: деньги в него не записываются (аудит 26.09, С-25) */
 export class FolioClosedError extends Error {
@@ -375,7 +385,7 @@ export class FolioBalanceError extends Error {
  * записи на те же счета не ждали друг друга по кругу. Раньше «счёт открыт» проверялось до транзакции записи, и
  * одновременное начисление ложилось в только что закрытый счёт (аудит 26.09, С-25).
  */
-async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
+export async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
   for (const id of [...new Set(folioIds)].sort()) {
     const rows = await tx.$queryRaw<Array<{ status: string }>>`
       SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}::uuid FOR UPDATE`;
@@ -384,7 +394,7 @@ async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
 }
 
 /** Одна строка журнала. Пишется тем же клиентом, что и деньги, — своим или транзакционным. */
-async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
+export async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
   const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
   const after = a.idField && createdId ? { ...a.after, [a.idField]: createdId } : a.after;
   await tx.auditLog.create({
@@ -427,7 +437,10 @@ const folioInclude = {
     orderBy: { createdAt: 'asc' as const },
     include: { service: { select: { code: true } } },
   },
-  allocations: { orderBy: { payment: { paidAt: 'asc' as const } }, include: { payment: true } },
+  allocations: {
+    orderBy: { payment: { paidAt: 'asc' as const } },
+    include: { payment: { include: { receipt: { select: { number: true, issuedAt: true } } } } },
+  },
   refunds: { orderBy: { createdAt: 'asc' as const } },
 } satisfies Prisma.FolioInclude;
 type FolioRow = Prisma.FolioGetPayload<{ include: typeof folioInclude }>;
@@ -469,6 +482,9 @@ const toFolio = (f: FolioRow): FolioRecord => ({
       paidAt: a.payment.paidAt.toISOString(),
       note: a.payment.note,
       externalReference: a.payment.externalReference,
+      receipt: a.payment.receipt
+        ? { number: a.payment.receipt.number, issuedAt: a.payment.receipt.issuedAt.toISOString() }
+        : null,
     },
   })),
   refunds: f.refunds.map((r) => ({
@@ -961,6 +977,39 @@ export class PrismaFinanceRepository implements FinanceRepository {
    * Раньше его считали до транзакции, и два одновременных возврата оба проходили — возвращали больше, чем внесено
    * (аудит 25.09, С-2). Нарушение предела — `FinanceRuleError`, аннулированный платёж — `FinanceStateError`, как в сервисе.
    */
+  async issueReceipt(paymentId: string, number: string, audit: AuditEntry): Promise<void> {
+    const { id: propertyId } = await this.property();
+    try {
+      await this.prisma.db.$transaction(async (t) => {
+        const tx = t as unknown as TxClient;
+        const rows = await tx.$queryRaw<Array<{ status: string }>>`
+          SELECT "status"::text AS status FROM "payments"
+           WHERE "id" = ${paymentId}::uuid AND "property_id" = ${propertyId}::uuid FOR UPDATE`;
+        if (!rows[0]) throw new FinanceStateError('Платёж не найден');
+        if (rows[0].status !== 'COMPLETED') throw new FinanceStateError('Платёж аннулирован');
+        const existing = await tx.fiscalReceipt.findUnique({
+          where: { paymentId },
+          select: { number: true },
+        });
+        if (existing)
+          throw new FinanceStateError(`Чек по этому платежу уже выдан: ${existing.number}`);
+        const row = await tx.fiscalReceipt.create({
+          data: { propertyId, paymentId, number, issuedById: auditUserId() ?? null },
+          select: { id: true },
+        });
+        await writeAudit(tx, {
+          ...audit,
+          entityId: paymentId,
+          after: { ...audit.after, receiptId: row.id },
+        });
+      });
+    } catch (e) {
+      // одновременная отметка с другого места: уникальный индекс страхует проверку выше
+      if ((e as { code?: string }).code === 'P2002')
+        throw new FinanceStateError('Чек по этому платежу уже выдан');
+      throw e;
+    }
+  }
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
     const lock = async (tx: TxClient) => {
       // Распределение не меняется после записи платежа — проверка до блокировок: чужой счёт не блокируем
@@ -1090,7 +1139,12 @@ export class PrismaFinanceRepository implements FinanceRepository {
       where: { propertyId },
       orderBy: [{ kind: 'asc' }, { name: 'asc' }],
     });
-    return rows.map((c) => ({ id: c.id, kind: c.kind as 'INCOME' | 'EXPENSE', name: c.name, active: c.active }));
+    return rows.map((c) => ({
+      id: c.id,
+      kind: c.kind as 'INCOME' | 'EXPENSE',
+      name: c.name,
+      active: c.active,
+    }));
   }
   async createCashCategory(
     c: { kind: 'INCOME' | 'EXPENSE'; name: string },

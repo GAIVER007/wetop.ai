@@ -1,0 +1,179 @@
+# Модульные (unit) · 03.10.2026 23:55 Алматы · vm
+# коммит 8ba201d (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-55-18Z-unit-f363.json' 'apps/api/src/web-booking/bot-booking.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests | 8 failed) 150ms
+   ❯ бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) (10)
+     × ключи: без ключа 401, ключом котировки 403, ключом записи котировка создана 35ms
+     × котировка: сумма из расчёта сайта, срок 30 минут, организация, объект и тариф из агента 6ms
+     × котировка: не вмещает 4ms
+     ✓ котировка: нет категории 4ms
+     × котировка: Telegram — без брони 4ms
+     ✓ котировка: чужой агент 3ms
+     × подтверждение: бронь WHATSAPP с ключом повтора и ожидаемой суммой, гость псевдонимом; повтор — та же бронь 3ms
+     × устарело через 30 минут: отказ, брони нет, предложение закрыто 3ms
+     × цена изменилась: отказ словами, предложение закрыто, повтор тоже отказ 6ms
+     × чужой агент не подтверждает чужое предложение; без телефона — отказ 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > ключи: без ключа 401, ключом котировки 403, ключом записи котировка создана
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:240:57
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+    240|     await post('/bot/booking-intents', quoteBody, null).expect(401);
+       |                                                         ^
+    241|     await post('/bot/booking-intents', quoteBody, QUOTE_KEY).expect(40…
+    242|     await post('/bot/booking-intents/confirm', {}, QUOTE_KEY).expect(4…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > котировка: сумма из расчёта сайта, срок 30 минут, организация, объект и тариф из агента
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ quote apps/api/src/web-booking/bot-booking.controller.test.ts:237:76
+    235|   };
+    236|   const guest = { firstName: 'Айгерим', lastName: 'Тестова', phone: '+…
+    237|   const quote = async () => (await post('/bot/booking-intents', quoteB…
+       |                                                                            ^
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:247:21
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > котировка: не вмещает
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:272:68
+    270|     ['чужой агент', { agent: OTHER_AGENT }, 404],
+    271|   ])('котировка: %s', async (_n, patch, code) => {
+    272|     await post('/bot/booking-intents', { ...quoteBody, ...patch }).exp…
+       |                                                                    ^
+    273|     expect(intents.size).toBe(0);
+    274|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > котировка: Telegram — без брони
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:272:68
+    270|     ['чужой агент', { agent: OTHER_AGENT }, 404],
+    271|   ])('котировка: %s', async (_n, patch, code) => {
+    272|     await post('/bot/booking-intents', { ...quoteBody, ...patch }).exp…
+       |                                                                    ^
+    273|     expect(intents.size).toBe(0);
+    274|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > подтверждение: бронь WHATSAPP с ключом повтора и ожидаемой суммой, гость псевдонимом; повтор — та же бронь
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ quote apps/api/src/web-booking/bot-booking.controller.test.ts:237:76
+    235|   };
+    236|   const guest = { firstName: 'Айгерим', lastName: 'Тестова', phone: '+…
+    237|   const quote = async () => (await post('/bot/booking-intents', quoteB…
+       |                                                                            ^
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:277:21
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > устарело через 30 минут: отказ, брони нет, предложение закрыто
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ quote apps/api/src/web-booking/bot-booking.controller.test.ts:237:76
+    235|   };
+    236|   const guest = { firstName: 'Айгерим', lastName: 'Тестова', phone: '+…
+    237|   const quote = async () => (await post('/bot/booking-intents', quoteB…
+       |                                                                            ^
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:312:21
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > цена изменилась: отказ словами, предложение закрыто, повтор тоже отказ
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ quote apps/api/src/web-booking/bot-booking.controller.test.ts:237:76
+    235|   };
+    236|   const guest = { firstName: 'Айгерим', lastName: 'Тестова', phone: '+…
+    237|   const quote = async () => (await post('/bot/booking-intents', quoteB…
+       |                                                                            ^
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:326:21
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/bot-booking.controller.test.ts > бронь из чата продавца /bot/booking-intents (DATA_MODEL §24) > чужой агент не подтверждает чужое предложение; без телефона — отказ
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ quote apps/api/src/web-booking/bot-booking.controller.test.ts:237:76
+    235|   };
+    236|   const guest = { firstName: 'Айгерим', lastName: 'Тестова', phone: '+…
+    237|   const quote = async () => (await post('/bot/booking-intents', quoteB…
+       |                                                                            ^
+    238|
+    239|   it('ключи: без ключа 401, ключом котировки 403, ключом записи котиро…
+ ❯ apps/api/src/web-booking/bot-booking.controller.test.ts:339:21
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 2 passed (10)
+   Start at  18:55:19
+   Duration  2.59s (transform 66%, import 27%, tests 6%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-55-18Z-unit-f363.json
+
+# код выхода 1 · 4 с

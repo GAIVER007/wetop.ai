@@ -5878,3 +5878,5 @@
 | 04.10.2026 12:41 | lint | ✅ без ошибок | 46 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-41-33Z-lint-f798.log) |  |
 | 04.10.2026 12:42 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/guard-run.test.ts tests/unit/db-backup-offsite.test.ts tests/unit/db-restore-prod.test.ts tests/unit/a | ✅ 50 из 51, пропущено 1 | 55 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-42-41Z-unit-2f8e.log) |  |
 | 04.10.2026 12:43 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 50 из 50 | 12 с | ae4bd2d +50 | [лог](logs/2026-10-04T07-43-50Z-unit-7f9b.log) |  |
+| 04.10.2026 12:45 | unit | ❌ упало 1 из 3225, пропущено 4 | 1 мин 16 с | 65e7c07 | [лог](logs/2026-10-04T07-45-11Z-unit-02f5.log) | котировка продавца /bot/availability предел частоты на организацию — 429, ключ платформы в ответе не всплывает |
+| 04.10.2026 12:46 | unit (частично: apps/api/src/web-booking/bot-quote.controller.test.ts) | ✅ 19 из 19 | 3 с | 65e7c07 | [лог](logs/2026-10-04T07-46-38Z-unit-25b4.log) |  |

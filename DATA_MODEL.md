@@ -1842,6 +1842,156 @@ businesses(id, organization_id)`, чтобы не разъехаться (уро
 запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
 механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
 
+### 19.1. Уточнение перед фазой 3 (v2.9, УТВЕРЖДЕНО владельцем 03.10.2026, ADR-138)
+
+**Статус.** Раздел §19 выше утверждён ADR-104 как состав и связи и сам требует уточнения планом среза
+(«Перед фазой 3 раздел уточняется планом среза»). Здесь поля, типы, ограничения, RLS и порядок миграции.
+План, `plans/beauty-phase3-2026-10-03.md`. **Утверждено владельцем 03.10.2026** («да давай делай», ADR-138);
+по разделу сделан срез B1: миграция `20261003000044_beauty_domain`, модели в `schema.prisma`, домен
+`packages/domain/src/beauty/`, отчёт `reports/beauty-b1-2026-10-03/README.md`. **Миграцию на рабочей базе
+применяет владелец** (`AGENTS.md` §15).
+
+**Поправка к §19, не новое решение.** В §19 у `Customer` указан `business_id` FK NOT NULL со ссылкой на
+развилку Q-198. **Q-198 закрыт владельцем 27.09.2026** (freeze-решение №2, оно же в §17.3 и в
+`ARCHITECTURE.md` §9): канонический клиент живёт на Organization, видимость в бизнесе ведёт
+`CustomerBusiness`. Текст §19 приводится к принятому решению, как там и записано.
+
+Деньги целыми тиынами (ADR-008), моменты `timestamptz` в UTC, показ в часовом поясе филиала
+(`AGENTS.md` §13), удаления строк нет (архив статусом, как во всём §13).
+
+#### `customers` (Organization)
+
+`id` uuid PK; `organization_id` uuid NOT NULL FK → `organizations`; `first_name` varchar(100) NOT NULL;
+`last_name` varchar(100) NULL; `phone` varchar(32) NULL; `email` varchar(320) NULL; `notes` text NULL;
+`status` `CustomerStatus` (`ACTIVE` | `ARCHIVED`) default `ACTIVE`; `created_at`, `updated_at`.
+UNIQUE (`organization_id`, `phone`) при непустом телефоне, индекс по `organization_id`. Гость §3 не
+меняется: переход Hospitality на Customer отдельное будущее решение (§17.3).
+
+#### `customer_businesses` (Customer × Business)
+
+`customer_id` + `business_id`, PK по паре, `created_at`. Строку создаёт код при первом обращении клиента в
+этот бизнес. Триггер: организация клиента равна организации бизнеса.
+
+#### `employees` (Business)
+
+`id` uuid PK; `business_id` uuid NOT NULL FK → `businesses`; `name` varchar(200) NOT NULL; `phone`
+varchar(32) NULL; `email` varchar(320) NULL; `user_id` uuid NULL FK → `users` ON DELETE SET NULL (мастер со
+входом в систему, уровень «Employee / Self» из `ARCHITECTURE.md` §13; самого входа фаза 3 не делает);
+`status` `EmployeeStatus` (`ACTIVE` | `ARCHIVED`) default `ACTIVE`; `created_at`, `updated_at`.
+UNIQUE (`business_id`, `user_id`) при непустом `user_id`, индекс по `business_id`.
+
+#### `employee_locations` (Employee × Location)
+
+`employee_id` + `location_id`, PK по паре, `created_at`. Триггер: филиал принадлежит бизнесу мастера.
+
+#### `beauty_services` (Business)
+
+`id` uuid PK; `business_id` uuid NOT NULL FK → `businesses`; `name` varchar(200) NOT NULL; `category`
+varchar(100) NULL; `duration_minutes` integer NOT NULL CHECK > 0; `price` bigint NOT NULL CHECK >= 0
+(тиыны); `currency` varchar(3) NOT NULL; `active` boolean NOT NULL default true; `created_at`,
+`updated_at`. Индекс по `business_id`.
+
+**Валюта каталога (Q-257).** В §19 у услуги есть цена и нет валюты, а операционная валюта живёт на филиале
+(`locations.currency`, §18.2). Предложение: у услуги своя `currency`; действующая цена в филиале равна
+`location_services.price_override` в валюте филиала, если переопределение задано, иначе цене каталога,
+если валюта каталога совпадает с валютой филиала. Не совпадает и переопределения нет, услуга в этом
+филиале не продаётся и экран говорит это словами. Так цена всегда имеет известную валюту и сеть с
+филиалами в разных валютах не получает 1 000 в неизвестных деньгах.
+
+#### `location_services` (Location × BeautyService)
+
+`location_id` + `service_id`, PK по паре; `enabled` boolean NOT NULL default true; `price_override` bigint
+NULL CHECK >= 0; `duration_override` integer NULL CHECK > 0; `created_at`, `updated_at`. Триггер: филиал и
+услуга одного бизнеса. Пусто, действует каталог бизнеса с оговоркой о валюте выше.
+
+#### `employee_services` (Employee × BeautyService)
+
+`employee_id` + `service_id`, PK по паре, `created_at`. Триггер: мастер и услуга одного бизнеса.
+
+#### `working_hours` (Employee × Location)
+
+`id` uuid PK; `employee_id` uuid NOT NULL; `location_id` uuid NOT NULL; `weekday` smallint NOT NULL
+CHECK 0..6; `time_from` time NOT NULL; `time_to` time NOT NULL CHECK `time_to` > `time_from`;
+`created_at`, `updated_at`. UNIQUE (`employee_id`, `location_id`, `weekday`, `time_from`). Триггер: пара
+мастер и филиал есть в `employee_locations`. **Форма графика (Q-251):** предложен недельный шаблон,
+исключения через `time_offs`; календарные интервалы на дату добавляются позже additive.
+
+#### `time_offs` (Employee)
+
+`id` uuid PK; `employee_id` uuid NOT NULL FK → `employees`; `date_from` date NOT NULL; `date_to` date NOT
+NULL CHECK >= `date_from`; `reason` varchar(200) NULL; `created_at`, `updated_at`. Индекс по
+(`employee_id`, `date_from`).
+
+#### `appointments` (Location)
+
+`id` uuid PK; `location_id` uuid NOT NULL FK → `locations`; `customer_id` uuid NOT NULL FK → `customers`;
+`employee_id` uuid NOT NULL FK → `employees`; `service_id` uuid NOT NULL FK → `beauty_services`;
+`starts_at`, `ends_at` timestamptz NOT NULL CHECK `ends_at` > `starts_at`; `status` `AppointmentStatus`
+(`BOOKED` | `CONFIRMED` | `DONE` | `NO_SHOW` | `CANCELLED`) default `BOOKED`; `price` bigint NOT NULL
+CHECK >= 0 и `currency` varchar(3) NOT NULL (снимок цены и валюты на момент записи, не ссылка на каталог);
+`notes` text NULL; `created_by` uuid NULL FK → `users` ON DELETE SET NULL; `created_at`, `updated_at`.
+
+Пересечение записей одного мастера запрещает база, не код:
+
+```
+EXCLUDE USING gist (
+  employee_id WITH =,
+  tstzrange(starts_at, ends_at, '[)') WITH &&
+) WHERE (status NOT IN ('CANCELLED', 'NO_SHOW'))
+```
+
+Расширение `btree_gist` уже стоит (миграция `…003`). Триггеры: мастер работает в этом филиале
+(`employee_locations`), услуга включена в этом филиале (`location_services.enabled`), организация клиента
+равна организации бизнеса филиала. Что ещё считать конфликтом, Q-255: предложено только занятого мастера.
+
+#### RLS (дополнение к §17.3)
+
+У `locations` нет `organization_id` по §18.3, поэтому Beauty не ложится ни на правило «своя
+`organization_id`», ни на `app_property_visible`. **Сделано без новых функций** (поправка к предложению,
+срез B1): у `locations` в миграции `…030` уже есть образец «через родителя»,
+`EXISTS (SELECT 1 FROM businesses parent WHERE parent."id" = …)`, и политика родителя сама режет чужие
+строки. Применён он; функции `app_business_visible` и `app_location_visible` не понадобились.
+
+| Правило | Таблицы |
+|---|---|
+| `organization_id = app_current_org()` | `customers` |
+| через родителя-`businesses` | `employees`, `beauty_services`, `customer_businesses` |
+| через родителя-`locations` | `appointments`, `working_hours`, `location_services`, `employee_locations` |
+| через родителя-`employees` | `employee_services`, `time_offs` |
+
+Все десять таблиц вписаны в `RLS_TENANT_TABLES` (`packages/database/src/rls.ts`): реестр и база сверяются
+тестом `rls-isolation`.
+
+**Триггерные функции принадлежности пишут имена таблиц без схемы**, как `cash_operations_category_guard`
+в §21: те же таблицы живут и в схеме `pms_test` (ADR-042), и одна функция должна работать в обеих.
+
+**Поправка 03.10.2026 (миграция `20261003000045_beauty_function_search_path`).** В B1 путь у этих шести
+функций не закреплялся вовсе: первая версия с `SET search_path = ''` и именами через `public.` роняла все
+одиннадцать интеграционных тестов. Способ из миграции `…043` (той же датой, соседняя сессия, советник
+Supabase «function_search_path_mutable») решает это лучше: путь закрепляется **по своей схеме**,
+`current_schema()`, то есть `public, pg_temp` в `public` и `pms_test, public, pg_temp` в `pms_test`.
+Неквалифицированные имена по-прежнему находят таблицы своей схемы, а подменить их таблицей из чужой схемы,
+стоящей в пути раньше, уже нельзя. Функции Beauty приведены к этому правилу отдельной миграцией: тела не
+менялись, только путь. Новые функции обязаны закреплять путь сами, это держит
+`tests/integration/function-search-path.test.ts`.
+
+#### Миграция
+
+Одна миграция `20261003000044_beauty_domain` с `down.sql` (`AGENTS.md` §14): enum'ы, десять таблиц,
+ограничения, триггеры принадлежности, exclusion constraint и RLS. Права `wetop_app` отдельной строкой не
+выдаются: `ALTER DEFAULT PRIVILEGES` из миграции `…026` накрывает таблицы, созданные позже.
+**Сделано в срезе B1 и проверено:** цепочка из 46 миграций на чистой базе, откат этой миграции возвращает
+схему в прежнее состояние, своего дрейфа схемы она не даёт (разбор общего FAIL скрипта, в отчёте
+`reports/beauty-b1-2026-10-03/README.md`). **На рабочей базе применяет владелец** (`AGENTS.md` §15), до
+выкладки кода.
+
+#### Чего подраздел не вводит
+
+Онлайн-запись на сайте салона, вход мастера, зарплаты и комиссии, склад материалов, лояльность и
+абонементы, напоминания клиенту, Beauty в аналитике и управленческих финансах (фаза 4). Финансовый контур
+записи (счёт, касса или только цена в `appointments`) **не решён**: Q-252, до ответа владельца срез B7 не
+начинается.
+
 ---
 
 ## 20. Производный тариф и промокод (v2.8 — УТВЕРЖДЕНО владельцем 29.09.2026; ADR-128, срез D4, Q-233, Q-230, Q-231)
@@ -2352,6 +2502,39 @@ model CashReconciliation {
 INCOME «Излишек кассы», недостача — EXPENSE «Недостача кассы» (статьи создаются по требованию) —
 лента операций остаётся единственным источником движений. Право сверки — `desk` (сверяет смена).
 Кассовых смен (открытие/закрытие) по-прежнему нет — при необходимости отдельным решением.
+
+### 21.5. Касса филиала (решение по Q-252 от 03.10.2026, ADR-143; кода нет, срез B7)
+
+**Статус.** Владелец 03.10.2026 поручил закрыть вопросы по Beauty самому («ответь на все вопросы сам»).
+По Q-252 решено: **Beauty не использует Folio §6**, а касса салона это этот раздел, расширенный с объекта
+на филиал. Предложение ниже утверждено тем же поручением; **кода по нему нет**, он делается срезом B7
+(`plans/beauty-phase3-2026-10-03.md`).
+
+**Почему не Folio.** Счёт §6 висит на `ReservationItem`: без второй сущности «проживание» к записи салона
+он не прикладывается, а заводить её ради денег значит придумать Beauty второе бронирование, чего ADR-104
+прямо запрещает. Деньги записи это её собственный снимок `price` и `currency` (§19.1, сделано в B1).
+
+**Что меняется.** `cash_categories` и `cash_operations` (и `cash_reconciliations`) получают
+`location_id uuid NULL` FK на `locations`, а `property_id` становится необязательным; CHECK: ровно одно из
+двух полей заполнено. Объект и филиал равноправны: гостиница ведёт кассу по объекту, как сейчас, салон по
+филиалу. Остальное не меняется: статьи, переводы, комиссия, аннулирование, сверка наличных и правило
+«гостевые оплаты в кассу не дублируются» остаются как в §21.1 и §21.4.
+
+**Остаток и выручка.** У гостиницы остаток по способу считается как сейчас (§21.1). У салона гостевых
+`payments` нет вовсе, поэтому остаток это только операции кассы филиала, а выручка за период это сумма
+записей в статусе `DONE` по их снимку цены. Пересчёта валют нет (Q-239 открыт): филиалы с разными валютами
+считаются раздельно.
+
+**RLS.** Политика `rls_tenant` на трёх таблицах переписывается на «объект своей организации **или** филиал
+своей организации»: `app_property_visible(property_id)` при заполненном объекте, иначе через родителя
+`locations`, как у таблиц Beauty в §19.1.
+
+**Миграция.** Своя, с `down.sql`: добавление колонки, снятие `NOT NULL`, CHECK, перезапись политик.
+Существующие строки не трогаются, у них остаётся `property_id`. **На рабочей базе применяет владелец**
+(`AGENTS.md` §15).
+
+**Чего раздел не вводит:** кассовых смен (их нет и у гостиницы), пересчёта валют, зарплат и комиссий
+мастеров, эквайринга.
 
 ## 22. Задачи стойки (ПРЕДЛОЖЕНИЕ 03.10.2026, НЕ УТВЕРЖДЕНО; Q-249)
 

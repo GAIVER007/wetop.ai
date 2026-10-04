@@ -5616,3 +5616,5 @@
 | 03.10.2026 23:42 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/lib) | ✅ 331 из 331 | 4 с | 33292e4 +12 | [лог](logs/2026-10-03T18-42-01Z-unit-ebcf.log) | M1.2: сторожа дизайна |
 | 04.10.2026 11:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex ai-agents-create.spec.ts:33) | ❌ упало 2 из 11 | 51 с | 01b6a94 | [лог](logs/2026-10-04T06-19-11Z-e2e-d938.log) | red: заголовки экранов ожидания «Подключений» на слитом main; стенд на локальном диске |
 | 04.10.2026 11:20 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex integrations.spec empty-base unified-sections loading-performance) | ✅ 49 из 49 | 5 мин 12 с | 57a4d4c +2 | [лог](logs/2026-10-04T06-20-30Z-e2e-0913.log) | green: заголовки экранов ожидания «Подключений» |
+| 04.10.2026 11:25 | typecheck | ✅ без ошибок | 29 с | 0dcc46b | [лог](logs/2026-10-04T06-25-56Z-typecheck-2145.log) |  |
+| 04.10.2026 11:26 | lint | ✅ без ошибок | 12 с | 0dcc46b | [лог](logs/2026-10-04T06-26-26Z-lint-be4d.log) |  |

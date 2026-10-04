@@ -1,0 +1,190 @@
+# Модульные (unit) · 01.10.2026 20:33 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-33-13Z-unit-4c14.json' 'apps/api/src/rates/rate-plans.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/rates/rate-plans.test.ts (9 tests | 6 failed) 38ms
+   ❯ «Тарифные планы»: правило отмены (4)
+     × список: правило, категории по названию и брони, которые правка заденет 18ms
+     ✓ правка: новое правило, журнал «было/стало» с числом затронутых броней 3ms
+     ✓ то же правило — без записи и без журнала 1ms
+     ✓ неизвестное правило или лишнее поле — 400 словами, неизвестный тариф — 404 2ms
+   ❯ «Тарифные планы»: выключить и включить тариф (5)
+     × тариф без помех выключается: запись, журнал «было/стало», в списке «не действует» 2ms
+     × помехи: каналы, сайт, производные и брони впереди — 409 со всеми причинами, без записи 2ms
+     × включить обратно можно всегда; то же значение — без записи и журнала 1ms
+     × оба поля сразу, не булево, неизвестное поле — 400; неизвестный тариф — 404 3ms
+     × производный тариф от выключенного родителя не создаётся 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: правило отмены > список: правило, категории по названию и брони, которые правка заденет
+AssertionError: expected [ { _count: { …(3) }, …(8) }, …(1) ] to deeply equal [ { code: 'rate-base', …(8) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
++     "_count": {
++       "channelMappings": 0,
++       "derived": 0,
++       "trackedSites": 0,
++     },
+      "active": true,
+      "cancellationPenalty": "FIRST_NIGHT",
+      "categories": [
+        "Двухместный",
+        "Койка",
+      ],
+      "code": "rate-base",
+      "currency": "KZT",
+      "derived": null,
+      "name": "Базовый",
+-     "offBlockers": [
+-       "Броней впереди по тарифу: 3. Тариф выключается, когда по нему не остаётся будущих броней.",
+-     ],
+      "upcomingReservations": 3,
+    },
+    {
++     "_count": {
++       "channelMappings": 0,
++       "derived": 0,
++       "trackedSites": 0,
++     },
+      "active": true,
+      "cancellationPenalty": "NONE",
+      "categories": [],
+      "code": "rate-flex",
+      "currency": "KZT",
+      "derived": null,
+      "name": "Гибкий",
+-     "offBlockers": [],
+      "upcomingReservations": 0,
+    },
+  ]
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:96:18
+     94|     const { service } = setup([base, flex], { 'plan-base': 3 });
+     95|     const list = await asManager(() => service.list());
+     96|     expect(list).toEqual([
+       |                  ^
+     97|       {
+     98|         code: 'rate-base',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > тариф без помех выключается: запись, журнал «было/стало», в списке «не действует»
+TypeError: service.update is not a function
+ ❯ apps/api/src/rates/rate-plans.test.ts:192:49
+    190|   it('тариф без помех выключается: запись, журнал «было/стало», в спис…
+    191|     const { service, db, store } = setup();
+    192|     const saved = await asManager(() => service.update('rate-flex', { …
+       |                                                 ^
+    193|     expect(saved).toMatchObject({ code: 'rate-flex', active: false, of…
+    194|     expect(store.find((p) => p.code === 'rate-flex')?.active).toBe(fal…
+ ❯ apps/api/src/auth/request-context.ts:56:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:56:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:68:10
+ ❯ asManager apps/api/src/rates/rate-plans.test.ts:88:3
+ ❯ apps/api/src/rates/rate-plans.test.ts:192:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > помехи: каналы, сайт, производные и брони впереди — 409 со всеми причинами, без записи
+AssertionError: expected undefined to deeply equal [ …(4) ]
+
+- Expected:
+[
+  "Тариф сопоставлен с менеджером каналов: сначала снимите сопоставление в «Каналах продаж».",
+  "По этому тарифу бронирует сайт: сначала выберите другой тариф во вкладке «Сайт → Бронирование».",
+  "Действующих производных тарифов: 1. Сначала выключите их.",
+  "Броней впереди по тарифу: 4. Тариф выключается, когда по нему не остаётся будущих броней.",
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:220:67
+    218|     const { service, db } = setup([held, flex], { 'plan-held': 4 });
+    219|     const list = await asManager(() => service.list());
+    220|     expect(list.find((p) => p.code === 'rate-held')?.offBlockers).toEq…
+       |                                                                   ^
+    221|       'Тариф сопоставлен с менеджером каналов: сначала снимите сопоста…
+    222|       'По этому тарифу бронирует сайт: сначала выберите другой тариф в…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > включить обратно можно всегда; то же значение — без записи и журнала
+TypeError: service.update is not a function
+ ❯ apps/api/src/rates/rate-plans.test.ts:248:49
+    246|     };
+    247|     const { service, db } = setup([off, flex], { 'plan-off': 2 });
+    248|     const saved = await asManager(() => service.update('rate-off', { a…
+       |                                                 ^
+    249|     expect(saved).toMatchObject({ code: 'rate-off', active: true });
+    250|     expect(db.auditLog.create).toHaveBeenCalledWith({
+ ❯ apps/api/src/auth/request-context.ts:56:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:56:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:68:10
+ ❯ asManager apps/api/src/rates/rate-plans.test.ts:88:3
+ ❯ apps/api/src/rates/rate-plans.test.ts:248:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > оба поля сразу, не булево, неизвестное поле — 400; неизвестный тариф — 404
+AssertionError: expected TypeError: service.update is not a functi… to match object { status: 400, …(1) }
+
+- Expected
++ Received
+
+- {
+-   "message": "Правило отмены и статус тарифа меняются отдельными запросами",
+-   "status": 400,
++ TypeError {
++   "message": "service.update is not a function",
+  }
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:268:6
+    266|     await expect(
+    267|       asManager(() => service.update('rate-flex', { active: false, can…
+    268|     ).rejects.toMatchObject({
+       |      ^
+    269|       status: 400,
+    270|       message: 'Правило отмены и статус тарифа меняются отдельными зап…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > производный тариф от выключенного родителя не создаётся
+AssertionError: expected TypeError: tx.ratePlan.create is not a fu… to match object { status: 400, …(1) }
+
+- Expected
++ Received
+
+- {
+-   "message": "Родительский тариф выключен: сначала включите его",
+-   "status": 400,
++ TypeError {
++   "message": "tx.ratePlan.create is not a function",
+  }
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:297:6
+    295|         service.createDerived({ name: 'Скидка', parentCode: 'rate-off'…
+    296|       ),
+    297|     ).rejects.toMatchObject({
+       |      ^
+    298|       status: 400,
+    299|       message: 'Родительский тариф выключен: сначала включите его',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 3 passed (9)
+   Start at  15:33:14
+   Duration  1.69s (transform 74%, import 23%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-33-13Z-unit-4c14.json
+
+# код выхода 1 · 3 с

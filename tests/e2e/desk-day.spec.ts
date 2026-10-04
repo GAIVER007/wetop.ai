@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 // This scenario intentionally verifies today's operations; other BASE windows start at +3.
@@ -46,11 +47,7 @@ test('главная открывается с корня; заезд на да�
 
   await page.goto(`/reservations/new?arrival=${day}&departure=${plus(1)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
-  await form.locator('details:has(select[name="source"])').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, day, plus(1)));

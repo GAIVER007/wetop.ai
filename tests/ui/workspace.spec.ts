@@ -1,4 +1,5 @@
 import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { chooseSource } from './booking-form';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -46,6 +47,7 @@ test('все разделы, карточки и печать открывают
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
+    // с 01.10 «Подключения» каналов живут на `/connections/channex` (ADR-121, план навигации по задачам)
     ['/channels/connections', 'Подключение каналов'],
     ['/channels/mapping', 'Сопоставление'],
     ['/channels/sync', 'Синхронизация'],
@@ -78,10 +80,10 @@ test('все разделы, карточки и печать открывают
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
+    '/channels/connections': /\/connections\/channex$/,
     '/hotel-settings/penalties': /\/rates\/plans$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
-    '/channels/connections': /\/connections\/channex$/,
     '/hotel-settings/photos': /\/connections#channex-connection$/,
     '/hotel-settings/amenities': /\/connections#channex-connection$/,
   };
@@ -174,9 +176,10 @@ test('доступность переносит даты и свободное �
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
-  // заголовок страницы в компактной панели скрыт (booking-compact): проверяем саму панель и форму
+  // заголовок страницы в компактной панели скрыт (booking-compact): проверяем саму панель и форму;
+  // перехватывающий маршрут на холодном `next dev` собирается дольше обычных 15 с
   const bookingDrawer = page.getByRole('dialog', { name: 'Новая бронь', exact: true });
-  await expect(bookingDrawer).toBeVisible();
+  await expect(bookingDrawer).toBeVisible({ timeout: 45_000 });
   await expect(bookingDrawer.getByTestId('new-reservation-form')).toBeVisible();
   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
@@ -354,9 +357,7 @@ test('ошибка создания сохраняет ввод; повтор о
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  // источник, промокод и заметки — за свёрнутым «Дополнительно» (booking-compact)
-  await form.locator('.booking-create__extras > summary').click();
-  await form.locator('[name="source"]').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Новый');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
   await form.getByLabel('Отчество').fill('Тестович');
@@ -579,8 +580,7 @@ test('групповая бронь: разные категории сохра�
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new');
   const form = page.getByTestId('new-reservation-form');
-  await form.locator('.booking-create__extras > summary').click();
-  await form.getByLabel('Источник *').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form.getByRole('button', { name: '+ Добавить размещение' }).click();
   const second = form.getByTestId('placement-fields').nth(1);
   await second.getByLabel('Категория *').selectOption('MALE');
@@ -639,8 +639,24 @@ test('обзор: очередь «Требуют внимания» ведёт 
   // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
   // полосы «День стойки» и «Сегодня на стойке» с Главной сняты тем же срезом
   await page.goto('/today');
+  // сводная Главная владельца (01.10): очередь «Требуют внимания» открывается кнопкой в боковом окне.
+  // Диалог Overlay несёт собственный заголовок «Требуют внимания» (своё `<h2>`), поэтому `tasks` держит
+  // внутренний `region` DayAttention, а не весь диалог — иначе проверка заголовка найдёт два `<h2>`
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
-  const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
+  const tasks = page
+    .getByRole('dialog', { name: 'Требуют внимания', exact: true })
+    .getByRole('region', { name: 'Требуют внимания' });
+  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
+  // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
+  const queueTotal = async () =>
+    String(
+      (
+        await tasks
+          .getByTestId('attention-event')
+          .evaluateAll((els) => els.map((el) => Number(el.getAttribute('data-count'))))
+      ).reduce((a, b) => a + b, 0),
+    );
+  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(departureDebt).toContainText('К оплате');
   await expect(departureDebt).toHaveAttribute(
@@ -651,11 +667,13 @@ test('обзор: очередь «Требуют внимания» ведёт 
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
+  // сводная Главная владельца (01.10) живёт сегодняшним днём: полосы «День стойки» и переключения дня нет
   await page.keyboard.press('Escape');
-  await expect(tasks).toBeHidden();
+  await expect(page.getByRole('dialog', { name: 'Требуют внимания', exact: true })).toHaveCount(0);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
+    // узкие экраны сохраняют действие: кнопка, открывающая очередь заново, остаётся доступна
     await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -899,7 +917,7 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
-  // ручной обмен спрятан в раскрывашке «Активность каналов и ручной обмен»
+  // ручной обмен на «Обзоре» лежит под раскрытием «Активность каналов и ручной обмен» (01.10)
   await page.getByTestId('channels-activity').locator('> summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
@@ -910,7 +928,7 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  // «Подключения» каналов переехали на /connections/channex (INT2)
+  // настройка подключения с 01.10 живёт на `/connections/channex` (`/channels/connections` уводит туда, INT2)
   await page.goto('/connections/channex');
   await page.getByLabel('Тариф для продажи в каналах').selectOption({ index: 1 });
   for (const id of ['channel-sync', 'channel-setup']) {
@@ -963,7 +981,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
   // (и у итогов, и у списка долгов — ADR-113)
-  await page.goto('/finance');
+  // компактные «Финансы» (01.10): долги на своей вкладке, отказ списка долгов виден на ней
+  await page.goto('/finance?debts=all');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Финансы за период',
   );
@@ -1463,8 +1482,7 @@ test('новая бронь: резюме выбора обновляется п
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);
-  await form.locator('.booking-create__extras > summary').click();
-  await form.getByLabel('Источник *').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await expect(summary).toContainText('телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
@@ -1478,14 +1496,14 @@ test('новая бронь: резюме выбора обновляется п
   await expect(summary).toContainText(roomName);
   await expect(summary).not.toContainText(`ячейка ${unitCode}`);
   // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
-  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await form.getByText('Дополнительно', { exact: true }).scrollIntoViewIfNeeded();
   await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();
 
   // телефон: кнопка над нижней навигацией, страница без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/reservations/new?unit=M03');
   const button = form.getByRole('button', { name: 'Создать бронь' });
-  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await form.getByText('Дополнительно', { exact: true }).scrollIntoViewIfNeeded();
   await expect(button).toBeInViewport();
   const [box, nav] = await Promise.all([
     button.boundingBox(),

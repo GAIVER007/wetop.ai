@@ -112,6 +112,57 @@ test('«только чтение»: тарифы и правила видны, 
   await expect(main.getByTestId('rate-plans-table').getByRole('button')).toHaveCount(0);
 });
 
+/**
+ * WET-04 (ТЗ QA 01.10.2026): тариф выключается и включается из панели через существующее поле `active`.
+ * Тариф с бронями впереди выключить нельзя: кнопка недоступна, причина словами. Выключенный тариф уходит из
+ * формы брони и помечен «не действует»; включается обратно той же панелью.
+ */
+test('выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони', async ({
+  page,
+  request,
+}) => {
+  await control(request, { softPlan: true });
+  await signIn(page);
+  await page.goto('/rates/plans');
+  const main = page.getByRole('main');
+  const table = main.getByTestId('rate-plans-table');
+
+  await table.getByRole('button', { name: 'Стандартный' }).click();
+  const held = page.getByRole('dialog', { name: 'Стандартный' });
+  await expect(held.getByTestId('rate-plan-status')).toContainText('Тариф действует');
+  await expect(held.getByTestId('rate-plan-off-blockers')).toContainText('Броней впереди по тарифу');
+  await expect(held.getByRole('button', { name: 'Выключить тариф' })).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  await table.getByRole('button', { name: 'Гибкий без штрафа' }).click();
+  const drawer = page.getByRole('dialog', { name: 'Гибкий без штрафа' });
+  await expect(drawer.getByTestId('rate-plan-status')).toContainText('Тариф действует');
+  await expect(drawer.getByTestId('rate-plan-off-blockers')).toHaveCount(0);
+  await drawer.getByRole('button', { name: 'Выключить тариф' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(main.getByTestId('rate-plan-saved')).toHaveText('✓ Тариф «Гибкий без штрафа» выключен');
+  await expect(planRow(page, 'Гибкий без штрафа')).toContainText('не действует');
+  await page.reload();
+  await expect(planRow(page, 'Гибкий без штрафа')).toContainText('не действует');
+
+  await page.goto('/reservations/new');
+  const rates = page.getByTestId('new-reservation-form').locator('select[name="ratePlanCode"]');
+  await expect(rates.locator('option', { hasText: 'Стандартный' })).toHaveCount(1);
+  await expect(rates.locator('option', { hasText: 'Гибкий без штрафа' })).toHaveCount(0);
+
+  await page.goto('/rates/plans');
+  await table.getByRole('button', { name: 'Гибкий без штрафа' }).click();
+  const again = page.getByRole('dialog', { name: 'Гибкий без штрафа' });
+  await expect(again.getByTestId('rate-plan-status')).toContainText('Тариф выключен');
+  await again.getByRole('button', { name: 'Включить тариф' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(main.getByTestId('rate-plan-saved')).toHaveText('✓ Тариф «Гибкий без штрафа» включён');
+  await expect(planRow(page, 'Гибкий без штрафа')).not.toContainText('не действует');
+  await page.goto('/reservations/new');
+  await expect(rates.locator('option', { hasText: 'Гибкий без штрафа' })).toHaveCount(1);
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`снимки SET4 и доступность: ${theme}`, async ({ page, request }) => {
     test.setTimeout(180_000);

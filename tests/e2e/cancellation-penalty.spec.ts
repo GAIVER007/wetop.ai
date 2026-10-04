@@ -4,6 +4,7 @@ import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -31,11 +32,7 @@ test('отмена заранее — без штрафа, незаезд — с
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(20)}&departure=${plus(23)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
-  await form.locator('details:has(select[name="source"])').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
-  await form.locator('select[name="source"]').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(20), plus(23)));
@@ -70,11 +67,7 @@ test('отмена заранее — без штрафа, незаезд — с
   // Незаезд: штраф есть всегда, потому что место простояло
   await page.goto(`/reservations/new?arrival=${plus(21)}&departure=${plus(24)}`);
   const f2 = page.getByRole('main').getByTestId('new-reservation-form');
-  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
-  await f2.locator('details:has(select[name="source"])').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
-  await f2.locator('select[name="source"]').selectOption('PHONE');
+  await chooseSource(f2, 'PHONE');
   await f2
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(21), plus(24)));

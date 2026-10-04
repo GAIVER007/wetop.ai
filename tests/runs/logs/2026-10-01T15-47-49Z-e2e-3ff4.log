@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 01.10.2026 20:47 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/rate-plans.spec.ts' 'tests/ui/rates-derived.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (3.4s)
+  ✓   2 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (4.0s)
+  ✓   3 tests/ui/rate-plans.spec.ts:87:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (2.4s)
+  ✓   4 tests/ui/rate-plans.spec.ts:105:1 › «только чтение»: тарифы и правила видны, править нельзя (2.1s)
+  ✓   5 tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони (6.7s)
+  ✓   6 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: light (8.0s)
+  ✓   7 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: dark (7.5s)
+  ✓   8 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (4.4s)
+  ✓   9 tests/ui/rates-derived.spec.ts:65:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (4.5s)
+  ✓  10 tests/ui/rates-derived.spec.ts:103:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (2.8s)
+  ✓  11 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: light (8.8s)
+  ✓  12 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: dark (9.4s)
+
+  12 passed (1.2m)
+
+# код выхода 0 · 1 мин 13 с

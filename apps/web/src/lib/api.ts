@@ -868,8 +868,11 @@ export const ratesApi = {
     ),
   /** «Тарифные планы» (SET4): тарифы с правилом отмены и числом броней, которые его правка заденет */
   plans: () => getJson<RatePlanRow[]>('/rates/plans'),
-  updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
-    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
+  /** Правило отмены (SET4) или выключить / включить тариф (WET-04): одно поле за запрос */
+  updatePlan: (
+    code: string,
+    input: { cancellationPenalty: CancellationPenaltyPolicy } | { active: boolean },
+  ) => sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
   /** Производный тариф (D4, DATA_MODEL §20): процент от тарифа-родителя, окно продаж, минимум ночей */
   createDerived: (input: DerivedPlanInput & { name: string; parentCode: string }) =>
     sendJson<RatePlanRow>('POST', '/rates/plans/derived', input),
@@ -930,6 +933,8 @@ export interface RatePlanRow {
   } | null;
   /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
   upcomingReservations: number;
+  /** Почему тариф нельзя выключить (WET-04): каналы, сайт, производные, брони впереди; пусто — можно */
+  offBlockers: string[];
 }
 
 // ── Каналы (Channex) ──

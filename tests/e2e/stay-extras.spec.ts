@@ -3,6 +3,7 @@ import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте одной кнопкой, половина цены ночи
@@ -29,11 +30,7 @@ test('поздний выезд и ранний заезд начисляютс�
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(12)}&departure=${plus(14)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
-  await form.locator('details:has(select[name="source"])').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(12), plus(14)));

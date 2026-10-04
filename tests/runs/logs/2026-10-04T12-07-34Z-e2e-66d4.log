@@ -1,0 +1,135 @@
+# Сквозные (e2e) · 04.10.2026 17:07 Алматы · vm
+# коммит 2c2f57f (claude/intelligent-maxwell-mhyoxn)
+# npx playwright test --workers=2 --reporter=list,json
+[pms_test] миграций применено 0 из 55; данные от 2026-10-04T12:04:27.355Z (сид)
+
+Running 25 tests using 2 workers
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (46ms)
+[WebServer] (node:24543) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   3 [isolated] › tests/e2e/cancellation-penalty.spec.ts:28:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (6.9s)
+  ✓   2 [isolated] › tests/e2e/check-in-out.spec.ts:22:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (12.7s)
+  ✓   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:27:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (6.0s)
+  ✘   6 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (294ms)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями (3.5s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:30:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (8.1s)
+  ✓   8 [isolated] › tests/e2e/desk-day.spec.ts:17:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (8.1s)
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:29:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (8.0s)
+  ✓  10 [isolated] › tests/e2e/desk-tasks.spec.ts:29:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (7.0s)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:31:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (5.0s)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (1.5s)
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:27:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (6.3s)
+  ✓  15 [isolated] › tests/e2e/manual-reservation.spec.ts:14:1 › создать бронь с ячейкой → видна в календаре → отменить → ячейка свободна (3.9s)
+  ✓  16 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.8s)
+  ✓  17 [isolated] › tests/e2e/print-forms.spec.ts:30:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (4.4s)
+  ✓  18 [isolated] › tests/e2e/stay-extras.spec.ts:26:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (5.3s)
+  ✓  19 [isolated] › tests/e2e/unit-blocks.spec.ts:28:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (4.3s)
+  ✓  20 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (2.5s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › настройки сайта: код с ключом, «Проверить счётчик» видит события (1.0s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:199:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.9s)
+  ✘  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (31.2s)
+  ✓  23 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (1.9s)
+  ✓  24 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (801ms)
+  ✘  25 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (246ms)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 4)
+  свежих, моложе 15 мин, оставлено: 4 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 88
+    Received: 89
+
+      21 |     blocked: number;
+      22 |   };
+    > 23 |   expect(summary.occupied + summary.free + summary.blocked).toBe(88);
+         |                                                             ^
+      24 |   expect(summary.occupied).toBeGreaterThan(0);
+      25 |
+      26 |   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 13)}`);
+        at /home/user/wetop.ai/tests/e2e/chessboard.spec.ts:23:61
+
+    Error Context: test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByTestId('inventory-summary').getByTestId('total-units')
+    Expected: "88"
+    Received: "89"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('inventory-summary').getByTestId('total-units') with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('inventory-summary').getByTestId('total-units')
+        62 × locator resolved to <dd data-testid="total-units">89</dd>
+           - unexpected value "89"
+
+
+       7 |
+       8 |   const summary = page.getByRole('main').getByTestId('inventory-summary');
+    >  9 |   await expect(summary.getByTestId('total-units')).toHaveText('88');
+         |                                                    ^
+      10 |   await expect(summary.getByTestId('rooms')).toHaveText('16');
+      11 |   await expect(summary.getByTestId('beds')).toHaveText('72');
+      12 |   await expect(summary.getByTestId('max-guests')).toHaveText('92');
+        at /home/user/wetop.ai/tests/e2e/inventory.spec.ts:9:52
+
+    Error Context: test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      25 |   };
+      26 |   const double = summary.byCategory.find((c) => c.units === 4 && /двухместн/i.test(c.name))!;
+    > 27 |   expect(double).toBeDefined();
+         |                  ^
+      28 |   await page.goto(`/inventory?category=${encodeURIComponent(double.code)}`);
+      29 |   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(4);
+      30 |   // с PR #66 по умолчанию список; группа с именем категории — в виде карточками
+        at /home/user/wetop.ai/tests/e2e/inventory.spec.ts:27:18
+
+    Error Context: test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+    [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
+    [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+  22 passed (1.3m)
+
+# код выхода 1 · 1 мин 19 с

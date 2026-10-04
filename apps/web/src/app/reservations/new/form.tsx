@@ -15,6 +15,7 @@ import { DateInput } from '../../../components/date-field';
 import type { StayAvailability } from '../../../lib/api';
 import { checkBookingAvailability } from './availability';
 import { CHANNELS, SOURCES } from '../sources';
+import { summarize } from './summary';
 import { isStayDate } from '../../../lib/stay-date';
 
 export function NewReservationForm(props: {
@@ -66,6 +67,7 @@ export function NewReservationForm(props: {
     const key = `${arrival} ${departure} ${retry}`;
     if (lastChecked.current === key) {
       // проверка промежуточных дат отменена, ответ по этим датам уже есть: ждать нечего
+      // (покрывает и повторный показ исходных дат: `lastChecked` заведён с них при монтировании)
       setChecking(false);
       return;
     }
@@ -491,56 +493,6 @@ export function NewReservationForm(props: {
   );
 }
 
-/** Что именно создастся: даты, размещения, источник, гость. Без цен (их считает сервер). */
-function summarize(
-  props: {
-    arrival: string;
-    departure: string;
-    categories: Array<{ code: string; name: string }>;
-    piiStorage: 'real' | 'pseudonymized';
-  },
-  placementIds: string[],
-  snapshot: Record<string, string>,
-  picked: BookingGuest | null,
-) {
-  const dash = '—';
-  const nights = nightsBetween(props.arrival, props.departure);
-  const placements = placementIds.map((id) => {
-    const field = (name: string) => (id === '0' ? name : `item.${id}.${name}`);
-    const category = props.categories.find(
-      (c) => c.code === snapshot[field('accommodationTypeCode')],
-    );
-    const quantity = Math.max(1, Number(snapshot[field('quantity')] ?? '1') || 1);
-    const adults = Math.max(1, Number(snapshot[field('adults')] ?? '1') || 1);
-    const unit = snapshot[field('unitCode')];
-    const where =
-      quantity > 1
-        ? `${pluralRu(quantity, ['место', 'места', 'мест'])}, ячейки назначит система`
-        : unit === AUTO_UNIT
-          ? 'ячейку назначит система'
-          : unit
-            ? `ячейка ${unit}`
-            : 'ячейка назначается позже';
-    return `${category?.name ?? dash}, ${where}, ${pluralRu(adults, ['гость', 'гостя', 'гостей'])}`;
-  });
-  return {
-    nights,
-    arrival: props.arrival,
-    departure: props.departure,
-    datesText:
-      nights > 0
-        ? `${displayDate(props.arrival)} → ${displayDate(props.departure)}, ${pluralRu(nights, ['ночь', 'ночи', 'ночей'])}`
-        : dash,
-    placements,
-    source: SOURCES.find(([value]) => value === snapshot['source'])?.[1] ?? dash,
-    guest: picked
-      ? picked.name
-      : props.piiStorage === 'real'
-        ? [snapshot['lastName'], snapshot['firstName']].filter(Boolean).join(' ').trim() || dash
-        : 'Автоматическая карточка',
-  };
-}
-
 /**
  * Выбранный гость (G6, ТЗ «Гости v2» §33): бронь запишется на него, новый гость не создаётся.
  * Контакты здесь не правятся — форма брони не переписывает карточку гостя молча.
@@ -683,6 +635,11 @@ function PlacementFields({
   // Предел гостей — вместимость единицы выбранной категории (койка — 1), а не «2» для всех
   const capacity = Math.max(1, categories.find((c) => c.code === category)?.capacityAdults ?? 1);
   const group = Number(quantity) > 1;
+  // WET-02: поле «Гостей» значит гостей на одно место; при группе API заводит столько проживаний, сколько мест,
+  // поэтому подпись и подсказка называют и общее число гостей, чтобы сводка не расходилась с тем, что сохранится
+  const [adults, setAdults] = useState(
+    Math.max(1, Number(kept[field('adults')] ?? initial?.adults ?? 1) || 1),
+  );
   return (
     <Grid>
       <Field label="Категория *">
@@ -705,7 +662,8 @@ function PlacementFields({
       {group ? (
         <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
           {Number(quantity)} проживания на первых свободных ячейках по номеру
-          {Number(quantity) > units.length ? `, свободно только ${units.length}` : ''}
+          {Number(quantity) > units.length ? `, свободно только ${units.length}` : ''}; всего{' '}
+          {pluralRu(Number(quantity) * adults, ['гость', 'гостя', 'гостей'])}
         </div>
       ) : (
         <Field label="Номер / койка">
@@ -746,13 +704,14 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
-      <Field label="Гостей">
+      <Field label={group ? 'Гостей на место' : 'Гостей'}>
         <Input
           type="number"
           name={field('adults')}
           min={1}
           max={capacity}
-          defaultValue={kept[field('adults')] ?? initial?.adults ?? 1}
+          value={adults}
+          onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))}
         />
       </Field>
       <Field label="Количество мест">

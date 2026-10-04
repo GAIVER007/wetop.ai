@@ -248,6 +248,9 @@ const extraPlans: {
 const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
 /** Правило отмены, изменённое на «Тарифных планах» (SET4): живёт до `reset` */
 const planPenalty = new Map<string, 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY'>();
+/** Выключенные и включённые тарифы (WET-04, `PATCH /rates/plans/:code { active }`): живут до `reset` */
+const planActive = new Map<string, boolean>();
+const planIsActive = (p: { code: string; active: boolean }) => planActive.get(p.code) ?? p.active;
 /** Производные тарифы (D4, DATA_MODEL §20): код тарифа → родитель и правило; живут до `reset` */
 const derivedRules = new Map<
   string,
@@ -270,13 +273,37 @@ const promoCodes: Array<{
   uses: number;
 }> = [];
 /** Строки «Тарифных планов» как у API: категории по названию и брони, которые задевает правка правила */
+/** Почему тариф нельзя выключить (WET-04): те же слова, что у API; пусто — можно */
+function planOffBlockers(code: string, upcoming: number): string[] {
+  const reasons: string[] = [];
+  const derivedActive = [...derivedRules.entries()].filter(
+    ([child, rule]) => rule.parentCode === code && planIsActive(ratePlanList().find((p) => p.code === child)!),
+  ).length;
+  if (derivedActive > 0)
+    reasons.push(`Действующих производных тарифов: ${derivedActive}. Сначала выключите их.`);
+  if (upcoming > 0)
+    reasons.push(
+      `Броней впереди по тарифу: ${upcoming}. Тариф выключается, когда по нему не остаётся будущих броней.`,
+    );
+  return reasons;
+}
 function ratePlanRows() {
   const cards = [card, ...extraCards.values()];
-  return ratePlanList().map((p) => ({
+  return ratePlanList().map((p) => {
+    const upcomingReservations = cards.filter((r) =>
+      r.items.some(
+        (i) =>
+          i.ratePlanCode === p.code &&
+          (i.status === 'TENTATIVE' || i.status === 'CONFIRMED') &&
+          i.departureDate >= today,
+      ),
+    ).length;
+    return {
     code: p.code,
     name: p.name,
     currency: p.currency,
-    active: p.active,
+    active: planIsActive(p),
+    offBlockers: planOffBlockers(p.code, upcomingReservations),
     cancellationPenalty: planPenalty.get(p.code) ?? p.cancellationPenalty,
     derived: (() => {
       const rule = derivedRules.get(p.code);
@@ -287,15 +314,9 @@ function ratePlanRows() {
     categories: categories
       .filter((c) => (c.rateNames ?? [plans[0]!.name]).includes(p.name))
       .map((c) => c.name),
-    upcomingReservations: cards.filter((r) =>
-      r.items.some(
-        (i) =>
-          i.ratePlanCode === p.code &&
-          (i.status === 'TENTATIVE' || i.status === 'CONFIRMED') &&
-          i.departureDate >= today,
-      ),
-    ).length,
-  }));
+    upcomingReservations,
+    };
+  });
 }
 /** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
 function fixturePlanChoice(body: Record<string, unknown>) {
@@ -3066,7 +3087,8 @@ function read(path: string, q: URLSearchParams): unknown {
     return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
-  if (path === '/rate-plans') return ratePlanList();
+  // как API (`activeRatePlans`): форма брони видит только действующие тарифы (WET-04)
+  if (path === '/rate-plans') return ratePlanList().map((p) => ({ ...p, active: planIsActive(p) })).filter((p) => p.active);
   // «Свободные места», AV2 (ADR-110): один тариф BASE по синтетическим ценам ночи; койки — на каждого гостя
   if (path === '/availability/offers') {
     const arrival = q.get('arrival') || today,
@@ -4582,6 +4604,7 @@ createServer(async (req, res) => {
       piiStorage = 'real';
       softPlan = false;
       planPenalty.clear();
+      planActive.clear();
       resetSeller();
       // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
       return send(200, { today });
@@ -6541,8 +6564,20 @@ createServer(async (req, res) => {
       // как API: право `rates` — владелец и управляющий (ADR-107); правило действует для всех броней тарифа (SET4)
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       const code = decodeURIComponent(path.split('/')[3]!);
-      const extra = Object.keys(body).find((k) => k !== 'cancellationPenalty');
+      const extra = Object.keys(body).find((k) => k !== 'cancellationPenalty' && k !== 'active');
       if (extra) return send(400, { message: `Неизвестное поле: ${extra}` });
+      if ('active' in body && 'cancellationPenalty' in body)
+        return send(400, { message: 'Правило отмены и статус тарифа меняются отдельными запросами' });
+      // выключить / включить тариф (WET-04): причины словами, все сразу; включить обратно можно всегда
+      if ('active' in body) {
+        if (typeof body['active'] !== 'boolean') return send(400, { message: 'active: да или нет' });
+        const row = ratePlanRows().find((p) => p.code === code);
+        if (!row) return send(404, { message: 'Тариф не найден' });
+        if (row.active && body['active'] === false && row.offBlockers.length)
+          return send(409, { message: row.offBlockers.join(' ') });
+        planActive.set(code, body['active']);
+        return send(200, ratePlanRows().find((p) => p.code === code));
+      }
       const next = parseCancellationPenalty(body['cancellationPenalty']);
       if (!next)
         return send(400, {
@@ -6729,7 +6764,9 @@ createServer(async (req, res) => {
         result ?? { message: `No UI fixture for ${path}` },
       );
     }
-    commands.push({ method: req.method || '', path, body });
+    // расчёт стоимости (`POST /reservations/quote`, 01.10) ничего не меняет: в журнал команд не пишется,
+    // иначе номера `20260913-NEW<n>` и индексы команд в спеках сдвигались бы на каждый расчёт
+    if (path !== '/reservations/quote') commands.push({ method: req.method || '', path, body });
     if (path.startsWith('/units/')) {
       const [, , code, command, blockId] = path.split('/');
       if (!units.some((u) => u.code === code)) return send(404, { message: 'Ячейка не найдена' });

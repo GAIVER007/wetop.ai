@@ -1,3 +1,4 @@
+import type { BusinessVertical } from '../../../../packages/domain/src/verticals/registry';
 import { siteConfig, type SiteConfig } from '../site.config';
 
 /** Ссылка, которую можно поставить в `href`; `external` — ведёт за пределы сайта. */
@@ -42,8 +43,14 @@ export function loginLink(config: SiteConfig = siteConfig): SiteLink {
 /**
  * «Регистрация»: форма самостоятельной регистрации стойки (ADR-147, 04.10.2026).
  */
-export function registerLink(config: SiteConfig = siteConfig): SiteLink {
-  return { href: `${siteUrl(config)}/#register`, external: false };
+export function registerLink(
+  config: SiteConfig = siteConfig,
+  vertical?: BusinessVertical,
+): SiteLink {
+  const url = new URL(siteUrl(config));
+  if (vertical) url.searchParams.set('vertical', vertical);
+  url.hash = 'register';
+  return { href: url.toString(), external: false };
 }
 
 /** «Забыли пароль?» из окна входа — экран сброса стойки: письмо со ссылкой уходит оттуда (ADR-049). */

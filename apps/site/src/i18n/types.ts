@@ -246,6 +246,7 @@ export type Dictionary = {
     register: {
       title: string;
       lead: string;
+      pilotLead: string;
       submit: string;
       pending: string;
       terms: string;

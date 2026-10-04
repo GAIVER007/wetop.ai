@@ -2726,3 +2726,7 @@ seller_agents, `organization_id`, `property_id` (выводятся из аге�
 ## MV1 amendment, 04.10.2026, утверждён владельцем
 
 BusinessVertical расширяется FOOD_SERVICE. Canonical источник только Business.vertical, без нового vertical на Organization/Location. HOSPITALITY доступен, BEAUTY/FOOD_SERVICE PILOT, публичная регистрация закрыта до operational acceptance. MV1 не меняет Beauty tables, financial logic и Hospitality Guest. Новые Food tables не вводятся. Additive enum migration с guarded down; при FOOD_SERVICE rows откат останавливается без потери данных. Production migration отдельно.
+
+### MV2 registration execution, 04.10.2026
+
+Утверждённый MV2 использует существующие Organization/Business/Location/User/Membership, без schema migration. Первый Business получает явный canonical vertical в атомарной регистрации; Location наследует его через FK. Только Hospitality создаёт Property. Verification и resend не пересоздают Business/Location. Старый hotelName-only запрос поддерживается как Hospitality compatibility; новые Beauty/Food flows требуют verified Business/Location context.

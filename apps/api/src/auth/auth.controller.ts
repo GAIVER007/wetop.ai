@@ -11,6 +11,7 @@ import {
   Inject,
   Ip,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
 import { ExtensionsService } from '../platform/extensions.service';
@@ -121,7 +122,15 @@ export class AuthController {
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
-      hotelName: text(body?.hotelName, 'hotelName', 200),
+      ...(body?.hotelName !== undefined
+        ? { hotelName: text(body.hotelName, 'hotelName', 200) }
+        : {}),
+      ...(body?.businessName !== undefined
+        ? { businessName: text(body.businessName, 'businessName', 200) }
+        : {}),
+      ...(body && Object.prototype.hasOwnProperty.call(body, 'vertical')
+        ? { vertical: body.vertical }
+        : {}),
       password: text(body?.password, 'password', 200),
       // пустой или чужой телефон отклонит сервис словами для человека («Проверьте телефон…»)
       phoneCountry: typeof body?.phoneCountry === 'string' ? body.phoneCountry.slice(0, 2) : '',
@@ -179,6 +188,15 @@ export class AuthController {
       // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
       context: scopeView(),
     };
+  }
+
+  @Access('self')
+  @Get('registration-context')
+  async registrationContext(@Headers() headers: Record<string, string>) {
+    const token = tokenFromHeaders(headers);
+    const signedIn = token ? await this.auth.whoami(token) : null;
+    if (!signedIn) throw new UnauthorizedException();
+    return this.auth.registrationContext(signedIn.user.organizationId);
   }
 
   @Public()

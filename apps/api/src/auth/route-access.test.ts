@@ -35,6 +35,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/password-reset/request': 'public',
   'POST /auth/password-reset/confirm': 'public',
   'GET /auth/me': 'self',
+  'GET /auth/registration-context': 'self',
   'POST /auth/password': 'self',
   'GET /auth/sessions': 'self',
   'POST /auth/logout-all': 'self',

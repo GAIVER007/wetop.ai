@@ -5540,3 +5540,9 @@ Existing access rules, price formulas, category locks and allocation exclusion r
 Причина: исполнить существующую модель раннего выезда, не менять деньги и плановые даты.
 
 Последствия: категория, серверная проверка группы и остатки каналов согласованы. Исторические назначения сохраняют прожитые ночи. Схема базы и правила начислений не меняются. Производный тариф выключается существующим флагом active и пишет журнал; действующие брони и сопоставления блокируют выключение. Подключение Channex не принимает отключённый тариф. Условия сохранённых броней не меняются.
+
+## ADR-MV2-20261004: explicit registration vertical
+
+Дата: 04.10.2026. Основание: прямое принятие MV1 и разрешение MV2 владельцем. Проблема: регистрация всегда создаёт гостиницу. Варианты: generic domain или shared chain с vertical adapters. Решение: shared Organization/Business/Location; Hospitality создаёт Property, pilot Beauty/Food без Property. DTO: explicit vertical + businessName; hotelName-only сохраняет старую Hospitality совместимость. Unknown vertical отвергается. Причина: сохраняет Luxx и canonical Business.vertical. Последствия: pilot gated на сервере, email confirmation не пересоздаёт цепочку; новые flows требуют explicit verified scope. Scope и checks в plans/mv2-registration-2026-10-04.md. Способ pilot authorization фиксируется после ответа владельца.
+
+MV2 pilot authorization, уточнение владельца 04.10.2026: серверный allowlist email отдельно по vertical, exact normalized match. Пустой список закрывает пилот. Не вводить invitation tables или public self-service release; env names и проверки в плане MV2.

@@ -6030,3 +6030,37 @@
 | 04.10.2026 17:25 | typecheck | ✅ без ошибок | 1 мин 17 с | 1909267 +23 | [лог](logs/2026-10-04T12-25-16Z-typecheck-a300.log) |  |
 | 04.10.2026 17:25 | integration | ✅ 312 из 321, пропущено 9 | 1 мин 58 с | 1909267 +23 | [лог](logs/2026-10-04T12-25-16Z-integration-1904.log) | MV1 final stable full integration |
 | 04.10.2026 17:25 | unit | ✅ 3282 из 3286, пропущено 4 | 4 мин 4 с | 1909267 +22 | [лог](logs/2026-10-04T12-25-16Z-unit-d2d4.log) | MV1 final stable full unit |
+| 04.10.2026 17:36 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 6 из 56 | 10 с | d91c207 +1 | [лог](logs/2026-10-04T12-36-43Z-unit-0f62.log) | MV2 invalid vertical and default pilot gate red |
+| 04.10.2026 17:37 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 56 из 56 | 9 с | d91c207 +4 | [лог](logs/2026-10-04T12-37-31Z-unit-7a8e.log) | MV2 vertical whitelist and default closed pilot green |
+| 04.10.2026 17:38 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 59 | 12 с | d91c207 +4 | [лог](logs/2026-10-04T12-38-31Z-unit-b3a2.log) | MV2 allowlisted pilot chain red |
+| 04.10.2026 17:39 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 59 из 59 | 10 с | d91c207 +4 | [лог](logs/2026-10-04T12-39-11Z-unit-7686.log) | MV2 pilot allowlist and persisted first chain green |
+| 04.10.2026 17:44 | unit (частично: apps/api/src/auth/registration-context.test.ts) | ❌ упало 1 из 1 | 3 с | d91c207 +13 | [лог](logs/2026-10-04T12-44-01Z-unit-8206.log) | MV2 explicit server registration context red |
+| 04.10.2026 17:45 | unit (частично: apps/api/src/auth/auth.service.test.ts apps/api/src/auth/auth.controller.test.ts apps/api/src/auth/registration-context.test.ts) | ✅ 67 из 67 | 10 с | d91c207 +16 | [лог](logs/2026-10-04T12-45-56Z-unit-bda4.log) | MV2 backend registration and trusted context green |
+| 04.10.2026 17:46 | typecheck | ❌ ошибок: 1 | 33 с | d91c207 +17 | [лог](logs/2026-10-04T12-46-23Z-typecheck-5f11.log) | TS2554 |
+| 04.10.2026 17:49 | integration (частично: tests/integration/mv2-registration.test.ts) | ✅ 5 из 5 | 5 с | d91c207 +7 | [лог](logs/2026-10-04T12-49-41Z-integration-5d7e.log) | MV2 three signups resend confirm reload and atomic duplicate rollback |
+| 04.10.2026 17:50 | unit (частично: apps/web/src/lib/registration-context-client.test.ts) | ❌ упало 1 из 1 | 2 с | d91c207 +18 | [лог](logs/2026-10-04T12-50-58Z-unit-1eaf.log) | MV2 stale cookie context regression red |
+| 04.10.2026 17:51 | unit (частично: apps/web/src/lib/registration-context-client.test.ts apps/api/src/auth/registration-contract.test.ts) | ❌ упало 1 из 5 | 2 с | d91c207 +18 | [лог](logs/2026-10-04T12-51-49Z-unit-a032.log) | MV2 stale session and exact pilot allowlists green |
+| 04.10.2026 17:52 | unit (частично: apps/web/src/lib/registration-context-client.test.ts apps/api/src/auth/registration-contract.test.ts) | ✅ 5 из 5 | 2 с | d91c207 +18 | [лог](logs/2026-10-04T12-52-36Z-unit-de7a.log) | MV2 new session has precedence, shared legacy header preserved |
+| 04.10.2026 17:54 | unit (частично: apps/web/src/app/login/verify-registration.test.ts apps/web/src/lib/registration-context-client.test.ts apps/api/src/auth/registration-context.t | ✅ 10 из 10 | 5 с | d91c207 +19 | [лог](logs/2026-10-04T12-54-49Z-unit-b403.log) | MV2 explicit scope after verification and pilot gates |
+| 04.10.2026 17:57 | lint | ❌ ошибок: 1 | 17 с | d91c207 +23 | [лог](logs/2026-10-04T12-57-02Z-lint-92e0.log) | no-useless-assignment |
+| 04.10.2026 17:57 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 53 из 53 | 1 мин | d91c207 +21 | [лог](logs/2026-10-04T12-57-22Z-e2e-340e.log) | MV2 SITE ONLY: selector, pilot denial, reload, keyboard, axe, screenshots |
+| 04.10.2026 17:57 | typecheck | ❌ ошибок: 2 | 1 мин 11 с | d91c207 +23 | [лог](logs/2026-10-04T12-57-22Z-typecheck-d211.log) | TS2345 |
+| 04.10.2026 17:57 | integration | ✅ 317 из 326, пропущено 9 | 2 мин | d91c207 +7 | [лог](logs/2026-10-04T12-57-22Z-integration-5312.log) | MV2 full integration on isolated PostgreSQL |
+| 04.10.2026 17:57 | unit | ❌ упало 4 из 3305, пропущено 4 | 4 мин 12 с | d91c207 +21 | [лог](logs/2026-10-04T12-57-22Z-unit-93ab.log) | MV2 full unit regression, unchanged shell assertions |
+| 04.10.2026 18:02 | unit (частично: tests/unit/site-design.test.ts apps/api/src/auth/route-access.test.ts apps/web/src/lib/auth-fallback.test.ts apps/web/src/lib/site-auth-flow.tes | ✅ 16 из 16 | 4 с | d91c207 +24 | [лог](logs/2026-10-04T13-02-47Z-unit-248b.log) | MV2 new design and route contracts, login mocks preserve assertions |
+| 04.10.2026 18:03 | unit (частично: apps/web/src/lib/site-auth-flow.test.ts) | ✅ 6 из 6 | 2 с | d91c207 +24 | [лог](logs/2026-10-04T13-03-33Z-unit-f1b2.log) | MV2 pilot destination and tampered transport |
+| 04.10.2026 18:04 | lint | ❌ код выхода 2 | 4 с | d91c207 +26 | [лог](logs/2026-10-04T13-04-30Z-lint-bcfe.log) |  |
+| 04.10.2026 18:04 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 53 из 53 | 50 с | d91c207 +24 | [лог](logs/2026-10-04T13-04-30Z-e2e-3db1.log) | MV2 final SITE ONLY UI transport, desktop mobile screenshots and axe |
+| 04.10.2026 18:04 | typecheck | ✅ без ошибок | 55 с | d91c207 +26 | [лог](logs/2026-10-04T13-04-30Z-typecheck-f9af.log) |  |
+| 04.10.2026 18:06 | lint | ✅ без ошибок | 28 с | d91c207 +26 | [лог](logs/2026-10-04T13-06-13Z-lint-c2eb.log) |  |
+| 04.10.2026 18:06 | integration | ✅ 317 из 326, пропущено 9 | 1 мин 11 с | d91c207 +8 | [лог](logs/2026-10-04T13-06-13Z-integration-4f72.log) | MV2 final integration after site lock released |
+| 04.10.2026 18:04 | unit | ✅ 3303 из 3307, пропущено 4 | 3 мин 54 с | d91c207 +24 | [лог](logs/2026-10-04T13-04-30Z-unit-ee4b.log) | MV2 final stable full unit |
+| 04.10.2026 18:13 | lint | ❌ код выхода 2 | 6 с | 4ca2170 | [лог](logs/2026-10-04T13-13-15Z-lint-0dd0.log) |  |
+| 04.10.2026 18:13 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 53 из 53 | 1 мин 14 с | 4ca2170 | [лог](logs/2026-10-04T13-13-15Z-e2e-678e.log) | MV2 FINAL SITE ONLY current main, screenshots keyboard axe |
+| 04.10.2026 18:13 | typecheck | ✅ без ошибок | 1 мин 45 с | 4ca2170 | [лог](logs/2026-10-04T13-13-15Z-typecheck-3f42.log) |  |
+| 04.10.2026 18:13 | unit | ✅ 3303 из 3307, пропущено 4 | 4 мин 47 с | 4ca2170 | [лог](logs/2026-10-04T13-13-15Z-unit-b84c.log) | MV2 FINAL current main and pilot completion styling |
+| 04.10.2026 18:19 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 53 из 53 | 44 с | 2d9adf6 +25 | [лог](logs/2026-10-04T13-19-30Z-e2e-efee.log) | MV2 rebased SITE ONLY final screenshots and keyboard/axe |
+| 04.10.2026 18:19 | typecheck | ✅ без ошибок | 55 с | 2d9adf6 +27 | [лог](logs/2026-10-04T13-19-31Z-typecheck-24d1.log) |  |
+| 04.10.2026 18:22 | lint | ✅ без ошибок | 29 с | 83ab0ef | [лог](logs/2026-10-04T13-22-38Z-lint-c03d.log) |  |
+| 04.10.2026 18:22 | integration | ✅ 318 из 327, пропущено 9 | 1 мин 9 с | 83ab0ef | [лог](logs/2026-10-04T13-22-28Z-integration-2e3f.log) | MV2 FINAL main QA merged, registration and Hospitality regression |
+| 04.10.2026 18:21 | unit | ✅ 3312 из 3316, пропущено 4 | 3 мин 14 с | 2d9adf6 +25 | [лог](logs/2026-10-04T13-21-39Z-unit-f94d.log) | MV2 FINAL integrated with main QA merge 2d9adf66 |

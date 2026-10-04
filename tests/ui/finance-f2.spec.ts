@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Финансы за период», срез F2 (ADR-113, план `plans/finance-f2-2026-09-28.md`): раздел «Оплаты и возвраты» с

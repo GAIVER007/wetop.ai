@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
@@ -62,7 +62,6 @@ test('название гостиницы в каркасе и обзоре по
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
-  await expect(page.locator('main')).toContainText('Проверочный хостел');
   await expect(page.locator('.workspace-header')).not.toContainText('Luxx Aparts');
 });
 

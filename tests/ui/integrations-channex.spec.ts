@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Подключения → Channex» (`/connections/channex`). Срез INT2 (ADR-121, 28.09.2026) держал здесь отдельную страницу

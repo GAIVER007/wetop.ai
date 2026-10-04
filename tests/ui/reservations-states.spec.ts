@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * B5 «Состояния в списке броней» (tasks/todo.md): отказ API не выглядит как ноль броней — заголовок,

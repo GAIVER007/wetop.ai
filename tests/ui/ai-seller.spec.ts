@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { expect, FIXTURE_API, test, type Page } from './fixtures';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; приёмка §4.4; макет владельца 26.09.2026 — ADR-097), браузер →
@@ -6,7 +6,7 @@ import { expect, test, type Page, FIXTURE_API } from './fixtures';
  * серверных действий стойки, а не правил API — те закрыты тестами контроллера (`apps/api/src/ai-seller`) и бота
  * (`apps/ai-seller/tests/test_seller_prompt_text.py`). Гости и переписка — вымышленные (ADR-010).
  */
-// адрес подставного API настраиваем: прогон на своём стенде не трогает общий 4311
+// адрес своего стенда: при занятом 4311 его даёт `UI_FIXTURE_API` (иначе запросы спека уедут в чужой прогон)
 const API = FIXTURE_API;
 // адреса продавца синтетический API отдаёт только прогону тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };

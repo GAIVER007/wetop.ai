@@ -1,6 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Шахматка v2» PR 7 (ТЗ §8–10, §37–41; решения — `plans/chessboard-v2-2026-09-27.md`, PR 7):

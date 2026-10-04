@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Шахматка v2» PR 6 — ящик «Брони без размещения» (ТЗ §11–12, пятый сценарий §64): две брони без

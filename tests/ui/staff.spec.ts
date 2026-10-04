@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Параллельный раздел /staff (01.10) при интеграции 02.10 заменён «Сотрудниками» TEAM1 (ADR-136):

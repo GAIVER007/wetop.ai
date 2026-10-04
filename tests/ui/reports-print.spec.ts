@@ -1,4 +1,4 @@
-import { expect, settleStreaming, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, settleStreaming } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**

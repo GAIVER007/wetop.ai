@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { test, expect, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 /**
  * Доска по умолчанию — текущая неделя, а брони фикстуры стоят «вокруг сегодня»: в пятницу–воскресенье

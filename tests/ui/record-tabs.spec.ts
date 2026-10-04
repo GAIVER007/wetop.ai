@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Locator, type Page } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**

@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * ADR-071: ручная бронь OTA несёт канал и номер брони в канале. По номеру WETOP узнает бронь, когда канал

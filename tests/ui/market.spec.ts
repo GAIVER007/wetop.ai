@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test, devNoise, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 
 /**
  * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,

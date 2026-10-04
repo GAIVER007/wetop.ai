@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Главная, PR A2 (ТЗ `plans/tz-today-2026-09-27.md` §4, §12.1; план `plans/today-a2-2026-09-28.md`):

@@ -71,13 +71,6 @@ async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference
 export * from '@playwright/test';
 
 /**
- * Адрес подставного API. Основной конфиг держит его на 4311; `playwright.alt.config.ts` ставит
- * `UI_FIXTURE_API` на свой порт, и спеки шлют `__test/reset` и `__test/control` своему стенду, а не
- * чужому прогону на 4311 (03.10.2026: соседняя сессия ловила сбросы посреди своего набора).
- */
-export const FIXTURE_API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
-
-/**
  * Шум `next dev`, а не ошибка стойки: React ведёт собственную дорожку замеров, и на странице,
  * пришедшей через redirect(), подаёт начало серверного рендера раньше timeOrigin вкладки —
  * браузер отвечает отказом `measure`. Приходит и как console.error, и как необработанное
@@ -135,3 +128,16 @@ export const test = base.extend<{ tour: boolean }>({
 });
 
 export { expect };
+
+/**
+ * Адрес подставного API для запросов спека (`__test/reset`, `__test/control`). Дерево делят несколько сессий, и
+ * 4311 бывает занят соседним прогоном: `playwright.alt.config.ts` поднимает свой стенд и передаёт его адрес
+ * `UI_FIXTURE_API` (календарные спеки задавали тот же стенд через `FIXTURE_PORT`, поэтому понимаем и его).
+ * Спек, у которого адрес зашит константой, в этом случае сбрасывает и настраивает ЧУЖУЮ фикстуру,
+ * а страницу читает со своей. 03.10.2026 так падал `ai-seller.spec` на «Коде для сайта»: `sellerHosts: []` уехал
+ * соседу, своя фикстура осталась с доменом, и подсказка «сайта нет» на странице не появлялась.
+ */
+const fixturePort = process.env['FIXTURE_PORT'];
+export const FIXTURE_API =
+  process.env['UI_FIXTURE_API'] ??
+  (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');

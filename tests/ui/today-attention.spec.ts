@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Главная, PR A3 (ТЗ `plans/tz-today-2026-09-27.md` §5, §12.1; план `plans/today-a3-2026-09-28.md`): «Требуют внимания» —

@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Фискальный чек по запросу гостя (DATA_MODEL §26, ADR-144): касса объекта пробивает чек, администратор отмечает его

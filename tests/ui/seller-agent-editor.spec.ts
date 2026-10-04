@@ -1,4 +1,4 @@
-import { test, expect, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 test('агент из списка: редактирование, сохранение и повторное открытие', async ({
   page,

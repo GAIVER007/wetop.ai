@@ -1,4 +1,4 @@
-import { expect, test, type Locator, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Locator } from './fixtures';
 
 /**
  * Разбор «Главной» 23.09.2026 — критика по DESIGN.md, находки 1–9 (отчёт и снимки —

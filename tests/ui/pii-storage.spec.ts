@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * ADR-072: пока база не в Казахстане, WETOP не хранит имя, контакты, заметки и документы гостя. Формы стойки их

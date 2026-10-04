@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test, devNoise, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**

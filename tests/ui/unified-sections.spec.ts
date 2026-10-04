@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { HEADER_GROWTH_PX, test, expect, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, HEADER_GROWTH_PX, test, expect } from './fixtures';
 
 const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {

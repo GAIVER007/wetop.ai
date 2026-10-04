@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * План дизайн-системы §10 п. 3 и 4 (18.09.2026): клетка блокировки в календаре.

@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Касса (DATA_MODEL §21, план `plans/finance-cashbox-2026-10-02.md`): вкладка с остатками по способам,

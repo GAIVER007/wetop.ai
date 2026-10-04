@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { devNoise, expect, test, type APIRequestContext, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
 
 /**
  * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика

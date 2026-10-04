@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Дни рождения» (Q-249 T0, образец Lite PMS): строка в панели «Сегодня» календаря и страница

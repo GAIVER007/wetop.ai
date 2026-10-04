@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 /**

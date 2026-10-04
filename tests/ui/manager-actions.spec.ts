@@ -1,4 +1,4 @@
-import { expect, test, type Page, devNoise, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, devNoise } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**

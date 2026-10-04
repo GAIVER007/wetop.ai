@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Образец Exely (поручение 03.10): в форме брони — «Детализация цены по дням», цена каждой ночи

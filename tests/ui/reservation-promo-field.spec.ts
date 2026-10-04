@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * D4 (ADR-128): в форме брони стойки есть необязательное поле «Промокод». Заполненное — уходит в

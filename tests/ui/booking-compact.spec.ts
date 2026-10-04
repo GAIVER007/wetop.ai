@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test('быстрые даты сохраняют гостя, заметки и позволяют создать бронь', async ({
   page,

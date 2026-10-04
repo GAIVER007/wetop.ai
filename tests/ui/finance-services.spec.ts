@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Отчёт по услугам (REP2, план `plans/reports-hub-2026-10-02.md` §3): вкладка «Услуги» на «Финансах» —

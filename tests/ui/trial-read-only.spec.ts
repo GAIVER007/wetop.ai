@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Пробный период 14 дней и «только чтение» после него (Q-144 — Б, Q-141 — А, ADR-102). Стойка показывает полосу на

@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -6,15 +6,16 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('главная: новая бронь и «Гостиница сегодня» на первом экране', async ({ page }) => {
-  // Главная владельца (30.09.2026, `plans/today-owner-dashboard-2026-09-30.md`) сменила полосу стойки A1:
-  // в шапке новая бронь, ниже финансы периода и «Гостиница сегодня»; на широком экране всё без прокрутки,
-  // очередь «Требуют внимания» и работа с гостями открываются панелями из нижнего ряда
+test('главная: «Гостиница сегодня» на первом экране, кнопки брони нет', async ({ page }) => {
+  // Главная владельца (03.10.2026): сверху виджеты «Сегодня», бронь заводится в «Календаре» и «Бронях»;
+  // на телефоне первым экраном загрузка дня
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
-    const create = page.getByRole('main').getByRole('link', { name: '+ Новая бронь', exact: true });
-    await expect(create).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
+    await expect(
+      page.getByRole('article', { name: 'Загрузка на сегодня' }).getByTestId('c-occupancy'),
+    ).toBeInViewport();
     const hotel = page.getByRole('region', { name: 'Гостиница сегодня' });
     await expect(hotel).toBeAttached();
     const attention = page

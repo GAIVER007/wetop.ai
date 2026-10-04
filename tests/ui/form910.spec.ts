@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Доход для формы 910» (K7, ADR-144): шесть месяцев полугодия, поступило минус возвращено, итог за полугодие и

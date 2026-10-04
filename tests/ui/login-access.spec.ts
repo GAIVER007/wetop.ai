@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';

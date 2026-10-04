@@ -1,4 +1,4 @@
-import { expect, test, devNoise, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';

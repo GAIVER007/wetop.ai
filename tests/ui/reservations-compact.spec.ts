@@ -1,4 +1,4 @@
-import { test, expect, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 test('compact reservations: filters disclose, submit and persist', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);

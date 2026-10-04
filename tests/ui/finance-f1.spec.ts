@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Финансы за период», срез F1 (ADR-113, план `plans/finance-f1-2026-09-27.md`). Проверяет критерии среза и

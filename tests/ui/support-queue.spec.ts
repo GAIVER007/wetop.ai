@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**

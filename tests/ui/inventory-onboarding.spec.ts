@@ -1,4 +1,4 @@
-import { test, expect, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 test('empty inventory can start a dorm category from the add menu', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);

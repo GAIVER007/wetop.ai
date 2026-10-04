@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { HEADER_GROWTH_PX, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, HEADER_GROWTH_PX } from './fixtures';
 
 /**
  * «Тарифы и цены» v2 (27.09.2026, ТЗ владельца, ADR-111, RT1).

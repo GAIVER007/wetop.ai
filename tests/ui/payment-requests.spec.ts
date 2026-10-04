@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Запросы оплаты» в «Счетах» брони (DATA_MODEL §24, ADR-144): администратор выставляет счёт Kaspi по телефону или

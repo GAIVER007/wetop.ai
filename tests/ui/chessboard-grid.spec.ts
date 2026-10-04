@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 2 (ТЗ — plans/tz-chessboard-v2-2026-09-27.md): сетка.

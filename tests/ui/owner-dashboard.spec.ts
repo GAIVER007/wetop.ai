@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /*
  * Главная владельца (03.10.2026, поручение владельца со снимком «Статистики» прежней PMS): сверху три

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { HEADER_GROWTH_PX, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, HEADER_GROWTH_PX } from './fixtures';
 const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

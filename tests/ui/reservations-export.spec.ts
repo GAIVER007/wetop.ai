@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Скачать CSV» на экране «Брони» (H11, ADR-144): тот же отбор в файл для Excel, без имён и контактов гостей.

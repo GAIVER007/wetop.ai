@@ -1,4 +1,4 @@
-import { expect, test, type Page, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само

@@ -1,4 +1,4 @@
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Тариф при изменении брони (plans/wetop-domain-2026-09-14.md, Б1 и Б8).

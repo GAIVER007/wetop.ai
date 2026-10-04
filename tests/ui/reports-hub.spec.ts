@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Хаб «Отчёты» (REP1, план `plans/reports-hub-2026-10-02.md`): один вход ко всем отчётам. Карточки

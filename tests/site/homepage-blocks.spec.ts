@@ -56,7 +56,7 @@ test('содержимое блоков видно сразу: без вклад
   await expect(page.locator('#sales a[href="/calculator/"]')).toBeVisible();
   await expect(page.locator('#team .card')).toHaveCount(3);
   await expect(page.locator('#ai-sellers')).toContainText(/отдельное расширение/i);
-  await expect(page.locator('#faq details')).toHaveCount(7);
+  await expect(page.locator('#faq details')).toHaveCount(6);
   await expect(page.locator('#faq details summary').first()).toBeVisible();
 });
 

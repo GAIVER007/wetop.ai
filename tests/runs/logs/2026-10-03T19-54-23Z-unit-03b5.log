@@ -1,0 +1,16 @@
+# Модульные (unit) · 04.10.2026 00:54 Алматы · vm
+# коммит 3cafa82 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-54-23Z-unit-03b5.json' 'apps/web/src/app/reservations/reservations-csv.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (2 tests) 5ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  19:54:24
+   Duration  938ms (transform 87%, import 12%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-54-23Z-unit-03b5.json
+
+# код выхода 0 · 2 с

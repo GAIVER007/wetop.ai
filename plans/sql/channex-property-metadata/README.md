@@ -18,3 +18,8 @@ pricing, or OTA rows change.
    to the protected backup before column removal. For an already successful Prisma migration,
    use a new compensating migration or restore the verified backup; do not mark a completed
    migration as failed and do not edit its history in place.
+
+Applied 04.10.2026 with owner approval. Five unrelated pending migrations (046-050) were excluded
+from the temporary migration snapshot; existing migration history and repository files were retained.
+Result: 3 metadata columns; 2 properties; old-column digest unchanged. Backup and validation
+evidence: reports/channex-multi-property-2026-10-04/report.md.

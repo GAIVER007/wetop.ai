@@ -30,3 +30,8 @@ Evidence:
 
 Deployment remains gated by exact-candidate release-checks and migration validation. Live OTA booking
 receipt cannot be certified before Channex approval and official channel connection.
+
+Production metadata migration applied 04.10.2026: 3 columns, one known-property backfill,
+other property metadata remains NULL. Existing property row count (2) and digest unchanged.
+Only approved 041 was applied from a migration snapshot excluding the five unrelated pending migrations.
+Initial release-checks was cancelled by @GAIVER007; owner approved rerun.

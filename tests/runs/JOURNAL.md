@@ -5885,3 +5885,7 @@
 | 04.10.2026 12:47 | typecheck | ✅ без ошибок | 20 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-24Z-typecheck-fd47.log) |  |
 | 04.10.2026 12:47 | lint | ✅ без ошибок | 15 с | 680bac4 +7 | [лог](logs/2026-10-04T07-47-45Z-lint-5ea8.log) |  |
 | 04.10.2026 12:48 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 680bac4 +1 | [лог](logs/2026-10-04T07-48-01Z-unit-a582.log) |  |
+| 04.10.2026 12:57 | typecheck | ✅ без ошибок | 3 мин 6 с | 046a3ed +14 | [лог](logs/2026-10-04T07-57-38Z-typecheck-1d98.log) |  |
+| 04.10.2026 13:01 | lint | ✅ без ошибок | 1 мин 28 с | 046a3ed +14 | [лог](logs/2026-10-04T08-01-37Z-lint-cd65.log) |  |
+| 04.10.2026 13:03 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts scripts/design/build-tokens.test.ts apps/web/src/app/today/owner-metrics.test.t | ✅ 40 из 40 | 10 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-12Z-unit-5132.log) |  |
+| 04.10.2026 13:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/today-attentio | ✅ 26 из 26 | 4 мин 30 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-31Z-e2e-174f.log) |  |

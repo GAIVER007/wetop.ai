@@ -1,7 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, deskApi, guardApi, guestsApi } from '../../lib/api';
+import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
@@ -65,7 +65,7 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, birthdays] = await Promise.all([
+  const [board, incidents, events, shell, day] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -73,8 +73,6 @@ export default async function ChessboardPage({
     deskShell().catch(() => null),
     // Полоса дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
-    // «Дни рождения» в панели «Сегодня» (образец Lite PMS); отказ гасит только эту строку
-    guestsApi.birthdays(today, 1).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -137,7 +135,7 @@ export default async function ChessboardPage({
     >
       <div className="board-top">
       {/* «Сегодня» слева, управление календарём справа (владелец 03.10) */}
-      {day && <DayPanel day={day} board={board} today={today} birthdays={birthdays?.length ?? null} />}
+      {day && <DayPanel day={day} board={board} today={today} />}
       <div className="board-controls">
         <div className="board-period">
           <span className="board-date-nav">
@@ -204,8 +202,8 @@ export default async function ChessboardPage({
           <BoardHelp title="Помощь">
             <div className="board-help-content">
               <p className="note">
-                <b>Как работать с календарём.</b> В строке категории — сколько мест свободно на эту
-                ночь; под датой в шапке — свободно и занято из {board.rows.length}. Ночь выезда
+                <b>Как работать с календарём.</b> В строке категории указано, сколько мест свободно
+                на эту ночь. Ночь выезда
                 ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой — форму новой
                 брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
                 ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Фильтры
@@ -280,23 +278,20 @@ function categoriesOf(
 }
 
 /**
- * Панель «Сегодня» справа от управления (поручение владельца 02.10, образец — верхняя панель
- * Lite PMS): слева движение дня ссылками в «Брони», справа состояние фонда. Денег нет — «кто
- * сколько должен» живёт в «Финансах» (решение 02.10); «Задачи» и «Дни рождения» из образца не
- * переносятся — в модели данных их нет (Q-249). Панель стоит рядом со строками управления, а не
+ * Панель «Сегодня» рядом с управлением: движение дня, задачи и состояние фонда. Денег нет,
+ * «кто сколько должен» живёт в «Финансах» (решение 02.10). «Проживания» дублировали «Занято»,
+ * а дни рождения относятся к отдельному сценарию гостей, поэтому в панели их нет (04.10).
+ * Панель стоит рядом со строками управления, а не
  * отдельной полосой: страница фиксирована по высоте, лишний ряд сверху отнимает его у сетки.
  */
 function DayPanel({
   day,
   board,
   today,
-  birthdays,
 }: {
   day: import('../../lib/api').DeskDay;
   board: import('../../lib/api').Chessboard;
   today: string;
-  /** именинников сегодня; null — список не загрузился, строки нет */
-  birthdays: number | null;
 }) {
   const s = board.summary[today];
   const units = s ? s.occupied + s.free + s.blocked : 0;
@@ -318,10 +313,6 @@ function DayPanel({
       <div className="board-day-panel__grid">
         {row('arrivals', 'Заезды', String(day.counts.arrivals), `/reservations?date=${d}`)}
         {row('departures', 'Выезды', String(day.counts.departures), `/reservations?date=${d}`)}
-        {row('inhouse', 'Проживания', String(day.counts.inHouse), `/reservations?date=${d}`)}
-        {birthdays !== null
-          ? row('birthdays', 'Дни рождения', String(birthdays), '/guests/birthdays')
-          : <span />}
         {row('tasks', 'Задачи', String(day.counts.tasksOpen), '/tasks')}
         <div className="board-day-panel__row">
           <span>Свободно</span>

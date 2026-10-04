@@ -442,22 +442,21 @@
   display: block;
   height: 100%;
   border-radius: var(--radius-xs);
-  background: var(--tone);
 }
-.tw-row--ok {
-  --tone: var(--success);
+.tw-row--ok .tw-row__bar > span {
+  background: var(--success);
 }
-.tw-row--warn {
-  --tone: var(--warning);
+.tw-row--warn .tw-row__bar > span {
+  background: var(--warning);
 }
-.tw-row--bad {
-  --tone: var(--danger);
+.tw-row--bad .tw-row__bar > span {
+  background: var(--danger);
 }
-.tw-row--info {
-  --tone: var(--primary);
+.tw-row--info .tw-row__bar > span {
+  background: var(--primary);
 }
-.tw-row--muted {
-  --tone: var(--muted);
+.tw-row--muted .tw-row__bar > span {
+  background: var(--muted);
 }
 .tw-load {
   display: grid;

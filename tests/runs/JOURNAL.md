@@ -5842,3 +5842,4 @@
 | 04.10.2026 11:36 | unit | ❌ упало 1 из 3223, пропущено 3 | 1 мин 46 с | de3029c | [лог](logs/2026-10-04T06-36-52Z-unit-7ad6.log) | слияние main 04.10 |
 | 04.10.2026 11:38 | integration | ✅ 307 из 307 | 1 мин 7 с | de3029c | [лог](logs/2026-10-04T06-38-39Z-integration-cddc.log) | слияние main 04.10 |
 | 04.10.2026 11:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/status-page.spec.ts tests/ui/channels-reconcile.spec.ts tests/ui/channels-compact.spec.ts tests/u | ✅ 132 из 132 | 8 мин 22 с | de3029c | [лог](logs/2026-10-04T06-40-02Z-e2e-29ff.log) | слияние main 04.10: срезы ADR-144 и соседи |
+| 04.10.2026 11:38 | unit (частично: scripts/design/build-tokens.test.ts tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts) | ✅ 25 из 25 | 15 с | 1f9a2f0 +1 | [лог](logs/2026-10-04T06-38-16Z-unit-76ea.log) |  |

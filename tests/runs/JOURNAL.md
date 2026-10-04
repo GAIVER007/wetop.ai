@@ -5906,3 +5906,8 @@
 | 04.10.2026 13:10 | typecheck | ❌ ошибок: 95 | 17 с | 5b4c4de | [лог](logs/2026-10-04T08-10-33Z-typecheck-2c64.log) | TS1002 |
 | 04.10.2026 13:11 | typecheck | ✅ без ошибок | 1 мин 14 с | 50ed25e | [лог](logs/2026-10-04T08-11-14Z-typecheck-96a6.log) | повтор после удаления оборванного кэша стенда .next-ui |
 | 04.10.2026 14:04 | e2e (частично: tests/e2e/desk-day.spec.ts --workers=1) | ✅ 2 из 2 | 1 мин 17 с | 207d04f +1 | [лог](logs/2026-10-04T09-04-08Z-e2e-d2ef.log) |  |
+| 04.10.2026 14:14 | unit (частично: tests/unit/desk-glass.test.ts tests/unit/design-rules.test.ts) | ✅ 3 из 3 | 2 с | 2a4336e | [лог](logs/2026-10-04T09-14-08Z-unit-fd52.log) |  |
+| 04.10.2026 14:14 | unit | ❌ упало 3 из 3225, пропущено 4 | 1 мин 41 с | 2a4336e | [лог](logs/2026-10-04T09-14-16Z-unit-4e33.log) | дежурный агент: платит ключ API, подписка только явно (ADR-137) заданы оба: платит ключ, токен подписки процессу агента не достаётся |
+| 04.10.2026 14:15 | typecheck | ✅ без ошибок | 30 с | 2a4336e | [лог](logs/2026-10-04T09-15-59Z-typecheck-4d82.log) |  |
+| 04.10.2026 14:16 | lint | ✅ без ошибок | 18 с | 2a4336e | [лог](logs/2026-10-04T09-16-29Z-lint-3fee.log) |  |
+| 04.10.2026 14:16 | unit (частично: tests/unit/guard-run.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/reservations/reservations.controller.test.ts) | ✅ 90 из 90 | 10 с | 2a4336e | [лог](logs/2026-10-04T09-16-57Z-unit-51b8.log) |  |

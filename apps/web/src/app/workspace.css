@@ -260,9 +260,12 @@ svg {
 .workspace-create {
   white-space: nowrap;
 }
+/* Низ страницы — 24 px: 48 px держали пустую полосу под содержимым на каждом экране
+ * (поручение владельца 03.10 «без лишнего пустого пространства»). На телефоне ниже свой запас
+ * под нижнюю навигацию, у страниц во весь экран этот отступ достаётся таблице. */
 .workspace .page {
   max-width: 1680px;
-  padding: 28px 32px 48px;
+  padding: 28px 32px 24px;
 }
 .workspace .page--narrow {
   max-width: 1080px;
@@ -272,7 +275,7 @@ svg {
 }
 .workspace .page--full {
   max-width: none;
-  padding: 28px 24px 40px;
+  padding: 28px 24px 24px;
 }
 .page__head {
   align-items: center;
@@ -651,6 +654,69 @@ dialog::backdrop {
     margin-left: auto;
   }
 }
+/* Списки занимают экран целиком: страница не прокручивается, прокрутка живёт внутри таблицы, а
+ * заголовок, отборы и итог остаются на месте. Тот же приём, что у календаря (`.board-wrap`), только
+ * с собственными крючками страниц. Высота, а не min-height: колонка иначе растёт под содержимое.
+ * Только на компьютере: на телефоне и планшете страница прокручивается как раньше.
+ * Замер 03.10 на 1440×900: «Брони» выходили за экран на 203 px, «Гости» на 118, «Фонд» на 96,
+ * «Свободные места» на 285. */
+@media (min-width: 961px) {
+  .workspace .page:has(> .reservations-results),
+  .workspace .page:has(> .inventory-content),
+  .workspace .page:has(> .guests-bar),
+  .workspace .page:has(> .fund-availability) {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--header-h, 100px));
+    overflow: hidden;
+  }
+  /* остаток высоты — последнему блоку, и он передаёт его своей таблице */
+  .workspace .page > .reservations-results,
+  .workspace .page > .inventory-content,
+  .workspace .page:has(> .guests-bar) > section:last-of-type,
+  .workspace .page > .fund-availability {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .workspace .page > .reservations-results > .reservations-list {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .workspace .page .reservations-results .table-scroll,
+  .workspace .page .inventory-content .table-scroll,
+  .workspace .page:has(> .guests-bar) > section:last-of-type .table-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+  }
+  /* список категорий «Свободных мест» — не таблица, прокручивается сам */
+  .workspace .page > .fund-availability {
+    overflow-y: auto;
+  }
+  /* в flex-колонке отступы соседей не слипаются: 24 + 24 давали полосы в 48 px между полосой
+   * поиска, заголовком и отборами, поэтому верхний отступ снимаем, нижний оставляем */
+  .workspace .page:has(> .fund-availability) > * {
+    margin-top: 0;
+  }
+  /* «Аналитика»: период, плитки и вкладки остаются на месте, прокручивается область графиков
+   * (замер 03.10: страница выходила за экран на 147 px при 1440×900 и на 278 px при 1280×800) */
+  .workspace .page:has(> .dash-grid) {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--header-h, 100px));
+    overflow: hidden;
+  }
+  .workspace .page > .dash-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 @media print {
   .workspace-header,
   .skip-link {

@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test('compact reservations: filters disclose, submit and persist', async ({ page, request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/reservations');
   await expect(page.getByLabel('Источник', { exact: true })).toBeHidden();

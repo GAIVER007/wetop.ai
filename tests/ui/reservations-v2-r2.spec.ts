@@ -8,7 +8,8 @@ import { mkdirSync, writeFileSync } from 'node:fs';
  * основа даты, сахар ссылок Главной, чистый адрес после «Показать», пустое состояние. Снимает
  * стоп-гейт для владельца: обе темы, виды и отборы из поручения 27.09 (R3 без отдельного «да» не начинается).
  */
-const fixture = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const report = 'reports/reservations-v2-r2-2026-09-27';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

@@ -55,7 +55,7 @@
 
 /* ---------- группы и карточки */
 .reports-group {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4); /* 16: группы ближе друг к другу, хаб влезает в экран ноутбука */
 }
 .report-card {
   display: flex;

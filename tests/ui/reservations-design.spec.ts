@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 
 const report = 'reports/reservations-compact-2026-09-30';
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
 });
 
 test('выбранный статус броней доступен с клавиатуры и объявлен текущим', async ({ page }) => {

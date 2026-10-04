@@ -5,7 +5,8 @@ import { expect, test } from './fixtures';
  * фильтры и адрес с датами остаются, вместо строк экран сбоя со следующим шагом; «Повторить загрузку»
  * возвращает список с теми же условиями; пока данные идут, виден скелетон с подписью словом.
  */
-const API = 'http://127.0.0.1:4311';
+// Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 
 test.afterEach(async ({ request }) => {

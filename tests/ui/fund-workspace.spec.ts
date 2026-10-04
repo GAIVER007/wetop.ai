@@ -115,7 +115,7 @@ test('AV2: price «from» — rooms for the whole stay, beds for every guest', a
   request,
 }) => {
   // ТЗ «Свободные места» §4 (ADR-110, закрытый Q-204); подставной API: номер 8 000 ₸, койка 4 000 ₸ за ночь
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
   const rows = page.locator('.fund-availability article');
   const room = rows.filter({ hasText: 'Двухместный номер' });
@@ -136,7 +136,7 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   request,
 }) => {
   // ТЗ «Свободные места» §5–§6 (ADR-110): место назначает API по правилу Q-094, повторно ничего не вводится
-  const fixture = 'http://127.0.0.1:4311';
+  const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'; // порт стенда — `UI_FIXTURE_API`
   await request.post(`${fixture}/__test/reset`);
   const search = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
   await page.goto(search);
@@ -215,7 +215,8 @@ test('AV4: a category without places stays on screen with the nearest availabili
   request,
 }) => {
   // ТЗ «Свободные места» §7 (ADR-110): «с 1-го нет, но есть с N-го» — вместо того чтобы исчезнуть
-  const fixture = 'http://127.0.0.1:4311';
+  // Порт стенда можно задать (`UI_FIXTURE_API`): дерево делят несколько сессий, 4311 бывает занят
+  const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
   await request.post(`${fixture}/__test/reset`);
   // все двухместные закрыты на 1–4 октября: категория вмещает двоих, но мест на весь срок нет
   for (let i = 1; i <= 16; i += 1) {
@@ -259,7 +260,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
   await page.addInitScript(() => localStorage.setItem('wetop.theme', 'dark'));
   for (const path of ['/rooms/categories', '/rooms/availability']) {
     await page.goto(path);
@@ -279,12 +280,14 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   }
   await page.goto('/rooms/availability?arrival=2026-09-27&departure=2026-09-24');
   await expect(page.getByRole('main').getByText(/Выезд должен быть позже заезда/)).toBeVisible();
-  await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/control`, {
+    data: { empty: true },
+  });
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();
   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
   await expect(page.getByRole('dialog', { name: 'Создать категорию' })).toBeVisible();
   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311'}/__test/reset`);
 });

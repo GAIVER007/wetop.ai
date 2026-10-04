@@ -53,6 +53,8 @@ for (const screen of [
   '/finance',
   // хаб «Отчёты» (REP1): четыре источника данных, каждый — одним запросом
   '/reports',
+  // печатные формы дня (REP4): один /desk/today на лист
+  '/reports/print?form=day',
   '/channels',
   // «Подключения» каналов — redirect() на страницу настроек Channex (INT2): считается сам целевой экран
   '/connections/channex',

@@ -1,0 +1,68 @@
+# Модульные (unit) · 04.10.2026 00:21 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T19-21-11Z-unit-62d9.json' 'apps/api/src/health' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/incidents'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (11 tests) 18ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (15 tests) 13ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 12ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (10 tests) 8ms
+ ✓ |unit| packages/domain/src/incidents/kinds-doc.test.ts (1 test) 6ms
+ ✓ |unit| packages/domain/src/incidents/public-status.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 51ms
+ ❯ |unit| apps/api/src/health/health.test.ts (8 tests | 2 failed) 236ms
+   ✓ GET /health (5)
+     ✓ живая база — 200 и status ok 26ms
+     ✓ база не отвечает — 503 и status degraded, без подробностей драйвера 6ms
+     ✓ строка подключения из ошибки драйвера наружу не выходит 4ms
+     ✓ не висит на мёртвом пуле, а отвечает 503 по своему сроку 55ms
+     ✓ замок входа проверку живости не трогает: у Docker и туннеля сессии нет 5ms
+   ❯ GET /status/public (H14, ADR-141) (3)
+     × без входа: всё работает — четыре части словами 9ms
+     × открытая неисправность каналов — «с перебоями», а её текст и вид наружу не выходят 4ms
+     ✓ база не отвечает — «недоступно», без подробностей драйвера 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/health/health.test.ts > GET /status/public (H14, ADR-141) > без входа: всё работает — четыре части словами
+AssertionError: expected 'down' to be 'ok' // Object.is equality
+
+Expected: "ok"
+Received: "down"
+
+ ❯ apps/api/src/health/health.test.ts:100:28
+     98|   it('без входа: всё работает — четыре части словами', async () => {
+     99|     const r = await request(app.getHttpServer()).get('/status/public')…
+    100|     expect(r.body.overall).toBe('ok');
+       |                            ^
+    101|     expect(r.body.components.map((c: { key: string }) => c.key)).toEqu…
+    102|       'app',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/health/health.test.ts > GET /status/public (H14, ADR-141) > открытая неисправность каналов — «с перебоями», а её текст и вид наружу не выходят
+AssertionError: expected 'down' to be 'degraded' // Object.is equality
+
+Expected: "degraded"
+Received: "down"
+
+ ❯ apps/api/src/health/health.test.ts:121:28
+    119|     ]);
+    120|     const r = await request(app.getHttpServer()).get('/status/public')…
+    121|     expect(r.body.overall).toBe('degraded');
+       |                            ^
+    122|     expect(r.text).not.toMatch(/outbox|Channex|секретный/);
+    123|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  2 failed | 67 passed (69)
+   Start at  19:21:12
+   Duration  3.66s (transform 70%, import 25%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T19-21-11Z-unit-62d9.json
+
+# код выхода 1 · 5 с

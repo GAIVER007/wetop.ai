@@ -58,12 +58,13 @@ describe('parseSellerProfile — проверка полей «Настроек�
   it('не указанное поле — умолчание; умолчание само по себе годится и совпадает с умолчанием бота', () => {
     const r = parseSellerProfile({});
     expect(r).toEqual({ ok: true, value: DEFAULT_SELLER_PROFILE });
-    // бот: address_form="vy", emoji="never", reply_length="short", languages=["русский"]
+    // бот: address_form="vy", emoji="never", reply_length="short", languages=["русский", "казахский", "английский", "китайский"]
+    // ADR-144: гости Казахстана пишут на русском, казахском, английском и китайском
     expect(DEFAULT_SELLER_PROFILE).toMatchObject({
       addressForm: 'FORMAL',
       emoji: 'NEVER',
       replyLength: 'SHORT',
-      languages: ['ru'],
+      languages: ['ru', 'kk', 'en', 'zh'],
       prohibitions: [],
       callHumanWhen: [],
     });
@@ -199,7 +200,7 @@ describe('sellerProfilePayload — тело PUT /seller/profile по модел�
       address_form: 'vy',
       emoji: 'never',
       reply_length: 'short',
-      languages: ['русский'],
+      languages: ['русский', 'казахский', 'английский', 'китайский'],
       bot_name: null,
     });
     expect(body.object_name).toHaveLength(120);

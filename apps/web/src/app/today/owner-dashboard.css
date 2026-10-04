@@ -56,18 +56,6 @@
   flex-direction: column;
   gap: 8px;
 }
-.owner-finance {
-  order: 1;
-}
-.owner-operations {
-  order: 2;
-}
-.owner-charts {
-  order: 3;
-}
-.owner-bottom {
-  order: 4;
-}
 .owner-row-label {
   display: flex;
   align-items: center;
@@ -351,5 +339,186 @@
 @media (max-width: 600px) {
   .page:has(.owner-dashboard) {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Главная владельца 03.10.2026: «Сегодня» тремя виджетами, деньги с изменением к прошлому отрезку */
+.owner-row-label .owner-debt {
+  margin-left: auto;
+}
+.owner-row-label .owner-debt strong {
+  color: var(--text);
+}
+.owner-row-label .btn {
+  min-height: 34px;
+  padding: 4px 8px;
+  font-size: var(--text-xs);
+}
+.owner-toolbar {
+  margin: 16px 0 0;
+}
+.owner-toolbar h2 {
+  margin: 0 8px 0 0;
+  font-size: var(--text-md);
+}
+.owner-delta {
+  margin-right: 4px;
+  font-weight: 600;
+}
+.owner-delta--up {
+  color: var(--success);
+}
+.owner-delta--down {
+  color: var(--danger);
+}
+.tw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.tw-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-control);
+  padding: 16px;
+  min-width: 0;
+}
+.tw-card header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tw-card h3 {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--primary);
+}
+.tw-card header a {
+  font-size: var(--text-xs);
+}
+.tw-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.tw-row > a,
+.tw-row > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 32px;
+  padding-top: 4px;
+  color: var(--text);
+  text-decoration: none;
+}
+.tw-row > a:hover .tw-row__label {
+  color: var(--primary);
+}
+.tw-row__label {
+  flex: 1;
+}
+.tw-row small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.tw-row strong {
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+.tw-row__bar {
+  display: block;
+  height: 4px;
+  border-radius: var(--radius-xs);
+  background: var(--border-soft);
+  overflow: hidden;
+}
+.tw-row__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-xs);
+}
+.tw-row--ok .tw-row__bar > span {
+  background: var(--success);
+}
+.tw-row--warn .tw-row__bar > span {
+  background: var(--warning);
+}
+.tw-row--bad .tw-row__bar > span {
+  background: var(--danger);
+}
+.tw-row--info .tw-row__bar > span {
+  background: var(--primary);
+}
+.tw-row--muted .tw-row__bar > span {
+  background: var(--muted);
+}
+.tw-load {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+.tw-ring {
+  position: relative;
+  width: 132px;
+  aspect-ratio: 1;
+}
+.tw-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.tw-ring circle {
+  fill: none;
+  stroke-width: 5;
+}
+.tw-ring__free {
+  stroke: var(--border-soft);
+}
+.tw-ring__occupied {
+  stroke: var(--success);
+}
+.tw-ring__blocked {
+  stroke: var(--muted);
+}
+.tw-ring strong {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--text-3xl);
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+}
+.tw-empty {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  margin: 0;
+}
+@media (max-width: 1100px) {
+  .tw-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .tw-grid > :first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 600px) {
+  .tw-grid {
+    grid-template-columns: 1fr;
+  }
+  .tw-ring {
+    width: 108px;
+  }
+  .owner-row-label .owner-debt {
+    margin-left: 0;
+    width: 100%;
+    order: 3;
   }
 }

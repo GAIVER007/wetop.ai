@@ -591,9 +591,15 @@ test('групповая бронь: разные категории сохра�
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
   await expect(second.getByLabel('Количество мест')).toHaveValue('4');
-  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
-  expect(commands[0].body.items).toHaveLength(2);
-  expect(commands[0].body.items[1]).toMatchObject({
+  // Журнал команд пишет и `POST /reservations/quote` (правка 02.10), поэтому команду создания берём
+  // по пути, как в channel-booking-number и pii-storage: первой записью ложится запрос цены
+  const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+    path: string;
+    body: { items: Array<Record<string, unknown>> };
+  }>;
+  const created = commands.filter((c) => c.path === '/reservations').at(-1)?.body;
+  expect(created?.items).toHaveLength(2);
+  expect(created?.items[1]).toMatchObject({
     accommodationTypeCode: 'MALE',
     quantity: 4,
     unitCode: null,

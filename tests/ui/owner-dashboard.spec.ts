@@ -1,29 +1,35 @@
 import { expect, test, FIXTURE_API } from './fixtures';
 
+/*
+ * Главная владельца (03.10.2026, поручение владельца со снимком «Статистики» прежней PMS): сверху три
+ * виджета «на сегодня», ниже деньги и аналитика за период. Кнопок смены («Новая бронь», «Работа с
+ * гостями») и плитки «Расходы бизнеса» без учёта расходов на экране нет.
+ */
+const fixture = FIXTURE_API;
+
 test.beforeEach(async ({ request }) => {
-  await request.post(`${FIXTURE_API}/__test/reset`);
+  await request.post(`${fixture}/__test/reset`);
 });
-test('owner dashboard shows financial and operational summary without desktop scrolling', async ({
+test('owner dashboard: today widgets and money, no desk buttons, no expenses tile', async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/today');
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-  await expect(page.getByTestId('owner-paid')).toBeVisible();
-  await expect(page.getByTestId('owner-expenses')).toContainText('Не подключён');
-  await expect(page.getByTestId('owner-guests')).toBeVisible();
-  await page.screenshot({ path: 'reports/owner-dashboard-desktop.png', fullPage: true });
-  expect(
-    await page.evaluate('document.documentElement.scrollHeight - innerHeight'),
-  ).toBeLessThanOrEqual(2);
-  await page.screenshot({ path: 'reports/owner-dashboard-desktop.png', fullPage: true });
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  await expect(page.getByRole('dialog', { name: 'Работа с гостями', exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'Работа с гостями', exact: true })).toBeHidden();
+  const main = page.getByRole('main');
+  for (const name of ['Загрузка на сегодня', 'Гости сегодня', 'Состояние номеров'])
+    await expect(main.getByRole('article', { name })).toBeVisible();
+  await expect(main.getByTestId('owner-paid')).toBeVisible();
+  await expect(main.getByTestId('owner-adr')).toBeVisible();
+  await expect(main.getByTestId('owner-expenses')).toHaveCount(0);
+  await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
+  await expect(main.getByRole('link', { name: 'Все филиалы' })).toHaveCount(0);
+  await expect(main.getByRole('button', { name: 'Работа с гостями' })).toHaveCount(0);
+  // деньги по умолчанию за месяц: «сегодня» уже показывают виджеты сверху
+  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await page.screenshot({ path: 'reports/owner-home-2026-10-03/desktop.png', fullPage: true });
 });
 test('dashboard period changes and mobile retains content', async ({ page }) => {
   await page.goto('/today');
@@ -37,7 +43,7 @@ test('dashboard period changes and mobile retains content', async ({ page }) => 
 });
 
 test('owner dashboard keeps operations visible when finance fails', async ({ page, request }) => {
-  await request.post(`${FIXTURE_API}/__test/control`, {
+  await request.post(`${fixture}/__test/control`, {
     data: { failPath: '/desk/dashboard' },
   });
   await page.goto('/today');
@@ -53,16 +59,14 @@ test('owner dashboard dark desktop and mobile remain usable', async ({ page }) =
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/today?period=week');
   await expect(page.getByTestId('owner-paid')).toBeVisible();
-  expect(
-    await page.evaluate('document.documentElement.scrollHeight-innerHeight'),
-  ).toBeLessThanOrEqual(2);
-  await page.screenshot({ path: 'reports/owner-dashboard-2026-09-30/dashboard-dark.png' });
+  await page.screenshot({ path: 'reports/owner-home-2026-10-03/desktop-dark.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
+  // на телефоне первым экраном — загрузка дня
+  await expect(page.getByRole('article', { name: 'Загрузка на сегодня' })).toBeInViewport();
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Требуют внимания', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.screenshot({
-    path: 'reports/owner-dashboard-2026-09-30/dashboard-mobile.png',
-    fullPage: true,
-  });
+  await page.screenshot({ path: 'reports/owner-home-2026-10-03/mobile-dark.png', fullPage: true });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.screenshot({ path: 'reports/owner-home-2026-10-03/mobile.png', fullPage: true });
 });

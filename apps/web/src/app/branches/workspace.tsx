@@ -57,9 +57,11 @@ export async function BranchWorkspace({
             <Panel key={item.id}>
               <h2>{item.name}</h2>
               <p>{item.address || 'Адрес пока не указан'}</p>
+              {/* У салона номеров и коек нет вовсе (DATA_MODEL §19): состав фонда ему не показывается */}
               <p>
-                {item._count.inventoryUnits} номеров и коек, {item._count.accommodationTypes}{' '}
-                категорий
+                {item.vertical === 'BEAUTY'
+                  ? 'Салон красоты: клиенты, услуги и мастера'
+                  : `${item._count.inventoryUnits} номеров и коек, ${item._count.accommodationTypes} категорий`}
               </p>
               <p>
                 Валюта {item.currency}, часовой пояс {item.timezone}
@@ -70,7 +72,11 @@ export async function BranchWorkspace({
               <form action={selectBranch}>
                 <input type="hidden" name="id" value={item.id} />
                 <button className="btn" type="submit">
-                  {item._count.inventoryUnits ? 'Открыть филиал' : 'Настроить номера'}
+                  {item.vertical === 'BEAUTY'
+                    ? 'Открыть салон'
+                    : item._count.inventoryUnits
+                      ? 'Открыть филиал'
+                      : 'Настроить номера'}
                 </button>
               </form>
             </Panel>

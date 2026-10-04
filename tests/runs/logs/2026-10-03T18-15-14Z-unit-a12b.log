@@ -1,0 +1,67 @@
+# Модульные (unit) · 03.10.2026 23:15 Алматы · vm
+# коммит aab4342 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-15-14Z-unit-a12b.json' 'packages/domain/src/ai-seller/profile.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/ai-seller/profile.test.ts (15 tests | 1 failed) 22ms
+   ❯ parseSellerProfile — проверка полей «Настроек» (12)
+     ✓ полный профиль принимается, края пробелов обрезаются, пустые строки списков отбрасываются 4ms
+     ✓ пустое имя — бот без имени (null), а не пустая строка 0ms
+     × не указанное поле — умолчание; умолчание само по себе годится и совпадает с умолчанием бота 10ms
+     ✓ «вы»/«ты», эмодзи и длина реплик — только из списков бота 1ms
+     ✓ языки — из списка, без повторов, от одного до шести 0ms
+     ✓ пределы длины — ровно пределы бота 0ms
+     ✓ запреты и «когда звать человека» — списком: не больше 30 строк, строка не длиннее 300 0ms
+     ✓ частые вопросы: пустые строки отбрасываются, вопрос без ответа — отказ, не больше 50 0ms
+     ✓ несколько ошибок называются все сразу 1ms
+     ✓ не объект — отказ 0ms
+     ✓ нулевой символ вычищается: PostgreSQL его не хранит 0ms
+     ✓ поля правил ядра профиль не принимает и не передаёт 1ms
+   ✓ sellerProfilePayload — тело PUT /seller/profile по модели бота SellerProfile (Б6) (3)
+     ✓ поля и значения бота: vy/ty, эмодзи и длина строчными, языки названиями, faq — { q, a }, без updated_at 0ms
+     ✓ умолчание — как у бота: vy, never, short; название объекта длиннее 120 знаков обрезается до предела бота 0ms
+     ✓ каждое название языка укладывается в предел бота — 20 знаков 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/ai-seller/profile.test.ts > parseSellerProfile — проверка полей «Настроек» > не указанное поле — умолчание; умолчание само по себе годится и совпадает с умолчанием бота
+AssertionError: expected { botName: null, …(11) } to match object { addressForm: 'FORMAL', …(5) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -2,12 +2,9 @@
+    "addressForm": "FORMAL",
+    "callHumanWhen": [],
+    "emoji": "NEVER",
+    "languages": [
+      "ru",
+-     "kk",
+-     "en",
+-     "zh",
+    ],
+    "prohibitions": [],
+    "replyLength": "SHORT",
+  }
+
+ ❯ packages/domain/src/ai-seller/profile.test.ts:63:36
+     61|     // бот: address_form="vy", emoji="never", reply_length="short", la…
+     62|     // ADR-141: гости Казахстана пишут на русском, казахском, английск…
+     63|     expect(DEFAULT_SELLER_PROFILE).toMatchObject({
+       |                                    ^
+     64|       addressForm: 'FORMAL',
+     65|       emoji: 'NEVER',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  18:15:14
+   Duration  301ms (transform 72%, tests 15%, import 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-15-14Z-unit-a12b.json
+
+# код выхода 1 · 1 с

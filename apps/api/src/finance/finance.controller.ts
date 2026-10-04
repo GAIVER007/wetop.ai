@@ -7,6 +7,7 @@ import {
   Inject,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -30,6 +31,13 @@ export class FinanceController {
     return this.service.periodReport(from, to);
   }
 
+  /** Отчёт по услугам за период (REP2): свод начислений-услуг, то же окно, что у сводки */
+  @Access('reports')
+  @Get('services-report')
+  servicesReport(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodServices(from, to);
+  }
+
   /** Брони с остатком к сбору за период — список к «Финансам за период» (ADR-113) */
   @Access('reports')
   @Get('debts')
@@ -37,7 +45,7 @@ export class FinanceController {
     return this.service.periodDebts(from, to);
   }
 
-  /** Оплаты и возвраты за период с отборами по типу и способу — «Финансы за период», F2 (ADR-113) */
+  /** Общая лента денег за период: брони + касса, отборы по типу, способу и источнику (ADR-113 F2; §21) */
   @Access('reports')
   @Get('operations')
   operations(
@@ -45,13 +53,62 @@ export class FinanceController {
     @Query('to') to?: string,
     @Query('type') type?: string,
     @Query('method') method?: string,
+    @Query('source') source?: string,
     @Query('limit') limit?: string,
   ) {
     return this.service.periodOperations(from, to, {
       ...(type !== undefined ? { type } : {}),
       ...(method !== undefined ? { method } : {}),
+      ...(source !== undefined ? { source } : {}),
       ...(limit !== undefined ? { limit } : {}),
     });
+  }
+
+  // ── Касса (DATA_MODEL §21): остатки, операции мимо броней, переводы, статьи ────────────────────
+  /** Остатки по способам за всё время и статьи одним ответом; кассу ведёт смена — право стойки (Q-238) */
+  @Get('cash')
+  cash() {
+    return this.service.cash();
+  }
+
+  @Access('settings')
+  @Post('cash/categories')
+  createCashCategory(@Body() dto: Parameters<FinanceService['createCashCategory']>[0]) {
+    return this.service.createCashCategory(dto ?? {});
+  }
+
+  @Access('settings')
+  @Patch('cash/categories/:id')
+  updateCashCategory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['updateCashCategory']>[1],
+  ) {
+    return this.service.updateCashCategory(id, dto ?? {});
+  }
+
+  @Post('cash/operations')
+  createCashOperation(@Body() dto: Parameters<FinanceService['createCashOperation']>[0]) {
+    return this.service.createCashOperation(dto ?? {});
+  }
+
+  @Post('cash/transfers')
+  createCashTransfer(@Body() dto: Parameters<FinanceService['createCashTransfer']>[0]) {
+    return this.service.createCashTransfer(dto ?? {});
+  }
+
+  /** Сверка кассы (§21.4): сверяет смена, как в старой системе */
+  @Post('cash/reconciliations')
+  createCashReconciliation(
+    @Body() dto: Parameters<FinanceService['createCashReconciliation']>[0],
+  ) {
+    return this.service.createCashReconciliation(dto ?? {});
+  }
+
+  @Access('refunds')
+  @Post('cash/operations/:id/void')
+  @HttpCode(200)
+  voidCashOperation(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.voidCashOperation(id);
   }
 
   @Get('services')
@@ -91,6 +148,13 @@ export class FinanceController {
   @Post('payments')
   createPayment(@Body() dto: Parameters<FinanceService['createPayment']>[0]) {
     return this.service.createPayment(dto ?? {});
+  }
+
+  /** Фискальный чек по запросу гостя (DATA_MODEL §26): чек пробит в кассе, стойка отмечает номер */
+  @Post('payments/:id/receipt')
+  @HttpCode(200)
+  issueReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { number?: unknown }) {
+    return this.service.issueReceipt(id, dto ?? {});
   }
 
   @Access('refunds')

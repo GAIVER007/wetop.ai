@@ -1,0 +1,133 @@
+# Сквозные (e2e) · 02.10.2026 17:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2c79f12 (main), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reports-hub.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/requests.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 44 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:35:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.0s)
+  ✓   2 tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.4s)
+  ✓   3 tests/ui/navigation.spec.ts:89:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.1s)
+  ✘   4 tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы (2.4s)
+  ✓   5 tests/ui/navigation.spec.ts:145:3 › навигация ровная, адаптивная и доступная: light (2.3s)
+  ✓   6 tests/ui/navigation.spec.ts:145:3 › навигация ровная, адаптивная и доступная: dark (2.0s)
+  ✘   7 tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (16.9s)
+  ✓   8 tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом (1.4s)
+  ✓   9 tests/ui/reports-hub.spec.ts:145:1 › пресет «Сегодня» и свой период меняют адрес и числа (1.3s)
+  ✓  10 tests/ui/reports-hub.spec.ts:164:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (706ms)
+  ✓  11 tests/ui/reports-hub.spec.ts:179:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (2.1s)
+  ✓  12 tests/ui/reports-hub.spec.ts:199:1 › телефон: карточки без горизонтальной прокрутки (9.3s)
+  ✓  13 tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, light (8.3s)
+  ✓  14 tests/ui/reports-hub.spec.ts:209:3 › доступность и снимки, dark (3.5s)
+  ✓  15 tests/ui/requests.spec.ts:74:3 › экран /today: данные берутся одним запросом на путь (2.1s)
+  ✓  16 tests/ui/requests.spec.ts:74:3 › экран /chessboard: данные берутся одним запросом на путь (1.8s)
+  ✓  17 tests/ui/requests.spec.ts:74:3 › экран /reservations: данные берутся одним запросом на путь (1.4s)
+  ✓  18 tests/ui/requests.spec.ts:74:3 › экран /guests: данные берутся одним запросом на путь (1.4s)
+  ✓  19 tests/ui/requests.spec.ts:74:3 › экран /inventory: данные берутся одним запросом на путь (1.3s)
+  ✓  20 tests/ui/requests.spec.ts:74:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.9s)
+  ✓  21 tests/ui/requests.spec.ts:74:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.2s)
+  ✓  22 tests/ui/requests.spec.ts:74:3 › экран /rates: данные берутся одним запросом на путь (1.3s)
+  ✓  23 tests/ui/requests.spec.ts:74:3 › экран /management/analytics: данные берутся одним запросом на путь (1.3s)
+  ✓  24 tests/ui/requests.spec.ts:74:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.3s)
+  ✓  25 tests/ui/requests.spec.ts:74:3 › экран /finance: данные берутся одним запросом на путь (1.3s)
+  ✓  26 tests/ui/requests.spec.ts:74:3 › экран /reports: данные берутся одним запросом на путь (1.2s)
+  ✓  27 tests/ui/requests.spec.ts:74:3 › экран /channels: данные берутся одним запросом на путь (1.8s)
+  ✓  28 tests/ui/requests.spec.ts:74:3 › экран /channels/connections: данные берутся одним запросом на путь (1.2s)
+  ✓  29 tests/ui/requests.spec.ts:74:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.3s)
+  ✓  30 tests/ui/requests.spec.ts:74:3 › экран /channels/sync: данные берутся одним запросом на путь (1.4s)
+  ✓  31 tests/ui/requests.spec.ts:74:3 › экран /channels/events: данные берутся одним запросом на путь (1.3s)
+  ✓  32 tests/ui/requests.spec.ts:74:3 › экран /website: данные берутся одним запросом на путь (1.5s)
+  ✓  33 tests/ui/requests.spec.ts:74:3 › экран /website/booking: данные берутся одним запросом на путь (1.9s)
+  ✓  34 tests/ui/requests.spec.ts:74:3 › экран /website/analytics: данные берутся одним запросом на путь (2.8s)
+  ✓  35 tests/ui/requests.spec.ts:74:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.6s)
+  ✓  36 tests/ui/requests.spec.ts:74:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.4s)
+  ✓  37 tests/ui/requests.spec.ts:74:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.3s)
+  ✓  38 tests/ui/requests.spec.ts:74:3 › экран /team: данные берутся одним запросом на путь (6.8s)
+  ✓  39 tests/ui/requests.spec.ts:74:3 › экран /connections: данные берутся одним запросом на путь (7.2s)
+  ✓  40 tests/ui/requests.spec.ts:74:3 › экран /ai-agents: данные берутся одним запросом на путь (8.1s)
+  ✓  41 tests/ui/requests.spec.ts:74:3 › экран /website/settings: данные берутся одним запросом на путь (6.6s)
+  ✓  42 tests/ui/requests.spec.ts:74:3 › экран /incidents: данные берутся одним запросом на путь (3.1s)
+  ✓  43 tests/ui/requests.spec.ts:74:3 › экран /journal: данные берутся одним запросом на путь (1.4s)
+  ✓  44 tests/ui/requests.spec.ts:74:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.3s)
+
+
+  1) tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('heading', { level: 1 })
+    Expected: visible
+    Error: strict mode violation: getByRole('main').getByRole('heading', { level: 1 }) resolved to 2 elements:
+        1) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).first()
+        2) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+
+
+      134 |       await link.click();
+      135 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+    > 136 |       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                                               ^
+      137 |       await expect(page.getByRole('main')).not.toContainText('Не удалось загрузить данные');
+      138 |       await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+      139 |       await expect(link).toHaveAttribute('aria-current', 'page');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:136:79
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('reports-period')
+    Expected substring: "дн"
+    Received string:    "1 окт. → 31 окт., 31 день"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('reports-period') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('reports-period')
+        34 × locator resolved to <span data-testid="reports-period">…</span>
+           - unexpected value "1 окт. → 31 окт., 31 день"
+
+
+      67 |   const main = page.getByRole('main');
+      68 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Отчёты');
+    > 69 |   await expect(main.getByTestId('reports-period')).toContainText('дн');
+         |                                                    ^
+      70 |
+      71 |   // группы — по вопросу, на который отвечает отчёт
+      72 |   await expect(main.locator('.reports-group h2')).toHaveText([
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/reports-hub.spec.ts:69:52
+
+    Error Context: test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-hub-хаб-заголовок--e91c5-исла-—-те-же-что-отдаёт-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ────────────
+    tests/ui/reports-hub.spec.ts:40:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API 
+  42 passed (2.3m)
+
+# код выхода 1 · 2 мин 22 с

@@ -1,0 +1,50 @@
+# Сквозные (e2e) · 04.10.2026 12:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/requests.spec.ts:78' 'tests/ui/roles.spec.ts:63' 'tests/ui/roles.spec.ts:208' 'tests/ui/top-menu.spec.ts:117' '--config' 'tests/ui/playwright.std-alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 34 tests using 1 worker
+
+  ✓   1 tests/ui/requests.spec.ts:78:3 › экран /today: данные берутся одним запросом на путь (5.7s)
+  ✓   2 tests/ui/requests.spec.ts:78:3 › экран /chessboard: данные берутся одним запросом на путь (5.1s)
+  ✓   3 tests/ui/requests.spec.ts:78:3 › экран /reservations: данные берутся одним запросом на путь (5.3s)
+  ✓   4 tests/ui/requests.spec.ts:78:3 › экран /guests: данные берутся одним запросом на путь (4.9s)
+  ✓   5 tests/ui/requests.spec.ts:78:3 › экран /inventory: данные берутся одним запросом на путь (9.3s)
+  ✓   6 tests/ui/requests.spec.ts:78:3 › экран /rooms/categories: данные берутся одним запросом на путь (9.1s)
+  ✓   7 tests/ui/requests.spec.ts:78:3 › экран /rooms/availability: данные берутся одним запросом на путь (5.0s)
+  ✓   8 tests/ui/requests.spec.ts:78:3 › экран /rates: данные берутся одним запросом на путь (4.5s)
+  ✓   9 tests/ui/requests.spec.ts:78:3 › экран /management/analytics: данные берутся одним запросом на путь (6.5s)
+  ✓  10 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.1s)
+  ✓  11 tests/ui/requests.spec.ts:78:3 › экран /management/analytics/units: данные берутся одним запросом на путь (6.7s)
+  ✓  12 tests/ui/requests.spec.ts:78:3 › экран /finance: данные берутся одним запросом на путь (7.7s)
+  ✓  13 tests/ui/requests.spec.ts:78:3 › экран /reports: данные берутся одним запросом на путь (7.2s)
+  ✓  14 tests/ui/requests.spec.ts:78:3 › экран /channels: данные берутся одним запросом на путь (6.7s)
+  ✓  15 tests/ui/requests.spec.ts:78:3 › экран /connections/channex: данные берутся одним запросом на путь (3.0s)
+  ✓  16 tests/ui/requests.spec.ts:78:3 › экран /channels/mapping: данные берутся одним запросом на путь (3.3s)
+  ✓  17 tests/ui/requests.spec.ts:78:3 › экран /channels/sync: данные берутся одним запросом на путь (2.8s)
+  ✓  18 tests/ui/requests.spec.ts:78:3 › экран /channels/events: данные берутся одним запросом на путь (3.8s)
+  ✓  19 tests/ui/requests.spec.ts:78:3 › экран /website: данные берутся одним запросом на путь (4.9s)
+  ✓  20 tests/ui/requests.spec.ts:78:3 › экран /website/booking: данные берутся одним запросом на путь (2.7s)
+  ✓  21 tests/ui/requests.spec.ts:78:3 › экран /website/analytics: данные берутся одним запросом на путь (5.4s)
+  ✓  22 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings: данные берутся одним запросом на путь (8.2s)
+  ✓  23 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.9s)
+  ✓  24 tests/ui/requests.spec.ts:78:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (3.8s)
+  ✓  25 tests/ui/requests.spec.ts:78:3 › экран /team: данные берутся одним запросом на путь (2.8s)
+  ✓  26 tests/ui/requests.spec.ts:78:3 › экран /connections: данные берутся одним запросом на путь (5.6s)
+  ✓  27 tests/ui/requests.spec.ts:78:3 › экран /ai-agents: данные берутся одним запросом на путь (3.2s)
+  ✓  28 tests/ui/requests.spec.ts:78:3 › экран /website/settings: данные берутся одним запросом на путь (3.3s)
+  ✓  29 tests/ui/requests.spec.ts:78:3 › экран /incidents: данные берутся одним запросом на путь (2.1s)
+  ✓  30 tests/ui/requests.spec.ts:78:3 › экран /journal: данные берутся одним запросом на путь (2.1s)
+  ✓  31 tests/ui/requests.spec.ts:78:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.4s)
+  ✓  32 tests/ui/roles.spec.ts:63:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (12.8s)
+  ✓  33 tests/ui/roles.spec.ts:208:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (9.3s)
+  ✓  34 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (6.3s)
+
+  34 passed (3.3m)
+
+# код выхода 0 · 3 мин 18 с

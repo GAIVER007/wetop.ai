@@ -796,6 +796,9 @@ a.dir-number:hover {
 }
 .folio-form {
   display: grid;
+  /* колонка не шире формы: без этого строка полей задавала ширину по содержимому, и на телефоне 390 px
+     раздел «Счета» уезжал вбок на 44 px (найдено тестом запросов оплаты 03.10.2026) */
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   padding: 16px;
   border: 1px solid var(--border-soft);

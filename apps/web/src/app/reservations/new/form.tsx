@@ -10,7 +10,7 @@ import {
   type ActionResult,
   type BookingGuest,
 } from '../actions';
-import { BookingPrice, useBookingQuote } from './price';
+import { BookingPrice, PriceByNight, useBookingQuote } from './price';
 import { DateInput } from '../../../components/date-field';
 import type { StayAvailability } from '../../../lib/api';
 import { checkBookingAvailability } from './availability';
@@ -18,7 +18,7 @@ import { CHANNELS, SOURCES } from '../sources';
 import { isStayDate } from '../../../lib/stay-date';
 
 export function NewReservationForm(props: {
-  /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из шахматки */
+  /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из календаря */
   prefill: PlacementPrefill[];
   today: string;
   initialAvailability: StayAvailability | null;
@@ -42,6 +42,14 @@ export function NewReservationForm(props: {
   const [availabilityError, setAvailabilityError] = useState('');
   const [checking, setChecking] = useState(false);
   const [retry, setRetry] = useState(0);
+  // Даты, ответ по которым уже на руках: сервер проверил даты из пропсов при рендере формы, или ответил
+  // прошлый рейс из браузера. Тот же рейс не повторяется. Ключ ставится по приходу ответа, а не при
+  // отправке: иначе возврат к прежним датам (A → B → A) оставлял «Проверяем свободные места…» навсегда
+  const lastChecked = useRef(
+    props.initialAvailability
+      ? `${props.initialAvailability.arrivalDate} ${props.initialAvailability.departureDate} 0`
+      : '',
+  );
   const arrivalError = isStayDate(arrival) ? '' : 'Введите корректную дату';
   const departureError = !isStayDate(departure)
     ? 'Введите корректную дату'
@@ -55,6 +63,12 @@ export function NewReservationForm(props: {
     availability?.departureDate === departure;
   useEffect(() => {
     if (!validDates) return;
+    const key = `${arrival} ${departure} ${retry}`;
+    if (lastChecked.current === key) {
+      // проверка промежуточных дат отменена, ответ по этим датам уже есть: ждать нечего
+      setChecking(false);
+      return;
+    }
     let active = true;
     setChecking(true);
     setAvailabilityError('');
@@ -62,12 +76,14 @@ export function NewReservationForm(props: {
       void checkBookingAvailability(arrival, departure)
         .then((result) => {
           if (!active) return;
+          lastChecked.current = result.availability && !result.error ? key : '';
           setChecking(false);
           setAvailability(result.availability);
           setAvailabilityError(result.error);
         })
         .catch(() => {
           if (!active) return;
+          lastChecked.current = '';
           setChecking(false);
           setAvailability(null);
           setAvailabilityError('Не удалось проверить свободные места.');
@@ -249,7 +265,7 @@ export function NewReservationForm(props: {
             ? 'Выезд должен быть позже заезда.'
             : checking || !fresh
               ? availabilityError || 'Проверяем свободные места…'
-              : `${pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])} · свободно ${availability.total.available} из ${availability.total.units}`}
+              : `${pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])}, свободно ${availability.total.available} из ${availability.total.units}`}
         </p>
         {availabilityError && (
           <Button type="button" tone="secondary" size="sm" onClick={() => setRetry((n) => n + 1)}>
@@ -307,6 +323,7 @@ export function NewReservationForm(props: {
           )}
         </fieldset>
       ))}
+      <PriceByNight state={quote} />
       {(picked || props.piiStorage === 'real') && (
         <h2 className="booking-create__guest-title">Гость</h2>
       )}

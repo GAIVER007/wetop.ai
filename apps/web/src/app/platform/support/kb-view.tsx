@@ -34,6 +34,7 @@ import {
   kbVisibilityLabel,
 } from '../../../lib/support-kb';
 import { KbDraftButton, KbEntryEditor } from './kb-forms';
+import { unstable_rethrow } from 'next/navigation';
 
 const clock = propertyClock(PLATFORM_TIMEZONE);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -41,7 +42,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
 
 /**

@@ -40,6 +40,7 @@ import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
 import { actorMay } from '../auth/request-context';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
+import { cardStays, stayDelta } from '../channels/ari-ranges';
 import type { ReservationCard } from './reservation-card';
 import {
   AllocationOverlapError,
@@ -57,6 +58,8 @@ export interface ReservationQuote {
   departureDate: string;
   totalMinor: string;
   currency: string;
+  /** Цена каждой ночи по всей брони (все места вместе): «Детализация цены по дням» в форме */
+  nights: Array<{ date: string; priceMinor: string }>;
 }
 
 export interface CreateReservationDto {
@@ -335,18 +338,17 @@ export class ReservationsService {
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
-  /** После коммита: дельта доступности в каналы по категориям и ночам карточки (и прежним, если были). */
-  private async publish(cards: Array<ReservationCard | null>): Promise<void> {
-    const items = cards.flatMap((c) => c?.items ?? []);
-    if (items.length === 0) return;
-    await publishAfterCommit(this.publisher, {
-      categoryCodes: [...new Set(items.map((i) => i.accommodationTypeCode))],
-      from: items.reduce((m, i) => (i.arrivalDate < m ? i.arrivalDate : m), items[0]!.arrivalDate),
-      toExclusive: items.reduce(
-        (m, i) => (i.departureDate > m ? i.departureDate : m),
-        items[0]!.departureDate,
-      ),
-    });
+  /**
+   * После коммита: дельта доступности в каналы — только ночи, где у брони поменялось число занятых мест
+   * категории (карточка до → после). Ночи, остаток которых команда не меняла, не уходят: Channex требует слать
+   * только изменения (сертификация §13), а перенос на неделю иначе уносит в канал всю неделю между датами.
+   */
+  private async publish(
+    before: ReservationCard | null,
+    after: ReservationCard | null,
+  ): Promise<void> {
+    const delta = stayDelta(cardStays(before), cardStays(after));
+    if (delta) await publishAfterCommit(this.publisher, delta);
   }
 
   /**
@@ -502,6 +504,7 @@ export class ReservationsService {
         // места этого запроса ещё не записаны: считаем их сами, иначе каждое проходит проверку по отдельности
         const requestedByType = new Map<string, number>();
         const pickedUnits = new Set<string>();
+        const nightTotals = new Map<string, bigint>();
         for (const it of dto.items!) {
           const type = await repo.categoryByCode(it.accommodationTypeCode!);
           if (!type || !type.active)
@@ -541,6 +544,11 @@ export class ReservationsService {
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
+          for (const night of price.nights)
+            nightTotals.set(
+              night.date,
+              (nightTotals.get(night.date) ?? 0n) + night.priceMinor * BigInt(quantity),
+            );
           // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы.
           // Б2: вместе с местами этой же брони, которые ещё не записаны
           const requested = (requestedByType.get(type.id) ?? 0) + quantity;
@@ -604,7 +612,13 @@ export class ReservationsService {
           });
         }
         const totalMinor = prepared.reduce((sum, item) => sum + item.totalMinor, 0n).toString();
-        if (opts.preview) return { ...dates, currency: currency!, totalMinor };
+        if (opts.preview)
+          return {
+            ...dates,
+            currency: currency!,
+            totalMinor,
+            nights: [...nightTotals].map(([date, sum]) => ({ date, priceMinor: sum.toString() })),
+          };
         if (dto.expectedTotalMinor !== undefined && dto.expectedTotalMinor !== totalMinor)
           throw new ConflictException(
             'Стоимость изменилась. Проверьте обновлённый расчёт и подтвердите создание ещё раз.',
@@ -658,7 +672,7 @@ export class ReservationsService {
         return card;
       }),
     );
-    if (!replay && 'confirmationNumber' in created) await this.publish([created]);
+    if (!replay && 'confirmationNumber' in created) await this.publish(null, created);
     return created;
   }
 
@@ -750,7 +764,7 @@ export class ReservationsService {
         return { before, after };
       }),
     );
-    await this.publish([changed.before, changed.after]);
+    await this.publish(changed.before, changed.after);
     return changed.after;
   }
 
@@ -782,10 +796,10 @@ export class ReservationsService {
           before,
           after,
         });
-        return { after, released };
+        return { before, after, released };
       }),
     );
-    await this.publish([cancelled.after]);
+    await this.publish(cancelled.before, cancelled.after);
     await this.publishReleased(cancelled.released);
     return cancelled.after;
   }
@@ -914,7 +928,7 @@ export class ReservationsService {
     const nights = dto.nights === undefined ? 1 : Number(dto.nights);
     if (!Number.isInteger(nights) || nights < 1 || nights > 30)
       throw new BadRequestException('nights — целое от 1 до 30');
-    const card = await this.uow.run((repo) =>
+    const extended = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const item = state.items.find((i) => i.id === itemId);
@@ -979,11 +993,11 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { before, after };
       }),
     );
-    await this.publish([card]);
-    return card;
+    await this.publish(extended.before, extended.after);
+    return extended.after;
   }
 
   /**
@@ -997,8 +1011,7 @@ export class ReservationsService {
     if (!dto.unitCode) throw new BadRequestException('unitCode обязателен');
     if (dto.fromDate !== undefined && !isIso(dto.fromDate))
       throw new BadRequestException('fromDate — дата YYYY-MM-DD');
-    let movedFromCategory: string | null = null;
-    const card = await this.uow.run((repo) =>
+    const moved = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const item = state.items.find((i) => i.id === itemId);
@@ -1009,9 +1022,6 @@ export class ReservationsService {
         if (!unit || !unit.active)
           throw new UnprocessableEntityException(`Ячейка ${dto.unitCode} не найдена или неактивна`);
         const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
-        if (changesCategory)
-          movedFromCategory =
-            before?.items.find((i) => i.id === item.id)?.accommodationTypeCode ?? null;
         const fromDate = dto.fromDate ?? item.arrivalDate;
         if (fromDate < item.arrivalDate || fromDate >= item.departureDate)
           throw new UnprocessableEntityException(
@@ -1053,11 +1063,12 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { before, after };
       }),
     );
-    await this.publishMove(card, movedFromCategory);
-    return card;
+    // Ячейка в той же категории остаток не меняет — дельты нет; в другой — освободилась старая, занялась новая
+    await this.publish(moved.before, moved.after);
+    return moved.after;
   }
 
   /**
@@ -1227,18 +1238,6 @@ export class ReservationsService {
         return after;
       }),
     );
-  }
-
-  /** Дельта в каналы после переселения между категориями: освободилась старая, занялась новая. */
-  private async publishMove(card: ReservationCard, fromCategory: string | null): Promise<void> {
-    if (!fromCategory) return;
-    await publishAfterCommit(this.publisher, {
-      categoryCodes: [
-        ...new Set([fromCategory, ...card.items.map((i) => i.accommodationTypeCode)]),
-      ],
-      from: card.arrivalDate,
-      toExclusive: card.departureDate,
-    });
   }
 
   /**
@@ -1644,7 +1643,7 @@ export class ReservationsService {
         return { before, after, early };
       }),
     );
-    if (result.early) await this.publish([result.before, result.after]);
+    if (result.early) await this.publish(result.before, result.after);
     return result.after;
   }
 
@@ -1678,7 +1677,7 @@ export class ReservationsService {
         return { before, after, released };
       }),
     );
-    await this.publish([result.before, result.after]);
+    await this.publish(result.before, result.after);
     await this.publishReleased(result.released);
     return result.after;
   }

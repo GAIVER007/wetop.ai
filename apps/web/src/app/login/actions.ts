@@ -177,7 +177,7 @@ export async function inviteAction(email: string, role: string): Promise<InviteA
   try {
     const invite = await authApi.invite(token, email, invited, await clientInfo());
     revalidatePath('/profile/access');
-    revalidatePath('/staff');
+    revalidatePath('/team');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
@@ -198,7 +198,7 @@ async function teamAction(run: (token: string) => Promise<void>): Promise<TeamAc
     return { error: errorText(e) };
   }
   revalidatePath('/profile/access');
-  revalidatePath('/staff');
+  revalidatePath('/team');
   return { error: null };
 }
 
@@ -218,6 +218,17 @@ export async function setMemberRoleAction(userId: string, role: string): Promise
   if (!next) return { error: 'Роль сотрудника — «управляющий» или «администратор».' };
   return teamAction(async (token) =>
     authApi.setMemberRole(token, userId, next, await clientInfo()),
+  );
+}
+
+/** Телефон и должность сотрудника: проверку и слова отказа даёт API (TEAM2, Q-244) */
+export async function setMemberDetailsAction(
+  userId: string,
+  phone: string,
+  position: string,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberDetails(token, userId, { phone, position }, await clientInfo()),
   );
 }
 

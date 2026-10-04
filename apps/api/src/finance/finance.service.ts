@@ -12,9 +12,15 @@ import {
   ADJUSTMENT_DOWN_MESSAGE,
   FinanceRuleError,
   assertAllocationsMatch,
+  assertCashOperation,
+  assertCashReconciliation,
   assertRefundWithin,
+  cashBalances,
+  commissionFromPercent,
+  reconciliationAdjustment,
   folioBalance,
   parseMoney,
+  parseReceiptNumber,
   stayExtraDefaultMinor,
   stayExtraPercent,
   adjacentNight,
@@ -28,9 +34,12 @@ import {
   FolioClosedError,
   MANUAL_CHARGE_KINDS,
   PAYMENT_METHODS,
+  type CashCategoryRecord,
+  type CashKind,
   type ChargeKind,
   type FinanceRepository,
   type FolioRecord,
+  type OperationKind,
   type PaymentMethod,
 } from './finance.repository';
 
@@ -54,6 +63,8 @@ export interface PaymentLineView {
   paidAt: string;
   note: string | null;
   externalReference: string | null;
+  /** DATA_MODEL §26: чек, выданный по запросу гостя */
+  receipt: { number: string; issuedAt: string } | null;
   paymentAmountMinor: string;
   /** сколько из этого платежа легло на этот счёт */
   allocatedMinor: string;
@@ -105,6 +116,24 @@ export interface PeriodReportView {
   /** начислено − оплачено + возвращено за период: сколько ещё не собрано */
   balanceMinor: string;
 }
+/** Отчёт по услугам (REP2): проданные услуги периода; начисления без услуги справочника — одной строкой (`code: null`) */
+export interface PeriodServicesView {
+  from: string;
+  to: string;
+  currency: string;
+  /** начислений-услуг за период — как `count` строки SERVICE в сводке */
+  count: number;
+  /** равен `amountMinor` строки SERVICE в `/finance/report`: то же окно и те же правила */
+  totalMinor: string;
+  rows: Array<{
+    code: string | null;
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
+}
 /** Строка списка «Брони с остатком к сбору» (ADR-113): остаток — по всем счетам брони, как на её карточке */
 export interface DebtRowView {
   confirmationNumber: string;
@@ -132,18 +161,23 @@ export interface PeriodDebtsView {
   /** строк больше, чем отдаёт ответ (`MAX_DEBT_ROWS`) */
   truncated: boolean;
 }
-/** Оплата или возврат за период (ADR-113, F2) — строка списка «Оплаты и возвраты» и выгрузки */
+/** Строка общей ленты денег (ADR-113 F2; §21): оплата или возврат брони, либо операция кассы */
 export interface OperationView {
-  kind: 'PAYMENT' | 'REFUND';
+  kind: OperationKind;
   id: string;
   at: string;
   localAt: string;
   method: PaymentMethod;
+  /** только у перевода кассы — способ «куда» */
+  methodTo: PaymentMethod | null;
   amountMinor: string;
   status: 'COMPLETED' | 'VOIDED';
   confirmationNumber: string | null;
   reservations: number;
   guestLabel: string | null;
+  /** статья кассы словом; у денег броней — null */
+  category: string | null;
+  note: string | null;
 }
 export interface PeriodOperationsView {
   from: string;
@@ -151,13 +185,38 @@ export interface PeriodOperationsView {
   currency: string;
   /** строк по отбору — всех, не только отданных */
   total: number;
-  /** по отбору: проведённые оплаты и возвраты; аннулированные оплаты не входят */
+  /** по отбору: проведённые оплаты и возвраты броней; аннулированные не входят */
   paidMinor: string;
   refundedMinor: string;
+  /** по отбору: проведённые поступления и расходы кассы (§21); комиссии — в расходах */
+  incomeMinor: string;
+  expenseMinor: string;
   /** способы периода с числом операций — внутри отбора по типу, без отбора по способу */
   methods: Array<{ method: PaymentMethod; count: number }>;
   rows: OperationView[];
   truncated: boolean;
+}
+/** Остатки кассы по способам (§21) — за всё время, не за период; статьи и сверки — тем же ответом */
+export interface CashView {
+  currency: string;
+  totalMinor: string;
+  balances: Array<{ method: string; balanceMinor: string }>;
+  categories: CashCategoryView[];
+  /** последняя сверка по каждому способу (§21.4) */
+  reconciliations: Array<{
+    method: string;
+    at: string;
+    localAt: string;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+  }>;
+}
+export interface CashCategoryView {
+  id: string;
+  kind: 'INCOME' | 'EXPENSE';
+  name: string;
+  active: boolean;
 }
 export interface ServiceView {
   code: string;
@@ -178,7 +237,12 @@ const MAX_DEBT_ROWS = 500;
 /** Строк операций за запрос: экран берёт 20 или все, выгрузка — до этого предела (год Luxx — около 12 000) */
 const DEFAULT_OPERATION_ROWS = 50;
 const MAX_OPERATION_ROWS = 20_000;
-const OPERATION_TYPES = ['PAYMENT', 'REFUND'] as const;
+const OPERATION_TYPES = ['PAYMENT', 'REFUND', 'INCOME', 'EXPENSE', 'TRANSFER'] as const;
+const OPERATION_SOURCES = ['RESERVATIONS', 'CASH'] as const;
+/** Вид строки — из кассы? Переводы и комиссии — тоже касса */
+const isCashKind = (k: OperationKind) => k === 'INCOME' || k === 'EXPENSE' || k === 'TRANSFER';
+/** Статья расхода для комиссии по умолчанию (Q-236): есть в стартовом наборе статей */
+const COMMISSION_CATEGORY = 'Комиссия банка';
 /** Период отчёта: обе даты, по порядку, не длиннее `MAX_PERIOD_DAYS` */
 function checkedPeriod(from?: string, to?: string): { from: string; to: string } {
   if (!from || !ISO.test(from) || !to || !ISO.test(to))
@@ -266,6 +330,7 @@ export function folioView(f: FolioRecord): FolioView {
       paidAt: a.payment.paidAt,
       note: a.payment.note,
       externalReference: a.payment.externalReference,
+      receipt: a.payment.receipt,
       paymentAmountMinor: s(a.payment.amountMinor),
       allocatedMinor: s(a.amountMinor),
       refundedMinor: s(refundedBy(a.paymentId)),
@@ -368,6 +433,54 @@ export class FinanceService {
     };
   }
 
+  /** Отчёт по услугам (REP2): свод начислений-услуг периода; крупные первыми, «вручную» — одной строкой */
+  async periodServices(fromParam?: string, toParam?: string): Promise<PeriodServicesView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const charges = await this.repo.periodServiceCharges(from, to);
+    const rows = new Map<
+      string,
+      {
+        code: string | null;
+        name: string | null;
+        group: string | null;
+        charges: number;
+        quantity: number;
+        amountMinor: bigint;
+      }
+    >();
+    let total = 0n;
+    for (const c of charges) {
+      // начисления вручную (`service_id` пуст) сводятся в одну строку с пустым кодом
+      const key = c.serviceCode ?? '';
+      const v = rows.get(key) ?? {
+        code: c.serviceCode,
+        name: c.serviceName,
+        group: c.serviceGroup,
+        charges: 0,
+        quantity: 0,
+        amountMinor: 0n,
+      };
+      v.charges += 1;
+      v.quantity += c.quantity;
+      v.amountMinor += c.amountMinor;
+      rows.set(key, v);
+      total += c.amountMinor;
+    }
+    const sorted = [...rows.values()].sort(
+      (a, b) =>
+        (a.amountMinor === b.amountMinor ? 0 : a.amountMinor > b.amountMinor ? -1 : 1) ||
+        (a.name ?? '').localeCompare(b.name ?? '', 'ru'),
+    );
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      count: charges.length,
+      totalMinor: s(total),
+      rows: sorted.map((x) => ({ ...x, amountMinor: s(x.amountMinor) })),
+    };
+  }
+
   /**
    * «Брони с остатком к сбору» (ADR-113): брони с начислением в периоде, у которых остаток по всему счёту больше
    * нуля. Остаток считает тот же `folioBalance`, что карточка и список броней, — числа везде одни. Крупные долги
@@ -424,15 +537,18 @@ export class FinanceService {
   async periodOperations(
     fromParam?: string,
     toParam?: string,
-    query: { type?: string; method?: string; limit?: string } = {},
+    query: { type?: string; method?: string; source?: string; limit?: string } = {},
   ): Promise<PeriodOperationsView> {
     const { from, to } = checkedPeriod(fromParam, toParam);
     const type = query.type || undefined;
     const method = query.method || undefined;
+    const source = query.source || undefined;
     if (type !== undefined && !(OPERATION_TYPES as readonly string[]).includes(type))
-      throw new BadRequestException('type — PAYMENT или REFUND');
+      throw new BadRequestException(`type — один из: ${OPERATION_TYPES.join(', ')}`);
     if (method !== undefined && !PAYMENT_METHODS.includes(method as PaymentMethod))
       throw new BadRequestException(`method — один из: ${PAYMENT_METHODS.join(', ')}`);
+    if (source !== undefined && !(OPERATION_SOURCES as readonly string[]).includes(source))
+      throw new BadRequestException('source — RESERVATIONS или CASH');
     const limit =
       query.limit === undefined || query.limit === ''
         ? DEFAULT_OPERATION_ROWS
@@ -440,29 +556,324 @@ export class FinanceService {
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_OPERATION_ROWS)
       throw new BadRequestException(`limit — целое от 1 до ${MAX_OPERATION_ROWS}`);
     const r = await this.repo.periodOperations(from, to, {
-      ...(type ? { type: type as 'PAYMENT' | 'REFUND' } : {}),
+      ...(type ? { type: type as OperationKind } : {}),
       ...(method ? { method: method as PaymentMethod } : {}),
+      ...(source ? { source: source as 'RESERVATIONS' | 'CASH' } : {}),
       limit,
     });
-    const ofType = r.summary.filter((x) => !type || x.kind === type);
+    const ofType = r.summary
+      .filter((x) => !type || x.kind === type)
+      .filter((x) => !source || (source === 'CASH') === isCashKind(x.kind));
     const picked = ofType.filter((x) => !method || x.method === method);
     const sum = (xs: typeof picked) => xs.reduce((a, x) => a + x.amountMinor, 0n);
     const counts = new Map<PaymentMethod, number>();
     for (const x of ofType) counts.set(x.method, (counts.get(x.method) ?? 0) + x.count);
     const total = picked.reduce((a, x) => a + x.count, 0);
+    const done = (k: OperationKind) =>
+      sum(picked.filter((x) => x.kind === k && x.status === 'COMPLETED'));
     return {
       from,
       to,
       currency: 'KZT',
       total,
-      paidMinor: s(sum(picked.filter((x) => x.kind === 'PAYMENT' && x.status === 'COMPLETED'))),
+      paidMinor: s(done('PAYMENT')),
       refundedMinor: s(sum(picked.filter((x) => x.kind === 'REFUND'))),
+      incomeMinor: s(done('INCOME')),
+      expenseMinor: s(done('EXPENSE')),
       methods: [...counts]
         .map(([m, count]) => ({ method: m, count }))
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: r.rows.map((x) => ({ ...x, amountMinor: s(x.amountMinor) })),
       truncated: total > r.rows.length,
     };
+  }
+
+  // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
+  /** Остатки по способам — за всё время: оплаты гостей − возвраты + касса. Валюта — валюта объекта */
+  async cash(): Promise<CashView> {
+    const [src, categories, reconciliations] = await Promise.all([
+      this.repo.cashBalanceSources(),
+      this.repo.cashCategories(),
+      this.repo.latestCashReconciliations(),
+    ]);
+    const b = cashBalances(src);
+    return {
+      currency: 'KZT',
+      totalMinor: s(b.totalMinor),
+      balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
+      categories,
+      reconciliations: reconciliations.map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: r.localAt,
+        expectedMinor: s(r.expectedMinor),
+        countedMinor: s(r.countedMinor),
+        note: r.note,
+      })),
+    };
+  }
+
+  /**
+   * Сверка кассы (§21.4): снимок «по системе» на момент пересчёта и факт; по галочке расхождение
+   * выравнивается обычной операцией кассы той же транзакцией — лента остаётся единственным источником движений.
+   */
+  async createCashReconciliation(dto: {
+    method?: string;
+    counted?: string | number;
+    note?: string | null;
+    adjust?: boolean;
+  }): Promise<CashView> {
+    const method = dto.method ?? 'CASH';
+    if (!PAYMENT_METHODS.includes(method as PaymentMethod))
+      throw new BadRequestException(`method — один из ${PAYMENT_METHODS.join(', ')}`);
+    const countedMinor = money(dto.counted, 'counted');
+    rule(() => assertCashReconciliation({ method, countedMinor }));
+    if (dto.adjust !== undefined && typeof dto.adjust !== 'boolean')
+      throw new BadRequestException('adjust — true или false');
+    const balances = cashBalances(await this.repo.cashBalanceSources());
+    const expectedMinor = balances.balances.find((b) => b.method === method)?.balanceMinor ?? 0n;
+    const delta = dto.adjust ? reconciliationAdjustment(expectedMinor, countedMinor) : null;
+    const adjustment =
+      delta === null
+        ? null
+        : {
+            ...delta,
+            categoryName: delta.kind === 'INCOME' ? 'Излишек кассы' : 'Недостача кассы',
+          };
+    const note = freeTextForStorage(dto.note?.trim() || null);
+    await lockedWrite(
+      this.repo.createCashReconciliation(
+        { method: method as PaymentMethod, expectedMinor, countedMinor, note, adjustment },
+        {
+          entityType: 'CashReconciliation',
+          action: 'finance.cash.reconciliation',
+          idField: 'reconciliationId',
+          after: {
+            method,
+            expectedMinor: s(expectedMinor),
+            countedMinor: s(countedMinor),
+            ...(adjustment
+              ? { adjustment: { kind: adjustment.kind, amountMinor: s(adjustment.amountMinor) } }
+              : {}),
+            ...(note === null ? {} : { note: maskContacts(note) }),
+          },
+        },
+      ),
+    );
+    return this.cash();
+  }
+
+  async createCashCategory(dto: { kind?: string; name?: string }): Promise<CashCategoryView[]> {
+    if (dto.kind !== 'INCOME' && dto.kind !== 'EXPENSE')
+      throw new BadRequestException('kind — INCOME или EXPENSE (у перевода статей нет)');
+    const name = freeTextForStorage(dto.name?.trim() ?? '') ?? '';
+    if (!name) throw new BadRequestException('name — название статьи');
+    await lockedWrite(
+      this.repo.createCashCategory(
+        { kind: dto.kind, name },
+        {
+          entityType: 'CashCategory',
+          action: 'finance.cash.category.created',
+          idField: 'categoryId',
+          after: { kind: dto.kind, name },
+        },
+      ),
+    );
+    return this.repo.cashCategories();
+  }
+
+  async updateCashCategory(
+    id: string,
+    dto: { name?: string; active?: boolean },
+  ): Promise<CashCategoryView[]> {
+    const patch: { name?: string; active?: boolean } = {};
+    if (dto.name !== undefined) {
+      const name = freeTextForStorage(String(dto.name).trim()) ?? '';
+      if (!name) throw new BadRequestException('name — название статьи');
+      patch.name = name;
+    }
+    if (dto.active !== undefined) {
+      if (typeof dto.active !== 'boolean') throw new BadRequestException('active — true или false');
+      patch.active = dto.active;
+    }
+    if (Object.keys(patch).length === 0)
+      throw new BadRequestException('Нечего менять: name или active');
+    const found = await lockedWrite(
+      this.repo.updateCashCategory(id, patch, {
+        entityType: 'CashCategory',
+        entityId: id,
+        action: 'finance.cash.category.updated',
+        after: { ...patch },
+      }),
+    );
+    if (!found) throw new NotFoundException(`Статья ${id} не найдена`);
+    return this.repo.cashCategories();
+  }
+
+  /** Комиссия из запроса: сумма или процент от суммы операции; статья — указанная или «Комиссия банка» */
+  private async commission(
+    amountMinor: bigint,
+    dto: { amount?: string | number; percent?: string | number; categoryId?: string } | undefined,
+    categories: CashCategoryRecord[],
+  ): Promise<{ amountMinor: bigint; categoryId: string | null } | null> {
+    if (dto === undefined) return null;
+    if (dto.amount === undefined && dto.percent === undefined)
+      throw new BadRequestException('commission — { amount } или { percent }');
+    const commissionMinor =
+      dto.amount !== undefined
+        ? money(dto.amount, 'commission.amount')
+        : rule(() => commissionFromPercent(amountMinor, String(dto.percent)));
+    if (commissionMinor <= 0n)
+      throw new BadRequestException('Комиссия должна быть больше нуля — или уберите её');
+    let category: CashCategoryRecord | undefined;
+    if (dto.categoryId !== undefined) {
+      category = categories.find(
+        (c) => c.id === dto.categoryId && c.kind === 'EXPENSE' && c.active,
+      );
+      if (!category)
+        throw new BadRequestException('commission.categoryId — действующая статья расхода');
+    } else {
+      category = categories.find(
+        (c) => c.kind === 'EXPENSE' && c.active && c.name === COMMISSION_CATEGORY,
+      );
+      if (!category)
+        throw new BadRequestException(
+          `Статьи «${COMMISSION_CATEGORY}» нет — укажите статью комиссии (commission.categoryId)`,
+        );
+    }
+    return { amountMinor: commissionMinor, categoryId: category.id };
+  }
+
+  /** Поступление или расход мимо счетов гостей; оплата брони проводится как платёж (`POST /finance/payments`) */
+  async createCashOperation(dto: {
+    kind?: string;
+    method?: string;
+    amount?: string | number;
+    categoryId?: string;
+    note?: string | null;
+    occurredAt?: string;
+    commission?: { amount?: string | number; percent?: string | number; categoryId?: string };
+  }): Promise<CashView> {
+    if (dto.kind !== 'INCOME' && dto.kind !== 'EXPENSE')
+      throw new BadRequestException(
+        'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers',
+      );
+    return this.writeCashOperation({ ...dto, kind: dto.kind, methodTo: undefined });
+  }
+
+  /** Перевод между способами; комиссия — связанный расход той же транзакцией */
+  async createCashTransfer(dto: {
+    from?: string;
+    to?: string;
+    amount?: string | number;
+    note?: string | null;
+    occurredAt?: string;
+    commission?: { amount?: string | number; percent?: string | number; categoryId?: string };
+  }): Promise<CashView> {
+    return this.writeCashOperation({
+      kind: 'TRANSFER',
+      method: dto.from,
+      methodTo: dto.to,
+      amount: dto.amount,
+      note: dto.note,
+      ...(dto.occurredAt !== undefined ? { occurredAt: dto.occurredAt } : {}),
+      ...(dto.commission !== undefined ? { commission: dto.commission } : {}),
+    });
+  }
+
+  private async writeCashOperation(dto: {
+    kind: CashKind;
+    method?: string | undefined;
+    methodTo?: string | undefined;
+    amount?: string | number | undefined;
+    categoryId?: string | undefined;
+    note?: string | null | undefined;
+    occurredAt?: string | undefined;
+    commission?:
+      { amount?: string | number; percent?: string | number; categoryId?: string } | undefined;
+  }): Promise<CashView> {
+    if (!dto.method || !PAYMENT_METHODS.includes(dto.method as PaymentMethod))
+      throw new BadRequestException(
+        `${dto.kind === 'TRANSFER' ? 'from' : 'method'} — один из ${PAYMENT_METHODS.join(', ')}`,
+      );
+    if (dto.methodTo !== undefined && !PAYMENT_METHODS.includes(dto.methodTo as PaymentMethod))
+      throw new BadRequestException(`to — один из ${PAYMENT_METHODS.join(', ')}`);
+    const amountMinor = money(dto.amount, 'amount');
+    const categories = await this.repo.cashCategories();
+    let category: CashCategoryRecord | undefined;
+    if (dto.categoryId !== undefined) {
+      category = categories.find((c) => c.id === dto.categoryId && c.active);
+      if (!category) throw new BadRequestException('categoryId — действующая статья кассы');
+    }
+    rule(() =>
+      assertCashOperation({
+        kind: dto.kind,
+        method: dto.method!,
+        methodTo: dto.methodTo ?? null,
+        amountMinor,
+        categoryKind: category?.kind ?? null,
+      }),
+    );
+    if (dto.occurredAt !== undefined && Number.isNaN(Date.parse(dto.occurredAt)))
+      throw new BadRequestException('occurredAt — дата-время ISO 8601');
+    const commission = await this.commission(amountMinor, dto.commission, categories);
+    const note = freeTextForStorage(dto.note?.trim() || null);
+    await lockedWrite(
+      this.repo.createCashOperation(
+        {
+          kind: dto.kind,
+          method: dto.method as PaymentMethod,
+          methodTo: (dto.methodTo as PaymentMethod | undefined) ?? null,
+          amountMinor,
+          categoryId: category?.id ?? null,
+          note,
+          occurredAt: dto.occurredAt ?? null,
+          commission,
+        },
+        {
+          entityType: 'CashOperation',
+          action: dto.kind === 'TRANSFER' ? 'finance.cash.transfer' : 'finance.cash.operation',
+          idField: 'operationId',
+          after: {
+            kind: dto.kind,
+            method: dto.method,
+            ...(dto.methodTo ? { methodTo: dto.methodTo } : {}),
+            amountMinor: s(amountMinor),
+            ...(category ? { category: category.name } : {}),
+            ...(commission ? { commissionMinor: s(commission.amountMinor) } : {}),
+            ...(note === null ? {} : { note: maskContacts(note) }),
+          },
+        },
+      ),
+    );
+    return this.cash();
+  }
+
+  /** Аннулирование операции кассы: прошлое не правится, статус VOIDED; комиссия — вместе с основной */
+  async voidCashOperation(id: string): Promise<CashView> {
+    const op = await this.repo.cashOperationById(id);
+    if (!op) throw new NotFoundException(`Операция ${id} не найдена`);
+    if (op.status !== 'COMPLETED') throw new ConflictException('Операция уже аннулирована');
+    if (op.relatedId !== null)
+      throw new ConflictException(
+        'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней',
+      );
+    await lockedWrite(
+      this.repo.voidCashOperation(id, {
+        entityType: 'CashOperation',
+        entityId: id,
+        action: 'finance.cash.operation.void',
+        before: {
+          kind: op.kind,
+          method: op.method,
+          ...(op.methodTo ? { methodTo: op.methodTo } : {}),
+          amountMinor: s(op.amountMinor),
+          ...(op.commissionId ? { commissionId: op.commissionId } : {}),
+        },
+        after: { voided: true },
+      }),
+    );
+    return this.cash();
   }
 
   async services(): Promise<ServiceView[]> {
@@ -781,6 +1192,33 @@ export class FinanceService {
       ),
     );
     return this.reservation(folios[0]!.confirmationNumber);
+  }
+
+  /**
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §26, ADR-144): касса объекта пробила чек, администратор вписывает
+   * его номер. Только проведённый платёж своего объекта; второй чек на тот же платёж — 409.
+   */
+  async issueReceipt(
+    paymentId: string,
+    dto: { number?: unknown },
+  ): Promise<{ paymentId: string; number: string }> {
+    let number: string;
+    try {
+      number = parseReceiptNumber(dto.number);
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+    const p = await this.repo.paymentById(paymentId);
+    if (!p) throw new NotFoundException(`Платёж ${paymentId} не найден`);
+    if (p.status !== 'COMPLETED') throw new ConflictException('Платёж аннулирован');
+    await lockedWrite(
+      this.repo.issueReceipt(paymentId, number, {
+        entityType: 'Payment',
+        action: 'finance.receipt.issued',
+        after: { number, amountMinor: s(p.amountMinor), method: p.method },
+      }),
+    );
+    return { paymentId, number };
   }
 
   /** Возврат по счёту из конкретного платежа: не больше, чем он на этот счёт внёс, минус уже возвращённое. */

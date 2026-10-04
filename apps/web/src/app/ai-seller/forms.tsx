@@ -325,7 +325,7 @@ export function LlmKeyForm({
             type="password"
             maxLength={200}
             autoComplete="off"
-            placeholder={status.set ? "Ключ сохранён · введите новый только для замены" : "Вставьте ключ модели"}
+            placeholder={status.set ? "Ключ сохранён, введите новый только для замены" : "Вставьте ключ модели"}
             data-testid="seller-llm-key-input"
             disabled={readOnly !== null}
           />

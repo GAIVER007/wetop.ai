@@ -1,0 +1,25 @@
+Проба восстановления рабочей базы из копии, 02.10.2026 (облачная сессия, локальная PostgreSQL 16.13)
+
+База: все 45 миграций из packages/database/prisma/migrations (origin/main f494412f), роли anon, authenticated,
+service_role и права по умолчанию для них, как у Supabase. Права сняты запросом: каждая таблица, столбец,
+функция, последовательность схемы public для ролей wetop_app, wetop_service, anon, authenticated, service_role;
+политики RLS и флаги RLS. Всего проверок: 10104.
+
+1. Копия как у db-backup.sh: pg_dump --format=custom --schema=public --no-owner --no-privileges.
+2. Наивное восстановление: pg_restore --clean --if-exists --no-owner --no-privileges --single-transaction (без записей схемы public).
+   Отличий от прав до копии: 286, все лишние у wetop_app:
+     89      > C UPDATE -> t
+     81      > C SELECT -> t
+     77      > C INSERT -> t
+     10      > T UPDATE -> t
+     10      > T SELECT -> t
+     10      > T DELETE -> t
+      9      > T INSERT -> t
+   Таблицы, к которым wetop_app получила полный доступ:
+     channel_outbox email_verifications external_events password_resets platform_admins system_incidents users wizard_events wizard_sessions wizard_surveys 
+3. После данных повторены миграции прав (GRANT или REVOKE вне комментариев), по порядку: 026 033 034 038 042.
+   Отличий от прав до копии: 0.
+
+4. scripts/ops/db-restore-prod.sh на той же базе после порчи (удалена строка, добавлена строка, снят RLS с reservations):
+   данные как в копии, RLS включён, отличий в правах 0; без --yes-replace-production отказ с кодом 2;
+   сбой посреди восстановления (сломанная миграция прав) откатил всё, база осталась как была.

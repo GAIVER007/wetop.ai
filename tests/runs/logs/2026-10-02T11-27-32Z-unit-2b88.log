@@ -1,0 +1,30 @@
+# Модульные (unit) · 02.10.2026 16:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0145369 (main), незакоммиченных файлов набора: 43
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-27-32Z-unit-2b88.json' 'apps/web/src/app/finance/debts-csv.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/app/finance/debts-csv.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/debts-csv.test.ts [ apps/web/src/app/finance/debts-csv.test.ts ]
+Error: Cannot find module './debts-csv' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/finance/debts-csv.test.ts
+ ❯ apps/web/src/app/finance/debts-csv.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { debtsCsv } from './debts-csv';
+       | ^
+      3|
+      4| const row = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:27:32
+   Duration  82ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-27-32Z-unit-2b88.json
+
+# код выхода 1 · 1 с

@@ -1,12 +1,13 @@
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import {
   type OutboxRow,
   type OutboxRowStatus,
   type OutboxSummary,
   api,
   channelsApi,
+  guardApi,
   ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
@@ -30,8 +31,9 @@ import { OutboxTable } from '../outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from '../events-table';
 import { hotelClock } from '../../../lib/hotel-api';
 import type { PropertyClock } from '../../../lib/property-time';
-import { eventTime } from '../format';
+import { eventTime, reconciliationView } from '../format';
 import { ChannelReport } from '../report';
+import { ChannelList } from '../channel-list';
 import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
@@ -48,6 +50,8 @@ import '../channels.css';
  */
 const tabs = [
   { view: '', href: '/channels', label: 'Обзор' },
+  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
+  { view: 'list', href: '/channels/list', label: 'Каналы' },
   { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
   { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
   { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
@@ -56,6 +60,7 @@ const tabs = [
 
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
+  list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
   connections: 'Подключение менеджера каналов и настройка обмена.',
   mapping: 'Категории и тарифы WETOP в менеджере каналов.',
   sync: 'Что уходит в каналы и что приходит обратно.',
@@ -66,7 +71,10 @@ const subtitles: Record<string, string> = {
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 
 /**
@@ -117,6 +125,7 @@ export default async function ChannelSalesPage({
         ))}
       </nav>
       {view === '' && <Overview sp={sp} />}
+      {view === 'list' && <ChannelList sp={sp} />}
       {view === 'connections' && <ChannelConnectionSetup />}
       {view === 'mapping' && <Mapping />}
       {view === 'sync' && <Sync queue={queueFilter(sp.queue)} />}
@@ -132,28 +141,39 @@ const queueFilter = (raw: string | undefined): OutboxRowStatus | '' =>
 
 async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
   const clock = await hotelClock();
-  const [connection, webhook, loadedOutbox, failedEvents, recentEvents, summaryFund] =
-    await Promise.all([
-      channelsApi.connection().catch(() => null),
-      channelsApi.webhookStatus().catch(() => null),
-      settle(channelsApi.outbox()),
-      channelsApi
-        .events({ limit: 1, status: 'FAILED' })
-        .then((r) => r.total)
-        .catch(() => null),
-      // наблюдаемые каналы (решение владельца по Q-205, дополнение к ADR-112): только факты из событий
-      channelsApi
-        .events({ limit: 50 })
-        .then((r) => r.rows)
-        .catch(() => null),
-      api.inventorySummary().catch(() => null),
-    ]);
+  const [
+    connection,
+    webhook,
+    loadedOutbox,
+    failedEvents,
+    recentEvents,
+    summaryFund,
+    reconciliation,
+  ] = await Promise.all([
+    channelsApi.connection().catch(() => null),
+    channelsApi.webhookStatus().catch(() => null),
+    settle(channelsApi.outbox()),
+    channelsApi
+      .events({ limit: 1, status: 'FAILED' })
+      .then((r) => r.total)
+      .catch(() => null),
+    // наблюдаемые каналы (решение владельца по Q-205, дополнение к ADR-112): только факты из событий
+    channelsApi
+      .events({ limit: 50 })
+      .then((r) => r.rows)
+      .catch(() => null),
+    api.inventorySummary().catch(() => null),
+    // X3 (ADR-144): сверка остатков у сторожа; чужой организации и без права — 403, тогда «не известно»
+    guardApi.reconciliation().catch(() => null),
+  ]);
   const outbox = loadedOutbox.ok ? loadedOutbox.r : null;
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
   const notConnected = !connection?.propertyAccessible;
-  const alarm = (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0;
+  const oversold = !!reconciliation?.mismatch;
+  const alarm =
+    (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0 || oversold;
   const tone = alarm ? 'alarm' : !outbox || notConnected || outbox.pending > 0 ? 'warn' : 'calm';
   const word = notConnected
     ? 'не подключены'
@@ -176,17 +196,21 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
           : (failedEvents ?? 0) > 0
             ? 'Входящая бронь требует разбора — откройте «События».'
-            : outbox.pending > 0
-              ? 'Изменения ждут отправки в каналы.'
-              : connection?.environment === 'staging'
-                ? 'Менеджер каналов: тестовое подключение.'
-                : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
+            : oversold
+              ? 'Канал видит больше мест, чем есть: сторож запустил полную выгрузку остатков.'
+              : outbox.pending > 0
+                ? 'Изменения ждут отправки в каналы.'
+                : connection?.environment === 'staging'
+                  ? 'Менеджер каналов: тестовое подключение.'
+                  : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
   const failedTotal = (outbox?.failed ?? 0) + (failedEvents ?? 0);
+  // X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу, не только сторожу
+  const reconcile = reconciliationView(reconciliation, clock);
   /**
    * Наблюдаемые OTA (Q-205, дополнение владельца к ADR-112): «Booking.com — работает» запрещено,
    * пока backend не может это подтвердить — показываем только факты из последних событий Channex:
@@ -216,7 +240,21 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         value={<span data-testid="channels-state">{word}</span>}
         summary={summary}
       >
-        <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)} />
+        <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)}>
+          {/* X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу; подробности в подсказке */}
+          {!notConnected && (
+            <span
+              className={`state-bar__sub${reconcile.tone === 'danger' ? ' danger-text' : ''}`}
+              title={reconcile.sub}
+              data-testid="channels-reconcile-sub"
+            >
+              сверка:{' '}
+              <span data-testid="channels-reconcile" data-tone={reconcile.tone}>
+                {reconcile.value}
+              </span>
+            </span>
+          )}
+        </StateFact>
         <StateFact
           label="Очередь"
           value={outbox ? <span data-testid="outbox-pending">{String(outbox.pending)}</span> : '—'}
@@ -278,8 +316,11 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       </StateBar>
       {outbox && alarm && (
         <Alert boxed data-testid="overbooking-alarm">
-          Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
-          <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+          {oversold && <div>Сверка: {reconcile.sub}.</div>}
+          <div>
+            Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
+            <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+          </div>
         </Alert>
       )}
       <ChannelReport sp={sp} />

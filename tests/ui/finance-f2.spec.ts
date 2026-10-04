@@ -1,12 +1,12 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Финансы за период», срез F2 (ADR-113, план `plans/finance-f2-2026-09-28.md`): раздел «Оплаты и возвраты» с
  * отбором по типу и способу, переход от плиток и таблицы способов к строкам, выгрузка CSV, сбой одного запроса.
  * Брони подставного API вымышленные (ADR-010); возврат есть только в витрине `design-seed` (DSG-RETD).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-compact-2026-10-01/operations';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>
@@ -29,12 +29,12 @@ test('F2: оплаты и возвраты — колонки, строка ит
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   const section = main.getByTestId('finance-operations');
-  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Оплаты и возвраты');
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Операции за период');
   await expect(section.getByTestId('ops-table').getByRole('columnheader')).toHaveText([
     'Дата и время',
     'Тип',
     'Бронь',
-    'Гость',
+    'Гость / статья',
     'Способ',
     'Сумма',
     'Статус',
@@ -120,7 +120,7 @@ test('F2: выгрузка CSV — те же отборы, BOM и «;», без 
   const body = (await csv.body()).toString('utf8');
   expect(body.startsWith('\uFEFF')).toBe(true);
   const lines = body.slice(1).split('\r\n');
-  expect(lines[0]).toBe('Дата;Время;Тип;Статус;Способ;Сумма, ₸;Бронь');
+  expect(lines[0]).toBe('Дата;Время;Тип;Статус;Способ;Сумма, ₸;Бронь;Статья;Комментарий');
   expect(lines.length).toBeGreaterThan(1);
   for (const line of lines.slice(1)) expect(line).toMatch(/;Возврат;проведён;[^;]+;-\d+,\d\d;/);
   expect(body).not.toMatch(/Гость|Посетитель|Клиент/);

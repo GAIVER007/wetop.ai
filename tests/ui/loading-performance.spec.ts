@@ -1,6 +1,6 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });

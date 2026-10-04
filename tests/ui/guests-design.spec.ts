@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Гости v2» (27.09.2026, ТЗ владельца; план plans/guests-v2-2026-09-27.md).
@@ -10,7 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
  * вычисленное слово («живёт», «ожидается», «выехал недавно»), а не статус брони; компактный
  * автопоиск без кнопки «Найти»; пустые состояния словами.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -365,6 +366,7 @@ test('гости: новая бронь этому же гостю — из ка
     .analyze();
   expect(audit.violations).toEqual([]);
   await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

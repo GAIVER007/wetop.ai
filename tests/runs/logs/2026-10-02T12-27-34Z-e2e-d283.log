@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 02.10.2026 17:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8ff6876 (main), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/team.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (2.6s)
+  ✓  2 tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (1.9s)
+  ✓  3 tests/ui/team.spec.ts:65:1 › ошибка приглашения — словами в панели, ввод не стирается (1.4s)
+  ✓  4 tests/ui/team.spec.ts:77:1 › «Отключить» — только после подтверждения с последствием (1.4s)
+  ✓  5 tests/ui/team.spec.ts:89:1 › управляющий: роль не меняет, приглашает только администраторов (1.1s)
+  ✓  6 tests/ui/team.spec.ts:101:1 › администратору раздел закрыт: гейт и меню без пункта (968ms)
+  ✓  7 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: light (2.1s)
+  ✓  8 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: dark (1.9s)
+
+  8 passed (22.2s)
+
+# код выхода 0 · 23 с

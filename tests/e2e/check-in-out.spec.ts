@@ -26,6 +26,10 @@ test('заселить → карточка и шахматка показыва
   test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
@@ -131,6 +135,10 @@ test('заселить → карточка и шахматка показыва
   // незаезд
   await page.goto(`/reservations/new?arrival=${plus(5)}&departure=${plus(6)}`);
   const f2 = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await f2.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await f2.locator('select[name="source"]').selectOption('PHONE');
   await f2
     .locator('select[name="accommodationTypeCode"]')

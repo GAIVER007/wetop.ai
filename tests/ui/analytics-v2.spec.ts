@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
  * §27) на стенде с историей за три месяца (`analyticsHistory` фикстуры: номера растут, койки падают)
  * и снимает стоп-гейт §34 — обе темы, «Все / Номера / Койки», прошлый месяц, база сравнения ноль, телефон.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/analytics-v2-an1-2026-09-27';
 
 async function withHistory(page: Page) {
@@ -80,7 +80,9 @@ test('обзор за месяц: четыре основных показате
   const main = page.getByRole('main');
   await page.goto('/management/analytics');
   // по умолчанию — этот месяц; подпись словами
-  await expect(main.getByTestId('pa-period')).toContainText(/\d+ \S+ — \d+ \S+, 3[01] д/);
+  await expect(main.getByTestId('pa-period')).toContainText(
+    /\d+ \S+ \u2014 \d+ \S+, (28|29|30|31) д/,
+  );
   await expect(main.getByRole('link', { name: 'Этот месяц' })).toHaveAttribute(
     'aria-current',
     'page',

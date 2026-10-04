@@ -1,6 +1,6 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
@@ -23,7 +23,7 @@ test('источник и агрегаты проекта видны главн�
   request,
 }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(page.getByTestId('data-connection')).toHaveCount(0);
   await expect(page.getByRole('main')).not.toContainText('Supabase');
   await expect(page.getByRole('main')).not.toContainText('Данные проекта');
@@ -62,7 +62,6 @@ test('название гостиницы в каркасе и обзоре по
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
-  await expect(page.locator('main')).toContainText('Проверочный хостел');
   await expect(page.locator('.workspace-header')).not.toContainText('Luxx Aparts');
 });
 

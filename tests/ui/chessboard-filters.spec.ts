@@ -1,6 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Шахматка v2» PR 7 (ТЗ §8–10, §37–41; решения — `plans/chessboard-v2-2026-09-27.md`, PR 7):
@@ -11,7 +11,7 @@ import { expect, test } from './fixtures';
  * Стенд UI-тестов: восемь базовых броней недели (R01–R04, M01, M02, F01, F03) и брони, заведённые
  * здесь; гости вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const add = (date: string, n: number) => {
   const d = new Date(`${date}T12:00:00Z`);
@@ -66,17 +66,17 @@ test('§8–9: основная строка и окошко «Фильтры» 
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
   // в строке — поиск, категория, места на первую дату, «Фильтры», вид; тип места ушёл в окошко
-  await expect(main.getByLabel('Поиск на шахматке')).toBeVisible();
-  await expect(main.getByLabel('Категория на шахматке')).toBeVisible();
-  await expect(main.getByLabel('Места на шахматке')).toBeVisible();
-  await expect(main.getByLabel('Вид строк шахматки')).toBeVisible();
+  await expect(main.getByLabel('Поиск в календаре')).toBeVisible();
+  await expect(main.getByLabel('Категория в календаре')).toBeVisible();
+  await expect(main.getByLabel('Места в календаре')).toBeVisible();
+  await expect(main.getByLabel('Вид строк календаря')).toBeVisible();
   await expect(main.getByRole('button', { name: 'Номера', exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Свободные', exact: true })).toHaveCount(0);
 
   // «Фильтры» или «Фильтры N» — имя кнопки меняется с числом условий
   const open = main.getByRole('button', { name: /^Фильтры( \d+)?$/ });
   await open.click();
-  const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   await expect(pop).toBeVisible();
   // источники и статусы — только те, что есть на сетке
   const sources = pop.getByRole('group', { name: 'Источник' });
@@ -149,7 +149,7 @@ test('§9: «Выезд сегодня», «С долгом» и ссылка н
   const main = page.getByRole('main');
   // «Фильтры» или «Фильтры N» — имя кнопки меняется с числом условий
   const open = main.getByRole('button', { name: /^Фильтры( \d+)?$/ });
-  const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   await open.click();
   await pop.getByRole('button', { name: 'Выезд сегодня', exact: true }).click();
   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
@@ -186,7 +186,7 @@ test('§10, §41: поиск подсвечивает, приглушает, р�
   });
   await page.goto(week(today));
   const main = page.getByRole('main');
-  const search = main.getByLabel('Поиск на шахматке');
+  const search = main.getByLabel('Поиск в календаре');
 
   // по имени: строка R02, своя плашка подсвечена, соседняя (TEST1) приглушена
   await search.fill('поискова');
@@ -230,7 +230,7 @@ test('§10, §41: поиск подсвечивает, приглушает, р�
   await page.goto(`/chessboard?from=${add(today, -1)}&to=${add(today, 28)}`);
   const far1 = main.locator(`[data-testid="stay-cell"][data-number="${far}"]`).first();
   await expect(far1).not.toBeInViewport();
-  await main.getByLabel('Поиск на шахматке').fill('Далекова');
+  await main.getByLabel('Поиск в календаре').fill('Далекова');
   await expect(far1).toHaveAttribute('data-match', 'hit');
   await expect(far1).toBeInViewport();
 });
@@ -238,14 +238,14 @@ test('§10, §41: поиск подсвечивает, приглушает, р�
 test('§37: ничего не найдено — «Сбросить фильтры»', async ({ page }) => {
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
-  await main.getByLabel('Поиск на шахматке').fill('Несуществующее место');
+  await main.getByLabel('Поиск в календаре').fill('Несуществующее место');
   await expect(rows(page)).toHaveCount(0);
   const empty = main.getByTestId('board-empty');
   await expect(empty).toContainText('Ничего не найдено');
   await expect(empty).toContainText('Попробуйте изменить фильтры');
   await empty.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(rows(page)).toHaveCount(88);
-  await expect(main.getByLabel('Поиск на шахматке')).toHaveValue('');
+  await expect(main.getByLabel('Поиск в календаре')).toHaveValue('');
 });
 
 test('§38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится', async ({
@@ -253,7 +253,7 @@ test('§38: вид «Компактный / Обычный / Подробный�
 }) => {
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
-  const view = main.getByLabel('Вид строк шахматки');
+  const view = main.getByLabel('Вид строк календаря');
   await expect(view).toHaveValue('normal');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
@@ -266,7 +266,7 @@ test('§38: вид «Компактный / Обычный / Подробный�
   expect(detailed).toBeGreaterThan(normal);
   await view.selectOption('compact');
   await page.reload();
-  await expect(main.getByLabel('Вид строк шахматки')).toHaveValue('compact');
+  await expect(main.getByLabel('Вид строк календаря')).toHaveValue('compact');
   expect(await height()).toBe(compact);
 });
 
@@ -277,7 +277,7 @@ test('§40: Ctrl+K — поиск шахматки, второй раз — об
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
   await page.keyboard.press('Control+k');
-  await expect(main.getByLabel('Поиск на шахматке')).toBeFocused();
+  await expect(main.getByLabel('Поиск в календаре')).toBeFocused();
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('dialog', { name: 'Быстрый поиск' })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -293,9 +293,9 @@ test('телефон: категория и места — в окошке, ок
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
-  await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+  await expect(main.getByLabel('Категория в календаре')).toBeHidden();
   await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
-  const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   const box = (await pop.boundingBox())!;
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
@@ -318,7 +318,7 @@ test('телефон: категория и места — в окошке, ок
 test('доступность: окошко «Фильтры» открыто', async ({ page }) => {
   await page.goto(week(hotelToday()));
   await page.getByRole('main').getByRole('button', { name: 'Фильтры', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Фильтры шахматки' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Фильтры календаря' })).toBeVisible();
   const result = await new AxeBuilder({ page }).include('.board-filters-pop').analyze();
   expect(result.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
 });

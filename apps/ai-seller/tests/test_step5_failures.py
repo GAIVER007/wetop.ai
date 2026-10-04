@@ -29,7 +29,8 @@ async def test_llm_failure_sends_neutral_reply(engine_env, caplog) -> None:
     assert outcome.status == "error"
     assert outcome.reply == NEUTRAL_REPLY
     assert "llm_failed" in outcome.reasons
-    assert outcome.needs_human is False
+    # Р1 (решение владельца 02.10): фраза обещает администратора — диалог помечен для сотрудника
+    assert outcome.needs_human is True
     assert sender.texts == [NEUTRAL_REPLY]
     assert "секретная причина" not in sender.texts[0]
     assert caplog.records, "сбой модели должен попасть в журнал"

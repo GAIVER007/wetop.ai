@@ -1,0 +1,42 @@
+# Модульные (unit) · 03.10.2026 20:52 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-52-25Z-unit-8ec6.json' 'apps/web/src/app/management/analytics/channels'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests | 1 failed) 12ms
+   ❯ «Эффективность каналов»: адрес отчёта, подписи, выгрузка (7)
+     ✓ по умолчанию — текущий месяц по дате заезда, без сравнения, порядок по доходу 3ms
+     ✓ сравнение берёт свой период; неверные даты — сообщение и месяц по умолчанию 2ms
+     × несуществующая дата (13-й месяц, 31 апреля) — сообщение, а не падение страницы 5ms
+     ✓ тот же период годом раньше: 29 февраля — в 28 0ms
+     ✓ адрес сохраняет отбор и меняет только нужное 0ms
+     ✓ строка канала: OTA своим именем, прямые источники словами стойки 0ms
+     ✓ CSV: «;», BOM, суммы с запятой, итог последней строкой 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/channels/query.test.ts > «Эффективность каналов»: адрес отчёта, подписи, выгрузка > несуществующая дата (13-й месяц, 31 апреля) — сообщение, а не падение страницы
+RangeError: Invalid time value
+ ❯ isDate apps/web/src/app/management/analytics/channels/query.ts:26:70
+     24|
+     25| const isDate = (s: string | undefined): s is string =>
+     26|   !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && new Date(`${s}T00:00:00Z`).t…
+       |                                                                      ^
+     27| const monthEnd = (month: string) => {
+     28|   const [y, m] = month.split('-').map(Number) as [number, number];
+ ❯ range apps/web/src/app/management/analytics/channels/query.ts:41:8
+ ❯ parseChannelsQuery apps/web/src/app/management/analytics/channels/query.ts:49:16
+ ❯ apps/web/src/app/management/analytics/channels/query.test.ts:34:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  15:52:26
+   Duration  929ms (transform 86%, import 12%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-52-25Z-unit-8ec6.json
+
+# код выхода 1 · 2 с

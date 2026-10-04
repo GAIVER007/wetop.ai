@@ -1,0 +1,30 @@
+# Модульные (unit) · 03.10.2026 18:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит cebc3d2 (claude/birthdays), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-44-58Z-unit-30ad.json' 'packages/domain/src/guests/birthdays.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ❯ |unit| packages/domain/src/guests/birthdays.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/guests/birthdays.test.ts [ packages/domain/src/guests/birthdays.test.ts ]
+Error: Cannot find module './birthdays' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/packages/domain/src/guests/birthdays.test.ts
+ ❯ packages/domain/src/guests/birthdays.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { upcomingBirthday } from './birthdays';
+       | ^
+      3|
+      4| describe('ближайший день рождения в окне (образец Lite PMS, Q-249 T0)'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:45:21
+   Duration  1.40s (worker 99%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-44-58Z-unit-30ad.json
+
+# код выхода 1 · 25 с

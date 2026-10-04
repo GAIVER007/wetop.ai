@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -6,7 +6,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * периода, пустые экраны говорят его языком и ведут к действию, частая форма не требует лишнего выбора, телефон и
  * компьютер показывают разделы в одном порядке. Стенд — подставной API (`scripts/preview/fixture-api.ts`).
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 
@@ -84,7 +84,7 @@ test('нижняя панель телефона — в порядке боко�
   await page.goto('/today');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Главная', 'Шахматка', 'Брони', 'Гости']);
+  ).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

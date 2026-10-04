@@ -1,0 +1,81 @@
+# Сквозные (e2e) · 02.10.2026 23:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1' '--grep' 'категори'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория — вторая строка чипов, статус держится (58.8s)
+  ✘  2 tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме (52.8s)
+
+
+  1) tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория — вторая строка чипов, статус держится 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      26 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      27 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 28 |   await page.waitForURL('**/today');
+         |              ^
+      29 | }
+      30 |
+      31 | const control = (request: APIRequestContext, body: Record<string, unknown>) =>
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/support-queue.spec.ts:28:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/support-queue.spec.ts:220:3
+
+    Error Context: test-results/support-queue-проверки-аге-1d6a2-трока-чипов-статус-держится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-queue-проверки-аге-1d6a2-трока-чипов-статус-держится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-queue-проверки-аге-1d6a2-трока-чипов-статус-держится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме ──────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3106/platform/support?category=platform", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/support-queue.spec.ts:260:14
+
+    Error Context: test-results/support-queue-категории-на-телефоне-и-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-queue-категории-на-телефоне-и-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-queue-категории-на-телефоне-и-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория — вторая строка чипов, статус держится 
+    tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме ───────────────────
+
+# код выхода 1 · 4 мин 26 с

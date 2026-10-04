@@ -7,20 +7,23 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'chessboard',
     'reservations',
     'guests',
-    'inventory',
-    'sales',
     'finance',
-    'analytics',
+    'sales',
+    'reports',
+    'inventory',
     'settings',
     'platform',
   ]);
+  // «Отчёты» — группа: хаб REP1 и «Аналитика» вместе (поручение владельца 03.10)
   expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
     'sales',
+    'reports',
     'settings',
     'platform',
   ]);
   expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
     '/rates',
+    '/market',
     '/channels',
     '/ai-agents',
     '/website',

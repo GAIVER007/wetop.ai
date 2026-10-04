@@ -1,0 +1,94 @@
+# Модульные (unit) · 03.10.2026 16:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (main)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-34-53Z-unit-d05b.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 10088ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 2594ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1260ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1284ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 2359ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1312ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1231ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (13 tests | 4 failed) 66946ms
+   ❯ scripts/ops/auto-deploy.sh (13)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2295ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1180ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3406ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1824ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 8111ms
+     × флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 8307ms
+     × --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 10439ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2500ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1536ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 3323ms
+     ✓ локальные правки в клоне — не затирает их 4940ms
+     ✓ историю ветки переписали — не выкладывает поверх 9318ms
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 9745ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:156:3
+    154|   });
+    155|
+    156|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    157|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    158|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:174:3
+    172|
+    173|   // Проверка исправлений 26.09: отказ на A, release ушёл на B, cron о…
+    174|   it('флаг без вершины не принимается и тогда, когда cron уже отказал …
+       |   ^
+    175|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+    176|     const before = head();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied без вершины — отказ с подсказкой, ничего не выложено
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:189:3
+    187|   // ТЗ аудита 25.09.2026, С-1: флаг без вершины разрешал бы ту вершин…
+    188|   // чьи миграции применял владелец, — release могли перемотать между …
+    189|   it('--migrations-applied без вершины — отказ с подсказкой, ничего не…
+       |   ^
+    190|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+    191|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:263:3
+    261|   });
+    262|
+    263|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    264|     const before = head();
+    265|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 17 passed (21)
+   Start at  04:34:58
+   Duration  67.44s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-34-53Z-unit-d05b.json
+
+# код выхода 1 · 1 мин 14 с

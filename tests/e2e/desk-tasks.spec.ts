@@ -42,15 +42,27 @@ test('стойка: занятую койку не продать дважды, 
   const second = await context.newPage();
   await second.goto(url);
 
-  const fill = async (p: typeof page, lastName: string, unitCode: string) => {
+  const fill = async (p: typeof page, lastName: string, unitCode: string, mayBlock = false) => {
     const f = p.getByRole('main').getByTestId('new-reservation-form');
+    // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+    await f.locator('details:has(select[name="source"])').evaluate((d) => {
+      (d as HTMLDetailsElement).open = true;
+    });
     await f.locator('select[name="source"]').selectOption('WALK_IN');
     await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
     await f.locator('select[name="unitCode"]').selectOption(unitCode);
     await f.locator('input[name="firstName"]').fill('Гость');
     await f.locator('input[name="lastName"]').fill(lastName);
     await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
-    await f.getByRole('button', { name: 'Создать бронь' }).click();
+    // форма сама перепроверяет занятость и не даёт отправить занятую ячейку; успела — отказывает сервер
+    const submit = f.getByRole('button', { name: 'Создать бронь' });
+    if (!mayBlock) return submit.click();
+    // ждём, пока форма решит: кнопка доступна (отправляем, отказ даст сервер) или ячейка помечена занятой
+    const blocked = f
+      .locator('[role="alert"], [role="status"]')
+      .filter({ hasText: /занят|пересек|недоступн/i });
+    await expect(f.locator('button[type="submit"]:enabled').or(blocked).first()).toBeVisible();
+    if (await submit.isEnabled()) await submit.click();
   };
 
   // Форма доезжает потоковым куском Next: пока он встраивается, та же разметка лежит в двух копиях —
@@ -68,10 +80,15 @@ test('стойка: занятую койку не продать дважды, 
   await fill(page, 'Тест-первый', unit);
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
-  await fill(second, 'Тест-второй', unit);
+  await fill(second, 'Тест-второй', unit, true);
   // администратор обязан увидеть внятный отказ, а не белый экран и не вторую бронь на той же койке
-  const refusal = second.getByRole('alert').first();
-  await expect(refusal).toContainText(/занят|пересек/i);
+  // отказ: предупреждение формы, строка расчёта цены или ответ сервера; первый role="alert" — пустой объявитель Next
+  const refusal = second
+    .getByRole('main')
+    .locator('[role="alert"], [role="status"]')
+    .filter({ hasText: /занят|пересек|недоступн/i })
+    .first();
+  await expect(refusal).toBeVisible();
   // в сообщении номер койки, а не внутренний идентификатор — иначе оно бесполезно на стойке
   await expect(refusal).toContainText(unit);
   await expect(refusal).not.toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-/);

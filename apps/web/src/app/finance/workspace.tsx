@@ -2,11 +2,14 @@
 
 import { useSyncExternalStore, type ReactNode } from 'react';
 
-type View = 'overview' | 'operations' | 'debts';
+type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
   { id: 'overview', label: 'Обзор', hash: '#charges' },
   { id: 'operations', label: 'Операции', hash: '#operations' },
   { id: 'debts', label: 'Долги', hash: '#debts' },
+  // REP2: отчёт по услугам — свод начислений-услуг периода
+  { id: 'services', label: 'Услуги', hash: '#services' },
+  { id: 'cash', label: 'Касса', hash: '#cash' },
 ] as const;
 function subscribe(notify: () => void) {
   window.addEventListener('hashchange', notify);
@@ -23,11 +26,15 @@ export function FinanceWorkspace({
   overview,
   operations,
   debts,
+  services,
+  cash,
 }: {
   initialView: View;
   overview: ReactNode;
   operations: ReactNode;
   debts: ReactNode;
+  services: ReactNode;
+  cash: ReactNode;
 }) {
   const hash = useSyncExternalStore(
     subscribe,
@@ -41,7 +48,7 @@ export function FinanceWorkspace({
     window.dispatchEvent(new Event('hashchange'));
     document.getElementById(`finance-tab-${tab.id}`)?.focus();
   };
-  const panels = { overview, operations, debts };
+  const panels = { overview, operations, debts, services, cash };
   return (
     <div className="finance-workspace">
       <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">

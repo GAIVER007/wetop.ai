@@ -1,0 +1,296 @@
+# Сквозные (e2e) · 02.10.2026 16:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/team.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (17.7s)
+  ✘  2 tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (45.2s)
+[WebServer] ⚠ Fast Refresh had to perform a full reload when ./apps/web/src/lib/navigation.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[WebServer] ⚠ Fast Refresh had to perform a full reload when ./apps/web/src/lib/navigation.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+  ✘  3 tests/ui/team.spec.ts:65:1 › ошибка приглашения — словами в панели, ввод не стирается (45.3s)
+  ✘  4 tests/ui/team.spec.ts:77:1 › «Отключить» — только после подтверждения с последствием (45.3s)
+  ✘  5 tests/ui/team.spec.ts:89:1 › управляющий: роль не меняет, приглашает только администраторов (16.7s)
+  ✘  6 tests/ui/team.spec.ts:101:1 › администратору раздел закрыт: гейт и меню без пункта (16.9s)
+  ✘  7 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: light (17.4s)
+  ✘  8 tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: dark (18.0s)
+
+
+  1) tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Сотрудники"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        32 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      32 |   await page.goto('/team');
+      33 |   const main = page.getByRole('main');
+    > 34 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+         |                                                         ^
+      35 |   const rows = main.getByTestId('member-row');
+      36 |   await expect(rows).toHaveCount(3);
+      37 |   // вошедший владелец — первым, с отметкой «это вы»
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:34:57
+
+    Error Context: test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-владелец-таблица-люде-70662-и-пункт-«Сотрудники»-в-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' })
+
+
+      50 |   await page.goto('/team');
+      51 |   const main = page.getByRole('main');
+    > 52 |   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+         |                                                                     ^
+      53 |   const drawer = page.getByRole('dialog');
+      54 |   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
+      55 |   await drawer.getByLabel('Почта приглашённого').fill('<email>');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:52:69
+
+    Error Context: test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-приглашение-—-панелью-861c6-ь-строка-в-«Ожидают-ответа»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/team.spec.ts:65:1 › ошибка приглашения — словами в панели, ввод не стирается ─────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' })
+        - waiting for "http://127.0.0.1:3100/team" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/team"
+
+
+      66 |   await signIn(page);
+      67 |   await page.goto('/team');
+    > 68 |   await page.getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' }).click();
+         |                                                                                       ^
+      69 |   const drawer = page.getByRole('dialog');
+      70 |   // этот человек уже в организации — подставной API отвечает отказом словами
+      71 |   await drawer.getByLabel('Почта приглашённого').fill('<email>');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:68:87
+
+    Error Context: test-results/team-ошибка-приглашения-—-словами-в-панели-ввод-не-стирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-ошибка-приглашения-—-словами-в-панели-ввод-не-стирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-ошибка-приглашения-—-словами-в-панели-ввод-не-стирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/team.spec.ts:77:1 › «Отключить» — только после подтверждения с последствием ──────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('member-row').nth(2).getByRole('button', { name: 'Отключить' })
+
+
+      80 |   const main = page.getByRole('main');
+      81 |   const rows = main.getByTestId('member-row');
+    > 82 |   await rows.nth(2).getByRole('button', { name: 'Отключить' }).click();
+         |                                                                ^
+      83 |   const confirm = page.getByRole('dialog');
+      84 |   await expect(confirm).toContainText('потеряет доступ');
+      85 |   await confirm.getByRole('button', { name: 'Отключить' }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:82:64
+
+    Error Context: test-results/team-«Отключить»-—-только-после-подтверждения-с-последствием/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-«Отключить»-—-только-после-подтверждения-с-последствием/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-«Отключить»-—-только-после-подтверждения-с-последствием/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/team.spec.ts:89:1 › управляющий: роль не меняет, приглашает только администраторов ───
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('member-row')
+    Expected: 3
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('member-row') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('member-row')
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      92 |   await page.goto('/team');
+      93 |   const main = page.getByRole('main');
+    > 94 |   await expect(main.getByTestId('member-row')).toHaveCount(3);
+         |                                                ^
+      95 |   await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+      96 |   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+      97 |   const drawer = page.getByRole('dialog');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:94:48
+
+    Error Context: test-results/team-управляющий-роль-не-м-72b9a-шает-только-администраторов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-управляющий-роль-не-м-72b9a-шает-только-администраторов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-управляющий-роль-не-м-72b9a-шает-только-администраторов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/team.spec.ts:101:1 › администратору раздел закрыт: гейт и меню без пункта ────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "Нет доступа"
+    Received string:    "Страница не найденаПроверьте адрес или вернитесь к рабочему дню.Открыть «Сегодня»"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        33 × locator resolved to <main tabindex="-1" id="main-content" class="page page--narrow">…</main>
+           - unexpected value "Страница не найденаПроверьте адрес или вернитесь к рабочему дню.Открыть «Сегодня»"
+
+
+      103 |   await asRole(request, 'STAFF');
+      104 |   await page.goto('/team');
+    > 105 |   await expect(page.getByRole('main')).toContainText('Нет доступа');
+          |                                        ^
+      106 |   await expect(page.locator('.workspace-sidebar a[href="/team"]')).toHaveCount(0);
+      107 | });
+      108 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:105:40
+
+    Error Context: test-results/team-администратору-раздел-закрыт-гейт-и-меню-без-пункта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-администратору-раздел-закрыт-гейт-и-меню-без-пункта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-администратору-раздел-закрыт-гейт-и-меню-без-пункта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: light ───────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Сотрудники"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      129 |     };
+      130 |     await page.goto('/team');
+    > 131 |     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+          |                                                           ^
+      132 |     const audit = await new AxeBuilder({ page })
+      133 |       .include('main')
+      134 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:131:59
+
+    Error Context: test-results/team-снимки-TEAM1-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-снимки-TEAM1-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-снимки-TEAM1-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: dark ────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Сотрудники"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      129 |     };
+      130 |     await page.goto('/team');
+    > 131 |     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+          |                                                           ^
+      132 |     const audit = await new AxeBuilder({ page })
+      133 |       .include('main')
+      134 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/team.spec.ts:131:59
+
+    Error Context: test-results/team-снимки-TEAM1-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/team-снимки-TEAM1-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/team-снимки-TEAM1-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню 
+    tests/ui/team.spec.ts:48:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» 
+    tests/ui/team.spec.ts:65:1 › ошибка приглашения — словами в панели, ввод не стирается ──────────
+    tests/ui/team.spec.ts:77:1 › «Отключить» — только после подтверждения с последствием ───────────
+    tests/ui/team.spec.ts:89:1 › управляющий: роль не меняет, приглашает только администраторов ────
+    tests/ui/team.spec.ts:101:1 › администратору раздел закрыт: гейт и меню без пункта ─────────────
+    tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: light ────────────────────────────────
+    tests/ui/team.spec.ts:110:3 › снимки TEAM1 и доступность: dark ─────────────────────────────────
+
+# код выхода 1 · 4 мин 1 с

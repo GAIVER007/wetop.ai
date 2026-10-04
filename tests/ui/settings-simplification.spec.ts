@@ -1,8 +1,8 @@
-import { expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
@@ -21,6 +21,7 @@ test('короткое меню настроек ведёт в единый об
     'Сотрудники и доступ',
     'Подключения',
     'Журнал действий',
+    'Неисправности',
   ]);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });

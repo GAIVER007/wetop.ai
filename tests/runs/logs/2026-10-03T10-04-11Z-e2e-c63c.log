@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 03.10.2026 15:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'analytics-units'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 717ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (11.9s)
+  ✓  2 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (17.4s)
+  ✓  3 tests/ui/analytics-units.spec.ts:119:1 › отказ API — словами на своём экране, не падение страницы (6.0s)
+  ✓  4 tests/ui/analytics-units.spec.ts:131:1 › телефон: таблица без горизонтальной прокрутки страницы (5.8s)
+  ✓  5 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, light (6.0s)
+  ✓  6 tests/ui/analytics-units.spec.ts:141:3 › доступность и снимки, dark (7.7s)
+
+  6 passed (1.4m)
+
+# код выхода 0 · 1 мин 29 с

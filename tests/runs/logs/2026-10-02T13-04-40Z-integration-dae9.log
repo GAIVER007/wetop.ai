@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 02.10.2026 18:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8d472 (main), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-04-40Z-integration-dae9.json' 'tests/integration/cash-operations.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 317ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  06:04:41
+   Duration  949ms (tests 49%, transform 26%, import 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-04-40Z-integration-dae9.json
+
+# код выхода 0 · 2 с

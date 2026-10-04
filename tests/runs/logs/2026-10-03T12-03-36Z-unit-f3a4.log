@@ -1,0 +1,31 @@
+# Модульные (unit) · 03.10.2026 17:03 Алматы · vm
+# коммит d950eb4 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-03-36Z-unit-f3a4.json' 'packages/integrations/src/channex/channel-connections.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/channex/channel-connections.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/channex/channel-connections.test.ts [ packages/integrations/src/channex/channel-connections.test.ts ]
+Error: Cannot find module './channel-connections' imported from /home/user/wetop.ai/packages/integrations/src/channex/channel-connections.test.ts
+ ❯ packages/integrations/src/channex/channel-connections.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { ChannexClient } from './client';
+      3| import {
+       | ^
+      4|   channelIframeUrl,
+      5|   connectionChannelPropertyId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:03:37
+   Duration  265ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-03-36Z-unit-f3a4.json
+
+# код выхода 1 · 1 с

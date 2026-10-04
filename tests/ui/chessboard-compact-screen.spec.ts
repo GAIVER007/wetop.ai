@@ -1,14 +1,14 @@
-import { test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('compact board: notebook viewport and remembered category overview', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  const board = page.getByRole('region', { name: 'Шахматка по дням' });
+  const board = page.getByRole('region', { name: 'Календарь по дням' });
   const box = await board.boundingBox();
   expect(box!.height).toBeGreaterThan(400);
   expect(await page.evaluate('document.documentElement.scrollHeight <= innerHeight + 1')).toBe(

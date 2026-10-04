@@ -232,7 +232,7 @@ describe('профиль (П5)', () => {
   it('без сохранённого — умолчание и признак «не сохранён»', async () => {
     const res = await api().get('/ai-seller/profile').set(as('session-a')).expect(200);
     expect(res.body.saved).toBe(false);
-    expect(res.body.profile.languages).toEqual(['ru']);
+    expect(res.body.profile.languages).toEqual(['ru', 'kk', 'en', 'zh']);
   });
 
   it('неверные поля — 400 со всеми причинами, ничего не сохранено', async () => {
@@ -444,9 +444,10 @@ describe('диалоги, знания, сводка, песочница (П7)',
       .get('/ai-seller/conversations?mode=needs_human&limit=30')
       .set(as('session-a'))
       .expect(200);
+    // Вкладка «Проверка» заводит диалог канала `sandbox`: свои проверки агента не обращения гостей
     expect(connection.seller.calls[0]).toEqual({
       op: 'listConversations',
-      args: [{ mode: 'needs_human', limit: 30 }],
+      args: [{ mode: 'needs_human', limit: 30, excludeSandbox: true }],
     });
     expect(res.body).toEqual({
       items: [
@@ -588,6 +589,8 @@ describe('диалоги, знания, сводка, песочница (П7)',
     };
     const summary = await api().get('/ai-seller/summary').set(as('session-a')).expect(200);
     expect(summary.body).toEqual({ hours: 24, dialogs: 5, replies: 12, leads: 2, slaBreaches: 0 });
+    // Числа за сутки считаются без проверок агента, как и список диалогов
+    expect(connection.seller.calls.at(-1)?.args).toEqual([true]);
 
     connection.seller.replies.sandbox = {
       status: 'ok',

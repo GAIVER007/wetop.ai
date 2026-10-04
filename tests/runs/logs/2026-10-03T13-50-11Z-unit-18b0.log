@@ -1,0 +1,52 @@
+# Модульные (unit) · 03.10.2026 18:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит cebc3d2 (claude/birthdays), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-50-11Z-unit-18b0.json' 'apps/api/src/guests/guests.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (16 tests) 795ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 354ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 350ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(232) } to deeply equal { 'GET /branches': 'desk', …(231) }
+
+- Expected
++ Received
+
+@@ -69,10 +69,11 @@
+    "GET /guard/incidents": "desk",
+    "GET /guard/status": "desk",
+    "GET /guests": "desk",
+    "GET /guests/:id": "desk",
+    "GET /guests/:id/preview": "desk",
++   "GET /guests/birthdays": "desk",
+    "GET /guests/directory": "desk",
+    "GET /health": "public",
+    "GET /hotel/channel-report": "channels",
+    "GET /hotel/first-steps": "desk",
+    "GET /hotel/onboarding": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:325:20
+    323|       .map(([key]) => key);
+    324|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    325|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    326|   });
+    327|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 17 passed (18)
+   Start at  06:50:18
+   Duration  10.26s (transform 68%, import 25%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T13-50-11Z-unit-18b0.json
+
+# код выхода 1 · 18 с

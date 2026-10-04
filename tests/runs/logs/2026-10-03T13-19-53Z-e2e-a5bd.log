@@ -1,0 +1,151 @@
+# Сквозные (e2e) · 03.10.2026 18:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 481b537 (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 109
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/housekeeping.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/support-queue.spec.ts' 'tests/ui/sessions.spec.ts' 'tests/ui/reports-hub.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2465ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 34 tests using 1 worker
+
+  ✓   1 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (39.8s)
+  ✓   2 tests/ui/housekeeping.spec.ts:80:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (16.2s)
+  ✓   3 tests/ui/housekeeping.spec.ts:111:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (6.2s)
+  ✓   4 tests/ui/housekeeping.spec.ts:119:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (45.7s)
+  ✓   5 tests/ui/housekeeping.spec.ts:159:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (52.7s)
+  ✓   6 tests/ui/housekeeping.spec.ts:186:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (40.3s)
+  ✓   7 tests/ui/rates-range.spec.ts:36:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (30.6s)
+  ✓   8 tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (21.0s)
+  ✓   9 tests/ui/rates-range.spec.ts:146:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (12.8s)
+  ✓  10 tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (36.1s)
+  ✓  11 tests/ui/rates-range.spec.ts:211:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (20.6s)
+  ✓  12 tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (16.1s)
+  ✓  13 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (13.2s)
+  ✓  14 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (15.1s)
+  ✓  15 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (7.4s)
+  ✓  16 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (6.8s)
+  ✓  17 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (18.3s)
+  ✓  18 tests/ui/reports-hub.spec.ts:206:1 › телефон: карточки без горизонтальной прокрутки (14.9s)
+  ✓  19 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, light (8.5s)
+  ✓  20 tests/ui/reports-hub.spec.ts:216:3 › доступность и снимки, dark (5.7s)
+  ✓  21 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (14.3s)
+  ✘  22 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (15.9s)
+  ✘  23 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (23.3s)
+  ✓  24 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (7.8s)
+  ✓  25 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (10.9s)
+  ✓  26 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (27.9s)
+  ✘  27 tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (1.4m)
+  ✓  28 tests/ui/support-queue.spec.ts:87:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (21.2s)
+  ✓  29 tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (12.3s)
+  ✓  30 tests/ui/support-queue.spec.ts:158:1 › помощник не отвечает — отдельно от «не подключён», с повтором (12.0s)
+  ✓  31 tests/ui/support-queue.spec.ts:168:1 › телефон: список на весь экран, переписка вместо него и «К списку» (9.9s)
+  ✓  32 tests/ui/support-queue.spec.ts:196:1 › снимки для владельца: тёмная тема, компьютер и телефон (9.9s)
+  ✓  33 tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория второй строкой чипов, статус держится (17.1s)
+  ✓  34 tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме (9.2s)
+
+
+  1) tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+
+    Error: page.waitForURL: net::ERR_CONNECTION_REFUSED
+    =========================== logs ===========================
+    waiting for navigation to "http://127.0.0.1:3002/?next=%2Ftoday#login" until "load"
+    ============================================================
+
+      42 |   const main = page.getByRole('main');
+      43 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 44 |   await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday#login');
+         |              ^
+      45 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+      46 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      47 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/sessions.spec.ts:44:14
+
+    Error Context: test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Войти', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Войти', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Войти', exact: true })
+
+
+      70 |   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
+      71 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 72 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+         |                                                                          ^
+      73 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      74 | });
+      75 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/sessions.spec.ts:72:74
+
+    Error Context: test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('support-queue-list').getByRole('listitem').nth(1)
+    Expected substring: "ждёт 12 мин"
+    Received string:    "a***03.10 18:18Пользователь: Поле не сохраняется, пишет «неверное время».ждёт оператораждёт 13 минведёт оператор"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('support-queue-list').getByRole('listitem').nth(1) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('support-queue-list').getByRole('listitem').nth(1)
+        26 × locator resolved to <li data-priority="waiting" class="support-queue__row" data-id="8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f">…</li>
+           - unexpected value "a***03.10 18:18Пользователь: Поле не сохраняется, пишет «неверное время».ждёт оператораждёт 13 минведёт оператор"
+
+
+      67 |   await expect(rows.nth(1)).toHaveAttribute('data-id', WAITING);
+      68 |   await expect(rows.nth(1)).toContainText('ждёт оператора');
+    > 69 |   await expect(rows.nth(1)).toContainText('ждёт 12 мин');
+         |                             ^
+      70 |   await expect(rows.nth(1)).toContainText('Пользователь: Поле не сохраняется');
+      71 |
+      72 |   const nav = chips(page);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/support-queue.spec.ts:69:29
+
+    Error Context: test-results/support-queue-очередь-без--b0c7d-ее-сообщение-и-сколько-ждёт/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-queue-очередь-без--b0c7d-ее-сообщение-и-сколько-ждёт/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-queue-очередь-без--b0c7d-ее-сообщение-и-сколько-ждёт/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+    tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+    tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт 
+  31 passed (13.5m)
+
+# код выхода 1 · 13 мин 44 с

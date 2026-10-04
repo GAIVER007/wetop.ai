@@ -23,7 +23,10 @@ describe.skipIf(!url)(
   () => {
     let client: pg.Client;
     beforeAll(async () => {
-      client = new pg.Client({ connectionString: url });
+      // Схема набора integration (DATABASE_SCHEMA = pms_test, ADR-042), как у Prisma-клиента: на чистой базе CI
+      // в public таблиц нет, а на стенде разработчика public это рабочие данные
+      const schema = process.env.DATABASE_SCHEMA?.trim() || 'public';
+      client = new pg.Client({ connectionString: url, options: `-c search_path=${schema},public` });
       await client.connect();
     });
     afterAll(async () => {
@@ -83,7 +86,20 @@ describe.skipIf(!url)(
       });
     });
 
-    it('users: только id, email, name, status, email_verified_at и только чтение', async () => {
+    it('memberships: телефон и должность сотрудника (v2.10) wetop_app читает и пишет', async () => {
+      await inRollback(async () => {
+        for (const column of ['phone', 'position'])
+          for (const privilege of ['SELECT', 'UPDATE']) {
+            const { rows } = await client.query<{ ok: boolean }>(
+              `SELECT has_column_privilege('wetop_app', 'memberships', $1, $2) AS ok`,
+              [column, privilege],
+            );
+            expect(rows[0]!.ok, `memberships.${column}: ${privilege}`).toBe(true);
+          }
+      });
+    });
+
+    it('users: только id, email, name, status, email_verified_at, last_login_at и только чтение', async () => {
       await inRollback(async () => {
         const id = randomUUID();
         await client.query(`INSERT INTO users (id, email, name) VALUES ($1, $2, 'Тест')`, [
@@ -92,7 +108,8 @@ describe.skipIf(!url)(
         ]);
         // нужное коду читается: имена авторов журнала, коллеги, статус для проверок прав
         const ok = await asApp(
-          `SELECT id, email, name, status, email_verified_at FROM users WHERE id = $1`,
+          // last_login_at: «Был в системе» на экране «Сотрудники» (ADR-136, грант — миграция 042)
+          `SELECT id, email, name, status, email_verified_at, last_login_at FROM users WHERE id = $1`,
           [id],
         );
         expect(ok).toMatchObject({ ok: true });

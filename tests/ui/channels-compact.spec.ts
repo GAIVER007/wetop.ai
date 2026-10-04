@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-const fixture = 'http://127.0.0.1:4311';
+import { FIXTURE_API } from './fixtures';
+const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });

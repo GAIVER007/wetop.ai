@@ -196,18 +196,45 @@
  * `--success-soft`, что и дорожку, и доля не видна. Здесь заливка — акцентом, как столбики графика.
  */
 .pa-categories .occupancy-meter meter::-webkit-meter-optimum-value,
-.pa-occupancy-table .occupancy-meter meter::-webkit-meter-optimum-value {
+.pa-occupancy-table .occupancy-meter meter::-webkit-meter-optimum-value,
+.pa-units-table .occupancy-meter meter::-webkit-meter-optimum-value {
   background: var(--primary);
 }
 .pa-categories .occupancy-meter meter::-moz-meter-bar,
-.pa-occupancy-table .occupancy-meter meter::-moz-meter-bar {
+.pa-occupancy-table .occupancy-meter meter::-moz-meter-bar,
+.pa-units-table .occupancy-meter meter::-moz-meter-bar {
   background: var(--primary);
 }
 .pa-categories .occupancy-meter meter::-webkit-meter-bar,
 .pa-categories .occupancy-meter meter,
 .pa-occupancy-table .occupancy-meter meter::-webkit-meter-bar,
-.pa-occupancy-table .occupancy-meter meter {
+.pa-occupancy-table .occupancy-meter meter,
+.pa-units-table .occupancy-meter meter::-webkit-meter-bar,
+.pa-units-table .occupancy-meter meter {
   background: var(--primary-soft);
+}
+
+/* «По номерам» (REP3): категория — заголовком группы, как в каталоге фонда; итог выделен сверху чертой */
+.pa-units-group th {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  text-align: left;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.pa-units-group th > span {
+  margin-left: var(--space-2);
+  color: var(--text-2);
+  font-weight: var(--weight-regular);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.pa-units-total th,
+.pa-units-total td {
+  border-top: 1px solid var(--border);
+  font-weight: var(--weight-semibold);
+}
+.pa-units-total th {
+  text-align: left;
 }
 
 .pa-skeleton {
@@ -279,18 +306,16 @@
   text-underline-offset: 2px;
 }
 
-/* Overview: four primary KPIs, two charts, details on demand. */
+/* Overview: four primary KPIs, two charts, details on demand. Размеры шрифта только из шкалы §6
+   (токены `--text-*`): заголовок страницы общий для всех экранов, своего здесь нет */
 .analytics-page {
   padding: 16px 24px;
 }
 .analytics-page .page__head {
   margin-bottom: 16px;
 }
-.analytics-page .page__title {
-  font-size: 28px;
-}
 .analytics-page .page__subtitle {
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 .analytics-page .pa-tabs {
   background: transparent;
@@ -301,7 +326,7 @@
   margin-bottom: 16px;
 }
 .analytics-page .pa-toolbar__caption strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .analytics-page .pa-kpis {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -311,15 +336,15 @@
   padding: 16px;
 }
 .analytics-page .kpi__value {
-  font-size: 26px;
+  font-size: var(--text-3xl);
 }
 .analytics-page .kpi__hint,
 .analytics-page .kpi-delta {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .analytics-page .kpi-compare {
   margin: 8px 0;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 .analytics-page .pa-charts {
@@ -332,7 +357,7 @@
   margin: 0;
 }
 .analytics-page .dash-panel .panel__title {
-  font-size: 16px;
+  font-size: var(--text-md);
 }
 .analytics-page .pa-details {
   margin-top: 16px;
@@ -340,7 +365,7 @@
 .analytics-page .pa-details > summary {
   cursor: pointer;
   padding: 8px 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
   color: var(--primary);
 }
 .analytics-page .pa-details[open] {
@@ -363,6 +388,145 @@
     padding: 16px;
   }
   .analytics-page .kpi__value {
-    font-size: 22px;
+    font-size: var(--text-2xl);
+  }
+}
+
+/* «Каналы» (ADR-141): полоса отбора: период заезда, сравнение, канал; переносится по ширине */
+.pa-channels__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.pa-channels__group {
+  display: flex;
+  align-items: end;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pa-channels__group legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-2);
+}
+.pa-channels__group > label,
+.pa-channels__channel {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-2);
+}
+.pa-channels__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+.pa-channels__group legend .pa-channels__check {
+  min-height: 0;
+  font-size: var(--text-xs);
+  color: var(--text-2);
+}
+.pa-sort {
+  color: inherit;
+  text-decoration: none;
+}
+.pa-sort:hover {
+  text-decoration: underline;
+}
+.pa-channels__share,
+.pa-channels__bookings,
+.pa-channels__before {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.pa-channels__before .kpi-delta {
+  margin-left: var(--space-1);
+}
+.pa-channels__row--empty td {
+  color: var(--text-2);
+}
+.pa-channels-total th,
+.pa-channels-total td {
+  border-top: 1px solid var(--border);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+}
+.pa-channels-total td.num {
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .pa-channels__form .btn,
+  .pa-channels__form .inp,
+  .pa-channels__form select {
+    min-height: var(--touch-target);
+  }
+  .pa-channels__form .inp {
+    font-size: var(--text-lg);
+  }
+}
+/* телефон: строка канала: карточкой (название сверху, три числа со словом), как «По категориям» Главной */
+@media (max-width: 600px) {
+  .dash-panel .tbl.pa-channels-table,
+  .pa-channels-table tbody,
+  .pa-channels-table tfoot {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .pa-channels-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .pa-channels-table tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .pa-channels-table tbody td,
+  .pa-channels-table tfoot td,
+  .pa-channels-table tfoot th,
+  .tbl--nowrap.pa-channels-table td,
+  .tbl--nowrap.pa-channels-table th {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+    background: none;
+    position: static;
+  }
+  .pa-channels-table .dash-table__name,
+  .pa-channels-table tfoot th {
+    grid-column: 1 / -1;
+  }
+  .pa-channels-table tfoot tr {
+    border-bottom: 0;
+    border-top: 1px solid var(--border);
+  }
+  .pa-channels-table .dash-cell-word {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-2);
+    font-weight: var(--weight-regular);
   }
 }

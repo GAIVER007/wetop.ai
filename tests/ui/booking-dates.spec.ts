@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { piiStorage: 'pseudonymized' },
   });
 });
@@ -64,7 +64,7 @@ test('pending quote blocks submit and old responses cannot restore old period', 
   const form = page.getByTestId('new-reservation-form');
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });
   await expect(submit).toBeEnabled();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { piiStorage: 'pseudonymized', delayPath: '/reservations/quote', delayMs: 1800 },
   });
   await form.getByRole('button', { name: '2 ночи', exact: true }).click();
@@ -89,7 +89,7 @@ test('failed quote and availability can be retried without reopening', async ({
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });
   await expect(submit).toBeEnabled();
   for (const path of ['/reservations/quote', '/availability']) {
-    await request.post('http://127.0.0.1:4311/__test/control', {
+    await request.post(`${FIXTURE_API}/__test/control`, {
       data: { piiStorage: 'pseudonymized', failPath: path },
     });
     await form
@@ -101,7 +101,7 @@ test('failed quote and availability can be retried without reopening', async ({
     });
     await expect(retry).toBeVisible();
     await expect(submit).toBeDisabled();
-    await request.post('http://127.0.0.1:4311/__test/control', {
+    await request.post(`${FIXTURE_API}/__test/control`, {
       data: { piiStorage: 'pseudonymized' },
     });
     await retry.click();
@@ -110,16 +110,18 @@ test('failed quote and availability can be retried without reopening', async ({
 });
 
 test('calendar and keyboard produce the same period', async ({ page }) => {
-  await page.goto('/reservations/new?arrival=2026-10-01&departure=2026-10-02');
+  // даты вдали от «сегодня» стенда: проживания подставного API идут «с сегодня», и вшитые даты рядом с ним
+  // со временем попадали на занятое место (кнопка «Создать бронь» выключена)
+  await page.goto('/reservations/new?arrival=2029-02-01&departure=2029-02-02');
   const form = page.getByTestId('new-reservation-form');
   await form.getByRole('button', { name: 'Открыть календарь' }).nth(1).click();
-  await page.getByRole('button', { name: '4 октября 2026', exact: true }).click();
-  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-04');
+  await page.getByRole('button', { name: '4 февраля 2029', exact: true }).click();
+  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2029-02-04');
   await expect(form.getByTestId('booking-digest')).toContainText('3 ночи');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
   const price = await form.locator('.booking-create__price strong').innerText();
-  await form.getByLabel('Выезд', { exact: true }).fill('2026-10-02');
-  await form.getByLabel('Выезд', { exact: true }).fill('2026-10-04');
+  await form.getByLabel('Выезд', { exact: true }).fill('2029-02-02');
+  await form.getByLabel('Выезд', { exact: true }).fill('2029-02-04');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
   await expect(form.locator('.booking-create__price strong')).toHaveText(price);
 });

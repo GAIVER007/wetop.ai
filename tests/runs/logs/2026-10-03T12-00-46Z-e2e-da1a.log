@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 03.10.2026 17:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/laughing-roentgen-24fee8), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.ai-seller.local.config.ts' 'tests/ui/ai-seller.spec.ts:391' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1391ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (48.7s)
+
+
+  1) tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('seller-embed-snippet')
+    Expected: "<script async src=\"https://seller.example.invalid/widget/widget.js\" data-key=\"sk_a1a1a1a1a1a1a1a1a1a1a1a1\"></script>"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveText" getByTestId('seller-embed-snippet') with timeout 15000ms
+      - waiting for getByTestId('seller-embed-snippet')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      395 |   await page.goto('/ai-seller/connections');
+      396 |   await openConnection(page, 'Чат на сайте');
+    > 397 |   await expect(page.getByTestId('seller-embed-snippet')).toHaveText(
+          |                                                          ^
+      398 |     `<script async src="https://seller.example.invalid/widget/widget.js" data-key="sk_${'a1'.repeat(12)}"></script>`,
+      399 |   );
+      400 |   await expect(page.getByTestId('seller-embed-hosts')).toContainText('hotel-a.example.invalid');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/ai-seller.spec.ts:397:58
+
+    Error Context: test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--d5668--её-сайта-«Скопировать»-Э4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) 
+
+# код выхода 1 · 2 мин 17 с

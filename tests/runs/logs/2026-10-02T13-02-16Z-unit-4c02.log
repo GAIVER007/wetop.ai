@@ -1,0 +1,104 @@
+# Модульные (unit) · 02.10.2026 18:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8d472 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-02-16Z-unit-4c02.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (27 tests | 3 failed) 193ms
+   ✓ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (14)
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 25ms
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 3ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 3ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 5ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 6ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 10ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 3ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 1ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 3ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 4ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 3ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 2ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 2ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 1ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (3)
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 4ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 4ms
+     ✓ отчёт за период администратор смотрит 0ms
+   ✓ касса: остатки, операции, переводы, статьи (DATA_MODEL §21) (7)
+     ✓ остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле 3ms
+     ✓ проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом 3ms
+     ✓ перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка» 2ms
+     ✓ статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами 1ms
+     ✓ аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409 5ms
+     ✓ статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404 3ms
+     ✓ лента операций: source — только RESERVATIONS или CASH, новые типы в type 1ms
+   ❯ сверка наличных (§21.4, K4) (3)
+     × недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному 2ms
+     × излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку 1ms
+     × проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > сверка наличных (§21.4, K4) > недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1470:8
+    1468|       .post('/finance/cash/reconciliations')
+    1469|       .send({ method: 'CASH', counted: '95', adjust: true })
+    1470|       .expect(201);
+       |        ^
+    1471|     const rec = r.body.reconciliations.find((x: { method: string }) =>…
+    1472|     expect(rec).toMatchObject({ expectedMinor: '10000', countedMinor: …
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > сверка наличных (§21.4, K4) > излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1490:8
+    1488|       .post('/finance/cash/reconciliations')
+    1489|       .send({ method: 'CASH', counted: '110' })
+    1490|       .expect(201);
+       |        ^
+    1491|     expect(fakes.cashOps.filter((o) => o.kind !== 'INCOME')).toHaveLen…
+    1492|     const cash = await http().get('/finance/cash').expect(200);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > сверка наличных (§21.4, K4) > проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1508:8
+    1506|       .post('/finance/cash/reconciliations')
+    1507|       .send({ method: 'CASH', counted: '-5' })
+    1508|       .expect(400);
+       |        ^
+    1509|     await http()
+    1510|       .post('/finance/cash/reconciliations')
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 24 passed (27)
+   Start at  06:02:18
+   Duration  1.09s (import 44%, transform 37%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T13-02-16Z-unit-4c02.json
+
+# код выхода 1 · 2 с

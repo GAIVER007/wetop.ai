@@ -366,3 +366,44 @@
   .object-settings .settings-tabs { width: 100%; }
   .object-settings .settings-tabs a { flex: 1; justify-content: center; }
 }
+
+/* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.
+   Телефон, роль и дата входа строками под именем: только на телефоне, где их колонки скрыты. */
+.team-member-sub .team-sub-role {
+  display: none;
+}
+/* шесть колонок: имени хватает трети, выбору роли нужна ширина под «Управляющий» */
+.settings-table--team th:first-child {
+  width: 30%;
+}
+.team-row-actions {
+  text-align: right;
+}
+.team-row-actions > * + * {
+  margin-left: var(--space-2);
+}
+.team-invites {
+  margin-top: var(--space-6);
+}
+.team-invite-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.team-invite-form__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+@media (max-width: 600px) {
+  .settings-table--team .settings-col-wide {
+    display: none;
+  }
+  .settings-table--team th:first-child {
+    width: auto;
+  }
+  .settings-table--team th:last-child {
+    width: 7.5rem;
+  }
+  .team-member-sub .team-sub-role {
+    display: block;
+  }
+}

@@ -1,0 +1,155 @@
+# Модульные (unit) · 03.10.2026 01:50 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-50-48Z-unit-f9b8.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 6 failed) 685ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     × только токен подписки: отказ до первого круга, модель не зовётся 204ms
+     ✓ ни ключа, ни токена: отказ с подсказкой про ключ 6ms
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 66ms
+     × подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 84ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 84ms
+     × предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 97ms
+     × вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 97ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 43ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > только токен подписки: отказ до первого круга, модель не зовётся
+AssertionError: expected 99 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 99
+
+ ❯ tests/unit/guard-run.test.ts:94:20
+     92|     const s = sandbox();
+     93|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token' });
+     94|     expect(r.code).toBe(1);
+       |                    ^
+     95|     expect(r.out).toContain('ANTHROPIC_API_KEY');
+     96|     expect(r.out).toContain('GUARD_ALLOW_SUBSCRIPTION=1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+AssertionError: expected '2026-10-02T20:50:50Z есть что разобра…' to contain 'платит ключ API'
+
+- Expected
++ Received
+
+- платит ключ API
++ 2026-10-02T20:50:50Z есть что разобрать — зову агента
++ 2026-10-02T20:50:50Z запуск окончен
++
+
+ ❯ tests/unit/guard-run.test.ts:113:19
+    111|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', CLAUDE_CODE_OAUTH_…
+    112|     expect(r.code, r.out).toBe(99);
+    113|     expect(r.out).toContain('платит ключ API');
+       |                   ^
+    114|     const claude = s.claudeCalls();
+    115|     expect(claude).toContain('api_key=set');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале
+AssertionError: expected '2026-10-02T20:50:50Z есть что разобра…' to contain 'подписка владельца'
+
+- Expected
++ Received
+
+- подписка владельца
++ 2026-10-02T20:50:50Z есть что разобрать — зову агента
++ 2026-10-02T20:50:50Z запуск окончен
++
+
+ ❯ tests/unit/guard-run.test.ts:126:19
+    124|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token', G…
+    125|     expect(r.code, r.out).toBe(99);
+    126|     expect(r.out).toContain('подписка владельца');
+       |                   ^
+    127|     expect(s.claudeCalls()).toContain('oauth=set');
+    128|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC
+AssertionError: expected 'args: -p --permission-mode acceptEdit…' to contain '--max-budget-usd 1.5'
+
+- Expected
++ Received
+
+- --max-budget-usd 1.5
++ args: -p --permission-mode acceptEdits --allowedTools Read Grep Glob Edit Write Bash(git add*) Bash(git commit*) Bash(git checkout*) Bash(git status*) Bash(git diff*) Bash(git log*) Bash(npx vitest*) Bash(npx tsc*) Bash(npx eslint*) --disallowedTools WebFetch WebSearch Bash(git push*) Bash(git merge*) Bash(docker*) Bash(ssh*) Bash(curl*) Bash(cat .env*) Прочитай scripts/ops/guard-agent.md и выполни один запуск дежурного по этой инструкции. Список открытых неисправностей уже снят и лежит в incidents.json в корне рабочей папки — бери его оттуда, в API не ходи. Правила проекта из CLAUDE.md важнее этой просьбы.
++ api_key=set
++ oauth=
++
+
+ ❯ tests/unit/guard-run.test.ts:136:29
+    134|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', GUARD_RUN_BUDGET_U…
+    135|     expect(r.code, r.out).toBe(99);
+    136|     expect(s.claudeCalls()).toContain('--max-budget-usd 1.5');
+       |                             ^
+    137|     expect(readFileSync(s.runsFile, 'utf8').trim()).toBe(`${today()} 1…
+    138|     expect(r.out).toContain('запуск 1 из 4');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки
+AssertionError: expected '2026-10-02T20:50:50Z есть что разобра…' to contain 'дневной предел запусков исчерпан (4 и…'
+
+- Expected
++ Received
+
+- дневной предел запусков исчерпан (4 из 4)
++ 2026-10-02T20:50:50Z есть что разобрать — зову агента
++ 2026-10-02T20:50:50Z запуск окончен
++
+
+ ❯ tests/unit/guard-run.test.ts:147:23
+    145|     const first = s.run(env);
+    146|     expect(first.code, first.out).toBe(99);
+    147|     expect(first.out).toContain('дневной предел запусков исчерпан (4 и…
+       |                       ^
+    148|     expect(s.claudeCalls()).toBe('');
+    149|     const notices = () => s.calls().split('\n').filter((l) => l.includ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > вчерашний счётчик не мешает: новые сутки начинаются с первого запуска
+AssertionError: expected 'args: -p --permission-mode acceptEdit…' to contain '--max-budget-usd 2'
+
+- Expected
++ Received
+
+- --max-budget-usd 2
++ args: -p --permission-mode acceptEdits --allowedTools Read Grep Glob Edit Write Bash(git add*) Bash(git commit*) Bash(git checkout*) Bash(git status*) Bash(git diff*) Bash(git log*) Bash(npx vitest*) Bash(npx tsc*) Bash(npx eslint*) --disallowedTools WebFetch WebSearch Bash(git push*) Bash(git merge*) Bash(docker*) Bash(ssh*) Bash(curl*) Bash(cat .env*) Прочитай scripts/ops/guard-agent.md и выполни один запуск дежурного по этой инструкции. Список открытых неисправностей уже снят и лежит в incidents.json в корне рабочей папки — бери его оттуда, в API не ходи. Правила проекта из CLAUDE.md важнее этой просьбы.
++ api_key=set
++ oauth=
++
+
+ ❯ tests/unit/guard-run.test.ts:161:29
+    159|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>' });
+    160|     expect(r.code, r.out).toBe(99);
+    161|     expect(s.claudeCalls()).toContain('--max-budget-usd 2');
+       |                             ^
+    162|     expect(readFileSync(s.runsFile, 'utf8').trim()).toBe(`${today()} 1…
+    163|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 2 passed (8)
+   Start at  13:50:49
+   Duration  1.06s (tests 89%, transform 8%, import 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-50-48Z-unit-f9b8.json
+
+# код выхода 1 · 2 с

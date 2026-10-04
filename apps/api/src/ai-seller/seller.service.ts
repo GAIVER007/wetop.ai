@@ -819,7 +819,11 @@ export class SellerService {
   async conversations(query: { mode?: unknown; limit?: unknown }) {
     const wanted = conversationQuery(query);
     const { client } = await this.bound('read');
-    return conversationsView(await this.call(() => client.listConversations(wanted)));
+    // Вкладка «Проверка» заводит диалог канала `sandbox`: свои проверки агента в список
+    // обращений гостей не попадают, как и в очереди техподдержки (правка 02.10.2026)
+    return conversationsView(
+      await this.call(() => client.listConversations({ ...wanted, excludeSandbox: true })),
+    );
   }
 
   async conversation(rawId: string) {
@@ -878,7 +882,8 @@ export class SellerService {
 
   async summary() {
     const { client } = await this.bound('read');
-    return summaryView(await this.call(() => client.summary()));
+    // Числа за сутки считаются без проверок агента, как и список диалогов
+    return summaryView(await this.call(() => client.summary(true)));
   }
 
   /** «Проверка»: у каждого сотрудника свой разговор в песочнице продавца */

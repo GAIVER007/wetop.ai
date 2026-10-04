@@ -1,3 +1,5 @@
+import { CHANNEX_CHANNEL_CODE_NAMES } from './channel-codes';
+
 /**
  * Ключ канала продаж. Channex и сами площадки используют разные написания одного имени, поэтому
  * они приводятся к одному ключу: нижний регистр, только латинские буквы, затем алиасы.
@@ -121,3 +123,16 @@ export const KNOWN_CHANNEL_KEYS: ReadonlySet<string> = new Set([
   'bronevik',
   'onetwotrip',
 ]);
+
+/**
+ * Имя канала, под которым бронь из Channex ложится в WETOP (ADR-140): видно, откуда пришла бронь, и отчёты считают
+ * один канал одной строкой. Каналы объекта — нашим именем (`CHANNEL_LABELS`), любой другой канал, подключённый в
+ * менеджере каналов (Airbnb, Hotelbeds…), — именем его кода из channel-codes.md; код неизвестен — `ota_name` как есть.
+ */
+export function revisionChannelLabel(uniqueId: string, otaName: string): string {
+  const known = CHANNEL_LABELS[channelKey(uniqueId, otaName)];
+  if (known) return known;
+  const code = /^([A-Z0-9]{2,4})-/.exec(uniqueId)?.[1];
+  const byCode = code ? CHANNEX_CHANNEL_CODE_NAMES[code] : undefined;
+  return byCode ?? (otaName.trim() || 'Канал');
+}

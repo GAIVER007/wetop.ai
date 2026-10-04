@@ -4,7 +4,7 @@ import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
- * Брони без ячейки на шахматке — паритет со строкой «Без номера» в Legacy: проживание без назначения
+ * Брони без ячейки в календаре — паритет со строкой «Без номера» в Legacy: проживание без назначения
  * не занимает клетку сетки, но стойка обязана видеть его на доске, а не только с карточки. С PR 6
  * «Шахматки v2» это строка над сеткой и ящик «Брони без размещения» со свободными местами.
  * Путь через интерфейс: в форме новой брони ячейка «— назначить позже —». Проверяется то, что видит
@@ -38,6 +38,10 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── бронь без ячейки из формы ─────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const optionText = await form

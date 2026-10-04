@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * План дизайн-системы §10 п. 3 и 4 (18.09.2026): клетка блокировки на шахматке.
+ * План дизайн-системы §10 п. 3 и 4 (18.09.2026): клетка блокировки в календаре.
  *  — штриховка `.board-block` задана в CSS как `background-image`; инлайн-сокращение `background:` на
  *    той же клетке её сбрасывало, и блокировка выглядела как ровная заливка (вывод был по коду —
  *    здесь проверяется вычисленный стиль в браузере);
@@ -9,7 +9,7 @@ import { expect, test } from './fixtures';
  *    тем же, что на карточке ячейки.
  * Засев крайних случаев (`POST /__test/design-seed`) ставит M06 в OUT_OF_ORDER на вчера → завтра.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

@@ -213,13 +213,12 @@ export function AvailabilityFinder({
                     <article key={c.code}>
                       <div className="fund-available-row">
                         <div>
-                          <span className="fund-type">
-                            {c.bed ? 'Койко-место' : 'Номер целиком'}
-                          </span>
                           <h3>{c.name}</h3>
+                          {/* тип и вместимость одной строкой — без отдельной метки типа (упрощение 02.10) */}
                           <span className="muted">
-                            До {c.capacityAdults} {c.capacityAdults === 1 ? 'гостя' : 'гостей'} на{' '}
-                            {c.bed ? 'койко-место' : 'номер'}
+                            {c.bed
+                              ? 'Койко-место, 1 гость на койку'
+                              : `Номер целиком, до ${c.capacityAdults} ${c.capacityAdults === 1 ? 'гостя' : 'гостей'}`}
                           </span>
                         </div>
                         {available > 0 && c.fits && (
@@ -290,7 +289,7 @@ export function AvailabilityFinder({
                 className="btn btn--secondary"
                 href={`/chessboard?${new URLSearchParams({ from: arrival, to: plusDays(departure, -1), ...(category ? { category } : {}) })}`}
               >
-                Открыть в шахматке
+                Открыть в календаре
               </Link>
             </div>
           </>
@@ -331,12 +330,12 @@ function SoldOutCategories({
             <article key={c.code}>
               <div className="fund-available-row">
                 <div>
-                  <span className="fund-type">{c.bed ? 'Койко-место' : 'Номер целиком'}</span>
                   <h3>{c.name}</h3>
                   <span className="muted">
+                    {c.bed ? 'Койко-место' : 'Номер целиком'}:{' '}
                     {available > 0
-                      ? `Свободно ${pluralRu(available, ['койка', 'койки', 'коек'])} — меньше, чем гостей`
-                      : 'Нет мест на весь период'}
+                      ? `свободно ${pluralRu(available, ['койка', 'койки', 'коек'])}, меньше, чем гостей`
+                      : 'нет мест на весь период'}
                   </span>
                 </div>
                 {next ? (

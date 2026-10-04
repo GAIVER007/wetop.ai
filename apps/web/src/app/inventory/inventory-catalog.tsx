@@ -15,16 +15,12 @@ import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
  * таблица со структурой и живым состоянием места вместо 88 кнопок «Редактировать».
  * Фильтры живут в URL и не перезагружают данные.
  */
-/** Корпус и этаж строками, комната — только когда она не повторяет код места (ТЗ §11) */
+/** Расположение одной строкой; комната — только когда она не повторяет код места (ТЗ §11) */
 function PlaceCell({ unit }: { unit: InventoryUnit }) {
-  const floorRoom = floorRoomText(unit);
-  if (!unit.buildingName && !floorRoom) return <>—</>;
-  return (
-    <span className="inventory-place">
-      {unit.buildingName && <span>Корпус {unit.buildingName}</span>}
-      {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
-    </span>
-  );
+  const text = [unit.buildingName && `Корпус ${unit.buildingName}`, floorRoomText(unit)]
+    .filter(Boolean)
+    .join(', ');
+  return <span className="inventory-place">{text || '—'}</span>;
 }
 
 export function InventoryCatalog({
@@ -90,6 +86,17 @@ export function InventoryCatalog({
       capacity.get(unit.accommodationTypeCode) ?? (unit.kind === 'BED' ? 1 : unit.roomCapacity),
       ['гость', 'гостя', 'гостей'],
     );
+  /** Подпись заголовка группы: «36 койко-мест, 1 гость» — вместимость у категории одна */
+  const groupMeta = (code: string, list: InventoryUnit[]) => {
+    const count = pluralRu(
+      list.length,
+      list[0]!.kind === 'BED'
+        ? ['койко-место', 'койко-места', 'койко-мест']
+        : ['номер', 'номера', 'номеров'],
+    );
+    const cap = capacity.get(code);
+    return cap ? `${count}, ${pluralRu(cap, ['гость', 'гостя', 'гостей'])}` : count;
+  };
   const label = (unit: InventoryUnit) =>
     `Открыть ${unit.kind === 'BED' ? 'койко-место' : 'номер'} ${unit.code}`;
   const isFiltered = Boolean(category || kind || q || building || floor || state || housekeeping);
@@ -262,7 +269,7 @@ export function InventoryCatalog({
         >
           {units.length
             ? 'Измените поиск или сбросьте фильтры.'
-            : 'Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся на шахматке.'}
+            : 'Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся в календаре.'}
         </EmptyState>
       ) : view === 'cards' ? (
         <div className="inventory-groups">
@@ -317,9 +324,7 @@ export function InventoryCatalog({
           <thead>
             <tr>
               <th>Место</th>
-              <th>Категория</th>
               <th>Расположение</th>
-              <th>Вместимость</th>
               <th>Состояние</th>
               <th>Уборка</th>
               <th>
@@ -327,59 +332,75 @@ export function InventoryCatalog({
               </th>
             </tr>
           </thead>
-          <tbody>
-            {filtered.map((unit) => (
-              <tr
-                key={unit.code}
-                data-testid="unit-row"
-                className="inventory-row"
-                onClick={(e) => rowClick(e, unit)}
-              >
-                <td>
-                  <Link
-                    prefetch={false}
-                    href={`/units/${encodeURIComponent(unit.code)}`}
-                    aria-label={label(unit)}
-                    className="inventory-unit-link"
+          {/* Категория — заголовком группы с числом мест и вместимостью, как список категорий:
+              имя один раз вместо колонки с повторами в каждой из 88 строк */}
+          {[...groups]
+            .filter(([, group]) => group.units.length > 0)
+            .map(([code, group]) => (
+              <tbody key={code}>
+                <tr className="inventory-group-row" data-testid="category-group">
+                  <th scope="colgroup" colSpan={5}>
+                    {group.name}
+                    <span>{groupMeta(code, group.units)}</span>
+                  </th>
+                </tr>
+                {group.units.map((unit) => (
+                  <tr
+                    key={unit.code}
+                    data-testid="unit-row"
+                    className="inventory-row"
+                    onClick={(e) => rowClick(e, unit)}
                   >
-                    <Icon
-                      name={unit.kind === 'ROOM' ? 'inventory' : 'bed'}
-                      width={16}
-                      height={16}
-                    />
-                    <strong>{unit.code}</strong>
-                    <span>{unit.kind === 'ROOM' ? 'Номер' : 'Койко-место'}</span>
-                  </Link>
-                </td>
-                <td>{unit.accommodationTypeName}</td>
-                <td>
-                  <PlaceCell unit={unit} />
-                </td>
-                <td>{guests(unit)}</td>
-                <td>
-                  <UnitStateBadge active={unit.active} block={unit.block} />
-                </td>
-                <td>
-                  <HousekeepingBadge status={unit.housekeepingStatus} />
-                </td>
-                <td className="inventory-actions">
-                  <ActionMenu
-                    size="sm"
-                    label={`Действия: ${unit.code}`}
-                    items={[
-                      // строка и ссылка открывают панель места; меню ведёт на полную карточку (ADR-108, I2)
-                      { label: 'Полная карточка', href: `/units/${encodeURIComponent(unit.code)}` },
-                      {
-                        label: 'Показать на шахматке',
-                        href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
-                      },
-                      { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },
-                    ]}
-                  />
-                </td>
-              </tr>
+                    <td>
+                      <Link
+                        prefetch={false}
+                        href={`/units/${encodeURIComponent(unit.code)}`}
+                        aria-label={label(unit)}
+                        className="inventory-unit-link"
+                      >
+                        <Icon
+                          name={unit.kind === 'ROOM' ? 'inventory' : 'bed'}
+                          width={16}
+                          height={16}
+                        />
+                        <strong>{unit.code}</strong>
+                      </Link>
+                    </td>
+                    <td>
+                      <PlaceCell unit={unit} />
+                    </td>
+                    <td>
+                      {unit.active && !unit.block ? (
+                        <span className="inventory-state-note">в продаже</span>
+                      ) : (
+                        <UnitStateBadge active={unit.active} block={unit.block} />
+                      )}
+                    </td>
+                    <td>
+                      <HousekeepingBadge status={unit.housekeepingStatus} />
+                    </td>
+                    <td className="inventory-actions">
+                      <ActionMenu
+                        size="sm"
+                        label={`Действия: ${unit.code}`}
+                        items={[
+                          // строка и ссылка открывают панель места; меню ведёт на полную карточку (ADR-108, I2)
+                          {
+                            label: 'Полная карточка',
+                            href: `/units/${encodeURIComponent(unit.code)}`,
+                          },
+                          {
+                            label: 'Показать в календаре',
+                            href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
+                          },
+                          { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },
+                        ]}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             ))}
-          </tbody>
         </Table>
       )}
       <FundEditorDialog

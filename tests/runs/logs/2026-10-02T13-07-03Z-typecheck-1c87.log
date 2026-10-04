@@ -1,0 +1,20 @@
+# Типы (typecheck) · 02.10.2026 18:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8d472 (main), незакоммиченных файлов набора: 17
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+scripts/preview/fixture-api.ts(5848,31): error TS2345: Argument of type '{ id: string; kind: "INCOME"; name: string; active: boolean; } | { id: string; kind: "EXPENSE"; name: string; active: boolean; } | undefined' is not assignable to parameter of type '{ id: string; kind: "INCOME"; name: string; active: boolean; } | { id: string; kind: "EXPENSE"; name: string; active: boolean; }'.
+  Type 'undefined' is not assignable to type '{ id: string; kind: "INCOME"; name: string; active: boolean; } | { id: string; kind: "EXPENSE"; name: string; active: boolean; }'.
+scripts/preview/fixture-api.ts(5856,23): error TS18048: 'category' is possibly 'undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 12 с

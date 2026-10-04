@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 04.10.2026 11:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-23-14Z-integration-f599.json' 'tests/integration/desk-tasks.test.ts' 'tests/integration/rls-isolation.test.ts' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 787ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 318ms
+ ✓ |integration| tests/integration/desk-tasks.test.ts (3 tests) 1250ms
+   ✓ задачи стойки (integration, DATA_MODEL §22) (3)
+     ✓ создаёт, правит, закрывает и открывает снова; открытые считаются по сроку 485ms
+     ✓ база сама отклоняет длинное название и неверное время 378ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 304ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  23:23:19
+   Duration  5.82s (tests 58%, import 25%, transform 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-23-14Z-integration-f599.json
+
+# код выхода 0 · 11 с

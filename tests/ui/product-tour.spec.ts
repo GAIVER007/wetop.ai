@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само
  * открывается окно «Добро пожаловать», шаги подсвечивают поиск, разделы меню и профиль. «Пропустить» или последний
  * шаг ставят отметку — повторно само не открывается; пункт меню профиля показывает обучение ещё раз.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.use({ tour: true });
 
@@ -109,9 +109,9 @@ test('меню содержит только обучение, личность 
   await expect(tour).toBeVisible();
   await tour
     .getByLabel('Тема обучения')
-    .selectOption({ label: '4. Шахматка: размещение и продление' });
+    .selectOption({ label: '4. Календарь: размещение и продление' });
   await expect(
-    tour.getByRole('heading', { name: 'Шахматка: размещение и продление' }),
+    tour.getByRole('heading', { name: 'Календарь: размещение и продление' }),
   ).toBeVisible();
   await expect(tour.locator('ol li')).toHaveCount(3);
   await page.keyboard.press('Escape');
@@ -137,9 +137,9 @@ test('администратор на телефоне видит рабочие
   const topics = tour.getByLabel('Тема обучения');
   await expect(topics).not.toContainText('Настройки и сотрудники');
   await expect(topics).not.toContainText('Тарифы и цены');
-  await topics.selectOption({ label: '4. Шахматка: размещение и продление' });
+  await topics.selectOption({ label: '4. Календарь: размещение и продление' });
   await expect(
-    tour.getByRole('heading', { name: 'Шахматка: размещение и продление' }),
+    tour.getByRole('heading', { name: 'Календарь: размещение и продление' }),
   ).toBeVisible();
   const box = await tour.locator('.tour__card').boundingBox();
   expect(box && box.y >= 0 && box.y + box.height <= 844).toBe(true);

@@ -3,8 +3,12 @@ import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
+  buildUnitStats,
+  buildChannelEfficiency,
+  type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
   type DashboardFund,
@@ -28,17 +32,20 @@ import {
   MEMBER_OWNER_MESSAGE,
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_DETAILS_FORBIDDEN_MESSAGE,
   MEMBER_SELF_MESSAGE,
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
   mayAssignPlanWithoutRates,
   parseInviteRole,
+  parseMemberDetails,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -46,6 +53,9 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  upcomingBirthday,
+  parseTaskInput,
+  taskBucket,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -53,10 +63,27 @@ import {
   validateDerivedRule,
   normalizePromoCode,
   MAX_DISCOUNT_PERCENT,
+  MARKET_MAX_COMPETITORS,
+  MarketInputError,
+  buildMarketBoard,
+  buildNightHistory,
+  marketDates,
+  parseCompetitorInput,
+  parseOccupancyPercent,
+  type MarketReading,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
 import { assistant } from '@pms/integrations';
+// Правила категорий берём из того же модуля, что у API: вторая копия разъехалась бы с первой
+import {
+  SUPPORT_CATEGORY_FILTERS,
+  categoryCounts as supportCategoryCounts,
+  filterByCategory as supportFilterByCategory,
+  supportCategoryOf,
+  type SupportCategory,
+  type SupportCategoryFilter,
+} from '../../apps/api/src/platform/support.queue';
 import type {
   Chessboard,
   DeskDay,
@@ -366,6 +393,30 @@ let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
 const extraGuests = new Map<string, GuestCard>();
+/** Задачи стойки (DATA_MODEL §22): память фикстуры, сбрасывается вместе со стендом */
+interface FixtureTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+}
+const taskStore = new Map<string, FixtureTask>();
+const tasksList = () => {
+  const rows = [...taskStore.values()].sort(
+    (a, b) => a.dueDate.localeCompare(b.dueDate) || (a.dueTime ?? '').localeCompare(b.dueTime ?? ''),
+  );
+  const tasks = rows.map((r) => ({ ...r, bucket: taskBucket({ dueDate: r.dueDate, done: r.doneAt !== null }, today) }));
+  const n = (b: string) => tasks.filter((x) => x.bucket === b).length;
+  return { today, tasks, counts: { overdue: n('overdue'), today: n('today'), upcoming: n('upcoming'), done: n('done') } };
+};
 /** Порядок появления карточек — «новые брони» (R2): у карточек подставного API нет момента создания */
 const cardSeen = new Map<string, number>();
 function initializeRecords() {
@@ -948,6 +999,8 @@ let showcase = false;
  * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
  */
 let channelMapping: 'none' | 'partial' = 'none';
+/** Раздел «Каналы» (ADR-140): '' — пять подключений; 'empty' — ни одного; 'down' — Channex не ответил */
+let channelCatalog: '' | 'empty' | 'down' = '';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -1225,6 +1278,85 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
+let receipts = new Map<string, { number: string; issuedAt: string }>();
+// ── запросы оплаты (DATA_MODEL §24, ADR-144) ──
+let paymentRequests: Array<{
+  id: string;
+  number: string;
+  folioId: string;
+  amountMinor: string;
+  currency: string;
+  method: 'KASPI' | 'HALYK' | 'BANK_TRANSFER_PERSON' | 'CARD_TERMINAL';
+  link: string | null;
+  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentId: string | null;
+  note: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}> = [];
+const paymentRequestsOf = (number: string) => ({
+  confirmationNumber: number,
+  propertyName: 'Luxx Aparts',
+  requests: paymentRequests.filter((r) => r.number === number).reverse(),
+});
+// ── касса (DATA_MODEL §21): статьи и операции мимо счетов броней ──
+const cashCategorySeed = [
+  { id: 'ui-cashcat-start', kind: 'INCOME' as const, name: 'Начальный остаток', active: true },
+  { id: 'ui-cashcat-other', kind: 'INCOME' as const, name: 'Прочее поступление', active: true },
+  { id: 'ui-cashcat-fee', kind: 'EXPENSE' as const, name: 'Комиссия банка', active: true },
+  { id: 'ui-cashcat-salary', kind: 'EXPENSE' as const, name: 'Зарплата', active: true },
+  { id: 'ui-cashcat-household', kind: 'EXPENSE' as const, name: 'Бытовые расходы', active: true },
+];
+let cashCategories = structuredClone(cashCategorySeed);
+let cashOps: Array<{
+  id: string;
+  kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  method: string;
+  methodTo: string | null;
+  amountMinor: bigint;
+  categoryId: string | null;
+  note: string | null;
+  relatedId: string | null;
+  status: 'COMPLETED' | 'VOIDED';
+  at: string;
+}> = [];
+let cashRecs: Array<{
+  method: string;
+  at: string;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+}> = [];
+/** Остаток кассы по способам, как считает API: оплаты гостей − возвраты + операции кассы (§21) */
+function fixtureCashBalances(): Map<string, bigint> {
+  const by = new Map<string, bigint>();
+  const nonCash = new Set(['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE']);
+  const add = (m: string, d: bigint) => {
+    if (!nonCash.has(m)) by.set(m, (by.get(m) ?? 0n) + d);
+  };
+  const seenPayments = new Set<string>();
+  for (const r of allCards())
+    for (const f of finance(r).folios) {
+      for (const p of f.payments) {
+        if (p.status !== 'COMPLETED' || seenPayments.has(p.paymentId)) continue;
+        seenPayments.add(p.paymentId);
+        add(p.method, BigInt(p.paymentAmountMinor));
+      }
+      for (const x of f.refunds)
+        add(f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH', -BigInt(x.amountMinor));
+    }
+  for (const o of cashOps) {
+    if (o.status !== 'COMPLETED') continue;
+    if (o.kind === 'INCOME') add(o.method, o.amountMinor);
+    else if (o.kind === 'EXPENSE') add(o.method, -o.amountMinor);
+    else {
+      add(o.method, -o.amountMinor);
+      if (o.methodTo) add(o.methodTo, o.amountMinor);
+    }
+  }
+  return by;
+}
 const incidentSeed: Incident = {
   id: 'ui-incident',
   kind: 'stay.unassigned',
@@ -1384,6 +1516,7 @@ function desk(date: string): DeskDay {
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
       overdueArrivals: overdueArrivals.length,
+      tasksOpen: [...taskStore.values()].filter((x) => !x.doneAt && x.dueDate <= date).length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -1506,6 +1639,40 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
+/** Проживания стенда в виде расчёта «Аналитики»: общий вход сводки и «Эффективности каналов» (ADR-141) */
+const dashboardStays = () =>
+  allCards().flatMap((r) =>
+    r.items.map((it) => ({
+      arrivalDate: it.arrivalDate,
+      departureDate: it.departureDate,
+      status: it.status,
+      // Q-209: бронь: это Reservation (номер брони стенда), статус: её собственный
+      reservationId: r.confirmationNumber,
+      reservationStatus: r.status,
+      adults: it.adults,
+      children: it.children,
+      priceMinor: BigInt(it.priceMinor),
+      source: r.source,
+      channel: r.channel,
+      categoryCode: it.accommodationTypeCode,
+    })),
+  );
+/** Ответ `GET /desk/dashboard/channels` стенда: текущий период и, если просили, период сравнения (ADR-141) */
+function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardStays>) {
+  const from = q.get('from') || today,
+    to = q.get('to') || today;
+  const opts = {
+    ...(q.get('channel') ? { channel: q.get('channel')! } : {}),
+    sort: (q.get('sort') || 'revenue') as ChannelEfficiencySort,
+    ...(q.get('empty') === '1' ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] } : {}),
+  };
+  const cf = q.get('compareFrom'),
+    ct = q.get('compareTo');
+  return {
+    current: buildChannelEfficiency(stays, from, to, opts),
+    previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
+  };
+}
 function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
@@ -1529,22 +1696,7 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
         byCategory: b.byCategory[date] ?? {},
       })),
       unassignedByCategory,
-      stays: allCards().flatMap((r) =>
-        r.items.map((it) => ({
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
-          reservationId: r.confirmationNumber,
-          reservationStatus: r.status,
-          adults: it.adults,
-          children: it.children,
-          priceMinor: BigInt(it.priceMinor),
-          source: r.source,
-          channel: r.channel,
-          categoryCode: it.accommodationTypeCode,
-        })),
-      ),
+      stays: dashboardStays(),
       charges: allCards().flatMap((r) =>
         r.items
           .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
@@ -1627,6 +1779,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
+        receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
         refundedMinor: '0',
@@ -1639,6 +1792,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
+        receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
         refundedMinor: '0',
@@ -1837,6 +1991,11 @@ interface FixtureMember {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  /** Последний вход, как отдаёт API (TEAM1): не входил — null */
+  lastLoginAt: string | null;
+  /** Телефон и должность (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
 }
 interface FixtureInvite {
   id: string;
@@ -1846,8 +2005,11 @@ interface FixtureInvite {
   createdAt: string;
 }
 let uiTeam: FixtureMember[] = [];
+/** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
+let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
+  uiMyDetails = { phone: null, position: null };
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -1855,6 +2017,9 @@ function resetTeam() {
       name: 'Марат Тестов',
       role: 'MANAGER',
       joinedAt: '2026-09-02T09:00:00.000Z',
+      lastLoginAt: '2026-09-28T14:30:00.000Z',
+      phone: '+77010000001',
+      position: 'Управляющий',
     },
     {
       userId: 'ui-admin',
@@ -1862,6 +2027,9 @@ function resetTeam() {
       name: 'Юрий Тестов',
       role: 'STAFF',
       joinedAt: '2026-09-03T09:00:00.000Z',
+      lastLoginAt: null,
+      phone: null,
+      position: null,
     },
   ];
   uiInvites = [
@@ -1891,6 +2059,9 @@ function teamView(me: UiUser) {
       name: me.name,
       role: uiRole,
       joinedAt: '2026-09-01T09:00:00.000Z',
+      lastLoginAt: '2026-10-01T09:00:00.000Z',
+      phone: uiMyDetails.phone,
+      position: uiMyDetails.position,
     },
     ...uiTeam,
   ];
@@ -1908,6 +2079,7 @@ function teamView(me: UiUser) {
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
           !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(uiRole, m.role, you),
       };
     });
 }
@@ -2021,6 +2193,8 @@ type SupportSeedUser = {
 const SUPPORT_DIALOG_WAITING = '8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f';
 const SUPPORT_DIALOG_CLOSED = '9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a';
 const SUPPORT_DIALOG_EMPTY = 'ad5e6f7a-8b9c-4e0f-8a1b-3c4d5e6f7a8b';
+/** Диалог вкладки «Проверка»: в очередь не попадает (канал `sandbox`) */
+const SUPPORT_DIALOG_SANDBOX = 'cf7a8b9c-0d1e-4a2b-8c3d-5e6f7a8b9c0d';
 const supportDialogSeed = () => [
   {
     id: SUPPORT_DIALOG_A,
@@ -2159,6 +2333,27 @@ const supportDialogSeed = () => [
     closed: false,
     platformUser: null as SupportSeedUser | null,
     messages: [] as Array<{ role: string; text: string; at: string; sentByUs: boolean }>,
+  },
+  {
+    // проверка агента из вкладки «Проверка»: очередь её не показывает (ADR S1, правка 02.10.2026)
+    id: SUPPORT_DIALOG_SANDBOX,
+    channel: 'sandbox',
+    clientName: null as string | null,
+    mode: 'bot_active',
+    stage: 'new',
+    startedAt: new Date(Date.now() - 10 * 60_000).toISOString(),
+    lastActivityAt: new Date(Date.now() - 10 * 60_000).toISOString(),
+    hasContact: false,
+    closed: false,
+    platformUser: null as SupportSeedUser | null,
+    messages: [
+      {
+        role: 'user',
+        text: 'Проверка: не могу войти в кабинет',
+        at: new Date(Date.now() - 10 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+    ],
   },
 ];
 let supportDialogs = supportDialogSeed();
@@ -2305,6 +2500,8 @@ const sellerFactsSource = (): SellerFactsSource => ({
 });
 const SELLER_DIALOG_A = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
 const SELLER_DIALOG_B = '8c7d6e5f-4a3b-4c2d-9e1f-0a9b8c7d6e5f';
+/** Проверка своего агента из вкладки «Проверка»: в списке диалогов её быть не должно */
+const SELLER_DIALOG_SANDBOX = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
 const sellerDialogSeed = () => [
   {
     id: SELLER_DIALOG_A,
@@ -2372,6 +2569,26 @@ const sellerDialogSeed = () => [
         text: 'Заезд с 14:00, выезд до 12:00.',
         at: new Date(Date.now() - 3 * 3600_000).toISOString(),
         sentByUs: true,
+      },
+    ],
+  },
+  {
+    // проверка своего агента: канал `sandbox`, в списке диалогов не показывается
+    id: SELLER_DIALOG_SANDBOX,
+    channel: 'sandbox',
+    clientName: null as string | null,
+    mode: 'needs_human',
+    stage: 'qualifying',
+    lastActivityAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    hasContact: false,
+    contact: null,
+    leadData: {},
+    messages: [
+      {
+        role: 'user',
+        text: 'Проверка: есть двухместный?',
+        at: new Date(Date.now() - 5 * 60_000).toISOString(),
+        sentByUs: false,
       },
     ],
   },
@@ -2557,6 +2774,15 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard/channels') return channelsReport(q, []);
+    if (path === '/desk/dashboard/units') {
+      const from = q.get('from') || today,
+        to = q.get('to') || today;
+      return buildUnitStats(
+        { from, to, nights: dates(from, to).length, units: [], unassignedStays: 0 },
+        'all',
+      );
+    }
     if (path === '/desk/dashboard') {
       const from = q.get('from') || today,
         to = q.get('to') || today;
@@ -2589,10 +2815,14 @@ function read(path: string, q: URLSearchParams): unknown {
         total: 0,
         paidMinor: '0',
         refundedMinor: '0',
+        incomeMinor: '0',
+        expenseMinor: '0',
         methods: [],
         rows: [],
         truncated: false,
       };
+    if (path === '/finance/cash')
+      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [], reconciliations: [] };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -2617,8 +2847,28 @@ function read(path: string, q: URLSearchParams): unknown {
         refunds: { count: 0, amountMinor: '0' },
         accommodationByCategory: [],
       };
+    if (path === '/finance/services-report')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        count: 0,
+        totalMinor: '0',
+        rows: [],
+      };
   }
   if (path.endsWith('/MISSING')) return undefined;
+  // X3 (ADR-144): сверка остатков у сторожа; «attention» — канал видит больше мест
+  if (path === '/guard/reconciliation') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    return {
+      lastCheckedAt: ago(300),
+      mismatch:
+        channexMode === 'attention'
+          ? { title: 'Канал видит больше мест, чем есть: ночей 2', since: ago(299), nights: 2 }
+          : null,
+    };
+  }
   if (path === '/guard/status') {
     const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
@@ -2779,6 +3029,35 @@ function read(path: string, q: URLSearchParams): unknown {
         } satisfies InventoryUnit;
       });
   if (path === '/desk/today') return desk(q.get('date') || today);
+  // «По номерам» (REP3): те же клетки board(), что у сводки — итог вкладки сходится с «Загрузкой»
+  if (path === '/desk/dashboard/units') {
+    const fund = q.get('fund') || 'all';
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
+      throw new Error('fund — all, rooms или beds');
+    const from = q.get('from') || today,
+      to = q.get('to') || today;
+    const b = board(from, to);
+    return buildUnitStats(
+      {
+        from,
+        to,
+        nights: b.dates.length,
+        units: b.rows.map((r) => ({
+          code: r.unit.code,
+          categoryCode: r.unit.accommodationTypeCode,
+          categoryName: r.unit.accommodationTypeName,
+          kind: r.unit.kind,
+          occupiedNights: r.cells.filter((c) => c.state === 'OCCUPIED').length,
+          blockedNights: r.cells.filter((c) => c.state === 'BLOCKED').length,
+          arrivals: r.cells.filter((c) => c.state === 'OCCUPIED' && c.isArrival).length,
+        })),
+        unassignedStays: b.unassigned.length,
+      },
+      fund as DashboardFund,
+    );
+  }
+  // «Эффективность каналов» (ADR-141): тот же доменный расчёт, что у API, по проживаниям стенда
+  if (path === '/desk/dashboard/channels') return channelsReport(q, dashboardStays());
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
@@ -3138,6 +3417,18 @@ function read(path: string, q: URLSearchParams): unknown {
       rows: rows.slice((page - 1) * pageSize, page * pageSize),
     };
   }
+  // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/tasks') return tasksList();
+  if (path === '/guests/birthdays') {
+    const from = q.get('from') || today;
+    const days = Number(q.get('days') || 1);
+    return [guest, ...extraGuests.values()]
+      .flatMap((g) => {
+        const b = upcomingBirthday(g.birthDate, from, days);
+        return b ? [{ id: g.id, firstName: g.firstName, lastName: g.lastName, ...b }] : [];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
       .map((g) => getGuest(g.id)!)
@@ -3238,6 +3529,10 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       }),
     };
+  if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+    const r = getCard(decodeURIComponent(path.split('/')[3]!));
+    return r ? paymentRequestsOf(r.confirmationNumber) : undefined;
+  }
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
     return r ? finance(r) : undefined;
@@ -3252,34 +3547,63 @@ function read(path: string, q: URLSearchParams): unknown {
       ...finance(),
       from: q.get('from'),
       to: q.get('to'),
-      chargesByKind: [{ kind: 'ACCOMMODATION', count: 3, amountMinor: '2400000' }],
+      chargesByKind: [
+        { kind: 'ACCOMMODATION', count: 3, amountMinor: '2400000' },
+        // REP2: строка SERVICE равна итогу /finance/services-report — сверка плитки и вкладки
+        { kind: 'SERVICE', count: 3, amountMinor: '450000' },
+      ],
       paymentsByMethod: [{ method: 'CASH', count: 1, amountMinor: '800000' }],
       refunds: { count: 0, amountMinor: '0' },
       accommodationByCategory: [
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
+  // REP2: отчёт по услугам — суммы согласованы со строкой SERVICE сводки выше; без броней услуг нет
+  if (path === '/finance/services-report') {
+    const base = { from: q.get('from'), to: q.get('to'), currency: 'KZT' };
+    if (noBookings) return { ...base, count: 0, totalMinor: '0', rows: [] };
+    return {
+      ...base,
+      count: 3,
+      totalMinor: '450000',
+      rows: [
+        {
+          code: 'LAUNDRY',
+          name: 'Стирка (1 загрузка)',
+          group: 'Прачечная',
+          charges: 2,
+          quantity: 3,
+          amountMinor: '300000',
+        },
+        { code: null, name: null, group: null, charges: 1, quantity: 1, amountMinor: '150000' },
+      ],
+    };
+  }
   if (path === '/finance/operations') {
-    // Как у API (ADR-113, F2): оплаты и возвраты из счетов броней, день и время — по часам объекта (UTC+5),
-    // новыми первыми; отбор по типу и способу — к строкам и суммам, числа способов — без отбора по способу
+    // Как у API (ADR-113 F2; касса — §21): общая лента — оплаты и возвраты из счетов броней плюс операции
+    // кассы, день и время — по часам объекта (UTC+5), новыми первыми; отборы — по типу, способу и источнику
     const from = q.get('from') || today;
     const to = q.get('to') || from;
     const type = q.get('type');
     const method = q.get('method');
+    const source = q.get('source');
     const limit = Number(q.get('limit') || 50);
     const local = (iso: string) =>
       new Date(Date.parse(iso) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' ');
     type Op = {
-      kind: 'PAYMENT' | 'REFUND';
+      kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
       id: string;
       at: string;
       localAt: string;
       method: string;
+      methodTo: string | null;
       amountMinor: string;
       status: 'COMPLETED' | 'VOIDED';
       confirmationNumber: string | null;
       reservations: number;
       guestLabel: string | null;
+      category: string | null;
+      note: string | null;
     };
     const ops = new Map<string, Op>();
     for (const r of allCards())
@@ -3287,6 +3611,9 @@ function read(path: string, q: URLSearchParams): unknown {
         const base = {
           confirmationNumber: r.confirmationNumber,
           guestLabel: r.primaryGuest?.label ?? null,
+          methodTo: null,
+          category: null,
+          note: null,
         };
         for (const p of f.payments) {
           const known = ops.get(p.paymentId);
@@ -3319,26 +3646,73 @@ function read(path: string, q: URLSearchParams): unknown {
             ...base,
           });
       }
+    for (const o of cashOps)
+      ops.set(o.id, {
+        kind: o.kind,
+        id: o.id,
+        at: o.at,
+        localAt: local(o.at),
+        method: o.method,
+        methodTo: o.methodTo,
+        amountMinor: o.amountMinor.toString(),
+        status: o.status,
+        confirmationNumber: null,
+        reservations: 0,
+        guestLabel: null,
+        category: cashCategories.find((c) => c.id === o.categoryId)?.name ?? null,
+        note: o.note,
+      });
+    const isCashKind = (k: Op['kind']) => k === 'INCOME' || k === 'EXPENSE' || k === 'TRANSFER';
     const inPeriod = [...ops.values()]
       .filter((o) => o.localAt.slice(0, 10) >= from && o.localAt.slice(0, 10) <= to)
       .filter((o) => !type || o.kind === type)
+      .filter((o) => !source || (source === 'CASH') === isCashKind(o.kind))
       .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
     const counts = new Map<string, number>();
     for (const o of inPeriod) counts.set(o.method, (counts.get(o.method) ?? 0) + 1);
     const picked = inPeriod.filter((o) => !method || o.method === method);
     const sum = (xs: Op[]) => xs.reduce((acc, o) => acc + BigInt(o.amountMinor), 0n).toString();
+    const done = (kind: Op['kind']) =>
+      sum(picked.filter((o) => o.kind === kind && o.status === 'COMPLETED'));
     return {
       from,
       to,
       currency: 'KZT',
       total: picked.length,
-      paidMinor: sum(picked.filter((o) => o.kind === 'PAYMENT' && o.status === 'COMPLETED')),
+      paidMinor: done('PAYMENT'),
       refundedMinor: sum(picked.filter((o) => o.kind === 'REFUND')),
+      incomeMinor: done('INCOME'),
+      expenseMinor: done('EXPENSE'),
       methods: [...counts]
         .map(([m, count]) => ({ method: m, count }))
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: picked.slice(0, limit),
       truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/cash') {
+    const by = fixtureCashBalances();
+    const order = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
+    const defaults = new Set(order.slice(0, 4));
+    const balances = order
+      .filter((m) => defaults.has(m) || by.has(m))
+      .map((m) => ({ method: m, balanceMinor: (by.get(m) ?? 0n).toString() }));
+    return {
+      currency: 'KZT',
+      totalMinor: balances.reduce((a, b) => a + BigInt(b.balanceMinor), 0n).toString(),
+      balances,
+      // статьи и сверки — тем же ответом, как у API (бюджет запросов)
+      categories: [...cashCategories].sort(
+        (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
+      ),
+      reconciliations: [...new Map(cashRecs.map((r) => [r.method, r])).values()].map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: new Date(Date.parse(r.at) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' '),
+        expectedMinor: r.expectedMinor.toString(),
+        countedMinor: r.countedMinor.toString(),
+        note: r.note,
+      })),
     };
   }
   if (path === '/finance/debts') {
@@ -3433,6 +3807,99 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
+  // Раздел «Каналы» (ADR-140): подключения и каталог Channex; режим — `POST /__test/control { channelCatalog }`
+  if (path === '/channels/channex/channels') {
+    const ago = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString();
+    const conn = (
+      id: string,
+      adapterCode: string,
+      channelKey: string,
+      channelTitle: string,
+      hotel: string,
+      bookings30: number,
+      status: string,
+      extra: Record<string, unknown> = {},
+    ) => ({
+      id,
+      adapterCode,
+      channelKey,
+      channelTitle,
+      connectionTitle: '',
+      channelPropertyId: hotel,
+      active: status !== 'OFF' && status !== 'REMOVING',
+      removalDate: null,
+      mappedRatePlans: 3,
+      actions: [],
+      shortCode: null,
+      bookings30,
+      lastBookingAt: bookings30 ? ago(1) : null,
+      lastEventAt: bookings30 ? ago(1) : null,
+      failedEvents7d: 0,
+      status,
+      ...extra,
+    });
+    const adapters = [
+      ['Agoda', 'agoda', 'Agoda', 'ota', 'AGO'],
+      ['AirBNB', 'airbnb', 'Airbnb', 'ota', 'ABB'],
+      ['BookingCom', 'bookingcom', 'Booking.com', 'meta', 'BDC'],
+      ['Ctrip', 'ctrip', 'Trip.com', 'ota', null],
+      ['Expedia', 'expedia', 'Expedia', 'ota', 'EXP'],
+      ['Hostelworld', 'hostelworld', 'Hostelworld', 'ota', 'HWL'],
+      ['Ostrovok', 'ostrovok', 'Emerging Travel Group', 'ota', 'OVK'],
+    ] as const;
+    const connections =
+      channelCatalog === 'empty'
+        ? []
+        : [
+            conn('ui-ch-trip', 'Ctrip', 'ctrip', 'Trip.com', '132059275', 350, 'WORKING'),
+            conn('ui-ch-bdc', 'BookingCom', 'bookingcom', 'Booking.com', '14087887', 169, 'WORKING', {
+              shortCode: 'BDC',
+              actions: ['load_future_reservations'],
+            }),
+            conn('ui-ch-ago', 'Agoda', 'agoda', 'Agoda', '77196946', 107, 'ERRORS', {
+              failedEvents7d: 2,
+              shortCode: 'AGO',
+            }),
+            conn('ui-ch-hwl', 'Hostelworld', 'hostelworld', 'Hostelworld', '335147', 0, 'ENABLED', {
+              shortCode: 'HWL',
+            }),
+            conn('ui-ch-exp', 'Expedia', 'expedia', 'Expedia', '131927054', 0, 'REMOVING', {
+              removalDate: '2026-10-20',
+              shortCode: 'EXP',
+            }),
+          ];
+    const connected = new Set(connections.map((c) => c.adapterCode));
+    const ready = channelCatalog !== 'down';
+    return {
+      checkedAt: new Date().toISOString(),
+      environment: 'staging',
+      propertyConnected: true,
+      inbound: { lastEventAt: ago(1), failedEvents7d: channelCatalog === 'empty' ? 0 : 2 },
+      state: ready ? 'READY' : 'UNREACHABLE',
+      message: ready
+        ? 'Каналы загружены из менеджера каналов'
+        : 'Менеджер каналов не ответил — показаны только брони из WETOP',
+      connections: ready ? connections : [],
+      adapters: ready
+        ? adapters
+            .map(([code, channelKey, title, kind, shortCode]) => ({
+              code,
+              channelKey,
+              title,
+              kind,
+              canLoadFutureReservations: code === 'BookingCom',
+              shortCode,
+              connected: connected.has(code),
+            }))
+            .sort((a, b) => Number(b.connected) - Number(a.connected) || a.title.localeCompare(b.title))
+        : null,
+      outside: [
+        { key: 'OTA:onetwotrip', source: 'OTA', label: 'OneTwoTrip', bookings30: 3, lastBookingAt: ago(2) },
+        { key: 'DESK', source: 'DESK', label: null, bookings30: 12, lastBookingAt: ago(0) },
+        { key: 'WEBSITE', source: 'WEBSITE', label: null, bookings30: 4, lastBookingAt: ago(3) },
+      ],
+    };
+  }
   if (path === '/channels/channex/connection') {
     const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
     const base = {
@@ -3452,7 +3919,11 @@ function read(path: string, q: URLSearchParams): unknown {
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
-      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+      return {
+        ...base,
+        lastWebhookAt: ago(125),
+        lastPullAt: ago(180),
+      };
     if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
     if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
@@ -3649,8 +4120,13 @@ function read(path: string, q: URLSearchParams): unknown {
     const base =
       channexLive()
         ? {
+            // поля как у API (`askWebhookStatus`): страница настройки Channex читает адрес и маску событий
             registered: true,
+            id: 'ui-webhook',
+            callbackUrl: 'https://api.example.invalid/channels/channex/webhook',
+            eventMask: 'booking',
             active: true,
+            sendData: true,
             expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
             secretConfigured: true,
             callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
@@ -3752,7 +4228,202 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+// ── Загрузка конкурентов (ADR-142): те же правила, что API, из домена ──────────────────────────
+interface FixtureCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+const marketCompetitors: FixtureCompetitor[] = [];
+let marketReadings: MarketReading[] = [];
+const resetMarket = () => {
+  marketCompetitors.length = 0;
+  marketReadings = [];
+};
+const marketPlus = (iso: string, n: number) => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+/** null — маршрут не рынка; иначе [код, тело] */
+function marketRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/market/')) return null;
+  const may = (p: 'reports' | 'rates') => can(uiRole, p);
+  try {
+    if (path === '/market/occupancy' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const from = q.get('from') || today;
+      const days = Number(q.get('days') ?? 14);
+      const asOf = q.get('asOf') || today;
+      const compare = Number(q.get('compare') ?? 1);
+      const dates = marketDates(from, days);
+      const active = marketCompetitors.filter((c) => c.active);
+      const chess = read('/chessboard', new URLSearchParams({ from, to: dates.at(-1)! })) as {
+        summary?: Record<string, { occupied: number; free: number; blocked: number }>;
+      };
+      const board = buildMarketBoard({
+        dates,
+        asOf,
+        compareDays: compare,
+        own: emptyFixture ? {} : (chess?.summary ?? {}),
+        competitors: active,
+        readings: marketReadings.filter((r) => active.some((c) => c.id === r.competitorId)),
+      });
+      return [200, { today, from, days, board, competitors: active }];
+    }
+    if (path === '/market/night' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const date = q.get('date') ?? '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [400, { message: 'date: ночь YYYY-MM-DD' }];
+      const active = marketCompetitors.filter((c) => c.active);
+      return [200, buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings })];
+    }
+    if (path === '/market/competitors' && method === 'POST') {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const input = parseCompetitorInput(body, 'create');
+      if (marketCompetitors.filter((c) => c.active).length >= MARKET_MAX_COMPETITORS)
+        return [409, { message: `В списке уже ${MARKET_MAX_COMPETITORS} конкурентов: уберите одного, чтобы добавить нового` }];
+      if (marketCompetitors.some((c) => c.name === input.name))
+        return [400, { message: `Конкурент «${input.name}» уже есть в списке` }];
+      const row: FixtureCompetitor = {
+        id: `00000000-0000-4000-8000-${String(marketCompetitors.length + 1).padStart(12, '0')}`,
+        name: input.name!,
+        distanceM: input.distanceM ?? null,
+        unitsTotal: input.unitsTotal ?? null,
+        url: input.url ?? null,
+        note: input.note ?? null,
+        active: true,
+      };
+      marketCompetitors.push(row);
+      return [201, row];
+    }
+    const m = /^\/market\/competitors\/([^/]+)(\/occupancy)?$/.exec(path);
+    if (m) {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
+      if (m[2] && method === 'PUT') {
+        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
+        const parsed = entries.map((e) => ({ date: String(e['date']), bp: parseOccupancyPercent(e['percent']) }));
+        for (const e of parsed) {
+          if (e.date < marketPlus(today, -30) || e.date > marketPlus(today, 365))
+            return [400, { message: `Ночь ${e.date}: можно от ${marketPlus(today, -30)} до ${marketPlus(today, 365)}` }];
+        }
+        for (const e of parsed) {
+          marketReadings = marketReadings.filter(
+            (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
+          );
+          if (e.bp !== null)
+            marketReadings.push({ competitorId: row.id, stayDate: e.date, observedOn: today, occupancyBp: e.bp, source: 'MANUAL' });
+        }
+        return [200, { saved: parsed.filter((e) => e.bp !== null).length, cleared: parsed.filter((e) => e.bp === null).length }];
+      }
+      if (!m[2] && method === 'PATCH') {
+        if (!row) return [404, { message: 'Конкурент не найден' }];
+        const patch = parseCompetitorInput(body, 'update');
+        if (patch.name && marketCompetitors.some((c) => c.id !== row.id && c.name === patch.name))
+          return [400, { message: `Конкурент «${patch.name}» уже есть в списке` }];
+        Object.assign(row, patch);
+        if (typeof body['active'] === 'boolean') row.active = body['active'];
+        return [200, row];
+      }
+    }
+    return [404, { message: 'Нет такого маршрута' }];
+  } catch (e) {
+    if (e instanceof MarketInputError) return [400, { message: e.message }];
+    throw e;
+  }
+}
+
 const fixtureBranches: Array<Record<string, unknown>> = [];
+
+/** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
+interface FixtureBeautyService {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  location: { enabled: boolean; priceOverrideMinor: string | null; durationOverrideMinutes: number | null } | null;
+}
+interface FixtureBeautyEmployee {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+/** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
+interface FixtureWorkingInterval {
+  employeeId: string;
+  locationId: string;
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+interface FixtureTimeOff {
+  id: string;
+  employeeId: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  appointments: number;
+}
+const fixtureBeautyServices: FixtureBeautyService[] = [];
+const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
+const fixtureBeautyHours: FixtureWorkingInterval[] = [];
+function clockMin(value: string): number {
+  const [hh, mm] = value.split(':');
+  return Number(hh) * 60 + Number(mm);
+}
+
+/** «9:00», «0900», «9.30» → «09:00», как `normalizeClockTime` домена (SET2) */
+function clock(value: string): string {
+  const m = /^(\d{1,2})[:.](\d{2})$/.exec(value.trim()) ?? /^(\d{2})(\d{2})$/.exec(value.trim());
+  if (!m) return '';
+  const h = Number(m[1]);
+  if (h > 23 || Number(m[2]) > 59) return '';
+  return `${String(h).padStart(2, '0')}:${m[2]}`;
+}
+const fixtureBeautyTimeOffs: FixtureTimeOff[] = [];
+/** Записи мастера: до B5 стенду хватало даты, теперь это сами записи журнала */
+interface FixtureAppointment {
+  id: string;
+  locationId: string;
+  employeeId: string;
+  serviceId: string;
+  customer: { id: string; name: string; phone: string | null };
+  date: string;
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
+const fixtureAppointments: FixtureAppointment[] = [];
+const NEXT_STATUS: Record<string, string[]> = {
+  BOOKED: ['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  CONFIRMED: ['DONE', 'NO_SHOW', 'CANCELLED'],
+  DONE: [],
+  NO_SHOW: [],
+  CANCELLED: [],
+};
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -3775,6 +4446,20 @@ createServer(async (req, res) => {
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    // Публичный статус сервиса (H14, ADR-144): у стенда каналы с перебоями в режиме «attention»
+    if (path === '/status/public') {
+      const channels = channexMode === 'attention' ? 'degraded' : 'ok';
+      return send(200, {
+        checkedAt: '2026-10-03T09:00:00.000Z',
+        overall: channels,
+        components: [
+          { key: 'app', label: 'Рабочее место и вход', state: 'ok' },
+          { key: 'database', label: 'Хранение данных', state: 'ok' },
+          { key: 'channels', label: 'Обмен с каналами продаж', state: channels },
+          { key: 'booking', label: 'Бронирование с сайта', state: 'ok' },
+        ],
+      });
+    }
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -3795,11 +4480,37 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
+    if (path === '/__test/market' && req.method === 'POST') {
+      resetMarket();
+      for (const c of (body['competitors'] as Array<Partial<FixtureCompetitor>> | undefined) ?? [])
+        marketCompetitors.push({
+          id: String(c.id),
+          name: String(c.name),
+          distanceM: c.distanceM ?? null,
+          unitsTotal: c.unitsTotal ?? null,
+          url: c.url ?? null,
+          note: c.note ?? null,
+          active: c.active ?? true,
+        });
+      marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      return send(200, { ok: true, today });
+    }
     if (path === '/__test/reset') {
       fixtureBranches.length = 0;
+      fixtureBeautyServices.length = 0;
+      fixtureBeautyEmployees.length = 0;
+      fixtureBeautyHours.length = 0;
+      fixtureBeautyTimeOffs.length = 0;
+      fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
+      resetMarket();
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
+      taskStore.clear();
       resetUiAuth();
       resetAccess();
       resetSupport();
@@ -3839,6 +4550,7 @@ createServer(async (req, res) => {
       ratesUnmapped = false;
       incidentHistory = 0;
       channelMapping = 'none';
+      channelCatalog = '';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
@@ -3862,6 +4574,11 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      receipts = new Map();
+      paymentRequests = [];
+      cashCategories = structuredClone(cashCategorySeed);
+      cashOps = [];
+      cashRecs = [];
       piiStorage = 'real';
       softPlan = false;
       planPenalty.clear();
@@ -3884,12 +4601,24 @@ createServer(async (req, res) => {
       noBookings = body['noBookings'] === true;
       if (typeof body['onboardingNeeded'] === 'boolean')
         onboardingNeeded = body['onboardingNeeded'];
+      // записи мастера на даты: срез B5 их ещё не делает, а наложение отсутствия показать надо (B4)
+      if (Array.isArray(body['beautyAppointments'])) {
+        fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
+        for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
+          fixtureBeautyAppointments.push({
+            employeeId: String(row['employeeId'] ?? ''),
+            date: String(row['date'] ?? ''),
+          });
+      }
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       if (body['analyticsHistory'] === true) seedAnalyticsHistory();
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
+      channelCatalog =
+        body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -4330,6 +5059,24 @@ createServer(async (req, res) => {
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
     }
+    // Телефон и должность (TEAM2, Q-244): разбор и право: те же функции домена, что у API
+    const detailsMatch = /^\/auth\/members\/([^/]+)\/details$/.exec(path);
+    if (detailsMatch && req.method === 'PATCH') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const details = parseMemberDetails(body);
+      if (!details.ok) return send(400, { message: details.message });
+      const target = teamView(who).find((m) => m.userId === detailsMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (!canEditMemberDetails(uiRole, target.role, target.you))
+        return send(403, { message: MEMBER_DETAILS_FORBIDDEN_MESSAGE });
+      const next = { phone: details.phone, position: details.position };
+      if (target.you) uiMyDetails = next;
+      else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
+      return send(200, { userId: target.userId, ...next });
+    }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
     if (memberMatch) {
@@ -4382,21 +5129,453 @@ createServer(async (req, res) => {
       if (!who) return send(200, { user: null });
       // Match production whoami: organization is a sibling of user.
       const { organization, ...user } = signedInView(who);
+      // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
+      const pointer = String(req.headers['x-wetop-scope'] ?? '');
+      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
+        context: {
+          scope: scoped ? 'LOCATION' : 'ORGANIZATION',
+          businessId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
+        },
       });
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
       const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      // Филиал салона объекта не имеет (DATA_MODEL §19): настоящий API здесь отвечает 404
+      if (selected && (selected as Record<string, unknown>)['vertical'] === 'BEAUTY')
+        return send(404, { message: 'У этого филиала нет объекта' });
       const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
       return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
     }
+    // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path.startsWith('/beauty/')) {
+      const current = fixtureBranches.find((b) => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const locationId = current ? String((current as Record<string, unknown>)['locationId']) : null;
+      const locationCurrency = current ? String((current as Record<string, unknown>)['currency'] ?? 'KZT') : null;
+      const effective = (s: FixtureBeautyService) => {
+        if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
+        if (!locationCurrency) return null;
+        const own = s.location;
+        if (!own || !own.enabled) return { sellable: false, reason: 'NOT_ENABLED' };
+        if (own.priceOverrideMinor === null && s.currency !== locationCurrency)
+          return { sellable: false, reason: 'CURRENCY_MISMATCH' };
+        return {
+          sellable: true,
+          priceMinor: own.priceOverrideMinor ?? s.priceMinor,
+          currency: own.priceOverrideMinor === null ? s.currency : locationCurrency,
+          durationMinutes: own.durationOverrideMinutes ?? s.durationMinutes,
+          overridden: own.priceOverrideMinor !== null || own.durationOverrideMinutes !== null,
+        };
+      };
+      const serviceList = () => ({
+        locationId,
+        locationCurrency,
+        items: fixtureBeautyServices.map((s) => ({ ...s, effective: effective(s) })),
+      });
+      if (path === '/beauty/services' && req.method === 'GET') return send(200, serviceList());
+      if (path === '/beauty/services' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите название услуги' });
+        const minutes = Number(body['durationMinutes']);
+        if (!Number.isInteger(minutes) || minutes <= 0)
+          return send(400, { message: 'Длительность услуги: целое число минут больше нуля' });
+        if (!/^\d+$/.test(String(body['priceMinor'] ?? '')))
+          return send(400, { message: 'Цена услуги: целое число в тиынах, не меньше нуля' });
+        const row: FixtureBeautyService = {
+          id: `svc-${fixtureBeautyServices.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          category: String(body['category'] ?? '').trim() || null,
+          durationMinutes: minutes,
+          priceMinor: String(body['priceMinor']),
+          currency: String(body['currency'] ?? 'KZT'),
+          active: body['active'] !== false,
+          location: null,
+        };
+        fixtureBeautyServices.push(row);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const patchService = /^\/beauty\/services\/([^/]+)$/.exec(path);
+      if (patchService && req.method === 'PATCH') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(patchService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['category'] !== undefined) row.category = String(body['category']).trim() || null;
+        if (body['durationMinutes'] !== undefined) row.durationMinutes = Number(body['durationMinutes']);
+        if (body['priceMinor'] !== undefined) row.priceMinor = String(body['priceMinor']);
+        if (body['currency'] !== undefined) row.currency = String(body['currency']);
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const locationService = /^\/beauty\/services\/([^/]+)\/location$/.exec(path);
+      if (locationService && req.method === 'PUT') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(locationService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (!locationId)
+          return send(400, { message: 'Выберите филиал: цену и доступность услуги задаёт он' });
+        const price = String(body['priceOverrideMinor'] ?? '');
+        const duration = String(body['durationOverrideMinutes'] ?? '');
+        if (price && !/^\d+$/.test(price))
+          return send(400, { message: 'Цена филиала: целое число в тиынах, не меньше нуля' });
+        row.location = {
+          enabled: Boolean(body['enabled']),
+          priceOverrideMinor: price || null,
+          durationOverrideMinutes: duration ? Number(duration) : null,
+        };
+        return send(200, serviceList());
+      }
+      if (path === '/beauty/employees' && req.method === 'GET')
+        return send(200, { locationId, items: fixtureBeautyEmployees });
+      if (path === '/beauty/employees' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите имя мастера' });
+        const row: FixtureBeautyEmployee = {
+          id: `emp-${fixtureBeautyEmployees.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          phone: String(body['phone'] ?? '').trim() || null,
+          email: String(body['email'] ?? '').trim().toLowerCase() || null,
+          active: body['active'] !== false,
+          locationIds: locationId ? [locationId] : [],
+          serviceIds: [],
+        };
+        fixtureBeautyEmployees.push(row);
+        return send(200, row);
+      }
+      const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
+      if (patchEmployee && req.method === 'PATCH') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(patchEmployee[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
+        if (body['email'] !== undefined) row.email = String(body['email']).trim().toLowerCase() || null;
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, row);
+      }
+      const employeeServices = /^\/beauty\/employees\/([^/]+)\/services$/.exec(path);
+      if (employeeServices && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeServices[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['serviceIds']) ? (body['serviceIds'] as string[]) : [];
+        if (ids.some((id) => !fixtureBeautyServices.some((s) => s.id === id)))
+          return send(400, { message: 'Среди выбранных услуг есть чужая' });
+        row.serviceIds = [...new Set(ids)];
+        return send(200, row);
+      }
+      // График мастера (срез B4): неделя в этом филиале, отсутствия на сеть и филиалы мастера
+      const week = (employeeId: string) =>
+        [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({
+          weekday,
+          intervals: fixtureBeautyHours
+            .filter((h) => h.employeeId === employeeId && h.locationId === locationId && h.weekday === weekday)
+            .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom))
+            .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+        }));
+      const timeOffsOf = (employeeId: string) =>
+        fixtureBeautyTimeOffs
+          .filter((t) => t.employeeId === employeeId)
+          .sort((a, b) => a.dateFrom.localeCompare(b.dateFrom))
+          .map((row) => ({
+            id: row.id,
+            dateFrom: row.dateFrom,
+            dateTo: row.dateTo,
+            reason: row.reason,
+            appointments: row.appointments,
+          }));
+      const salonLocations = () =>
+        fixtureBranches
+          .filter((b) => b['vertical'] === 'BEAUTY')
+          .map((b) => ({ id: String(b['locationId']), name: String(b['name']) }));
+      const scheduleView = (employeeId: string | null) => {
+        const chosen = employeeId
+          ? (fixtureBeautyEmployees.find((e) => e.id === employeeId) ?? null)
+          : (fixtureBeautyEmployees.find((e) => e.active && locationId !== null && e.locationIds.includes(locationId)) ??
+            fixtureBeautyEmployees.find((e) => e.active) ??
+            fixtureBeautyEmployees[0] ??
+            null);
+        return {
+          location: locationId
+            ? { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: String(current?.['timezone'] ?? 'Asia/Almaty') }
+            : null,
+          employees: fixtureBeautyEmployees.map((e) => ({
+            id: e.id,
+            name: e.name,
+            active: e.active,
+            worksHere: locationId !== null && e.locationIds.includes(locationId),
+          })),
+          employee: chosen
+            ? {
+                id: chosen.id,
+                name: chosen.name,
+                active: chosen.active,
+                worksHere: locationId !== null && chosen.locationIds.includes(locationId),
+                locationIds: chosen.locationIds,
+              }
+            : null,
+          locations: salonLocations().map((l) => ({
+            ...l,
+            assigned: chosen ? chosen.locationIds.includes(l.id) : false,
+          })),
+          week: chosen ? week(chosen.id) : [],
+          timeOffs: chosen ? timeOffsOf(chosen.id) : [],
+        };
+      };
+      if (path === '/beauty/schedule' && req.method === 'GET') {
+        const wanted = url.searchParams.get('employee');
+        if (wanted && !fixtureBeautyEmployees.some((e) => e.id === wanted))
+          return send(404, { message: 'Мастер не найден' });
+        return send(200, scheduleView(wanted));
+      }
+      const workingHours = /^\/beauty\/employees\/([^/]+)\/working-hours$/.exec(path);
+      if (workingHours && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(workingHours[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (!locationId) return send(409, { message: 'Сначала выберите филиал' });
+        if (!row.locationIds.includes(locationId))
+          return send(409, { message: 'Мастер в этом филиале не работает: сначала поставьте его в филиал' });
+        const list = Array.isArray(body['intervals']) ? (body['intervals'] as Array<Record<string, unknown>>) : [];
+        const parsed = list.map((i) => ({
+          weekday: Number(i['weekday']),
+          timeFrom: clock(String(i['timeFrom'] ?? '')),
+          timeTo: clock(String(i['timeTo'] ?? '')),
+        }));
+        if (parsed.some((i) => !i.timeFrom || !i.timeTo))
+          return send(400, { message: 'Время графика в часах и минутах, например 09:00' });
+        if (parsed.some((i) => i.timeTo <= i.timeFrom))
+          return send(400, { message: 'Конец рабочего времени должен быть позже начала' });
+        const sorted = [...parsed].sort((a, b) => a.weekday - b.weekday || a.timeFrom.localeCompare(b.timeFrom));
+        for (let i = 1; i < sorted.length; i += 1)
+          if (sorted[i]!.weekday === sorted[i - 1]!.weekday && sorted[i]!.timeFrom < sorted[i - 1]!.timeTo)
+            return send(400, { message: 'Интервалы в одном дне накладываются друг на друга' });
+        for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+          if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === locationId)
+            fixtureBeautyHours.splice(i, 1);
+        for (const i of sorted)
+          fixtureBeautyHours.push({ employeeId: row.id, locationId, ...i });
+        return send(200, { week: week(row.id) });
+      }
+      const timeOffs = /^\/beauty\/employees\/([^/]+)\/time-offs$/.exec(path);
+      if (timeOffs && req.method === 'POST') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(timeOffs[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const dateFrom = String(body['dateFrom'] ?? '');
+        const dateTo = String(body['dateTo'] ?? '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(dateTo))
+          return send(400, { message: 'Дата отсутствия в виде ГГГГ-ММ-ДД' });
+        if (dateTo < dateFrom)
+          return send(400, { message: 'Отсутствие: конец раньше начала, проверьте даты' });
+        const affected = fixtureBeautyAppointments.filter(
+          (a) => a.employeeId === row.id && a.date >= dateFrom && a.date <= dateTo,
+        ).length;
+        fixtureBeautyTimeOffs.push({
+          id: `off-${fixtureBeautyTimeOffs.length + 1}-0000-4000-8000-000000000000`,
+          employeeId: row.id,
+          dateFrom,
+          dateTo,
+          reason: String(body['reason'] ?? '').trim() || null,
+          appointments: affected,
+        });
+        return send(200, { timeOffs: timeOffsOf(row.id), affected });
+      }
+      const dropTimeOff = /^\/beauty\/employees\/([^/]+)\/time-offs\/([^/]+)$/.exec(path);
+      if (dropTimeOff && req.method === 'DELETE') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(dropTimeOff[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const index = fixtureBeautyTimeOffs.findIndex(
+          (t) => t.id === decodeURIComponent(dropTimeOff[2]!) && t.employeeId === row.id,
+        );
+        if (index < 0) return send(404, { message: 'Отсутствие не найдено' });
+        fixtureBeautyTimeOffs.splice(index, 1);
+        return send(200, { timeOffs: timeOffsOf(row.id) });
+      }
+      // Журнал записей дня (срез B5). Стенд живёт в поясе Asia/Almaty, как филиал фикстуры
+      const dayOf = (iso: string) => new Date(new Date(iso).getTime() + 5 * 3600_000).toISOString().slice(0, 10);
+      const minutesOfIso = (iso: string) => {
+        const at = new Date(new Date(iso).getTime() + 5 * 3600_000);
+        return at.getUTCHours() * 60 + at.getUTCMinutes();
+      };
+      const isoOf = (date: string, minutes: number) =>
+        new Date(Date.parse(`${date}T00:00:00Z`) + (minutes - 300) * 60_000).toISOString();
+      const effectiveOf = (s: FixtureBeautyService) => {
+        const own = s.location;
+        const price = own?.priceOverrideMinor ?? s.priceMinor;
+        const duration = own?.durationOverrideMinutes ?? s.durationMinutes;
+        const sellable = Boolean(s.active && own?.enabled && (own.priceOverrideMinor !== null || s.currency === locationCurrency));
+        return { sellable, price, duration };
+      };
+      const dayView = (date: string) => {
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const columns = fixtureBeautyEmployees
+          .filter((e) => e.active && locationId !== null && e.locationIds.includes(locationId))
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            intervals: fixtureBeautyHours
+              .filter((h) => h.employeeId === e.id && h.locationId === locationId && h.weekday === weekday)
+              .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+            timeOff: fixtureBeautyTimeOffs.some((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo),
+            timeOffReason: fixtureBeautyTimeOffs.find((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo)?.reason ?? null,
+            serviceIds: e.serviceIds,
+          }));
+        const rows = fixtureAppointments
+          .filter((a) => a.locationId === locationId && a.date === date)
+          .sort((a, b) => a.startMinutes - b.startMinutes)
+          .map((a) => ({
+            id: a.id,
+            employeeId: a.employeeId,
+            serviceId: a.serviceId,
+            serviceName: fixtureBeautyServices.find((s) => s.id === a.serviceId)?.name ?? 'Услуга',
+            customer: a.customer,
+            startsAt: isoOf(a.date, a.startMinutes),
+            endsAt: isoOf(a.date, a.endMinutes),
+            startMinutes: a.startMinutes,
+            endMinutes: a.endMinutes,
+            status: a.status,
+            next: NEXT_STATUS[a.status] ?? [],
+            priceMinor: a.priceMinor,
+            currency: a.currency,
+            notes: a.notes,
+          }));
+        const edges = columns.flatMap((c) => c.intervals).flatMap((i) => [clockMin(i.timeFrom), clockMin(i.timeTo)]);
+        const spans = rows.flatMap((r) => [r.startMinutes, r.endMinutes]);
+        return {
+          location: { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: 'Asia/Almaty', currency: locationCurrency },
+          date,
+          columns,
+          appointments: rows,
+          services: fixtureBeautyServices.map((s) => {
+            const e = effectiveOf(s);
+            return {
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              sellable: e.sellable,
+              durationMinutes: e.duration,
+              priceMinor: String(e.price),
+              currency: s.location?.priceOverrideMinor ? String(locationCurrency) : s.currency,
+            };
+          }),
+          bounds: {
+            fromMinutes: Math.min(480, ...edges, ...spans),
+            toMinutes: Math.max(1200, ...edges, ...spans),
+          },
+        };
+      };
+      if (path === '/beauty/appointments' && req.method === 'GET')
+        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+      if (path === '/beauty/appointments' && req.method === 'POST') {
+        const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
+        if (!employee) return send(404, { message: 'Мастер не найден' });
+        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        if (!svc) return send(404, { message: 'Услуга не найдена' });
+        const eff = effectiveOf(svc);
+        if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const date = dayOf(startsAt);
+        const startMinutes = minutesOfIso(startsAt);
+        const endMinutes = startMinutes + eff.duration;
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const works = fixtureBeautyHours.some(
+          (h) => h.employeeId === employee.id && h.locationId === locationId && h.weekday === weekday &&
+            clockMin(h.timeFrom) <= startMinutes && endMinutes <= clockMin(h.timeTo),
+        );
+        if (fixtureBeautyTimeOffs.some((t) => t.employeeId === employee.id && t.dateFrom <= date && date <= t.dateTo))
+          return send(409, { message: 'У мастера в этот день отсутствие' });
+        if (!works) return send(409, { message: 'Мастер в это время не работает' });
+        if (
+          fixtureAppointments.some(
+            (a) => a.employeeId === employee.id && a.date === date && a.status !== 'CANCELLED' &&
+              a.status !== 'NO_SHOW' && a.startMinutes < endMinutes && startMinutes < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        const name = [String(body['firstName'] ?? '').trim(), String(body['lastName'] ?? '').trim()]
+          .filter(Boolean)
+          .join(' ');
+        if (!String(body['customerId'] ?? '') && !name)
+          return send(400, { message: 'Выберите клиента или впишите имя' });
+        fixtureAppointments.push({
+          id: `apt-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+          locationId: String(locationId),
+          employeeId: employee.id,
+          serviceId: svc.id,
+          customer: {
+            id: `cus-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+            name: name || 'Клиент',
+            phone: String(body['phone'] ?? '').trim() || null,
+          },
+          date,
+          startMinutes,
+          endMinutes,
+          status: 'BOOKED',
+          priceMinor: String(eff.price),
+          currency: String(locationCurrency),
+          notes: String(body['notes'] ?? '').trim() || null,
+        });
+        return send(200, dayView(date));
+      }
+      const moveAppointment = /^\/beauty\/appointments\/([^/]+)$/.exec(path);
+      if (moveAppointment && req.method === 'PATCH') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(moveAppointment[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        if (!(NEXT_STATUS[row.status] ?? []).length)
+          return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const length = row.endMinutes - row.startMinutes;
+        const nextStart = startsAt ? minutesOfIso(startsAt) : row.startMinutes;
+        const nextDate = startsAt ? dayOf(startsAt) : row.date;
+        const employeeId = String(body['employeeId'] ?? '') || row.employeeId;
+        if (
+          fixtureAppointments.some(
+            (a) => a.id !== row.id && a.employeeId === employeeId && a.date === nextDate &&
+              a.status !== 'CANCELLED' && a.status !== 'NO_SHOW' &&
+              a.startMinutes < nextStart + length && nextStart < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        row.employeeId = employeeId;
+        row.date = nextDate;
+        row.startMinutes = nextStart;
+        row.endMinutes = nextStart + length;
+        return send(200, dayView(row.date));
+      }
+      const appointmentStatus = /^\/beauty\/appointments\/([^/]+)\/status$/.exec(path);
+      if (appointmentStatus && req.method === 'POST') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(appointmentStatus[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        const to = String(body['status'] ?? '');
+        if (!(NEXT_STATUS[row.status] ?? []).includes(to))
+          return send(409, { message: 'Из этого состояния запись так не меняют' });
+        row.status = to as FixtureAppointment['status'];
+        return send(200, dayView(row.date));
+      }
+      const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);
+      if (employeeLocations && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeLocations[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['locationIds']) ? (body['locationIds'] as string[]) : [];
+        const known = salonLocations().map((l) => l.id);
+        if (ids.some((id) => !known.includes(id)))
+          return send(400, { message: 'Среди выбранных филиалов есть чужой' });
+        for (const gone of row.locationIds.filter((id) => !ids.includes(id))) {
+          for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+            if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === gone)
+              fixtureBeautyHours.splice(i, 1);
+        }
+        row.locationIds = [...new Set(ids)];
+        return send(200, scheduleView(row.id));
+      }
+      return send(404, { message: 'Нет такого маршрута салона' });
+    }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
       if (req.method === 'POST') {
-        const item = { ...branch, ...body, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
+        const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+        const item = { ...branch, ...body, vertical, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
         if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
         return send(200, item);
       }
@@ -4577,9 +5756,13 @@ createServer(async (req, res) => {
           const queue = url.searchParams.get('queue') || 'open';
           const QUEUES = ['open', 'new', 'waiting', 'needs_human', 'owner_takeover', 'bot_active', 'closed'];
           if (!QUEUES.includes(queue)) return send(400, { message: `Очередь: ${QUEUES.join(', ')}` });
+          const category = (url.searchParams.get('category') || 'all') as SupportCategoryFilter;
+          if (!(SUPPORT_CATEGORY_FILTERS as readonly string[]).includes(category))
+            return send(400, { message: `Категория: ${SUPPORT_CATEGORY_FILTERS.join(', ')}` });
           // как API: без пустых, приоритет и порядок, числа — по открытым (`apps/api/src/platform/support.queue.ts`)
           const rows = supportDialogs
-            .filter((d) => d.messages.length > 0)
+            // как бот с `exclude_sandbox`: проверки агента это не обращения партнёров
+            .filter((d) => d.messages.length > 0 && d.channel !== 'sandbox')
             .map((d) => {
               const lastAnswer = Math.max(
                 0,
@@ -4590,6 +5773,10 @@ createServer(async (req, res) => {
               );
               const waitingSince = unanswered[0]?.at ?? null;
               const last = d.messages[d.messages.length - 1]!;
+              const firstUser = d.messages.find((m) => m.role === 'user') ?? null;
+              const firstMessage = firstUser
+                ? { role: firstUser.role, text: firstUser.text, at: firstUser.at }
+                : null;
               return {
                 id: d.id,
                 channel: d.channel,
@@ -4600,6 +5787,8 @@ createServer(async (req, res) => {
                 lastActivityAt: d.lastActivityAt,
                 messages: d.messages.length,
                 lastMessage: { role: last.role, text: last.text, at: last.at },
+                firstMessage,
+                category: supportCategoryOf(firstMessage) as SupportCategory,
                 waitingSince,
                 closed: d.closed,
                 priority: d.closed
@@ -4631,7 +5820,9 @@ createServer(async (req, res) => {
             );
           return send(200, {
             queue,
-            items,
+            category,
+            items: supportFilterByCategory(items, category),
+            categoryCounts: supportCategoryCounts(items),
             counts: {
               open: open.length,
               new: open.filter((r) => Date.now() - Date.parse(r.startedAt) <= DAY_MS).length,
@@ -4699,7 +5890,8 @@ createServer(async (req, res) => {
         if (path === '/platform/support/summary' && req.method === 'GET')
           return send(200, {
             hours: 24,
-            dialogs: supportDialogs.length,
+            // как API: проверки агента в числа над очередью не попадают
+            dialogs: supportDialogs.filter((d) => d.channel !== 'sandbox').length,
             replies: 3,
             leads: 0,
             slaBreaches: 1,
@@ -4992,6 +6184,8 @@ createServer(async (req, res) => {
           const mode = url.searchParams.get('mode');
           return send(200, {
             items: sellerDialogs
+              // как API с `excludeSandbox`: свои проверки агента не обращения гостей
+              .filter((d) => d.channel !== 'sandbox')
               .filter((d) => !mode || d.mode === mode)
               .map((d) => ({
                 id: d.id,
@@ -5021,7 +6215,8 @@ createServer(async (req, res) => {
         if (path === '/ai-seller/summary')
           return send(200, {
             hours: 24,
-            dialogs: sellerDialogs.length,
+            // как API: числа за сутки без проверок агента
+            dialogs: sellerDialogs.filter((d) => d.channel !== 'sandbox').length,
             replies: 5,
             leads: 1,
             slaBreaches: 0,
@@ -5323,6 +6518,13 @@ createServer(async (req, res) => {
       promoCodes.push(row);
       return send(201, row);
     }
+    if (path.startsWith('/finance/cash/categories/') && req.method === 'PATCH') {
+      const c = cashCategories.find((x) => x.id === decodeURIComponent(path.split('/')[4]!));
+      if (!c) return send(404, { message: 'Статья не найдена' });
+      if (typeof body['active'] === 'boolean') c.active = body['active'];
+      if (typeof body['name'] === 'string' && body['name'].trim()) c.name = body['name'].trim();
+      return send(200, [...cashCategories]);
+    }
     if (path.startsWith('/rates/promo-codes/') && req.method === 'PATCH') {
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       if ('discountPercent' in body)
@@ -5620,6 +6822,13 @@ createServer(async (req, res) => {
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
+    // Окно Channex (ADR-140): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
+    if (/^\/channels\/channex\/channels\/[^/]+\/load-future-reservations$/.test(path))
+      return path.includes('/ui-ch-bdc/')
+        ? send(200, { channel: 'Booking.com' })
+        : send(409, { message: 'Канал не умеет отдавать будущие брони' });
+    if (path === '/channels/channex/channels/connect-session')
+      return send(200, { url: 'about:blank', expiresInMinutes: 15 });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
     const guardAction = /^\/guard\/incidents\/([^/]+)\/(acknowledge|resolve)$/.exec(path);
     if (guardAction && guardAction[1] !== 'ui-incident') {
@@ -5645,6 +6854,223 @@ createServer(async (req, res) => {
       incident.resolvedBy = 'STAFF';
       incident.resolvedAt = new Date().toISOString();
       return send(200, incident);
+    }
+    // ── касса (DATA_MODEL §21): операция, перевод, аннулирование, статьи — как у API ──
+    if (path === '/finance/cash/operations' || path === '/finance/cash/transfers') {
+      const transfer = path.endsWith('/transfers');
+      const kind = transfer ? 'TRANSFER' : String(body['kind'] ?? '');
+      if (!transfer && kind !== 'INCOME' && kind !== 'EXPENSE')
+        return send(400, { message: 'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers' });
+      const method = String((transfer ? body['from'] : body['method']) ?? '');
+      const methodTo = transfer ? String(body['to'] ?? '') : null;
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? ''));
+      } catch {
+        return send(400, { message: 'amount — сумма, например 12000 или 456.50' });
+      }
+      if (amountMinor <= 0n) return send(400, { message: 'Сумма операции должна быть больше нуля' });
+      if (transfer && methodTo === method)
+        return send(400, { message: 'Перевод в тот же способ не имеет смысла' });
+      const category = cashCategories.find((c) => c.id === body['categoryId']);
+      if (body['categoryId'] !== undefined && (!category || !category.active || category.kind !== kind))
+        return send(400, { message: 'categoryId — действующая статья кассы своего вида' });
+      const commissionBody = body['commission'] as
+        | { amount?: string; percent?: string }
+        | undefined;
+      let commission: bigint | null = null;
+      if (commissionBody) {
+        commission =
+          commissionBody.amount !== undefined
+            ? parseMoney(String(commissionBody.amount))
+            : (amountMinor * BigInt(Math.round(Number(commissionBody.percent) * 100))) / 10_000n;
+        if (!(commission > 0n)) return send(400, { message: 'Комиссия должна быть больше нуля — или уберите её' });
+        const fee = cashCategories.find((c) => c.name === 'Комиссия банка' && c.active);
+        if (!fee)
+          return send(400, { message: 'Статьи «Комиссия банка» нет — укажите статью комиссии (commission.categoryId)' });
+      }
+      const id = `ui-cashop-${cashOps.length + 1}`;
+      const at = new Date().toISOString();
+      cashOps.push({
+        id,
+        kind: kind as 'INCOME' | 'EXPENSE' | 'TRANSFER',
+        method,
+        methodTo,
+        amountMinor,
+        categoryId: category?.id ?? null,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+        relatedId: null,
+        status: 'COMPLETED',
+        at,
+      });
+      if (commission !== null)
+        cashOps.push({
+          id: `${id}-fee`,
+          kind: 'EXPENSE',
+          method,
+          methodTo: null,
+          amountMinor: commission,
+          categoryId: cashCategories.find((c) => c.name === 'Комиссия банка')!.id,
+          note: 'Комиссия за операцию',
+          relatedId: id,
+          status: 'COMPLETED',
+          at,
+        });
+      return send(201, { ok: true });
+    }
+    if (path === '/finance/cash/reconciliations') {
+      const method = String(body['method'] ?? 'CASH');
+      if (['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(method))
+        return send(400, { message: `Способ ${method} в кассе не участвует` });
+      let countedMinor: bigint;
+      try {
+        countedMinor = parseMoney(String(body['counted'] ?? ''));
+      } catch {
+        return send(400, { message: 'counted — сумма, например 12000 или 456.50' });
+      }
+      if (countedMinor < 0n)
+        return send(400, { message: 'Пересчитанная сумма не бывает отрицательной' });
+      const expectedMinor = fixtureCashBalances().get(method) ?? 0n;
+      cashRecs.push({
+        method,
+        at: new Date().toISOString(),
+        expectedMinor,
+        countedMinor,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+      });
+      const delta = countedMinor - expectedMinor;
+      if (body['adjust'] === true && delta !== 0n) {
+        const kind = delta > 0n ? ('INCOME' as const) : ('EXPENSE' as const);
+        const name = delta > 0n ? 'Излишек кассы' : 'Недостача кассы';
+        let category = cashCategories.find((c) => c.kind === kind && c.name === name);
+        if (!category) {
+          category = {
+            id: `ui-cashcat-adj-${cashCategories.length + 1}`,
+            kind,
+            name,
+            active: true,
+          } as (typeof cashCategories)[number];
+          cashCategories.push(category);
+        }
+        cashOps.push({
+          id: `ui-cashrec-adj-${cashOps.length + 1}`,
+          kind,
+          method,
+          methodTo: null,
+          amountMinor: delta > 0n ? delta : -delta,
+          categoryId: category.id,
+          note: 'Поправка по сверке кассы',
+          relatedId: null,
+          status: 'COMPLETED',
+          at: new Date().toISOString(),
+        });
+      }
+      return send(201, { ok: true });
+    }
+    {
+      const voidCash = /^\/finance\/cash\/operations\/([^/]+)\/void$/.exec(path);
+      if (voidCash) {
+        const op = cashOps.find((o) => o.id === voidCash[1]);
+        if (!op) return send(404, { message: 'Операция не найдена' });
+        if (op.status !== 'COMPLETED') return send(409, { message: 'Операция уже аннулирована' });
+        if (op.relatedId !== null)
+          return send(409, { message: 'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней' });
+        for (const x of cashOps) if (x.id === op.id || x.relatedId === op.id) x.status = 'VOIDED';
+        return send(200, { ok: true });
+      }
+    }
+    if (path === '/finance/cash/categories') {
+      const kind = String(body['kind'] ?? '');
+      const name = String(body['name'] ?? '').trim();
+      if (kind !== 'INCOME' && kind !== 'EXPENSE')
+        return send(400, { message: 'kind — INCOME или EXPENSE (у перевода статей нет)' });
+      if (!name) return send(400, { message: 'name — название статьи' });
+      if (cashCategories.some((c) => c.kind === kind && c.name === name))
+        return send(400, { message: `Статья «${name}» уже есть` });
+      cashCategories.push({
+        id: `ui-cashcat-${cashCategories.length + 1}`,
+        kind,
+        name,
+        active: true,
+      });
+      return send(201, [...cashCategories]);
+    }
+    // запросы оплаты (DATA_MODEL §24): те же отказы и коды, что у API
+    if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+      const number = decodeURIComponent(path.split('/')[3]!);
+      const methodCode = String(body['method'] ?? '');
+      if (!['KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'CARD_TERMINAL'].includes(methodCode))
+        return send(400, { message: 'Способ: Kaspi, Halyk, перевод или терминал' });
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? '').replace(/\s/g, ''));
+      } catch {
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      }
+      if (amountMinor <= 0n)
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      const link = typeof body['link'] === 'string' && body['link'] ? body['link'] : null;
+      if (link && !link.startsWith('https://'))
+        return send(400, { message: 'Ссылка: адрес банка, начинается с https://, до 500 знаков' });
+      paymentRequests.push({
+        id: `00000000-0000-4000-8000-${String(paymentRequests.length + 1).padStart(12, '0')}`,
+        number,
+        folioId: String(body['folioId']),
+        amountMinor: amountMinor.toString(),
+        currency: 'KZT',
+        method: methodCode as 'KASPI',
+        link,
+        status: 'PENDING',
+        paymentId: null,
+        note: null,
+        createdAt: `${today}T10:00:00Z`,
+        closedAt: null,
+      });
+      return send(201, paymentRequestsOf(number));
+    }
+    if (/^\/finance\/payment-requests\/[^/]+\/(paid|cancel)$/.test(path)) {
+      const [, , , id, verb] = path.split('/');
+      const r = paymentRequests.find((x) => x.id === id);
+      if (!r) return send(404, { message: `Запрос оплаты ${id} не найден` });
+      if (r.status !== 'PENDING')
+        return send(409, {
+          message:
+            verb === 'cancel' && r.status === 'PAID'
+              ? 'Оплаченный запрос не отменяется: верните деньги возвратом платежа'
+              : r.status === 'PAID'
+                ? 'Запрос уже оплачен'
+                : 'Запрос уже отменён',
+        });
+      r.closedAt = `${today}T11:00:00Z`;
+      if (verb === 'cancel') {
+        r.status = 'CANCELLED';
+        return send(200, paymentRequestsOf(r.number));
+      }
+      r.status = 'PAID';
+      r.paymentId = `ui-payment-request-${r.id.slice(-4)}`;
+      paid.set(r.folioId, (paid.get(r.folioId) ?? 0n) + BigInt(r.amountMinor));
+      paymentLines.push({
+        folioId: r.folioId,
+        amountMinor: r.amountMinor,
+        method: r.method,
+        note: 'Оплата по запросу',
+        id: r.paymentId,
+      });
+      return send(200, paymentRequestsOf(r.number));
+    }
+    const receiptMatch = path.match(/^\/finance\/payments\/([^/]+)\/receipt$/);
+    if (receiptMatch) {
+      const paymentId = decodeURIComponent(receiptMatch[1]!);
+      let receiptNumber: string;
+      try {
+        receiptNumber = parseReceiptNumber(body['number']);
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      const was = receipts.get(paymentId);
+      if (was) return send(409, { message: `Чек по этому платежу уже выдан: ${was.number}` });
+      receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
+      return send(200, { paymentId, number: receiptNumber });
     }
     if (path === '/finance/payments') {
       try {
@@ -5679,11 +7105,19 @@ createServer(async (req, res) => {
           sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
         0n,
       );
+      // разбивка по ночам, как у API: равная цена ночи, сумма ночей равна итогу
+      const perNight = nights > 0n ? total / nights : 0n;
+      const nightList = Array.from({ length: Number(nights) }, (_, i) => {
+        const d = new Date(`${arrival}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + i);
+        return { date: d.toISOString().slice(0, 10), priceMinor: perNight.toString() };
+      });
       return send(201, {
         arrivalDate: arrival,
         departureDate: departure,
         totalMinor: total.toString(),
         currency: 'KZT',
+        nights: nightList,
       });
     }
     if (path === '/reservations') {
@@ -5774,6 +7208,29 @@ createServer(async (req, res) => {
         },
       ];
       return send(201, getGuest(id));
+    }
+    if (path === '/tasks' && req.method === 'POST') {
+      const parsed = parseTaskInput(body, 'create');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      const task: FixtureTask = {
+        id: `00000000-0000-4000-8000-${String(taskStore.size + 1).padStart(12, '0')}`,
+        title: v.title!, note: v.note ?? null, dueDate: v.dueDate!, dueTime: v.dueTime ?? null,
+        priority: v.priority ?? 'NORMAL', assigneeUserId: v.assigneeUserId ?? null,
+        assigneeName: v.assigneeUserId ? uiUser.name : null, reservationNumber: v.reservationNumber ?? null,
+        guestId: v.guestId ?? null, doneAt: null, createdAt: new Date().toISOString(),
+      };
+      taskStore.set(task.id, task);
+      return send(201, task);
+    }
+    if (path.startsWith('/tasks/') && req.method === 'PATCH') {
+      const task = taskStore.get(decodeURIComponent(path.split('/')[2]!));
+      if (!task) return send(404, { message: 'Задача не найдена' });
+      const parsed = parseTaskInput(body, 'update');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const { done, ...rest } = parsed.value;
+      Object.assign(task, rest, done === undefined ? {} : { doneAt: done ? new Date().toISOString() : null });
+      return send(200, task);
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);

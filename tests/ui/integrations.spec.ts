@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * «Интеграции» v2, срез INT1 (ADR-116, план `plans/integrations-int1-2026-09-27.md`): внешние подключения объекта,
@@ -7,7 +7,7 @@ import { expect, test, type Page } from './fixtures';
  * «Проверить соединение». Последний тест снимает стоп-гейт для владельца: обе темы, телефон, «работает», «требует
  * внимания», «не подключено», «только чтение».
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int1-2026-09-27';
 
 type Mode = 'ok' | 'attention' | 'foreign' | 'no-key';
@@ -37,7 +37,8 @@ test('работает: одна карточка Channex, без базы, са
   await signIn(page);
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  // раздел называется «Подключения» с 01.10.2026 (навигация по задачам), адрес прежний
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).toContainText('Подключения внешних сервисов для Luxx Aparts.');
   const card = main.getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
@@ -172,7 +173,7 @@ for (const theme of ['light', 'dark'] as const) {
       await control(page, { channex: mode, ...extra });
       await page.goto(path);
       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-        'Интеграции',
+        'Подключения',
       );
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial' });

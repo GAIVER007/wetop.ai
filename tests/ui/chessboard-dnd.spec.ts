@@ -1,5 +1,5 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 4 (ТЗ §26–29, §54): перетаскивание и продление за край.
@@ -14,7 +14,8 @@ import { expect, test } from './fixtures';
  * «Клиент Пример» (TEST1) — R02, три ночи с сегодняшнего дня; на R03 в те же ночи TEST2; R07 и
  * койки с M03 свободны; закрытую строку тест делает сам — блокировкой через API стенда.
  */
-const fixture = 'http://127.0.0.1:4311';
+// адрес стенда общий для набора: `UI_FIXTURE_API` или `FIXTURE_PORT`, параллельные сессии не делят 4311
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const NUMBER = '20260913-TEST1';
 const ITEM = 'ui-item-1';
@@ -141,7 +142,7 @@ test('другая категория: переезжает всё прожив�
   request,
 }) => {
   // выше окна: строка R02 и койка M03 видны сетке одновременно, без прокрутки во время drag
-  await page.setViewportSize({ width: 1440, height: 1400 });
+  await page.setViewportSize({ width: 1440, height: 1500 });
   const arrival = await openWeek(page, request);
   const target = unitRow(page, 'M03');
   for (const n of [0, 1, 2])

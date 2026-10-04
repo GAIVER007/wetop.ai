@@ -1,0 +1,344 @@
+# Сквозные (e2e) · 02.10.2026 17:36 Алматы · vm
+# коммит f784493 (claude/great-cray-1d5t94), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/reservations-design.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/ai-agents-create.spec.ts' 'tests/ui/seller-workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 119 tests using 1 worker
+
+  ✘    1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (7.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓    2 tests/ui/ai-agents-create.spec.ts:94:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (4.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓    3 tests/ui/ai-agents-create.spec.ts:120:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (3.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓    4 tests/ui/ai-agents-create.spec.ts:141:1 › двойной щелчок по «Создать черновик» даёт одного агента (3.1s)
+  ✓    5 tests/ui/ai-agents-create.spec.ts:152:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.1s)
+  ✓    6 tests/ui/ai-agents-create.spec.ts:168:1 › сотрудник смены: страница создания объясняет роль, формы нет (1.8s)
+  ✓    7 tests/ui/ai-agents-create.spec.ts:178:1 › управляющий может создать агента (2.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓    8 tests/ui/ai-agents-create.spec.ts:187:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (2.4s)
+  ✓    9 tests/ui/ai-agents-create.spec.ts:201:1 › расширения нет: на странице создания причина про расширение (1.7s)
+  ✓   10 tests/ui/ai-agents-create.spec.ts:210:1 › несуществующий агент, страница «не найдено», а не пустая карточка (2.0s)
+  ✓   11 tests/ui/ai-agents-create.spec.ts:222:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (2.9s)
+  ✓   12 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 1440 (3.4s)
+  ✓   13 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 1440 (3.7s)
+  ✓   14 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 1440 (2.8s)
+  ✓   15 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 390 (2.7s)
+  ✓   16 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 390 (4.0s)
+  ✓   17 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 390 (3.2s)
+  ✓   18 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 1440 (2.9s)
+  ✓   19 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 1440 (3.4s)
+  ✓   20 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 1440 (2.8s)
+  ✓   21 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 390 (2.8s)
+  ✓   22 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 390 (3.2s)
+  ✓   23 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 390 (2.5s)
+  ✓   24 tests/ui/ai-agents-create.spec.ts:282:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (2.9s)
+  ✓   25 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (5.1s)
+  ✓   26 tests/ui/booking-compact.spec.ts:29:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (5.5s)
+  ✓   27 tests/ui/booking-compact.spec.ts:63:1 › пустой филиал не позволяет создать бронь без категории (1.1s)
+  ✓   28 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (4.2s)
+  ✓   29 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (5.7s)
+  ✓   30 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (10.0s)
+  ✘   31 tests/ui/navigation.spec.ts:46:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (1.8s)
+  ✓   32 tests/ui/navigation.spec.ts:87:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (5.0s)
+  ✓   33 tests/ui/navigation.spec.ts:114:1 › все пункты меню открывают существующие страницы (16.8s)
+  ✓   34 tests/ui/navigation.spec.ts:162:3 › меню телефона и планшета ровное и доступное: light (3.8s)
+  ✓   35 tests/ui/navigation.spec.ts:162:3 › меню телефона и планшета ровное и доступное: dark (4.8s)
+  ✓   36 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.8s)
+  ✓   37 tests/ui/platform-access.spec.ts:80:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.7s)
+  ✓   38 tests/ui/platform-access.spec.ts:102:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (4.8s)
+  ✓   39 tests/ui/platform-access.spec.ts:141:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (4.6s)
+  ✓   40 tests/ui/platform-access.spec.ts:169:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   41 tests/ui/platform-access.spec.ts:189:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (3.8s)
+  ✓   42 tests/ui/platform-access.spec.ts:212:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (6.4s)
+  ✓   43 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 1440px (13.3s)
+  ✓   44 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 1440px (11.7s)
+  ✓   45 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 390px (11.3s)
+  ✓   46 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 390px (10.9s)
+  ✓   47 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.4s)
+  ✓   48 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (6.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SupportScreen>
+[WebServer]                 <KnowledgeView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       ...
+[WebServer]                         <KnowledgeUploadForm upload={function supportUploadAction}>
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Документ: ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="file"
+[WebServer]                                     name="file"
+[WebServer]                                     accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="knowledge-file"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]     ...
+[WebServer]  
+  ✓   49 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (3.9s)
+  ✓   50 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (8.0s)
+  ✓   51 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.5s)
+  ✓   52 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.2s)
+  ✓   53 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (18.0s)
+  ✓   54 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (14.8s)
+  ✓   55 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (13.4s)
+  ✓   56 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (13.4s)
+  ✓   57 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.4s)
+  ✓   58 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (2.0s)
+  ✓   59 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (6.6s)
+  ✓   60 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (10.5s)
+  ✓   61 tests/ui/premium.spec.ts:119:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.9m)
+  ✓   62 tests/ui/premium.spec.ts:177:1 › вход не пускает с чужой почтой и чужим паролем (508ms)
+  ✓   63 tests/ui/premium.spec.ts:194:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (5.1s)
+  ✓   64 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (6.5s)
+  ✓   65 tests/ui/product-tour.spec.ts:75:1 › последний шаг — профиль, «Начать работу» закрывает обучение (6.0s)
+  ✓   66 tests/ui/product-tour.spec.ts:91:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (3.3s)
+  ✓   67 tests/ui/product-tour.spec.ts:106:1 › меню содержит только обучение, личность и выход; темы можно выбирать (3.9s)
+  ✓   68 tests/ui/product-tour.spec.ts:128:1 › администратор на телефоне видит рабочие темы без настроек владельца (2.8s)
+  ✓   69 tests/ui/requests.spec.ts:71:3 › экран /today: данные берутся одним запросом на путь (1.9s)
+  ✓   70 tests/ui/requests.spec.ts:71:3 › экран /chessboard: данные берутся одним запросом на путь (2.0s)
+  ✓   71 tests/ui/requests.spec.ts:71:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓   72 tests/ui/requests.spec.ts:71:3 › экран /guests: данные берутся одним запросом на путь (1.5s)
+  ✓   73 tests/ui/requests.spec.ts:71:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓   74 tests/ui/requests.spec.ts:71:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.5s)
+  ✓   75 tests/ui/requests.spec.ts:71:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.5s)
+  ✓   76 tests/ui/requests.spec.ts:71:3 › экран /rates: данные берутся одним запросом на путь (1.6s)
+  ✓   77 tests/ui/requests.spec.ts:71:3 › экран /management/analytics: данные берутся одним запросом на путь (1.6s)
+  ✓   78 tests/ui/requests.spec.ts:71:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.6s)
+  ✓   79 tests/ui/requests.spec.ts:71:3 › экран /finance: данные берутся одним запросом на путь (1.6s)
+  ✓   80 tests/ui/requests.spec.ts:71:3 › экран /channels: данные берутся одним запросом на путь (1.8s)
+  ✓   81 tests/ui/requests.spec.ts:71:3 › экран /connections/channex: данные берутся одним запросом на путь (2.1s)
+  ✓   82 tests/ui/requests.spec.ts:71:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.6s)
+  ✓   83 tests/ui/requests.spec.ts:71:3 › экран /channels/sync: данные берутся одним запросом на путь (1.6s)
+  ✓   84 tests/ui/requests.spec.ts:71:3 › экран /channels/events: данные берутся одним запросом на путь (1.5s)
+  ✓   85 tests/ui/requests.spec.ts:71:3 › экран /website: данные берутся одним запросом на путь (1.5s)
+  ✓   86 tests/ui/requests.spec.ts:71:3 › экран /website/booking: данные берутся одним запросом на путь (1.9s)
+  ✓   87 tests/ui/requests.spec.ts:71:3 › экран /website/analytics: данные берутся одним запросом на путь (2.2s)
+  ✓   88 tests/ui/requests.spec.ts:71:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.8s)
+  ✓   89 tests/ui/requests.spec.ts:71:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.6s)
+  ✓   90 tests/ui/requests.spec.ts:71:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓   91 tests/ui/requests.spec.ts:71:3 › экран /connections: данные берутся одним запросом на путь (1.6s)
+  ✓   92 tests/ui/requests.spec.ts:71:3 › экран /ai-agents: данные берутся одним запросом на путь (1.5s)
+  ✓   93 tests/ui/requests.spec.ts:71:3 › экран /website/settings: данные берутся одним запросом на путь (1.9s)
+  ✓   94 tests/ui/requests.spec.ts:71:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓   95 tests/ui/requests.spec.ts:71:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓   96 tests/ui/requests.spec.ts:71:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.1s)
+  ✓   97 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (3.6s)
+  ✓   98 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (2.6s)
+  ✓   99 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (3.9s)
+  ✓  100 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (8.0s)
+  ✓  101 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (8.0s)
+  ✓  102 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.4s)
+  ✓  103 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (6.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  104 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.6s)
+  ✓  105 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.9s)
+  ✓  106 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  107 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.3s)
+  ✓  108 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (2.8s)
+  ✓  109 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  110 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.0s)
+  ✓  111 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.7s)
+  ✓  112 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (5.8s)
+  ✓  113 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.2s)
+  ✓  114 tests/ui/seller-workspace.spec.ts:5:1 › five steps, back navigation preserves instruction, desktop and mobile do not overflow (9.0s)
+  ✓  115 tests/ui/seller-workspace.spec.ts:38:1 › model key persists after reload and empty save cannot erase it (4.3s)
+  ✓  116 tests/ui/top-menu.spec.ts:51:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.5s)
+  ✓  117 tests/ui/top-menu.spec.ts:115:1 › вложенные адреса подсвечивают свою вкладку (4.0s)
+  ✓  118 tests/ui/top-menu.spec.ts:148:3 › шапка ровная, без прокрутки вбок и доступная: light (3.9s)
+  ✓  119 tests/ui/top-menu.spec.ts:148:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.5s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('status')
+    Expected substring: "Инструкция сохранена"
+    Error: strict mode violation: getByRole('status') resolved to 2 elements:
+        1) <div role="status">…</div> aka getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента' })
+        2) <p role="status">Не удалось подтвердить подключение. Проверьте гот…</p> aka getByText('Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повтор')
+
+    Call log:
+      - Expect "toContainText" getByRole('status') with timeout 15000ms
+      - waiting for getByRole('status')
+        3 × locator resolved to <p role="status">Не удалось подтвердить подключение. Проверьте гот…</p>
+          - unexpected value "Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повторите."
+
+
+      75 |   await page.getByLabel('Как агент должен отвечать').fill('Проверенная тестовая инструкция Аси.');
+      76 |   await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
+    > 77 |   await expect(page.getByRole('status')).toContainText('Инструкция сохранена');
+         |                                          ^
+      78 |   await page.reload();
+      79 |   await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
+      80 |     'Проверенная тестовая инструкция Аси.',
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:77:42
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/navigation.spec.ts:46:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+    @@ -4,10 +4,11 @@
+        "/chessboard",
+        "/connections",
+        "/finance",
+        "/guests",
+        "/hotel-settings",
+    +   "/incidents",
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+        "/rates",
+        "/reservations",
+
+      55 |     .locator('.workspace-links a')
+      56 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 57 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      58 |   expect(new Set(links).size).toBe(links.length);
+      59 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+      60 |   // «Шахматка» больше не спрятана в группе: прямая ссылка с подписью
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:57:29
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+    tests/ui/navigation.spec.ts:46:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+  117 passed (10.7m)
+
+# код выхода 1 · 10 мин 41 с

@@ -10,7 +10,14 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { activeNavigation, phoneNavigation } from '../lib/navigation';
+import {
+  CLOSED_ACCESS,
+  PENDING_ACCESS,
+  activeNavigation,
+  allowedItem,
+  phoneNavigationFor,
+  type NavigationAccess,
+} from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
@@ -207,16 +214,9 @@ export function TopNav({
         </div>
         {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">
-          {phoneNavigation.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-            >
-              <Icon name={n.icon} />
-              <span>{n.label}</span>
-            </Link>
-          ))}
+          <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
+            <GrantedBottomNav desk={desk} path={path} />
+          </Suspense>
           <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
             <Icon name="more" />
             <span>Ещё</span>
@@ -239,6 +239,41 @@ export function TopNav({
         </Suspense>
       </div>
     </DataFreshnessProvider>
+  );
+}
+
+/**
+ * Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями;
+ * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
+ * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
+ */
+function BottomNavLinks({
+  access,
+  path,
+  vertical,
+}: {
+  access: NavigationAccess;
+  path: string;
+  vertical?: 'HOSPITALITY' | 'BEAUTY' | undefined;
+}) {
+  return phoneNavigationFor(vertical)
+    .filter((item) => allowedItem(item, access))
+    .map((n) => (
+      <Link
+        key={n.href}
+        href={n.href}
+        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
+      >
+        <Icon name={n.icon} />
+        <span>{n.label}</span>
+      </Link>
+    ));
+}
+
+function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+  const shell = desk ? use(desk) : null;
+  return (
+    <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} vertical={shell?.vertical} />
   );
 }
 

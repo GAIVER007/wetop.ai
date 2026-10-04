@@ -78,6 +78,14 @@ beforeEach(() => {
     join(bin, 'docker'),
     `#!/usr/bin/env bash
 echo "docker $*" >> "$FAKE_CALLS"
+# Контейнер CI-раннера есть всегда; задачу он выполняет, когда задан FAKE_CI_BUSY (процесс Runner.Worker)
+if [ "$1" = ps ]; then echo ci1; exit 0; fi
+if [ "$1" = top ]; then
+  echo "UID PID CMD"
+  echo "runner 10 /home/runner/actions-runner/bin/Runner.Listener run"
+  [ -n "\${FAKE_CI_BUSY:-}" ] && echo "runner 11 /home/runner/actions-runner/bin/Runner.Worker spawnclient 1 2"
+  exit 0
+fi
 if [ "$1" = compose ] && [[ " $* " == *" exec "* ]]; then
   [ -n "\${FAKE_BAD_SHA:-}" ] && [ "$(git -C "$DEPLOY_REPO" rev-parse HEAD)" = "$FAKE_BAD_SHA" ] && exit 1
   [[ " $* " == *" api "* ]] && echo '{"status":"ok","database":"up"}'
@@ -270,5 +278,39 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(r.out).toContain(`возвращён ${before.slice(0, 8)}`);
     // сломанный коммит не пробует снова каждые две минуты
     expect(run({ FAKE_BAD_SHA: target }).out).toBe('');
+  });
+
+  // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка образа совпала с проверками CI на том же
+  // сервере, памяти не хватило обоим, туннель 4–7 минут отвечал 530
+  it('CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает', () => {
+    const before = head();
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const busy = run({ FAKE_CI_BUSY: '1' });
+    expect(busy.code, busy.out).toBe(0);
+    expect(busy.out).toContain('раннер CI выполняет задачу');
+    expect(dockerCalls()).not.toContain('up -d --build');
+    expect(head()).toBe(before);
+    expect(existsSync(join(state, 'refused'))).toBe(false);
+    // повторные запуски, пока раннер занят, молчат: строка в журнале одна на вершину
+    expect(run({ FAKE_CI_BUSY: '1' }).out).toBe('');
+    const free = run();
+    expect(free.code, free.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(dockerCalls()).toMatch(/up -d --build api web/);
+  });
+
+  it('раннер занят дольше предела — выкладывает всё равно и говорит об этом', () => {
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const r = run({ FAKE_CI_BUSY: '1', DEPLOY_CI_MAX_WAIT: '0' });
+    expect(r.code, r.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(r.out).toContain('раннер CI занят дольше 0 мин');
+  });
+
+  it('миграции проверяются раньше раннера: занятый раннер не прячет отказ', () => {
+    commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    const r = run({ FAKE_CI_BUSY: '1' });
+    expect(r.code).toBe(1);
+    expect(r.out).toContain('применяет владелец');
   });
 });

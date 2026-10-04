@@ -1,0 +1,201 @@
+# Сквозные (e2e) · 03.10.2026 17:17 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-branch.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+  ✘  1 tests/ui/beauty-branch.spec.ts:42:1 › салон заводится той же формой и открывается своим рабочим местом (20.0s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+  ✓  2 tests/ui/beauty-branch.spec.ts:57:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (8.6s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+[WebServer] [browser] Failed to fetch RSC payload for http://127.0.0.1:3100/onboarding. Falling back to browser navigation. TypeError: Failed to fetch
+  ✓  3 tests/ui/beauty-branch.spec.ts:73:1 › карточка объекта показывает имя салона, а не «объект не загружен» (8.8s)
+  ✘  4 tests/ui/beauty-branch.spec.ts:84:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (19.6s)
+  ✘  5 tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в светлой теме (7.0s)
+  ✘  6 tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в тёмной теме (7.8s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:42:1 › салон заводится той же формой и открывается своим рабочим местом 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Студия Айна"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        - waiting for "http://127.0.0.1:3100/onboarding" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/onboarding"
+        2 × waiting for "http://127.0.0.1:3100/today" navigation to finish...
+          - navigated to "http://127.0.0.1:3100/today"
+        3 × locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+        - waiting for "http://127.0.0.1:3100/today" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/today"
+        2 × locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+        - waiting for "http://127.0.0.1:3100/today" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/today"
+        - locator resolved to <h1 class="page__title">Главная</h1>
+        - unexpected value "Главная"
+
+
+      47 |   await createAndOpenSalon(page, 'Студия Айна');
+      48 |   const main = page.getByRole('main');
+    > 49 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Студия Айна');
+         |                                                         ^
+      50 |   // честность экрана: что работает и чего нет, без обещаний (DESIGN.md §19.9)
+      51 |   await expect(main).toContainText('Что уже работает');
+      52 |   await expect(main).toContainText('Чего пока нет');
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:49:57
+
+    Error Context: test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-branch.spec.ts:84:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Студия Айна"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        - waiting for "http://127.0.0.1:3100/onboarding" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/onboarding"
+        3 × waiting for "http://127.0.0.1:3100/today" navigation to finish...
+          - navigated to "http://127.0.0.1:3100/today"
+          - locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+          - locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+        - waiting for "http://127.0.0.1:3100/today" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/today"
+        - locator resolved to <h1 class="page__title">Главная</h1>
+        - unexpected value "Главная"
+        - waiting for navigation to finish...
+        3 × navigated to "http://127.0.0.1:3100/onboarding"
+          - waiting for "http://127.0.0.1:3100/today" navigation to finish...
+          - navigated to "http://127.0.0.1:3100/today"
+          - locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+          - waiting for "http://127.0.0.1:3100/onboarding" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/onboarding"
+        - waiting for "http://127.0.0.1:3100/today" navigation to finish...
+        - navigated to "http://127.0.0.1:3100/today"
+        - locator resolved to <h1 class="page__title">Главная</h1>
+        - unexpected value "Главная"
+
+
+      90 |   await page.setViewportSize({ width: 390, height: 844 });
+      91 |   await page.reload();
+    > 92 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Студия Айна');
+         |                                                                           ^
+      93 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      94 |   await page.screenshot({ path: `${SNAPSHOTS}/salon-390.png`, fullPage: true });
+      95 | });
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:92:75
+
+    Error Context: test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-на-тел-b1352-ез-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в светлой теме ─────────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+      107 |     const audit = await new AxeBuilder({ page })
+      108 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    > 109 |       .analyze();
+          |        ^
+      110 |     expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+      111 |     await page.screenshot({ path: `${SNAPSHOTS}/salon-${theme}.png`, fullPage: true });
+      112 |   });
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:201:16)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:109:8
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в тёмной теме ──────────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+      107 |     const audit = await new AxeBuilder({ page })
+      108 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    > 109 |       .analyze();
+          |        ^
+      110 |     expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+      111 |     await page.screenshot({ path: `${SNAPSHOTS}/salon-${theme}.png`, fullPage: true });
+      112 |   });
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:201:16)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:109:8
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/beauty-branch.spec.ts:42:1 › салон заводится той же формой и открывается своим рабочим местом 
+    tests/ui/beauty-branch.spec.ts:84:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки 
+    tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в светлой теме ──────────────────────────
+    tests/ui/beauty-branch.spec.ts:98:3 › салон доступен и в тёмной теме ───────────────────────────
+  2 passed (1.4m)
+
+# код выхода 1 · 1 мин 24 с

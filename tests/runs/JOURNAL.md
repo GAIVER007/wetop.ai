@@ -5837,3 +5837,8 @@
 | 04.10.2026 01:00 | integration | ✅ 0 из 294, пропущено 294 | 33 с | 7e7cf3d | [лог](logs/2026-10-03T20-00-30Z-integration-e3cd.log) | слитое дерево: Beauty + конкуренты в одной схеме |
 | 04.10.2026 01:01 | integration | ✅ 294 из 294 | 1 мин 2 с | 7e7cf3d | [лог](logs/2026-10-03T20-01-29Z-integration-acba.log) | слитое дерево: Beauty и конкуренты в одной схеме |
 | 04.10.2026 01:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/market.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/theme-transition.spec.ts  | ✅ 70 из 70 | 6 мин 38 с | 7e7cf3d | [лог](logs/2026-10-03T20-05-31Z-e2e-7336.log) | слитое дерево: рынок и каналы из main рядом с салоном |
+| 04.10.2026 11:35 | typecheck | ✅ без ошибок | 40 с | de3029c | [лог](logs/2026-10-04T06-35-48Z-typecheck-30e6.log) | слияние main 04.10: салоны Beauty, главная владельца |
+| 04.10.2026 11:36 | lint | ✅ без ошибок | 22 с | de3029c | [лог](logs/2026-10-04T06-36-29Z-lint-fedd.log) | слияние main 04.10 |
+| 04.10.2026 11:36 | unit | ❌ упало 1 из 3223, пропущено 3 | 1 мин 46 с | de3029c | [лог](logs/2026-10-04T06-36-52Z-unit-7ad6.log) | слияние main 04.10 |
+| 04.10.2026 11:38 | integration | ✅ 307 из 307 | 1 мин 7 с | de3029c | [лог](logs/2026-10-04T06-38-39Z-integration-cddc.log) | слияние main 04.10 |
+| 04.10.2026 11:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/status-page.spec.ts tests/ui/channels-reconcile.spec.ts tests/ui/channels-compact.spec.ts tests/u | ✅ 132 из 132 | 8 мин 22 с | de3029c | [лог](logs/2026-10-04T06-40-02Z-e2e-29ff.log) | слияние main 04.10: срезы ADR-144 и соседи |

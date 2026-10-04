@@ -270,10 +270,10 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при �
 | Состояние | Кнопка главная | Кнопка белая, пункт меню, вкладка | Поле | Строка таблицы |
 |---|---|---|---|---|
 | обычное | `--primary` / `--on-primary` | `--surface` / цвет тона, рамка `--border-input` | `--surface`, рамка `--border-input` | `--surface` |
-| наведение | `--primary-hover` | фон `--row-hover`, рамка `currentColor` | рамка `--border-input` → `--primary` (7.4) | `--row-hover` |
+| наведение | `--primary-hover` | фон `--row-hover`, рамка `currentColor` | фон `--row-hover`, рамка не меняется | `--row-hover` |
 | фокус | кольцо `--focus` `--focus-ring-w` 2 px, отступ `--focus-ring-offset` 2 px | то же | рамка `--primary` + кольцо | кольцо на области прокрутки |
 | нажатие | сдвиг 1 px вниз (`translateY(1px)`) | то же | — | — |
-| отключено | `opacity .55`, курсор `not-allowed` | то же | текст `--muted`, фон `--surface-muted` (7.4) | `.is-void`: `--muted`, зачёркнуто |
+| отключено | `opacity .55`, курсор `not-allowed` | то же | `opacity .55`, текст `--muted`, курсор `not-allowed`; серый фон только у `readOnly` | `.is-void`: `--muted`, зачёркнуто |
 | загрузка | текст «Сохраняю…», `aria-busy`, отключена | то же | `readOnly`, `aria-busy` | скелетон `.skeleton` |
 | ошибка | рядом `Alert` (`role="alert"`) | пункт с причиной, `aria-disabled` | `aria-invalid`, рамка `--danger` (7.4), текст `--danger` под полем | `Alert boxed` вместо строк |
 | выбрано | `.seg .is-on`: `--surface-elevated`, текст `--primary` | `aria-selected`, подчёркивание `--primary` 2 px | значение заполнено / отмечено | `.is-active`: `--primary-soft` |
@@ -288,7 +288,7 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при �
 | Заголовок страницы | `page.tsx` (`Page`) | 28 px / 700, действия справа | есть |
 | Поиск ⌘K | `shell/search.tsx` | окно 560 px | есть |
 | Кнопка | `ui.tsx` (`Button`), тона primary/secondary/danger/warning/success/info/ghost | 38 px (`--control-h`), sm 30 (`--control-h-sm`), xs 24 (`--control-h-xs`), радиус `--radius-control`; **почему 38:** ниже 36 палец на планшете промахивается, выше 40 в строке таблицы не помещается | есть; **залита только главная**, остальные белые с цветной подписью (ADR-027) |
-| Поле, выбор, текст | `Input`, `Select`, `Textarea`, `Field` | 38 px, на телефоне 16 px шрифт и 44 px высота | есть; **нарушение (7.4):** нет наведения и стиля «отключено», `aria-invalid` не используется |
+| Поле, выбор, текст | `Input`, `Select`, `Textarea`, `Field` | 38 px, на телефоне 16 px шрифт и 44 px высота | есть; hover, disabled, readOnly и `aria-invalid` заданы в `globals.css`; `Field` с `controlId` связывает hint/error с контролом через `aria-describedby` (срез 7.4 закрыт 04.10.2026) |
 | Плитка показателя | `Stat`, `kpi.tsx` | белая, число `--text-4xl` 28 (сегодня 26 в старом слое — 7.4) | есть; цвет только у значения и только когда нужно действие |
 | Панель | `Panel` | рамка 1 px, радиус 16, внутри 16 px (сегодня 12 и 20 — 7.4) | есть |
 | Таблица | `Table` | шапка 42 px, строка 38–42, прокрутка внутри с фокусом | есть |

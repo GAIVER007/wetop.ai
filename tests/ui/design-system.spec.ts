@@ -19,12 +19,12 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('обе темы на одной странице, у интерактивных компонентов восемь состояний', async ({
+test('три темы на одной странице, у интерактивных компонентов восемь состояний', async ({
   page,
 }) => {
   await page.goto('/design-system');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Дизайн-система');
-  for (const theme of ['light', 'dark']) {
+  for (const theme of ['light', 'dark', 'contrast']) {
     const block = page.getByTestId(`kit-${theme}`);
     await expect(block).toBeVisible();
     const sections = block.locator('section[data-component][data-interactive]');
@@ -42,6 +42,42 @@ test('обе темы на одной странице, у интерактив�
       ).toEqual(expect.arrayContaining(STATES));
     }
   }
+});
+
+test('переключатель тем сообщает выбранное состояние', async ({ page }) => {
+  await page.goto('/design-system');
+  const all = page.getByRole('button', { name: 'Все темы' });
+  const contrast = page.getByRole('button', { name: 'Повышенная контрастность' });
+
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
+  await contrast.click();
+  await expect(all).toHaveAttribute('aria-pressed', 'false');
+  await expect(contrast).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('kit-light')).toBeHidden();
+  await expect(page.getByTestId('kit-dark')).toBeHidden();
+  await expect(page.getByTestId('kit-contrast')).toBeVisible();
+});
+
+test('ошибка Field связана с невалидным полем', async ({ page }) => {
+  await page.goto('/design-system');
+  const field = page.getByTestId('kit-light').getByLabel('Гражданство');
+  await expect(field).toHaveAttribute('aria-invalid', 'true');
+  await expect(field).toHaveAttribute('aria-describedby', 'kit-light-citizenship-error');
+  await expect(page.locator('#kit-light-citizenship-error')).toHaveRole('alert');
+});
+
+test('повышенная контрастность проходит axe AA', async ({ page }) => {
+  await page.goto('/design-system');
+  const result = await new AxeBuilder({ page })
+    .include('[data-testid="kit-contrast"]')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(
+    result.violations.map((violation) => ({
+      id: violation.id,
+      nodes: violation.nodes.map((node) => node.target),
+    })),
+  ).toEqual([]);
 });
 
 for (const theme of ['light', 'dark'] as const) {

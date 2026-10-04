@@ -1,10 +1,40 @@
-/* Страница компонентов: только раскладка витрины. Вид самих компонентов — globals.css и токены. */
+/* Страница компонентов: только раскладка витрины. Вид самих компонентов: globals.css и токены. */
+.kit-theme-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+.kit-theme-bar__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-2);
+}
+.kit-theme-bar__seg {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
 .kit-themes {
   display: grid;
   /* колонка не шире контейнера: иначе широкое демо (таблица min-width 520) распирало витрину
      за 390px, ведь grid-элемент по умолчанию min-width:auto и не сжимается (разбор 22.09) */
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-8);
+}
+.kit-themes--filter-light .kit-theme:not([data-theme='light']) {
+  display: none;
+}
+.kit-themes--filter-dark .kit-theme:not([data-theme='dark']) {
+  display: none;
+}
+.kit-themes--filter-contrast .kit-theme:not([data-theme='contrast']) {
+  display: none;
 }
 .kit-theme {
   min-width: 0;
@@ -17,6 +47,9 @@
 }
 .kit-theme[data-theme='dark'] {
   color-scheme: dark;
+}
+.kit-theme[data-theme='contrast'] {
+  color-scheme: light;
 }
 /* Обёртка .table-scroll у компонента Table получает прокрутку точечно на каждом экране (дашборд,
    брони). На витрине компонентов такого правила не было — демо-таблица (min-width 520) распирала

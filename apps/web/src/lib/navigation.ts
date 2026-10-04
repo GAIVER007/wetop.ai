@@ -186,6 +186,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Начисления, оплаты, возвраты и остатки за период.',
       },
       {
+        href: '/bar',
+        requires: 'reports',
+        label: 'Бар',
+        icon: 'receipt',
+        description: 'Приходы, товары, остатки, наценка и долги поставщикам.',
+      },
+      {
         // Хаб REP1 (план reports-hub-2026-10-02): один вход ко всем отчётам, числа за период и ссылки в готовые экраны
         href: '/reports',
         requires: 'reports',
@@ -372,6 +379,7 @@ export const menuSections: MenuSection[] = [
   direct('reservations', '/reservations', 'booking'),
   direct('guests', '/guests', 'guests'),
   direct('finance', '/finance', 'money', 'Финансы'),
+  direct('bar', '/bar', 'receipt'),
   {
     id: 'sales',
     label: 'Продажи',

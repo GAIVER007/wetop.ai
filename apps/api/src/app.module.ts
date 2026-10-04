@@ -7,6 +7,7 @@ import { AiSellerModule } from './ai-seller/ai-seller.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AssistantModule } from './assistant/assistant.module';
 import { AuthModule } from './auth/auth.module';
+import { BarModule } from './bar/bar.module';
 import { SessionGuard } from './auth/auth.guard';
 import { RoleGuard } from './auth/role.guard';
 import { AuthorInterceptor } from './auth/author.interceptor';
@@ -42,6 +43,7 @@ import { DataConnectionModule } from './database/connection';
     // одноразовый код на почту — AccountsModule (ADR-046).
     AuthModule,
     AccountsModule,
+    BarModule,
     // главный администратор: организации и их расширения (ADR-083)
     PlatformModule,
     InventoryModule,

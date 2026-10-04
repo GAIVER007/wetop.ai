@@ -12,7 +12,7 @@ const hrefs = (vertical?: 'HOSPITALITY' | 'BEAUTY') =>
 describe('меню салона', () => {
   it('у филиала салона нет гостиничных разделов', () => {
     const items = hrefs('BEAUTY');
-    for (const href of ['/today', '/chessboard', '/reservations', '/inventory', '/rates', '/channels', '/hotel-settings', '/website', '/finance']) {
+    for (const href of ['/today', '/chessboard', '/reservations', '/inventory', '/rates', '/channels', '/hotel-settings', '/website', '/finance', '/bar']) {
       expect(items, href).not.toContain(href);
     }
   });

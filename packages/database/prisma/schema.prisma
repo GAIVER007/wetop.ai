@@ -132,6 +132,13 @@ model Property {
   cashCategories      CashCategory[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  barCategories       BarCategory[]
+  barProducts         BarProduct[]
+  barSuppliers        BarSupplier[]
+  barReceipts         BarReceipt[]
+  barStockLots        BarStockLot[]
+  barStockMovements   BarStockMovement[]
+  barSales            BarSale[]
   deskTasks           DeskTask[]
   paymentRequests     PaymentRequest[]
   fiscalReceipts      FiscalReceipt[]
@@ -823,6 +830,7 @@ model Folio {
   allocations     PaymentAllocation[]
   refunds         Refund[]
   paymentRequests PaymentRequest[]
+  barSales        BarSale[]
 
   @@map("folios")
 }
@@ -866,6 +874,7 @@ model Charge {
 
   folio   Folio    @relation(fields: [folioId], references: [id])
   service Service? @relation(fields: [serviceId], references: [id])
+  barSale BarSale?
 
   @@index([folioId])
   @@map("charges")
@@ -943,6 +952,232 @@ enum CashOperationKind {
   TRANSFER
 }
 
+enum BarReceiptStatus {
+  DRAFT
+  POSTED
+  REVERSED
+}
+
+enum BarStockMovementKind {
+  RECEIPT
+  SALE
+  WRITE_OFF
+  SALE_RETURN
+  INVENTORY_ADJUSTMENT
+}
+
+enum BarSaleStatus {
+  POSTED
+  REVERSED
+}
+
+model BarCategory {
+  id                 String   @id @default(uuid()) @db.Uuid
+  propertyId         String   @map("property_id") @db.Uuid
+  name               String
+  defaultMarkupBasis Int      @map("default_markup_basis")
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  products BarProduct[]
+
+  @@unique([propertyId, name])
+  @@map("bar_categories")
+}
+
+model BarProduct {
+  id                 String   @id @default(uuid()) @db.Uuid
+  propertyId         String   @map("property_id") @db.Uuid
+  categoryId         String?  @map("category_id") @db.Uuid
+  code               String
+  name               String
+  barcode            String?
+  unitsPerPackage    Int      @default(1) @map("units_per_package")
+  markupBasis        Int?     @map("markup_basis")
+  salePrice          BigInt   @map("sale_price")
+  minimumStockUnits  BigInt   @default(0) @map("minimum_stock_units")
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  category     BarCategory?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  receiptLines BarReceiptLine[]
+  lots         BarStockLot[]
+  movements    BarStockMovement[]
+  saleLines    BarSaleLine[]
+
+  @@unique([propertyId, code])
+  @@unique([propertyId, barcode])
+  @@index([propertyId, active])
+  @@map("bar_products")
+}
+
+model BarSupplier {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  name       String
+  phone      String?
+  email      String?
+  details    String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  receipts BarReceipt[]
+
+  @@unique([propertyId, name])
+  @@map("bar_suppliers")
+}
+
+model BarReceipt {
+  id             String           @id @default(uuid()) @db.Uuid
+  propertyId     String           @map("property_id") @db.Uuid
+  supplierId     String           @map("supplier_id") @db.Uuid
+  documentNumber String           @map("document_number")
+  documentDate   DateTime         @map("document_date") @db.Date
+  receivedDate   DateTime         @map("received_date") @db.Date
+  status         BarReceiptStatus @default(DRAFT)
+  currency       String           @db.Char(3)
+  totalAmount    BigInt           @map("total_amount")
+  note           String?
+  createdById    String?          @map("created_by_id") @db.Uuid
+  postedAt       DateTime?        @map("posted_at") @db.Timestamptz(6)
+  reversedAt     DateTime?        @map("reversed_at") @db.Timestamptz(6)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property             @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  supplier BarSupplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  lines    BarReceiptLine[]
+  payments BarSupplierPayment[]
+
+  @@unique([propertyId, supplierId, documentNumber])
+  @@index([propertyId, receivedDate])
+  @@map("bar_receipts")
+}
+
+model BarReceiptLine {
+  id               String @id @default(uuid()) @db.Uuid
+  receiptId        String @map("receipt_id") @db.Uuid
+  productId        String @map("product_id") @db.Uuid
+  quantityUnits    BigInt @map("quantity_units")
+  unitCost         BigInt @map("unit_cost")
+  amount           BigInt
+  markupBasis      Int    @map("markup_basis")
+  calculatedPrice  BigInt @map("calculated_price")
+
+  receipt BarReceipt   @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  product BarProduct   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  lot     BarStockLot?
+
+  @@unique([receiptId, productId])
+  @@map("bar_receipt_lines")
+}
+
+model BarStockLot {
+  id             String    @id @default(uuid()) @db.Uuid
+  propertyId     String    @map("property_id") @db.Uuid
+  productId      String    @map("product_id") @db.Uuid
+  receiptLineId  String    @unique @map("receipt_line_id") @db.Uuid
+  receivedUnits  BigInt    @map("received_units")
+  remainingUnits BigInt    @map("remaining_units")
+  unitCost       BigInt    @map("unit_cost")
+  receivedAt     DateTime  @map("received_at") @db.Timestamptz(6)
+  expiresOn      DateTime? @map("expires_on") @db.Date
+
+  property    Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  product     BarProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  receiptLine BarReceiptLine     @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
+  movements   BarStockMovement[]
+
+  @@index([propertyId, productId, receivedAt])
+  @@map("bar_stock_lots")
+}
+
+model BarStockMovement {
+  id          String               @id @default(uuid()) @db.Uuid
+  propertyId  String               @map("property_id") @db.Uuid
+  productId   String               @map("product_id") @db.Uuid
+  lotId       String?              @map("lot_id") @db.Uuid
+  kind        BarStockMovementKind
+  units       BigInt
+  unitCost    BigInt               @map("unit_cost")
+  sourceType  String               @map("source_type")
+  sourceId    String               @map("source_id") @db.Uuid
+  note        String?
+  createdById String?              @map("created_by_id") @db.Uuid
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  product  BarProduct   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  lot      BarStockLot? @relation(fields: [lotId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceType, sourceId, productId, lotId])
+  @@index([propertyId, productId, createdAt])
+  @@map("bar_stock_movements")
+}
+
+model BarSupplierPayment {
+  id              String   @id @default(uuid()) @db.Uuid
+  receiptId       String   @map("receipt_id") @db.Uuid
+  cashOperationId String   @unique @map("cash_operation_id") @db.Uuid
+  amount          BigInt
+  paidAt          DateTime @map("paid_at") @db.Timestamptz(6)
+  createdById     String?  @map("created_by_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  receipt       BarReceipt    @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  cashOperation CashOperation @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+
+  @@index([receiptId, paidAt])
+  @@map("bar_supplier_payments")
+}
+
+model BarSale {
+  id              String        @id @default(uuid()) @db.Uuid
+  propertyId      String        @map("property_id") @db.Uuid
+  folioId         String?       @map("folio_id") @db.Uuid
+  cashOperationId String?       @unique @map("cash_operation_id") @db.Uuid
+  chargeId        String?       @unique @map("charge_id") @db.Uuid
+  idempotencyKey  String        @map("idempotency_key")
+  status          BarSaleStatus @default(POSTED)
+  currency        String        @db.Char(3)
+  totalRevenue    BigInt        @map("total_revenue")
+  totalCost       BigInt        @map("total_cost")
+  createdById     String?       @map("created_by_id") @db.Uuid
+  reversedAt      DateTime?     @map("reversed_at") @db.Timestamptz(6)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  folio         Folio?         @relation(fields: [folioId], references: [id], onDelete: Restrict)
+  cashOperation CashOperation? @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  charge        Charge?        @relation(fields: [chargeId], references: [id], onDelete: Restrict)
+  lines         BarSaleLine[]
+
+  @@unique([propertyId, idempotencyKey])
+  @@index([propertyId, createdAt])
+  @@map("bar_sales")
+}
+
+model BarSaleLine {
+  id            String @id @default(uuid()) @db.Uuid
+  saleId        String @map("sale_id") @db.Uuid
+  productId     String @map("product_id") @db.Uuid
+  quantityUnits BigInt @map("quantity_units")
+  salePrice     BigInt @map("sale_price")
+  revenue       BigInt
+  cost          BigInt
+
+  sale    BarSale    @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  product BarProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([saleId, productId])
+  @@map("bar_sale_lines")
+}
+
 /// Статья кассы: справочник объекта. Удаления нет — архив через active (как Service)
 model CashCategory {
   id         String            @id @default(uuid()) @db.Uuid
@@ -985,6 +1220,8 @@ model CashOperation {
   /// как в миграции 040: ключ на свою же таблицу, удалить операцию с комиссией нельзя
   related    CashOperation?  @relation("CashOperationRelated", fields: [relatedId], references: [id], onDelete: Restrict)
   dependents CashOperation[] @relation("CashOperationRelated")
+  supplierPayment BarSupplierPayment?
+  barSale         BarSale?
 
   @@index([propertyId, occurredAt])
   @@index([relatedId])

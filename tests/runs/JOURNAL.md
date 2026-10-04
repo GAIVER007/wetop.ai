@@ -6045,3 +6045,4 @@
 | 04.10.2026 16:01 | e2e | ✅ 25 из 25 | 1 мин 5 с | 72a9531 +50 | [лог](logs/2026-10-04T11-01-36Z-e2e-a78c.log) |  |
 | 04.10.2026 16:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 25 мин | 72a9531 +50 | [лог](logs/2026-10-04T11-02-48Z-e2e-cb4a.log) |  |
 | 04.10.2026 16:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/fund-workspace.spec.ts tests/ui/requests.spec.ts tests/ui/booking-grou | ❌ упало 29 из 110 | 5 мин 55 с | a3c969a | [лог](logs/2026-10-04T11-43-09Z-e2e-bb93.log) | category creation, rename, room creation and reload |
+| 04.10.2026 16:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/fund-workspace.spec.ts tests/ui/requests.spec.ts tests/ui/booking-grou | ✅ 110 из 110 | 6 мин 21 с | a3c969a | [лог](logs/2026-10-04T11-49-58Z-e2e-a44e.log) |  |

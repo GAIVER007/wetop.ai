@@ -133,3 +133,19 @@ Beauty/schema/auth в этом upstream-коммите не менялись. In
 - Скриншоты не нужны для этого backend-only этапа. Полный UI E2E и production release-checks не заявлены.
 - Production не обновлялся, release не перематывался. Миграции 51/52 требуют отдельного rollout владельца.
 - После отчёта STOP. MV5 не начат и требует отдельного разрешения.
+
+## Повторная проверка перед merge
+
+04.10.2026: rebase на свежий main `ca3fab8796bdff5fa797773266a966f5b86eb132`.
+Upstream содержит исправление DEFAULT migration 52 и QA Hospitality/channels.
+Beauty и Auth scope upstream не менялись. Конфликт только в DECISIONS.md, обе ADR сохранены.
+Повторный fetch перед отправкой подтвердил тот же main.
+
+- check-migrations: PASS, 57 миграций, полная цепочка, Prisma drift отсутствует, все down возвращают схему. Лог `merge-check-migrations.log` рядом с отчётом. Первый запуск не нашёл psql в PATH; повтор выполнен с установленным PostgreSQL 16 client.
+- Unit: 3339 passed, 4 прежних skip, `tests/runs/logs/2026-10-04T15-08-51Z-unit-509f.log`.
+- Integration: 348 passed, 9 прежних skip, `tests/runs/logs/2026-10-04T15-07-53Z-integration-56d3.log`.
+- Typecheck: PASS root/API/web, `tests/runs/logs/2026-10-04T15-07-03Z-typecheck-4ff1.log`.
+- Lint: PASS, `tests/runs/logs/2026-10-04T15-07-04Z-lint-875d.log`.
+
+Production не обновлять; миграции 51/52 остаются отдельным rollout владельца.
+MV5 разрешён владельцем только после merge #241, в утверждённых границах Beauty UI.

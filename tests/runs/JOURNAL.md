@@ -6130,3 +6130,7 @@
 | 04.10.2026 19:50 | unit | ❌ упало 1 из 3337, пропущено 4 | 2 мин 36 с | fbabf71 +1 | [лог](logs/2026-10-04T14-50-17Z-unit-8885.log) | MV4 final unit with stricter upstream calendar baseline 12 to 10 |
 | 04.10.2026 19:53 | unit (частично: apps/api/src/analytics/analytics.controller.test.ts) | ✅ 13 из 13 | 2 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-12Z-unit-cf7e.log) | MV4 investigate transient analytics socket hang up without source changes |
 | 04.10.2026 19:53 | unit | ✅ 3333 из 3337, пропущено 4 | 2 мин 35 с | fbabf71 +1 | [лог](logs/2026-10-04T14-53-25Z-unit-2bb5.log) | MV4 final full unit rerun after isolated analytics socket check; no source changes |
+| 04.10.2026 20:07 | lint | ✅ без ошибок | 25 с | 3edd238 | [лог](logs/2026-10-04T15-07-04Z-lint-875d.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:07 | typecheck | ✅ без ошибок | 34 с | 3edd238 | [лог](logs/2026-10-04T15-07-03Z-typecheck-4ff1.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:07 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 2 с | 3edd238 | [лог](logs/2026-10-04T15-07-53Z-integration-56d3.log) | MV4 fresh main rebase validation |
+| 04.10.2026 20:08 | unit | ✅ 3339 из 3343, пропущено 4 | 3 мин 4 с | 3edd238 | [лог](logs/2026-10-04T15-08-51Z-unit-509f.log) | MV4 fresh main rebase validation |

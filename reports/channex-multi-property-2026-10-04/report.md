@@ -1,0 +1,32 @@
+# Channex multi-property acceptance, 04.10.2026
+
+Approved: one WETOP service account, explicit mapping per branch, staff scoped to their branch;
+nullable country/city/property type metadata. Production metadata migration approved separately
+04.10.2026. No production OTA ARI authorization or activation is included.
+
+Implementation:
+- Provider IDs resolve to exactly one local Property. Conflicts and unknown webhook targets fail closed.
+- Feed, retries, scheduled synchronization and outbox run in verified asynchronous property scope.
+- Webhook health and registration caches are per property. Global incidents remain restricted.
+- Shared outbox endpoint throttling keeps fair branch priority; busy first branch cannot starve others.
+- Setup requires actual location metadata and an explicitly selected priced tariff.
+- Metadata survives save and browser reload; shared styled selects meet dark-mode contrast checks.
+
+Evidence:
+- Targeted suite: 30 files, 217 tests passed; final channel suite after outbox fix: 27 files, 205 tests passed.
+- Regression tests were red before fixes for webhook cache, global incident access and outbox starvation.
+- Separate local PostgreSQL: branch isolation, integration scope and channel journal, 3 files/7 tests passed.
+  Migration down/up validated inside a rolled-back transaction (0 then 3 metadata columns).
+- Browser: property settings, compact channels and reconciliation, 12 tests passed (1.1 min).
+  Metadata save/reload test was red before select remount fix, then passed alone and in full UI slice.
+- Root/API/web typecheck, lint and production Next build passed.
+- Broad apps/packages run: 2721 tests passed; two pre-existing timing thresholds failed under parallel load,
+  then both suites passed isolated (56 tests). Full root run also hit macOS bash3 Unicode parsing and
+  shell-test timing failures; no claim that the entire local root suite passed.
+- Server read-only Channex check: staging, configured key, GET /properties 200 (1 row),
+  GET /webhooks 200 (1 row). No secrets or provider payloads exported.
+- Fresh production backup: /root/backups/wetop-20261004T104226Z.dump,
+  348 KiB, 70 tables with data; backup script validation completed.
+
+Deployment remains gated by exact-candidate release-checks and migration validation. Live OTA booking
+receipt cannot be certified before Channex approval and official channel connection.

@@ -962,7 +962,12 @@ export const channelsApi = {
   /** Строки очереди: что именно уехало в Channex (срез 7.2) */
   outboxMessages: (limit = 20) =>
     getJson<OutboxMessage[]>(`/channels/channex/outbox/messages?limit=${limit}`),
-  setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
+  setup: (ratePlanCode?: string) =>
+    sendJson<unknown>(
+      'POST',
+      `/channels/channex/setup${ratePlanCode ? `?${new URLSearchParams({ ratePlanCode })}` : ''}`,
+      {},
+    ),
   /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
   sync: (days?: number) =>
     sendJson<{ from: string; to: string; tasks: string[] }>(

@@ -51,7 +51,9 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toHaveCount(0);
   }
-  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
+    'Объект',
+  );
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
@@ -103,6 +105,9 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(save).toBeDisabled();
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await form.getByLabel('Юридическое название').fill('ИП «Тестовый»');
+  await form.getByLabel('Страна (код ISO)').fill('KZ');
+  await form.getByLabel('Город', { exact: true }).fill('Вымышленный город');
+  await form.getByLabel('Тип размещения').selectOption('motel');
   await save.click();
   await expect(state).toHaveText('✓ Изменения сохранены');
   await expect(save).toBeDisabled();
@@ -110,10 +115,13 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await page.reload();
   await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
   await expect(form.getByLabel('Юридическое название')).toHaveValue('ИП «Тестовый»');
+  await expect(form.getByLabel('Страна (код ISO)')).toHaveValue('KZ');
+  await expect(form.getByLabel('Город', { exact: true })).toHaveValue('Вымышленный город');
+  await expect(form.getByLabel('Тип размещения')).toHaveValue('motel');
 
   await form.getByLabel('Почта').fill('не почта');
   await save.click();
-  await expect(main.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(main.getByRole('alert')).toContainText('Почта в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
   await expect(state).toHaveText('• Есть несохранённые изменения');
 

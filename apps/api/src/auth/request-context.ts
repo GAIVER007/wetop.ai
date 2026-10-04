@@ -44,6 +44,8 @@ interface RequestActor {
   locationId?: string;
   /** Направление — из строки Business, никогда не приходит снаружи */
   vertical?: BusinessVertical;
+  /** Internal Channex job scope, set only after provider property ID is resolved server-side. */
+  integrationPropertyId?: string;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -62,9 +64,7 @@ export function withSignedInUser<T>(
 ): Promise<T> {
   // Строка — прежний вызов «только автор»: оставлен, чтобы тесты и служебные пути не переписывать.
   const value: RequestActor =
-    actor === null || typeof actor === 'string'
-      ? { userId: actor, organizationId: null }
-      : actor;
+    actor === null || typeof actor === 'string' ? { userId: actor, organizationId: null } : actor;
   return runAwaited(value, fn);
 }
 
@@ -94,7 +94,26 @@ export function databaseTenant(): string | null {
 /** Выполнить внутри запроса человека служебной ролью базы — только для раздела «Платформа» (§17.2) */
 export function withServiceDatabase<T>(fn: () => Promise<T>): Promise<T> {
   const store = storage.getStore();
-  return runAwaited({ ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true }, fn);
+  return runAwaited(
+    { ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true },
+    fn,
+  );
+}
+
+/** Keep background Channex operations on one verified Property across async database calls. */
+export function withIntegrationPropertyScope<T>(
+  propertyId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const store = storage.getStore();
+  return runAwaited(
+    { ...(store ?? { userId: null, organizationId: null }), integrationPropertyId: propertyId },
+    fn,
+  );
+}
+
+export function currentIntegrationPropertyId(): string | null {
+  return storage.getStore()?.integrationPropertyId ?? null;
 }
 
 export function currentUserId(): string | null {
@@ -127,7 +146,13 @@ export function attachAuthor<T extends AuditCreateArgs>(
   userId: string | null,
   organizationId: string | null = null,
 ): T {
-  if ((!userId && !organizationId) || !args || typeof args !== 'object' || !('data' in args) || !args.data)
+  if (
+    (!userId && !organizationId) ||
+    !args ||
+    typeof args !== 'object' ||
+    !('data' in args) ||
+    !args.data
+  )
     return args;
   const stamp = (row: Record<string, unknown>) => ({
     ...row,

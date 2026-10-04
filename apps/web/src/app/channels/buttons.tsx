@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { Alert, Button, Notice, Row, Stack } from '../../components/ui';
+import { Alert, Button, Notice, Row, Stack, Select } from '../../components/ui';
 import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
 
 /**
@@ -20,18 +20,25 @@ export function ChannelButtons({
   webhookReady = false,
   configured = false,
   connected,
+  ratePlans = [],
 }: {
   group?: 'exchange' | 'setup' | 'all';
   webhookReady?: boolean;
   configured?: boolean;
   connected: boolean;
+  ratePlans?: Array<{ code: string; name: string }>;
 }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
+  const [ratePlanCode, setRatePlanCode] = useState('');
   const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
-    start(async () => setResult(await channelAction(kind)));
+    start(async () =>
+      setResult(await channelAction(kind, kind === 'setup' ? ratePlanCode : undefined)),
+    );
   // Одна причина на группу: без соединения не работает ничего, без ключа — настройка, без адреса — webhook
-  const noConnection = !connected ? 'Нет соединения с менеджером каналов — проверьте ключ и подключение.' : '';
+  const noConnection = !connected
+    ? 'Нет соединения с менеджером каналов: проверьте ключ и подключение.'
+    : '';
   return (
     <Stack gap="sm">
       {group !== 'setup' && (
@@ -62,13 +69,24 @@ export function ChannelButtons({
       {group !== 'exchange' && (
         <section className="channel-actions" id="channel-setup" aria-label="Настройка подключения">
           <h2 className="channel-actions__title">Настройка подключения</h2>
+          <label className="field">
+            <span>Тариф для продажи в каналах</span>
+            <Select value={ratePlanCode} onChange={(event) => setRatePlanCode(event.target.value)}>
+              <option value="">Выберите тариф</option>
+              {ratePlans.map((plan) => (
+                <option key={plan.code} value={plan.code}>
+                  {plan.name}
+                </option>
+              ))}
+            </Select>
+          </label>
           <Row>
             <Button
               type="button"
               tone="secondary"
               data-testid="channel-setup"
               onClick={() => run('setup')}
-              disabled={pending || !configured}
+              disabled={pending || !configured || !ratePlanCode}
             >
               Создать объект и категории
             </Button>
@@ -105,6 +123,7 @@ export function ChannelButtons({
               'Ключ менеджера каналов не задан на сервере — объект и категории создать нельзя. '}
             {!webhookReady &&
               'Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере. '}
+            {ratePlans.length === 0 && 'Сначала создайте активный тариф для этого филиала. '}
             Полная выгрузка отправляет цены и остатки за 500 дней по всем категориям: это долго и
             нужно после смены тарифов или первой настройки.
           </p>

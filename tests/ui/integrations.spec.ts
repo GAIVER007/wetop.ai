@@ -44,7 +44,7 @@ test('работает: одна карточка Channex, без базы, са
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
   await expect(card.getByTestId('integration-issues')).toHaveCount(0);
   await expect(card.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
-  await expect(card).toContainText('3 категории, 3 тарифа');
+  await expect(card).toContainText('3 категории, 1 тарифный план, 3 сопоставления');
   await expect(card.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute(
     'href',
     '/channels',
@@ -191,3 +191,20 @@ for (const theme of ['light', 'dark'] as const) {
     await shot('attention-390', 'attention');
   });
 }
+
+test('подключения различают два тарифных плана и десять сопоставлений', async ({ page }) => {
+  await control(page, {
+    channex: 'ok',
+    channelsOverrides: {
+      connection: { mappedCategories: 5, mappedLocalRatePlans: 2, mappedRatePlans: 10 },
+    },
+  });
+  await signIn(page);
+  await page.goto('/connections');
+  const card = page.getByRole('main').getByTestId('integration-channex');
+  await expect(card).toContainText('5 категорий, 2 тарифных плана, 10 сопоставлений');
+  await expect(card).not.toContainText('10 тарифов');
+  await expect(card).toContainText('Тестовый');
+  await page.reload();
+  await expect(card).toContainText('5 категорий, 2 тарифных плана, 10 сопоставлений');
+});

@@ -158,7 +158,12 @@ function ChannexConnected({
             <dt>Сопоставлено</dt>
             <dd>
               {pluralRu(c.mappedCategories, ['категория', 'категории', 'категорий'])},{' '}
-              {pluralRu(c.mappedRatePlans, ['тариф', 'тарифа', 'тарифов'])}
+              {pluralRu(c.mappedLocalRatePlans, [
+                'тарифный план',
+                'тарифных плана',
+                'тарифных планов',
+              ])}
+              , {pluralRu(c.mappedRatePlans, ['сопоставление', 'сопоставления', 'сопоставлений'])}
             </dd>
           </div>
         )}

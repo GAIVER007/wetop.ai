@@ -62,7 +62,7 @@ test('работает: соединение, сопоставление и webh
   await expect(connection).toContainText('Соединение установлено');
   await expect(connection).toContainText('Тестовая');
   await expect(connection).toContainText('ui-property');
-  await expect(connection).toContainText('категорий 3, тарифов 3');
+  await expect(connection).toContainText('категорий 3, тарифных планов 1, сопоставлений 3');
   await expect(main.getByTestId('webhook-state')).toHaveText('активен, события booking');
   await expect(main.getByTestId('channel-webhook')).toContainText('адрес отвечает');
   await expect(main.getByTestId('webhook-url-mismatch')).toHaveCount(0);

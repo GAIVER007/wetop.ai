@@ -6,7 +6,7 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
-import { folioBalance, LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { folioBalance, LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { propertyToday, propertyIdRef } from '../database/property-ref';
@@ -87,16 +87,28 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         reservation: { propertyId },
       },
       select: {
+        status: true,
+        allocations: { select: { endDate: true } },
         arrivalDate: true,
         departureDate: true,
         accommodationType: { select: { code: true } },
       },
     });
-    return rows.map((r) => ({
-      accommodationTypeCode: r.accommodationType.code,
-      arrivalDate: d(r.arrivalDate),
-      departureDate: d(r.departureDate),
-    }));
+    return rows.flatMap((r) => {
+      const departureDate = soldDeparture({
+        status: r.status,
+        departureDate: d(r.departureDate),
+        allocationEndDates: r.allocations.map((a) => d(a.endDate)),
+      });
+      if (!departureDate || departureDate <= from) return [];
+      return [
+        {
+          accommodationTypeCode: r.accommodationType.code,
+          arrivalDate: d(r.arrivalDate),
+          departureDate,
+        },
+      ];
+    });
   }
   /**
    * Проживания без ячейки: живой статус (не отменено, не незаезд, не выселено — выселенному ячейка

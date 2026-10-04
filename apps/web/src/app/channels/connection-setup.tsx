@@ -58,7 +58,7 @@ export async function ChannelConnectionSetup() {
             />
             <Fact
               label="Сопоставлено"
-              value={`категорий ${connection.mappedCategories}, тарифов ${connection.mappedRatePlans}`}
+              value={`категорий ${connection.mappedCategories}, тарифных планов ${connection.mappedLocalRatePlans}, сопоставлений ${connection.mappedRatePlans}`}
             />
             <Fact
               label="Последний webhook, по Алматы"

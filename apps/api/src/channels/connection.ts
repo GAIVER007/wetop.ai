@@ -56,6 +56,11 @@ export class ChannelConnectionService {
       propertyId,
       propertyAccessible: false,
       mappedCategories: new Set(mapping.map((m) => m.providerRoomTypeId).filter(Boolean)).size,
+      mappedLocalRatePlans: new Set(
+        mapping
+          .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+          .map((m) => m.localRatePlanId),
+      ).size,
       mappedRatePlans: new Set(mapping.map((m) => m.providerRatePlanId).filter(Boolean)).size,
       lastWebhookAt: lastWebhookAt?.toISOString() ?? null,
       lastPullAt: lastPullAt?.toISOString() ?? null,

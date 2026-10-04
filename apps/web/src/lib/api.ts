@@ -1108,6 +1108,8 @@ export interface ChannelConnection {
   propertyId: string | null;
   propertyAccessible: boolean;
   mappedCategories: number;
+  mappedLocalRatePlans: number;
+  /** Внешние связки категории и тарифа, не число планов WETOP. */
   mappedRatePlans: number;
   lastWebhookAt: string | null;
   lastPullAt: string | null;

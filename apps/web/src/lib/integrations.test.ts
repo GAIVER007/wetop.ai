@@ -26,6 +26,7 @@ const connection = (over: Partial<ChannelConnection> = {}): ChannelConnection =>
   propertyId: 'channex-property',
   propertyAccessible: true,
   mappedCategories: 5,
+  mappedLocalRatePlans: 2,
   mappedRatePlans: 10,
   lastWebhookAt: '2026-09-27T13:58:00Z',
   lastPullAt: '2026-09-27T12:00:00Z',

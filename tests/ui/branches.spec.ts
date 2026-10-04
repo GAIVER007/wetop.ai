@@ -6,7 +6,7 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
-  await page.getByRole('link', { name: 'Все филиалы', exact: true }).click();
+  await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
   await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();

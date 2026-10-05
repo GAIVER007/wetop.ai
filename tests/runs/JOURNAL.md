@@ -6307,3 +6307,9 @@
 | 05.10.2026 15:46 | lint | ✅ без ошибок | 20 с | c98a959 +3 | [лог](logs/2026-10-05T10-46-08Z-lint-18bb.log) | Calendar mobile selection persistence lint |
 | 05.10.2026 15:46 | typecheck | ✅ без ошибок | 13 с | c98a959 +3 | [лог](logs/2026-10-05T10-46-52Z-typecheck-5b41.log) | Calendar mobile selection persistence types |
 | 05.10.2026 15:47 | unit (частично: apps/web/src/app/chessboard/range-plan.test.ts apps/web/src/app/chessboard/board-filters.test.ts) | ✅ 20 из 20 | 19 с | c98a959 +2 | [лог](logs/2026-10-05T10-47-59Z-unit-0f74.log) | Calendar range and filter rules unchanged |
+| 05.10.2026 16:31 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep читаемые даты --workers=1) | ✅ 3 из 3 | 18 с | bd03f23 | [лог](logs/2026-10-05T11-31-13Z-e2e-aa75.log) | Compare CI Chromium touch gesture before fix |
+| 05.10.2026 16:35 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 16 из 16 | 42 с | bd03f23 +1 | [лог](logs/2026-10-05T11-35-51Z-e2e-955f.log) | Native touch sequence and visible row hit point after Linux CI RED |
+| 05.10.2026 16:38 | lint | ✅ без ошибок | 11 с | bd03f23 +1 | [лог](logs/2026-10-05T11-38-48Z-lint-becd.log) | Portable mobile touch gesture test lint |
+| 05.10.2026 16:39 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 16 из 16 | 48 с | bd03f23 +1 | [лог](logs/2026-10-05T11-39-45Z-e2e-1433.log) | Final visible touch row and settled fonts mobile Chromium |
+| 05.10.2026 16:41 | typecheck | ✅ без ошибок | 31 с | bd03f23 +1 | [лог](logs/2026-10-05T11-41-06Z-typecheck-b705.log) | Final mobile native touch test types |
+| 05.10.2026 16:41 | lint | ✅ без ошибок | 14 с | bd03f23 +1 | [лог](logs/2026-10-05T11-41-38Z-lint-c88c.log) | Final mobile native touch test lint |

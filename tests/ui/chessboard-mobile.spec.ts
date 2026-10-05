@@ -37,17 +37,33 @@ for (const width of [360, 390, 430]) {
     );
     await wrap.scrollIntoViewIfNeeded();
     const unit = page.locator('[data-unit-code="R07"] .board__unit');
+    await page.evaluate(() => document.fonts.ready);
+    await unit.scrollIntoViewIfNeeded();
     const before = (await unit.boundingBox())!.x;
-    // Настоящий браузерный жест, проверяем прокрутку и отсутствие случайного открытия клетки.
-    const box = (await wrap.boundingBox())!;
+    // Касания попадают в видимую строку, а не в зависящий от шрифтов отступ сетки.
+    const rowBox = (await unit.boundingBox())!;
+    const startX = width - 30;
+    const touchY = Math.round(rowBox.y + rowBox.height / 2);
+    expect(touchY).toBeGreaterThan(0);
+    expect(touchY).toBeLessThan(844);
+    expect(
+      await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.board-wrap'), {
+        x: startX,
+        y: touchY,
+      }),
+    ).toBe(true);
     const cdp = await context.newCDPSession(page);
-    await cdp.send('Input.synthesizeScrollGesture', {
-      x: width - 30,
-      y: Math.round(box.y + 150),
-      xDistance: -230,
-      yDistance: 0,
-      gestureSourceType: 'touch',
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: startX, y: touchY }],
     });
+    for (let offset = 10; offset <= 230; offset += 10) {
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: startX - offset, y: touchY }],
+      });
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
     expect((await unit.boundingBox())!.x).toBeCloseTo(before, 0);
     await expect(page.getByTestId('free-menu')).toBeHidden();

@@ -5751,3 +5751,11 @@ Options: reuse hotel/Beauty/bar entities; create the approved independent Food d
 Decision: implement DATA_MODEL §28, approved directly in owner MV6 specification. Reuse Customer/CustomerBusiness, RequestActor, capability and role permissions, subscription checks and audit. No UI or new permission engine.
 Concurrency: shared Organization/Business parent locks, Location row FOR UPDATE serializes mutations within one restaurant; reservation row and target table FOR UPDATE protect status/move/assignment. Explicit expected status+updatedAt required on reservation mutations. Sorted parent-first locks avoid cross-operation deadlocks. Unique creation key remains DB authority.
 Consequences: conservative per-Location write serialization in v1; independent locations still proceed. API uses UTC instants plus Location IANA timezone for period/day boundaries. Five new tables, guarded down, production rollout separate. MV7 requires approval.
+
+## ADR-MV7: Food Service workspace (05.10.2026)
+
+Проблема: принятый Food backend не имеет рабочего web-интерфейса; shell знает только Hospitality и Beauty.
+Варианты: отдельная оболочка Food или расширение существующей navigation и verified scope.
+Решение: расширить существующий web vertical union и navigation, использовать общий server-resolved landing helper и guards до вертикальных API запросов. Food facade использует существующий scoped authenticated transport; mutations используют server actions. API, доменная модель и permissions остаются MV6.
+Причина: единый permission engine и UI kit, изоляция вертикалей без query vertical и без дублирования backend rules.
+Последствия: Floor Plan является операционной группировкой столов по залам, координат нет. Все списки загружаются до nextCursor=null с защитой от некорректной пагинации. Для занятости объединяются выбранный и предыдущий локальные дни. Draft привязан к Business/Location, уничтожается при switch; действие повторно проверяет server scope. Idempotency key живёт вместе с новой формой. Stale conflict обновляет данные без повтора mutation. Evidence собирается на собственной локальной PostgreSQL, Nest и синтетической identity. MV7 заканчивается отдельным PR, merge/release/production/MV8 запрещены поручением владельца.

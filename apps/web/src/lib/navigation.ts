@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 import {
   can,
   parseMembershipRole,
@@ -54,6 +55,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Рабочее место',
     items: [
+      { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
+      { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
+      { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+
       {
         href: '/calendar',
         label: 'Календарь',
@@ -487,6 +492,17 @@ export const beautyMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
+export const foodMenuSections: MenuSection[] = [
+  direct('floor-plan', '/floor-plan', 'board'),
+  direct('table-reservations', '/table-reservations', 'booking'),
+  direct('customers', '/customers', 'guests', 'Гости'),
+  direct('dining-areas', '/dining-areas', 'settings'),
+  direct('staff', '/staff', 'guests'),
+  direct('journal', '/journal', 'journal'),
+  direct('help', '/help', 'help'),
+  direct('profile', '/profile', 'guests'),
+];
+
 /** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
@@ -497,10 +513,10 @@ export const phoneNavigation: NavigationItem[] = menuSections
  * В панель идут только одиночные вкладки: группы («Платформа», «Настройки») живут за кнопкой «Ещё».
  */
 export function phoneNavigationFor(
-  vertical: 'HOSPITALITY' | 'BEAUTY' = 'HOSPITALITY',
+  vertical: WebVertical = 'HOSPITALITY',
 ): NavigationItem[] {
-  if (vertical !== 'BEAUTY') return phoneNavigation;
-  return beautyMenuSections
+  if (vertical === 'HOSPITALITY') return phoneNavigation;
+  return (vertical === 'FOOD_SERVICE' ? foodMenuSections : beautyMenuSections)
     .filter((section) => section.direct)
     .slice(0, 4)
     .map((section) => section.items[0]!);
@@ -563,9 +579,9 @@ export function routeRule(
  */
 export function menuSectionsFor(
   access: NavigationAccess,
-  vertical: 'HOSPITALITY' | 'BEAUTY' = 'HOSPITALITY',
+  vertical: WebVertical = 'HOSPITALITY',
 ): MenuSection[] {
-  return (vertical === 'BEAUTY' ? beautyMenuSections : menuSections)
+  return (vertical === 'FOOD_SERVICE' ? foodMenuSections : vertical === 'BEAUTY' ? beautyMenuSections : menuSections)
     .map((section) => ({
       ...section,
       items: section.items.filter((item) => allowedItem(item, access)),

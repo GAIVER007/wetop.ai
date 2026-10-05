@@ -1,3 +1,5 @@
+import { requireVertical } from '../../lib/vertical-guard';
+import { FoodCustomers } from '../food/customers';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
@@ -6,6 +8,8 @@ import { beautyApi } from '../../lib/api';
 import { EmptyState, Table } from '../../components/ui';
 import '../beauty/beauty.css';
 export default async function CustomersPage() {
+  const me = await requireVertical(['BEAUTY','FOOD_SERVICE']);
+  if(me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers/>;
   try {
     const { items } = await beautyApi.customers();
     return (

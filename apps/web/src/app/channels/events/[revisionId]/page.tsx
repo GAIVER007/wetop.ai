@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
@@ -49,6 +50,7 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const clock = await hotelClock();
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
   // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись

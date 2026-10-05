@@ -1,4 +1,5 @@
 'use client';
+import { landingForVertical } from '../../../lib/vertical-landing';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { onboardingFlow } from '@pms/domain';
@@ -31,8 +32,8 @@ export function OnboardingShell({
         setError(result.error);
         return;
       }
-      if (result.state.vertical === 'BEAUTY' && result.state.completedAt) {
-        router.replace('/calendar');
+      if (result.state.vertical !== 'HOSPITALITY' && result.state.completedAt) {
+        router.replace(landingForVertical(result.state.vertical));
         return;
       }
       setState(result.state);

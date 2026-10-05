@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
@@ -44,6 +45,7 @@ const settle = <T,>(p: Promise<T>) =>
  * состоянием с причиной; месяц листается кнопками-значками.
  */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  await requireVertical(['HOSPITALITY']);
   const q = normalizeSearchParams(await searchParams);
   const clock = await hotelClock();
   const month = q.month ?? clock.month();

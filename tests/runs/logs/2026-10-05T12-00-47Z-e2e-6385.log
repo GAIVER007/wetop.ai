@@ -1,0 +1,450 @@
+# Сквозные (e2e) · 05.10.2026 17:00 Алматы · MacBook-Air-Urij.local
+# коммит 6293670 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 62
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:7447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:7511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7474) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  1 tests/food-ui/food.spec.ts:108:1 › empty restaurant catalog and complete persisted desk flow (11.5s)
+  ✓  2 tests/food-ui/food.spec.ts:137:1 › walk-in is seated immediately and persisted after reload (4.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '540417228'
+[WebServer] }
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url={"/floor-p..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="floor-plan...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <FoodPage>
+[WebServer]               <FoodScreen>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     ...
+[WebServer]                       <div className="food-works...">
+[WebServer]                         <div className="food-secti...">
+[WebServer]                           <DayToolbar data={{areas:[...], ...}} floor={true} period="" ...>
+[WebServer]                             <div className="food-toolbar">
+[WebServer]                               <div className="food-date">
+[WebServer]                                 <Button>
+[WebServer]                                 <Input type="date" aria-label="Дата плана" value="2026-10-12" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Дата плана"
+[WebServer]                                     value="2026-10-12"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                               <Field>
+[WebServer]                               <Field label="Время плана">
+[WebServer]                                 <label htmlFor={undefined} className="field">
+[WebServer]                                   <Input type="time" value="19:00" onChange={function onChange} id={undefined} ...>
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       type="time"
+[WebServer]                                       value="19:00"
+[WebServer]                                       onChange={function onChange}
+[WebServer]                                       id={undefined}
+[WebServer]                                       aria-describedby={undefined}
+[WebServer]                                       aria-invalid={undefined}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url="/table-res..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="table-rese...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <FoodPage>
+[WebServer]               <FoodScreen>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     ...
+[WebServer]                       <div className="food-works...">
+[WebServer]                         <div className="food-secti...">
+[WebServer]                           <DayToolbar data={{areas:[...], ...}} floor={false} period="" ...>
+[WebServer]                             <div className="food-toolbar">
+[WebServer]                               <div className="food-date">
+[WebServer]                                 <Button>
+[WebServer]                                 <Input type="date" aria-label="Дата плана" value="2026-10-12" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Дата плана"
+[WebServer]                                     value="2026-10-12"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]                         <div className="food-toolbar">
+[WebServer]                           <Field label="Поиск клиента">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="search" data-page-search={true} value="" onChange={function onChange} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   data-page-search={true}
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url="/table-res..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="table-rese...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <FoodPage>
+[WebServer]               <FoodScreen>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     ...
+[WebServer]                       <div className="food-works...">
+[WebServer]                         <div className="food-secti...">
+[WebServer]                           <DayToolbar data={{areas:[...], ...}} floor={false} period="" ...>
+[WebServer]                             <div className="food-toolbar">
+[WebServer]                               <div className="food-date">
+[WebServer]                                 <Button>
+[WebServer]                                 <Input type="date" aria-label="Дата плана" value="2026-10-12" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Дата плана"
+[WebServer]                                     value="2026-10-12"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]                         <div className="food-toolbar">
+[WebServer]                           <Field label="Поиск клиента">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="search" data-page-search={true} value="" onChange={function onChange} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   data-page-search={true}
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url={"/floor-p..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="floor-plan...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <FoodPage>
+[WebServer]               <FoodScreen>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     ...
+[WebServer]                       <div className="food-works...">
+[WebServer]                         <div className="food-secti...">
+[WebServer]                           <DayToolbar data={{areas:[...], ...}} floor={true} period="" ...>
+[WebServer]                             <div className="food-toolbar">
+[WebServer]                               <div className="food-date">
+[WebServer]                                 <Button>
+[WebServer]                                 <Input type="date" aria-label="Дата плана" value="2026-10-12" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Дата плана"
+[WebServer]                                     value="2026-10-12"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                               <Field>
+[WebServer]                               <Field label="Время плана">
+[WebServer]                                 <label htmlFor={undefined} className="field">
+[WebServer]                                   <Input type="time" value="19:00" onChange={function onChange} id={undefined} ...>
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       type="time"
+[WebServer]                                       value="19:00"
+[WebServer]                                       onChange={function onChange}
+[WebServer]                                       id={undefined}
+[WebServer]                                       aria-describedby={undefined}
+[WebServer]                                       aria-invalid={undefined}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+  ✘  3 tests/food-ui/food.spec.ts:149:1 › real API screenshots, keyboard and axe (33.8s)
+(node:7713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/food-ui/food.spec.ts:190:1 › overlap and archived catalog preserve creation draft and idempotency key (3.3s)
+  ✘  5 tests/food-ui/food.spec.ts:240:1 › stale token refreshes drawer without automatic mutation retry (6.9s)
+(node:7741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/food-ui/food.spec.ts:260:1 › READ_ONLY and STAFF permissions on real API (2.1s)
+  ✘  7 tests/food-ui/food.spec.ts:287:1 › server branch switch isolates Food businesses and locations and other verticals (1.5m)
+(node:7881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  8 tests/food-ui/food.spec.ts:333:1 › pagination beyond 100 and previous local day keep table occupied after reload (3.5s)
+  ✓  9 tests/food-ui/food.spec.ts:400:1 › marker guarded cleanup (52ms)
+
+
+  1) tests/food-ui/food.spec.ts:149:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#dae7f5",
+    +               "contrastRatio": 4.4,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#596a80",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.4 (foreground color: #596a80, background color: #dae7f5, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer food-drawer\" aria-labelledby=\"_r_4_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<button class=\"btn\">+ Новая бронь</button>",
+    +                 "target": Array [
+    +                   ".food-inline-actions > .btn:nth-child(1)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.4 (foreground color: #596a80, background color: #dae7f5, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Стол / зал</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "dt:nth-child(9)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      181 |         fullPage: true,
+      182 |       });
+    > 183 |       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+          |                                                                     ^
+      184 |       await page.keyboard.press('Escape');
+      185 |       await expect(page.getByRole('dialog')).not.toBeVisible();
+      186 |       await expect(page.getByRole('button', { name: 'Стол 7, Подтверждено' })).toBeFocused();
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:183:69
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:240:1 › stale token refreshes drawer without automatic mutation retry 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected: "Бронирование уже изменилось. Данные обновлены."
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog').getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+
+
+      254 |   ).toBe(true);
+      255 |   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+    > 256 |   await expect(d.getByRole('alert')).toHaveText('Бронирование уже изменилось. Данные обновлены.');
+          |                                      ^
+      257 |   await expect(d.getByRole('button', { name: 'Подтвердить', exact: true })).toHaveCount(0);
+      258 |   await expect(d).toContainText('Подтверждено');
+      259 | });
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:256:38
+
+    Error Context: test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/food.spec.ts:287:1 › server branch switch isolates Food businesses and locations and other verticals 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /Другой тестовый бизнес/ })
+
+
+      298 |   await expect(page.getByRole('main')).not.toContainText('Анна Тестовая');
+      299 |   await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    > 300 |   await page.getByRole('button', { name: /Другой тестовый бизнес/ }).click();
+          |                                                                      ^
+      301 |   await expect(page.getByRole('main')).toContainText('Сначала добавьте зал');
+      302 |   for (const [name, landing] of [
+      303 |     ['Тестовый салон', 'calendar'],
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:300:70
+
+    Error Context: test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/food-ui/food.spec.ts:149:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/food.spec.ts:240:1 › stale token refreshes drawer without automatic mutation retry 
+    tests/food-ui/food.spec.ts:287:1 › server branch switch isolates Food businesses and locations and other verticals 
+  6 passed (2.8m)
+
+# код выхода 1 · 2 мин 50 с

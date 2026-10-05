@@ -53,30 +53,21 @@ test('F1: заголовок и период в подзаголовке, пер
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы за период');
-  await expect(main.getByTestId('finance-period')).toContainText('→');
-  await expect(main.getByTestId('finance-period')).toContainText(', 6 дней');
-  // одна кнопка действия: оплата принимается только на счёте брони
-  await expect(page.locator('.page__actions a')).toHaveText(['Найти бронь для оплаты']);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
+  await expect(main.getByTestId('finance-period')).toContainText('За период с');
+  await expect(main.getByTestId('finance-period')).toContainText('по');
+  // Начальный экран без поиска брони и вторичных действий.
+  await expect(page.locator('.page__actions')).toHaveCount(0);
 
-  // «С», «По», готовые отрезки и «Показать» — одной строкой
+  // Даты и отборы на компьютере располагаются одним рядом.
   const form = main.getByTestId('period-form');
-  const middle = async (l: import('@playwright/test').Locator) => {
-    const b = (await l.boundingBox())!;
-    return b.y + b.height / 2;
-  };
-  const line = await middle(form.getByLabel('Период: с'));
-  for (const part of [
-    form.getByLabel('Период: по'),
-    form.getByRole('link', { name: 'Этот месяц', exact: true }),
-    form.getByRole('button', { name: 'Показать', exact: true }),
-  ])
-    expect(Math.abs((await middle(part)) - line)).toBeLessThanOrEqual(4);
-  await expect(
-    main.getByText('Начисления — по дате услуги, оплаты и возвраты — по дате операции.'),
-  ).toHaveCount(1);
+  const fromBox = (await form.getByLabel('Период: с').boundingBox())!;
+  const toBox = (await form.getByLabel('Период: по').boundingBox())!;
+  expect(Math.abs(fromBox.y - toBox.y)).toBeLessThanOrEqual(4);
+  await expect(form.getByLabel('Тип операции', { exact: true })).toBeVisible();
+  await expect(form.getByRole('link', { name: 'Сбросить фильтр' })).toBeVisible();
 
   // четыре итога: порядок, один ряд, одна высота
   const tiles = main.getByTestId('finance-kpis').locator('.stat');
@@ -110,7 +101,7 @@ test('F1: «Требует внимания» — сумма к сбору и п
   expect(debts.count, 'в фикстуре нужны должники').toBeGreaterThan(1);
   expect(debts.overdue.count, 'в фикстуре нужен просроченный долг').toBeGreaterThan(0);
   expect(debts.overdue.count, 'и долг, который ещё не просрочен').toBeLessThan(debts.count);
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   const attention = main.getByTestId('finance-attention');
   await expect(attention.getByRole('heading', { level: 2 })).toHaveText('Требует внимания');
@@ -156,7 +147,7 @@ test('F1: структура денег — четыре вида всегда, 
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   const charges = main.getByTestId('charges-table');
   await expect(charges.getByTestId('report-row').locator('td:first-child')).toHaveText([
@@ -188,7 +179,7 @@ test('F1: брони с остатком — колонки, крупные до
   request,
 }) => {
   const debts = await debtsOf(request);
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const table = main.getByTestId('debts-table');
@@ -231,7 +222,7 @@ test('F1: «только чтение» — список долгов виден
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { orgTrialDays: 'ended' } });
   await signIn(page);
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debt-row').first()).toBeVisible();
@@ -246,16 +237,17 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
-  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('charged')).toBeVisible();
-  await expect(main.getByTestId('debts-error')).toBeVisible();
   await expect(main.getByTestId('attention-failed')).toContainText('не загрузился');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
+  await expect(main.getByTestId('debts-error')).toBeVisible();
   await expect(main.getByTestId('debt-row')).toHaveCount(0);
 
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
+  await page.reload();
   await expect(main.getByTestId('finance-attention')).toContainText('За период проблем не найдено');
   await expect(main.getByTestId('debts-empty')).toContainText('оплачены');
   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
@@ -265,7 +257,7 @@ test('F1: телефон — без прокрутки страницы вбок
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(url);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debts-table')).toBeVisible();
@@ -285,7 +277,7 @@ for (const theme of ['light', 'dark'] as const) {
     test.setTimeout(120_000);
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(url);
+    await page.goto(`${url}#charges`);
     const main = page.getByRole('main');
     await page.getByRole('tab', { name: 'Долги', exact: true }).click();
     await expect(main.getByTestId('debts-table')).toBeVisible();

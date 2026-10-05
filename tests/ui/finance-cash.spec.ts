@@ -30,7 +30,7 @@ const tenge = (page: import('@playwright/test').Page, testId: string) =>
 test('касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   const cash = page.getByTestId('finance-cash');
   await expect(cash.getByTestId('cash-tiles')).toBeVisible();
@@ -47,7 +47,7 @@ test('касса: плитки остатков — оплаты гостей п
 test('поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   const was = await tenge(page, 'cash-CASH');
 
@@ -74,7 +74,7 @@ test('поступление и расход со статьёй меняют о
 test('перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   const cashWas = await tenge(page, 'cash-CASH');
   await page.getByTestId('cash-transfer-btn').click();
@@ -98,8 +98,8 @@ test('перевод с комиссией: остатки обоих спосо
   const fee = rows.filter({ hasText: 'Расход' }).first();
   await expect(fee).toContainText('Комиссия банка');
   await expect(fee.getByTestId('op-amount')).toHaveText(/^−/);
-  // суммы кассы в строке итога
-  await expect(page.getByTestId('ops-meta')).toContainText('касса');
+  // Комиссия входит в общий расход периода, перевод между способами не входит.
+  await expect(page.getByTestId('cash-period-expense')).toHaveText('10 ₸');
 
   // аннулирование основной операции снимает и комиссию (вопрос подтверждения — словами)
   await transfer.getByTestId('cash-void').click();
@@ -112,7 +112,7 @@ test('перевод с комиссией: остатки обоих спосо
 test('статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   await page.getByTestId('cash-categories-btn').click();
   const panel = page.getByTestId('cash-categories');
@@ -138,7 +138,7 @@ test('«только чтение»: кнопок кассы нет, остат�
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   await expect(page.getByTestId('cash-tiles')).toBeVisible();
   await expect(page.getByTestId('cash-income-btn')).toHaveCount(0);
@@ -151,7 +151,7 @@ for (const theme of ['light', 'dark'] as const) {
     test.setTimeout(120_000);
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(url);
+    await page.goto(`${url}#cash`);
     await page.getByRole('tab', { name: 'Касса', exact: true }).click();
     await expect(page.getByTestId('cash-tiles')).toBeVisible();
     await page.mouse.move(0, 0);
@@ -174,7 +174,7 @@ for (const theme of ['light', 'dark'] as const) {
 test('сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   const was = await tenge(page, 'cash-CASH');
   await expect(page.getByTestId('finance-cash')).toContainText('не сверялись');
@@ -202,7 +202,7 @@ test('сверка (§21.4): «по системе» в панели, недос
 test('сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   const was = await tenge(page, 'cash-CASH');
   await page.getByTestId('cash-reconcile-btn').click();

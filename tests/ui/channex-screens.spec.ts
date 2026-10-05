@@ -663,7 +663,7 @@ test('отчёт по источникам и интеграции: период
   await page.setViewportSize({ width: 1440, height: 1000 });
   // интеграции: сопоставления словами, пустое время — «—», без « · »
   await page.goto('/connections');
-  await expect(main).toContainText('3 категории, 3 тарифа');
+  await expect(main).toContainText('3 категории, 1 тарифный план, 3 сопоставления');
   await expect(main).not.toContainText(' · ');
   await expect(main.getByText('Последний обмен')).toBeVisible();
   await expect(main).not.toContainText('Нет событий');

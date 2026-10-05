@@ -41,7 +41,7 @@ test('все разделы, карточки и печать открывают
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
-    ['/finance', 'Финансы за период'],
+    ['/finance', 'Касса'],
     ['/rates', 'Тарифы и цены'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
@@ -685,13 +685,14 @@ test('ошибка буфера обмена видна, код остаётся
 
 test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы за период');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
-  await expect(page.getByRole('main').getByTestId('charged')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
+  await expect(page.getByTestId('cash-period-income')).not.toHaveText('Нет данных');
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
@@ -991,11 +992,10 @@ test('пустые ответы дают нули; сбой API не выдаё�
   // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
   // (и у итогов, и у списка долгов — ADR-113)
   await page.goto('/finance');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Финансы за период',
-  );
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Касса');
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
-  // «Долги» — отдельная вкладка финансов: сбой списка долгов виден на ней
+  // Сбой списка долгов виден после раскрытия подробностей.
+  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
@@ -1135,14 +1135,15 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
-  // список долгов с кнопками оплаты — на вкладке «Долги» финансов
+  // список долгов с кнопками оплаты находится в сворачиваемом блоке
+  await page.getByRole('button', { name: 'Отчёты и управление' }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
     expect(href).toMatch(/^\/reservations\/[^/#]+#booking-finance$/);
-  await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
-  await expect(page).toHaveURL(/\/reservations$/);
+  await pay.first().click();
+  await expect(page).toHaveURL(/\/reservations\/[^/#]+#booking-finance$/);
 });
 
 /**
@@ -1616,7 +1617,11 @@ test('финансы F1: период в подзаголовке, четыре 
 }) => {
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('finance-period')).toHaveText('1 сент. → 30 сент., 30 дней');
+  await expect(main.getByTestId('finance-period')).toHaveText(
+    'За период с 01.09.2026 по 30.09.2026',
+  );
+  await page.getByText('Отчёты и управление', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const kpis = main.getByTestId('finance-kpis');
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
@@ -1636,7 +1641,7 @@ test('финансы F1: период в подзаголовке, четыре 
   await main.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
   await expect(main.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
-  await expect(main.getByTestId('finance-period')).toContainText(', 1 день');
+  await expect(main.getByTestId('finance-period')).toContainText('За период с');
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
@@ -1649,6 +1654,8 @@ test('финансы F1: период в подзаголовке, четыре 
     .getByTestId('finance-error')
     .getByRole('button', { name: 'Повторить загрузку' })
     .click();
+  await page.getByText('Отчёты и управление', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(main.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(main.getByTestId('finance-error')).toHaveCount(0);
 });

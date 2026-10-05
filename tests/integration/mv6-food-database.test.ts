@@ -240,7 +240,7 @@ describe.skipIf(!url)('MV6 populated RLS and database constraints', () => {
       await savepoint(async () => {
         const sql = readFileSync(
           new URL(
-            '../../packages/database/prisma/migrations/20261005000055_food_service_domain/down.sql',
+            '../../packages/database/prisma/migrations/20261005000058_food_service_domain/down.sql',
             import.meta.url,
           ),
           'utf8',

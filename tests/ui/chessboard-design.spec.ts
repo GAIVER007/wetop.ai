@@ -78,12 +78,18 @@ for (const theme of ['light', 'dark'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      expect(await board.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+      const overflow = await board.evaluate((el) => el.scrollWidth - el.clientWidth);
+      if (width > 600) expect(overflow).toBeLessThanOrEqual(1);
+      else expect(overflow).toBeGreaterThan(300);
       const box = await board.boundingBox();
       if (width >= 1440) expect(box!.y).toBeLessThanOrEqual(384);
-      if (width <= 390) expect(box!.y).toBeLessThanOrEqual(500);
+      if (width <= 390) {
+        await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
+        expect(box!.y).toBeLessThanOrEqual(760);
+      }
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
-      await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      if (width > 600)
+        await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
       // Длинная категория не должна заходить на число мест в узкой первой колонке.
       for (const name of await page.locator('.board-group-name-text').all()) {
         expect(await name.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);

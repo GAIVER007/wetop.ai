@@ -51,8 +51,8 @@ test('ранее открытая форма получает отказ чер�
   await page.goto('/auth/fallback?mode=register');
   await page.getByLabel('Email', { exact: true }).fill('closed@example.invalid');
   await page.getByLabel('Имя', { exact: true }).fill('Тестовый сотрудник');
-  // с 21.09 форма спрашивает название отеля (обязательное поле): без него submit не уходит
-  await page.getByLabel('Название отеля', { exact: true }).fill('Хостел на Абая');
+  // Название бизнеса обязательно: без него submit не уходит.
+  await page.getByLabel('Название бизнеса', { exact: true }).fill('Хостел на Абая');
   // с 29.09 — телефон и согласие с политикой (обязательные): без них submit тоже не уходит
   await page.getByLabel('Телефон', { exact: true }).fill('701 555 44 33');
   await page.getByLabel('Пароль', { exact: true }).fill('test-password-2026');

@@ -306,6 +306,7 @@ export function ChessboardGrid({
   const swept = useRef(false);
   const [freeMenu, setFreeMenu] = useState<{
     menu: FreeMenu;
+    periods: FreeMenu[];
     anchor: HTMLElement;
     unitCode: string;
     fromDate: string;
@@ -326,6 +327,22 @@ export function ChessboardGrid({
         fromDate,
         toDate,
       ),
+      periods: row.cells.slice(from).flatMap((cell, offset) => {
+        const selected = selectRange(row.cells, from, from + offset);
+        return selected?.to === from + offset
+          ? [
+              freeMenuModel(
+                {
+                  code: row.unit.code,
+                  kind: row.unit.kind,
+                  categoryName: row.unit.accommodationTypeName,
+                },
+                fromDate,
+                cell.date,
+              ),
+            ]
+          : [];
+      }),
       anchor,
       unitCode: row.unit.code,
       fromDate,
@@ -399,6 +416,10 @@ export function ChessboardGrid({
       : checkDrop(source, dropRow(row));
   };
   const onDragStart = (source: DragSource) => (e: React.DragEvent) => {
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData(DRAG_MIME, encodeDrag(source));
     e.dataTransfer.effectAllowed = 'move';
     dragging.current = source;
@@ -954,13 +975,16 @@ export function ChessboardGrid({
           data-testid="chessboard"
           className={cx('board', fitMonth && 'board--month', fitWeek && 'board--week')}
           style={
-            fitMonth
-              ? ({
-                  '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
-                } as CSSProperties)
-              : fitWeek
-                ? undefined
-                : { width: 190 + dayWidth * board.dates.length }
+            {
+              '--mobile-board-width': `${112 + 104 * board.dates.length}px`,
+              ...(fitMonth
+                ? ({
+                    '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
+                  } as CSSProperties)
+                : fitWeek
+                  ? undefined
+                  : { width: 190 + dayWidth * board.dates.length }),
+            } as CSSProperties
           }
         >
           <colgroup>
@@ -1158,6 +1182,7 @@ export function ChessboardGrid({
         <FreeMenuPopover
           key={`${freeMenu.unitCode}:${freeMenu.fromDate}:${freeMenu.toDate}`}
           menu={freeMenu.menu}
+          periods={freeMenu.periods}
           anchor={freeMenu.anchor}
           readOnly={readOnly}
           onClose={closeFreeMenu}

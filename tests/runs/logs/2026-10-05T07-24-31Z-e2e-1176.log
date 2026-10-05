@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 05.10.2026 12:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (HEAD), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--workers=1'
+[WebServer] (node:72771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 
+[WebServer] -----
+[WebServer] FATAL: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/next-panic-e4e359d546c3507b8edd0c97c7693a10.log.
+[WebServer] 
+[WebServer] To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20Symlink%20%5Bproject%5D%2Fapps%2Fweb%2Fnode_modules%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root&body=Turbopack%20version%3A%20%60a758ffcf%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ASymlink%20%5Bproject%5D%2Fapps%2Fweb%2Fnode_modules%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root%0A%0ADebug%20info%3A%0A-%20Execution%20of%20get_entrypoints_with_issues_operation%20failed%0A-%20Execution%20of%20EntrypointsOperation%3A%3Anew%20failed%0A-%20Execution%20of%20Project%3A%3Aentrypoints_with_app_route_filter%20failed%0A-%20Execution%20of%20AppProject%3A%3Aroutes_with_filter%20failed%0A-%20Execution%20of%20directory_tree_to_entrypoints_internal%20failed%0A-%20Execution%20of%20directory_tree_to_loader_tree%20failed%0A-%20Execution%20of%20try_get_next_package%20failed%0A-%20Execution%20of%20resolve%20failed%0A-%20Execution%20of%20resolve_internal%20failed%0A-%20Execution%20of%20find_package%20failed%0A-%20Symlink%20%5Bproject%5D%2Fapps%2Fweb%2Fnode_modules%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+[WebServer] -----
+[WebServer] 
+[WebServer] Error [TurbopackInternalError]: Symlink [project]/apps/web/node_modules is invalid, it points out of the filesystem root
+[WebServer] 
+[WebServer] Debug info:
+[WebServer] - Execution of get_entrypoints_with_issues_operation failed
+[WebServer] - Execution of EntrypointsOperation::new failed
+[WebServer] - Execution of Project::entrypoints_with_app_route_filter failed
+[WebServer] - Execution of AppProject::routes_with_filter failed
+[WebServer] - Execution of directory_tree_to_entrypoints_internal failed
+[WebServer] - Execution of directory_tree_to_loader_tree failed
+[WebServer] - Execution of try_get_next_package failed
+[WebServer] - Execution of resolve failed
+[WebServer] - Execution of resolve_internal failed
+[WebServer] - Execution of find_package failed
+[WebServer] - Symlink [project]/apps/web/node_modules is invalid, it points out of the filesystem root
+[WebServer]     at ignore-listed frames {
+[WebServer]   location: undefined
+[WebServer] }
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 9 с

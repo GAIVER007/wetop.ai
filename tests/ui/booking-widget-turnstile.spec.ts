@@ -67,6 +67,7 @@ async function setup(page: Page, options: Setup) {
   const booked: Array<Record<string, unknown>> = [];
   let turnstileLoads = 0;
   const answers = [...(options.bookAnswers ?? [{ status: 201, body: DONE }])];
+  if (options.turnstileScript !== 'blocked') await page.addInitScript(FAKE_TURNSTILE);
   await page.route('https://hotel.test/**', (route) =>
     route.fulfill({
       contentType: 'text/html; charset=utf-8',
@@ -117,7 +118,13 @@ const solve = (page: Page, token: string) =>
     token,
   );
 const tsState = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __ts: { renders: number; resets: number } }).__ts);
+  page.evaluate(
+    () =>
+      (window as unknown as { __ts?: { renders: number; resets: number } }).__ts ?? {
+        renders: 0,
+        resets: 0,
+      },
+  );
 
 test('с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book', async ({
   page,

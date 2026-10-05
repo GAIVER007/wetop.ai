@@ -8,7 +8,7 @@
 
 MV6 добавляет только DiningArea, DiningTable, ServicePeriod, RestaurantReservation и TableAssignment. Используются существующие Customer/CustomerBusiness, Organization/Business/Location, RequestActor, permissions, capabilities, trial/read-only и AuditLog. Business.vertical остаётся единственным источником vertical. Hospitality, Beauty и BAR не становятся общим доменом бронирований.
 
-Модель записана до Prisma в DATA_MODEL §28, решение в ADR-MV6. Новый модуль `apps/api/src/food-service`; доменные правила `packages/domain/src/food`. Связи и проверки принадлежности закреплены migration `20261005000055_food_service_domain`. Применённые upstream migrations не изменялись.
+Модель записана до Prisma в DATA_MODEL §28, решение в ADR-MV6. Новый модуль `apps/api/src/food-service`; доменные правила `packages/domain/src/food`. Связи и проверки принадлежности закреплены migration `20261005000058_food_service_domain`. Применённые upstream migrations не изменялись.
 
 ## Поведение
 

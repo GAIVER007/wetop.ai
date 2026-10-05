@@ -25,7 +25,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto(url);
+  await page.goto(`${url}#operations`);
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   const section = main.getByTestId('finance-operations');
@@ -39,7 +39,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
     'Сумма',
     'Статус',
   ]);
-  await expect(section.getByTestId('ops-meta')).toContainText('оплачено');
+  await expect(section.getByTestId('ops-meta')).toContainText('операц');
   const rows = section.getByTestId('op-row');
   expect(await rows.count()).toBeGreaterThan(0);
   const times = await rows
@@ -49,18 +49,16 @@ test('F2: оплаты и возвраты — колонки, строка ит
   await expect(rows.first().getByRole('link')).toHaveAttribute('href', /#booking-finance$/);
 
   // «Начислено» — к видам начислений, «Оплачено» — к оплатам, «Возвращено» — к возвратам
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('kpi-charged').click();
   await expect(page).toHaveURL(/#charges$/);
   await expect(main.locator('#charges')).toBeInViewport();
   await main.getByTestId('kpi-paid').click();
   await expect(page).toHaveURL(/op=payment#operations$/);
-  const types = main.getByRole('navigation', { name: 'Тип операций' });
-  await expect(types.getByRole('link', { name: 'Оплаты', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('payment');
   for (const row of await main.getByTestId('op-row').all())
     await expect(row).toHaveAttribute('data-kind', 'PAYMENT');
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('kpi-refunded').click();
   await expect(page).toHaveURL(/op=refund#operations$/);
   await expect(main.getByTestId('ops-empty')).toHaveText('По этому отбору операций за период нет.');
@@ -69,20 +67,20 @@ test('F2: оплаты и возвраты — колонки, строка ит
 test('F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами', async ({
   page,
 }) => {
-  await page.goto(url);
+  await page.goto(`${url}#operations`);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('payments-table').getByRole('link', { name: 'Наличные' }).click();
   await expect(page).toHaveURL(/op=payment&method=CASH#operations$/);
-  const methods = main.getByRole('navigation', { name: 'Способ оплаты' });
-  await expect(methods.getByRole('link', { name: /^Наличные/ })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  const methods = page.getByLabel('Способ оплаты', { exact: true });
+  await expect(methods).toHaveValue('CASH');
   await expect(main.getByTestId('ops-meta')).toContainText('по отбору');
   for (const row of await main.getByTestId('op-row').all())
     await expect(row).toContainText('Наличные');
-  await methods.getByRole('link', { name: 'Все способы' }).click();
-  await expect(page).toHaveURL(/op=payment#operations$/);
+  await methods.selectOption('');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(methods).toHaveValue('');
+  await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('payment');
 });
 
 test('F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список', async ({
@@ -137,8 +135,10 @@ test('F2: сбой операций не роняет итоги и долги; 
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/operations' } });
-  await page.goto(url);
+  await page.goto(`${url}#operations`);
   const main = page.getByRole('main');
+  await expect(page.getByTestId('cash-period-income')).toHaveText('Нет данных');
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(main.getByTestId('charged')).toBeVisible();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('finance-debts')).toBeVisible();
@@ -162,7 +162,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto(`${url}&op=refund#operations`);
     await expect(section.getByTestId('op-row').first()).toBeVisible();
     await section.screenshot({ path: `${report}/${theme}-refunds.png` });
-    await page.goto(url);
+    await page.goto(`${url}#operations`);
     await page.screenshot({
       path: `${report}/${theme}-1440-full.png`,
       fullPage: true,

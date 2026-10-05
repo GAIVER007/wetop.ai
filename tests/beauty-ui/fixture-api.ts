@@ -200,7 +200,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(55814, '127.0.0.1');
+await app.listen(Number(process.env.BEAUTY_UI_API_PORT || '55814'), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

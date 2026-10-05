@@ -694,7 +694,7 @@
   }
   .owner-dates[open] form {
     position: absolute;
-    z-index: 5;
+    z-index: var(--layer-sticky);
     right: 0;
     top: 100%;
     width: 280px;
@@ -807,7 +807,7 @@
 }
 @media (max-width: 600px) {
   .owner-dashboard {
-    gap: 6px;
+    gap: 4px;
   }
   .owner-bottom {
     grid-template-columns: 1fr;

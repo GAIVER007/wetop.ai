@@ -6,7 +6,7 @@ Food PILOT получил web workspace поверх существующего 
 
 План утверждён владельцем сообщением «давай». Работа выполнена в `/Users/urijzapojnov/wetop-mv7-20261005`, ветка `codex/mv7-food-ui-20261005`. Исходное чужое дерево WETOP не изменялось кодом. Общая Supabase не использовалась. PostgreSQL 16 на `127.0.0.1:55763`, только синтетические данные.
 
-Начальная база: `629367018a6ffacf1a4698d56340812a67d9bb86`. Перед окончательными проверками включён main `e2f67c96ae3e8e606df92305bad9626282ba7030`. Архитектура записана в ADR-MV7 в DECISIONS.md. Migration 59 пришла из main, это отдельная upstream правка MV6, diff MV7 к main не содержит migrations.
+Начальная база: `629367018a6ffacf1a4698d56340812a67d9bb86`. Перед окончательными проверками включён main `31a68501ab091b4fb030d885e33b2552b09871ed` (включая предыдущий `e2f67c96ae3e8e606df92305bad9626282ba7030`). Архитектура записана в ADR-MV7 в DECISIONS.md. Migration 59 пришла из main, это отдельная upstream правка MV6, diff MV7 к main не содержит migrations.
 
 ## Route и permission matrix
 
@@ -70,7 +70,21 @@ Harness: browser → Next server actions → реальные Nest Food/Beauty c
 
 Проверка цепочки: 65 migrations, schema drift отсутствует, все down возвращают исходную схему ([log](migrations.txt)). Diff к main не содержит backend/schema/migration изменений.
 
-Окончательные результаты будут внесены после завершения прогонов. На macOS тесты shell запускаются с LC_ALL=C: системный Bash 3 некорректно читает соседнюю с variable кириллицу в UTF-8 locale. PostgreSQL независимо создана с encoding=UTF8 и locale=en_US.UTF-8. Ранний стенд SQL_ASCII приводил к ошибкам кириллического поиска и encoding, чистый UTF8 стенд прошёл 741 integration test.
+| Набор | Результат | Лог |
+|---|---|---|
+| Food real API acceptance | 13/13, 20 PNG, axe/keyboard | [log](../../tests/runs/logs/2026-10-05T13-16-19Z-e2e-93f0.log) |
+| Beauty real API regression | 10/10 | [log](../../tests/runs/logs/2026-10-05T13-07-07Z-e2e-0b52.log) |
+| Hospitality regression | 24/24 после owner design repairs | [log](../../tests/runs/logs/2026-10-05T13-29-16Z-e2e-cfbf.log) |
+| Unit полный | 3390 passed, 4 прежних skipped | [log](../../tests/runs/logs/2026-10-05T13-39-31Z-unit-09fa.log) |
+| Integration полный | 741 passed, 9 прежних skipped | [log](../../tests/runs/logs/2026-10-05T13-43-55Z-integration-3dac.log) |
+| Root/API/Web typecheck | 0 errors | [log](../../tests/runs/logs/2026-10-05T13-45-19Z-typecheck-75d3.log) |
+| Lint | 0 errors | [log](../../tests/runs/logs/2026-10-05T13-45-43Z-lint-b98f.log) |
+
+Все записанные GREEN прогоны имеют codeChangedDuringRun=false. Food и Beauty прошли до последующих трёх локальных owner dashboard design repairs; эти изменения не входят в Food/Beauty UI. Hospitality повторён после них. Нет новых skipped tests или ослабленных assertions. Два старых HTTP unit tests однажды завершились socket hang up: isolated replay 13/13 и повторный полный unit GREEN без изменения их кода; журналы RED сохранены. На macOS тесты shell запускаются с LC_ALL=C: системный Bash 3 некорректно читает соседнюю с variable кириллицу в UTF-8 locale. PostgreSQL независимо создана с encoding=UTF8 и locale=en_US.UTF-8. Ранний стенд SQL_ASCII приводил к ошибкам кириллического поиска и encoding, чистый UTF8 стенд прошёл 741 integration test.
+
+Upstream browser fixture после merge ссылался на отсутствующий import registrationBusiness и удалённый hotelName. Исправлены две ссылки на существующий API registration-contract, production API не изменён. Typecheck RED сохранён; [synthetic HTTP readback](fixture-registration.txt) подтверждает 200 pendingVerification. Beauty harness получил опциональные BEAUTY_UI_API_PORT / BEAUTY_UI_WEB_PORT, поскольку исходные порты заняты чужим runner; его процессы не трогались.
+
+Полный unit на upstream main выявил три нарушения design guard в owner dashboard: gap 6px, z-index 5 и dot separator. Заменены на gap 4px, существующий --layer-sticky (те же 5) и запятую. Шаг 8px превышал mobile acceptance bottom 748px на 1,2px, поэтому выбран компактный разрешённый шаг 4px. Assertions и baseline не менялись. Один infrastructure test исполнился 7,1 с и превысил default 5 с; повторный полный прогон использует invocation-only budget 15 с с теми же assertions. Hospitality один раз исчерпал общий 45 с budget под нагрузкой; isolated replay прошёл за 8,9 с, повторный полный набор 24/24 GREEN.
 
 Ранние RED и исправления сохранены в tests/runs с fingerprint. Новые tests не отключались, assertions не удалялись.
 
@@ -82,4 +96,4 @@ Harness: browser → Next server actions → реальные Nest Food/Beauty c
 
 Самопроверка по code-review-and-quality: correctness (полная пагинация, midnight, server tokens, guarded scope), readability (общий drawer и typed facade), architecture (существующие transport/UI kit/permissions), security (server action scope, реальные RoleGuard negatives), performance (bounded pagination, параллельные независимые reads). Новая opt-in настройка Overlay используется только Food. Новые зависимости не добавлены. Real external API, деньги и schema отсутствуют в diff.
 
-RED артефакты сохранены: отсутствие Food modules в unit; некорректные response details; незакрытый direct finance route; native Shift+Tab выходил из dialog; быстрый reopen catalog показывал предыдущий active. Дополнительно исправлены harness locale/encoding и ожидание persisted assignment перед capacity check. Assertions сохранены или усилены.
+RED артефакты сохранены: отсутствие Food modules в unit; некорректные response details; незакрытый direct finance route; native Shift+Tab выходил из dialog; быстрый reopen catalog показывал предыдущий active. Дополнительно исправлены harness locale/encoding и ожидание persisted assignment в dl деталей (не в option списка) перед capacity check. Assertions сохранены или усилены.

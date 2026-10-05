@@ -218,7 +218,7 @@ export async function OwnerOperations({ date }: { date: string }) {
           <div className="owner-fill" aria-label={`Занято ${summary.occupied} из ${total}`}>
             <progress max={total} value={summary.occupied} />
             <span>
-              Занято {summary.occupied} из {total} · свободно {summary.free}
+              Занято {summary.occupied} из {total}, свободно {summary.free}
             </span>
           </div>
         )}

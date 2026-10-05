@@ -454,7 +454,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
     .getByRole('combobox', { name: 'Пересадить на другой стол', exact: true })
     .selectOption(second.id);
   await d.getByRole('button', { name: 'Пересадить', exact: true }).click();
-  await expect(d).toContainText('Основной зал, Стол 8');
+  await expect(d.locator('dl')).toContainText('Основной зал, Стол 8');
   await d.getByRole('button', { name: 'Снять стол', exact: true }).click();
   await expect(d).toContainText('Без стола');
   await d.getByRole('button', { name: 'Изменить бронь', exact: true }).click();
@@ -492,7 +492,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
-  await expect(d).toContainText('Основной зал, Стол 7');
+  await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.goto('/dining-areas');
   await page.getByRole('button', { name: 'Изменить стол Стол 7', exact: true }).click();

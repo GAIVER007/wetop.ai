@@ -6386,3 +6386,10 @@
 | 05.10.2026 16:58 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/db-restore-prod.test.ts) | ✅ 75 из 75 | 5 с | 75ce038 +1 | [лог](logs/2026-10-05T11-58-45Z-unit-9963.log) | green: rollback Food grants сохраняет исходные default privileges |
 | 05.10.2026 17:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep телефон --workers=1) | ✅ 9 из 9 | 32 с | 6189282 +1 | [лог](logs/2026-10-05T12-15-45Z-e2e-633a.log) |  |
 | 05.10.2026 17:54 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/registration-closed.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ✅ 13 из 13 | 38 с | 4a94203 +4 | [лог](logs/2026-10-05T12-54-17Z-e2e-d565.log) |  |
+| 05.10.2026 18:09 | lint | ❌ ошибок: 1 | 11 с | b154a43 | [лог](logs/2026-10-05T13-09-43Z-lint-a8b9.log) | release b154: воспроизведение ошибки GitHub Actions |
+| 05.10.2026 18:10 | lint | ✅ без ошибок | 10 с | b154a43 +1 | [лог](logs/2026-10-05T13-10-21Z-lint-dad9.log) | release b154: businessName в fixture после красного lint |
+| 05.10.2026 18:10 | typecheck | ❌ ошибок: 83 | 17 с | b154a43 +1 | [лог](logs/2026-10-05T13-10-32Z-typecheck-29c6.log) | release b154: типы fixture регистрации |
+| 05.10.2026 18:11 | lint | ✅ без ошибок | 12 с | b154a43 +1 | [лог](logs/2026-10-05T13-11-32Z-lint-53fc.log) | release main: восстановлен parser регистрации после merge |
+| 05.10.2026 18:11 | typecheck | ✅ без ошибок | 12 с | b154a43 +1 | [лог](logs/2026-10-05T13-11-45Z-typecheck-5075.log) | release main: parser регистрации и Prisma client |
+| 05.10.2026 18:12 | e2e (частично: tests/ui/registration-closed.spec.ts --workers=1) | ❌ код выхода 1 | 3 с | b154a43 +1 | [лог](logs/2026-10-05T13-12-17Z-e2e-cb24.log) | release main: fixture регистрации после merge-регрессии |
+| 05.10.2026 18:12 | e2e (частично: tests/ui/registration-closed.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 5 из 5 | 9 с | b154a43 +1 | [лог](logs/2026-10-05T13-12-34Z-e2e-545b.log) | release main: fixture регистрации после merge-регрессии, изолированный стенд |

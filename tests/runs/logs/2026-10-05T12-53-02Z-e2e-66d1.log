@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 05.10.2026 17:53 Алматы · MacBook-Air-Urij.local
+# коммит 31a6850 (codex/owner-home-compact), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard.spec.ts' '--grep' 'approved owner concept'
+[WebServer] (node:10821) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:11873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:12196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/owner-dashboard.spec.ts:109:1 › approved owner concept groups forecast with occupancy and matches attention count (22.7s)
+
+
+  1) tests/ui/owner-dashboard.spec.ts:109:1 › approved owner concept groups forecast with occupancy and matches attention count 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Загрузка сегодня', exact: true }).getByTestId('owner-outlook-chart')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Загрузка сегодня', exact: true }).getByTestId('owner-outlook-chart') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Загрузка сегодня', exact: true }).getByTestId('owner-outlook-chart')
+
+
+      111 |   await page.goto('/today');
+      112 |   const load = page.getByRole('region', { name: 'Загрузка сегодня', exact: true });
+    > 113 |   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
+          |                                                         ^
+      114 |   await expect(load.getByTestId('c-occupancy')).toBeVisible();
+      115 |   await expect(page.getByRole('button', { name: 'Найти гостя или бронь', exact: true })).toBeHidden();
+      116 |   const badge = page.getByTestId('owner-attention-count');
+        at /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard.spec.ts:113:57
+
+    Error Context: test-results/owner-dashboard-approved-o-e825b-and-matches-attention-count/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-approved-o-e825b-and-matches-attention-count/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-approved-o-e825b-and-matches-attention-count/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/owner-dashboard.spec.ts:109:1 › approved owner concept groups forecast with occupancy and matches attention count 
+
+# код выхода 1 · 44 с

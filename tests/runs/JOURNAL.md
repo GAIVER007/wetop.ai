@@ -6332,3 +6332,4 @@
 | 05.10.2026 15:36 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep тёмное оформление) | ✅ 1 из 1 | 8 с | 1c19368 +5 | [лог](logs/2026-10-05T10-36-25Z-e2e-a1fe.log) |  |
 | 05.10.2026 15:36 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-36-33Z-unit-237e.log) |  |
 | 05.10.2026 15:37 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 7 из 7 | 17 с | 4890433 | [лог](logs/2026-10-05T10-37-30Z-e2e-f836.log) |  |
+| 05.10.2026 15:42 | unit | ❌ упало 1 из 3381, пропущено 4 | 6 мин 2 с | f6a52d0 | [лог](logs/2026-10-05T10-42-06Z-unit-eba8.log) | MV6 final main 383a90bb sync full unit; no changed limits |

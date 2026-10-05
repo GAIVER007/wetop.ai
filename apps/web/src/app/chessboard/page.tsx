@@ -359,7 +359,7 @@ function DayPanel({
           <b data-testid="day-occupancy">{occupancy === null ? 'н/д' : `${occupancy}%`}</b>
           <span>
             <b data-testid="day-occupied">{s?.occupied ?? 'н/д'}</b> занято из{' '}
-            <b data-testid="day-units">{units ?? 'н/д'}</b>
+            <b data-testid="day-units">{units ?? 'н/д'}</b>{' '}
             <small>Номера и койки</small>
           </span>
         </div>

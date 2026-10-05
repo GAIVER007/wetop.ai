@@ -19,6 +19,8 @@ for (const width of [360, 390, 430]) {
     await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
+    const panelBox = await panel.boundingBox();
+    expect(panelBox!.height).toBeLessThanOrEqual(280);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
     const noShows = await (
@@ -75,6 +77,8 @@ test('today statistics stay available when the calendar shows another month', as
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+  const gridBox = await page.locator('.board-wrap').boundingBox();
+  expect(gridBox!.y).toBeLessThanOrEqual(700);
   const occupancy = await panel.getByTestId('day-occupancy').innerText();
   const free = await panel.getByTestId('day-free').innerText();
   await page.goto('/chessboard?from=2025-01-01&to=2025-01-30');

@@ -2120,3 +2120,62 @@
     clip-path: inset(50%);
   }
 }
+
+/* Mobile revision: a single daily summary leaves room for the calendar. */
+@media (max-width: 600px) {
+  .board-day-panel {
+    gap: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .board-day-panel section {
+    padding: var(--space-2) calc(var(--space-4) * 0.75);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .board-day-panel__occupancy {
+    border-bottom: 1px solid var(--border-soft) !important;
+  }
+  .board-day-panel__title {
+    margin-bottom: var(--space-1);
+  }
+  .board-day-panel__title h2 {
+    font-size: var(--text-sm);
+  }
+  .board-day-panel__load {
+    gap: var(--space-4);
+  }
+  .board-day-panel__load > b {
+    font-size: 32px;
+  }
+  .board-day-panel__load small {
+    display: inline;
+    margin-left: var(--space-1);
+  }
+  .board-day-panel__meter {
+    margin-top: var(--space-2);
+    height: 4px;
+  }
+  .board-day-panel__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+  }
+  .board-day-panel__row {
+    border-bottom: 0;
+    gap: var(--space-1);
+  }
+  .board-day-panel__row > a {
+    font-size: var(--text-sm);
+    line-height: 1.25;
+  }
+  .board-day-panel__row--arrivals {
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .board-day-panel__row > b {
+    font-size: var(--text-lg);
+  }
+}

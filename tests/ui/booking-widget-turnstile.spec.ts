@@ -61,6 +61,7 @@ interface Setup {
   siteKey: string | null;
   bookAnswers?: Array<{ status: number; body: unknown }>;
   turnstileScript?: 'ok' | 'blocked';
+  turnstileReady?: Promise<void>;
 }
 
 async function setup(page: Page, options: Setup) {
@@ -87,9 +88,10 @@ async function setup(page: Page, options: Setup) {
     }
     return route.fulfill({ status: 404, json: {} });
   });
-  await page.route('https://challenges.cloudflare.com/**', (route) => {
+  await page.route('https://challenges.cloudflare.com/**', async (route) => {
     turnstileLoads += 1;
     if (options.turnstileScript === 'blocked') return route.abort();
+    await options.turnstileReady;
     return route.fulfill({ contentType: 'text/javascript', body: FAKE_TURNSTILE });
   });
   await page.goto('https://hotel.test/');
@@ -118,6 +120,14 @@ const solve = (page: Page, token: string) =>
   );
 const tsState = (page: Page) =>
   page.evaluate(() => (window as unknown as { __ts: { renders: number; resets: number } }).__ts);
+const waitForTurnstile = (page: Page, onProbe?: () => void) =>
+  expect
+    .poll(async () => {
+      const state = await tsState(page);
+      onProbe?.();
+      return state;
+    })
+    .toMatchObject({ renders: 1 });
 
 test('с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book', async ({
   page,
@@ -132,7 +142,7 @@ test('с ключом: поиск цен без проверки, кнопка �
   await fillGuest(page);
   const submit = page.locator('[data-pmsw="submit"]');
   await expect(submit).toBeDisabled();
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await waitForTurnstile(page);
   const opts = await page.evaluate(
     () => (window as unknown as { __ts: { opts: Record<string, unknown> } }).__ts.opts,
   );
@@ -158,7 +168,7 @@ test('токен одноразовый: после отказа проверк�
   });
   await openGuestForm(page);
   await fillGuest(page);
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await waitForTurnstile(page);
   await solve(page, 'tok-old');
   const submit = page.locator('[data-pmsw="submit"]');
   await submit.click();
@@ -174,10 +184,10 @@ test('токен одноразовый: после отказа проверк�
   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
 });
 
-test('токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки', async ({ page }) => {
+test('токен истёк, пока гость заполнял форму: кнопка снова ждёт проверки', async ({ page }) => {
   await setup(page, { siteKey: 'site-key-not-real' });
   await openGuestForm(page);
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await waitForTurnstile(page);
   await solve(page, 'tok-1');
   await expect(page.locator('[data-pmsw="submit"]')).toBeEnabled();
   await page.evaluate(() =>
@@ -210,5 +220,32 @@ test('скрипт Cloudflare не загрузился (блокировщик,
   await openGuestForm(page);
   await expect(page.locator('[data-pmsw="msg"]')).toContainText('Не удалось загрузить проверку');
   await expect(page.locator('[data-pmsw="submit"]')).toBeDisabled();
+  expect(s.booked).toHaveLength(0);
+});
+
+// Release the synthetic provider only after the first read, making the loading race deterministic.
+test('delayed Turnstile script keeps verification mandatory through token expiry', async ({
+  page,
+}) => {
+  let release!: () => void;
+  const turnstileReady = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const s = await setup(page, { siteKey: 'site-key-not-real', turnstileReady });
+  await openGuestForm(page);
+  const submit = page.locator('[data-pmsw="submit"]');
+  await expect(submit).toBeDisabled();
+  expect(await tsState(page)).toBeUndefined();
+  await waitForTurnstile(page, release);
+  expect((await tsState(page)).renders).toBe(1);
+  await expect(submit).toBeDisabled();
+  await solve(page, 'tok-delayed');
+  await expect(submit).toBeEnabled();
+  await page.evaluate(() =>
+    (window as unknown as { __ts: { opts: { 'expired-callback': () => void } } }).__ts.opts[
+      'expired-callback'
+    ](),
+  );
+  await expect(submit).toBeDisabled();
   expect(s.booked).toHaveLength(0);
 });

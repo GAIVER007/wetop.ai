@@ -1,0 +1,35 @@
+{
+  "completed_at": "2026-10-05T14:06:56.758987+00:00",
+  "source_sha": "27c2f3549b7eac280713c2d0b7148485478b702f",
+  "removed_paths": {
+    "/tmp/wetop-u07-full-a5c5050c-20261005": true,
+    "/tmp/wetop-u07-full-pg-bin-20261005": true,
+    "/tmp/wetop-u07-full-pgdata-20261005": true
+  },
+  "free_ports": [
+    55813,
+    55814,
+    55823,
+    55824,
+    55825,
+    55933
+  ],
+  "private_credentials_removed": true,
+  "synthetic_database_removed": true,
+  "production_changed": false,
+  "release_changed": false,
+  "production_migrations_applied": false,
+  "browser_tab_cleanup": "Blocked by browser URL policy on its localhost error data URL; no bypass attempted. Agent-created tab 4 remains; servers and data are removed.",
+  "evidence_files": 30,
+  "previous_stand_paths_absent": {
+    "/tmp/wetop-u01-u12-a5c5050c-20261005": true,
+    "/tmp/wetop-u01-u12-pg-bin-20261005": true,
+    "/tmp/wetop-u01-u12-pgdata-20261005": true
+  },
+  "previous_stand_ports_free": {
+    "55803": true,
+    "55804": true,
+    "55932": true
+  },
+  "evidence_records": 73
+}

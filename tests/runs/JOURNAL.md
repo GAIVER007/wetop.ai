@@ -6321,3 +6321,7 @@
 | 05.10.2026 15:21 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 15 из 15 | 31 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-05Z-e2e-ad22.log) | Final human readable dates and mobile panels |
 | 05.10.2026 15:21 | lint | ✅ без ошибок | 11 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-37Z-lint-44c5.log) | Final calendar presentation lint |
 | 05.10.2026 15:21 | typecheck | ✅ без ошибок | 11 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-49Z-typecheck-7a22.log) | Final calendar presentation types |
+| 05.10.2026 15:27 | unit | ✅ 3377 из 3381, пропущено 4 | 6 мин 8 с | 507e687 | [лог](logs/2026-10-05T10-27-35Z-unit-379e.log) | MV6 final unit on main c98a9597 sync; unchanged limits |
+| 05.10.2026 15:33 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 18 с | 507e687 | [лог](logs/2026-10-05T10-33-44Z-integration-e840.log) | MV6 final integration on main c98a9597 sync; includes Food and BAR ownership concurrency RLS |
+| 05.10.2026 15:35 | typecheck | ✅ без ошибок | 32 с | 507e687 | [лог](logs/2026-10-05T10-35-03Z-typecheck-6561.log) | MV6 final c98 synced root API web typecheck |
+| 05.10.2026 15:35 | lint | ✅ без ошибок | 33 с | 507e687 | [лог](logs/2026-10-05T10-35-37Z-lint-b89c.log) | MV6 final c98 synced lint |

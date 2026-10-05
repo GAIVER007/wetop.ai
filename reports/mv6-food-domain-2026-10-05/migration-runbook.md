@@ -31,6 +31,6 @@ Destructive schema rollback возможен только на подтверж�
 
 ## Rehearsal
 
-Локальная PostgreSQL 16, порт 55753. `scripts/ops/check-migrations.sh` создаёт отдельные временные _mig_before/_mig_after базы, проверяет всю цепочку на пустой БД, drift Prisma и каждый down snapshot. Фактический результат: PostgreSQL 16.14, 61 migrations, full chain OK, Prisma drift отсутствует, все down snapshots OK, включая 58. Лог: [check-migrations.log](check-migrations.log).
+Локальная PostgreSQL 16, порт 55753. `scripts/ops/check-migrations.sh` создаёт отдельные временные _mig_before/_mig_after базы, проверяет всю цепочку на пустой БД, drift Prisma и каждый down snapshot. Фактический результат: PostgreSQL 16.14, 64 migrations, full chain OK, Prisma drift отсутствует, все down snapshots OK, включая 58. Лог: [check-migrations-post-bar.txt](check-migrations-post-bar.txt).
 
-Пополненные таблицы проверены тестом `tests/integration/mv6-food-database.test.ts`: down отказывается, существующая reservation сохраняется. Новая ещё не опубликованная migration уточнялась в ходе red/green; обе локальные схемы получили исправленный guard. Финальный full-chain rehearsal проверяет канонический файл с нуля.
+Пополненные таблицы проверены тестом `tests/integration/mv6-food-database.test.ts`: down отказывается, существующая reservation сохраняется. Новая ещё не опубликованная migration уточнялась в ходе red/green; обе локальные схемы получили исправленный guard. Финальный full-chain rehearsal проверяет канонический файл 58 с нуля после BAR migrations 55/56/57.

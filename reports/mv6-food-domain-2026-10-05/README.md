@@ -69,7 +69,7 @@ HTTP errors: 400 input/window, 403 scope/capability/permission/READ_ONLY, 404 н
 
 Full integration финального кода: 371 PASS / 9 прежних skips, `2026-10-05T06-38-06Z-integration-d00e.log`. После сбоя первого cleanup синтетические строки точечно удалены из своей локальной pms_test; повторный full integration подтвердил отсутствие загрязнения fixtures. Assertions старого backfill теста сохранены. Проверка READ_ONLY race наблюдает фактический waiter через pg_blocking_pids перед commit родительского изменения.
 
-## Финальная проверка
+## Проверки первоначального head e35588e6 до BAR merge
 
 | Проверка | Результат | Evidence |
 |---|---|---|

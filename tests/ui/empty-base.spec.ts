@@ -62,8 +62,9 @@ test('пустая база: шахматка показывает все мес
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {
   await page.goto('/today');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('owner-net-cash')).toContainText('0');
-  await expect(main.getByTestId('owner-adr')).toContainText('Проданных ночей нет');
-  const text = (await main.innerText()).replace(/\s+/g, ' ');
-  expect(text).toMatch(/Заездов за период нет/);
+  await expect(main.getByTestId('owner-paid').locator('strong')).toContainText('0');
+  await expect(main.getByTestId('c-occupancy')).toHaveText('0 %');
+  await expect(main.getByTestId('c-free')).toHaveText('88');
+  await expect(main.getByTestId('owner-expenses')).toContainText('Нет данных');
+  await expect(main.getByTestId('owner-outlook-chart').getByRole('listitem')).toHaveCount(7);
 });

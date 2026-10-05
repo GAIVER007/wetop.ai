@@ -26,6 +26,7 @@ import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
 import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { FoodModule } from './food-service/food.module';
 import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
@@ -49,6 +50,7 @@ import { DataConnectionModule } from './database/connection';
     PlatformModule,
     InventoryModule,
     BeautyModule,
+    FoodModule,
     HotelModule,
     ChessboardModule,
     ReservationsModule,

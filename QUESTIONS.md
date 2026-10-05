@@ -1244,3 +1244,8 @@ GREEN: 9d22 378 focused PASS; 9a0b 716 full integration PASS (11 existing skips)
 e08b 3368 full unit PASS (4 existing skips); 0b4f typecheck; 9b99 lint; all 63 down
 rehearsals and schema drift PASS. No new skips, weakened assertions or timeout increases.
 See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouched.
+
+
+## 2026-10-05: источники показателей Главной владельца
+
+Открыто: определить подтверждённый источник расходов, остатков кассы и общего остатка, а также смысл Касса / Всего (остаток или оборот, перечень счетов). Владелец разрешил самостоятельно настроить интерфейс, но финансовая модель для этих значений пока не определена. До решения карточки показывают Нет данных. Возвраты не считаются расходами, поступления не подменяют остаток.

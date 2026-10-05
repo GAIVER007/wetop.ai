@@ -59,10 +59,9 @@ test('строка вкладок в шапке: порядок, одна акт
   // бокового меню больше нет: все разделы в шапке
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
-  // вкладки стоят второй строкой, под поиском
-  const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
-  const first = await menu.locator('.topmenu__tab').first().boundingBox();
-  expect(first!.y).toBeGreaterThanOrEqual(search!.y + search!.height - 1);
+  // На компактной главной поиск скрыт, вкладки остаются доступной строкой навигации.
+  await expect(header.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  await expect(menu.locator('.topmenu__tab').first()).toBeVisible();
   // в разметке каждый раздел ровно один раз, включая пункты закрытых списков
   const links = await menu
     .locator('a')

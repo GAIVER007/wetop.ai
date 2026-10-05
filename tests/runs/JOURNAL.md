@@ -6380,3 +6380,4 @@
 | 05.10.2026 16:46 | unit (частично: tests/unit/db-restore-prod.test.ts tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 79 из 79 | 5 с | 125f345 | [лог](logs/2026-10-05T11-46-34Z-unit-5836.log) |  |
 | 05.10.2026 16:46 | lint | ✅ без ошибок | 12 с | 125f345 | [лог](logs/2026-10-05T11-46-40Z-lint-a983.log) |  |
 | 05.10.2026 16:47 | unit (частично: tests/unit/db-restore-prod.test.ts tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 79 из 79 | 5 с | c9ab803 | [лог](logs/2026-10-05T11-47-14Z-unit-cb48.log) | release: объединённый restore и Food grants после main sync |
+| 05.10.2026 16:58 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/db-restore-prod.test.ts) | ✅ 75 из 75 | 5 с | 75ce038 +1 | [лог](logs/2026-10-05T11-58-45Z-unit-9963.log) | green: rollback Food grants сохраняет исходные default privileges |

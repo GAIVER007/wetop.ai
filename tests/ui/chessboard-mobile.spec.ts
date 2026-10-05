@@ -132,6 +132,7 @@ for (const theme of ['light', 'dark'] as const) {
     const wrap = page.locator('.board-wrap');
     expect(await wrap.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeGreaterThan(1000);
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-grid.png` });
+    await wrap.scrollIntoViewIfNeeded();
     await wrap.evaluate((el) => {
       el.scrollTop = el.scrollHeight;
     });

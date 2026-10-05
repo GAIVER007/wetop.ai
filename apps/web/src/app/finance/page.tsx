@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { hotelToday, reservationStatusWords, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
-import { displayDate } from '../../lib/display-date';
+import { displayDate, displayPeriod } from '../../lib/display-date';
 import { can } from '@pms/domain';
 import {
   financeApi,
@@ -176,11 +176,11 @@ export default async function FinanceReportPage({
         </div>
         <div className="cash-summary__period">
           <a href="#finance-filters" className="cash-summary__label" data-testid="finance-period">
-            За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
+            За период: {displayPeriod(from, to)}
           </a>
           <dl>
             <div className="cash-summary__income">
-              <dt>Поступления:</dt>
+              <dt>Поступления</dt>
               <dd data-testid="cash-period-income">
                 {periodOps
                   ? formatMoney(
@@ -191,7 +191,7 @@ export default async function FinanceReportPage({
               </dd>
             </div>
             <div className="cash-summary__expense">
-              <dt>Расходы:</dt>
+              <dt>Расходы</dt>
               <dd data-testid="cash-period-expense">
                 {periodOps
                   ? formatMoney(
@@ -205,7 +205,10 @@ export default async function FinanceReportPage({
         </div>
         {cashBalances && (
           <details className="cash-summary__methods">
-            <summary>Баланс по способам оплаты</summary>
+            <summary>
+              <Icon name="chevron" />
+              Баланс по способам оплаты
+            </summary>
             <dl>
               {cashBalances.balances.map((balance) => (
                 <div key={balance.method}>
@@ -310,7 +313,10 @@ export default async function FinanceReportPage({
             </Select>
           </Field>
           <details className="finance-extra-filters" key={`extra-${srcParam}`} open={!!srcParam}>
-            <summary>Дополнительные фильтры{srcParam ? ' (1)' : ''}</summary>
+            <summary>
+              <Icon name="chevron" />
+              Дополнительные фильтры{srcParam ? ' (1)' : ''}
+            </summary>
             <Field label="Источник">
               <Select
                 name="src"
@@ -326,7 +332,7 @@ export default async function FinanceReportPage({
           </details>
           <div className="finance-filter-actions">
             <Button>Показать</Button>
-            <Link href={period} className="btn btn--ghost">
+            <Link href={period} className="btn btn--ghost finance-reset">
               Сбросить фильтр
             </Link>
           </div>

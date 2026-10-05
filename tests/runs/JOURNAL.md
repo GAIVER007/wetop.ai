@@ -6289,3 +6289,10 @@
 | 05.10.2026 15:21 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 15 из 15 | 31 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-05Z-e2e-ad22.log) | Final human readable dates and mobile panels |
 | 05.10.2026 15:21 | lint | ✅ без ошибок | 11 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-37Z-lint-44c5.log) | Final calendar presentation lint |
 | 05.10.2026 15:21 | typecheck | ✅ без ошибок | 11 с | b408e25 +10 | [лог](logs/2026-10-05T10-21-49Z-typecheck-7a22.log) | Final calendar presentation types |
+| 05.10.2026 15:33 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep визуальная иерархия) | ❌ упало 1 из 1 | 9 с | 1c19368 +1 | [лог](logs/2026-10-05T10-33-35Z-e2e-88bf.log) | касса: визуальная иерархия итогов и спокойный сброс |
+| 05.10.2026 15:34 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-34-59Z-unit-0251.log) |  |
+| 05.10.2026 15:34 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts finance-f1.spec.ts finance-cash.spec.ts --workers=1) | ❌ упало 1 из 24 | 43 с | 1c19368 +5 | [лог](logs/2026-10-05T10-34-45Z-e2e-b212.log) | касса: доступность и верстка 360 |
+| 05.10.2026 15:35 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 6 из 6 | 15 с | 1c19368 +5 | [лог](logs/2026-10-05T10-35-47Z-e2e-6695.log) |  |
+| 05.10.2026 15:36 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep тёмное оформление) | ✅ 1 из 1 | 8 с | 1c19368 +5 | [лог](logs/2026-10-05T10-36-25Z-e2e-a1fe.log) |  |
+| 05.10.2026 15:36 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-36-33Z-unit-237e.log) |  |
+| 05.10.2026 15:37 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 7 из 7 | 17 с | 4890433 | [лог](logs/2026-10-05T10-37-30Z-e2e-f836.log) |  |

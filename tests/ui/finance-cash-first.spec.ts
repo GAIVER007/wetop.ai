@@ -15,7 +15,7 @@ test('касса: простой вход, фильтры применяются
   await page.goto('/finance');
   await expect(page.getByRole('heading', { name: 'Касса', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
-  await expect(page.getByTestId('finance-operations')).toBeVisible();
+  await expect(page.getByTestId('finance-operations')).not.toBeVisible();
   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
   await expect(page.getByTestId('finance-attention')).not.toBeVisible();
   const params = new URLSearchParams(
@@ -50,21 +50,29 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Способ оплаты', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Источник', { exact: true })).toHaveValue('');
+  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('finance-kpis')).toBeVisible();
 });
 
-for (const width of [1440, 390]) {
+for (const width of [1440, 390, 360]) {
   test(`касса: доступность и верстка ${width}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
+    await page.setViewportSize({ width, height: width === 390 ? 844 : width === 360 ? 740 : 900 });
     await page.goto('/finance');
     await expect(page.getByTestId('cash-summary')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    await expect(page.getByTestId('finance-operations')).not.toBeVisible();
+    if (width < 600) {
+      expect(
+        await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
+      ).toBeLessThanOrEqual(1);
+      await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeInViewport();
+    }
     const axe = await new AxeBuilder({ page }).include('main').analyze();
     expect(axe.violations).toEqual([]);
-    if (width === 390) {
+    if (width < 600) {
       for (const el of await page
         .getByTestId('period-form')
         .locator('select:visible, button:visible')

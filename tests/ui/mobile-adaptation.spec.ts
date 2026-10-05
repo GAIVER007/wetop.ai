@@ -99,6 +99,7 @@ test('телефон: управление календаря не отнима�
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
+  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
     .locator('.finance-kpis')

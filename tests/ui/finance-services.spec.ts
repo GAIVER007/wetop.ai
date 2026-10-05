@@ -23,10 +23,18 @@ const digits = (text: string) => text.replace(/[^\d]/g, '');
 interface Services {
   count: number;
   totalMinor: string;
-  rows: Array<{ name: string | null; group: string | null; charges: number; quantity: number; amountMinor: string }>;
+  rows: Array<{
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
 }
 
-async function servicesOf(request: import('@playwright/test').APIRequestContext): Promise<Services> {
+async function servicesOf(
+  request: import('@playwright/test').APIRequestContext,
+): Promise<Services> {
   const res = await request.get(
     `${fixture}/finance/services-report?from=${monthFrom}&to=${monthTo}`,
     { headers: { 'x-wetop-test-client': '1' } },
@@ -48,8 +56,11 @@ test('вкладка «Услуги»: строки из API, «вручную»
 }) => {
   const data = await servicesOf(request);
   expect(data.rows.length, 'в фикстуре нужны услуги').toBeGreaterThan(1);
-  expect(data.rows.some((x) => x.name === null), 'и начисление вручную').toBe(true);
-  await page.goto(url);
+  expect(
+    data.rows.some((x) => x.name === null),
+    'и начисление вручную',
+  ).toBe(true);
+  await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
 
   // строка «Услуги» в «По видам начислений» — ссылка на вкладку
@@ -135,7 +146,11 @@ for (const theme of ['light', 'dark'] as const) {
     expect(scan.violations.map((v) => v.id)).toEqual([]);
     await page.mouse.move(0, 0);
     mkdirSync(report, { recursive: true });
-    await page.screenshot({ path: `${report}/${theme}-1440.png`, caret: 'initial', fullPage: true });
+    await page.screenshot({
+      path: `${report}/${theme}-1440.png`,
+      caret: 'initial',
+      fullPage: true,
+    });
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(page.getByTestId('services-table')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

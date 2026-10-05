@@ -572,3 +572,178 @@
   gap: var(--space-2);
   font-size: var(--text-sm);
 }
+
+/* Касса при входе: итоги без плиток, один набор фильтров. */
+.cash-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+  align-items: flex-start;
+  margin: var(--space-4) 0 var(--space-8);
+}
+.cash-summary__label {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.cash-summary__balance > strong {
+  display: block;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.cash-summary__methods {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+.cash-summary__methods summary {
+  cursor: pointer;
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.cash-summary dl {
+  margin: 0;
+}
+.cash-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-block: var(--space-1);
+}
+.cash-summary dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+}
+.cash-summary__period {
+  min-width: 280px;
+}
+.cash-summary__period dl {
+  font-size: var(--text-lg);
+}
+.cash-summary__income dd {
+  color: var(--success);
+}
+.cash-summary__expense dd {
+  color: var(--danger);
+}
+.page:has(.cash-summary) .finance-controls {
+  display: block;
+  margin-bottom: var(--space-6);
+}
+.page:has(.cash-summary) .finance-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 160px)) repeat(3, minmax(140px, 1fr));
+  align-items: end;
+  gap: var(--space-4);
+}
+.page:has(.cash-summary) .finance-toolbar .field {
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.page:has(.cash-summary) .finance-toolbar .inp {
+  width: 100%;
+}
+.page:has(.cash-summary) .finance-presets {
+  order: -1;
+  grid-column: 1 / -1;
+}
+.finance-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  grid-column: 1 / -1;
+}
+.page:has(.cash-summary) .finance-tab-panel {
+  max-height: none;
+  overflow: visible;
+}
+.page:has(.cash-summary) .finance-ops {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+@media (max-width: 1000px) {
+  .page:has(.cash-summary) .finance-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .cash-summary {
+    gap: var(--space-6);
+    margin-top: 0;
+  }
+  .cash-summary__balance,
+  .cash-summary__period {
+    min-width: 0;
+    width: 100%;
+  }
+  .cash-summary__period dl {
+    font-size: var(--text-md);
+  }
+  .cash-summary__methods summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .page:has(.cash-summary) .finance-toolbar .inp,
+  .finance-filter-actions .btn {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .page:has(.cash-summary) .finance-toolbar .field:last-of-type {
+    grid-column: 1 / -1;
+  }
+  .page:has(.cash-summary) .finance-presets a {
+    padding-inline: var(--space-2);
+  }
+  .finance-filter-actions .btn {
+    flex: 1;
+  }
+  .page:has(.cash-summary) .finance-ops__table {
+    min-width: 0;
+    width: 100%;
+  }
+  .finance-ops__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .finance-ops__table tbody {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .finance-ops__table tr {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    padding: var(--space-2);
+    background: var(--surface);
+  }
+  .finance-ops__table td {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: var(--space-2);
+    border: 0;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+  }
+  .finance-ops__table td::before {
+    content: attr(data-label);
+    color: var(--text-2);
+    font-weight: var(--weight-regular);
+  }
+}

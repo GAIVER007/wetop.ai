@@ -6597,6 +6597,33 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
+    if (
+      req.method === 'GET' &&
+      [
+        '/bar/categories',
+        '/bar/products',
+        '/bar/suppliers',
+        '/bar/receipts',
+        '/bar/stock',
+        '/bar/sales',
+        '/bar/folios',
+        '/bar/movements',
+      ].includes(path)
+    ) {
+      return send(200, []);
+    }
+    if (path === '/bar/report' && req.method === 'GET') {
+      return send(200, {
+        purchasesMinor: '0',
+        supplierPaidMinor: '0',
+        revenueMinor: '0',
+        costMinor: '0',
+        grossProfitMinor: '0',
+        writeOffMinor: '0',
+        stockCostMinor: '0',
+        supplierDebtMinor: '0',
+      });
+    }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)
         return send(403, {
@@ -6605,7 +6632,7 @@ createServer(async (req, res) => {
         });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
-      const hotelName = String(body['hotelName'] ?? '').trim();
+      const hotelName = String(body['businessName'] ?? body['hotelName'] ?? '').trim();
       const password = String(body['password'] ?? '');
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });

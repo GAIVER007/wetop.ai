@@ -6360,3 +6360,7 @@
 | 05.10.2026 16:16 | lint | ✅ без ошибок | 24 с | 8e389f7 | [лог](logs/2026-10-05T11-16-41Z-lint-3d7b.log) | MV6 final ae6df20b lint |
 | 05.10.2026 16:32 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep телефон --workers=1) | ❌ упало 2 из 9 | 1 мин 9 с | ae6df20 | [лог](logs/2026-10-05T11-32-36Z-e2e-303d.log) | телефон light: карточка брони, фильтры и длинный календарь |
 | 05.10.2026 16:34 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep телефон --workers=1) | ✅ 9 из 9 | 26 с | ae6df20 +1 | [лог](logs/2026-10-05T11-34-41Z-e2e-7b72.log) |  |
+| 05.10.2026 16:36 | unit (частично: tests/unit/db-restore-prod.test.ts) | ❌ упало 1 из 7 | 6 с | 6293670 +1 | [лог](logs/2026-10-05T11-36-25Z-unit-723f.log) | red: смешанная Food schema+GRANT миграция повторно ломает restore |
+| 05.10.2026 16:37 | unit (частично: tests/unit/db-restore-prod.test.ts) | ✅ 7 из 7 | 5 с | 6293670 +2 | [лог](logs/2026-10-05T11-37-06Z-unit-b599.log) | green: restore повторяет только чистые миграции прав |
+| 05.10.2026 16:39 | integration (частично: tests/integration/db-restore-prod.test.ts) | ✅ 0 из 2, пропущено 2 | 1 с | 6293670 +1 | [лог](logs/2026-10-05T11-39-26Z-integration-7143.log) | green: restore с Food schema+GRANT миграцией на PostgreSQL 16 |
+| 05.10.2026 16:40 | lint | ✅ без ошибок | 22 с | 6293670 +2 | [лог](logs/2026-10-05T11-40-17Z-lint-d379.log) | release: безопасный отбор чистых миграций прав для restore |

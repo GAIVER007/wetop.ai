@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 05.10.2026 15:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e38083 (codex/release-finance-disclosure-20261005)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/mobile-adaptation.spec.ts:85' 'tests/ui/chessboard-calendar.spec.ts:12' 'tests/ui/chessboard-mobile.spec.ts:171' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:22209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 414ms. If /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:22292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.4s)
+  ✓  2 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 360: шесть показателей перед календарём и вертикальная прокрутка (3.1s)
+  ✓  3 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 390: шесть показателей перед календарём и вертикальная прокрутка (3.4s)
+  ✓  4 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 430: шесть показателей перед календарём и вертикальная прокрутка (1.5s)
+  ✘  5 tests/ui/guests-birthdays.spec.ts:15:1 › календарь показывает количество дней рождения, а отдельная страница раскрывает детали (16.5s)
+(node:22431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (17.2s)
+(node:22579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (1.7s)
+
+
+  1) tests/ui/guests-birthdays.spec.ts:15:1 › календарь показывает количество дней рождения, а отдельная страница раскрывает детали
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+    Expected: "1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays')
+
+
+      28 |   await page.goto('/chessboard');
+      29 |   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 30 |   await expect(panel.getByTestId('day-birthdays')).toHaveText('1');
+         |                                                    ^
+      31 |   await expect(panel.getByText('Дни рождения')).toHaveCount(1);
+      32 |   const panelBox = (await panel.boundingBox())!;
+      33 |   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
+        at /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/tests/ui/guests-birthdays.spec.ts:30:52
+
+    Error Context: test-results/guests-birthdays-календарь-1a9df--страница-раскрывает-детали/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-календарь-1a9df--страница-раскрывает-детали/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-календарь-1a9df--страница-раскрывает-детали/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByText('Дни рождения')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('group', { name: 'Сегодня на объекте' }).getByText('Дни рождения') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByText('Дни рождения')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      52 |   await page.goto('/chessboard');
+      53 |   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    > 54 |   await expect(panel.getByText('Дни рождения')).toHaveCount(1);
+         |                                                 ^
+      55 |   await expect(panel.getByTestId('day-birthdays')).toHaveText('0');
+      56 |   await page.goto('/guests/birthdays');
+      57 |   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
+        at /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/tests/ui/guests-birthdays.spec.ts:54:49
+
+    Error Context: test-results/guests-birthdays-нет-дат-р-52ac0--говорит-что-в-неделю-пусто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-нет-дат-р-52ac0--говорит-что-в-неделю-пусто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-нет-дат-р-52ac0--говорит-что-в-неделю-пусто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/guests-birthdays.spec.ts:15:1 › календарь показывает количество дней рождения, а отдельная страница раскрывает детали
+    tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто
+  5 passed (1.0m)
+
+# код выхода 1 · 1 мин 2 с

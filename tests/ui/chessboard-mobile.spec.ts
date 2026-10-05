@@ -168,7 +168,7 @@ test('форма брони на телефоне: крупные поля, со
 });
 
 for (const width of [360, 390, 430]) {
-  test(`статистика ${width}: восемь показателей перед календарём и вертикальная прокрутка`, async ({
+  test(`статистика ${width}: шесть показателей перед календарём и вертикальная прокрутка`, async ({
     page,
     request,
   }) => {
@@ -179,8 +179,6 @@ for (const width of [360, 390, 430]) {
     for (const id of [
       'arrivals',
       'departures',
-      'inhouse',
-      'birthdays',
       'tasks',
       'free',
       'units',
@@ -193,7 +191,8 @@ for (const width of [360, 390, 430]) {
       await request.get(`${FIXTURE_API}/desk/today`, { headers: { 'x-wetop-test-client': '1' } })
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
-    await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(stats.getByText('Проживания')).toHaveCount(0);
+    await expect(stats.getByText('Дни рождения')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
@@ -306,3 +305,29 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });
   });
 }
+
+test('телефон возвращает поиск номера и выбранный вид мест после карточки', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/chessboard');
+  const search = page.getByLabel('Поиск в календаре');
+  await search.fill('R02');
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
+  const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
+  await filters.getByRole('button', { name: 'Номера', exact: true }).click();
+  await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+  await page.locator('.board-wrap').scrollIntoViewIfNeeded();
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect(search).toHaveValue('R02');
+  await expect(
+    page.getByRole('button', { name: 'Убрать условие: Номера', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByTestId('unit-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect(search).toHaveValue('');
+  await expect(
+    page.getByRole('button', { name: 'Убрать условие: Номера', exact: true }),
+  ).toHaveCount(0);
+});

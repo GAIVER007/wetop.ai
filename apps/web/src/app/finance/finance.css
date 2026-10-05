@@ -608,8 +608,16 @@
 }
 .cash-summary__period dl {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+.cash-summary__period dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: baseline;
   gap: var(--space-4);
+}
+.cash-summary__period dd {
+  justify-self: end;
 }
 .cash-summary__period dt {
   color: var(--text-2);
@@ -716,26 +724,42 @@
 .page:has(.cash-summary) .finance-presets {
   order: -1;
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0;
-  padding: var(--space-1);
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
+  padding: 0;
+  background: transparent;
+  border: 0;
 }
-.page:has(.cash-summary) .finance-presets a {
-  justify-content: center;
-  min-height: 44px;
-  padding: var(--space-1);
+.finance-presets__label {
+  margin-right: var(--space-2);
   font-size: var(--text-sm);
   color: var(--text-2);
+}
+.page:has(.cash-summary) .finance-presets a {
+  min-height: 44px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
   text-align: center;
   white-space: normal;
   line-height: 1.2;
+  border-radius: 0;
+  background: transparent;
+}
+.page:has(.cash-summary) .finance-presets a + a::before {
+  content: '';
+  width: 1px;
+  height: 14px;
+  flex-shrink: 0;
+  background: var(--border);
+  margin-right: var(--space-2);
 }
 .page:has(.cash-summary) .finance-presets a.is-active {
-  background: var(--surface);
+  background: transparent;
   color: var(--primary);
   font-weight: var(--weight-semibold);
 }
@@ -813,9 +837,29 @@
     min-height: 44px;
     font-size: 16px;
   }
-  .page:has(.cash-summary) .finance-presets a {
+  .page:has(.cash-summary) .finance-presets {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .finance-presets__label {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
     font-size: var(--text-xs);
   }
+  .page:has(.cash-summary) .finance-presets a {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-xs);
+    padding-inline: 0;
+  }
+  .page:has(.cash-summary) .finance-presets a + a::before {
+    margin-right: var(--space-1);
+  }
+  .cash-summary__period .cash-summary__label {
+    font-weight: var(--weight-semibold);
+  }
+
   .page:has(.cash-summary) .finance-ops__table {
     min-width: 0;
     width: 100%;

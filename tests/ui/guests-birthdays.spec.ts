@@ -2,8 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * Страница `/guests/birthdays` использует уже хранимую дату рождения гостя. В календаре этот
- * отдельный сценарий не дублируется (решение владельца 04.10).
+ * Страница `/guests/birthdays` использует уже хранимую дату рождения гостя. Календарь показывает
+ * только количество, а подробности остаются на отдельной странице.
  */
 const API = FIXTURE_API;
 const H = { 'x-wetop-test-client': '1' };

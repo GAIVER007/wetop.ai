@@ -90,6 +90,8 @@ Upstream browser fixture после merge ссылался на отсутств
 
 ## Завершение
 
+PR: [MV7: Food Service workspace #247](https://github.com/GAIVER007/wetop.ai/pull/247), OPEN, MERGEABLE при финальной проверке. Последняя синхронизация main `efa66512` (merge `4390e5bd`) затронула только upstream снимки/журнал и тот же menu test. Наш проверенный menu test сохранён без изменения. `test:status` подтверждает совпадение текущих fingerprints unit/integration/typecheck/lint. Код приложения после GREEN не менялся.
+
 Проверенная реализация и evidence: `650f74603a4f1647da884d958889ea355e64abff`. После создания PR main обновил owner dashboard до v3 и самостоятельно исправил fixture. Merge `7a692034` сохраняет обе upstream версии целиком. Итоговый diff MV7 больше не содержит owner-dashboard.css/tsx или scripts/preview/fixture-api.ts. Результаты повторных проверок после синхронизации приведены выше.
 
 Отдельный PR «MV7: Food Service workspace». Merge, release и production запрещены этим поручением. После готового PR работа останавливается, MV8 не начинается.

@@ -2,8 +2,9 @@
 
 Date: 2026-10-05. PR: https://github.com/GAIVER007/wetop.ai/pull/245.
 Original base: abe59d83693655f87c51059a8e1915196d35d07f.
-Fresh main incorporated by merge 92dd9897: 9698b4977426bc2b587fc1339f63eeebe1db025b.
-Those main changes affect finance/mobile calendar UI and UI tests, with no new BAR migration or code.
+Fresh main incorporated by merge 7f4873cb: e86c0af594e858a5eee72ae7cc3722d10ed7d03c.
+Main changes affect finance/mobile calendar UI and UI tests, with no new BAR migration or code.
+The last sync changes only UI tests/journals, leaving integration and migration inputs unchanged.
 Only an isolated clone and dedicated localhost PostgreSQL 16 were used. The original
 checkout, shared dev database, production and release remain untouched. MV6/MV7 not started.
 
@@ -64,10 +65,10 @@ or increased timeouts. All new BAR tests execute on real local PostgreSQL.
 | Mixed isolation ownership and concurrency GREEN | 83c5 | 351/351 PASS |
 | Stale ancestor reparent RED | f4a3 | 6 selected cases FAIL; other cases filtered, not disabled |
 | Complete final BAR boundary GREEN | 9d22 | 378/378 PASS, including 200 concurrency cases |
-| Final full unit after main sync | pending | pending |
+| Final full unit after main sync | e08b | 3368 PASS, 4 existing skips, zero FAIL |
 | Final full integration after main sync | 9a0b | 716 PASS, 11 existing skips, zero FAIL |
-| Final root/API/web typecheck | 2277 | PASS |
-| Final lint | 62d2 | PASS |
+| Final root/API/web typecheck after latest sync | 0b4f | PASS |
+| Final lint after latest sync | 9b99 | PASS |
 | Full chain, schema drift, all 63 down rehearsals | migration-rehearsal.txt | RESULT: OK |
 
 Earlier environment/fixture diagnostic failures are retained transparently, not claimed as
@@ -107,7 +108,7 @@ masking ownership rejection. BAR unit/API/web behavior is included in the full u
 
 ## Scope and release
 
-Q-BAR-REVERSE-PARENTS approved by owner, then closed only after renewed full GREEN.
+Q-BAR-REVERSE-PARENTS closed after renewed full GREEN.
 DATA_MODEL and DECISIONS record both invariants and the snapshot concurrency refinement.
 source_type/source_id remains a separate audit item; no concrete cross-property source lookup
 exploit was reproduced, and no polymorphic ownership model was introduced.
@@ -120,3 +121,13 @@ run the read-only preflight with administrative visibility, apply forward migrat
 validate ownership and role matrix. Any correction must preserve the working guards.
 No production migration or deployment occurred. Draft removal/merge requires final GREEN,
 fresh main review, mergeability and review/comment checks. Merge SHA is reported in the chat.
+
+## Final review
+
+Correctness: 378 focused cases plus full regressions, real lock waits and stale snapshot
+probes. Security: invoker functions, pinned paths, app/service ownership parity and complete
+RLS matrix. Architecture: only forward migrations, 55/56 unchanged, no model/API shape
+change. Readability: explicit table dispatch. Performance: no-op field assignments return
+early in reverse checks; tuple version fencing touches referenced chains only.
+All final recorded suite fingerprints match the current source; docs/journals are excluded
+from code fingerprints. Final unit ran alone with one worker and unchanged timeouts.

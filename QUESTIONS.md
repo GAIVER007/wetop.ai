@@ -1230,16 +1230,17 @@ record validation in DATA_MODEL.md before implementation. Do not merge the trigg
 as a completed security repair while these tests are RED.
 
 
-## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, APPROVED)
+## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, CLOSED)
 
-Migration 56 closes approved BAR-side INSERT/UPDATE cases. Final direct-SQL review proves
-existing links can still be corrupted by CashOperation.property_id, Charge.folio_id,
-Folio.reservation_item_id, ReservationItem.reservation_id and Reservation.property_id edits.
-Permanent integration test bar-external-parent-ownership: 10 FAIL / 2 PASS (2f6f).
+Owner approved narrow reverse DB guards on CashOperation.property_id, Charge.folio_id,
+Folio.reservation_item_id, ReservationItem.reservation_id and Reservation.property_id.
+Migration 57 preserves existing BAR ownership, including charge-only chains and stale
+snapshot concurrency, while allowing same-property and unrelated external mutations.
+SECURITY INVOKER, pinned paths, fail-closed dispatch and read-only preflight are verified.
 
-Proposal: reverse invoker guards only when an external edit violates an existing BAR link.
-No global cash/Hospitality property immutability or new pricing/booking rules. These five
-external tables were excluded from the original scope, so owner scope approval is pending.
-PR #245 stays draft. See reports/bar-repair-2/README.md for exact role/scenario outcomes.
-
-Owner approved the five narrow reverse guards, concurrency proof and merge after full GREEN on 2026-10-05. Implementation validation pending.
+RED: 2f6f 10 FAIL / 2 PASS; ce0a expanded 14 FAIL; 980d 24 concurrent FAIL;
+514c two stale parent snapshot FAIL; f4a3 six selected stale ancestor FAIL.
+GREEN: 9d22 378 focused PASS; 9a0b 716 full integration PASS (11 existing skips);
+e08b 3368 full unit PASS (4 existing skips); 0b4f typecheck; 9b99 lint; all 63 down
+rehearsals and schema drift PASS. No new skips, weakened assertions or timeout increases.
+See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouched.

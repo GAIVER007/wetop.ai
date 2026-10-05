@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { redirect } from 'next/navigation';
 import { authApi, onboardingApi } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
@@ -12,6 +13,7 @@ import { OnboardingForm } from './onboarding-form';
  * номеров. Уже настроенный объект сюда не пускаем — незачем.
  */
 export default async function OnboardingPage() {
+  await requireVertical(['HOSPITALITY']);
   const verified = await authApi.me().catch(() => null);
   if (verified?.context?.businessId && verified.context.locationId) redirect('/register/setup');
   const [status, desk] = await Promise.all([onboardingApi.status().catch(() => null), deskShell()]);

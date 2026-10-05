@@ -1,0 +1,18 @@
+# Типы (typecheck) · 05.10.2026 17:58 Алматы · MacBook-Air-Urij.local
+# коммит 5a133eb (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 1
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+scripts/preview/fixture-api.ts(62,3): error TS2305: Module '"@pms/domain"' has no exported member 'registrationBusiness'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 23 с

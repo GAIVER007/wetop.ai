@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { guestsApi } from '../../../lib/api';
 import { hotelToday } from '../../../lib/hotel-api';
@@ -11,6 +12,7 @@ import { Alert, EmptyState } from '../../../components/ui';
  * хранимой даты рождения гостя. Только чтение; поздравлять — по телефону из карточки гостя.
  */
 export default async function BirthdaysPage() {
+  await requireVertical(['HOSPITALITY']);
   const today = await hotelToday();
   const list = await guestsApi.birthdays(today, 7).catch(() => null);
   const section = (title: string, rows: NonNullable<typeof list>, empty: string) => (

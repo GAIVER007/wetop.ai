@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { ratesApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
@@ -14,6 +15,7 @@ import '../rates.css';
  * правка — всем, кто его видит, кроме «только чтения» (ADR-102). Отказ API не уносит экран: заголовок остаётся.
  */
 export default async function PromoCodesPage() {
+  await requireVertical(['HOSPITALITY']);
   const { readOnly } = await deskShell();
   const promos = await ratesApi.promoCodes().then(
     (r) => ({ ok: true as const, r }),

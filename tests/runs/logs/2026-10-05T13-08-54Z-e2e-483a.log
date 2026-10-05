@@ -1,0 +1,112 @@
+# Сквозные (e2e) · 05.10.2026 18:08 Алматы · MacBook-Air-Urij.local
+# коммит 5a133eb (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/top-menu.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/registration-closed.spec.ts'
+[WebServer] (node:34018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+(node:34908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (7.1s)
+[WebServer] (node:36288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (12.4s)
+[WebServer] (node:37499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (51.8s)
+(node:41388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (16.1s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:41:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (9.9s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: light (15.4s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: dark (24.5s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:67:1 › пустая клетка не дублирует дату из шапки календаря (16.2s)
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:75:1 › даты в шапке не повторяют свободные и занятые места (15.6s)
+  ✓  10 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (11.2s)
+  ✓  11 tests/ui/owner-dashboard.spec.ts:30:1 › dashboard period changes and mobile retains content (11.8s)
+  ✓  12 tests/ui/owner-dashboard.spec.ts:41:1 › owner dashboard keeps attention available when finance fails (9.4s)
+  ✓  13 tests/ui/owner-dashboard.spec.ts:53:1 › owner dashboard dark desktop and mobile remain usable (8.0s)
+  ✓  14 tests/ui/owner-dashboard.spec.ts:70:1 › owner mobile overview fits above navigation and omits refund metrics (3.3s)
+  ✓  15 tests/ui/owner-dashboard.spec.ts:88:1 › owner overview stays usable at narrow widths and custom dates remain accessible (4.5s)
+  ✓  16 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (875ms)
+  ✓  17 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (999ms)
+[WebServer] (node:45112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (1.9s)
+  ✓  19 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (883ms)
+[WebServer] (node:45134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (2.2s)
+[WebServer] (node:45155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (7.1s)
+[WebServer] (node:45219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/top-menu.spec.ts:119:1 › вложенные адреса подсвечивают свою вкладку (19.3s)
+  ✓  23 tests/ui/top-menu.spec.ts:152:3 › шапка ровная, без прокрутки вбок и доступная: light (7.4s)
+  ✓  24 tests/ui/top-menu.spec.ts:152:3 › шапка ровная, без прокрутки вбок и доступная: dark (5.2s)
+
+
+  1) tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+    Expected: "true"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ }) with timeout 15000ms
+      - waiting for locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+      - Test timeout of 45000ms exceeded.
+
+
+      135 |   const mobile = page.locator('.mobile-navigation');
+      136 |   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    > 137 |   await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+          |                                                                               ^
+      138 |     'aria-pressed',
+      139 |     'true',
+      140 |   );
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/ui/branches.spec.ts:137:79
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки
+  23 passed (4.9m)
+
+# код выхода 1 · 4 мин 56 с

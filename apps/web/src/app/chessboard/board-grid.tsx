@@ -17,7 +17,7 @@ import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-la
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
-import { useBoardPosition } from './board-position';
+import { useBoardPosition, type BoardSelection } from './board-position';
 import { BoardFiltersPopover, KIND_OPTIONS } from './board-filters-popover';
 import {
   NO_FILTERS,
@@ -264,7 +264,11 @@ export function ChessboardGrid({
    * проживания при прокрутке вбок (ТЗ v2 §58).
    */
   const wrapRef = useRef<HTMLDivElement>(null);
-  useBoardPosition(wrapRef, searchParams.toString());
+  const restoreSelection = useCallback((saved: BoardSelection) => {
+    setQuery(saved.query);
+    setFilters(saved.filters);
+  }, []);
+  useBoardPosition(wrapRef, searchParams.toString(), { query, filters }, restoreSelection);
   useEffect(() => {
     const wrap = wrapRef.current;
     const head = wrap?.querySelector('thead');
@@ -335,19 +339,17 @@ export function ChessboardGrid({
         const last = selectRange(row.cells, from, row.cells.length - 1)?.to ?? from;
         return row.cells.slice(first, last + 1).map((cell, index) => ({
           date: cell.date,
-          periods: row.cells
-            .slice(first + index, last + 1)
-            .map((end) =>
-              freeMenuModel(
-                {
-                  code: row.unit.code,
-                  kind: row.unit.kind,
-                  categoryName: row.unit.accommodationTypeName,
-                },
-                cell.date,
-                end.date,
-              ),
+          periods: row.cells.slice(first + index, last + 1).map((end) =>
+            freeMenuModel(
+              {
+                code: row.unit.code,
+                kind: row.unit.kind,
+                categoryName: row.unit.accommodationTypeName,
+              },
+              cell.date,
+              end.date,
             ),
+          ),
         }));
       })(),
       periods: row.cells.slice(from).flatMap((cell, offset) => {

@@ -306,3 +306,29 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });
   });
 }
+
+test('телефон возвращает поиск номера и выбранный вид мест после карточки', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/chessboard');
+  const search = page.getByLabel('Поиск в календаре');
+  await search.fill('R02');
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
+  const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
+  await filters.getByRole('button', { name: 'Номера', exact: true }).click();
+  await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+  await page.locator('.board-wrap').scrollIntoViewIfNeeded();
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect(search).toHaveValue('R02');
+  await expect(
+    page.getByRole('button', { name: 'Убрать условие: Номера', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByTestId('unit-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect(search).toHaveValue('');
+  await expect(
+    page.getByRole('button', { name: 'Убрать условие: Номера', exact: true }),
+  ).toHaveCount(0);
+});

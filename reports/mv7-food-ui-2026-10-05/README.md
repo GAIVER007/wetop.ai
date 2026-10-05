@@ -101,3 +101,7 @@ PR: [MV7: Food Service workspace #247](https://github.com/GAIVER007/wetop.ai/pul
 Самопроверка по code-review-and-quality: correctness (полная пагинация, midnight, server tokens, guarded scope), readability (общий drawer и typed facade), architecture (существующие transport/UI kit/permissions), security (server action scope, реальные RoleGuard negatives), performance (bounded pagination, параллельные независимые reads). Новая opt-in настройка Overlay используется только Food. Новые зависимости не добавлены. Real external API, деньги и schema отсутствуют в diff.
 
 RED артефакты сохранены: отсутствие Food modules в unit; некорректные response details; незакрытый direct finance route; native Shift+Tab выходил из dialog; быстрый reopen catalog показывал предыдущий active. Дополнительно исправлены harness locale/encoding и ожидание persisted assignment в dl деталей (не в option списка) перед capacity check. Assertions сохранены или усилены.
+
+## Final merge acceptance
+
+Fresh final gate evidence: [final-acceptance.md](final-acceptance.md).

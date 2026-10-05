@@ -5751,3 +5751,15 @@ Options: reuse hotel/Beauty/bar entities; create the approved independent Food d
 Decision: implement DATA_MODEL §28, approved directly in owner MV6 specification. Reuse Customer/CustomerBusiness, RequestActor, capability and role permissions, subscription checks and audit. No UI or new permission engine.
 Concurrency: shared Organization/Business parent locks, Location row FOR UPDATE serializes mutations within one restaurant; reservation row and target table FOR UPDATE protect status/move/assignment. Explicit expected status+updatedAt required on reservation mutations. Sorted parent-first locks avoid cross-operation deadlocks. Unique creation key remains DB authority.
 Consequences: conservative per-Location write serialization in v1; independent locations still proceed. API uses UTC instants plus Location IANA timezone for period/day boundaries. Five new tables, guarded down, production rollout separate. MV7 requires approval.
+
+## ADR-MV6-RESTORE: Food Service rights in a separate migration (2026-10-05)
+
+Problem: production restore repeats migrations containing `GRANT` or `REVOKE`. Migration 58 created the Food Service schema and granted rights, so restore executed `CREATE TYPE "RestaurantReservationStatus"` twice and rolled back.
+
+Options: expand destructive restore logic; make all schema DDL repeatable; separate rights from schema creation.
+
+Decision: migration 58 creates the schema and security invariants without grants. Forward migration 59 contains only repeatable `GRANT`; its `down.sql` contains only matching `REVOKE`.
+
+Reason: restore stays unchanged, repeats only rights and never runs schema DDL a second time.
+
+Consequences: production applies migrations 58 and 59 together after backup and exact pending-list validation. The agent does not apply production migrations.

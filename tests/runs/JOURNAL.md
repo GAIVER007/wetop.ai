@@ -6371,3 +6371,11 @@
 | 05.10.2026 16:39 | integration (частично: tests/integration/db-restore-prod.test.ts) | ✅ 0 из 2, пропущено 2 | 1 с | 6293670 +1 | [лог](logs/2026-10-05T11-39-26Z-integration-7143.log) | green: restore с Food schema+GRANT миграцией на PostgreSQL 16 |
 | 05.10.2026 16:40 | lint | ✅ без ошибок | 22 с | 6293670 +2 | [лог](logs/2026-10-05T11-40-17Z-lint-d379.log) | release: безопасный отбор чистых миграций прав для restore |
 | 05.10.2026 16:41 | unit (частично: tests/unit/db-restore-prod.test.ts) | ✅ 7 из 7 | 6 с | 6808349 | [лог](logs/2026-10-05T11-41-42Z-unit-7b30.log) | release: DB restore fix после rebase на main 5296ffd1 |
+| 05.10.2026 16:42 | unit (частично: tests/unit/db-restore-prod.test.ts tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 78 из 78 | 4 с | 5296ffd +3 | [лог](logs/2026-10-05T11-42-35Z-unit-e1c8.log) |  |
+| 05.10.2026 16:42 | unit (частично: packages/domain/src/food/food.test.ts apps/api/src/food-service/boundary.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 10 из 10 | 2 с | 5296ffd +3 | [лог](logs/2026-10-05T11-42-54Z-unit-1b96.log) |  |
+| 05.10.2026 16:42 | typecheck | ✅ без ошибок | 15 с | 5296ffd +3 | [лог](logs/2026-10-05T11-42-56Z-typecheck-c77f.log) |  |
+| 05.10.2026 16:43 | lint | ✅ без ошибок | 11 с | 5296ffd +3 | [лог](logs/2026-10-05T11-43-12Z-lint-cabc.log) |  |
+| 05.10.2026 16:44 | unit (частично: tests/unit/db-restore-prod.test.ts tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 79 из 79 | 5 с | 523db9f | [лог](logs/2026-10-05T11-44-42Z-unit-35c2.log) |  |
+| 05.10.2026 16:44 | lint | ✅ без ошибок | 11 с | 523db9f | [лог](logs/2026-10-05T11-44-47Z-lint-7b08.log) |  |
+| 05.10.2026 16:46 | unit (частично: tests/unit/db-restore-prod.test.ts tests/unit/migrations-rollback.test.ts tests/unit/migrations-hold.test.ts) | ✅ 79 из 79 | 5 с | 125f345 | [лог](logs/2026-10-05T11-46-34Z-unit-5836.log) |  |
+| 05.10.2026 16:46 | lint | ✅ без ошибок | 12 с | 125f345 | [лог](logs/2026-10-05T11-46-40Z-lint-a983.log) |  |

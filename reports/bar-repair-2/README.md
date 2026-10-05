@@ -2,7 +2,12 @@
 
 Date: 2026-10-05. PR #245 remains DRAFT. DO NOT MERGE.
 Base SHA: `abe59d83693655f87c51059a8e1915196d35d07f`.
-Branch: `codex/bar-repair-2`. Current head is recorded in the PR description.
+Branch: `codex/bar-repair-2`. Ownership implementation head: `d640128de77361a8336825511ee7f5c22b0130e4`.
+Latest documentation head is recorded in the PR description.
+Fresh remote main at final review: `2b271167ecedd3c34d18a5674f13d9b122bc6c50`.
+New commits 59a65938/2b271167 change finance UI and UI tests, not BAR code/migrations.
+PR mergeability is CONFLICTING (shared appended documentation/journals); sync and rerun
+required after the pending reverse-parent decision. The passing full runs preceded this main advance.
 Only an isolated clone and a dedicated localhost PostgreSQL 16 cluster were used.
 Original dirty checkout, shared dev database, production and release untouched. MV6 not started.
 

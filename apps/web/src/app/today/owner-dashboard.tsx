@@ -11,7 +11,8 @@ import { Icon } from '../../components/icon';
 import { loadDeskDay } from './desk-section';
 import { loadGuardStatus } from './guard-status';
 import { DayAttention, attentionCount } from './day-attention';
-import { DashboardDetails } from './owner-controls';
+import { DashboardDetails, DashboardRefresh, ForecastDetails } from './owner-controls';
+import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
 
 const loadPeriod = cache((from: string, to: string) =>
   dashboardApi.period(from, to).catch((error: unknown) => {
@@ -37,7 +38,11 @@ export async function OwnerFinance({ period }: { period: ResolvedPeriod }) {
   if (result instanceof ApiError || !hotel)
     return (
       <Alert boxed tone="warning">
-        Финансовая аналитика не загрузилась. <Link href="/finance">Открыть финансы</Link>
+        Финансовая аналитика не загрузилась.
+        <div className="owner-error-actions">
+          <DashboardRefresh label="Повторить" />
+          <Link href="/finance">Открыть финансы</Link>
+        </div>
       </Alert>
     );
   return (
@@ -109,12 +114,37 @@ export async function OwnerOutlook({ today }: { today: string }) {
     <div className="owner-outlook">
       <header>
         <h3>Ближайшие 7 дней</h3>
-        <Link href={`/chessboard?from=${today}&to=${to}`}>
-          По броням <Icon name="chevron" width={14} height={14} />
-        </Link>
+        {!(result instanceof ApiError) && (
+          <ForecastDetails>
+            <p className="owner-forecast-note">
+              По текущим броням. Выберите день, чтобы открыть календарь.
+            </p>
+            <ol className="owner-forecast-days">
+              {result.current.daily.map((day) => (
+                <li key={day.date}>
+                  <Link href={`/chessboard?from=${day.date}&to=${day.date}`}>
+                    <span className="owner-forecast-date">
+                      <strong>{displayDate(day.date, 'full')}</strong>
+                      <span className="owner-forecast-counts">
+                        <span>Занято {day.occupied}</span>
+                        <span>Свободно {day.free}</span>
+                        {day.blocked > 0 && <span>Недоступно {day.blocked}</span>}
+                      </span>
+                    </span>
+                    <strong className="owner-forecast-percent">{formatPercent(day.percent)}</strong>
+                    <Icon name="chevron" width={16} height={16} />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </ForecastDetails>
+        )}
       </header>
       {result instanceof ApiError ? (
-        <p className="owner-caption">Прогноз загрузки недоступен</p>
+        <div className="owner-error-actions">
+          <p className="owner-caption">Прогноз загрузки недоступен</p>
+          <DashboardRefresh label="Повторить" />
+        </div>
       ) : (
         <ol className="owner-week" data-testid="owner-outlook-chart" aria-label="Загрузка по дням">
           {result.current.daily.map((day) => (
@@ -194,12 +224,17 @@ export async function OwnerLoad({ date }: { date: string }) {
         </div>
       </div>
       {summary?.blocked ? <p className="owner-blocked">Недоступно: {summary.blocked}</p> : null}
-      {!summary && <p className="owner-caption">Данные фонда недоступны</p>}
+      {!summary && (
+        <div className="owner-error-actions">
+          <p className="owner-caption">Данные фонда недоступны</p>
+          <DashboardRefresh label="Повторить" />
+        </div>
+      )}
       <Suspense
         fallback={
-          <p className="owner-caption" role="status">
-            Загружаем прогноз…
-          </p>
+          <div className="owner-outlook">
+            <OwnerPlaceholder variant="outlook" label="Загружаем прогноз…" />
+          </div>
         }
       >
         <OwnerOutlook today={date} />
@@ -220,20 +255,19 @@ async function DebtAmount({ minor }: { minor: string }) {
   );
 }
 export async function OwnerOperations({ date }: { date: string }) {
-  const [day, board, guard] = await Promise.all([
-    loadDeskDay(date),
-    loadBoard(date),
-    loadGuardStatus(),
-  ]);
+  const day = await loadDeskDay(date);
   if (day instanceof ApiError)
     return (
       <div className="owner-operations">
         <Alert boxed tone="warning" data-testid="desk-error">
-          Данные сегодняшнего дня не загрузились. <Link href="/reservations">Открыть брони</Link>
+          Данные сегодняшнего дня не загрузились.
+          <div className="owner-error-actions">
+            <DashboardRefresh label="Повторить" />
+            <Link href="/reservations">Открыть брони</Link>
+          </div>
         </Alert>
       </div>
     );
-  const attention = { day, board, guard, isToday: true };
   return (
     <>
       <section className="owner-today owner-surface" aria-label="Сегодня">
@@ -260,11 +294,27 @@ export async function OwnerOperations({ date }: { date: string }) {
           </Link>
         </div>
       </section>
-      <section className="owner-attention" aria-label="Риски на сегодня" data-testid="owner-risks">
-        <DashboardDetails title="Требуют внимания" count={attentionCount(attention)}>
-          <DayAttention {...attention} />
-        </DashboardDetails>
-      </section>
+      <Suspense fallback={<AttentionPlaceholder />}>
+        <OwnerAttention day={day} date={date} />
+      </Suspense>
     </>
+  );
+}
+
+async function OwnerAttention({
+  day,
+  date,
+}: {
+  day: Exclude<Awaited<ReturnType<typeof loadDeskDay>>, ApiError>;
+  date: string;
+}) {
+  const [board, guard] = await Promise.all([loadBoard(date), loadGuardStatus()]);
+  const attention = { day, board, guard, isToday: true };
+  return (
+    <section className="owner-attention" aria-label="Риски на сегодня" data-testid="owner-risks">
+      <DashboardDetails title="Требуют внимания" count={attentionCount(attention)}>
+        <DayAttention {...attention} />
+      </DashboardDetails>
+    </section>
   );
 }

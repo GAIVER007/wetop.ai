@@ -11,6 +11,7 @@ import { Alert } from '../../components/ui';
 import { OwnerFinance, OwnerOperations, OwnerLoad } from './owner-dashboard';
 import { DashboardRefresh } from './owner-controls';
 import './owner-dashboard.css';
+import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   if ((await deskShell()).vertical === 'BEAUTY') redirect('/calendar');
@@ -35,8 +36,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <div className="owner-dashboard" data-testid="owner-dashboard">
         <Suspense
           fallback={
-            <div className="owner-load owner-surface" role="status">
-              Загружаем загрузку…
+            <div className="owner-load owner-surface">
+              <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
             </div>
           }
         >
@@ -64,20 +65,19 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           {period.error && <Alert>{period.error}</Alert>}
           <Suspense
             key={`${period.from}|${period.to}`}
-            fallback={
-              <p className="owner-caption" role="status">
-                Загружаем финансы…
-              </p>
-            }
+            fallback={<OwnerPlaceholder variant="finance" label="Загружаем финансы…" />}
           >
             <OwnerFinance period={period} />
           </Suspense>
         </section>
         <Suspense
           fallback={
-            <div className="owner-today owner-surface" role="status">
-              Загружаем события дня…
-            </div>
+            <>
+              <div className="owner-today owner-surface">
+                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
+              </div>
+              <AttentionPlaceholder />
+            </>
           }
         >
           <OwnerOperations date={today} />

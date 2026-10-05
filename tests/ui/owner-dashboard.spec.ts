@@ -27,7 +27,7 @@ test('owner dashboard: compact owner metrics and operational widgets', async ({ 
   );
   await page.screenshot({
     caret: 'initial',
-    path: 'reports/owner-home-v2-2026-10-05/desktop.png',
+    path: 'reports/owner-home-v3-2026-10-05/desktop.png',
     fullPage: true,
   });
 });
@@ -61,7 +61,7 @@ test('owner dashboard dark desktop and mobile remain usable', async ({ page }) =
   await expect(page.getByTestId('owner-paid')).toBeVisible();
   await page.screenshot({
     caret: 'initial',
-    path: 'reports/owner-home-v2-2026-10-05/desktop-dark.png',
+    path: 'reports/owner-home-v3-2026-10-05/desktop-dark.png',
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -73,14 +73,14 @@ test('owner dashboard dark desktop and mobile remain usable', async ({ page }) =
   await page.reload();
   await page.screenshot({
     caret: 'initial',
-    path: 'reports/owner-home-v2-2026-10-05/mobile-dark.png',
+    path: 'reports/owner-home-v3-2026-10-05/mobile-dark.png',
     fullPage: true,
   });
   await page.emulateMedia({ colorScheme: 'light' });
   await page.reload();
   await page.screenshot({
     caret: 'initial',
-    path: 'reports/owner-home-v2-2026-10-05/mobile.png',
+    path: 'reports/owner-home-v3-2026-10-05/mobile.png',
     fullPage: true,
   });
 });
@@ -109,7 +109,7 @@ test('owner mobile overview fits above navigation and omits refund metrics', asy
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
-  await page.screenshot({ caret: 'initial', path: 'reports/owner-home-v2-2026-10-05/mobile.png' });
+  await page.screenshot({ caret: 'initial', path: 'reports/owner-home-v3-2026-10-05/mobile.png' });
 });
 
 test('owner overview stays usable at narrow widths and custom dates remain accessible', async ({

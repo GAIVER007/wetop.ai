@@ -39,15 +39,22 @@ for (const width of [360, 390, 430]) {
     const unit = page.locator('[data-unit-code="R07"] .board__unit');
     const before = (await unit.boundingBox())!.x;
     // Настоящий браузерный жест, проверяем прокрутку и отсутствие случайного открытия клетки.
-    const box = (await wrap.boundingBox())!;
+    const row = (await page.locator('[data-unit-code="R07"]').boundingBox())!;
     const cdp = await context.newCDPSession(page);
-    await cdp.send('Input.synthesizeScrollGesture', {
-      x: width - 30,
-      y: Math.round(box.y + 150),
-      xDistance: -230,
-      yDistance: 0,
-      gestureSourceType: 'touch',
+    const startX = width - 30;
+    const y = Math.round(row.y + row.height / 2);
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: startX, y }],
     });
+    for (let step = 1; step <= 12; step += 1) {
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: startX - (230 * step) / 12, y }],
+      });
+      await page.waitForTimeout(16);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
     expect((await unit.boundingBox())!.x).toBeCloseTo(before, 0);
     await expect(page.getByTestId('free-menu')).toBeHidden();

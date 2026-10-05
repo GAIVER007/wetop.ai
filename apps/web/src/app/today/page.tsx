@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { redirect } from 'next/navigation';
 import { deskShell } from '../../lib/desk-shell';
 import { Suspense } from 'react';
@@ -14,6 +15,7 @@ import './owner-dashboard.css';
 import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  await requireVertical(['HOSPITALITY']);
   if ((await deskShell()).vertical === 'BEAUTY') redirect('/calendar');
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();

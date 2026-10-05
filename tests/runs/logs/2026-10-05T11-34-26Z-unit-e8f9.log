@@ -1,0 +1,31 @@
+# Модульные (unit) · 05.10.2026 16:34 Алматы · MacBook-Air-Urij.local
+# коммит 6293670 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T11-34-26Z-unit-e8f9.json' 'apps/web/src/lib/navigation-food.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv7-20261005
+
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts [ apps/web/src/lib/navigation-food.test.ts ]
+Error: Cannot find module './vertical-landing' imported from /Users/urijzapojnov/wetop-mv7-20261005/apps/web/src/lib/navigation-food.test.ts
+ ❯ apps/web/src/lib/navigation-food.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { CLOSED_ACCESS, menuSectionsFor, phoneNavigationFor } from './…
+      3| import { landingForVertical, routeVertical } from './vertical-landing';
+       | ^
+      4| import { deskShellOf } from './desk-person';
+      5| const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:34:32
+   Duration  1.69s (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T11-34-26Z-unit-e8f9.json
+
+# код выхода 1 · 7 с

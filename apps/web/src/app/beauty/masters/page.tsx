@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
@@ -13,6 +14,7 @@ import '../beauty.css';
  * Право на правку это `property`: в гостинице оно закрывает то, чем объект работает (решение Q-253).
  */
 export default async function BeautyMastersPage() {
+  await requireVertical(['BEAUTY']);
   const shell = await deskShell();
   const loaded = await Promise.all([
     beautyApi.employees(),

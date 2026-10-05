@@ -1,0 +1,13 @@
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/employees/page.tsx(3,76): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+apps/web/src/app/employees/page.tsx(5,17): error TS2554: Expected 0 arguments, but got 1.
+apps/web/src/app/services/page.tsx(3,76): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+apps/web/src/app/services/page.tsx(5,17): error TS2554: Expected 0 arguments, but got 1.
+apps/web/src/lib/food-data.test.ts(2,60): error TS2307: Cannot find module './food-data' or its corresponding type declarations.
+apps/web/src/lib/workspace-context.ts(9,73): error TS18049: 'context' is possibly 'null' or 'undefined'.
+apps/web/src/lib/workspace-context.ts(9,96): error TS18049: 'context' is possibly 'null' or 'undefined'.
+apps/web/src/lib/workspace-context.ts(14,29): error TS18049: 'context' is possibly 'null' or 'undefined'.
+apps/web/src/lib/workspace-context.ts(14,80): error TS18049: 'context' is possibly 'null' or 'undefined'.

@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
@@ -28,6 +29,7 @@ export default async function ChessboardPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const query = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const currentWeek = weekPeriod(today);

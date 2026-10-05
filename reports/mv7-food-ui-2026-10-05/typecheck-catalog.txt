@@ -1,0 +1,9 @@
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/food/catalog-board.tsx(16,276): error TS2322: Type '"muted" | "ok"' is not assignable to type 'BadgeTone | undefined'.
+  Type '"muted"' is not assignable to type 'BadgeTone | undefined'.
+apps/web/src/app/food/catalog-board.tsx(17,236): error TS2322: Type '"muted" | "ok"' is not assignable to type 'BadgeTone | undefined'.
+  Type '"muted"' is not assignable to type 'BadgeTone | undefined'.
+apps/web/src/app/food/catalog-form.tsx(38,24): error TS2322: Type '"danger"' is not assignable to type '"warning" | "success" | undefined'.

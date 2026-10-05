@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
 export type { ActionPreview } from './action-preview';
 
@@ -395,7 +396,7 @@ export interface RatePlanOption {
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
 
-async function sendJson<T>(
+export async function sendJson<T>(
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
@@ -2707,7 +2708,7 @@ export interface BranchItem {
   currency: string;
   timezone: string;
   /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
-  vertical: 'HOSPITALITY' | 'BEAUTY';
+  vertical: WebVertical;
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };

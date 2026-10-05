@@ -116,7 +116,8 @@ export class FakeAccountsRepository implements AccountsRepository {
     const membership = this.accounts.find(
       (x) => x.userId === s.userId && x.organizationId === s.organizationId,
     );
-    const a = membership ?? this.accounts.find((x) => x.userId === s.userId) ?? this.gone.get(s.userId);
+    const a =
+      membership ?? this.accounts.find((x) => x.userId === s.userId) ?? this.gone.get(s.userId);
     if (!a) return null;
     return {
       userId: a.userId,
@@ -182,6 +183,31 @@ export class FakeAccountsRepository implements AccountsRepository {
   async inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null> {
     const i = this.invites.find((x) => x.tokenHash === tokenHash);
     return i ? toInviteRecord(i) : null;
+  }
+
+  async acceptInvite(input: {
+    id: string;
+    now: Date;
+    passwordTokenHash: string;
+    passwordExpiresAt: Date;
+  }): Promise<{ passwordTokenIssued: boolean } | null> {
+    const invite = this.invites.find(
+      (i) => i.id === input.id && i.acceptedAt === null && i.expiresAt > input.now,
+    );
+    if (!invite) return null;
+    invite.acceptedAt = input.now;
+    await this.joinOrganization({
+      email: invite.email,
+      organizationId: invite.organizationId,
+      role: invite.role,
+    });
+    const passwordTokenIssued = await this.issuePasswordSetToken({
+      email: invite.email,
+      tokenHash: input.passwordTokenHash,
+      expiresAt: input.passwordExpiresAt,
+      now: input.now,
+    });
+    return { passwordTokenIssued };
   }
 
   async markInviteAccepted(id: string, at: Date): Promise<void> {

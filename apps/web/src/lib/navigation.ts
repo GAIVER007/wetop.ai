@@ -464,7 +464,7 @@ export const menuSections: MenuSection[] = [
       menuItem('/hotel-settings', 'Объект'),
       menuItem('/team', 'Сотрудники и доступ'),
       menuItem('/connections', 'Подключения'),
-      menuItem('/journal', 'Журнал действий'),
+      menuItem('/journal', 'Журнал операций'),
       // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
       menuItem('/incidents'),
     ],

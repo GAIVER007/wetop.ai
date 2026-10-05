@@ -64,7 +64,7 @@ export function CategoryCatalog({
       ? { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` }
       : { label: 'Настроить тариф', onSelect: () => setRating(c) },
     { label: 'Показать в календаре', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
-    { label: 'Свободные места', href: '/rooms/availability' },
+    { label: 'Свободные места', href: `/rooms/availability?category=${encodeURIComponent(c.code)}` },
   ];
   const fund = (c: InventoryCategory) => {
     const count = memberCount(c);

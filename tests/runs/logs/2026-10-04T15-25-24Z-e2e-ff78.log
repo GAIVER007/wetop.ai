@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 04.10.2026 20:25 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:97336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:97407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete (449ms)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete
+
+    Error: browserContext.addCookies: Protocol error (Storage.setCookies): Invalid cookie fields
+
+       9 |   await page
+      10 |     .context()
+    > 11 |     .addCookies([
+         |      ^
+      12 |       { name: 'wetop_scope', value: pointer(business, location), domain: '127.0.0.1', path: '/' },
+      13 |     ]);
+      14 | }
+        at scope (/Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:11:6)
+        at reset (/Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:19:9)
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:85:3
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:81:1 › empty setup through real UI, persisted appointment, move, confirm, complete
+  5 did not run
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 8 с

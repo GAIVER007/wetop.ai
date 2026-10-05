@@ -55,6 +55,56 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Рабочее место',
     items: [
       {
+        href: '/calendar',
+        label: 'Календарь',
+        icon: 'board',
+        requires: 'desk',
+        description: 'Календарь',
+      },
+      {
+        href: '/appointments',
+        label: 'Записи',
+        icon: 'booking',
+        requires: 'desk',
+        description: 'Записи',
+      },
+      {
+        href: '/customers',
+        label: 'Клиенты',
+        icon: 'guests',
+        requires: 'desk',
+        description: 'Клиенты',
+      },
+      {
+        href: '/employees',
+        label: 'Сотрудники',
+        icon: 'guests',
+        requires: 'desk',
+        description: 'Сотрудники',
+      },
+      {
+        href: '/services',
+        label: 'Услуги',
+        icon: 'rates',
+        requires: 'desk',
+        description: 'Услуги',
+      },
+      {
+        href: '/staff',
+        label: 'Сотрудники и доступ',
+        icon: 'guests',
+        requires: 'staff',
+        description: 'Сотрудники и доступ',
+      },
+      { href: '/help', label: 'Помощь', icon: 'help', requires: 'desk', description: 'Помощь' },
+      {
+        href: '/profile',
+        label: 'Профиль',
+        icon: 'guests',
+        requires: 'desk',
+        description: 'Профиль',
+      },
+      {
         href: '/beauty',
         requires: 'desk',
         label: 'Салон',
@@ -166,7 +216,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             requires: 'reports',
             label: 'Загрузка конкурентов',
             icon: 'analytics',
-            description: 'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
+            description:
+              'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
           },
         ],
       },
@@ -423,25 +474,17 @@ export const menuSections: MenuSection[] = [
   },
 ];
 
-/**
- * Разделы салона (DATA_MODEL §19, решение Q-254 от 03.10.2026, ADR-141). Вертикаль филиала решает, какое меню
- * видит человек: у салона нет ни объекта, ни броней, ни тарифов, поэтому гостиничные разделы ему не показываются,
- * они просто не нашли бы объект. Здесь только то, что в салоне действительно работает; записи, мастера и услуги
- * появятся срезами B3...B6, и до тех пор меню их не обещает (DESIGN.md §19.9 про честность экрана).
- */
+/** Verified Business.vertical selects the working Beauty routes (MV5). */
 export const beautyMenuSections: MenuSection[] = [
-  direct('salon', '/beauty', 'today', 'Салон'),
-  direct('beauty-services', '/beauty/services', 'rates', 'Услуги'),
-  direct('beauty-masters', '/beauty/masters', 'guests', 'Мастера'),
-  direct('beauty-schedule', '/beauty/schedule', 'clock', 'График'),
-  direct('team', '/team', 'guests'),
+  direct('calendar', '/calendar', 'board'),
+  direct('appointments', '/appointments', 'booking'),
+  direct('customers', '/customers', 'guests'),
+  direct('employees', '/employees', 'guests'),
+  direct('services', '/services', 'rates'),
+  direct('team', '/staff', 'guests'),
   direct('journal', '/journal', 'journal'),
-  {
-    id: 'platform',
-    label: 'Платформа',
-    icon: 'system',
-    items: [menuItem('/platform')],
-  },
+  direct('help', '/help', 'help'),
+  direct('profile', '/profile', 'guests'),
 ];
 
 /** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */

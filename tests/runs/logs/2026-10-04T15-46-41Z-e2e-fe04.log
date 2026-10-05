@@ -1,0 +1,147 @@
+# Сквозные (e2e) · 04.10.2026 20:46 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 45
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--max-failures=2' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/loading-performance.spec.ts'
+[WebServer] (node:4004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 40 tests using 1 worker
+
+(node:6124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (13.1s)
+[WebServer] (node:8856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-branch.spec.ts:56:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (10.4s)
+[WebServer] (node:10503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен» (25.8s)
+[WebServer] (node:12998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/beauty-branch.spec.ts:88:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (15.9s)
+[WebServer] (node:14710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в светлой теме (9.8s)
+[WebServer] (node:16264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в тёмной теме (11.7s)
+[WebServer] (node:17818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (28.6s)
+[WebServer] (node:20593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (11.6s)
+[WebServer] (node:21976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (9.3s)
+[WebServer] (node:23143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (21.9s)
+[WebServer] (node:25796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:129:1 › каталог салона на телефоне: без прокрутки вбок (9.3s)
+[WebServer] (node:26601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в светлой теме (9.1s)
+[WebServer] (node:27393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в тёмной теме (8.3s)
+[WebServer] (node:28082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/beauty-journal.spec.ts:97:1 › запись из пустой клетки появляется в сетке и в списке дня (8.2s)
+[WebServer] (node:28346) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/beauty-journal.spec.ts:113:1 › занятое время мастера не предлагается и отказ приходит словами (5.7s)
+[WebServer] (node:28365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/beauty-journal.spec.ts:126:1 › вне графика мастера клетки нерабочие (4.9s)
+[WebServer] (node:28374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4179870607'
+[WebServer] }
+  ✓  17 tests/ui/beauty-journal.spec.ts:133:1 › состояния записи идут по жизни, из выполненной дороги нет (7.9s)
+[WebServer] (node:28398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4179870607'
+[WebServer] }
+  ✓  18 tests/ui/beauty-journal.spec.ts:157:1 › отмена спрашивает и освобождает время мастера (6.8s)
+[WebServer] (node:28417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/beauty-journal.spec.ts:179:1 › перенос меняет время записи (7.0s)
+[WebServer] (node:28439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/ui/beauty-journal.spec.ts:195:1 › журнал на телефоне: день списком, без прокрутки вбок (6.2s)
+[WebServer] (node:28464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в светлой теме (7.2s)
+[WebServer] (node:28488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в тёмной теме (8.8s)
+[WebServer] (node:28569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/beauty-schedule.spec.ts:76:1 › неделя мастера ставится и читается словами (7.0s)
+[WebServer] (node:28609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/beauty-schedule.spec.ts:97:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (6.3s)
+[WebServer] (node:28631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui/beauty-schedule.spec.ts:124:1 › два интервала через перерыв сохраняются (6.3s)
+[WebServer] (node:28646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 tests/ui/beauty-schedule.spec.ts:144:1 › отсутствие предупреждает о записях, снимается с вопросом (4.8s)
+[WebServer] (node:28653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/beauty-schedule.spec.ts:179:1 › отсутствие с концом раньше начала не уходит на сервер (3.0s)
+[WebServer] (node:28663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/ui/beauty-schedule.spec.ts:194:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (5.5s)
+[WebServer] (node:28678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 tests/ui/beauty-schedule.spec.ts:232:1 › график на телефоне: без прокрутки вбок (3.0s)
+[WebServer] (node:28684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в светлой теме (4.4s)
+[WebServer] (node:28692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  31 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в тёмной теме (4.0s)
+[WebServer] (node:28702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (2.0s)
+[WebServer] (node:28708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (4.0s)
+[WebServer] (node:28731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (4.5s)
+  ✓  35 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (1.7s)
+  ✓  36 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (1.7s)
+  ✓  37 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (6.3s)
+  ✓  38 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (1.3s)
+TODAY_LOADING_MS [{"heading":1162,"risks":1163,"money":2468},{"heading":1149,"risks":1425,"money":2559},{"heading":1161,"risks":1430,"money":2450}]
+  ✓  39 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки Главной при задержке настроек 2000 мс (8.1s)
+  ✓  40 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (904ms)
+
+  40 passed (5.7m)
+
+# код выхода 0 · 5 мин 43 с

@@ -1,0 +1,90 @@
+# Сквозные (e2e) · 04.10.2026 22:24 Алматы · MacBook-Air-Urij.local
+# коммит 252dbe4 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 31
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--max-failures=1' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/loading-performance.spec.ts'
+[WebServer] (node:38990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+(node:39089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (9.3s)
+[WebServer] (node:39299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-branch.spec.ts:56:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (9.3s)
+[WebServer] (node:39630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен» (8.7s)
+[WebServer] (node:39660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/beauty-branch.spec.ts:88:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (13.5s)
+[WebServer] (node:39695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в светлой теме (12.3s)
+[WebServer] (node:39789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в тёмной теме (14.9s)
+[WebServer] (node:40029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (9.6s)
+[WebServer] (node:40079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (17.6m)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      73 |   });
+      74 |   await main.getByRole('button', { name: 'Открыть филиал', exact: true }).click();
+    > 75 |   await page.waitForURL('**/today');
+         |              ^
+      76 | });
+      77 |
+      78 | test('переключатель филиалов сохраняет раздел и выбор после перезагрузки', async ({
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/ui/branches.spec.ts:75:14
+
+    Error Context: test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/branches.spec.ts (17.8m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload
+  7 did not run
+  7 passed (19.1m)
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 34 мин 53 с

@@ -5145,7 +5145,7 @@ createServer(async (req, res) => {
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
-          businessId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          businessId: scoped ? String((scoped['location'] as { businessId: string }).businessId) : null,
           locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
           vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
         },
@@ -5471,6 +5471,12 @@ createServer(async (req, res) => {
           },
         };
       };
+      if (path === '/beauty/customers' && req.method === 'GET') {
+        const customers = new Map(fixtureAppointments.filter(a => a.locationId === locationId)
+          .map(a => [a.customer.id, { id: a.customer.id, firstName: a.customer.name,
+            lastName: null, phone: a.customer.phone, status: 'ACTIVE' }]));
+        return send(200, { items: [...customers.values()] });
+      }
       if (path === '/beauty/appointments' && req.method === 'GET')
         return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
       if (path === '/beauty/appointments' && req.method === 'POST') {

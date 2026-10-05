@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { branchesApi, ApiError } from '../../lib/api';
+import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { branchDestination } from '../../lib/branch-destination';
 import { hotelApi } from '../../lib/hotel-api';
 import { SCOPE_COOKIE } from '../../lib/scope-pointer';
@@ -23,7 +23,7 @@ export async function selectBranch(form: FormData) {
   );
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
-  if (branch.vertical === 'BEAUTY') redirect('/beauty');
+  if (branch.vertical === 'BEAUTY') redirect('/calendar');
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))
@@ -62,10 +62,17 @@ export async function createBranch(
 
 export async function branchChoices() {
   try {
-    const [{ items }, hotel] = await Promise.all([branchesApi.list(), hotelApi.settings()]);
+    const [{ items }, me] = await Promise.all([branchesApi.list(), authApi.me()]);
+    const selected = items.find(
+      (item) =>
+        item.locationId === me.context?.locationId &&
+        item.location.businessId === me.context?.businessId,
+    );
+    const currentId =
+      selected?.id ?? (me.context?.businessId ? null : (await hotelApi.settings()).property.id);
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
-      currentId: hotel.property.id,
+      currentId,
     };
   } catch {
     return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };

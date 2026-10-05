@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { ControlNavigation } from '../../components/control-navigation';
 import { RefreshButton } from '../../components/refresh-button';
-import { hotelClock } from '../../lib/hotel-api';
+import { workspaceTimezone } from '../../lib/workspace-context';
+import { propertyClock } from '../../lib/property-time';
+import { deskShell } from '../../lib/desk-shell';
 import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
@@ -122,7 +124,7 @@ export default async function JournalPage({
       subtitle="Кто и когда изменял данные гостиницы."
       actions={<RefreshButton />}
     >
-      <ControlNavigation current="journal" />
+      {(await deskShell()).vertical !== 'BEAUTY' && <ControlNavigation current="journal" />}
       <form method="get" className="control-toolbar control-journal-search">
         <Field label="Поиск в журнале">
           <Input
@@ -203,7 +205,7 @@ async function JournalEntries({
   searching: boolean;
 }) {
   // день «сегодня» считает сервер по часам объекта: страница серверная, расхождения гидрации нет
-  const clock = await hotelClock();
+  const clock = propertyClock(await workspaceTimezone());
   const today = clock.today();
   const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
     (r) => ({ ok: true as const, r }),
@@ -269,9 +271,9 @@ async function JournalEntries({
                         ) : (
                           r.subject
                         ))}
-                      {r.entityType === 'Reservation' && r.subject && r.targetAvailable === false && (
-                        <span className="muted-2"> (удалена)</span>
-                      )}
+                      {r.entityType === 'Reservation' &&
+                        r.subject &&
+                        r.targetAvailable === false && <span className="muted-2"> (удалена)</span>}
                     </td>
                   </tr>
                 </Fragment>

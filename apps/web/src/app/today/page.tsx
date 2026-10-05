@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { deskShell } from '../../lib/desk-shell';
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { resolvePeriod } from '@pms/domain';
@@ -30,6 +32,7 @@ async function CurrencyFinance({
   return <OwnerFinance period={period} currency={hotel.property.currency} today={today} />;
 }
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  if ((await deskShell()).vertical === 'BEAUTY') redirect('/calendar');
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const period = resolvePeriod(

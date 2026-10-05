@@ -2846,7 +2846,16 @@ export interface BeautyDay {
   bounds: { fromMinutes: number; toMinutes: number };
 }
 
+export interface BeautyCustomerRow {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  phone: string | null;
+  status: string;
+}
+
 export const beautyApi = {
+  customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
   services: () =>
     getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
       '/beauty/services',

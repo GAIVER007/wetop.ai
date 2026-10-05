@@ -1,0 +1,19 @@
+# Типы (typecheck) · 04.10.2026 20:19 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 32
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/appointments/page.tsx(28,10): error TS2741: Property 'testId' is missing in type '{ status: number | undefined; message: string; }' but required in type '{ status: number | undefined; message: string; testId: string; title?: string; }'.
+apps/web/src/app/customers/page.tsx(45,10): error TS2741: Property 'testId' is missing in type '{ status: number | undefined; message: string; }' but required in type '{ status: number | undefined; message: string; testId: string; title?: string; }'.
+
+# код выхода 1 · 25 с

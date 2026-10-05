@@ -112,8 +112,8 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
           )}
         </div>
         <p className="beauty-note">
-          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно не
-          отменяет, их показывает отдельно.
+          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно
+          не отменяет, их показывает отдельно.
         </p>
         {data.timeOffs.length === 0 ? (
           <p data-testid="beauty-timeoffs-empty">Отсутствий впереди нет</p>
@@ -171,8 +171,23 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
   );
 }
 
-function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedule['week'] }) {
-  const [state, action, pending] = useActionState(saveBeautyWorkingHours, null);
+export function WeekForm({
+  employeeId,
+  onSaved,
+  week,
+}: {
+  employeeId: string;
+  onSaved?: () => Promise<void>;
+  week: BeautySchedule['week'];
+}) {
+  const [state, action, pending] = useActionState(
+    async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
+      const result = await saveBeautyWorkingHours(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Record<number, Slot[]>>(() =>
     Object.fromEntries(week.map((day) => [day.weekday, day.intervals.map((i) => ({ ...i }))])),
@@ -210,7 +225,12 @@ function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedu
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (
-          <div key={day.weekday} role="group" aria-label={DAYS[day.weekday]} className="beauty-week-row">
+          <div
+            key={day.weekday}
+            role="group"
+            aria-label={DAYS[day.weekday]}
+            className="beauty-week-row"
+          >
             <span className="beauty-week-name">{DAYS[day.weekday]}</span>
             <div className="beauty-week-slots">
               {rows.length === 0 && <span className="beauty-note">Выходной</span>}
@@ -275,8 +295,21 @@ function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedu
   );
 }
 
-function TimeOffForm({ employeeId }: { employeeId: string }) {
-  const [state, action, pending] = useActionState(addBeautyTimeOff, null);
+export function TimeOffForm({
+  employeeId,
+  onSaved,
+}: {
+  employeeId: string;
+  onSaved?: () => Promise<void>;
+}) {
+  const [state, action, pending] = useActionState(
+    async (prev: Awaited<ReturnType<typeof addBeautyTimeOff>> | null, form: FormData) => {
+      const result = await addBeautyTimeOff(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   return (
     <form
@@ -304,7 +337,13 @@ function TimeOffForm({ employeeId }: { employeeId: string }) {
       <Field label="По какой день включительно">
         <Input name="dateTo" type="date" required />
       </Field>
-      <Field label={<span>Причина <small className="beauty-note">необязательно</small></span>}>
+      <Field
+        label={
+          <span>
+            Причина <small className="beauty-note">необязательно</small>
+          </span>
+        }
+      >
         <Input name="reason" maxLength={200} placeholder="отпуск, учёба, больничный" />
       </Field>
       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
@@ -316,14 +355,16 @@ function TimeOffForm({ employeeId }: { employeeId: string }) {
   );
 }
 
-function TimeOffTable({
+export function TimeOffTable({
   employeeId,
   rows,
   canEdit,
+  onSaved,
 }: {
   employeeId: string;
   rows: BeautySchedule['timeOffs'];
   canEdit: boolean;
+  onSaved?: () => Promise<void>;
 }) {
   const { ask, dialog } = useConfirm();
   const [pending, startTransition] = useTransition();
@@ -340,6 +381,7 @@ function TimeOffTable({
     startTransition(async () => {
       const result = await removeBeautyTimeOff(employeeId, id);
       setError(result.error ?? null);
+      if (!result.error) await onSaved?.();
     });
   };
 
@@ -398,14 +440,26 @@ function TimeOffTable({
   );
 }
 
-function LocationsForm({
+export function LocationsForm({
   employeeId,
+  onSaved,
   locations,
 }: {
   employeeId: string;
+  onSaved?: () => Promise<void>;
   locations: BeautySchedule['locations'];
 }) {
-  const [state, action, pending] = useActionState(saveBeautyEmployeeLocations, null);
+  const [state, action, pending] = useActionState(
+    async (
+      prev: Awaited<ReturnType<typeof saveBeautyEmployeeLocations>> | null,
+      form: FormData,
+    ) => {
+      const result = await saveBeautyEmployeeLocations(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
   return (
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />

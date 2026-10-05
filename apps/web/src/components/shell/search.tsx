@@ -24,6 +24,18 @@ export function GlobalSearch({
   const [kind, setKind] = useState('guest');
   const router = useRouter();
   const matches = navigationItems
+    .filter(
+      (n) =>
+        ![
+          '/calendar',
+          '/appointments',
+          '/customers',
+          '/employees',
+          '/services',
+          '/help',
+          '/staff',
+        ].includes(n.href),
+    )
     .filter((n) => allowedItem(n, access))
     .filter((n) => n.label.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))
     .slice(0, 6);

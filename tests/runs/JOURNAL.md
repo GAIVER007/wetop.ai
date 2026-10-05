@@ -6354,3 +6354,7 @@
 | 05.10.2026 15:55 | e2e (частично: tests/ui/guests-birthdays.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 2 из 2 | 10 с | 5e38083 +1 | [лог](logs/2026-10-05T10-55-10Z-e2e-4f86.log) | release: дни рождения только на отдельной странице |
 | 05.10.2026 16:00 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 15 из 15 | 1 с | 09ddbd9 +1 | [лог](logs/2026-10-05T11-00-09Z-unit-1bc8.log) | release: системный отступ мобильной сводки календаря |
 | 05.10.2026 16:00 | e2e (частично: tests/ui/mobile-adaptation.spec.ts:85 tests/ui/chessboard-mobile.spec.ts:171 --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 4 из 4 | 12 с | 09ddbd9 +1 | [лог](logs/2026-10-05T11-00-09Z-e2e-bb81.log) | release: мобильный календарь после исправления токена |
+| 05.10.2026 16:11 | unit | ✅ 3377 из 3381, пропущено 4 | 3 мин 44 с | 8e389f7 | [лог](logs/2026-10-05T11-11-16Z-unit-1699.log) | MV6 final ae6df20b full unit; restored isolated environment, direct native Git; unchanged timeouts |
+| 05.10.2026 16:15 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 15 с | 8e389f7 | [лог](logs/2026-10-05T11-15-01Z-integration-52cb.log) | MV6 final ae6df20b full integration including Food and BAR ownership concurrency RLS |
+| 05.10.2026 16:16 | typecheck | ✅ без ошибок | 23 с | 8e389f7 | [лог](logs/2026-10-05T11-16-17Z-typecheck-8818.log) | MV6 final ae6df20b root API web typecheck |
+| 05.10.2026 16:16 | lint | ✅ без ошибок | 24 с | 8e389f7 | [лог](logs/2026-10-05T11-16-41Z-lint-3d7b.log) | MV6 final ae6df20b lint |

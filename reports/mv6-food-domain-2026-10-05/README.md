@@ -4,16 +4,16 @@
 
 ## Финальная приёмка после BAR merge и sync
 
-BAR #245 merged: `46c095bd33aa506902a86f594d2ebcac59d4b576`. MV6 синхронизирован с main `c98a9597fc004deb4fd5e1aab7fc529711793620`. Конфликты DATA_MODEL/DECISIONS сведены с сохранением Food и всех BAR решений. Upstream не менял Business.vertical, RequestActor/scope или channels boundaries.
+BAR #245 merged: `46c095bd33aa506902a86f594d2ebcac59d4b576`. MV6 синхронизирован с main `ae6df20b774e73df47009ddbff59d7932fc9c932`. Конфликты DATA_MODEL/DECISIONS сведены с сохранением Food и всех BAR решений. Upstream не менял Business.vertical, RequestActor/scope или channels boundaries.
 
 Food migration: **58**, `20261005000058_food_service_domain`. SQL/down побайтово совпадают с принятым e35588e6. BAR migrations 55/56/57 не изменены. План, runbook и down path в тесте обновлены; исторические журналы сохраняют исходные номера как evidence прежнего head.
 
 | Финальный набор | Результат | Evidence |
 |---|---|---|
-| Full unit | 3377 PASS, 4 прежних skips | [log](../../tests/runs/logs/2026-10-05T10-27-35Z-unit-379e.log) |
-| Full integration | 741 PASS, 9 прежних skips | [log](../../tests/runs/logs/2026-10-05T10-33-44Z-integration-e840.log) |
-| Root/API/web typecheck | PASS | [log](../../tests/runs/logs/2026-10-05T10-35-03Z-typecheck-6561.log) |
-| Lint | PASS | [log](../../tests/runs/logs/2026-10-05T10-35-37Z-lint-b89c.log) |
+| Full unit | 3377 PASS, 4 прежних skips | [log](../../tests/runs/logs/2026-10-05T11-11-16Z-unit-1699.log) |
+| Full integration | 741 PASS, 9 прежних skips | [log](../../tests/runs/logs/2026-10-05T11-15-01Z-integration-52cb.log) |
+| Root/API/web typecheck | PASS | [log](../../tests/runs/logs/2026-10-05T11-16-17Z-typecheck-8818.log) |
+| Lint | PASS | [log](../../tests/runs/logs/2026-10-05T11-16-41Z-lint-3d7b.log) |
 | Full chain / schema drift / all down rehearsals | 64 migrations PASS | [log](check-migrations-post-bar.txt) |
 | git diff --check | PASS | Diff к свежему origin/main |
 
@@ -21,9 +21,9 @@ Food migration: **58**, `20261005000058_food_service_domain`. SQL/down поба�
 
 Focused Food unit: 8/8, Food DB/HTTP/concurrency/populated RLS + function-search-path/rls-isolation: 31/31. Финальный full integration включает BAR ownership, reverse-parent/concurrency и populated RLS всех десяти таблиц, а также Food invariants: explicit Food Business+Location, cross-vertical/cross-tenant/READ_ONLY, CustomerBusiness, idempotency, WALK_IN/SEATED table requirements, capacity/overlap, assign/reassign/unassign, move/status races, overnight/timezone, audit, RLS пяти Food tables и pinned functions.
 
-Первый full unit после BAR sync имел один timeout старого auto-deploy теста. Отдельный прогон 16/16 и последующие полные unit GREEN; timeouts/assertions не изменялись. Промежуточные сбои сохранены в журнале. Новых skips нет.
+После BAR и следующих UI sync full unit дважды выявлял timeout старого auto-deploy теста. Диагностика показала накладные расходы macOS Git launcher: median 19,5 мс против 5,9 мс прямого CommandLineTools Git. PATH изменён только для процесса проверок. Итоговый полный unit GREEN; timeouts/assertions/health waits не изменялись. Прерванный временный прогон не засчитан. Промежуточные сбои сохранены в журнале. Новых skips нет.
 
-Изолированный стенд: PostgreSQL 16, UTF-8, UTC, localhost:55753, `/tmp/wetop-mv6-post-bar-pgdata`; Node 24.15.0, LC_ALL=C, один unit worker. Общая Supabase и чужие деревья не изменялись. Production/release не обновляются. После merge MV6 STOP; MV7 не начинать.
+Изолированный стенд: PostgreSQL 16, UTF-8, UTC, localhost:55753, `/tmp/wetop-mv6-post-bar-pgdata`; Node 24.15.0, LC_ALL=C, два unit workers, прямой Git из CommandLineTools без macOS launcher. Общая Supabase и чужие деревья не изменялись. Production/release не обновляются. После merge MV6 STOP; MV7 не начинать.
 
 ## AS-IS и результат
 

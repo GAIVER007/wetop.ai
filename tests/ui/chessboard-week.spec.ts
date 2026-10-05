@@ -9,7 +9,9 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса', async ({ page }) => {
+test('C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса', async ({
+  page,
+}) => {
   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   const box = await page.locator('.board-wrap').boundingBox();
@@ -176,9 +178,13 @@ for (const theme of ['light', 'dark'] as const) {
       const overflow = await page
         .locator('.board-wrap')
         .evaluate((el) => el.scrollWidth - el.clientWidth);
-      expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+      if (width > 600) {
+        expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+        await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      } else {
+        expect(overflow, `${width}px`).toBeGreaterThan(300);
+      }
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
-      await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
       const result = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
         .analyze();

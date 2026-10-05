@@ -747,3 +747,95 @@
     font-weight: var(--weight-regular);
   }
 }
+
+/* Подробности раскрываются по запросу; начальный экран заканчивается фильтрами. */
+.finance-more__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  min-height: 44px;
+  padding-block: var(--space-2);
+}
+.finance-more__trigger[aria-expanded="true"] {
+  margin-bottom: var(--space-2);
+}
+.cash-summary > .cash-summary__methods {
+  flex-basis: 100%;
+  margin-top: 0;
+}
+.cash-summary > .cash-summary__methods dl {
+  max-width: 400px;
+}
+@media (max-width: 600px) {
+  .page:has(.cash-summary) {
+    padding-top: var(--space-2);
+  }
+  .page:has(.cash-summary) .page__head {
+    margin-bottom: var(--space-2);
+  }
+  .cash-summary {
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .cash-summary__balance > strong {
+    font-size: 40px;
+  }
+  .cash-summary__label {
+    margin-bottom: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .cash-summary__period dl > div {
+    padding-block: 0;
+  }
+  .cash-summary__methods {
+    font-size: var(--text-xs);
+  }
+  .page:has(.cash-summary) .finance-controls {
+    margin-bottom: 0;
+  }
+  .page:has(.cash-summary) .finance-toolbar {
+    gap: var(--space-2);
+  }
+  .page:has(.cash-summary) .finance-presets {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+  .page:has(.cash-summary) .finance-presets a {
+    justify-content: center;
+    padding-inline: var(--space-1);
+    font-size: var(--text-xs);
+    text-align: center;
+    white-space: normal;
+    line-height: 1.2;
+  }
+  .page:has(.cash-summary) .finance-toolbar .field {
+    gap: var(--space-1);
+  }
+}
+
+.finance-more__trigger[aria-expanded='true'] > .icon {
+  transform: rotate(90deg);
+}
+@media (max-width: 600px) {
+  .page:has(.cash-summary) .page__head,
+  .cash-summary {
+    margin-bottom: var(--space-1);
+  }
+  .cash-summary {
+    gap: var(--space-1);
+  }
+  .cash-summary__label {
+    margin-bottom: 0;
+  }
+  .page:has(.cash-summary) .finance-toolbar {
+    row-gap: var(--space-1);
+  }
+}

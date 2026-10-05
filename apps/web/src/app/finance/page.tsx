@@ -134,11 +134,6 @@ export default async function FinanceReportPage({
   const maySettings = !shell.readOnly && (role === null || can(role, 'settings'));
   const mayVoidCash = !shell.readOnly && (role === null || can(role, 'refunds'));
   const cur = r?.currency ?? debts?.currency ?? '';
-  const withYear = from.slice(0, 4) !== to.slice(0, 4);
-  const periodText =
-    from === to
-      ? displayDate(from, 'numeric')
-      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
   const period = `/finance?from=${from}&to=${to}`;
   const preset = (p: { from: string; to: string }) => `/finance?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
@@ -167,23 +162,7 @@ export default async function FinanceReportPage({
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
   return (
-    <Page
-      title="Касса"
-      subtitle={
-        valid ? (
-          <span data-testid="finance-period">
-            {periodText}, {pluralRu(days, ['день', 'дня', 'дней'])}
-          </span>
-        ) : undefined
-      }
-      // Оплату принимают на счёте брони; отсюда можно только пойти её искать (§7.3)
-      actions={
-        <Link href="/reservations" className="btn">
-          <Icon name="search" />
-          Найти бронь для оплаты
-        </Link>
-      }
-    >
+    <Page title="Касса">
       <section className="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">
         <div className="cash-summary__balance">
           <span className="cash-summary__label">Всего</span>
@@ -192,22 +171,9 @@ export default async function FinanceReportPage({
               ? formatMoney(cashBalances.totalMinor, cashBalances.currency)
               : 'Нет данных'}
           </strong>
-          {cashBalances && (
-            <details className="cash-summary__methods">
-              <summary>Баланс по способам оплаты</summary>
-              <dl>
-                {cashBalances.balances.map((balance) => (
-                  <div key={balance.method}>
-                    <dt>{METHOD_RU[balance.method] ?? balance.method}</dt>
-                    <dd>{formatMoney(balance.balanceMinor, cashBalances.currency)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </details>
-          )}
         </div>
         <div className="cash-summary__period">
-          <a href="#finance-filters" className="cash-summary__label">
+          <a href="#finance-filters" className="cash-summary__label" data-testid="finance-period">
             За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
           </a>
           <dl>
@@ -235,6 +201,19 @@ export default async function FinanceReportPage({
             </div>
           </dl>
         </div>
+        {cashBalances && (
+          <details className="cash-summary__methods">
+            <summary>Баланс по способам оплаты</summary>
+            <dl>
+              {cashBalances.balances.map((balance) => (
+                <div key={balance.method}>
+                  <dt>{METHOD_RU[balance.method] ?? balance.method}</dt>
+                  <dd>{formatMoney(balance.balanceMinor, cashBalances.currency)}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        )}
       </section>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
@@ -244,7 +223,13 @@ export default async function FinanceReportPage({
       )}
 
       <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
-        <form method="get" className="finance-toolbar" data-testid="period-form">
+        <form
+          method="get"
+          action="/finance#operations"
+          className="finance-toolbar"
+          data-testid="period-form"
+        >
+          <input type="hidden" name="show" value="1" />
           <Field inline label="С">
             <DateInput
               key={`from-${from}`}
@@ -351,11 +336,11 @@ export default async function FinanceReportPage({
       )}
       <FinanceWorkspace
         initialView={
-          sp.op || sp.method || sp.src || sp.ops
+          sp.show === '1' || sp.op || sp.method || sp.src || sp.ops
             ? 'operations'
             : sp.debts || sp.more
               ? 'debts'
-              : 'operations'
+              : null
         }
         overview={
           <>
@@ -491,6 +476,25 @@ export default async function FinanceReportPage({
                 </section>
               </div>
             )}
+            <Help title="Как считаются суммы">
+              <p>
+                Оплаты , по дате оплаты, возвраты , по дате возврата, время , по часам объекта.
+                Аннулированная оплата остаётся в списке со своим статусом, но в «Оплачено» не
+                входит.
+              </p>
+              <p>
+                «К сбору» , полный текущий остаток по броням, у которых есть начисления за период,
+                как в карточке брони. Это та же сумма, что в списке «Брони с остатком к сбору».
+              </p>
+              <p>
+                «Просрочено» , остаток не оплачен, а время выезда по часам объекта уже прошло или
+                гость уже выехал. У отменённых броней и незаездов срока нет: их остаток , просто к
+                сбору.
+              </p>
+              <p>
+                У броней из внешних каналов проверьте предоплату площадки перед взысканием остатка.
+              </p>
+            </Help>
           </>
         }
         debts={
@@ -702,22 +706,6 @@ export default async function FinanceReportPage({
           </section>
         }
       />
-
-      <Help title="Как считаются суммы">
-        <p>
-          Оплаты — по дате оплаты, возвраты — по дате возврата, время — по часам объекта.
-          Аннулированная оплата остаётся в списке со своим статусом, но в «Оплачено» не входит.
-        </p>
-        <p>
-          «К сбору» — полный текущий остаток по броням, у которых есть начисления за период, как в
-          карточке брони. Это та же сумма, что в списке «Брони с остатком к сбору».
-        </p>
-        <p>
-          «Просрочено» — остаток не оплачен, а время выезда по часам объекта уже прошло или гость
-          уже выехал. У отменённых броней и незаездов срока нет: их остаток — просто к сбору.
-        </p>
-        <p>У броней из внешних каналов проверьте предоплату площадки перед взысканием остатка.</p>
-      </Help>
     </Page>
   );
 }

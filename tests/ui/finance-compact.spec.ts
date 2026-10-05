@@ -6,7 +6,7 @@ test.beforeEach(async ({ request }) => {
 });
 test('финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/finance');
+  await page.goto('/finance#charges');
   await expect(page.getByTestId('cash-summary')).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toHaveAttribute(

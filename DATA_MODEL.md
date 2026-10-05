@@ -2776,3 +2776,19 @@ EmployeeService является явным допуском к услуге: п
 CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
 создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
 Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.
+
+## 28. Food Service v1 (MV6, approved by owner 2026-10-05)
+
+Location -> DiningArea -> DiningTable; Location -> ServicePeriod; Location + existing Customer -> RestaurantReservation -> optional TableAssignment -> DiningTable. Business.vertical is the only vertical source, FOOD_SERVICE required. No new guest/customer identity, POS, payments or UI.
+
+- DiningArea: UUID id, locationId FK, name varchar(200), sortOrder int default 0, active default true, createdAt/updatedAt timestamptz.
+- DiningTable: UUID id, areaId FK, name varchar(100), capacity int > 0, sortOrder int default 0, active default true, timestamps. Unique(areaId,name). No duplicate location/tenant.
+- ServicePeriod: UUID id, locationId FK, name varchar(100), weekday smallint 0..6 (Sunday=0), timeFrom/timeTo TIME, endsNextDay boolean, defaultDurationMinutes int > 0, active, timestamps. Same-day end > start; overnight ends on following date. Local calendar belongs to Location.timezone.
+- RestaurantReservation: UUID id, locationId/customerId/servicePeriodId FKs, startsAt/endsAt timestamptz, partySize int > 0, status, source, notes nullable, creationKey varchar(200), creationFingerprint varchar(64), createdById nullable user FK, timestamps. Unique(locationId,creationKey); indexes locationId+startsAt, customerId, status, servicePeriodId. Server derives endsAt from ServicePeriod; whole interval inside local service window.
+- TableAssignment: reservationId UUID PK/FK, tableId FK, assignedAt timestamptz, assignedById nullable user FK, updatedAt. One table maximum; history only in audit.
+
+Status: BOOKED -> CONFIRMED/SEATED/CANCELLED/NO_SHOW; CONFIRMED -> SEATED/CANCELLED/NO_SHOW; SEATED -> COMPLETED. Terminal cannot mutate. DESK initially BOOKED, optional table. WALK_IN initially SEATED, table required. No ONLINE enum or route.
+
+Assignment requires active same-Location table/area, capacity >= partySize, no intersecting [startsAt,endsAt) BOOKED/CONFIRMED/SEATED assignments. Unassign only BOOKED/CONFIRMED. Move recalculates duration and revalidates capacity/overlap atomically. Status+updatedAt guards stale writes; audit rolls back with failure. Customer must be non-archived and same Organization; CustomerBusiness upsert and new customer are atomic with create.
+
+All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.

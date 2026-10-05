@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 05.10.2026 11:18 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-18-46Z-integration-9b92.json' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |integration| tests/integration/mv6-food.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv6-food.test.ts [ tests/integration/mv6-food.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Expected `,` or `]` but found `;`
+ - `,` or `]` expected in tests/integration/mv6-food.test.ts at 15727..15728
+ - Opened here in tests/integration/mv6-food.test.ts at 15064..15065
+
+  Plugin: vite:oxc
+  File: /Users/urijzapojnov/wetop-mv1-20261004/tests/integration/mv6-food.test.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:4103:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:4174:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:18:47
+   Duration  502ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-18-46Z-integration-9b92.json
+
+# код выхода 1 · 2 с

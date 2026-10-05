@@ -6188,3 +6188,24 @@
 | 05.10.2026 10:47 | lint | ✅ без ошибок | 38 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-lint-f7b3.log) | MV5 BAR-FIX head full lint Node 24 |
 | 05.10.2026 10:47 | typecheck | ✅ без ошибок | 54 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-typecheck-3719.log) | MV5 BAR-FIX head full typecheck Node 24 |
 | 05.10.2026 10:47 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 18 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-integration-6d9e.log) | MV5 BAR-FIX head full integration Node 24 |
+| 05.10.2026 11:03 | unit (частично: packages/domain/src/food/food.test.ts) | ❌ код выхода 1 | 2 с | abe59d8 +1 | [лог](logs/2026-10-05T06-03-03Z-unit-38ef.log) | MV6 domain red before implementation |
+| 05.10.2026 11:04 | unit (частично: packages/domain/src/food/food.test.ts) | ✅ 5 из 5 | 1 с | abe59d8 +3 | [лог](logs/2026-10-05T06-04-23Z-unit-35e1.log) | MV6 domain green |
+| 05.10.2026 11:07 | integration (частично: tests/integration/function-search-path.test.ts tests/integration/rls-isolation.test.ts) | ✅ 8 из 8 | 3 с | abe59d8 +7 | [лог](logs/2026-10-05T06-07-13Z-integration-4b5c.log) | MV6 migration invariants before API |
+| 05.10.2026 11:09 | integration (частично: tests/integration/mv6-food.test.ts) | ❌ код выхода 1 | 2 с | abe59d8 +8 | [лог](logs/2026-10-05T06-09-48Z-integration-b8e4.log) | MV6 API and race acceptance red before service |
+| 05.10.2026 11:17 | integration (частично: tests/integration/mv6-food.test.ts) | ❌ код выхода 1 | 3 с | abe59d8 +12 | [лог](logs/2026-10-05T06-17-07Z-integration-a957.log) | (файл не выполнился) |
+| 05.10.2026 11:18 | integration (частично: tests/integration/mv6-food.test.ts) | ❌ код выхода 1 | 2 с | abe59d8 +12 | [лог](logs/2026-10-05T06-18-46Z-integration-9b92.log) | (файл не выполнился) |
+| 05.10.2026 11:19 | unit (частично: packages/domain/src/food/food.test.ts apps/api/src/food-service/boundary.test.ts) | ❌ упало 2 из 8 | 2 с | abe59d8 +12 | [лог](logs/2026-10-05T06-19-15Z-unit-6e9d.log) | Food missing scope is refused before any legacy Property lookup |
+| 05.10.2026 11:19 | integration (частично: tests/integration/mv6-food.test.ts) | ❌ упало 2 из 19 | 3 с | abe59d8 +13 | [лог](logs/2026-10-05T06-19-35Z-integration-7935.log) | MV6 real PostgreSQL HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY |
+| 05.10.2026 11:20 | unit (частично: packages/domain/src/food/food.test.ts apps/api/src/food-service/boundary.test.ts) | ✅ 8 из 8 | 1 с | abe59d8 +13 | [лог](logs/2026-10-05T06-20-05Z-unit-6b9a.log) |  |
+| 05.10.2026 11:20 | integration (частично: tests/integration/mv6-food.test.ts) | ✅ 19 из 19 | 3 с | abe59d8 +14 | [лог](logs/2026-10-05T06-20-26Z-integration-a7af.log) |  |
+| 05.10.2026 11:22 | integration (частично: tests/integration/mv6-food-database.test.ts tests/integration/mv6-food.test.ts) | ✅ 22 из 22 | 3 с | abe59d8 +15 | [лог](logs/2026-10-05T06-22-31Z-integration-9186.log) |  |
+| 05.10.2026 11:23 | integration (частично: tests/integration/mv6-food-database.test.ts) | ❌ упало 1 из 4 | 2 с | abe59d8 +15 | [лог](logs/2026-10-05T06-23-43Z-integration-4c1e.log) | MV6 populated RLS and database constraints assignment cannot be moved to another reservation leaving SEATED without a table |
+| 05.10.2026 11:24 | integration (частично: tests/integration/mv6-food-database.test.ts tests/integration/function-search-path.test.ts) | ✅ 6 из 6 | 2 с | abe59d8 +15 | [лог](logs/2026-10-05T06-24-22Z-integration-c09c.log) |  |
+| 05.10.2026 11:25 | unit | ❌ упало 1 из 3378, пропущено 4 | 2 мин 30 с | abe59d8 +13 | [лог](logs/2026-10-05T06-25-28Z-unit-4f71.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 05.10.2026 11:28 | integration | ❌ упало 1 из 380, пропущено 9 | 38 с | abe59d8 +16 | [лог](logs/2026-10-05T06-28-32Z-integration-5e54.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 05.10.2026 11:30 | integration | ✅ 371 из 380, пропущено 9 | 37 с | abe59d8 +16 | [лог](logs/2026-10-05T06-30-08Z-integration-db40.log) |  |
+| 05.10.2026 11:31 | integration | ✅ 371 из 380, пропущено 9 | 38 с | abe59d8 +16 | [лог](logs/2026-10-05T06-31-39Z-integration-229a.log) |  |
+| 05.10.2026 11:32 | unit | ✅ 3374 из 3378, пропущено 4 | 2 мин 29 с | abe59d8 +14 | [лог](logs/2026-10-05T06-32-38Z-unit-7080.log) |  |
+| 05.10.2026 11:37 | lint | ✅ без ошибок | 17 с | abe59d8 +16 | [лог](logs/2026-10-05T06-37-35Z-lint-4293.log) |  |
+| 05.10.2026 11:37 | typecheck | ✅ без ошибок | 18 с | abe59d8 +16 | [лог](logs/2026-10-05T06-37-35Z-typecheck-2f6c.log) |  |
+| 05.10.2026 11:38 | integration | ✅ 371 из 380, пропущено 9 | 37 с | abe59d8 +16 | [лог](logs/2026-10-05T06-38-06Z-integration-d00e.log) |  |

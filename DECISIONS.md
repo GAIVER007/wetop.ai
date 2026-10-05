@@ -5623,3 +5623,11 @@ Consequences: down.sql restores the prior unpinned setting and therefore reintro
 Решение: migration 54 включает FORCE ROW LEVEL SECURITY для всех десяти таблиц бара. Служебная роль BYPASSRLS сохраняет полный доступ.
 Причина: остатки, себестоимость, выручка и оплаты поставщикам должны оставаться изолированными даже при запросе от владельца таблиц.
 Последствия: runtime-роль без BYPASSRLS всегда проходит tenant policies. Down снимает только FORCE, не удаляя ENABLE или policies. Production apply требует отдельного разрешения.
+
+## ADR-MV6: Food reservations backend (2026-10-05)
+
+Problem: Food pilot plumbing exists without domain tables/API. AS-IS main abe59d83 has no Food entities; BAR is a separate Hospitality module.
+Options: reuse hotel/Beauty/bar entities; create the approved independent Food domain.
+Decision: implement DATA_MODEL §28, approved directly in owner MV6 specification. Reuse Customer/CustomerBusiness, RequestActor, capability and role permissions, subscription checks and audit. No UI or new permission engine.
+Concurrency: shared Organization/Business parent locks, Location row FOR UPDATE serializes mutations within one restaurant; reservation row and target table FOR UPDATE protect status/move/assignment. Explicit expected status+updatedAt required on reservation mutations. Sorted parent-first locks avoid cross-operation deadlocks. Unique creation key remains DB authority.
+Consequences: conservative per-Location write serialization in v1; independent locations still proceed. API uses UTC instants plus Location IANA timezone for period/day boundaries. Five new tables, guarded down, production rollout separate. MV7 requires approval.

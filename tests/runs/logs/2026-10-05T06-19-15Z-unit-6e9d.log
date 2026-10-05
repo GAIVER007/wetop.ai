@@ -1,0 +1,63 @@
+# Модульные (unit) · 05.10.2026 11:19 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-19-15Z-unit-6e9d.json' 'packages/domain/src/food/food.test.ts' 'apps/api/src/food-service/boundary.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| packages/domain/src/food/food.test.ts (6 tests | 1 failed) 19ms
+   ❯ Food v1 (6)
+     ✓ validates catalog and refuses scope/invalid fields 2ms
+     ✓ normalizes creation and rejects trusted end/scope or ambiguous customer 1ms
+     ✓ uses local weekday and preceding overnight window 13ms
+     ✓ same-day window and adjacent endpoint 0ms
+     × rejects nonexistent calendar dates 2ms
+     ✓ terminal statuses and capacity 0ms
+ ❯ |unit| apps/api/src/food-service/boundary.test.ts (2 tests | 1 failed) 7ms
+   × Food missing scope is refused before any legacy Property lookup 6ms
+   ✓ all Food handlers inherit capability and permission metadata 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/food-service/boundary.test.ts > Food missing scope is refused before any legacy Property lookup
+AssertionError: expected Error: legacy lookup must not run to match object { status: 403 }
+
+- Expected
++ Received
+
+- {
+-   "status": 403,
++ Error {
++   "message": "legacy lookup must not run",
+  }
+
+ ❯ apps/api/src/food-service/boundary.test.ts:15:56
+     13|  const lookup=vi.fn(()=>{throw new Error('legacy lookup must not run')…
+     14|  const interceptor=new AuthorInterceptor({db:{property:{findFirst:look…
+     15|  await expect(interceptor.intercept(ctx as never,next)).rejects.toMatc…
+       |                                                        ^
+     16| });
+     17| it('all Food handlers inherit capability and permission metadata',()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/food/food.test.ts > Food v1 > rejects nonexistent calendar dates
+AssertionError: expected [Function] to throw an error
+ ❯ packages/domain/src/food/food.test.ts:29:95
+     27|   expect(foodEnd({...period,endsNextDay:false,timeTo:'23:00',defaultDu…
+     28|  });
+     29|  it('rejects nonexistent calendar dates',()=>{expect(()=>foodInstant('…
+       |                                                                                               ^
+     30|  it('terminal statuses and capacity',()=>{
+     31|   expect(foodNext('BOOKED')).toEqual(['CONFIRMED','SEATED','CANCELLED'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 6 passed (8)
+   Start at  10:19:16
+   Duration  672ms (transform 58%, import 37%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-19-15Z-unit-6e9d.json
+
+# код выхода 1 · 2 с

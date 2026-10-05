@@ -74,7 +74,7 @@ test('недоступный API не скрывается за демо или 
     'Не удалось проверить менеджер каналов',
   );
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
-    'Объект не загружен',
+    'Филиал недоступен',
   );
   await expect(page.getByTestId('database-units')).toHaveCount(0);
 });
@@ -97,7 +97,7 @@ test('поздняя загрузка гостиницы сохраняет вв
       await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
     }).toPass({ timeout: 15_000 });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
-      'Объект не загружен',
+      'Филиал недоступен',
     );
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(

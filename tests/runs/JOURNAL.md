@@ -6491,3 +6491,6 @@
 | 05.10.2026 19:41 | lint | ✅ без ошибок | 18 с | e9555e7 | [лог](logs/2026-10-05T14-41-52Z-lint-3747.log) | MV7 final merge gate lint |
 | 05.10.2026 19:41 | typecheck | ✅ без ошибок | 19 с | e9555e7 | [лог](logs/2026-10-05T14-41-52Z-typecheck-ccad.log) | MV7 final merge gate root API web types |
 | 05.10.2026 19:35 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/premium.spec.ts tests/ui/product-tour.spec.ts --grep темы: system\|shell: панель\|первый вход:  | ❌ упало 3 из 3 | 1 мин 31 с | fe6cfc3 | [лог](logs/2026-10-05T14-35-58Z-e2e-9260.log) | RED: old owner-home selectors and tour highlight contract from release CI 95 |
+| 05.10.2026 19:46 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/premium.spec.ts tests/ui/product-tour.spec.ts) | ✅ 13 из 13 | 1 мин 56 с | 2e95a2e | [лог](logs/2026-10-05T14-46-12Z-e2e-bffb.log) | MV7 final gate latest upstream test-only delta |
+| 05.10.2026 19:48 | lint | ✅ без ошибок | 15 с | 2e95a2e | [лог](logs/2026-10-05T14-48-28Z-lint-94af.log) | MV7 final gate after test-only main sync |
+| 05.10.2026 19:48 | typecheck | ✅ без ошибок | 16 с | 2e95a2e | [лог](logs/2026-10-05T14-48-28Z-typecheck-4d21.log) | MV7 final gate after test-only main sync |

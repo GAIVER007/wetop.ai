@@ -90,12 +90,19 @@ tables="$(grep -c ' TABLE DATA ' "$work/toc" || true)"
 [ "${tables:-0}" -gt 0 ] || fail "в копии нет ни одной таблицы с данными: восстанавливать нечего" 1
 grep -vE ' SCHEMA - public | COMMENT - SCHEMA public ' "$work/toc" >"$work/list"
 
-# Миграции прав: в тексте вне строк-комментариев есть GRANT или REVOKE; по порядку имён, то есть по времени
+# Миграции прав: повторно выполняются только чистые миграции прав. Смешанную schema-миграцию
+# с CREATE/ALTER/DROP и встроенным GRANT нельзя запускать после pg_restore: объекты уже восстановлены из копии.
+# Отступ внутри DO-блока отличает вложенный DDL от верхнеуровневого DDL миграции.
 regrants=()
 while IFS= read -r file; do
   regrants+=("$file")
 done < <(find "$MIGRATIONS" -mindepth 2 -maxdepth 2 -name migration.sql | sort |
-  while IFS= read -r f; do grep -vE '^[[:space:]]*--' "$f" | grep -qwE 'GRANT|REVOKE' && printf '%s\n' "$f"; done)
+  while IFS= read -r f; do
+    body="$(grep -vE '^[[:space:]]*--' "$f")"
+    printf '%s\n' "$body" | grep -qwE 'GRANT|REVOKE' || continue
+    printf '%s\n' "$body" | grep -qE '^(CREATE|ALTER|DROP|TRUNCATE|INSERT|UPDATE|DELETE)[[:space:]]' && continue
+    printf '%s\n' "$f"
+  done)
 [ "${#regrants[@]}" -gt 0 ] || fail "в $MIGRATIONS нет ни одной миграции прав: не та папка" 2
 
 # Одна транзакция: данные копии (с удалением прежних объектов), затем права. ON_ERROR_STOP откатывает всё.

@@ -661,7 +661,7 @@ test('отчёт по источникам и интеграции: период
   const row = main.getByTestId('channel-report').locator('tbody tr').first();
   await expect(row.locator('td').nth(1)).toHaveCSS('grid-column-start', '2');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  // Подключения: категории, локальные планы и внешние сопоставления отдельно.
+  // интеграции: сопоставления словами, пустое время — «—», без « · »
   await page.goto('/connections');
   await expect(main).toContainText('3 категории, 1 тарифный план, 3 сопоставления');
   await expect(main).not.toContainText(' · ');

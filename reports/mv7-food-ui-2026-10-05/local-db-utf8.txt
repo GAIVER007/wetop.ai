@@ -1,0 +1,1 @@
+База поднята. Прогон: DATABASE_URL='postgresql://postgres@127.0.0.1:55763/pmslocal' npm run test:record -- integration

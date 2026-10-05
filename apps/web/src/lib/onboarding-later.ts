@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 /**
  * «Заполнить позже» в онбординге (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100).
  *
@@ -31,12 +32,12 @@ export function needsOnboardingRedirect(input: {
    * Направление текущего филиала (срез B2, Q-254). У салона объекта нет и не будет: гостиничный онбординг
    * создал бы ему номера, которых в этой вертикали не существует (DATA_MODEL §19), поэтому гейт его не трогает.
    */
-  vertical?: 'HOSPITALITY' | 'BEAUTY' | undefined;
+  vertical?: WebVertical | undefined;
 }): boolean {
   const { path } = input;
   if (SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return false;
   if (path.includes('/print')) return false;
-  if (input.vertical === 'BEAUTY') return false;
+  if (input.vertical && input.vertical !== 'HOSPITALITY') return false;
   if (input.propertyMissing) return true;
   return input.needsOnboarding && !input.postponed;
 }

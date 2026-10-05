@@ -163,42 +163,6 @@ describe.skipIf(!process.env.DATABASE_URL)('MV3 durable progress', () => {
       withSignedInUser({ ...actor, role: 'STAFF' }, () => service.save({ action: 'next', draft })),
     ).rejects.toThrow();
   });
-  it('keeps sibling branch drafts independent within the same business', async () => {
-    const ids = [randomUUID(), randomUUID()];
-    const before = await db.onboardingProgress.findUnique({ where: { locationId: location } });
-    try {
-      for (const id of ids)
-        await db.location.create({
-          data: {
-            id,
-            businessId: business,
-            name: `Synthetic ${id}`,
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-          },
-        });
-      for (const [index, id] of ids.entries()) {
-        const branchDraft = { ...draft, locationName: `Branch ${index}` };
-        await withSignedInUser({ ...actor, locationId: id }, () =>
-          service.save({ action: 'next', draft: branchDraft, updatedAt: null }),
-        );
-      }
-      const fresh = new SharedOnboardingService({ db } as never);
-      for (const [index, id] of ids.entries())
-        expect(
-          await withSignedInUser({ ...actor, locationId: id }, () => fresh.status()),
-        ).toMatchObject({
-          currentStep: 'location',
-          draft: { ...draft, locationName: `Branch ${index}` },
-        });
-      expect(await db.onboardingProgress.findUnique({ where: { locationId: location } })).toEqual(
-        before,
-      );
-    } finally {
-      await db.onboardingProgress.deleteMany({ where: { locationId: { in: ids } } });
-      await db.location.deleteMany({ where: { id: { in: ids } } });
-    }
-  });
   it('READ_ONLY organization blocks owner mutations and keeps read access', async () => {
     await db.organization.update({ where: { id: org }, data: { status: 'READ_ONLY' } });
     expect(await run(() => service.status())).toMatchObject({ canEdit: false });

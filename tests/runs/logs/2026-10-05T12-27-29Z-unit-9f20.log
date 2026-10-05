@@ -1,0 +1,138 @@
+# Модульные (unit) · 05.10.2026 17:27 Алматы · MacBook-Air-Urij.local
+# коммит 87fea09 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-27-29Z-unit-9f20.json' 'apps/web/src/app/branches/switch.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/repo-sync.test.ts' 'tests/unit/auto-deploy.test.ts' 'tests/unit/shift-check-wrapper.test.ts' 'apps/api/src/web-booking/web-booking.controller.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv7-20261005
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 33153ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 1911ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 840ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1946ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1579ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 2528ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1745ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1545ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2081ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2418ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2917ms
+     ✓ локальные правки в клоне — не затирает их 1463ms
+     ✓ историю ветки переписали — не выкладывает поверх 3019ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3506ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2291ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1930ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1433ms
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 1 failed) 63170ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 1185ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 1190ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 1222ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 1271ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 2793ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 1439ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 1138ms
+     ✓ чужой remote или папка не под git — код 2 и ни одного действия 411ms
+     ✓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту 1109ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 2398ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 3258ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 1585ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 3725ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 4273ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 2964ms
+     ✓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению 1865ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 1588ms
+     ✓ находит вторую копию репозитория рядом с папкой 2293ms
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 3344ms
+     ✓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 2935ms
+     ✓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 2981ms
+     ✓ чужой репозиторий внутри папки назван, но не переносится 4161ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 3637ms
+     ✓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 5431ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 4965ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 12229ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 2704ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 2126ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 2190ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1417ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 2484ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1273ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed) 2583ms
+   ❯ scripts/ops/shift-check.sh (4)
+     ✓ таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона 1207ms
+     ✓ повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется 685ms
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 141ms
+     ✓ без --date день смены сегодняшний по Алматы 548ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 730ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (9 tests) 39ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /private/var/folders/sl/5hhh0s…' to contain '--archive-nested'
+
+- Expected
++ Received
+
+- --archive-nested
++ Папка: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-nDGf2J/WETOP
++   ✓ origin → /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-nDGf2J/GAIVER007/wetop.ai.git
++ Git: ветка main, коммит 00a3722; origin/main 00a3722
++   ✓ совпадает с origin/main
++   · неотслеживаемых файлов: 1 (git status)
++   ✗ ещё одна копия репозитория рядом: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-nDGf2J/seed (00a3722 от 2026-10-05)
++   → оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)
++   ✗ внутри папки вторая копия репозитория: Чат агент/WETOP (ветка ai-seller)
++   · это старая папка бота: с 24.09 он живёт в apps/ai-seller ветки main, со всей историей
++   · всё из неё уже на GitHub; .env и данные переедут вместе с папкой
++ /Users/urijzapojnov/wetop-mv7-20261005/scripts/ops/repo-sync.sh: line 283: top_rel�: unbound variable
++
+
+ ❯ tests/unit/repo-sync.test.ts:545:17
+    543|     expect(out).toMatch(/apps\/ai-seller/);
+    544|     expect(out).toMatch(/всё из неё уже на GitHub/);
+    545|     expect(out).toContain('--archive-nested');
+       |                 ^
+    546|     expect(out).not.toContain('SECRET=1');
+    547|     expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/wetop-mv7-2026100…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/wetop-mv7-20261005/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 111 passed (113)
+   Start at  16:27:30
+   Duration  116.27s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-27-29Z-unit-9f20.json
+
+# код выхода 1 · 1 мин 58 с

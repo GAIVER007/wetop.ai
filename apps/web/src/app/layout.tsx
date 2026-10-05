@@ -15,7 +15,7 @@ import { FALLBACK_TIMEZONE } from '../lib/property-time';
 import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
-import { selectedBeautyBranch, workspaceTimezone } from '../lib/workspace-context';
+import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
@@ -51,12 +51,14 @@ function isPublicEntryPath(path: string): boolean {
 }
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
-  if ((await deskShell()).vertical === 'BEAUTY') {
-    const branch = await selectedBeautyBranch().catch(() => null);
+  const shell=await deskShell();
+  if(shell.access.unknown) return 'Филиал недоступен';
+  if (shell.vertical !== 'HOSPITALITY') {
+    const branch = await selectedWorkspaceBranch().catch(() => null);
     return branch
       ? field === 'name'
         ? branch.name
-        : (branch.address ?? 'Салон')
+        : (branch.address ?? (branch.vertical === 'FOOD_SERVICE' ? 'Ресторан' : 'Салон'))
       : 'Выберите филиал';
   }
   const hotel = await hotelApi.settings().catch((error: unknown) => {
@@ -150,5 +152,6 @@ export default async function RootLayout({
 }
 
 async function WorkspaceAssistant({ desk }: { desk: Promise<DeskShell> }) {
-  return (await desk).vertical === 'BEAUTY' ? null : <AssistantWidget />;
+  const shell=await desk;
+  return shell.vertical !== 'HOSPITALITY' || shell.access.unknown ? null : <AssistantWidget />;
 }

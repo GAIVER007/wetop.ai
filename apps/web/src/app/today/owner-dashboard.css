@@ -780,10 +780,10 @@ body:has(.owner-dashboard) .header-tools {
 }
 @media (max-width: 600px) and (max-height: 820px) {
   .owner-dashboard {
-    gap: 4px;
+    gap: var(--space-1);
   }
   .owner-surface {
-    padding-block: 4px;
+    padding-block: var(--space-1);
   }
   .owner-ring {
     width: 76px;

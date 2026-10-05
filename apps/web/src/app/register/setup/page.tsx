@@ -1,3 +1,4 @@
+import { landingForVertical } from '../../../lib/vertical-landing';
 import { redirect } from 'next/navigation';
 import { sharedOnboardingApi, onboardingApi, authApi } from '../../../lib/api';
 import { publicAuthUrl } from '../../../lib/auth-entry';
@@ -12,7 +13,7 @@ export default async function SetupPage() {
   const { context } = await authApi.me();
   if (!context?.businessId || !context.locationId) redirect('/register/complete');
   const state = await sharedOnboardingApi.status();
-  if (state.vertical === 'BEAUTY' && state.completedAt) redirect('/calendar');
+  if (state.vertical !== 'HOSPITALITY' && state.completedAt) redirect(landingForVertical(state.vertical));
   const hotel = state.vertical === 'HOSPITALITY' ? await onboardingApi.status() : null;
   if (hotel && !hotel.needed) redirect('/today');
   return <OnboardingShell initial={state} hotel={hotel} />;

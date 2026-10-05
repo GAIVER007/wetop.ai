@@ -4,7 +4,7 @@ import { expect, test } from './fixtures';
 /**
  * «Календарь» (02.10.2026, план `plans/calendar-litepms-2026-10-02.md`): раздел «Шахматка»
  * переименован в «Календарь», в строке управления показана компактная сводка дня без повторов
- * (заезды, выезды, задачи, свободно, занято, загрузка; без денег) и быстрые действия
+ * (заезды, горящие брони, выезды, проживания, незаезды, свободные номера и загрузка; без денег) и быстрые действия
  * «Поиск свободных номеров» и «Неоплаченные»;
  * `?stays=debt` открывает сетку с уже включённым фильтром «С долгом».
  */
@@ -12,16 +12,18 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // В сводке остаются только рабочие показатели без дубля «Проживания» и дней рождения.
+  // В сводке остаются только рабочие показатели без задач и дней рождения.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
   await expect(stats.getByTestId('day-arrivals')).toBeVisible();
   await expect(stats.getByTestId('day-departures')).toBeVisible();
-  await expect(stats.getByTestId('day-tasks')).toBeVisible();
+  await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
+  await expect(stats.getByTestId('day-noshow')).toBeVisible();
+  await expect(stats.getByTestId('day-hot')).toBeVisible();
   await expect(stats.getByTestId('day-free')).toBeVisible();
   await expect(stats.getByTestId('day-occupied')).toBeVisible();
   await expect(stats.getByTestId('day-occupancy')).toBeVisible();
-  await expect(stats.getByText('Проживания')).toBeHidden();
+  await expect(stats.getByText('Проживания')).toBeVisible();
   await expect(stats.getByText('Дни рождения')).toBeHidden();
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);

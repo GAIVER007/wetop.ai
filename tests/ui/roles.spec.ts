@@ -48,6 +48,7 @@ test('администратор: в меню — работа с гостями
       '/reservations',
       '/guests',
       '/finance',
+      '/bar',
       '/market',
       '/ai-agents',
       '/reports',
@@ -83,7 +84,7 @@ test('администратор: закрытые разделы по адре�
     ],
   ] as const) {
     await page.goto(route);
-    const refusal = main.getByTestId('no-access');
+    const refusal = page.getByTestId('no-access').filter({ visible: true });
     await expect(refusal).toContainText(text);
     await expect(refusal).toContainText('Ваша роль — администратор');
     // заголовок — раздела, а не самой страницы: её содержимого на экране нет

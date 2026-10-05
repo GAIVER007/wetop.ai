@@ -25,6 +25,7 @@ import {
   Badge,
   Button,
   Field,
+  Select,
   Help,
   SectionTitle,
   Stat,
@@ -97,24 +98,33 @@ export default async function FinanceReportPage({
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, servicesLoaded] = await Promise.all([
-    valid ? settle(financeApi.report(from, to)) : null,
-    valid ? settle(financeApi.debts(from, to)) : null,
-    valid
-      ? settle(financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }))
-      : null,
-    deskShell(),
-    // касса (§21): остатки за всё время и статьи — одним запросом, от периода не зависят
-    settle(financeApi.cash()),
-    // отчёт по услугам (REP2): то же окно, что у сводки
-    valid ? settle(financeApi.servicesReport(from, to)) : null,
-  ]);
+  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, servicesLoaded, periodOpsLoaded] =
+    await Promise.all([
+      valid ? settle(financeApi.report(from, to)) : null,
+      valid ? settle(financeApi.debts(from, to)) : null,
+      valid
+        ? settle(
+            financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }),
+          )
+        : null,
+      deskShell(),
+      // Касса (§21): остатки за всё время и статьи одним запросом, от периода не зависят.
+      settle(financeApi.cash()),
+      // отчёт по услугам (REP2): то же окно, что у сводки
+      valid ? settle(financeApi.servicesReport(from, to)) : null,
+      valid && (filter.type || filter.method || filter.source)
+        ? settle(financeApi.operations(from, to, { limit: 1 }))
+        : null,
+    ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
   const debts = debtsLoaded?.ok ? debtsLoaded.r : null;
   const debtsError = debtsLoaded && !debtsLoaded.ok ? debtsLoaded.e : null;
   const ops = opsLoaded?.ok ? opsLoaded.r : null;
   const opsError = opsLoaded && !opsLoaded.ok ? opsLoaded.e : null;
+  const periodOpsResult = periodOpsLoaded ?? opsLoaded;
+  const periodOps = periodOpsResult?.ok ? periodOpsResult.r : null;
+  const periodOpsError = periodOpsResult && !periodOpsResult.ok ? periodOpsResult.e : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
   const services = servicesLoaded?.ok ? servicesLoaded.r : null;
@@ -136,7 +146,12 @@ export default async function FinanceReportPage({
   const due = debts ? BigInt(debts.balanceMinor) : 0n;
   const onlyOverdue = sp.debts === 'overdue';
   /** Ссылка на операции с отбором: плитки, способы в таблице и «Требует внимания» ведут сюда (drill-down, F2) */
-  const opsHref = (o: { op?: OpParam; method?: string; src?: 'bookings' | 'cash'; all?: boolean }) => {
+  const opsHref = (o: {
+    op?: OpParam;
+    method?: string;
+    src?: 'bookings' | 'cash';
+    all?: boolean;
+  }) => {
     const q = new URLSearchParams({ from, to });
     if (o.op) q.set('op', o.op);
     if (o.method) q.set('method', o.method);
@@ -144,17 +159,16 @@ export default async function FinanceReportPage({
     if (o.all) q.set('ops', 'all');
     return `/finance?${q}#operations`;
   };
-  const opParam = filter.type
-    ? (filter.type.toLowerCase() as OpParam)
-    : undefined;
-  const srcParam = filter.source === 'CASH' ? 'cash' : filter.source === 'RESERVATIONS' ? 'bookings' : undefined;
+  const opParam = filter.type ? (filter.type.toLowerCase() as OpParam) : undefined;
+  const srcParam =
+    filter.source === 'CASH' ? 'cash' : filter.source === 'RESERVATIONS' ? 'bookings' : undefined;
   const exportQuery = new URLSearchParams({ from, to });
   if (opParam) exportQuery.set('op', opParam);
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
   return (
     <Page
-      title="Финансы за период"
+      title="Касса"
       subtitle={
         valid ? (
           <span data-testid="finance-period">
@@ -170,7 +184,66 @@ export default async function FinanceReportPage({
         </Link>
       }
     >
-      <section className="finance-controls" aria-label="Период">
+      <section className="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">
+        <div className="cash-summary__balance">
+          <span className="cash-summary__label">Всего</span>
+          <strong data-testid="cash-balance">
+            {cashBalances
+              ? formatMoney(cashBalances.totalMinor, cashBalances.currency)
+              : 'Нет данных'}
+          </strong>
+          {cashBalances && (
+            <details className="cash-summary__methods">
+              <summary>Баланс по способам оплаты</summary>
+              <dl>
+                {cashBalances.balances.map((balance) => (
+                  <div key={balance.method}>
+                    <dt>{METHOD_RU[balance.method] ?? balance.method}</dt>
+                    <dd>{formatMoney(balance.balanceMinor, cashBalances.currency)}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          )}
+        </div>
+        <div className="cash-summary__period">
+          <a href="#finance-filters" className="cash-summary__label">
+            За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
+          </a>
+          <dl>
+            <div className="cash-summary__income">
+              <dt>Поступления:</dt>
+              <dd data-testid="cash-period-income">
+                {periodOps
+                  ? formatMoney(
+                      BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor),
+                      periodOps.currency,
+                    )
+                  : 'Нет данных'}
+              </dd>
+            </div>
+            <div className="cash-summary__expense">
+              <dt>Расходы:</dt>
+              <dd data-testid="cash-period-expense">
+                {periodOps
+                  ? formatMoney(
+                      BigInt(periodOps.refundedMinor) + BigInt(periodOps.expenseMinor),
+                      periodOps.currency,
+                    )
+                  : 'Нет данных'}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      {cashError !== null && (
+        <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
+      )}
+      {periodOpsError !== null && (
+        <LoadError testId="cash-period-error" {...loadErrorProps(periodOpsError)} />
+      )}
+
+      <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
         <form method="get" className="finance-toolbar" data-testid="period-form">
           <Field inline label="С">
             <DateInput
@@ -209,11 +282,55 @@ export default async function FinanceReportPage({
               </Link>
             ))}
           </nav>
-          <Button tone="secondary">Показать</Button>
+          <Field label="Тип операции">
+            <Select
+              name="op"
+              aria-label="Тип операции"
+              key={`op-${opParam}`}
+              defaultValue={opParam ?? ''}
+            >
+              <option value="">Все операции</option>
+              <option value="payment">Оплаты</option>
+              <option value="refund">Возвраты</option>
+              <option value="income">Поступления кассы</option>
+              <option value="expense">Расходы кассы</option>
+              <option value="transfer">Переводы</option>
+            </Select>
+          </Field>
+          <Field label="Способ оплаты">
+            <Select
+              name="method"
+              aria-label="Способ оплаты"
+              key={`method-${filter.method}`}
+              defaultValue={filter.method ?? ''}
+            >
+              <option value="">Все способы</option>
+              {Object.entries(METHOD_RU).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Источник">
+            <Select
+              name="src"
+              aria-label="Источник"
+              key={`src-${srcParam}`}
+              defaultValue={srcParam ?? ''}
+            >
+              <option value="">Все источники</option>
+              <option value="bookings">Брони</option>
+              <option value="cash">Касса</option>
+            </Select>
+          </Field>
+          <div className="finance-filter-actions">
+            <Button>Показать</Button>
+            <Link href={period} className="btn btn--ghost">
+              Сбросить фильтр
+            </Link>
+          </div>
         </form>
-        <p className="finance-note">
-          Начисления — по дате услуги, оплаты и возвраты — по дате операции.
-        </p>
       </section>
 
       {tooLong && (
@@ -227,59 +344,6 @@ export default async function FinanceReportPage({
       )}
       {loadError !== null && <LoadError testId="finance-error" {...loadErrorProps(loadError)} />}
 
-      {r && (
-        <section className="finance-kpis" aria-label="Итоги периода" data-testid="finance-kpis">
-          {/* Каждая плитка ведёт к строкам, из которых сложилось число (drill-down, ТЗ F2) */}
-          <a href={`${period}#charges`} className="finance-kpi-link" data-testid="kpi-charged">
-            <Stat
-              label="Начислено"
-              value={formatMoney(r.chargedMinor, cur)}
-              testId="charged"
-              hint="проживание, услуги, штрафы"
-            />
-          </a>
-          <a href={opsHref({ op: 'payment' })} className="finance-kpi-link" data-testid="kpi-paid">
-            <Stat
-              label="Оплачено"
-              value={formatMoney(r.paidMinor, cur)}
-              testId="paid"
-              hint="всеми способами оплаты"
-            />
-          </a>
-          <a
-            href={opsHref({ op: 'refund' })}
-            className="finance-kpi-link"
-            data-testid="kpi-refunded"
-          >
-            <Stat
-              label="Возвращено"
-              value={formatMoney(r.refundedMinor, cur)}
-              testId="refunded"
-              hint={
-                r.refunds.count
-                  ? `${pluralRu(r.refunds.count, ['возврат', 'возврата', 'возвратов'])} за период`
-                  : 'возвратов за период не было'
-              }
-            />
-          </a>
-          <a
-            href={`${period}#debts`}
-            className={due > 0n ? 'finance-kpi-link finance-kpi-link--due' : 'finance-kpi-link'}
-            data-testid="kpi-due"
-          >
-            <Stat
-              label="К сбору"
-              value={debts ? formatMoney(debts.balanceMinor, cur) : '—'}
-              testId="balance"
-              tone={due > 0n ? 'warn' : undefined}
-              hint={
-                debtsError !== null ? 'список долгов не загрузился' : 'остаток по броням периода'
-              }
-            />
-          </a>
-        </section>
-      )}
-
       {opsError !== null && (
         <Alert boxed>
           Операции не загрузились. <a href={`${period}#operations`}>Открыть детали ошибки</a>
@@ -291,10 +355,79 @@ export default async function FinanceReportPage({
             ? 'operations'
             : sp.debts || sp.more
               ? 'debts'
-              : 'overview'
+              : 'operations'
         }
         overview={
           <>
+            {r && (
+              <section
+                className="finance-kpis"
+                aria-label="Итоги периода"
+                data-testid="finance-kpis"
+              >
+                {/* Каждая плитка ведёт к строкам, из которых сложилось число (drill-down, ТЗ F2) */}
+                <a
+                  href={`${period}#charges`}
+                  className="finance-kpi-link"
+                  data-testid="kpi-charged"
+                >
+                  <Stat
+                    label="Начислено"
+                    value={formatMoney(r.chargedMinor, cur)}
+                    testId="charged"
+                    hint="проживание, услуги, штрафы"
+                  />
+                </a>
+                <a
+                  href={opsHref({ op: 'payment' })}
+                  className="finance-kpi-link"
+                  data-testid="kpi-paid"
+                >
+                  <Stat
+                    label="Оплачено"
+                    value={formatMoney(r.paidMinor, cur)}
+                    testId="paid"
+                    hint="всеми способами оплаты"
+                  />
+                </a>
+                <a
+                  href={opsHref({ op: 'refund' })}
+                  className="finance-kpi-link"
+                  data-testid="kpi-refunded"
+                >
+                  <Stat
+                    label="Возвращено"
+                    value={formatMoney(r.refundedMinor, cur)}
+                    testId="refunded"
+                    hint={
+                      r.refunds.count
+                        ? `${pluralRu(r.refunds.count, ['возврат', 'возврата', 'возвратов'])} за период`
+                        : 'возвратов за период не было'
+                    }
+                  />
+                </a>
+                <a
+                  href={`${period}#debts`}
+                  className={
+                    due > 0n ? 'finance-kpi-link finance-kpi-link--due' : 'finance-kpi-link'
+                  }
+                  data-testid="kpi-due"
+                >
+                  <Stat
+                    label="К сбору"
+                    value={debts ? formatMoney(debts.balanceMinor, cur) : 'Нет данных'}
+                    testId="balance"
+                    tone={due > 0n ? 'warn' : undefined}
+                    hint={
+                      debtsError !== null
+                        ? 'список долгов не загрузился'
+                        : 'остаток по броням периода'
+                    }
+                  />
+                </a>
+              </section>
+            )}
+
             {valid && (r || debts) && (
               <Attention
                 report={r}
@@ -800,10 +933,7 @@ function DebtList({
 }
 
 /** Строка кассовой операции для вопроса подтверждения и ленты: «Расход 5 000 ₸, Kaspi, Зарплата» */
-function cashSummary(
-  o: PeriodOperations['rows'][number],
-  cur: string,
-): string {
+function cashSummary(o: PeriodOperations['rows'][number], cur: string): string {
   const where =
     o.kind === 'TRANSFER'
       ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo ?? ''] ?? o.methodTo}`
@@ -847,83 +977,13 @@ function Operations({
     ...((o && 'op' in o ? o.op : opParam) ? { op: (o && 'op' in o ? o.op : opParam)! } : {}),
     ...((o && 'src' in o ? o.src : srcParam) ? { src: (o && 'src' in o ? o.src : srcParam)! } : {}),
   });
-  const types: Array<[string, OpParam | undefined]> = [
-    ['Все', undefined],
-    ['Оплаты', 'payment'],
-    ['Возвраты', 'refund'],
-    ['Поступления', 'income'],
-    ['Расходы', 'expense'],
-    ['Переводы', 'transfer'],
-  ];
-  const sources: Array<[string, 'bookings' | 'cash' | undefined]> = [
-    ['Все источники', undefined],
-    ['Брони', 'bookings'],
-    ['Касса', 'cash'],
-  ];
   const filtered = type !== undefined || method !== undefined || srcParam !== undefined;
   const minus = (kind: string) => kind === 'REFUND' || kind === 'EXPENSE';
-  const hasCashSums = BigInt(ops.incomeMinor) > 0n || BigInt(ops.expenseMinor) > 0n;
   return (
     <>
-      <div className="finance-ops__filters">
-        <nav className="directory-filters finance-chips" aria-label="Источник">
-          {sources.map(([label, src]) => (
-            <Link
-              key={label}
-              href={opsHref({ ...keep({ src }), ...(method ? { method } : {}) })}
-              className={srcParam === src ? 'is-active' : ''}
-              aria-current={srcParam === src ? 'page' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <nav className="directory-filters finance-chips" aria-label="Тип операций">
-          {types.map(([label, op]) => (
-            <Link
-              key={label}
-              href={opsHref({ ...keep({ op }), ...(method ? { method } : {}) })}
-              className={opParam === op ? 'is-active' : ''}
-              aria-current={opParam === op ? 'page' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        {ops.methods.length > 0 && (
-          <nav className="directory-filters finance-chips" aria-label="Способ оплаты">
-            <Link
-              href={opsHref(keep())}
-              className={method ? '' : 'is-active'}
-              aria-current={method ? undefined : 'page'}
-            >
-              Все способы
-            </Link>
-            {ops.methods.map((m) => (
-              <Link
-                key={m.method}
-                href={opsHref({ ...keep(), method: m.method })}
-                className={method === m.method ? 'is-active' : ''}
-                aria-current={method === m.method ? 'page' : undefined}
-              >
-                {METHOD_RU[m.method] ?? m.method}
-                <span className="finance-chips__count">{m.count}</span>
-              </Link>
-            ))}
-          </nav>
-        )}
-      </div>
       <p className="finance-debts__meta" data-testid="ops-meta">
         {pluralRu(ops.total, ['операция', 'операции', 'операций'])}
-        {filtered ? ' по отбору' : ''}: оплачено <strong>{formatMoney(ops.paidMinor, cur)}</strong>,
-        возвращено <strong>{formatMoney(ops.refundedMinor, cur)}</strong>
-        {hasCashSums && (
-          <>
-            ; касса: поступило <strong>{formatMoney(ops.incomeMinor, cur)}</strong>, израсходовано{' '}
-            <strong>{formatMoney(ops.expenseMinor, cur)}</strong>
-          </>
-        )}
-        .
+        {filtered ? ' по отбору' : ''}
       </p>
       {ops.rows.length === 0 ? (
         <p className="finance-debts__empty" data-testid="ops-empty">
@@ -954,13 +1014,13 @@ function Operations({
                   data-testid="op-row"
                   data-kind={o.kind}
                 >
-                  <td className="finance-debts__stay">
+                  <td className="finance-debts__stay" data-label="Дата и время">
                     <time dateTime={o.at}>
                       {displayDate(day)}, {time}
                     </time>
                   </td>
-                  <td>{operationKind(o.kind)}</td>
-                  <td>
+                  <td data-label="Тип">{operationKind(o.kind)}</td>
+                  <td data-label="Бронь">
                     {o.confirmationNumber ? (
                       <Link
                         href={`/reservations/${encodeURIComponent(o.confirmationNumber)}#booking-finance`}
@@ -975,20 +1035,20 @@ function Operations({
                       <small className="muted"> и ещё {o.reservations - 1}</small>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Гость / статья">
                     {o.guestLabel || o.category || <span className="muted">—</span>}
                     {isCash && o.note && <small className="muted cell-sub">{o.note}</small>}
                   </td>
-                  <td>
+                  <td data-label="Способ">
                     {o.kind === 'TRANSFER' && o.methodTo
                       ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo] ?? o.methodTo}`
                       : (METHOD_RU[o.method] ?? o.method)}
                   </td>
-                  <td className="num" data-testid="op-amount">
+                  <td className="num" data-label="Сумма" data-testid="op-amount">
                     {minus(o.kind) ? '−' : ''}
                     {formatMoney(o.amountMinor, cur)}
                   </td>
-                  <td>
+                  <td data-label="Статус">
                     <Badge tone="neutral">{operationStatus(o.kind, o.status)}</Badge>
                     {isCash && !voided && mayVoidCash && (
                       <VoidCashOperation id={o.id} summary={cashSummary(o, cur)} />

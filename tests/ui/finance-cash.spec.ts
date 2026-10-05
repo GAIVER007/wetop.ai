@@ -98,8 +98,8 @@ test('перевод с комиссией: остатки обоих спосо
   const fee = rows.filter({ hasText: 'Расход' }).first();
   await expect(fee).toContainText('Комиссия банка');
   await expect(fee.getByTestId('op-amount')).toHaveText(/^−/);
-  // суммы кассы в строке итога
-  await expect(page.getByTestId('ops-meta')).toContainText('касса');
+  // Комиссия входит в общий расход периода, перевод между способами не входит.
+  await expect(page.getByTestId('cash-period-expense')).toHaveText('10 ₸');
 
   // аннулирование основной операции снимает и комиссию (вопрос подтверждения — словами)
   await transfer.getByTestId('cash-void').click();

@@ -6180,3 +6180,11 @@
 | 05.10.2026 10:27 | lint | ✅ без ошибок | 39 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-15Z-lint-ea76.log) | BAR-FIX full lint |
 | 05.10.2026 10:27 | typecheck | ✅ без ошибок | 57 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-14Z-typecheck-0aae.log) | BAR-FIX full typecheck |
 | 05.10.2026 10:27 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 26 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-29Z-integration-942b.log) | BAR-FIX full integration |
+| 05.10.2026 10:32 | unit | ❌ упало 2 из 3368, пропущено 4 | 3 мин 22 с | f223286 | [лог](logs/2026-10-05T05-32-20Z-unit-5863.log) | MV5 after BAR-FIX full unit Node 24 default timeouts no browser concurrency |
+| 05.10.2026 10:35 | unit | ✅ 3364 из 3368, пропущено 4 | 3 мин 12 с | f223286 | [лог](logs/2026-10-05T05-35-56Z-unit-955c.log) | MV5 full unit Node 24 LC_ALL C default timeouts isolated from browser |
+| 05.10.2026 10:39 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1 --max-failures=1) | ✅ 10 из 10 | 1 мин 38 с | f223286 | [лог](logs/2026-10-05T05-39-22Z-e2e-590d.log) | MV5 BAR-FIX head Beauty real API browser Node 24 |
+| 05.10.2026 10:41 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 --max-failures=1 tests/ui/beauty-branch.spec.ts tests/ui/beauty-catalog.spec.ts tests/ui/b | ✅ 40 из 40 | 5 мин 13 с | f223286 | [лог](logs/2026-10-05T05-41-11Z-e2e-215a.log) | MV5 BAR-FIX head full affected navigation and Beauty compatibility 40 scenarios |
+| 05.10.2026 10:46 | e2e (частично: --config tests/onboarding/playwright.config.ts --workers=1 --max-failures=1) | ✅ 4 из 4 | 19 с | f223286 | [лог](logs/2026-10-05T05-46-40Z-e2e-a9ed.log) | MV5 BAR-FIX head full onboarding browser Node 24 |
+| 05.10.2026 10:47 | lint | ✅ без ошибок | 38 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-lint-f7b3.log) | MV5 BAR-FIX head full lint Node 24 |
+| 05.10.2026 10:47 | typecheck | ✅ без ошибок | 54 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-typecheck-3719.log) | MV5 BAR-FIX head full typecheck Node 24 |
+| 05.10.2026 10:47 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 18 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-integration-6d9e.log) | MV5 BAR-FIX head full integration Node 24 |

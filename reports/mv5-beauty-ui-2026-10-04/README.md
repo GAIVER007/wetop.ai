@@ -2,7 +2,7 @@
 
 Дата: 04.10.2026. Завершение проверки: 05.10.2026. Ветка `codex/mv5-beauty-ui-20261004`. [PR #242](https://github.com/GAIVER007/wetop.ai/pull/242).
 
-**Merge STOP:** после синхронизации с новым main full integration обнаружил два upstream дефекта бара. Реализация MV5 завершена, но полная приёмка заблокирована: integration выявил два дефекта main, повторные unit/browser прогоны не завершились успешно. Зелёные результаты до синхронизации не выдаются за результат текущего head. Подробности и условия снятия блокера в конце отчёта.
+**Итог 05.10.2026: полный GREEN после BAR-FIX.** PR #244 влит отдельно, MV5 синхронизирован. На одном code head прошли unit 3364, integration 348, browser 10 + 40 + 4, typecheck/lint и 59 migrations/drift/down. Прежние skips: unit 4, integration 9; новых нет. Исторические неуспешные прогоны ниже сохранены; актуальная приёмка в последнем разделе.
 
 ## Предшествующий MV4
 
@@ -113,3 +113,31 @@ Production, release branch и миграции не затрагивались. 
 Итог на синхронизированной версии: typecheck/lint и 58 migrations PASS, real Beauty API UI 10/10 PASS; full integration RED из-за двух подтверждённых upstream bar дефектов; свежий full unit и дополнительный navigation browser не GREEN. До merge требуются исправление bar invariants и успешные полные проверки в стабильной среде. Более ранние 40/40 UI и 4/4 onboarding сохраняются как историческое доказательство до sync.
 
 Локальные синтетические организации `MV5-browser-*`: 0 после cleanup. Production не затрагивался. MV6 не начат. STOP.
+
+## Регрессия после BAR-FIX, 05.10.2026
+
+BAR-FIX [#244](https://github.com/GAIVER007/wetop.ai/pull/244) влит отдельно: `b07a182293f5b054b6e8aec28090ffc549ee3460`. Новая forward migration 53 и десять записей RLS registry; исходная bar migration не переписана. Red 2 failures -> focused green 8/8, full integration 348/9 existing skips, typecheck/lint, все 59 migrations/drift/down PASS. [Отчёт BAR-FIX](../bar-fix-2026-10-05/README.md).
+
+MV5 synced head: `f22328623bcef68838b857c90b151396e1ee795e`. Конфликт только в добавленных ADR, сохранены обе записи. Diff MV5 относительно main по apps/api, packages, DATA_MODEL пуст.
+
+Среда: Node 24.15.0 из /usr/local/bin соответствует .nvmrc (24); прежний default shell использовал Node 26.9.0. Это выявленное расхождение, не доказательство причины всех старых таймаутов. Full unit запускается отдельно от браузера, maxWorkers=2 по TESTING.md, без увеличения timeout. Локальная БД изолирована на 55753; idle sleep предотвращается только на время команд. Assertions и skip-аннотации не изменены.
+
+Первый полный unit на Node 24: 3362 PASS, 2 FAIL, 4 existing skips (`2026-10-05T05-32-20Z-unit-5863.log`). Два падения в прежних shell scripts: `top_rel` и `day` рядом с символом `»` распознаются Bash как другое имя переменной при LC_ALL=C.UTF-8. Минимальный reproduction без проекта: `/bin/bash -c 'set -u; day=bad; printf "%s\n" "$day»"'` возвращает exit 127 (unbound variable) с C.UTF-8 и exit 0 (`bad»`) с C. Настройка процесса LC_ALL=C исправляет среду; исходные shell scripts в MV5 не меняются. Повторяется полный набор, а не только эти два теста.
+
+- Full unit **PASS: 3364 passed, 4 existing skips**, `tests/runs/logs/2026-10-05T05-35-56Z-unit-955c.log`. Полный набор на неизменном synced head, Node 24, LC_ALL=C, maxWorkers=2, стандартные timeout. Focused retry не используется как замена full suite.
+
+- Real Beauty API browser **10/10 PASS**, `tests/runs/logs/2026-10-05T05-39-22Z-e2e-590d.log`, Node 24 и LC_ALL=C. Все 24 снимка пересозданы; mobile dark calendar визуально перепроверен.
+
+- Synced head migration validation **PASS: 59 migrations, no schema drift, all down checks**, [log](bar-fix-head-migrations.log).
+
+- Full affected UI/navigation browser **40/40 PASS**, `tests/runs/logs/2026-10-05T05-41-11Z-e2e-215a.log`. Beauty branch/catalog/schedule/journal, Hospitality branch switching/loading. Это полный выбранный набор, без retries и skips.
+
+- Full onboarding browser **4/4 PASS**, `tests/runs/logs/2026-10-05T05-46-40Z-e2e-a9ed.log`. BEAUTY, FOOD_SERVICE, READ_ONLY и Hospitality persistence.
+
+- Full integration **348 PASS, 9 existing skips**, `tests/runs/logs/2026-10-05T05-47-38Z-integration-6d9e.log`.
+- Full typecheck **PASS**, `tests/runs/logs/2026-10-05T05-47-38Z-typecheck-3719.log`.
+- Full lint **PASS**, `tests/runs/logs/2026-10-05T05-47-38Z-lint-f7b3.log`.
+
+Все перечисленные финальные recorded runs: commit f2232862, codeChangedDuringRun=false, flaky=0. После них меняются только отчёт, снимки и журнал доказательств. Сгенерированный next-env.d.ts и перезаписанные снимки прежних этапов возвращены к HEAD. Финальный code tree совпадает с проверенным.
+
+Полный GREEN снимает прежний merge STOP по прямому разрешению владельца от 05.10.2026. Production/release не обновляются, migration rollout остаётся отдельным, MV6 не начинается.

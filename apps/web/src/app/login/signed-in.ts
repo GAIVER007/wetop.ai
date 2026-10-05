@@ -11,14 +11,13 @@ export async function registrationAvailable(): Promise<boolean> {
 }
 
 /**
- * Кто вошёл — по cookie стойки, любым из двух входов (Q-146). `null` — куки нет, сессия протухла,
- * отозвана или API отказал: во всех этих случаях человеку показывают форму входа, а не ошибку.
+ * Кто вошёл: по cookie стойки, любым из двух входов (Q-146). null означает подтверждённое отсутствие
+ * сессии. Временный отказ API не подтверждает выход и передаётся экрану ошибки с повтором.
  */
 export async function signedInUser(): Promise<SignedIn | null> {
   const me = await authApi.me().catch((error: unknown) => {
-    if (error instanceof ApiError) return { user: null };
+    if (error instanceof ApiError && error.status === 401) return { user: null };
     throw error;
   });
   return me.user ?? null;
 }
-

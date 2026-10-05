@@ -1,0 +1,15 @@
+- main:
+  - paragraph: Настройка рабочего пространства
+  - heading "Настройте Beauty" [level=1]
+  - list "Прогресс настройки":
+    - listitem: Бизнес
+    - listitem: Филиал
+    - listitem: Проверка
+  - region "Бизнес":
+    - heading "Бизнес" [level=2]
+    - text: Название бизнеса
+    - textbox "Название бизнеса": QA-U07-GREEN-preserved
+  - status: Нажмите «Сохранить», чтобы продолжить после перезагрузки.
+  - button "Сохранить"
+  - button "Продолжить"
+- alert

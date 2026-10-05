@@ -1,0 +1,22 @@
+- main:
+  - heading "Главная" [level=1]
+  - navigation "Действия страницы":
+    - button "Обновить"
+  - heading "Деньги" [level=2]
+  - navigation "Период финансов":
+    - link "Сегодня":
+      - /url: /today?period=today
+    - link "7 дней":
+      - /url: /today?period=week
+    - link "Месяц":
+      - /url: /today?period=month
+  - textbox "Начало периода": 2026-10-01
+  - generic: –
+  - textbox "Конец периода": 2026-10-31
+  - button "Показать"
+  - alert: Не удалось загрузить валюту объекта. Обновите страницу.
+  - alert:
+    - text: Данные стойки не загрузились. Обновите страницу.
+    - link "Открыть брони":
+      - /url: /reservations
+- alert

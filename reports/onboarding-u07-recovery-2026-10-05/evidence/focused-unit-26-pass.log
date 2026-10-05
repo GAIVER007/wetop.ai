@@ -1,0 +1,9 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-channex-recovery-20261004
+
+
+ Test Files  3 passed (3)
+      Tests  26 passed (26)
+   Start at  17:27:37
+   Duration  2.77s (transform 81%, import 10%, tests 8%, worker 1%)
+

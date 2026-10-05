@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-05T12:50:07.522852+00:00",
+  "ports": {
+    "55803": {
+      "listening": false
+    },
+    "55804": {
+      "listening": false
+    },
+    "55932": {
+      "listening": false
+    }
+  },
+  "removed": [
+    "/tmp/wetop-u01-u12-a5c5050c-20261005",
+    "/tmp/wetop-u01-u12-pg-bin-20261005",
+    "/tmp/wetop-u01-u12-pgdata-20261005"
+  ],
+  "allTemporaryPathsAbsent": true,
+  "qaBrowserTabClosed": true,
+  "evidenceFiles": 127,
+  "productionChanged": false,
+  "releaseChanged": false,
+  "productionMigrationsApplied": false,
+  "credentialsExcludedAndTemporaryCopiesRemoved": true
+}

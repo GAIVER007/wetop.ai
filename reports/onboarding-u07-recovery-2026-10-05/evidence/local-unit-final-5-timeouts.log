@@ -1,0 +1,129 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-channex-recovery-20261004
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 1 failed) 58378ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 6815ms
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 4 failed) 32283ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 5263ms
+     × подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 6028ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 5812ms
+     × вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 6809ms
+[Nest] 73972  - 09/10/2026, 10:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 76764  - 10/05/2026, 5:42:03 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+[Nest] 77832  - 10/05/2026, 5:42:16 PM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+[Nest] 78147  - 10/05/2026, 5:42:23 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/urijzapojnov/wetop-channex-recovery-20261004/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /Users/urijzapojnov/wetop-channex-recovery-20261004/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/urijzapojnov/wetop-channex-recovery-20261004/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/Users/urijzapojnov/wetop-channex-recovery-20261004/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///Users/urijzapojnov/wetop-channex-recovery-20261004/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/urijzapojnov/wetop-channex-recovery-20261004/node_modules/@nestjs/core/router/router-proxy.js:6:17
+[Nest] 78472  - 10/05/2026, 5:42:27 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 78472  - 10/05/2026, 5:42:27 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 78472  - 10/05/2026, 5:42:27 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 78987  - 10/05/2026, 5:42:32 PM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 78987  - 10/05/2026, 5:42:32 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 79093  - 10/05/2026, 5:42:42 PM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+[Nest] 79457  - 10/05/2026, 5:43:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 79457  - 10/05/2026, 5:43:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 79457  - 10/05/2026, 5:43:00 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+[Nest] 79505  - 10/05/2026, 5:43:04 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 79505  - 10/05/2026, 5:43:04 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 79521  - 10/05/2026, 5:43:06 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+[Nest] 79585  - 10/05/2026, 5:43:10 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:271:3
+    269|   });
+    270|
+    271|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    272|     const before = head();
+    273|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:109:3
+    107|   });
+    108|
+    109|   it('заданы оба: платит ключ, токен подписки процессу агента не доста…
+       |   ^
+    110|     const s = sandbox();
+    111|     const r = s.run({ ANTHROPIC_API_KEY: 'api-key', CLAUDE_CODE_OAUTH_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:122:3
+    120|   });
+    121|
+    122|   it('подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет …
+       |   ^
+    123|     const s = sandbox();
+    124|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token', G…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:132:3
+    130|
+    131| describe('дежурный агент: дневной потолок денег (ADR-137)', () => {
+    132|   it('каждый запуск с потолком --max-budget-usd и счётчиком за сутки U…
+       |   ^
+    133|     const s = sandbox();
+    134|     const r = s.run({ ANTHROPIC_API_KEY: 'api-key', GUARD_RUN_BUDGET_U…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > вчерашний счётчик не мешает: новые сутки начинаются с первого запуска
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:156:3
+    154|   });
+    155|
+    156|   it('вчерашний счётчик не мешает: новые сутки начинаются с первого за…
+       |   ^
+    157|     const s = sandbox();
+    158|     writeFileSync(s.runsFile, '2000-01-01 4\n');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed | 367 passed | 1 skipped (370)
+      Tests  5 failed | 3345 passed | 4 skipped (3354)
+   Start at  17:39:02
+   Duration  255.19s (tests 85%, import 13%, transform 2%)
+

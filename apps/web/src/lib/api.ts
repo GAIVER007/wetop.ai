@@ -68,7 +68,11 @@ export interface InventoryUnit {
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
-async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
+async function backendFetch(
+  path: string,
+  options: RequestInit = {},
+  quietUnauthorized = false,
+): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
     process.env.NODE_ENV === 'development' &&
@@ -116,7 +120,11 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
   // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
   // тоже: её просит макет на каждой странице, включая сам экран входа, и 401 там значит «чат анонимный».
-  if (response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
+  if (
+    response.status === 401 &&
+    !quietUnauthorized &&
+    !QUIET_401_PATHS.some((p) => path.startsWith(p))
+  ) {
     const { redirectToLoginIfRequired } = await import('./session');
     await redirectToLoginIfRequired();
   }
@@ -143,8 +151,12 @@ async function sessionHeader(): Promise<Record<string, string>> {
   }
 }
 
-async function getJson<T>(path: string, headers: Record<string, string> = {}): Promise<T> {
-  const res = await backendFetch(path, { headers });
+async function getJson<T>(
+  path: string,
+  headers: Record<string, string> = {},
+  quietUnauthorized = false,
+): Promise<T> {
+  const res = await backendFetch(path, { headers }, quietUnauthorized);
   if (!res.ok) {
     // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
     let message = `API ${path}: HTTP ${res.status}`;
@@ -400,13 +412,18 @@ async function sendJson<T>(
   path: string,
   body: unknown,
   headers: Record<string, string> = {},
+  quietUnauthorized = false,
 ): Promise<T> {
-  const res = await backendFetch(path, {
-    method,
-    headers: { 'content-type': 'application/json', ...headers },
-    body: JSON.stringify(body),
-    cache: 'no-store',
-  });
+  const res = await backendFetch(
+    path,
+    {
+      method,
+      headers: { 'content-type': 'application/json', ...headers },
+      body: JSON.stringify(body),
+      cache: 'no-store',
+    },
+    quietUnauthorized,
+  );
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
@@ -3015,7 +3032,14 @@ export interface SharedOnboardingState {
   canEdit: boolean;
 }
 export const sharedOnboardingApi = {
-  status: () => getJson<SharedOnboardingState>('/onboarding'),
-  save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
-    sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+  status: (quietUnauthorized = false) =>
+    getJson<SharedOnboardingState>('/onboarding', {}, quietUnauthorized),
+  save: (
+    body: {
+      action: 'save' | 'next' | 'back' | 'complete';
+      draft: Record<string, unknown>;
+      updatedAt: string | null;
+    },
+    quietUnauthorized = false,
+  ) => sendJson<SharedOnboardingState>('POST', '/onboarding', body, {}, quietUnauthorized),
 };

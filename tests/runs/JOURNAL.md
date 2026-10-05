@@ -6300,3 +6300,7 @@
 | 05.10.2026 15:12 | typecheck | ✅ без ошибок | 39 с | bdbc33d | [лог](logs/2026-10-05T10-12-30Z-typecheck-967c.log) | MV6 synced final root API web typecheck |
 | 05.10.2026 15:13 | lint | ✅ без ошибок | 24 с | bdbc33d | [лог](logs/2026-10-05T10-13-11Z-lint-2604.log) | MV6 synced final lint |
 | 05.10.2026 15:06 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 15 из 15 | 10 с | e86c0af +1 | [лог](logs/2026-10-05T10-06-35Z-unit-d4de.log) | release: локальная ширина мобильного календаря зарегистрирована в guard |
+| 05.10.2026 15:17 | unit | ✅ 3377 из 3381, пропущено 4 | 6 мин 7 с | 6ad275d | [лог](logs/2026-10-05T10-17-24Z-unit-2df5.log) | MV6 full unit retry after diagnosed isolated auto-deploy timeout; unchanged checks and limits |
+| 05.10.2026 15:24 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 5 с | 6ad275d | [лог](logs/2026-10-05T10-24-17Z-integration-5ce7.log) | MV6 final synced head full integration after latest design test main; BAR and Food critical regressions included |
+| 05.10.2026 15:25 | typecheck | ✅ без ошибок | 22 с | 6ad275d | [лог](logs/2026-10-05T10-25-22Z-typecheck-8e11.log) | MV6 final synced head root API web typecheck |
+| 05.10.2026 15:25 | lint | ✅ без ошибок | 21 с | 6ad275d | [лог](logs/2026-10-05T10-25-45Z-lint-1d29.log) | MV6 final synced head lint |

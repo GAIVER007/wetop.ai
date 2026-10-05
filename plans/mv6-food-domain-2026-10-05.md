@@ -4,7 +4,7 @@ Base main abe59d83693655f87c51059a8e1915196d35d07f; clean isolated clone, no loc
 
 1. Record approved DATA_MODEL §28 and ADR-MV6 before Prisma.
 2. Red/green pure domain parsing, status, period/timezone/overnight, capacity, normalized fingerprint.
-3. Add five tables, enum, FK/checks/ownership guards/pinned functions/RLS; canonical free migration 20261005000055_food_service_domain (latest upstream 54). Empty down succeeds; populated down refuses.
+3. Add five tables, enum, FK/checks/ownership guards/pinned functions/RLS; canonical free migration 20261005000058_food_service_domain (after merged BAR migrations 55/56/57; verified main 46c095bd). Empty down succeeds; populated down refuses.
 4. Nest Food module using explicit verified Business and Location, parent locks/recheck READ_ONLY, transactional audit. All catalog and reservation mutations scoped; no fallback or body scope trust.
 5. Real API/PostgreSQL tests: catalog -> customer -> booking -> assignment/move/status/reload; roles/verticals/tenants, constraints/RLS, all specified races and idempotency.
 6. Full unit/integration/typecheck/lint/migration rehearsal; PR/report/STOP. No merge permission inferred, no production/release/MV7.

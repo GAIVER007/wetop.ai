@@ -90,6 +90,8 @@ Upstream browser fixture после merge ссылался на отсутств
 
 ## Завершение
 
+Проверенная реализация и evidence: `a3d81fc08b2f2673fc540e267e68ae38e0da3efc`. Следующий commit меняет только эту строку отчёта.
+
 Отдельный PR «MV7: Food Service workspace». Merge, release и production запрещены этим поручением. После готового PR работа останавливается, MV8 не начинается.
 
 ## Code review

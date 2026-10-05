@@ -206,7 +206,7 @@ test('администратор меняет даты и продлевает �
   await expect(main.getByLabel('Тариф для продления')).toBeVisible();
 });
 
-test('управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их', async ({
+test('управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их', async ({
   page,
   request,
 }) => {
@@ -215,9 +215,10 @@ test('управляющий: всё, кроме «Платформы»; зов�
   await page.goto('/today');
   await expect.poll(() => menuLinks(page)).toContain('/rates');
   const links = await menuLinks(page);
-  for (const href of ['/journal', '/channels', '/hotel-settings', '/team', '/connections'])
+  for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
+  expect(links).not.toContain('/journal');
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Управляющий');
 
   await page.goto('/rates');

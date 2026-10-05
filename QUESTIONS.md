@@ -1230,7 +1230,7 @@ record validation in DATA_MODEL.md before implementation. Do not merge the trigg
 as a completed security repair while these tests are RED.
 
 
-## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, OPEN)
+## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, APPROVED)
 
 Migration 56 closes approved BAR-side INSERT/UPDATE cases. Final direct-SQL review proves
 existing links can still be corrupted by CashOperation.property_id, Charge.folio_id,
@@ -1241,3 +1241,5 @@ Proposal: reverse invoker guards only when an external edit violates an existing
 No global cash/Hospitality property immutability or new pricing/booking rules. These five
 external tables were excluded from the original scope, so owner scope approval is pending.
 PR #245 stays draft. See reports/bar-repair-2/README.md for exact role/scenario outcomes.
+
+Owner approved the five narrow reverse guards, concurrency proof and merge after full GREEN on 2026-10-05. Implementation validation pending.

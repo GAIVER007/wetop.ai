@@ -5662,3 +5662,28 @@ Application rollback keeps both repaired guards; technical down rehearsal remove
 **Причина.** Существующие API предоставляют нужные факты. Общий остаток берётся из `cash.totalMinor`; поступления из `paidMinor + incomeMinor`, расходы из `refundedMinor + expenseMinor` операций без отбора. Сложение в BigInt. Аннулирование и переводы обрабатываются существующими серверными правилами. При отборе ленты полный итог периода загружается отдельно, лимит строк на него не влияет.
 
 **Последствия.** Схема, API-контракты и финансовые правила не меняются. Ошибки загрузки остаются явными, суммы не подменяются нулями. Закладки с хешами и CSV сохранены. UI проверки адаптированы к открытию обзора по запросу.
+
+## ADR-BAR-REVERSE-PARENTS (2026-10-05)
+
+Problem: ten permanent RED cases mutate external parents after valid BAR links exist.
+Options: global parent immutability; API-only checks; narrow reverse DB guards.
+Decision approved by owner: separate migration 57 (fresh main 2b271167, number verified),
+leaving 55/56 unchanged. Five external relation updates inspect affected BAR rows only.
+SECURITY INVOKER with pinned schema/public/pg_temp, fail closed table/operation dispatch.
+Parent UPDATE row locks conflict with existing BAR-side FOR SHARE checks. Reverse scans
+lock affected sales/payments FOR SHARE; new ancestor chains also lock FOR SHARE.
+Concurrent writers may receive a deadlock error and retry; neither may commit corruption.
+Read-only administrative preflight stops on existing violations without data repair.
+Reason: preserve BAR ownership under BYPASSRLS without changing unrelated workflows.
+Consequences: no API, pricing, booking or Prisma shape changes. Down removes only these
+reverse guards and reopens this defect, so operational rollback retains the guards.
+Validation: both roles, direct/indirect references, same-property and unrelated positives,
+parent-first/link-first create and relink schedules with observed database lock waits.
+
+Concurrency refinement before finalization: 514c proves two REPEATABLE READ bypasses.
+A BAR create/relink also performs a value-preserving UPDATE on its referenced external
+parents. PostgreSQL then detects stale parent snapshots as serialization failures (40001),
+including a READ COMMITTED link writer racing a REPEATABLE READ parent writer. This is
+a tuple version fence, not financial or booking data mutation. Only the linked five-table
+chains are touched; unrelated rows remain unchanged. Concurrent lock upgrades can abort
+one transaction; retry is required, and inconsistent commits are never accepted.

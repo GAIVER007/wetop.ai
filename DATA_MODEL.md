@@ -2801,3 +2801,16 @@ Guards остаются SECURITY INVOKER; SECURITY DEFINER запрещён. П�
 закреплён: current_schema(), public, pg_temp (public без повторения).
 source_type/source_id движений остаются существующей ссылкой источника; отдельная
 polymorphic ownership система не вводится. Это отдельный audit item, не новая модель.
+
+### BAR external parent ownership (2026-10-05, approved Q-BAR-REVERSE-PARENTS)
+
+Only updates breaking an existing BAR reference are denied. CashOperation.property_id
+must preserve payment Receipt.property and Sale.property. Charge.folio_id must preserve
+Sale.property and an explicit Sale.folio_id. Folio.reservation_item_id,
+ReservationItem.reservation_id and Reservation.property_id must preserve the derived
+Property of every direct folio sale and indirect charge sale. Same-property relinks and
+unreferenced external rows remain mutable. No Hospitality/cashbox global immutability.
+Concurrent parent mutation and BAR create/relink must preserve these invariants.
+
+BAR link writes also fence referenced parent tuple versions, preserving all field values,
+so a stale REPEATABLE READ parent transaction must retry instead of missing a new link.

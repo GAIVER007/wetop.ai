@@ -8,17 +8,11 @@ import { hotelApi, hotelToday } from '../../lib/hotel-api';
 import { ApiError } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
-import { OwnerFinance, OwnerOperations } from './owner-dashboard';
+import { OwnerFinance, OwnerOperations, OwnerOutlook } from './owner-dashboard';
 import { DashboardRefresh } from './owner-controls';
 import './owner-dashboard.css';
 
-async function CurrencyFinance({
-  period,
-  today,
-}: {
-  period: ReturnType<typeof resolvePeriod>;
-  today: string;
-}) {
+async function CurrencyFinance({ period }: { period: ReturnType<typeof resolvePeriod> }) {
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
@@ -29,7 +23,7 @@ async function CurrencyFinance({
         <Alert>Не удалось загрузить валюту объекта. Обновите страницу.</Alert>
       </div>
     );
-  return <OwnerFinance period={period} currency={hotel.property.currency} today={today} />;
+  return <OwnerFinance period={period} currency={hotel.property.currency} />;
 }
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   if ((await deskShell()).vertical === 'BEAUTY') redirect('/calendar');
@@ -37,7 +31,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const today = await hotelToday();
   const period = resolvePeriod(
     {
-      // «Сегодня» уже показывают виджеты сверху; деньгам по умолчанию нужен отрезок, где есть что сравнить
       preset: sp.period ?? (sp.from || sp.to || sp.date ? undefined : 'month'),
       from: sp.from,
       to: sp.to,
@@ -47,24 +40,24 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   );
   return (
     <Page title="Главная" width="full" actions={<DashboardRefresh />}>
-      <div className="owner-dashboard" data-testid="owner-dashboard">
-        <div className="owner-toolbar">
-          <h2>Деньги</h2>
-          <nav aria-label="Период финансов">
-            {[
-              ['today', 'Сегодня'],
-              ['week', '7 дней'],
-              ['month', 'Месяц'],
-            ].map(([id, label]) => (
-              <Link
-                key={id}
-                href={`/today?period=${id}`}
-                aria-current={period.preset === id ? 'page' : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+      <div className="owner-toolbar">
+        <nav aria-label="Период финансов">
+          {[
+            ['today', 'Сегодня'],
+            ['week', '7 дней'],
+            ['month', 'Месяц'],
+          ].map(([id, label]) => (
+            <Link
+              key={id}
+              href={`/today?period=${id}`}
+              aria-current={period.preset === id ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <details className="owner-dates">
+          <summary>Свои даты</summary>
           <form action="/today" key={`${period.from}|${period.to}`}>
             <input type="hidden" name="period" value="custom" />
             <input
@@ -84,8 +77,10 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             />
             <button className="btn btn--secondary">Показать</button>
           </form>
-        </div>
-        {period.error && <Alert>{period.error}</Alert>}
+        </details>
+      </div>
+      {period.error && <Alert>{period.error}</Alert>}
+      <div className="owner-dashboard" data-testid="owner-dashboard">
         <Suspense
           key={`${period.from}|${period.to}`}
           fallback={
@@ -94,16 +89,25 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             </div>
           }
         >
-          <CurrencyFinance period={period} today={today} />
+          <CurrencyFinance period={period} />
         </Suspense>
         <Suspense
           fallback={
-            <div className="owner-riskbar owner-panel" role="status">
-              Загружаем риски на сегодня…
+            <div className="owner-operations owner-panel" role="status">
+              Загружаем данные гостиницы…
             </div>
           }
         >
           <OwnerOperations date={today} />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className="owner-outlook owner-panel" role="status">
+              Загружаем прогноз…
+            </div>
+          }
+        >
+          <OwnerOutlook today={today} />
         </Suspense>
       </div>
     </Page>

@@ -10,7 +10,6 @@ import './journal.css';
 import { RefreshButton } from '../../components/refresh-button';
 import { workspaceTimezone } from '../../lib/workspace-context';
 import { propertyClock } from '../../lib/property-time';
-import { deskShell } from '../../lib/desk-shell';
 import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
@@ -150,7 +149,7 @@ export default async function JournalPage({
   const { type, q, system, actor, from, to, group, action, cursor } = normalizeSearchParams(
     await searchParams,
   );
-  const clock = await hotelClock();
+  const clock = propertyClock(await workspaceTimezone());
   const actorResult = await getJsonPublic<Array<{ id: string; name: string | null }>>(
     '/audit/actors',
   ).then(

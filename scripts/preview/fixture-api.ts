@@ -6632,7 +6632,16 @@ createServer(async (req, res) => {
         });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
-      const hotelName = String(body['businessName'] ?? body['hotelName'] ?? '').trim();
+      let businessName: string;
+      try {
+        businessName = registrationBusiness({
+          ...(typeof body['businessName'] === 'string' ? { businessName: body['businessName'] } : {}),
+          ...(typeof body['hotelName'] === 'string' ? { hotelName: body['hotelName'] } : {}),
+          ...(body['vertical'] !== undefined ? { vertical: body['vertical'] } : {}),
+        }).name.trim();
+      } catch (error) {
+        return send(400, { message: error instanceof Error ? error.message : 'Проверьте направление бизнеса' });
+      }
       const password = String(body['password'] ?? '');
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });

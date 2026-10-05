@@ -600,3 +600,228 @@
     font-size: var(--text-lg);
   }
 }
+
+/* Compact owner overview, 2026-10-05. */
+.owner-operations {
+  order: 0;
+}
+.owner-finance {
+  order: 1;
+}
+.owner-outlook {
+  order: 2;
+}
+.owner-bottom {
+  order: 3;
+}
+.owner-dates {
+  position: relative;
+}
+.owner-dates summary {
+  cursor: pointer;
+  padding: 8px;
+  color: var(--primary);
+}
+.owner-dates[open] form {
+  padding: 8px;
+}
+.owner-fill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.owner-fill progress {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+  accent-color: var(--primary);
+}
+.owner-fill span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner-outlook .bars {
+  height: 48px;
+}
+.owner-outlook .bars-day {
+  margin-top: 24px;
+}
+.owner-stat:has(strong a),
+.owner-stat {
+  overflow-wrap: anywhere;
+}
+.owner-stat strong {
+  font-size: var(--text-2xl);
+}
+.owner-stat:has(strong):is(
+    [data-testid='owner-expenses'],
+    [data-testid='owner-cash'],
+    [data-testid='owner-total']
+  )
+  strong {
+  font-size: var(--text-md);
+  color: var(--muted);
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .page:has(.owner-dashboard) .page__head {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .page:has(.owner-dashboard) .page__title {
+    font-size: var(--text-2xl);
+  }
+  .page:has(.owner-dashboard) .page__head a {
+    display: none;
+  }
+  .page:has(.owner-dashboard) .page__head .btn {
+    min-height: 44px;
+    padding: 8px;
+    font-size: var(--text-xs);
+  }
+  .owner-toolbar {
+    margin-bottom: 8px;
+    gap: 4px;
+  }
+  .owner-toolbar nav {
+    flex: 1;
+  }
+  .owner-toolbar nav a {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+  }
+  .owner-dates[open] form {
+    position: absolute;
+    z-index: 5;
+    right: 0;
+    top: 100%;
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+  }
+  .owner-today-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .owner-stat {
+    padding: 8px;
+    gap: 4px;
+  }
+  .owner-today-stats .owner-stat {
+    padding: 8px 4px;
+  }
+  .owner-stat strong {
+    font-size: var(--text-xl);
+    letter-spacing: -0.4px;
+  }
+  .owner-today-stats .owner-stat strong {
+    font-size: var(--text-lg);
+  }
+  .owner-today-stats .owner-stat > span {
+    font-size: var(--text-xs);
+  }
+  .owner-stat small {
+    display: none;
+  }
+  .owner-fill {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .owner-fill progress {
+    width: 100%;
+    flex: auto;
+  }
+  .owner-row-label {
+    margin-bottom: 4px;
+  }
+  .owner-outlook .bars {
+    height: 40px;
+  }
+  .owner-outlook .bars-day p {
+    font-size: var(--text-xs);
+    line-height: 1.4;
+  }
+  .owner-outlook .bars-day .btn {
+    min-height: 32px;
+    padding: 4px;
+  }
+  .owner-bottom {
+    padding: 8px;
+    gap: 8px;
+  }
+  .owner-bottom > div > small,
+  .owner-system-link {
+    display: none;
+  }
+  .owner-bottom__actions {
+    flex-wrap: nowrap;
+  }
+  .owner-bottom__actions > .btn {
+    flex: 1;
+    min-height: 44px;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  body:has(.owner-dashboard) .pmsw-b {
+    top: 8px;
+    bottom: auto;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+  }
+  body:has(.owner-dashboard) .page__head {
+    padding-right: 48px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page:has(.owner-dashboard) .page__heading {
+    flex: 1;
+    min-width: 0;
+  }
+  .page:has(.owner-dashboard) .page__actions {
+    flex: 0 0 auto;
+    width: auto;
+  }
+  .page:has(.owner-dashboard) .page__title {
+    white-space: nowrap;
+  }
+  .owner-toolbar nav {
+    padding: 0;
+  }
+  .owner-outlook .bars {
+    height: 32px;
+  }
+  .owner-bottom__actions > a.btn {
+    flex: 1;
+  }
+}
+
+.owner-bottom {
+  grid-template-columns: 1fr 2fr;
+}
+@media (max-width: 600px) {
+  .owner-dashboard {
+    gap: 6px;
+  }
+  .owner-bottom {
+    grid-template-columns: 1fr;
+  }
+  .owner-bottom > div > span {
+    line-height: 1.2;
+  }
+  .owner-bottom__actions {
+    grid-column: auto;
+  }
+  .owner-fill {
+    margin-top: 4px;
+  }
+  .owner-outlook header {
+    margin-bottom: 4px;
+  }
+}

@@ -5744,6 +5744,17 @@ Unreferenced parents do not fence ancestors. This preserves the same narrow five
 
 Проблема: после возврата из карточки поиск и фильтры терялись. Варианты: параметры URL или существующее хранилище позиции в пределах вкладки. Решение: по поручению владельца сохранять строку поиска и весь существующий BoardFilters вместе с координатами для того же URL. «Сбросить» очищает сохранённый отбор. Причина: продолжать работу с выбранным номером без повторного ввода. Последствия: это уточняет предыдущее ограничение на сохранение поиска; текст поиска хранится только в sessionStorage этой вкладки. Полные карточки гостей и броней не сохраняются, серверное хранение не добавлено. Некорректный снимок и недоступное хранилище не блокируют календарь.
 
+
+## ADR-QA3-CI-20261004: обязательная проверка мастера в release-checks
+
+Проблема: browser suite мастера MV3 существовал отдельно и не запускался полным CI. Synthetic registration API отстал от MV2 businessName/vertical, а два UI ожидания сохранили старые тексты.
+
+Решение: использовать общий registrationBusiness parser в стенде, обновить точные ожидания согласно утверждённому интерфейсу, добавить database-backed browser suite мастера в обязательный database job. Независимость черновиков филиалов одного бизнеса дополнительно проверяется integration тестом. Основание: поручение владельца 04.10.2026 разобрать CI без ослабления и проверить сохранение, завершение и изоляцию мастера.
+
+Альтернатива: оставить suite только локальным. Отклонена, кандидат мог бы пройти CI без проверки нового мастера.
+
+Последствия: полный CI включает дополнительный browser запуск на отдельной БД. Production migration 052 и общий release остаются под отдельным согласованием; рабочие данные не изменяются.
+
 ## ADR-MV6: Food reservations backend (2026-10-05)
 
 Problem: Food pilot plumbing exists without domain tables/API. AS-IS main abe59d83 has no Food entities; BAR is a separate Hospitality module.
@@ -5760,6 +5771,8 @@ Consequences: conservative per-Location write serialization in v1; independent l
 Причина: единый permission engine и UI kit, изоляция вертикалей без query vertical и без дублирования backend rules.
 Последствия: Floor Plan является операционной группировкой столов по залам, координат нет. Все списки загружаются до nextCursor=null с защитой от некорректной пагинации. Для занятости объединяются выбранный и предыдущий локальные дни. Draft привязан к Business/Location, уничтожается при switch; действие повторно проверяет server scope. Idempotency key живёт вместе с новой формой. Stale conflict обновляет данные без повтора mutation. Evidence собирается на собственной локальной PostgreSQL, Nest и синтетической identity. MV7 заканчивается отдельным PR, merge/release/production/MV8 запрещены поручением владельца.
 
+Уточнение ADR-MV7: real browser Shift+Tab с первой кнопки нативного dialog переходил в chrome браузера. Для Food используется opt-in trapFocus в существующем Overlay, с циклом между видимыми доступными controls. Native showModal, Escape и возврат фокуса сохраняются; остальные consumers используют прежнее поведение. RED: food keyboard acceptance 12:37:43.
+
 ## ADR-MV6-RESTORE: Food Service rights in a separate migration (2026-10-05)
 
 Problem: production restore repeats migrations containing `GRANT` or `REVOKE`. Migration 58 created the Food Service schema and granted rights, so restore executed `CREATE TYPE "RestaurantReservationStatus"` twice and rolled back.
@@ -5772,4 +5785,12 @@ Reason: restore stays unchanged, repeats only rights and never runs schema DDL a
 
 Consequences: production applies migrations 58 and 59 together after backup and exact pending-list validation. The agent does not apply production migrations.
 
-Уточнение ADR-MV7: real browser Shift+Tab с первой кнопки нативного dialog переходил в chrome браузера. Для Food используется opt-in trapFocus в существующем Overlay, с циклом между видимыми доступными controls. Native showModal, Escape и возврат фокуса сохраняются; остальные consumers используют прежнее поведение. RED: food keyboard acceptance 12:37:43.
+
+
+## 2026-10-05: компактная Главная владельца
+
+Проблема: финансовые пояснения, постоянные поля дат и подробные отчёты занимали первый экран телефона.
+Варианты: уменьшить весь текст; оставить подробную страницу; сделать компактную сводку с переходами.
+Решение: загрузка сегодня, Поступления / Расходы / Касса / Всего, график следующих семи дней и действия. Удалить видимые возвраты, чистое движение, начисления и среднюю цену ночи. Свои даты раскрываются отдельно.
+Причина: владелец утвердил состав и потребовал основной обзор на одном экране телефона.
+Последствия: используются существующие read-only API и integer minor units; неподключённые финансовые показатели показываются как Нет данных. Смысл остатков и источник расходов требуют отдельного решения, финансовые формулы и схема БД не меняются.

@@ -1885,3 +1885,56 @@
     font-size: 16px;
   }
 }
+
+.board-day-panel__row--mobile {
+  display: none;
+}
+
+/* Сначала показатели дня, затем управление и сетка: страница прокручивается вниз. */
+@media (max-width: 600px) {
+  .board-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .board-top > .board-controls {
+    flex: none;
+    justify-content: flex-start;
+  }
+  .board-day-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    width: 100%;
+    min-width: 0;
+  }
+  .board-day-panel__title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--text-md);
+  }
+  .board-day-panel__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--space-4);
+  }
+  .board-day-panel__row,
+  .board-day-panel__row--mobile {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    min-width: 0;
+  }
+  .board-day-panel__row > a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .board-day-panel__row > b {
+    white-space: nowrap;
+    font-size: var(--text-md);
+  }
+}

@@ -21,8 +21,8 @@ test('календарь: заголовок, сводка дня и быстр�
   await expect(stats.getByTestId('day-free')).toBeVisible();
   await expect(stats.getByTestId('day-occupied')).toBeVisible();
   await expect(stats.getByTestId('day-occupancy')).toBeVisible();
-  await expect(stats.getByText('Проживания')).toHaveCount(0);
-  await expect(stats.getByText('Дни рождения')).toHaveCount(0);
+  await expect(stats.getByText('Проживания')).toBeHidden();
+  await expect(stats.getByText('Дни рождения')).toBeHidden();
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toHaveCount(0);

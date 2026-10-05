@@ -83,7 +83,10 @@ for (const theme of ['light', 'dark'] as const) {
       else expect(overflow).toBeGreaterThan(300);
       const box = await board.boundingBox();
       if (width >= 1440) expect(box!.y).toBeLessThanOrEqual(384);
-      if (width <= 390) expect(box!.y).toBeLessThanOrEqual(500);
+      if (width <= 390) {
+        await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
+        expect(box!.y).toBeLessThanOrEqual(760);
+      }
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
       if (width > 600)
         await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });

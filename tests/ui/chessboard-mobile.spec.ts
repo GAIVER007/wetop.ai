@@ -35,6 +35,7 @@ for (const width of [360, 390, 430]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
+    await wrap.scrollIntoViewIfNeeded();
     const unit = page.locator('[data-unit-code="R07"] .board__unit');
     const before = (await unit.boundingBox())!.x;
     // Настоящий браузерный жест, проверяем прокрутку и отсутствие случайного открытия клетки.
@@ -165,3 +166,47 @@ test('форма брони на телефоне: крупные поля, со
     true,
   );
 });
+
+for (const width of [360, 390, 430]) {
+  test(`статистика ${width}: восемь показателей перед календарём и вертикальная прокрутка`, async ({
+    page,
+    request,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/chessboard');
+    const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
+    await expect(stats).toBeVisible();
+    for (const id of [
+      'arrivals',
+      'departures',
+      'inhouse',
+      'birthdays',
+      'tasks',
+      'free',
+      'units',
+      'occupied',
+      'occupancy',
+    ]) {
+      await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+    }
+    const day = await (
+      await request.get(`${FIXTURE_API}/desk/today`, { headers: { 'x-wetop-test-client': '1' } })
+    ).json();
+    await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
+    await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    const grid = page.locator('.board-wrap');
+    expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
+    await grid.scrollIntoViewIfNeeded();
+    await expect(grid).toBeInViewport();
+    await page.screenshot({
+      path: `reports/calendar-mobile-2026-10-05/statistics-${width}-grid.png`,
+    });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `reports/calendar-mobile-2026-10-05/statistics-${width}-top.png`,
+    });
+  });
+}

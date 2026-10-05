@@ -1,7 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
+import { channelsApi, chessboardApi, deskApi, guardApi, guestsApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
@@ -53,7 +53,12 @@ export default async function ChessboardPage({
           </label>
           <label className="field">
             По
-            <DateInput name="to" rangeFromName="from" aria-label="Календарь: по" defaultValue={to} />
+            <DateInput
+              name="to"
+              rangeFromName="from"
+              aria-label="Календарь: по"
+              defaultValue={to}
+            />
           </label>
           <Button>Показать</Button>
         </form>
@@ -65,7 +70,7 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day] = await Promise.all([
+  const [board, incidents, events, shell, day, birthdays] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -73,6 +78,7 @@ export default async function ChessboardPage({
     deskShell().catch(() => null),
     // Полоса дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
+    guestsApi.birthdays(today, 1).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -134,86 +140,88 @@ export default async function ChessboardPage({
       }
     >
       <div className="board-top">
-      {/* «Сегодня» слева, управление календарём справа (владелец 03.10) */}
-      {day && <DayPanel day={day} board={board} today={today} />}
-      <div className="board-controls">
-        <div className="board-period">
-          <span className="board-date-nav">
-            <Link
-              href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
-              className="icon-button"
-              aria-label={
-                isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
-              }
-            >
-              <Icon name="chevron" className="rotate-left" />
-            </Link>
-            <span className="board-period-label" title={periodLabel}>
-              <span className="board-period-full">{periodLabel}</span>
-              <span className="board-period-short">{shortPeriodLabel}</span>
-            </span>
-            <Link
-              href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
-              className="icon-button"
-              aria-label={
-                isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
-              }
-            >
-              <Icon name="chevron" />
-            </Link>
-            <Link href="/chessboard" className="btn btn--secondary">
-              Сегодня
-            </Link>
-          </span>{' '}
-          {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
+        {/* «Сегодня» слева, управление календарём справа (владелец 03.10) */}
+        {day && (
+          <DayPanel day={day} board={board} today={today} birthdays={birthdays?.length ?? null} />
+        )}
+        <div className="board-controls">
+          <div className="board-period">
+            <span className="board-date-nav">
+              <Link
+                href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
+                className="icon-button"
+                aria-label={
+                  isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
+                }
+              >
+                <Icon name="chevron" className="rotate-left" />
+              </Link>
+              <span className="board-period-label" title={periodLabel}>
+                <span className="board-period-full">{periodLabel}</span>
+                <span className="board-period-short">{shortPeriodLabel}</span>
+              </span>
+              <Link
+                href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
+                className="icon-button"
+                aria-label={
+                  isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
+                }
+              >
+                <Icon name="chevron" />
+              </Link>
+              <Link href="/chessboard" className="btn btn--secondary">
+                Сегодня
+              </Link>
+            </span>{' '}
+            {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
               «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-          <span className="seg" role="group" aria-label="Вид календаря">
-            <Link
-              href={weekHref()}
-              className={cx(isWeek && 'is-on')}
-              aria-current={isWeek ? 'true' : undefined}
-            >
-              7 дней
-            </Link>
-            <Link
-              href={window(14)}
-              className={cx(board.dates.length === 14 && 'is-on')}
-              aria-current={board.dates.length === 14 ? 'true' : undefined}
-            >
-              14 дней
-            </Link>
-            <Link
-              href={window(30)}
-              className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
-              aria-current={board.dates.length === 30 && !isMonth ? 'true' : undefined}
-            >
-              30 дней
-            </Link>
-          </span>
+            <span className="seg" role="group" aria-label="Вид календаря">
+              <Link
+                href={weekHref()}
+                className={cx(isWeek && 'is-on')}
+                aria-current={isWeek ? 'true' : undefined}
+              >
+                7 дней
+              </Link>
+              <Link
+                href={window(14)}
+                className={cx(board.dates.length === 14 && 'is-on')}
+                aria-current={board.dates.length === 14 ? 'true' : undefined}
+              >
+                14 дней
+              </Link>
+              <Link
+                href={window(30)}
+                className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
+                aria-current={board.dates.length === 30 && !isMonth ? 'true' : undefined}
+              >
+                30 дней
+              </Link>
+            </span>
+          </div>
+          <div className="board-bar">
+            <BoardDateRange
+              key={`${board.from}-${board.to}`}
+              from={board.from}
+              to={board.to}
+              monthHref={monthHref()}
+              monthCurrent={isMonth}
+            />
+            <BoardHelp title="Помощь">
+              <div className="board-help-content">
+                <p className="note">
+                  <b>Как работать с календарём.</b> В строке категории указано, сколько мест
+                  свободно на эту ночь. Ночь выезда ячейку не занимает. Клик по занятой клетке
+                  открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на
+                  другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую
+                  категорию — только на всё проживание). Фильтры статусов считаются на{' '}
+                  {displayDate(board.from)}. Брони без ячейки на сетке не видны — они в строке над
+                  сеткой: «Разместить» показывает свободные места и назначает.
+                </p>
+              </div>
+            </BoardHelp>
+          </div>
         </div>
-        <div className="board-bar">
-          <BoardDateRange
-            key={`${board.from}-${board.to}`}
-            from={board.from}
-            to={board.to}
-            monthHref={monthHref()}
-            monthCurrent={isMonth}
-          />
-          <BoardHelp title="Помощь">
-            <div className="board-help-content">
-              <p className="note">
-                <b>Как работать с календарём.</b> В строке категории указано, сколько мест свободно
-                на эту ночь. Ночь выезда
-                ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой — форму новой
-                брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
-                ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Фильтры
-                статусов считаются на {displayDate(board.from)}. Брони без ячейки на сетке не видны
-                — они в строке над сеткой: «Разместить» показывает свободные места и назначает.
-              </p>
-            </div>
-          </BoardHelp>
-        </div>
-      </div>
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">
@@ -278,27 +286,29 @@ function categoriesOf(
 }
 
 /**
- * Панель «Сегодня» рядом с управлением: движение дня, задачи и состояние фонда. Денег нет,
- * «кто сколько должен» живёт в «Финансах» (решение 02.10). «Проживания» дублировали «Занято»,
- * а дни рождения относятся к отдельному сценарию гостей, поэтому в панели их нет (04.10).
- * Панель стоит рядом со строками управления, а не
- * отдельной полосой: страница фиксирована по высоте, лишний ряд сверху отнимает его у сетки.
+ * На телефоне по поручению 05.10 видны восемь показателей перед сеткой.
+ * Десктоп сохраняет компактный состав. Деньги остаются в разделе финансов.
  */
 function DayPanel({
   day,
   board,
   today,
+  birthdays,
 }: {
   day: import('../../lib/api').DeskDay;
   board: import('../../lib/api').Chessboard;
   today: string;
+  birthdays: number | null;
 }) {
   const s = board.summary[today];
   const units = s ? s.occupied + s.free + s.blocked : 0;
   const occupancy = s && units > 0 ? Math.round((s.occupied / units) * 100) : null;
   const d = day.date;
-  const row = (id: string, label: string, value: string, href?: string) => (
-    <div className="board-day-panel__row" key={id}>
+  const row = (id: string, label: string, value: string, href?: string, mobileOnly = false) => (
+    <div
+      className={cx('board-day-panel__row', mobileOnly && 'board-day-panel__row--mobile')}
+      key={id}
+    >
       {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
       <b data-testid={`day-${id}`}>{value}</b>
     </div>
@@ -313,6 +323,14 @@ function DayPanel({
       <div className="board-day-panel__grid">
         {row('arrivals', 'Заезды', String(day.counts.arrivals), `/reservations?date=${d}`)}
         {row('departures', 'Выезды', String(day.counts.departures), `/reservations?date=${d}`)}
+        {row('inhouse', 'Проживания', String(day.counts.inHouse), `/reservations?date=${d}`, true)}
+        {row(
+          'birthdays',
+          'Дни рождения',
+          birthdays === null ? 'н/д' : String(birthdays),
+          '/guests/birthdays',
+          true,
+        )}
         {row('tasks', 'Задачи', String(day.counts.tasksOpen), '/tasks')}
         <div className="board-day-panel__row">
           <span>Свободно</span>

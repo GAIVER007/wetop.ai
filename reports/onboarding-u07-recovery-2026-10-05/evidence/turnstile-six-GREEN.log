@@ -1,0 +1,17 @@
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/booking-widget-turnstile.spec.ts:132:1 › с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book (1.3s)
+  ✓  2 tests/ui/booking-widget-turnstile.spec.ts:159:1 › токен одноразовый: после отказа проверка сбрасывается, кнопка ждёт нового токена (700ms)
+  ✓  3 tests/ui/booking-widget-turnstile.spec.ts:187:1 › токен истёк, пока гость заполнял форму: кнопка снова ждёт проверки (562ms)
+  ✓  4 tests/ui/booking-widget-turnstile.spec.ts:201:1 › без публичного ключа форма как раньше: кнопка доступна, Cloudflare не грузится, токена в запросе нет (474ms)
+  ✓  5 tests/ui/booking-widget-turnstile.spec.ts:216:1 › скрипт Cloudflare не загрузился (блокировщик, сеть): гость видит понятный текст, брони не отправить (470ms)
+  ✓  6 tests/ui/booking-widget-turnstile.spec.ts:227:1 › delayed Turnstile script keeps verification mandatory through token expiry (547ms)
+
+  6 passed (12.3s)

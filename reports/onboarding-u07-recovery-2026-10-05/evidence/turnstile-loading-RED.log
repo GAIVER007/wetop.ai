@@ -1,0 +1,56 @@
+[WebServer] (node:40088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:40196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:40206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-widget-turnstile.spec.ts:225:1 › delayed Turnstile script keeps verification mandatory through token expiry (1.1s)
+
+
+  1) tests/ui/booking-widget-turnstile.spec.ts:225:1 › delayed Turnstile script keeps verification mandatory through token expiry 
+
+    TypeError: Cannot read properties of undefined (reading 'renders')
+
+      125 |     const state = await tsState(page);
+      126 |     onProbe?.();
+    > 127 |     return state.renders;
+          |                  ^
+      128 |   }).toBe(1);
+      129 |
+      130 | test('с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book', async ({
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/booking-widget-turnstile.spec.ts:127:18
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/booking-widget-turnstile.spec.ts:233:3
+
+    Error Context: test-results/booking-widget-turnstile-d-99112-datory-through-token-expiry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-d-99112-datory-through-token-expiry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-d-99112-datory-through-token-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-widget-turnstile.spec.ts:225:1 › delayed Turnstile script keeps verification mandatory through token expiry 

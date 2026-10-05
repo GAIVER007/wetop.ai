@@ -5597,3 +5597,11 @@ inside writes. Appointment transitions reject stale concurrent state. Existing G
 cross-location overlap authority. A minimal CustomerBusiness-filtered list exposes beauty.customers.
 Consequences: legacy no-scope Beauty requests must select context; Hospitality compatibility unchanged.
 No UI, production deployment or migration in MV4. MV5 requires separate approval.
+
+## ADR-BAR-FIX: Function path and RLS registry repair (2026-10-05)
+
+Problem: main bar_property_guard() has a mutable search_path; ten existing RLS-protected bar tables are missing from the tenant registry.
+Options: rewrite migration 51; add a forward-only repair and complete the registry.
+Decision approved by owner: new migration 53 pins only bar_property_guard() following migration 43, current_schema then public then pg_temp (public listed once). Add ten existing tables to RLS_TENANT_TABLES.
+Reason: preserve migration history and existing policies while restoring security invariants. No data model or business rules change.
+Consequences: down.sql restores the prior unpinned setting and therefore reintroduces the defect; use only for an approved rollback. Production apply remains separately authorized.

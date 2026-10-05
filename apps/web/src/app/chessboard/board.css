@@ -1795,3 +1795,93 @@
   color: var(--muted);
   font-weight: normal;
 }
+
+.free-menu__period {
+  display: none;
+}
+
+/* Телефон: свайп прокручивает даты, касание открывает действия. */
+@media (max-width: 600px) {
+  .page:has(> .board-wrap) > .board-wrap {
+    overflow: auto;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+  }
+  .board.board--week,
+  .board.board--month,
+  .board {
+    --week-unit-width: 112px;
+    --month-unit-width: 112px;
+    width: var(--mobile-board-width) !important;
+    min-width: var(--mobile-board-width);
+    table-layout: fixed;
+  }
+  .board col:first-child {
+    width: 112px !important;
+  }
+  .board col:not(:first-child) {
+    width: 104px !important;
+  }
+  .board td.board__cell,
+  .board td.board__unit,
+  .board-wrap[data-density='compact'] .board td.board__cell,
+  .board-wrap[data-density='compact'] .board td.board__unit {
+    height: 52px;
+  }
+  .board .board__stay,
+  .board-wrap[data-density='compact'] .board .board__stay {
+    height: 44px;
+    top: 4px;
+    touch-action: pan-x pan-y;
+  }
+  .board .board__free {
+    min-height: 44px;
+  }
+  .board .board__d {
+    font-size: var(--text-lg);
+    width: 32px;
+    height: 32px;
+    max-width: none;
+  }
+  .board .board-day-date,
+  .board .board-day-metrics {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+  .board .board-stay-resize,
+  .board .board-stay-menu {
+    display: none;
+  }
+  .board-toolbar .inp {
+    font-size: 16px;
+  }
+  .stay-preview {
+    inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important;
+    width: calc(100% - 16px);
+    max-height: calc(85dvh - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+  }
+  .stay-preview__close,
+  .stay-preview__actions .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .stay-preview__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .free-menu__period {
+    display: flex;
+    margin-block: var(--space-4);
+  }
+  .free-menu__period .inp {
+    min-height: 48px;
+    width: 100%;
+    font-size: 16px;
+  }
+}

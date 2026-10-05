@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
 import type { FreeMenu } from './range-plan';
 
@@ -18,15 +18,24 @@ const EDGE = 8;
  */
 export function FreeMenuPopover({
   menu,
+  periods,
   anchor,
   readOnly,
   onClose,
 }: {
   menu: FreeMenu;
+  periods: FreeMenu[];
   anchor: HTMLElement;
   readOnly: boolean;
   onClose: () => void;
 }) {
+  const [period, setPeriod] = useState(() =>
+    Math.max(
+      0,
+      periods.findIndex((p) => p.newHref === menu.newHref),
+    ),
+  );
+  const selected = periods[period] ?? menu;
   const ref = useRef<HTMLDivElement>(null);
   const placed = useRef<{ top: number; left: number } | null>(null);
 
@@ -84,14 +93,14 @@ export function FreeMenuPopover({
       ref={ref}
       popover="manual"
       role="dialog"
-      aria-label={`${menu.title}: ${menu.dates}`}
+      aria-label={`${selected.title}: ${selected.dates}`}
       tabIndex={-1}
       className="stay-preview free-menu"
       data-testid="free-menu"
     >
       <div className="stay-preview__head">
         <h2 className="stay-preview__guest" data-testid="free-menu-title">
-          {menu.title}
+          {selected.title}
         </h2>
         <button
           type="button"
@@ -102,24 +111,41 @@ export function FreeMenuPopover({
           <Icon name="close" />
         </button>
       </div>
-      <p className="stay-preview__status">{menu.category}</p>
+      <p className="stay-preview__status">{selected.category}</p>
       <p className="free-menu__dates" data-testid="free-menu-dates">
-        {menu.dates}
+        {selected.dates}
       </p>
-      {menu.state && (
+      {selected.state && (
         <p className="free-menu__state" data-testid="free-menu-state">
-          {menu.state}
+          {selected.state}
         </p>
+      )}
+      {!readOnly && (
+        <label className="field free-menu__period">
+          <span>Период проживания</span>
+          <select
+            className="inp"
+            value={period}
+            onChange={(event) => setPeriod(Number(event.target.value))}
+          >
+            {periods.map((option, index) => (
+              <option key={option.newHref} value={index}>
+                {index === 0 ? `${option.dates}, 1 ночь` : option.dates}
+              </option>
+            ))}
+          </select>
+          <span className="muted">Другие даты можно выбрать в форме брони.</span>
+        </label>
       )}
       {readOnly ? (
         <p className="stay-preview__status">Только чтение: новые брони и блокировки недоступны</p>
       ) : (
         <div className="stay-preview__actions">
-          <Link className="btn btn--primary" href={menu.newHref}>
-            {menu.createLabel}
+          <Link className="btn btn--primary" href={selected.newHref}>
+            {selected.createLabel}
           </Link>
-          <Link className="btn btn--secondary" href={menu.blockHref}>
-            {menu.blockLabel}
+          <Link className="btn btn--secondary" href={selected.blockHref}>
+            {selected.blockLabel}
           </Link>
         </div>
       )}

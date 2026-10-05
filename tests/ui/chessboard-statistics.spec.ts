@@ -137,3 +137,17 @@ test('marked no-show increments no-show count and leaves hot bookings', async ({
   await expect(panel.getByTestId('day-noshow')).toHaveText('1');
   await expect(panel.getByTestId('day-hot')).toHaveText('2');
 });
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`desktop daily widgets ${theme}: accessible pointer targets`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/chessboard');
+    const AxeBuilder = (await import('@axe-core/playwright')).default;
+    const results = await new AxeBuilder({ page })
+      .include('.board-day-panel')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+}

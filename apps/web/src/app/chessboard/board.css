@@ -2101,10 +2101,22 @@
     overflow: hidden;
     clip-path: inset(50%);
   }
+  .board-day-panel__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-2);
+  }
+  .board-day-panel__row--arrivals {
+    grid-column: span 2;
+  }
   .board-day-panel__row {
-    min-height: 18px;
+    min-height: 24px;
     font-size: var(--text-xs);
-    line-height: 18px;
+    line-height: 16px;
+  }
+  .board-day-panel__row > a {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
   }
 }
 

@@ -5743,3 +5743,11 @@ Unreferenced parents do not fence ancestors. This preserves the same narrow five
 ### ADR-148: восстановление мобильного отбора (05.10.2026)
 
 Проблема: после возврата из карточки поиск и фильтры терялись. Варианты: параметры URL или существующее хранилище позиции в пределах вкладки. Решение: по поручению владельца сохранять строку поиска и весь существующий BoardFilters вместе с координатами для того же URL. «Сбросить» очищает сохранённый отбор. Причина: продолжать работу с выбранным номером без повторного ввода. Последствия: это уточняет предыдущее ограничение на сохранение поиска; текст поиска хранится только в sessionStorage этой вкладки. Полные карточки гостей и броней не сохраняются, серверное хранение не добавлено. Некорректный снимок и недоступное хранилище не блокируют календарь.
+
+## ADR-MV6: Food reservations backend (2026-10-05)
+
+Problem: Food pilot plumbing exists without domain tables/API. AS-IS main abe59d83 has no Food entities; BAR is a separate Hospitality module.
+Options: reuse hotel/Beauty/bar entities; create the approved independent Food domain.
+Decision: implement DATA_MODEL §28, approved directly in owner MV6 specification. Reuse Customer/CustomerBusiness, RequestActor, capability and role permissions, subscription checks and audit. No UI or new permission engine.
+Concurrency: shared Organization/Business parent locks, Location row FOR UPDATE serializes mutations within one restaurant; reservation row and target table FOR UPDATE protect status/move/assignment. Explicit expected status+updatedAt required on reservation mutations. Sorted parent-first locks avoid cross-operation deadlocks. Unique creation key remains DB authority.
+Consequences: conservative per-Location write serialization in v1; independent locations still proceed. API uses UTC instants plus Location IANA timezone for period/day boundaries. Five new tables, guarded down, production rollout separate. MV7 requires approval.

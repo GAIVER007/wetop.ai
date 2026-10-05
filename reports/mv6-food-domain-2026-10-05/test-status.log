@@ -1,0 +1,39 @@
+
+> pms-lux@0.0.0 test:status
+> tsx tests/tools/cli-status.ts
+
+Код abe59d8 (codex/mv6-food-domain-20261005) · записей в журнале: 6201 · 05.10.2026 11:39 Алматы
+
+unit — Модульные
+  последний полный прогон: 05.10.2026 11:32 · ✅ 3374 из 3378, пропущено 4 · 2 мин 29 с · коммит abe59d8 +14 · MacBook-Air-Urij
+  лог: tests/runs/logs/2026-10-05T06-32-38Z-unit-7080.log
+  ✅ доказано на этом коде — повторять не нужно
+
+integration — Интеграционные
+  последний полный прогон: 05.10.2026 11:38 · ✅ 371 из 380, пропущено 9 · 37 с · коммит abe59d8 +16 · MacBook-Air-Urij
+  лог: tests/runs/logs/2026-10-05T06-38-06Z-integration-d00e.log
+  ✅ доказано на этом коде — повторять не нужно
+
+e2e — Сквозные
+  последний полный прогон: 03.10.2026 23:16 · ✅ 25 из 25 · 1 мин 2 с · коммит 8ed0af2 · vm
+  лог: tests/runs/logs/2026-10-03T18-16-38Z-e2e-5623.log
+  🟡 код набора изменился после прогона — гонять
+  изменено файлов: 545 — apps/ai-seller/env.example, apps/ai-seller/src/ai/hotel_tools.py, apps/ai-seller/src/ai/seller_booking.py, apps/ai-seller/src/ai/seller_prompt.py, apps/ai-seller/src/channels/widget_runner.py …
+  частично после него: --config tests/beauty-ui/playwright.config.ts --workers=1 --max-failures=1 · ✅ 10 из 10 · 05.10.2026 10:39
+  частично после него: --config tests/ui/playwright.alt.config.ts --workers=1 --max-failures=1 tests/ui/beauty-branch.spec.ts tests/ui/beauty-catalog.spec.ts tests/ui/beauty-schedule.spec.ts tests/ui/beauty-journal.spec.ts tests/ui/branches.spec.ts tests/ui/loading-performance.spec.ts · ✅ 40 из 40 · 05.10.2026 10:41
+  частично после него: --config tests/onboarding/playwright.config.ts --workers=1 --max-failures=1 · ✅ 4 из 4 · 05.10.2026 10:46
+
+typecheck — Типы
+  последний полный прогон: 05.10.2026 11:37 · ✅ без ошибок · 18 с · коммит abe59d8 +16 · MacBook-Air-Urij
+  лог: tests/runs/logs/2026-10-05T06-37-35Z-typecheck-2f6c.log
+  ✅ доказано на этом коде — повторять не нужно
+
+lint — Линтер
+  последний полный прогон: 05.10.2026 11:37 · ✅ без ошибок · 17 с · коммит abe59d8 +16 · MacBook-Air-Urij
+  лог: tests/runs/logs/2026-10-05T06-37-35Z-lint-4293.log
+  ✅ доказано на этом коде — повторять не нужно
+
+Гонять:
+  npm run test:record -- e2e
+
+История прогонов: tests/runs/JOURNAL.md

@@ -1,0 +1,27 @@
+/* The booking summary keeps essential facts visible before details. */
+.booking-card .booking-head { gap: 8px; margin-bottom: 8px; border: 0; background: var(--surface-muted); }
+.booking-card .booking-head__guest { display: grid; grid-template-columns: 1fr; }
+.booking-card .booking-head__guest dd > .btn { margin-top: 8px; }
+.booking-card .booking-next { margin-bottom: 8px; }
+.booking-card .booking-print { margin-top: 8px; padding-top: 0; border: 0; }
+.booking-print-details { margin-top: 8px; color: var(--text-2); }
+.booking-print-details > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.booking-guest-editor .panel { border: 0; background: transparent; padding: 0; }
+.booking-guest-editor .inp { width: 100%; }
+[data-theme='dark'] .booking-card .inp,
+[data-theme='dark'] .booking-create .inp { background: var(--surface-elevated); }
+@media (max-width: 599px) {
+  .booking-card.page { padding: 8px; }
+  .booking-card .page__head { margin-bottom: 8px; gap: 8px; }
+  .booking-card .page__title { font-size: 20px; line-height: 1.25; }
+  .booking-card .page__crumbs { display: none; }
+  .booking-drawer:has(.booking-card) .overlay-heading { padding: 8px 8px; }
+  .booking-drawer:has(.booking-card) .page__actions { display: none; }
+  .booking-card .booking-head { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px; gap: 8px 8px; }
+  .booking-card .booking-head dd { font-size: 14px; }
+  .booking-card .booking-head__guest { grid-column: 1 / -1; }
+  .booking-card .booking-head__sub { display: inline; margin-left: 8px; }
+  .booking-card .record-tab-list { margin-bottom: 8px; }
+  .booking-card .booking-next { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .booking-card .booking-next .btn { min-width: 0; padding: 8px; font-size: 14px; white-space: normal; min-height: 44px; }
+}

@@ -372,6 +372,11 @@ h3 {
   min-width: 0;
   transition: background-color var(--duration-fast) ease;
 }
+/* Borderless dark inputs retain explicit keyboard focus and validation states. */
+[data-theme='dark'] .inp:not(:focus-visible):not([aria-invalid='true']) {
+  border-color: transparent;
+  background: var(--surface-elevated);
+}
 .inp:hover:not(:disabled):not(:focus-visible):not([aria-invalid='true']) {
   background: var(--row-hover);
 }

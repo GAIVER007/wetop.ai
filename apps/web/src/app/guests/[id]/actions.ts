@@ -52,6 +52,7 @@ export async function updateGuestAction(
     };
   }
   revalidatePath(`/guests/${id}`);
+  revalidatePath('/reservations', 'layout');
   return { error: null };
 }
 export async function addDocumentAction(

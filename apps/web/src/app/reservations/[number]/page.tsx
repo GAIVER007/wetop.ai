@@ -19,6 +19,8 @@ import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
+import './booking-card.css';
+import { BookingGuestEditor } from './guest-editor';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -112,6 +114,7 @@ export default async function ReservationPage({
   return (
     <Page
       width="medium"
+      className="booking-card"
       crumbs={<Link href="/chessboard">← календарь</Link>}
       title={`Бронь ${r.confirmationNumber}`}
       actions={
@@ -154,6 +157,13 @@ export default async function ReservationPage({
                   ? `гражданство ${r.primaryGuest.citizenship}`
                   : 'гражданство не указано'}
               </span>
+            )}
+            {r.primaryGuest && (
+              <BookingGuestEditor
+                id={r.primaryGuest.id}
+                readOnly={desk.readOnly}
+                piiStorage={piiStorage}
+              />
             )}
             {(r.primaryGuest?.phone || guestMessengers) && (
               <span className="booking-head__contacts">
@@ -348,19 +358,22 @@ export default async function ReservationPage({
                     </dl>
                   </>
                 )}
-                <nav className="booking-print" aria-label="Печатные формы">
-                  <span className="booking-print__label">Печать</span>
-                  {printLinks.map(([id, path, label]) => (
-                    <Link
-                      key={id}
-                      className="btn btn--secondary btn--sm"
-                      href={print(path)}
-                      data-testid={id}
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                </nav>
+                <details className="booking-print-details">
+                  <summary>Печать и документы</summary>
+                  <nav className="booking-print" aria-label="Печатные формы">
+                    <span className="booking-print__label">Печать</span>
+                    {printLinks.map(([id, path, label]) => (
+                      <Link
+                        key={id}
+                        className="btn btn--secondary btn--sm"
+                        href={print(path)}
+                        data-testid={id}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </nav>
+                </details>
               </div>
             ),
           },

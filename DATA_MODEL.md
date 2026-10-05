@@ -2734,3 +2734,12 @@ BusinessVertical расширяется FOOD_SERVICE. Canonical источник
 ### MV3 OnboardingProgress, утверждено владельцем 04.10.2026
 
 Для серверного resume предлагается `OnboardingProgress` / `onboarding_progress`: `location_id` UUID PK/FK -> Location (0..1 state на Location); `flow_version` integer; `current_step` varchar(50); `draft` JSONB с валидируемым содержимым текущего adapter; `completed_at` nullable timestamptz; `updated_at` timestamptz. Не добавлять vertical или organization_id: ownership выводится через существующую цепочку Location -> Business -> Organization, RLS проверяет эту цепочку. State не является источником прав или vertical. Domain данные создаются только настоящим adapter после валидации. Миграция и rollback должны быть отдельным reviewable срезом. Владелец явно подтвердил серверную OnboardingProgress в ответ на предложение модели.
+
+
+### Предложение: индивидуальная цена проживания, 05.10.2026
+
+НЕ УТВЕРЖДЕНО. ReservationItem сохраняет итог price, но для восстановления ручных цен и продления нужен снимок по ночам. Предлагается связь ReservationItem 1:N с записью цены ночи: item_id, stay_date DATE, base_price_minor, override_price_minor nullable, discount_kind (NONE/PERCENT/FIXED), discount_value integer, final_price_minor. Уникальность item_id + stay_date; деньги integer minor units. Ручная скидка заменяет прежнюю, не суммируется. В ReservationItem хранится согласованное правило для новых ночей при продлении; формат уточняется после утверждения бизнес-правил. Сохранение снимка, item.price, корректировки Charge и аудита атомарно, с защитой от повторной отправки и конкурирующей правки. История платежей не меняется. Нужны согласование модели и отдельная production migration с откатом. План: plans/booking-price-mobile-2026-10-05.md.
+
+Ручная цена проживания: описанное предложение и правила подтверждены владельцем 05.10.2026, реализация в отдельном кандидате. Production migration требует отдельного разрешения.
+
+Предложение номера брони (НЕ УТВЕРЖДЕНО): Reservation.display_number BIGINT, уникальность property_id + display_number; выдача нового номера под блокировкой филиала, backfill по created_at,id. ConfirmationNumber остаётся техническим ключом маршрута, поиска и внешнего обмена. Отмена не возвращает номер в оборот.

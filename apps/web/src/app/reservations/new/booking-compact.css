@@ -261,3 +261,21 @@
   margin: var(--space-2) 0 0;
   font-size: var(--text-sm);
 }
+
+/* Mobile essentials: dates, placement and submission stay together. */
+@media (max-width: 599px) {
+  .booking-drawer:has(.booking-create) .overlay-heading { padding: 8px 8px; }
+  .booking-drawer .booking-create { padding: 8px; }
+  .booking-create .booking-form { padding: 0; gap: 8px; }
+  .booking-create .field { font-size: 12px; gap: 4px; }
+  .booking-create .inp { min-height: 44px; font-size: 16px; padding: 4px 8px; }
+  .booking-create .placement-fields .grid-auto > :nth-child(1) { grid-column: 1 / -1; }
+  .booking-create .placement-fields .grid-auto > :nth-child(n + 2) { grid-column: span 3; }
+  .booking-create .booking-footer { margin: 0; padding: 8px 0; gap: 4px; }
+  .booking-create .booking-footer__actions { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .booking-create .booking-footer__actions .btn { width: auto; padding: 8px 8px; }
+  .booking-create .booking-footer__digest { margin: 0; font-size: 12px; }
+  .booking-create__quick { gap: 4px; }
+  .booking-create__quick .btn { min-height: 36px; }
+  .booking-create__price strong { font-size: 18px; }
+}

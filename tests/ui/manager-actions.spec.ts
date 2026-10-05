@@ -311,7 +311,13 @@ test('карточка B3: полоса фактов над вкладками, 
   const drawerOverflow = await drawer.evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(drawerOverflow).toBeLessThanOrEqual(1);
   // печатные формы — ссылки словами, без « · », внизу обзора
+  await expect(drawer.getByRole('link', { name: 'Договор KZ' })).toBeHidden();
+  await drawer.getByText('Печать и документы', { exact: true }).click();
   await expect(drawer.getByRole('link', { name: 'Договор KZ' })).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Договор KZ' })).toHaveAttribute(
+    'href',
+    /\/print\/contract\?lang=kz$/,
+  );
   // следующее действие ведёт во вкладку, не в историю: одно нажатие Escape закроет панель
   await drawer.getByRole('link', { name: 'Продлить или переселить' }).click();
   await expect(drawer.getByRole('tab', { name: 'Действия', exact: true })).toHaveAttribute(

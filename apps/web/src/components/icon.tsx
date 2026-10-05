@@ -1,5 +1,6 @@
 import type { SVGProps } from 'react';
 import {
+  Pencil,
   LogIn,
   LogOut,
   BedDouble,
@@ -46,6 +47,7 @@ import {
   CircleHelp,
 } from 'lucide-react';
 const icons = {
+  edit: Pencil,
   arrival: LogIn,
   departure: LogOut,
   bed: BedDouble,

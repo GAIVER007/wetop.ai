@@ -45,8 +45,10 @@ export function GuestProfileForm({
   guest,
   piiStorage,
   readOnly,
+  compact = false,
 }: {
   guest: GuestCard;
+  compact?: boolean;
   /** ADR-072: `pseudonymized` — база не в Казахстане: имя, контакты, заметки и документы не вносятся */
   piiStorage: 'real' | 'pseudonymized';
   readOnly: boolean;
@@ -64,8 +66,8 @@ export function GuestProfileForm({
       data-testid="guest-form"
       className="panel"
     >
-      <PanelTitle>Профиль</PanelTitle>
-      {!personal && (
+      {!compact && <PanelTitle>Профиль</PanelTitle>}
+      {!personal && !compact && (
         <Notice data-testid="guest-pseudonymized">
           Пока база WETOP не в Казахстане, имя, контакты, заметки и документы гостя в ней не
           хранятся. Менять можно гражданство и пол; личность сверяйте по документу на заселении.

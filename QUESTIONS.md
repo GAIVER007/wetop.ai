@@ -1191,3 +1191,18 @@ ACTIVE не становится исторической оплатой, бес
 Master plan принят и MV1 разрешён. Beauty/Food PILOT до production acceptance. Business.vertical меняет только OWNER полностью пустого бизнеса без domain records, integrations, AI Agents, public booking/widget; после данных immutable. Beauty appointment один клиент/услуга/мастер/филиал, service duration + buffers, статусы SCHEDULED/CONFIRMED/IN_PROGRESS/COMPLETED/CANCELLED/NO_SHOW. Food без объединения столов и депозитов, бронь без стола разрешена, duration от ServicePeriod, walk-in поддерживается, capacity проверяется. Food Customer общий через CustomerBusiness, RestaurantGuest не создаётся. POS/Orders/Kitchen/Delivery/Warehouse/Menu вне v1. Существующую Beauty реализацию пересмотреть перед Beauty slice, эти решения не разрешают изменение Beauty tables в MV1. MV2 отдельно.
 
 MV2, 04.10.2026: вопрос pilot access закрыт прямым ответом владельца. Отдельные exact normalized email allowlists у BEAUTY и FOOD_SERVICE на сервере, пустые списки закрывают регистрацию. Одноразовые приглашения и новая модель не нужны. Environment mechanism соответствует существующему REGISTRATION_OPEN API gate; названия REGISTRATION_BEAUTY_PILOT_EMAILS / REGISTRATION_FOOD_SERVICE_PILOT_EMAILS.
+
+
+### Q-BOOKING-PRICE-20261005
+
+OPEN. Владелец запросил ручную цену ночи, скидку и компактную карточку. План: plans/booking-price-mobile-2026-10-05.md. Нужно утвердить права OWNER/MANAGER, замену прежней скидки без суммирования, применение только к проживанию, запрет OTA и закрытого счёта, правила продления и отдельный возврат переплаты. До ответа финансовая логика не меняется.
+
+Q-BOOKING-PRICE-20261005 CLOSED: владелец подтвердил описанный план и предложение модели 05.10.2026. Это разрешение на реализацию и тестовый контур, не на production migration.
+
+### Q-BOOKING-NUMBER-20261005
+
+OPEN. Предлагается постоянный порядковый номер в филиале. Существующие брони по created_at,id, новые получают следующий номер атомарно, отменённые номера не переиспользуются. Старый confirmation_number и внешние ссылки сохраняются. Требуется подтверждение поля и области уникальности.
+
+### Q-BOOKING-FIXED-DISCOUNT-20261005
+
+OPEN. Для продления предложена фиксированная скидка один раз на выбранное проживание, без повторного применения к каждой добавленной ночи. Процент и ручная цена ночи сохраняются для новых ночей. Альтернатива: фиксированная скидка на каждую ночь. Вопрос направлен владельцу отдельно; до ответа это правило не реализуется.

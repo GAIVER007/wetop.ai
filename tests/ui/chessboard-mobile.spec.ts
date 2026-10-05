@@ -210,3 +210,31 @@ for (const width of [360, 390, 430]) {
     });
   });
 }
+
+ test('мобильная панель меняет заезд без закрытия и показывает выезд', async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const stay = await (await request.get(`${FIXTURE_API}/reservations/20260913-TEST1`, { headers: { 'x-wetop-test-client': '1' } })).json();
+  const from = stay.arrivalDate as string;
+  await page.goto(`/chessboard?from=${from}&to=${add(from, 13)}`);
+  await page.getByLabel('Поиск в календаре').fill('R07');
+  await page.locator(`[data-unit-code="R07"] td[data-date="${from}"] .board__free`).click();
+  const menu = page.getByTestId('free-menu');
+  await menu.getByLabel('Заезд', { exact: true }).selectOption(add(from, 1));
+  await menu.getByLabel('Период проживания').selectOption('2');
+  await expect(menu.getByTestId('free-menu-departure')).toHaveText(add(from, 4));
+  await expect(menu.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveAttribute('href', `/reservations/new?arrival=${add(from,1)}&departure=${add(from,4)}&unit=R07`);
+ });
+ test('календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/chessboard');
+  const wrap = page.locator('.board-wrap');
+  await wrap.scrollIntoViewIfNeeded();
+  await wrap.evaluate(el => {el.scrollLeft=220;el.scrollTop=280;});
+  const position = await wrap.evaluate(el => ({x:el.scrollLeft,y:el.scrollTop}));
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect.poll(() => wrap.evaluate(el => el.scrollLeft)).toBeCloseTo(position.x,0);
+  await expect.poll(() => wrap.evaluate(el => el.scrollTop)).toBeCloseTo(position.y,0);
+  await page.getByRole('link', {name:'Сегодня', exact:true}).click();
+  await expect.poll(() => wrap.evaluate(el => el.scrollLeft)).toBe(0);
+ });

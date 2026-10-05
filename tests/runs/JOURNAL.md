@@ -6277,3 +6277,4 @@
 | 05.10.2026 15:13 | unit (частично: tests/unit/design-slop.test.ts tests/unit/finance-csv.test.ts) | ✅ 11 из 11 | 1 с | 8df2bc2 +3 | [лог](logs/2026-10-05T10-13-28Z-unit-90aa.log) |  |
 | 05.10.2026 15:13 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts finance-cash.spec.ts finance-f2.spec.ts --workers=1) | ✅ 21 из 21 | 47 с | 8df2bc2 +5 | [лог](logs/2026-10-05T10-13-11Z-e2e-3257.log) |  |
 | 05.10.2026 15:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 5 из 5 | 19 с | 647f44e | [лог](logs/2026-10-05T10-15-50Z-e2e-ada9.log) |  |
+| 05.10.2026 15:07 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep меняет заезд\|возвращает обе --workers=1) | ❌ упало 2 из 2 | 2 мин 31 с | 9698b49 +1 | [лог](logs/2026-10-05T10-07-56Z-e2e-ede5.log) | RED mobile date selection and return position |

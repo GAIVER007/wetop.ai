@@ -5635,3 +5635,18 @@ Reason: restore the existing ownership contract without changing BAR pricing, st
 Consequences: real PostgreSQL tests must prove both branches and isolation under FORCE RLS (migration 54).
 Application rollback retains the correct function. down.sql is an exact-history rehearsal only and
 restores the known broken body, so it is prohibited as an operational production rollback.
+
+## ADR-BAR-OWNERSHIP: complete Property boundary (2026-10-05)
+
+Problem: seven direct SQL acceptance scenarios bypass child ownership while populated RLS
+visibility is correct. Sale links to hospitality and cash have the same unprotected FK class.
+Options: rely on service/RLS; composite-key schema redesign; forward invoker trigger guards
+and immutable BAR property_id. Owner approved the third option including bar_sales links.
+Decision: separate migration 56; migration 55 stays unchanged. Check all existing referenced
+Property chains on INSERT/relation UPDATE. Reject reassignment of property_id on seven BAR
+parents. Reject parent relation edits invalidating existing lot/movement product equality.
+Use no SECURITY DEFINER; pin every function path to owning schema, public, pg_temp.
+Reason: BYPASSRLS service reads must coexist with identical ownership validation on writes.
+Consequences: no table/Prisma shape, money, FIFO, source polymorphism or status changes.
+Application rollback keeps both repaired guards; technical down rehearsal removes only new
+56 guards and reopens ownership defects, so it is not an operational production rollback.

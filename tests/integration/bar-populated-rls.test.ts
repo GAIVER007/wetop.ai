@@ -204,6 +204,17 @@ describe('BAR populated tenant visibility and SQL ownership boundary', () => {
   }
 
   it.each(tables)('%s: own=1, foreign=0; unset/empty=0; service=2', async (table) => {
+    // PostgreSQL keeps a reset custom GUC as empty. A fresh session proves true absence for every table.
+    await client.end();
+    client = new pg.Client({
+      connectionString: process.env.DATABASE_URL,
+      options: `-c search_path=${process.env.DATABASE_SCHEMA || 'public'},public`,
+    });
+    await client.connect();
+    const setting = await client.query<{ org: string | null }>(
+      `SELECT current_setting('app.org_id',true) AS org`,
+    );
+    expect(setting.rows[0]!.org).toBeNull();
     await fixture(async (a, b) => {
       const ids = [a.rows[table], b.rows[table]];
       const read = async () =>
@@ -329,11 +340,29 @@ describe('BAR populated tenant visibility and SQL ownership boundary', () => {
   ] as const;
   it.each(childCases)('ownership denies %s', async (_name, sql, foreign, target) => {
     await fixture(async (a, b) => {
+      let id = foreign === 'cash' ? b.cash : b.rows[foreign];
+      if (foreign === 'cash') {
+        id = randomUUID();
+        await insert('cash_operations', {
+          id,
+          property_id: b.property,
+          kind: 'EXPENSE',
+          method: 'CASH',
+          amount: '100',
+        });
+      }
       await asRole('wetop_app', a.org, async () => {
-        const id = foreign === 'cash' ? b.cash : b.rows[foreign];
-        await expect(client.query(sql, [id, a.rows[target]])).rejects.toThrow(
-          /row-level security|another property/,
-        );
+        const expected = {
+          bar_receipt_lines: 'BAR receipt line ownership mismatch',
+          bar_stock_lots: 'BAR stock lot ownership mismatch',
+          bar_stock_movements:
+            foreign === 'bar_stock_lots'
+              ? 'BAR stock movement lot ownership mismatch'
+              : 'BAR stock movement product ownership mismatch',
+          bar_supplier_payments: 'BAR supplier payment ownership mismatch',
+          bar_sale_lines: 'BAR sale line ownership mismatch',
+        }[target];
+        await expect(client.query(sql, [id, a.rows[target]])).rejects.toThrow(expected);
       });
     });
   });
@@ -361,7 +390,7 @@ describe('BAR populated tenant visibility and SQL ownership boundary', () => {
             line,
             a.rows.bar_stock_lots,
           ]),
-        ).rejects.toThrow(/row-level security|another property/);
+        ).rejects.toThrow('BAR stock lot ownership mismatch');
       });
     });
   });
@@ -379,7 +408,7 @@ describe('BAR populated tenant visibility and SQL ownership boundary', () => {
             markup_basis: 0,
             calculated_price: '100',
           }),
-        ).rejects.toThrow(/row-level security|another property/);
+        ).rejects.toThrow('BAR receipt line ownership mismatch');
       });
     });
   });

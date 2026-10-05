@@ -1214,7 +1214,7 @@ MV2, 04.10.2026: вопрос pilot access закрыт прямым ответ�
 |---|---|---|---|
 | Q-BAR-9 | По какой себестоимости приходовать излишек, найденный при инвентаризации? | OPEN, ВЛАДЕЛЕЦ | Средняя себестоимость текущего остатка, а если остатка нет, требовать цену вручную. До решения положительную корректировку не делать. |
 
-## Q-BAR-REPAIR-2: child ownership boundary (2026-10-05, OPEN)
+## Q-BAR-REPAIR-2: child ownership boundary (2026-10-05, APPROVED)
 
 Isolated localhost acceptance after trigger repair proves wetop_app organization A can link
 receipt lines, stock lots, stock movements and sale lines to B's rows with direct SQL.
@@ -1228,3 +1228,16 @@ property changes that invalidate attached children. No pricing, FIFO or financia
 Owner decision needed per the BAR-REPAIR-2 point 10 STOP: approve these invariant guards and
 record validation in DATA_MODEL.md before implementation. Do not merge the trigger-only repair
 as a completed security repair while these tests are RED.
+
+
+## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, OPEN)
+
+Migration 56 closes approved BAR-side INSERT/UPDATE cases. Final direct-SQL review proves
+existing links can still be corrupted by CashOperation.property_id, Charge.folio_id,
+Folio.reservation_item_id, ReservationItem.reservation_id and Reservation.property_id edits.
+Permanent integration test bar-external-parent-ownership: 10 FAIL / 2 PASS (2f6f).
+
+Proposal: reverse invoker guards only when an external edit violates an existing BAR link.
+No global cash/Hospitality property immutability or new pricing/booking rules. These five
+external tables were excluded from the original scope, so owner scope approval is pending.
+PR #245 stays draft. See reports/bar-repair-2/README.md for exact role/scenario outcomes.

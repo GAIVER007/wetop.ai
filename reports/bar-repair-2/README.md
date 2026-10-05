@@ -1,49 +1,83 @@
-# BAR-REPAIR-2: trigger repaired, ownership acceptance blocked
+# BAR-REPAIR-2: dispatch and BAR guards implemented; reverse-parent acceptance STOP
 
-Date: 2026-10-05. Status: STOP, security hole confirmed. Not ready to merge.
+Date: 2026-10-05. PR #245 remains DRAFT. DO NOT MERGE.
 Base SHA: `abe59d83693655f87c51059a8e1915196d35d07f`.
-Branch: `codex/bar-repair-2`. Isolated clone: `/tmp/wetop-bar-repair-2`.
-Database: dedicated local PostgreSQL 16 cluster, port 55432, database wetop_bar,
-schema pms_test. All BAR test data is synthetic and rolled back. No shared dev DB,
-production, release or external API was touched. MV6 was not started.
+Branch: `codex/bar-repair-2`. Current head is recorded in the PR description.
+Only an isolated clone and a dedicated localhost PostgreSQL 16 cluster were used.
+Original dirty checkout, shared dev database, production and release untouched. MV6 not started.
 
-## Migration and root cause
+## Implemented scope
 
-Fresh main includes migrations 51 (BAR inventory), 53 (pinned path), 54 (FORCE RLS).
-No additional BAR change was found in the fresh base. Canonical next free migration:
-`20261005000055_bar_property_guard_dispatch`. Historical migrations remain unchanged.
+Migration 55: `20261005000055_bar_property_guard_dispatch`, unchanged from b8bbe140.
+Migration 56: `20261005000056_bar_ownership_guards`, next canonical free number checked
+against freshly fetched main before creation. Migrations 51/53/54 remain unchanged.
 
-`NEW` is a RECORD whose row type depends on the trigger's table. An expression that
-combines TG_TABLE_NAME and NEW fields from distinct row types is not a safe field-access
-contract: PostgreSQL resolves the expression's record fields before the intended table-specific
-validation can complete. The old function attempts supplier_id on a product and category_id
-on a receipt. Explicit IF / ELSIF dispatch separates the expressions by row type.
-Migration 55 retains the function OID/identity and existing trigger names, rejects unknown
-tables, and guarantees search_path with a separate owning-schema ALTER FUNCTION.
+Root cause: NEW is a RECORD whose shape depends on the trigger table. Combining
+TG_TABLE_NAME and fields from distinct row types in one SQL expression does not safely
+guard field resolution. Product INSERT attempts supplier_id; receipt INSERT attempts category_id.
+Explicit IF / ELSIF dispatch isolates row-field expressions. Unknown tables fail closed.
 
-## RED before GREEN evidence
+Owner-approved DATA_MODEL/DECISIONS invariants implemented by 56:
 
-Permanent test: `tests/integration/bar-property-guard.test.ts`.
+- Property is immutable after INSERT for categories, products, suppliers, receipts,
+  lots, movements and sales. Assignment of the same property remains valid.
+- Receipt lines: receipt.property = product.property, INSERT and both relation UPDATEs.
+- Lots: property = product.property = receipt_line.receipt.property; product = receipt_line.product.
+- Movements: property = product.property; optional lot must match both property and product.
+- Sale lines: sale.property = product.property, including both relation UPDATEs.
+- Supplier payments: receipt.property = cash_operation.property; unused cash fixtures prevent
+  uniqueness from masking ownership rejection.
+- Sales: optional folio, cash operation and charge through folio belong to sale.property;
+  when both charge and folio are given, charge.folio_id = sale.folio_id.
+- Receipt-line and lot product edits reject invalidation of existing BAR lot/movement children.
 
-- Initial run c825 failed partly because of test SQL parameter casts; it is NOT defect evidence.
-- Corrected RED d763 ran before migration 55: 9 failed / 3 passed, including own product
-  `record "new" has no field "supplier_id"` and own receipt
-  `record "new" has no field "category_id"`.
-- GREEN 1de9: trigger tests 12/12; existing function-search-path 2/2.
-- Category null is accepted; own category/supplier accepted; foreign/missing references
-  and property updates rejected; null supplier rejected; unknown table fails closed.
-- Exact pinned path in pms_test: `pms_test, public, pg_temp`.
+Three new functions are SECURITY INVOKER, never SECURITY DEFINER. Every BAR guard has exact
+`pms_test, public, pg_temp` path in the test schema; public installation uses `public, pg_temp`.
+Catalog test explicitly verifies all three new function identities, prosecdef=false and paths.
+FOR SHARE reference locks serialize child validation with parent relation edits.
+Migration preflight requires administrative visibility (superuser or BYPASSRLS), checks all
+existing property/link equalities and aborts on legacy corruption instead of repairing financial data.
 
-Evidence is recorded with unchanged per-run code fingerprints in tests/runs/journal.jsonl
-and corresponding sanitized logs in tests/runs/logs.
+## RED -> GREEN evidence
 
-## Populated RLS matrix
+All evidence is in tests/runs/journal.jsonl and sanitized per-run logs. Code fingerprints
+were stable during recorded runs. No new skips, weakened rejection assertions or increased timeouts.
 
-Run 96a2: two independent Organization -> Business -> Location -> Property chains,
-one synthetic row per side in every BAR table. Each cell is the exact count of rows
-[A, B], selected by their fixture IDs. Existing rls-isolation: 6/6 PASS.
+| Evidence | Run | Result |
+|---|---|---|
+| Dispatch RED before 55 | d763 | 9 FAIL / 3 PASS; missing supplier_id/category_id reproduced |
+| Dispatch + existing search-path GREEN | 1de9 | 14/14 PASS |
+| Initial child ownership probe | 96a2 | 7 confirmed bypasses; cash fixture uniqueness was inconclusive |
+| Corrected cash + expanded ownership RED before 56 | 8956 | 92 FAIL / 36 PASS across app/service and INSERT/UPDATE |
+| Focused guards + populated RLS + search-path + RLS regression | c2f6 | 148/148 PASS |
+| Final full integration before adding reverse-parent regression | 39f0 | 487 PASS, 11 existing skips, zero FAIL |
+| Final full unit | be8d | 3367 PASS, 4 existing skips, zero FAIL |
+| Root/API/web typecheck and lint | 0849 / 3117 | PASS including the new reverse-parent test |
+| Full migration chain, Prisma drift, 62 individual down rehearsals | migration-rehearsal.txt | RESULT: OK |
+| New external-parent regression | 2f6f | 10 FAIL / 2 PASS, confirmed remaining hole |
 
-| Table | app A | app B | app unset | app empty | service |
+Full integration 39f0 contains dispatch 12/12, expanded ownership 105/105,
+populated RLS/ownership 24/24, function-search-path 2/2 and rls-isolation 6/6.
+Existing BAR unit/API/web tests are included in the full unit run (23/23).
+The latest source now includes a permanent RED external-parent test, so the current
+full integration merge gate is NOT GREEN despite the preceding passing full run.
+
+Invalid diagnostic runs are retained transparently: c825 had a SQL cast fixture error;
+3777 had an incorrect accommodation enum. Neither is claimed as RED defect evidence.
+Initial full-suite failures came from SQL_ASCII/Asia-Dubai database defaults, shell locale
+and excessive parallel worker load. The replacement isolated cluster is UTF8, en_US.UTF-8,
+UTC; unit uses portable LC_ALL=C and maxWorkers=2, with all original timeouts unchanged.
+Initial 021f rejection-message mismatches were corrected to exact new guard messages,
+not weakened to generic error acceptance. Existing unit/integration skips predate this PR;
+all new BAR tests run without skips.
+
+## Exact populated visibility matrix
+
+Each cell is the actual count [A, B] selected by fixture IDs. For every table a fresh session
+proves current_setting('app.org_id',true) IS NULL before testing absence. Empty is separate.
+Identity assertions accompany counts; fixture transactions roll back.
+
+| Table | app A | app B | absent | empty | service |
 |---|---|---|---|---|---|
 | bar_categories | [1,0] | [0,1] | [0,0] | [0,0] | [1,1] |
 | bar_products | [1,0] | [0,1] | [0,0] | [0,0] | [1,1] |
@@ -56,91 +90,59 @@ one synthetic row per side in every BAR table. Each cell is the exact count of r
 | bar_supplier_payments | [1,0] | [0,1] | [0,0] | [0,0] | [1,1] |
 | bar_suppliers | [1,0] | [0,1] | [0,0] | [0,0] | [1,1] |
 
-50 populated role/table checks PASS. FORCE RLS is enabled on all 10 tables;
-wetop_service has BYPASSRLS and is not superuser; wetop_app has neither bypass nor superuser.
-The unset scenario leaves the custom setting unset or at its empty reset value.
-Fixture SELECTs prove identity as well as counts, not just catalog presence.
+50/50 populated role/table checks PASS. All ten tables FORCE RLS; service BYPASSRLS;
+app is neither superuser nor BYPASSRLS. Direct app A INSERT of Product/Supplier/Receipt/Sale
+into property B is DENY (receipt may be denied first by its invoker supplier guard).
+All seven previously confirmed child bypasses and unused foreign cash now DENY.
+104 behavioral ownership tests cover both app/service roles, both INSERT/UPDATE relation
+fields, same-property product identity mismatches, nullable movement lot, valid linked-sale
+INSERTs and UPDATEs, same-property category/supplier edits and property no-op assignments.
 
-## Write boundary and security impact
+## Remaining concrete security hole: mutation of external parents
 
-Direct SQL as wetop_app + organization A:
+An existing BAR row is not updated when its referenced cash/hospitality row changes.
+The BAR trigger therefore does not fire. Permanent regression:
+`tests/integration/bar-external-parent-ownership.test.ts` (2f6f).
 
-| Scenario | Actual result |
-|---|---|
-| INSERT Product into Property B | DENY: RLS |
-| INSERT Supplier into Property B | DENY: RLS |
-| INSERT Receipt into Property B | DENY: supplier invoker guard cannot see B |
-| INSERT Sale into Property B | DENY: RLS |
-| UPDATE receipt line A.product to B | ALLOWED, one row updated |
-| UPDATE stock lot A.product to B | ALLOWED, one row updated |
-| UPDATE stock lot A.receipt_line to unused line B | ALLOWED, one row updated |
-| UPDATE stock movement A.product to B | ALLOWED, one row updated |
-| UPDATE stock movement A.lot to B | ALLOWED, one row updated |
-| UPDATE sale line A.product to B | ALLOWED, one row updated |
-| INSERT line for receipt A with product B | ALLOWED, one row inserted |
-| UPDATE supplier payment A.receipt to B | DENY: RLS |
-| UPDATE supplier payment A.cash to already-linked cash B | DENY: uniqueness, ownership NOT proven |
+| Parent mutation breaking an existing valid BAR link | app | service |
+|---|---|---|
+| CashOperation.property for supplier payment, to another visible Property | ALLOWED | ALLOWED |
+| CashOperation.property for sale, to another visible Property | ALLOWED | ALLOWED |
+| Charge.folio to a different own Folio (sale has an explicit Folio) | ALLOWED | ALLOWED |
+| Folio.reservation_item to unused foreign item | DENY by RLS | ALLOWED |
+| ReservationItem.reservation to foreign reservation | DENY by RLS | ALLOWED |
+| Reservation.property to another visible Property | ALLOWED | ALLOWED |
 
-Run 96a2: populated test file 16 PASS / 8 FAIL. Seven failures confirm unauthorized
-cross-property writes; one cash-reference test is inconclusive because the fixture's B
-cash operation is already used. It must use a fresh unused cash operation before a fix.
-No assertion was weakened or skipped to make this run green.
+All allowed cases report UPDATE rowCount=1. New tests require denial and remain RED.
+RLS does not solve service writes and does not distinguish properties within the same org.
 
-RLS gates a row by its property or parent receipt/sale. It does not currently validate
-all referenced rows. Ordinary foreign keys prove existence, not ownership; referential
-integrity checks can resolve rows hidden from a tenant. FORCE RLS does not close this gap.
+Minimal next proposal, pending scope approval: reverse invoker guards on
+cash_operations.property_id, charges.folio_id, folios.reservation_item_id,
+reservation_items.reservation_id and reservations.property_id. Reject only a mutation
+that invalidates an existing BAR link; permit unrelated cash/hospitality rows and valid
+same-property relinks. No blanket cash/hospitality immutability, prices, booking rules,
+FIFO or financial arithmetic changes. This preserves the already-approved BAR invariants
+while touching external tables expressly excluded from the original repair scope.
 
-Service/API review, without claiming a live HTTP reproduction:
+Service/API protection review: receipt creation validates input shapes and accepts caller
+product IDs without property lookup; DB 56 now denies those invalid links. Normal sale,
+stock and supplier payment paths select/create their rows in the chosen property.
+No BAR API exposes these external-parent relinks; direct SQL under service remains possible,
+which is why this is a merge blocker rather than a theoretical warning.
 
-- BarService.createReceipt validates shapes and UUIDs only (bar.service.ts:156-174).
-- PrismaBarRepository.createReceipt accepts caller product IDs directly in nested lines
-  without property lookup (bar.repository.ts:299-321). This path does not protect receipt/product ownership.
-- postReceipt trusts saved lines and creates lots/movements from those product IDs
-  (bar.repository.ts:323-337), so it can propagate corrupt ownership.
-- Normal retail/folio sale and stock write-off paths first query products and lots by
-  property; supplier payments create a cash operation in the receipt's selected property.
-  Those API paths reduce exposure but do not replace DB protection from direct SQL.
+source_type/source_id audit item: existing movement/reversal lookups include property scope;
+no concrete cross-property source lookup exploit was reproduced. No polymorphic source
+ownership model added. Beauty, MV5, Food Service, Hospitality application code and cashbox
+semantics remain unchanged. External parent guard implementation is paused for scope approval.
 
-## Minimal DB fix proposal, not implemented
+## Rollback and release
 
-Add forward DB guards without changing entities, pricing, FIFO, quantities or status semantics:
+Application rollback must retain 55/56: signatures and existing BAR triggers stay compatible.
+Technical down 55 restores the known broken body (path stays pinned). Technical down 56 removes
+new guards and reopens ownership holes. Both downs are disposable exact-schema rehearsals,
+NOT recommended operational production rollback. Production must use an approved forward
+correction retaining working guards, with backup and validation. No production apply occurred.
+All 62 down snapshots passed, including 55 and 56. See migration-rehearsal.txt.
 
-1. Receipt lines: receipt.property == product.property on INSERT and relation UPDATE.
-2. Stock lots: property == product.property == receipt_line.receipt.property, and
-   lot.product == receipt_line.product.
-3. Stock movements: property == product.property, and for non-null lot,
-   lot.property == property and lot.product == product.
-4. Sale lines: sale.property == product.property.
-5. Supplier payments: receipt.property == cash_operation.property. Reproduce with an unused
-   cash row first. Existing receipt RLS denial remains required.
-6. Cover parent property changes that could invalidate existing children; choose an
-   explicit reject policy for attached parents rather than silently permitting inconsistent chains.
-
-Before implementation, record the existing ownership invariants and proposed validation in
-DATA_MODEL.md and obtain approval. Every guard needs RED -> GREEN INSERT/UPDATE tests under
-app and service roles, schema-specific pinned search_path, history-preserving migration/down,
-and repeat populated visibility. No security-definer bypass is proposed.
-
-## Rollback semantics
-
-Operational application rollback: retain migration 55 and the repaired guard; function signature
-and triggers are backward compatible. No BAR data or model changed.
-
-Schema/function down: down.sql restores the exact pre-55 body while retaining the pinned path.
-It reintroduces the known insert defect. It is for disposable local snapshot rehearsal only,
-NOT a safe or recommended production rollback. A production function regression should use an
-approved forward correction retaining valid dispatch. Production was not migrated.
-
-## Other completed checks
-
-- Root/API/web typecheck: PASS (09d9).
-- Repository lint: PASS (154f).
-- Existing domain/API BAR unit tests: 15/15 PASS (2ec3).
-- Existing BAR web actions: 8/8 PASS (8769), existing BAR total 23/23.
-- git diff --check: PASS.
-
-## Remaining merge gates
-
-Ownership acceptance is RED, so merge is prohibited. Full unit/integration, check-migrations,
-schema drift and all down rehearsals remain pending after the required ownership decision.
-This report is an impact STOP, not completion evidence. No deployment is authorized by this task.
+Do not remove draft or merge until reverse-parent decision, RED -> GREEN repair and renewed
+full checks. Fresh main, mergeability and absence of new BAR changes must be rechecked then.

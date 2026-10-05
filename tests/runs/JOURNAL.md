@@ -6299,3 +6299,4 @@
 | 05.10.2026 15:11 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 13 с | bdbc33d | [лог](logs/2026-10-05T10-11-16Z-integration-c2a9.log) | MV6 final full integration after BAR main merge; migration 58 |
 | 05.10.2026 15:12 | typecheck | ✅ без ошибок | 39 с | bdbc33d | [лог](logs/2026-10-05T10-12-30Z-typecheck-967c.log) | MV6 synced final root API web typecheck |
 | 05.10.2026 15:13 | lint | ✅ без ошибок | 24 с | bdbc33d | [лог](logs/2026-10-05T10-13-11Z-lint-2604.log) | MV6 synced final lint |
+| 05.10.2026 15:06 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 15 из 15 | 10 с | e86c0af +1 | [лог](logs/2026-10-05T10-06-35Z-unit-d4de.log) | release: локальная ширина мобильного календаря зарегистрирована в guard |

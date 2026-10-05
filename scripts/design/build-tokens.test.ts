@@ -82,6 +82,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--week-unit-width',
       '--month-unit-width',
       '--month-min-width',
+      '--mobile-board-width', // board-grid.tsx: ширина мобильной сетки по числу дней
       '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--board-head-real', // board.css: фактическая высота шапки дат, замер из board-grid.tsx
       '--board-unit-real', // board.css: фактическая ширина колонки мест — к ней липнет имя длинной брони

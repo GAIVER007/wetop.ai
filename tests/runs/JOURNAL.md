@@ -6358,3 +6358,5 @@
 | 05.10.2026 16:15 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 15 с | 8e389f7 | [лог](logs/2026-10-05T11-15-01Z-integration-52cb.log) | MV6 final ae6df20b full integration including Food and BAR ownership concurrency RLS |
 | 05.10.2026 16:16 | typecheck | ✅ без ошибок | 23 с | 8e389f7 | [лог](logs/2026-10-05T11-16-17Z-typecheck-8818.log) | MV6 final ae6df20b root API web typecheck |
 | 05.10.2026 16:16 | lint | ✅ без ошибок | 24 с | 8e389f7 | [лог](logs/2026-10-05T11-16-41Z-lint-3d7b.log) | MV6 final ae6df20b lint |
+| 05.10.2026 16:32 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep телефон --workers=1) | ❌ упало 2 из 9 | 1 мин 9 с | ae6df20 | [лог](logs/2026-10-05T11-32-36Z-e2e-303d.log) | телефон light: карточка брони, фильтры и длинный календарь |
+| 05.10.2026 16:34 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep телефон --workers=1) | ✅ 9 из 9 | 26 с | ae6df20 +1 | [лог](logs/2026-10-05T11-34-41Z-e2e-7b72.log) |  |

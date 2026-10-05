@@ -112,6 +112,7 @@ test('счёт на проживание: начисления, оплата, в
 
   // журнал: действия записаны без ПД
   await page.goto('/journal');
-  await expect(page.getByText('finance.payment').first()).toBeVisible();
-  await expect(page.getByText('finance.refund').first()).toBeVisible();
+  const journal = page.getByRole('main').getByTestId('journal-row');
+  await expect(journal.filter({ hasText: 'Оплата принята' }).first()).toBeVisible();
+  await expect(journal.filter({ hasText: 'Возврат оплаты' }).first()).toBeVisible();
 });

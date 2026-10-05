@@ -2,8 +2,8 @@
 
 Date: 2026-10-05. PR: https://github.com/GAIVER007/wetop.ai/pull/245.
 Original base: abe59d83693655f87c51059a8e1915196d35d07f.
-Fresh main incorporated by merge 8db4653f: 2b271167ecedd3c34d18a5674f13d9b122bc6c50.
-Those main changes affect finance UI/UI tests, with no new BAR migration or code.
+Fresh main incorporated by merge 92dd9897: 9698b4977426bc2b587fc1339f63eeebe1db025b.
+Those main changes affect finance/mobile calendar UI and UI tests, with no new BAR migration or code.
 Only an isolated clone and dedicated localhost PostgreSQL 16 were used. The original
 checkout, shared dev database, production and release remain untouched. MV6/MV7 not started.
 
@@ -34,12 +34,15 @@ Parent UPDATE locks conflict with the existing BAR-side FOR SHARE checks. Revers
 lock affected BAR sales/payments and new ancestor chains. Real concurrent PostgreSQL sessions
 observe pg_stat_activity.wait_event_type = Lock before releasing the winning transaction.
 Create and relink are tested parent-first and link-first for both roles and all six external
-parent scenarios. Four combinations of READ COMMITTED / REPEATABLE READ are exercised.
+parent scenarios. Four combinations of READ COMMITTED / REPEATABLE READ are exercised, plus stale
+ancestor snapshots after valid Charge/Folio/ReservationItem reparenting (200 cases total).
 
 FOR SHARE alone was insufficient for stale REPEATABLE READ snapshots: run 514c demonstrated
 two additional bypasses after the initial reverse guard was green. Migration 57 therefore also
 versions only referenced external parent tuples on BAR create/relink using value-preserving
-UPDATEs. No field values, prices, cash amounts or booking semantics change. A stale parent
+UPDATEs. Approved external reparenting with BAR dependencies also versions its new
+ancestor chain; f4a3 first reproduced six ancestor snapshot bypasses. No field values,
+prices, cash amounts or booking semantics change. A stale parent
 writer now receives 40001, while READ COMMITTED rejects with the ownership guard. Concurrent
 lock upgrades can require a transaction retry; an inconsistent commit is never acceptable.
 Disposable concurrency schemas contain only generated synthetic data and are dropped after tests.
@@ -59,16 +62,25 @@ or increased timeouts. All new BAR tests execute on real local PostgreSQL.
 | Parent/link concurrent schedules before reverse guard | 980d | 24 FAIL / 24 PASS |
 | Stale REPEATABLE READ snapshot RED | 514c | 2 FAIL / 48 PASS |
 | Mixed isolation ownership and concurrency GREEN | 83c5 | 351/351 PASS |
+| Stale ancestor reparent RED | f4a3 | 6 selected cases FAIL; other cases filtered, not disabled |
+| Complete final BAR boundary GREEN | 9d22 | 378/378 PASS, including 200 concurrency cases |
 | Final full unit after main sync | pending | pending |
-| Final full integration after main sync | pending | pending |
-| Final root/API/web typecheck | pending | pending |
-| Final lint | pending | pending |
-| Full chain, schema drift, all 63 down rehearsals | migration-rehearsal.txt | pending |
+| Final full integration after main sync | 9a0b | 716 PASS, 11 existing skips, zero FAIL |
+| Final root/API/web typecheck | 2277 | PASS |
+| Final lint | 62d2 | PASS |
+| Full chain, schema drift, all 63 down rehearsals | migration-rehearsal.txt | RESULT: OK |
 
 Earlier environment/fixture diagnostic failures are retained transparently, not claimed as
 security RED evidence: c825 SQL cast; 3777 invalid accommodation enum; SQL_ASCII/timezone
 cluster defaults; shell locale; excessive worker load. Final local cluster: UTF8, en_US.UTF-8,
-UTC. Unit uses LC_ALL=C and maxWorkers=2. Existing skips predate this PR.
+UTC. Unit uses LC_ALL=C. A loaded parallel full run fb2e timed out seven existing shell
+cases; b962 reran the unchanged two files sequentially, 24/24 PASS. Final full unit uses
+maxWorkers=1 with all original timeouts. Latest main introduced an inline mobile CSS
+variable which the token checker falsely reported missing (78d0). The checker now reads
+actual inline declarations, without a new allowlist entry: 6a33 15/15 PASS; removing the
+real declaration still causes 80e8 RED. The temporary component edit was restored.
+509e was deliberately interrupted before the final ancestor fence refinement; it is not
+claimed as GREEN evidence. Existing skips predate this PR.
 
 ## Populated RLS matrix
 

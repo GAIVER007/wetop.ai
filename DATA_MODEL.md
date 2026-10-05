@@ -2814,3 +2814,6 @@ Concurrent parent mutation and BAR create/relink must preserve these invariants.
 
 BAR link writes also fence referenced parent tuple versions, preserving all field values,
 so a stale REPEATABLE READ parent transaction must retry instead of missing a new link.
+
+Valid external reparenting with BAR dependencies fences the new ancestor tuple versions
+too, so an older ancestor snapshot cannot miss the relocated BAR dependency.

@@ -5712,3 +5712,8 @@ one transaction; retry is required, and inconsistent commits are never accepted.
 Последствия: мобильные проверки всех дней без прокрутки заменяются проверками локальной прокрутки сетки; десктопные проверки сохраняются. Данные, API, проверка доступности и финансовые правила не меняются. Тестовый стенд и рабочее дерево изолированы от соседней сессии.
 
 Уточнение ADR-148 от 05.10.2026: на телефоне сводка перед сеткой показывает восемь показателей из существующих API, включая проживания и дни рождения. Десктопная компактная сводка сохранена.
+
+Ancestor refinement: f4a3 proves six stale Reservation snapshots can miss a newly valid
+Charge/Folio/ReservationItem reparent. Approved same-property external relinks therefore
+also fence only their new referenced ancestor chain when an existing BAR dependency exists.
+Unreferenced parents do not fence ancestors. This preserves the same narrow five-table scope.

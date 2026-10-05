@@ -68,11 +68,13 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       .split('\n')
       .filter(Boolean);
     const used = new Set<string>();
-    for (const f of files) {
-      for (const m of readFileSync(resolve(ROOT, f), 'utf8').matchAll(/var\((--[a-z0-9-]+)/g))
-        used.add(m[1]!);
-    }
     const defined = new Set(tree.tokens.map((t) => t.cssVar));
+    for (const f of files) {
+      const source = readFileSync(resolve(ROOT, f), 'utf8');
+      for (const m of source.matchAll(/var\((--[a-z0-9-]+)/g)) used.add(m[1]!);
+      // Inline CSS properties count only when their declaration exists in component source.
+      for (const m of source.matchAll(/['"](--[a-z0-9-]+)['"]\s*:/g)) defined.add(m[1]!);
+    }
     // переменные, которые страницы объявляют сами: локальные размеры сетки и цвет точки бейджа
     const local = new Set([
       '--dot',

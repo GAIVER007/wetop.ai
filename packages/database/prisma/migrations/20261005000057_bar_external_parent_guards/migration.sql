@@ -33,6 +33,8 @@ CREATE FUNCTION bar_external_parent_guard() RETURNS trigger LANGUAGE plpgsql SEC
 DECLARE
   affected record;
   linked_property uuid;
+  linked_item uuid;
+  linked_reservation uuid;
 BEGIN
   IF TG_OP <> 'UPDATE' OR TG_TABLE_NAME NOT IN ('cash_operations','charges','folios','reservation_items','reservations') THEN
     RAISE EXCEPTION 'Unsupported table/operation for bar_external_parent_guard';
@@ -55,22 +57,29 @@ BEGIN
   ELSIF TG_TABLE_NAME = 'charges' THEN
     IF NEW.folio_id IS NOT DISTINCT FROM OLD.folio_id THEN RETURN NEW; END IF;
     FOR affected IN SELECT s.property_id,s.folio_id FROM bar_sales s WHERE s.charge_id=OLD.id FOR SHARE LOOP
-      SELECT r.property_id INTO linked_property FROM folios f JOIN reservation_items i ON i.id=f.reservation_item_id JOIN reservations r ON r.id=i.reservation_id
+      SELECT r.property_id,i.id,r.id INTO linked_property,linked_item,linked_reservation FROM folios f JOIN reservation_items i ON i.id=f.reservation_item_id JOIN reservations r ON r.id=i.reservation_id
         WHERE f.id=NEW.folio_id FOR SHARE OF f,i,r;
       IF linked_property IS NULL OR linked_property<>affected.property_id OR
          (affected.folio_id IS NOT NULL AND affected.folio_id<>NEW.folio_id) THEN
         RAISE EXCEPTION 'BAR charge reverse ownership mismatch';
       END IF;
+      -- Version new ancestors as well as BAR link parents: stale ancestor snapshots
+      -- must detect newly relocated BAR dependencies after a valid reparent.
+      UPDATE folios SET reservation_item_id=reservation_item_id WHERE id=NEW.folio_id;
+      UPDATE reservation_items SET reservation_id=reservation_id WHERE id=linked_item;
+      UPDATE reservations SET property_id=property_id WHERE id=linked_reservation;
     END LOOP;
   ELSIF TG_TABLE_NAME = 'folios' THEN
     IF NEW.reservation_item_id IS NOT DISTINCT FROM OLD.reservation_item_id THEN RETURN NEW; END IF;
     FOR affected IN SELECT s.property_id FROM bar_sales s WHERE s.folio_id=OLD.id OR EXISTS
       (SELECT 1 FROM charges c WHERE c.id=s.charge_id AND c.folio_id=OLD.id) FOR SHARE OF s LOOP
-      SELECT r.property_id INTO linked_property FROM reservation_items i JOIN reservations r ON r.id=i.reservation_id
+      SELECT r.property_id,i.id,r.id INTO linked_property,linked_item,linked_reservation FROM reservation_items i JOIN reservations r ON r.id=i.reservation_id
         WHERE i.id=NEW.reservation_item_id FOR SHARE OF i,r;
       IF linked_property IS NULL OR linked_property<>affected.property_id THEN
         RAISE EXCEPTION 'BAR folio reverse ownership mismatch';
       END IF;
+      UPDATE reservation_items SET reservation_id=reservation_id WHERE id=linked_item;
+      UPDATE reservations SET property_id=property_id WHERE id=linked_reservation;
     END LOOP;
   ELSIF TG_TABLE_NAME = 'reservation_items' THEN
     IF NEW.reservation_id IS NOT DISTINCT FROM OLD.reservation_id THEN RETURN NEW; END IF;
@@ -81,6 +90,7 @@ BEGIN
       IF linked_property IS NULL OR linked_property<>affected.property_id THEN
         RAISE EXCEPTION 'BAR reservation item reverse ownership mismatch';
       END IF;
+      UPDATE reservations SET property_id=property_id WHERE id=NEW.reservation_id;
     END LOOP;
   ELSIF TG_TABLE_NAME = 'reservations' THEN
     IF NEW.property_id IS NOT DISTINCT FROM OLD.property_id THEN RETURN NEW; END IF;

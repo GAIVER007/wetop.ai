@@ -224,4 +224,59 @@ describe('BAR parent mutation races preserve ownership', () => {
       }
     });
   }
+  for (const role of ['wetop_app', 'wetop_service'])
+    for (const kind of ['charge', 'folio', 'item']) {
+      it(`${role}: stale ancestor snapshot cannot miss a valid ${kind} reparent`, async () => {
+        const a = await proof.side('ancestor-snapshot');
+        await observer.query('UPDATE bar_sales SET folio_id=$1,charge_id=$2 WHERE id=$3', [
+          kind === 'charge' ? null : a.folios[0],
+          kind === 'charge' ? a.charges[0] : null,
+          a.rows.bar_sales,
+        ]);
+        const oldItem = (
+          await observer.query(
+            'SELECT i.* FROM reservation_items i JOIN folios f ON f.reservation_item_id=i.id WHERE f.id=$1',
+            [a.folios[0]],
+          )
+        ).rows[0]!;
+        const nextItem = (
+          await observer.query(
+            'SELECT i.* FROM reservation_items i JOIN folios f ON f.reservation_item_id=i.id WHERE f.id=$1',
+            [a.folios[1]],
+          )
+        ).rows[0]!;
+        const unusedItem = randomUUID();
+        await proof.insert('reservation_items', { ...nextItem, id: unusedItem });
+        await parent.query('BEGIN ISOLATION LEVEL REPEATABLE READ');
+        await parent.query(`SET LOCAL ROLE ${role}`);
+        await parent.query("SELECT set_config('app.org_id',$1,true)", [a.org]);
+        await parent.query('SELECT id FROM reservations WHERE id=$1', [nextItem.reservation_id]);
+        try {
+          await begin(link, role, a.org);
+          const updates: Record<string, [string, unknown[]]> = {
+            charge: ['UPDATE charges SET folio_id=$1 WHERE id=$2', [a.folios[1], a.charges[0]]],
+            folio: [
+              'UPDATE folios SET reservation_item_id=$1 WHERE id=$2',
+              [unusedItem, a.folios[0]],
+            ],
+            item: [
+              'UPDATE reservation_items SET reservation_id=$1 WHERE id=$2',
+              [nextItem.reservation_id, oldItem.id],
+            ],
+          };
+          const [sql, args] = updates[kind]!;
+          expect((await link.query(sql, args)).rowCount).toBe(1);
+          await link.query('COMMIT');
+          await expect(
+            parent.query('UPDATE reservations SET property_id=$1 WHERE id=$2', [
+              a.secondProperty,
+              nextItem.reservation_id,
+            ]),
+          ).rejects.toMatchObject({ code: '40001' });
+        } finally {
+          await parent.query('ROLLBACK');
+          await link.query('ROLLBACK');
+        }
+      });
+    }
 });

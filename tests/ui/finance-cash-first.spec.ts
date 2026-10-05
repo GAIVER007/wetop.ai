@@ -87,15 +87,23 @@ for (const width of [1440, 390, 360]) {
   });
 }
 
-test('касса: быстрые действия доступны без отчётов', async ({ page }) => {
+test('касса: первый экран без лишних кнопок, действия внутри управления', async ({ page }) => {
   await page.goto('/finance');
-  await expect(page.getByTestId('cash-summary')).toContainText('за всё время');
-  await page.getByRole('button', { name: 'Новая операция', exact: true }).click();
-  await page.getByRole('button', { name: 'Расход', exact: true }).last().click();
+  await expect(page.getByRole('button', { name: 'Новая операция', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
+  const todayHref = await page
+    .getByRole('link', { name: 'Сегодня', exact: true })
+    .getAttribute('href');
+  const today = new URL(todayHref!, 'http://localhost').searchParams.get('from')!;
+  const yesterday = new Date(`${today}T00:00:00Z`);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const date = yesterday.toISOString().slice(0, 10);
+  await page.getByRole('link', { name: 'Вчера', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`from=${date}&to=${date}`));
+  await page.getByText('Отчёты и управление', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+  await page.getByTestId('cash-expense-btn').click();
   await expect(page.getByTestId('cash-operation-form')).toBeVisible();
-  await page.getByRole('button', { name: 'Отмена', exact: true }).click();
-  await page.getByRole('button', { name: 'Новый перевод', exact: true }).click();
-  await expect(page.getByTestId('cash-transfer-form')).toBeVisible();
 });
 
 test('касса: визуальная иерархия итогов и спокойный сброс', async ({ page }) => {
@@ -103,9 +111,9 @@ test('касса: визуальная иерархия итогов и спок
   await page.goto('/finance');
   const income = await page.getByTestId('cash-period-income').boundingBox();
   const expense = await page.getByTestId('cash-period-expense').boundingBox();
-  expect(Math.abs(income!.y - expense!.y)).toBeLessThanOrEqual(1);
-  expect(expense!.x).toBeGreaterThan(income!.x);
-  await expect(page.getByTestId('finance-period')).not.toContainText('За период с');
+  expect(expense!.y).toBeGreaterThan(income!.y);
+  expect(Math.abs(expense!.x + expense!.width - income!.x - income!.width)).toBeLessThanOrEqual(1);
+  await expect(page.getByTestId('finance-period')).toContainText('За период с');
   expect(
     await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
   ).not.toBe('rgba(0, 0, 0, 0)');

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { hotelToday, reservationStatusWords, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
-import { displayDate, displayPeriod } from '../../lib/display-date';
+import { displayDate } from '../../lib/display-date';
 import { can } from '@pms/domain';
 import {
   financeApi,
@@ -81,6 +81,9 @@ export default async function FinanceReportPage({
 }) {
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
+  const yesterday = new Date(`${cal.today}T00:00:00Z`);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayDate = yesterday.toISOString().slice(0, 10);
   const from = sp.from || cal.month.from;
   const to = sp.to || cal.month.to;
   const dates = validDate(from) && validDate(to) && from <= to;
@@ -176,7 +179,7 @@ export default async function FinanceReportPage({
         </div>
         <div className="cash-summary__period">
           <a href="#finance-filters" className="cash-summary__label" data-testid="finance-period">
-            За период: {displayPeriod(from, to)}
+            За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
           </a>
           <dl>
             <div className="cash-summary__income">
@@ -227,16 +230,6 @@ export default async function FinanceReportPage({
         <LoadError testId="cash-period-error" {...loadErrorProps(periodOpsError)} />
       )}
 
-      {cashBalances && !shell.readOnly && (
-        <CashPanel
-          quickOnly
-          cash={cashBalances}
-          categories={cashBalances.categories}
-          cashOpsHref={opsHref({ src: 'cash' })}
-          editable
-          maySettings={maySettings}
-        />
-      )}
       <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
         <form
           method="get"
@@ -264,11 +257,13 @@ export default async function FinanceReportPage({
           </Field>
           {/* Готовые отрезки — ссылками: период виден в адресе и в подзаголовке */}
           <nav className="directory-filters finance-presets" aria-label="Готовые периоды">
+            <span className="finance-presets__label">Период:</span>
             {(
               [
                 ['Сегодня', { from: cal.today, to: cal.today }],
-                ['7 дней', cal.week],
-                ['Этот месяц', cal.month],
+                ['Вчера', { from: yesterdayDate, to: yesterdayDate }],
+                ['Неделя', cal.week],
+                ['Месяц', cal.month],
                 ['Прошлый месяц', cal.prevMonth],
               ] as const
             ).map(([label, p]) => (

@@ -56,8 +56,8 @@ test('F1: заголовок и период в подзаголовке, пер
   await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
-  await expect(main.getByTestId('finance-period')).toContainText('За период:');
-  await expect(main.getByTestId('finance-period')).toContainText('→');
+  await expect(main.getByTestId('finance-period')).toContainText('За период с');
+  await expect(main.getByTestId('finance-period')).toContainText('по');
   // Начальный экран без поиска брони и вторичных действий.
   await expect(page.locator('.page__actions')).toHaveCount(0);
 

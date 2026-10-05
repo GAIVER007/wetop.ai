@@ -6296,3 +6296,8 @@
 | 05.10.2026 15:36 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep тёмное оформление) | ✅ 1 из 1 | 8 с | 1c19368 +5 | [лог](logs/2026-10-05T10-36-25Z-e2e-a1fe.log) |  |
 | 05.10.2026 15:36 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-36-33Z-unit-237e.log) |  |
 | 05.10.2026 15:37 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 7 из 7 | 17 с | 4890433 | [лог](logs/2026-10-05T10-37-30Z-e2e-f836.log) |  |
+| 05.10.2026 15:42 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep первый экран без\|визуальная иерархия) | ❌ упало 2 из 2 | 26 с | 383a90b +1 | [лог](logs/2026-10-05T10-42-56Z-e2e-868b.log) | касса: первый экран без лишних кнопок, действия внутри управления |
+| 05.10.2026 15:44 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 3 с | 383a90b +2 | [лог](logs/2026-10-05T10-44-23Z-unit-64f8.log) |  |
+| 05.10.2026 15:43 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts finance-f1.spec.ts --workers=1) | ❌ упало 5 из 16 | 1 мин 8 с | 383a90b +4 | [лог](logs/2026-10-05T10-43-54Z-e2e-7c55.log) | касса: доступность и верстка 390 |
+| 05.10.2026 15:45 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts finance-f1.spec.ts --workers=1) | ✅ 16 из 16 | 29 с | 383a90b +4 | [лог](logs/2026-10-05T10-45-32Z-e2e-5b6e.log) |  |
+| 05.10.2026 15:46 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 383a90b +2 | [лог](logs/2026-10-05T10-46-07Z-unit-2c51.log) |  |

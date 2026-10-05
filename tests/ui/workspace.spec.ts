@@ -1135,14 +1135,15 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
-  // список долгов с кнопками оплаты — на вкладке «Долги» финансов
+  // список долгов с кнопками оплаты находится в сворачиваемом блоке
+  await page.getByRole('button', { name: 'Отчёты и управление' }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
     expect(href).toMatch(/^\/reservations\/[^/#]+#booking-finance$/);
-  await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
-  await expect(page).toHaveURL(/\/reservations$/);
+  await pay.first().click();
+  await expect(page).toHaveURL(/\/reservations\/[^/#]+#booking-finance$/);
 });
 
 /**

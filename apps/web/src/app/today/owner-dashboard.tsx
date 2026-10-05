@@ -152,18 +152,24 @@ export async function OwnerOutlook({ today }: { today: string }) {
               key={day.date}
               aria-label={`${displayDate(day.date, 'full')}: ${formatPercent(day.percent)}, свободно ${day.free}`}
             >
-              <strong>{formatPercent(day.percent)}</strong>
-              <div className="owner-week-track" aria-hidden="true">
-                <i style={{ height: `${Math.max(0, Math.min(100, day.percent))}%` }} />
-              </div>
-              <span>
-                {day.date === today
-                  ? 'Сегодня'
-                  : new Date(`${day.date}T00:00:00Z`).toLocaleDateString('ru-RU', {
-                      weekday: 'short',
-                      timeZone: 'UTC',
-                    })}
-              </span>
+              <Link
+                href={`/chessboard?from=${day.date}&to=${day.date}`}
+                aria-label={`${displayDate(day.date, 'full')}: загрузка ${formatPercent(day.percent)}, свободно ${day.free}. Открыть календарь`}
+                aria-current={day.date === today ? 'date' : undefined}
+              >
+                <strong>{formatPercent(day.percent)}</strong>
+                <div className="owner-week-track" aria-hidden="true">
+                  <i style={{ height: `${Math.max(0, Math.min(100, day.percent))}%` }} />
+                </div>
+                <span>
+                  {day.date === today
+                    ? 'Сегодня'
+                    : new Date(`${day.date}T00:00:00Z`).toLocaleDateString('ru-RU', {
+                        weekday: 'short',
+                        timeZone: 'UTC',
+                      })}
+                </span>
+              </Link>
             </li>
           ))}
         </ol>

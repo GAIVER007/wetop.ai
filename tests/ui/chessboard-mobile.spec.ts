@@ -266,7 +266,16 @@ test('календарь возвращает обе позиции после �
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBe(0);
+  await expect
+    .poll(() =>
+      wrap.evaluate((el) => {
+        const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
+        const units = el.querySelector('thead th')!.getBoundingClientRect();
+        return Math.abs(today.left - units.right);
+      }),
+    )
+    .toBeLessThanOrEqual(2);
+  await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBe(0);
 });
 
 test('мобильная форма: ввод гостя на низком экране не перекрыт действиями', async ({

@@ -1938,3 +1938,44 @@
     font-size: var(--text-md);
   }
 }
+
+.free-menu__arrival,
+.free-menu__summary {
+  display: none;
+}
+@media (max-width: 600px) {
+  .free-menu__arrival {
+    display: flex;
+    margin-block: var(--space-4);
+  }
+  .free-menu__arrival .inp {
+    min-height: 48px;
+    width: 100%;
+    font-size: 16px;
+  }
+  .free-menu__summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-block: var(--space-4);
+  }
+  .free-menu__summary dt {
+    color: var(--muted);
+  }
+  .free-menu__summary dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .stay-preview__guest,
+  .stay-preview__facts dd {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .free-menu__dates {
+    display: none;
+  }
+}

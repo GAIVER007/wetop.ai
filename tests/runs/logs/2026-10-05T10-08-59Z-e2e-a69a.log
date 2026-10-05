@@ -1,0 +1,107 @@
+# Сквозные (e2e) · 05.10.2026 15:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8df2bc2 (HEAD), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' '--workers=1' '--grep' 'простой вход|быстрые действия'
+[WebServer] (node:1050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:1316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (37.5s)
+(node:1437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/finance-cash-first.spec.ts:90:1 › касса: быстрые действия доступны без отчётов (26.3s)
+
+
+  1) tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByLabel('Источник', { exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByLabel('Источник', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Источник', { exact: true })
+        28 × locator resolved to <select name="src" class="inp" aria-label="Источник">…</select>
+           - unexpected value "visible"
+
+
+      42 |   await page.getByLabel('Тип операции', { exact: true }).selectOption('expense');
+      43 |   await page.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');
+    > 44 |   await expect(page.getByLabel('Источник', { exact: true })).not.toBeVisible();
+         |                                                                  ^
+      45 |   await page.getByText('Дополнительные фильтры', { exact: true }).click();
+      46 |   await page.getByLabel('Источник', { exact: true }).selectOption('cash');
+      47 |   await page.getByRole('button', { name: 'Показать', exact: true }).click();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:44:66
+
+    Error Context: test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash-first.spec.ts:90:1 › касса: быстрые действия доступны без отчётов ───────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('cash-summary')
+    Expected substring: "за всё время"
+    Received string:    "Всего136 000 ₸За период с 01.10.2026 по 31.10.2026Поступления:136 000 ₸Расходы:0 ₸Баланс по способам оплатыНаличные136 000 ₸Kaspi0 ₸Halyk0 ₸Карта (терминал)0 ₸"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('cash-summary') with timeout 15000ms
+      - waiting for getByTestId('cash-summary')
+        33 × locator resolved to <section class="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">…</section>
+           - unexpected value "Всего136 000 ₸За период с 01.10.2026 по 31.10.2026Поступления:136 000 ₸Расходы:0 ₸Баланс по способам оплатыНаличные136 000 ₸Kaspi0 ₸Halyk0 ₸Карта (терминал)0 ₸"
+
+
+      90 | test('касса: быстрые действия доступны без отчётов', async ({ page }) => {
+      91 |   await page.goto('/finance');
+    > 92 |   await expect(page.getByTestId('cash-summary')).toContainText('за всё время');
+         |                                                  ^
+      93 |   await page.getByRole('button', { name: 'Новая операция', exact: true }).click();
+      94 |   await page.getByRole('button', { name: 'Расход', exact: true }).last().click();
+      95 |   await expect(page.getByTestId('cash-operation-form')).toBeVisible();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:92:50
+
+    Error Context: test-results/finance-cash-first-касса-б-bcb5b-йствия-доступны-без-отчётов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-б-bcb5b-йствия-доступны-без-отчётов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-б-bcb5b-йствия-доступны-без-отчётов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются
+    tests/ui/finance-cash-first.spec.ts:90:1 › касса: быстрые действия доступны без отчётов ────────
+
+# код выхода 1 · 1 мин 56 с

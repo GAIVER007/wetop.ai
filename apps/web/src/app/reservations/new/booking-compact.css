@@ -261,3 +261,16 @@
   margin: var(--space-2) 0 0;
   font-size: var(--text-sm);
 }
+
+/* Keep focused fields clear of author-created sticky actions on phones. */
+@media (max-width: 599px) {
+  .booking-create:focus-within .booking-footer {
+    position: static;
+  }
+  .booking-create input,
+  .booking-create select,
+  .booking-create textarea,
+  .booking-create .btn {
+    scroll-margin-block: 100px;
+  }
+}

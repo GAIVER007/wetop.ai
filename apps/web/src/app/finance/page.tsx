@@ -165,7 +165,9 @@ export default async function FinanceReportPage({
     <Page title="Касса">
       <section className="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">
         <div className="cash-summary__balance">
-          <span className="cash-summary__label">Всего</span>
+          <span className="cash-summary__label">
+            Всего <small>за всё время</small>
+          </span>
           <strong data-testid="cash-balance">
             {cashBalances
               ? formatMoney(cashBalances.totalMinor, cashBalances.currency)
@@ -222,6 +224,16 @@ export default async function FinanceReportPage({
         <LoadError testId="cash-period-error" {...loadErrorProps(periodOpsError)} />
       )}
 
+      {cashBalances && !shell.readOnly && (
+        <CashPanel
+          quickOnly
+          cash={cashBalances}
+          categories={cashBalances.categories}
+          cashOpsHref={opsHref({ src: 'cash' })}
+          editable
+          maySettings={maySettings}
+        />
+      )}
       <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
         <form
           method="get"
@@ -297,18 +309,21 @@ export default async function FinanceReportPage({
               ))}
             </Select>
           </Field>
-          <Field label="Источник">
-            <Select
-              name="src"
-              aria-label="Источник"
-              key={`src-${srcParam}`}
-              defaultValue={srcParam ?? ''}
-            >
-              <option value="">Все источники</option>
-              <option value="bookings">Брони</option>
-              <option value="cash">Касса</option>
-            </Select>
-          </Field>
+          <details className="finance-extra-filters" key={`extra-${srcParam}`} open={!!srcParam}>
+            <summary>Дополнительные фильтры{srcParam ? ' (1)' : ''}</summary>
+            <Field label="Источник">
+              <Select
+                name="src"
+                aria-label="Источник"
+                key={`src-${srcParam}`}
+                defaultValue={srcParam ?? ''}
+              >
+                <option value="">Все источники</option>
+                <option value="bookings">Брони</option>
+                <option value="cash">Касса</option>
+              </Select>
+            </Field>
+          </details>
           <div className="finance-filter-actions">
             <Button>Показать</Button>
             <Link href={period} className="btn btn--ghost">
@@ -969,13 +984,15 @@ function Operations({
   const minus = (kind: string) => kind === 'REFUND' || kind === 'EXPENSE';
   return (
     <>
-      <p className="finance-debts__meta" data-testid="ops-meta">
-        {pluralRu(ops.total, ['операция', 'операции', 'операций'])}
-        {filtered ? ' по отбору' : ''}
-      </p>
+      {ops.rows.length > 0 && (
+        <p className="finance-debts__meta" data-testid="ops-meta">
+          Найдено: {pluralRu(ops.total, ['операция', 'операции', 'операций'])}
+          {filtered ? ' по отбору' : ''}
+        </p>
+      )}
       {ops.rows.length === 0 ? (
         <p className="finance-debts__empty" data-testid="ops-empty">
-          {filtered ? 'По этому отбору операций за период нет.' : 'Операций за период нет.'}
+          Операций не найдено.
         </p>
       ) : (
         <Table size="sm" className="finance-ops__table" data-testid="ops-table">

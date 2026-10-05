@@ -121,7 +121,7 @@ for (const theme of ['light', 'dark'] as const) {
     const preview = page.getByTestId('stay-preview');
     await expect(preview).toBeVisible();
     expect((await preview.boundingBox())!.width).toBeGreaterThan(360);
-    await expect(preview.getByRole('link', { name: /Открыть/ })).toBeVisible();
+    await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toBeVisible();
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-preview.png` });
     await preview.getByRole('button', { name: 'Закрыть предпросмотр', exact: true }).tap();
     await page.getByLabel('Поиск в календаре').fill('');
@@ -208,5 +208,101 @@ for (const width of [360, 390, 430]) {
     await page.screenshot({
       path: `reports/calendar-mobile-2026-10-05/statistics-${width}-top.png`,
     });
+  });
+}
+
+test('мобильная панель меняет заезд без закрытия и показывает выезд', async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const stay = await (
+    await request.get(`${FIXTURE_API}/reservations/20260913-TEST1`, {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json();
+  const from = stay.arrivalDate as string;
+  await page.goto(`/chessboard?from=${from}&to=${add(from, 13)}`);
+  await page.getByLabel('Поиск в календаре').fill('R07');
+  await page.locator(`[data-unit-code="R07"] td[data-date="${from}"] .board__free`).click();
+  const menu = page.getByTestId('free-menu');
+  await menu.getByLabel('Заезд', { exact: true }).selectOption(add(from, 1));
+  await menu.getByLabel('Период проживания').selectOption('2');
+  await expect(menu.getByTestId('free-menu-departure')).toHaveAttribute('data-date', add(from, 4));
+  await expect(menu.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveAttribute(
+    'href',
+    `/reservations/new?arrival=${add(from, 1)}&departure=${add(from, 4)}&unit=R07`,
+  );
+});
+test('календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/chessboard');
+  const wrap = page.locator('.board-wrap');
+  await wrap.scrollIntoViewIfNeeded();
+  await wrap.evaluate((el) => {
+    el.scrollLeft = 220;
+    el.scrollTop = 280;
+  });
+  const position = await wrap.evaluate((el) => ({ x: el.scrollLeft, y: el.scrollTop }));
+  await page.goto('/reservations/20260913-TEST1');
+  await page.goBack();
+  await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
+  await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
+  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBe(0);
+});
+
+test('мобильная форма: ввод гостя на низком экране не перекрыт действиями', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { piiStorage: 'real' } });
+  await page.setViewportSize({ width: 360, height: 480 });
+  await page.goto('/reservations/new?arrival=2026-11-10&departure=2026-11-13&unit=R07');
+  const name = page.locator('[name="firstName"]');
+  await name.fill('Проверочный');
+  await name.scrollIntoViewIfNeeded();
+  await expect(name).toBeFocused();
+  await expect(name).toBeInViewport({ ratio: 1 });
+  expect(
+    await page.locator('.booking-footer').evaluate((el) => getComputedStyle(el).position),
+  ).toBe('static');
+  await page.locator('[name="lastName"]').fill('Мобильный');
+  await expect(page.locator('[name="phone"]')).toHaveAttribute('type', 'tel');
+  const submit = page.getByRole('button', { name: 'Создать бронь', exact: true });
+  await submit.scrollIntoViewIfNeeded();
+  await expect(submit).toBeInViewport({ ratio: 1 });
+});
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`телефон ${theme}: длинное имя и бронь на 28 ночей`, async ({ page, request }) => {
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.emulateMedia({ colorScheme: theme });
+    const result = await request.post(`${FIXTURE_API}/reservations`, {
+      headers: { 'x-wetop-test-client': '1' },
+      data: {
+        arrivalDate: '2026-11-01',
+        departureDate: '2026-11-29',
+        source: 'DESK',
+        guest: {
+          firstName: 'ПроверочноеОченьДлинноеИмя',
+          lastName: 'ДлиннаяТестоваяФамилияМобильногоГостя',
+        },
+        items: [{ accommodationTypeCode: 'ROOM', quantity: 1, adults: 1, unitCode: 'R07' }],
+      },
+    });
+    expect(result.ok()).toBe(true);
+    await page.goto('/chessboard?from=2026-11-01&to=2026-11-30');
+    await page.getByLabel('Поиск в календаре').fill('R07');
+    await page.locator('[data-unit-code="R07"] .board__stay').first().click();
+    const preview = page.getByTestId('stay-preview');
+    await expect(preview.getByTestId('preview-dates')).toContainText('28 ночей');
+    await expect(preview.getByRole('link', { name: 'Открыть гостя', exact: true })).toBeVisible();
+    expect(await preview.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    const guest = preview.getByTestId('preview-guest');
+    expect((await guest.boundingBox())!.width).toBeLessThan(320);
+    const actions = preview.getByRole('link', { name: 'Изменить даты', exact: true });
+    await actions.scrollIntoViewIfNeeded();
+    await expect(actions).toBeInViewport({ ratio: 0.99 });
+    await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });
   });
 }

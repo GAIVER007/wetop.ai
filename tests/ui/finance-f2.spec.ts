@@ -61,7 +61,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('kpi-refunded').click();
   await expect(page).toHaveURL(/op=refund#operations$/);
-  await expect(main.getByTestId('ops-empty')).toHaveText('По этому отбору операций за период нет.');
+  await expect(main.getByTestId('ops-empty')).toHaveText('Операций не найдено.');
 });
 
 test('F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами', async ({

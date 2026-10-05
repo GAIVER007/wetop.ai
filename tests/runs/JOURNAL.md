@@ -6217,3 +6217,4 @@
 | 05.10.2026 14:05 | typecheck | ✅ без ошибок | 17 с | 2278432 +5 | [лог](logs/2026-10-05T09-05-35Z-typecheck-ad68.log) | Mobile calendar rebased onto current main |
 | 05.10.2026 14:06 | lint | ✅ без ошибок | 11 с | 2278432 +5 | [лог](logs/2026-10-05T09-06-09Z-lint-5f6e.log) | Mobile calendar final lint |
 | 05.10.2026 14:06 | unit (частично: apps/web/src/app/chessboard/range-plan.test.ts apps/web/src/app/chessboard/board-filters.test.ts) | ✅ 20 из 20 | 1 с | 2278432 +2 | [лог](logs/2026-10-05T09-06-21Z-unit-07f7.log) | Calendar range and filters on current main |
+| 05.10.2026 14:08 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 10 из 10 | 22 с | f6225e4 | [лог](logs/2026-10-05T09-08-48Z-e2e-7b26.log) | Final mobile checks after concurrent main update |

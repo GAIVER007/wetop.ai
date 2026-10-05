@@ -80,11 +80,11 @@ test('8. подробности дня на графике без наведен
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px', async ({
+test('9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки', async ({
   page,
 }) => {
   // шкала §6 с 29.09.2026 — на шаг крупнее прежней 12…28
-  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px'];
+  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px', '48px'];
   const offScale = (main: import('@playwright/test').Locator) =>
     main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
@@ -105,9 +105,9 @@ test('9. размеры шрифта на главной и в «Аналити�
     await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
 
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
-    // число плитки денег — --text-3xl (26 px с 29.09)
+    // Поступления: --text-4xl (30 px), утверждённый концепт 05.10.2026.
     if (width === 1440)
-      expect(await fontSize(main.getByTestId('owner-paid').locator('strong'))).toBe('26px');
+      expect(await fontSize(main.getByTestId('owner-paid').locator('strong'))).toBe('30px');
     // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
     await page.goto('/management/analytics?period=week');
     await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();

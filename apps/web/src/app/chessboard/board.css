@@ -817,7 +817,8 @@
     gap: var(--space-2);
   }
   .board-toolbar .board-search {
-    flex: 1 1 100%;
+    flex: 1 1 160px;
+    min-width: 0;
   }
   .board--week {
     --board-caption-end: 8px;
@@ -1886,17 +1887,13 @@
   }
 }
 
-.board-day-panel__row--mobile {
-  display: none;
-}
-
-/* Сначала показатели дня, затем управление и сетка: страница прокручивается вниз. */
+/* На телефоне сводка остаётся перед календарём, но занимает одну прокручиваемую строку. */
 @media (max-width: 600px) {
   .board-top {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-4);
-    margin-bottom: var(--space-2);
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
   }
   .board-top > .board-controls {
     flex: none;
@@ -1904,27 +1901,38 @@
   }
   .board-day-panel {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-    padding: var(--space-4);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-1) var(--space-2);
     width: 100%;
     min-width: 0;
+    overflow: hidden;
   }
   .board-day-panel__title {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: var(--text-md);
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: var(--text-sm);
+    line-height: 1.2;
   }
   .board-day-panel__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 var(--space-4);
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--space-4);
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .board-day-panel__row,
-  .board-day-panel__row--mobile {
+  .board-day-panel__grid::-webkit-scrollbar {
+    display: none;
+  }
+  .board-day-panel__row {
     display: flex;
     align-items: center;
+    flex: 0 0 auto;
+    gap: var(--space-1);
     min-height: 44px;
     min-width: 0;
   }

@@ -83,13 +83,12 @@ test('телефон: чипы отборов — цели нажатия не �
 });
 
 test('телефон: управление календаря не отнимает у сетки пол-экрана', async ({ page }) => {
-  // На телефоне перед сеткой остаётся компактная сводка дня. Она должна быть видна целиком,
-  // а календарь должен начинаться в пределах первого экрана и оставаться доступным прокруткой.
+  // Компактная сводка дня на телефоне видима, но не выталкивает сетку ниже половины экрана.
   await page.goto('/chessboard');
   await expect(page.locator('.board-wrap')).toBeVisible();
   await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
   const board = await page.locator('.board-wrap').boundingBox();
-  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(760);
+  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThan(422);
   // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
 });

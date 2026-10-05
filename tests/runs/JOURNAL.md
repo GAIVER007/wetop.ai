@@ -6271,3 +6271,4 @@
 | 05.10.2026 14:41 | lint | ✅ без ошибок | 25 с | 7f4873c | [лог](logs/2026-10-05T09-41-05Z-lint-9b99.log) | Post-sync e86c0af5 final lint |
 | 05.10.2026 14:41 | typecheck | ✅ без ошибок | 26 с | 7f4873c | [лог](logs/2026-10-05T09-41-05Z-typecheck-0b4f.log) | Post-sync e86c0af5 final root API web typecheck |
 | 05.10.2026 14:42 | unit | ✅ 3368 из 3372, пропущено 4 | 5 мин 32 с | 7f4873c | [лог](logs/2026-10-05T09-42-53Z-unit-e08b.log) | Final full unit on frozen complete BAR repair and fresh main e86c0af5, no concurrent heavy checks |
+| 05.10.2026 15:06 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 15 из 15 | 10 с | e86c0af +1 | [лог](logs/2026-10-05T10-06-35Z-unit-d4de.log) | release: локальная ширина мобильного календаря зарегистрирована в guard |

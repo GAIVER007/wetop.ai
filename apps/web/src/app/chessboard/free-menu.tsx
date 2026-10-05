@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
+import { displayDate } from '../../lib/display-date';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 import type { FreeMenu } from './range-plan';
 
 const GAP = 6;
@@ -19,12 +21,14 @@ const EDGE = 8;
 export function FreeMenuPopover({
   menu,
   periods,
+  starts,
   anchor,
   readOnly,
   onClose,
 }: {
   menu: FreeMenu;
   periods: FreeMenu[];
+  starts: Array<{ date: string; periods: FreeMenu[] }>;
   anchor: HTMLElement;
   readOnly: boolean;
   onClose: () => void;
@@ -35,7 +39,13 @@ export function FreeMenuPopover({
       periods.findIndex((p) => p.newHref === menu.newHref),
     ),
   );
-  const selected = periods[period] ?? menu;
+  const [arrival, setArrival] = useState(() =>
+    new URLSearchParams(menu.newHref.split('?')[1]).get('arrival')!,
+  );
+  const options = starts.find((start) => start.date === arrival)?.periods ?? periods;
+  const selected = options[period] ?? options[0] ?? menu;
+  const selectedDates = new URLSearchParams(selected.newHref.split('?')[1]);
+  const departure = selectedDates.get('departure')!;
   const ref = useRef<HTMLDivElement>(null);
   const placed = useRef<{ top: number; left: number } | null>(null);
 
@@ -121,6 +131,42 @@ export function FreeMenuPopover({
         </p>
       )}
       {!readOnly && (
+        <label className="field free-menu__arrival">
+          <span>Заезд</span>
+          <select
+            className="inp"
+            aria-label="Заезд"
+            value={arrival}
+            onChange={(event) => {
+              setArrival(event.target.value);
+              setPeriod(0);
+            }}
+          >
+            {starts.map((start) => (
+              <option key={start.date} value={start.date}>
+                {displayDate(start.date)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <dl className="free-menu__summary" aria-live="polite">
+        <div>
+          <dt>Заезд</dt>
+          <dd>{displayDate(arrival)}</dd>
+        </div>
+        <div>
+          <dt>Выезд</dt>
+          <dd data-testid="free-menu-departure" data-date={departure}>
+            {displayDate(departure)}
+          </dd>
+        </div>
+        <div>
+          <dt>Проживание</dt>
+          <dd>{pluralRu(nightsBetween(arrival, departure), ['ночь', 'ночи', 'ночей'])}</dd>
+        </div>
+      </dl>
+      {!readOnly && (
         <label className="field free-menu__period">
           <span>Период проживания</span>
           <select
@@ -128,13 +174,15 @@ export function FreeMenuPopover({
             value={period}
             onChange={(event) => setPeriod(Number(event.target.value))}
           >
-            {periods.map((option, index) => (
+            {options.map((option, index) => (
               <option key={option.newHref} value={index}>
                 {index === 0 ? `${option.dates}, 1 ночь` : option.dates}
               </option>
             ))}
           </select>
-          <span className="muted">Другие даты можно выбрать в форме брони.</span>
+          <span className="muted">
+            Доступны свободные ночи этого участка. Другие даты можно выбрать в форме брони.
+          </span>
         </label>
       )}
       {readOnly ? (

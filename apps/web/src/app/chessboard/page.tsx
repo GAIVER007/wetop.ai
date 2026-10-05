@@ -8,6 +8,7 @@ import { Page } from '../../components/page';
 import { Alert, Button, Legend, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { ChessboardGrid } from './board-grid';
+import { BoardTodayLink } from './board-today-link';
 import { BoardHelp } from './board-help';
 import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
@@ -169,9 +170,7 @@ export default async function ChessboardPage({
               >
                 <Icon name="chevron" />
               </Link>
-              <Link href="/chessboard" className="btn btn--secondary">
-                Сегодня
-              </Link>
+              <BoardTodayLink />
             </span>{' '}
             {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
               «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}

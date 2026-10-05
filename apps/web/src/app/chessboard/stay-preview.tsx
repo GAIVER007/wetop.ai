@@ -227,7 +227,7 @@ export function StayPreview({
         ) : (
           <div>
             <dt>Суммы</dt>
-            <dd>не загрузились — откройте бронь</dd>
+            <dd>не загрузились, откройте бронь</dd>
           </div>
         )}
       </dl>
@@ -263,6 +263,16 @@ export function StayPreview({
         {target.status === 'CHECKED_OUT' && (
           <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
             Счёт
+          </Link>
+        )}
+        {!readOnly && live && (
+          <Link className="btn btn--secondary" href={`${card}#booking-actions`}>
+            Изменить даты
+          </Link>
+        )}
+        {data?.guestHref && (
+          <Link className="btn btn--secondary" href={data.guestHref}>
+            Открыть гостя
           </Link>
         )}
         <Link className="btn btn--ghost" href={card}>

@@ -1,16 +1,10 @@
-import { cache, Suspense, type ReactNode } from 'react';
+import { cache, Suspense } from 'react';
 import Link from 'next/link';
-import type { ResolvedPeriod } from '@pms/domain';
+import { dateRange, type ResolvedPeriod } from '@pms/domain';
 import { ApiError, dashboardApi, chessboardApi } from '../../lib/api';
 import { hotelApi } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
-import {
-  sourceLabel,
-  formatPercent,
-  deltaPercent,
-  deltaPoints,
-  type Delta,
-} from '../../lib/dashboard-format';
+import { formatPercent } from '../../lib/dashboard-format';
 import { displayDate } from '../../lib/display-date';
 import { DayBars } from '../../components/day-bars';
 import { Alert } from '../../components/ui';
@@ -18,7 +12,7 @@ import { loadDeskDay } from './desk-section';
 import { loadGuardStatus } from './guard-status';
 import { DayAttention } from './day-attention';
 import { DashboardDetails } from './owner-controls';
-import { moneyBarHeight } from './owner-metrics';
+import { checkedInAdults } from './owner-metrics';
 
 const loadPeriod = cache((from: string, to: string) =>
   dashboardApi.period(from, to).catch((error: unknown) => {
@@ -32,39 +26,27 @@ function Metric({
   note,
   href,
   id,
-  delta,
-  featured = false,
 }: {
   label: string;
   value: string;
-  note: ReactNode;
+  note: string;
   href?: string;
   id?: string;
-  /** изменение к прошлому отрезку той же длины; без базы не показывается */
-  delta?: Delta | undefined;
-  featured?: boolean;
 }) {
   return (
-    <div className={`owner-stat${featured ? ' owner-stat--featured' : ''}`} data-testid={id}>
+    <div className="owner-stat" data-testid={id}>
       <span>{label}</span>
       <strong>{href ? <Link href={href}>{value}</Link> : value}</strong>
-      <small>
-        {delta?.direction && (
-          <b className={`owner-delta owner-delta--${delta.direction}`}>{delta.text}</b>
-        )}
-        {note}
-      </small>
+      <small>{note}</small>
     </div>
   );
 }
 export async function OwnerFinance({
   period,
   currency,
-  today,
 }: {
   period: ResolvedPeriod;
   currency: string;
-  today: string;
 }) {
   const result = await loadPeriod(period.from, period.to);
   if (result instanceof ApiError)
@@ -77,138 +59,77 @@ export async function OwnerFinance({
       </div>
     );
   const c = result.current;
-  const p = result.previous;
   const money = (value: string | bigint) => formatMoney(value, currency);
   const finance = `/finance?from=${period.from}&to=${period.to}`;
-  const analytics = `/management/analytics?period=custom&from=${period.from}&to=${period.to}`;
-  const netCash = BigInt(c.payments.totalMinor) - BigInt(c.refundsMinor);
-  const previousNetCash = BigInt(p.payments.totalMinor) - BigInt(p.refundsMinor);
-  const max = c.daily.reduce(
-    (value, day) => (BigInt(day.revenueMinor) > value ? BigInt(day.revenueMinor) : value),
-    0n,
-  );
   return (
-    <>
-      <section className="owner-finance" aria-label="Финансы за выбранный период">
-        <div className="owner-row-label">
-          <span>
-            {displayDate(period.from)} — {displayDate(period.to)}
-          </span>
-          <Link href={finance}>Все операции</Link>
-        </div>
-        <div className="owner-stats owner-stats--money">
-          <Metric
-            label="Чистое движение"
-            value={money(netCash)}
-            note="Оплаты минус возвраты. Это не прибыль."
-            delta={deltaPercent(netCash, previousNetCash)}
-            href={finance}
-            id="owner-net-cash"
-            featured
-          />
-          <Metric
-            label="Получено оплат"
-            value={money(c.payments.totalMinor)}
-            note="деньги, принятые за период"
-            delta={deltaPercent(BigInt(c.payments.totalMinor), BigInt(p.payments.totalMinor))}
-            href={finance}
-            id="owner-paid"
-          />
-          <Metric
-            label="Возвраты"
-            value={money(c.refundsMinor)}
-            note="возвращено гостям за период"
-            delta={deltaPercent(BigInt(c.refundsMinor), BigInt(p.refundsMinor))}
-            href={finance}
-            id="owner-refunds"
-          />
-          <Metric
-            label="Начислено"
-            value={money(c.revenue.totalMinor)}
-            note="все начисления за период"
-            delta={deltaPercent(BigInt(c.revenue.totalMinor), BigInt(p.revenue.totalMinor))}
-            href={finance}
-            id="owner-charged"
-          />
-        </div>
-        <div className="owner-performance" aria-label="Показатели продаж">
-          <Metric
-            label="Средняя цена ночи"
-            value={c.adrMinor ? money(c.adrMinor) : '—'}
-            note={c.adrMinor ? 'за проданную ночь' : 'Проданных ночей нет'}
-            delta={
-              c.adrMinor && p.adrMinor
-                ? deltaPercent(BigInt(c.adrMinor), BigInt(p.adrMinor))
-                : undefined
-            }
-            href={analytics}
-            id="owner-adr"
-          />
-          <Metric
-            label="Загрузка за период"
-            value={formatPercent(c.occupancy.percent)}
-            note={`${c.occupancy.occupiedNights} из ${c.occupancy.unitNights} ночей`}
-            delta={deltaPoints(c.occupancy.percent, p.occupancy.percent)}
-            href={`/management/analytics/occupancy?period=custom&from=${period.from}&to=${period.to}`}
-            id="owner-occupancy"
-          />
-        </div>
-      </section>
-      <section className="owner-charts" aria-label="Аналитика за выбранный период">
-        <article className="owner-panel owner-panel--revenue">
-          <header>
-            <h2>Начисления по дням</h2>
-            <Link href={analytics}>Отчёт</Link>
-          </header>
-          <DayBars
-            testId="owner-revenue-chart"
-            today={today}
-            days={c.daily.map((day) => ({
-              date: day.date,
-              height: moneyBarHeight(day.revenueMinor, max),
-              facts: money(day.revenueMinor),
-            }))}
-          />
-          <p className="owner-caption">Только проживание, по дате заезда</p>
-        </article>
-        <article className="owner-panel">
-          <header>
-            <h2>Источники броней</h2>
-            <Link href={analytics}>Все</Link>
-          </header>
-          <div className="owner-source-list">
-            {c.sources.length ? (
-              [...c.sources]
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 3)
-                .map((s) => (
-                  <div className="owner-source" key={`${s.source}|${s.channel}`}>
-                    <span>{sourceLabel(s.source, s.channel)}</span>
-                    <strong>{s.count}</strong>
-                    <small>{money(s.amountMinor)}</small>
-                  </div>
-                ))
-            ) : (
-              <p className="owner-caption">Заездов за период нет</p>
-            )}
-          </div>
-          <div className="owner-bookings">
-            <span>
-              Брони <b>{c.bookings.total}</b>
-            </span>
-            <span>
-              Отмены <b>{c.bookings.cancelled}</b>
-            </span>
-            <span>
-              Незаезды <b>{c.bookings.noShow}</b>
-            </span>
-          </div>
-          <p className="owner-caption">По дате заезда; суммы — стоимость размещений</p>
-        </article>
-      </section>
-    </>
+    <section className="owner-finance" aria-label="Финансы за выбранный период">
+      <div className="owner-row-label">
+        <h2>Деньги</h2>
+        <span>
+          {displayDate(period.from)} – {displayDate(period.to)}
+        </span>
+        <Link href={finance}>Подробнее</Link>
+      </div>
+      <div className="owner-stats">
+        <Metric
+          label="Поступления"
+          value={money(c.payments.totalMinor)}
+          note="Оплаты за выбранный период"
+          href={finance}
+          id="owner-paid"
+        />
+        <Metric
+          label="Расходы"
+          value="Нет данных"
+          note="Не подключён учёт расходов"
+          id="owner-expenses"
+        />
+        <Metric
+          label="Касса"
+          value="Нет данных"
+          note="Остаток кассы не подключён"
+          href={finance}
+          id="owner-cash"
+        />
+        <Metric
+          label="Всего"
+          value="Нет данных"
+          note="Общий остаток не подключён"
+          href={finance}
+          id="owner-total"
+        />
+      </div>
+    </section>
   );
 }
+export async function OwnerOutlook({ today }: { today: string }) {
+  const end = new Date(`${today}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 6);
+  const to = dateRange(today, end.toISOString().slice(0, 10)).at(-1)!;
+  const result = await loadPeriod(today, to);
+  return (
+    <section className="owner-outlook owner-panel" aria-label="Загрузка ближайших семи дней">
+      <header>
+        <h2>Ближайшие 7 дней</h2>
+        <Link href={`/chessboard?from=${today}&to=${to}`}>Календарь</Link>
+      </header>
+      {result instanceof ApiError ? (
+        <p className="owner-caption">Прогноз загрузки недоступен</p>
+      ) : (
+        <DayBars
+          today={today}
+          testId="owner-outlook-chart"
+          days={result.current.daily.map((day) => ({
+            date: day.date,
+            height: day.percent,
+            facts: `${formatPercent(day.percent)}, свободно ${day.free}`,
+          }))}
+        />
+      )}
+    </section>
+  );
+}
+
 async function DebtAmount({ minor }: { minor: string }) {
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
@@ -245,22 +166,83 @@ export async function OwnerOperations({ date }: { date: string }) {
       </div>
     );
   const [day, board, guard] = result;
+  const summary = board?.summary[date];
+  const total = summary ? summary.occupied + summary.free + summary.blocked : 0;
   return (
-    <section className="owner-riskbar" aria-label="Риски на сегодня" data-testid="owner-risks">
-      <div className="owner-riskbar__debt">
-        <span>К оплате у выезжающих</span>
-        <span className="owner-debt">
+    <>
+      <section className="owner-operations" aria-label="Гостиница сегодня">
+        <div className="owner-row-label">
+          <h2>Гостиница сегодня</h2>
+          <span>{displayDate(date, 'numeric')}</span>
+          <Link href={`/chessboard?from=${date}&to=${date}`}>Шахматка</Link>
+        </div>
+        <div className="owner-stats owner-today-stats">
+          <Metric
+            label="Гости на месте"
+            value={String(checkedInAdults(day))}
+            note="Взрослые в заселённых размещениях"
+            href={`/reservations?date=${date}`}
+            id="owner-guests"
+          />
+          <Metric
+            label="Загрузка сегодня"
+            value={
+              summary && total
+                ? formatPercent(Math.round((summary.occupied * 1000) / total) / 10)
+                : 'Нет данных'
+            }
+            note={
+              summary
+                ? `Занято ${summary.occupied} из ${total} номеров и коек`
+                : 'Шахматка недоступна'
+            }
+            href={`/management/analytics/occupancy?date=${date}`}
+            id="c-occupancy"
+          />
+          <Metric
+            label="Свободно"
+            value={summary ? String(summary.free) : 'Нет данных'}
+            note={summary ? `Заблокировано: ${summary.blocked}` : 'Нет данных фонда'}
+            href={`/rooms/availability?arrival=${date}`}
+            id="c-free"
+          />
+          <Metric
+            label="Заезды / выезды"
+            value={`${day.counts.toCheckIn} / ${day.counts.toCheckOut}`}
+            note="Ожидают заселения / выезда сегодня"
+            href={`/reservations?date=${date}`}
+            id="owner-movements"
+          />
+        </div>
+        {summary && total > 0 && (
+          <div className="owner-fill" aria-label={`Занято ${summary.occupied} из ${total}`}>
+            <progress max={total} value={summary.occupied} />
+            <span>
+              Занято {summary.occupied} из {total} · свободно {summary.free}
+            </span>
+          </div>
+        )}
+      </section>
+      <section className="owner-bottom" aria-label="Внимание и действия">
+        <div>
+          <span>К оплате у выезжающих</span>
           <Suspense fallback={<strong>…</strong>}>
             <DebtAmount minor={day.debtMinor} />
           </Suspense>
-        </span>
-        <small>{displayDate(date, 'numeric')}</small>
-      </div>
-      <div className="owner-riskbar__actions">
-        <DashboardDetails title="Требуют внимания">
-          <DayAttention day={day} board={board} guard={guard} isToday />
-        </DashboardDetails>
-      </div>
-    </section>
+          <small>Ещё заселённые, выезд сегодня</small>
+        </div>
+        <div className="owner-bottom__actions">
+          <DashboardDetails title="Требуют внимания">
+            <DayAttention day={day} board={board} guard={guard} isToday />
+          </DashboardDetails>
+          <Link className="btn btn--secondary" href={`/reservations?date=${date}`}>
+            Брони сегодня
+          </Link>
+          <Link href="/incidents" className="owner-system-link">
+            Контроль системы
+          </Link>
+        </div>
+      </section>
+    </>
   );
 }

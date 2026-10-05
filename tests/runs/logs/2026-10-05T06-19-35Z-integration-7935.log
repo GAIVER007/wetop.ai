@@ -1,0 +1,62 @@
+# Интеграционные (integration) · 05.10.2026 11:19 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-19-35Z-integration-7935.json' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+(node:47348) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/mv6-food.test.ts (19 tests | 2 failed) 949ms
+   ❯ MV6 real PostgreSQL (19)
+     ✓ unassigned booking, assignment, move, confirm, seat, complete and persisted list 144ms
+     ✓ create idempotency includes concurrent duplicate, normalized offset and mismatch 37ms
+     ✓ walk-in requires a table, starts SEATED, unassign denied 27ms
+     ✓ capacity and occupied target rollback create, customer and audit 26ms
+     ✓ two concurrent creates on one overlapping table produce one conflict 18ms
+     ✓ concurrent reassign cannot double book target 26ms
+     ✓ stale concurrent moves and statuses have exactly one winner 26ms
+     ✓ assign vs move and cancel vs assign keep one valid state 37ms
+     ✓ assigned move rechecks capacity/overlap and preserves row/audit on denial 24ms
+     ✓ seat requires assignment; unassign/reassign and terminal release 37ms
+     ✓ timezone/overnight uses preceding period weekday and rejects overflow 15ms
+     ✓ customer link visibility, archive and foreign organization unavailable 25ms
+     ✓ strict scope, wrong location/business and cross vertical denied 15ms
+     ✓ READ_ONLY all mutation families, GET remains available 16ms
+     ✓ STAFF cannot edit catalog and audit excludes PII notes 13ms
+     × HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 53ms
+     ✓ inactive catalogs and cross-location targets cannot be used 29ms
+     ✓ READ_ONLY committed while a write waits for parent lock is rechecked 65ms
+     × audit actions match the contract for period/status/table history 40ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv6-food.test.ts > MV6 real PostgreSQL > HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/integration/mv6-food.test.ts:156:200
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/mv6-food.test.ts > MV6 real PostgreSQL > audit actions match the contract for period/status/table history
+AssertionError: expected [ 'food.area.created', …(127) ] to include 'food.service_period.created'
+ ❯ tests/integration/mv6-food.test.ts:184:167
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  10:19:35
+   Duration  2.03s (tests 60%, transform 22%, import 19%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-19-35Z-integration-7935.json
+
+# код выхода 1 · 3 с

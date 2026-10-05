@@ -12,7 +12,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`, { headers: H });
 });
 
-test('календарь показывает количество дней рождения, а отдельная страница раскрывает детали', async ({
+test('дни рождения доступны на отдельной странице, но не дублируются в календаре', async ({
   page,
   request,
 }) => {
@@ -27,8 +27,8 @@ test('календарь показывает количество дней ро
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel.getByTestId('day-birthdays')).toHaveText('1');
-  await expect(panel.getByText('Дни рождения')).toHaveCount(1);
+  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
+  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
   const panelBox = (await panel.boundingBox())!;
   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
   expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(navBox.x);
@@ -50,9 +50,9 @@ test('календарь показывает количество дней ро
 
 test('нет дат рождения: отдельная страница говорит, что в неделю пусто', async ({ page }) => {
   await page.goto('/chessboard');
-  const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel.getByText('Дни рождения')).toHaveCount(1);
-  await expect(panel.getByTestId('day-birthdays')).toHaveText('0');
+  await expect(
+    page.getByRole('group', { name: 'Сегодня на объекте' }).getByText('Дни рождения'),
+  ).toHaveCount(0);
   await page.goto('/guests/birthdays');
   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
 });

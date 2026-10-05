@@ -1,5 +1,4 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
-import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
@@ -6647,8 +6646,7 @@ createServer(async (req, res) => {
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
       if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
-      if (!businessName || businessName.length > 200)
-        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+      if (!hotelName) return send(400, { message: 'Укажите название организации, до 200 знаков.' });
       if (password.trim().length < 10)
         return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
       // телефон и согласие — те же правила домена, что у настоящего API (форма 29.09.2026)

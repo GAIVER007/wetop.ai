@@ -1,6 +1,8 @@
 # MV5: WETOP Beauty UI
 
-Дата: 04.10.2026. Ветка `codex/mv5-beauty-ui-20261004`.
+Дата: 04.10.2026. Завершение проверки: 05.10.2026. Ветка `codex/mv5-beauty-ui-20261004`. [PR #242](https://github.com/GAIVER007/wetop.ai/pull/242).
+
+**Merge STOP:** после синхронизации с новым main full integration обнаружил два upstream дефекта бара. Реализация MV5 завершена, но полная приёмка заблокирована: integration выявил два дефекта main, повторные unit/browser прогоны не завершились успешно. Зелёные результаты до синхронизации не выдаются за результат текущего head. Подробности и условия снятия блокера в конце отчёта.
 
 ## Предшествующий MV4
 
@@ -28,7 +30,7 @@ Prisma, миграции, domain model, backend contracts и бизнес-пра
 
 Production не обновлялся. Миграции 51/52 остаются отдельным rollout владельца. MV6 не начат.
 
-## Проверки
+## Проверки до синхронизации с main 75c45295
 
 Проверки совместимости: **40/40 PASS**, `tests/runs/logs/2026-10-04T15-46-41Z-e2e-fe04.log`. Включены старые Beauty branch/catalog/schedule/journal, Hospitality branch switching и loading-performance.
 
@@ -76,3 +78,38 @@ Red/green: новое меню сначала дало 3 падения; overlap
 24 снимка получены последним real API browser прогоном. Визуально проверены desktop/mobile calendar и drawer, таблицы/карточки услуг и мастеров, список записей и клиентов. На коротких слотах полные сведения доступны в drawer и подсказке карточки.
 
 Production, release branch и миграции не затрагивались. Следующий шаг: review PR MV5 владельцем. После передачи STOP; MV6 не разрешён.
+
+## Синхронизация перед передачей PR
+
+При создании PR #242 GitHub обнаружил новый main `75c45295`: независимый модуль бара (коммиты `2bfde1b5`, `709e728f`, `75c45295`). Единственный текстовый конфликт в `navigation-beauty.test.ts`: сохранены канонические MV5 маршруты и upstream assertion, что `/bar` не входит в Beauty menu. API facade, навигация и ADR объединены; upstream изменения бара сохранены.
+
+`Business.vertical`, RequestActor/scope и channels boundaries upstream не менялись. Относительно свежего main diff MV5 по `apps/api`, `packages` и DATA_MODEL пуст. Новая bar migration принадлежит main, не MV5; применялась только к отдельной локальной базе проверки. Production не затрагивался.
+
+Проверка всех **58 миграций**, schema drift и каждого down: **PASS**, [лог](merge-main-migrations.log). Typecheck и lint после синхронизации: **PASS**, логи `2026-10-04T16-04-17Z-typecheck-7984.log` и `2026-10-04T16-04-17Z-lint-5b7b.log`. Full integration после синхронизации: **346 PASS, 2 FAIL, 9 existing skips**, `tests/runs/logs/2026-10-04T16-06-35Z-integration-bbc0.log`.
+
+### Impact report: upstream bar blocks merge
+
+1. `bar_property_guard()` создаётся в `20261004000051_bar_inventory` без закреплённого `search_path`. Падает неизменённый `tests/integration/function-search-path.test.ts`. Неявное разрешение имён в trigger function нарушает принятую защиту migration 43.
+2. `bar_categories`, `bar_products`, `bar_receipt_lines`, `bar_receipts`, `bar_sale_lines`, `bar_sales`, `bar_stock_lots`, `bar_stock_movements`, `bar_supplier_payments`, `bar_suppliers` отсутствуют в `RLS_TENANT_TABLES` (`packages/database/src/rls.ts`). Падает неизменённый `tests/integration/rls-isolation.test.ts`. В самой bar migration RLS включён и policies созданы; дефект в неполном реестре покрытия, не утверждение об отключённом RLS.
+
+Причина подтверждена diff: bar migration, RLS registry и оба integration tests в ветке идентичны `origin/main`. До её появления тот же полный integration был зелёным. `Business.vertical`, RequestActor и channels boundaries не менялись.
+
+Нужен отдельный upstream fix бара: закрепить search_path по принятому образцу migration 43 с rollback, синхронизировать tenant-table registry с существующими bar policies и повторить full integration. Уже вошедшую migration не переписывать без проверки истории применения. Затем обновить MV5 от исправленного main и повторить зависимые проверки. В MV5 эти DB-файлы не менялись.
+
+До устранения этих двух причин PR #242 не merge/deploy. Проверка цепочки и rollback PASS не заменяет упавшие runtime/invariant проверки.
+
+### Дополнительные проверки объединённой версии
+
+- Real API Beauty browser: **10/10 PASS**, `tests/runs/logs/2026-10-04T16-08-37Z-e2e-b0f4.log`. Все 24 снимка подтверждены этим прогоном.
+- Первый полный unit после синхронизации: 3362 PASS, 1 FAIL, 4 existing skips (`2026-10-04T16-04-17Z-unit-91f8.log`), socket hangup в существующем web-booking rate-limit тесте. Изолированный повтор всего файла: **40/40 PASS**, `2026-10-04T16-08-36Z-unit-276c.log`.
+- Второй полный unit: 3323 PASS, 1 FAIL, 4 existing skips плюс ошибка запуска worker (`2026-10-04T16-09-35Z-unit-6537.log`). Таймаут `ci-runner.test.ts`, worker `deploy-server.test.ts` не стартовал. Изолированный повтор обоих файлов: **59/59 PASS**, `2026-10-04T17-24-37Z-unit-069f.log`. Эти неуспешные полные прогоны сохранены и не считаются зелёными.
+
+- Дополнительный navigation browser run `2026-10-04T17-24-19Z-e2e-4d63.log`: 7 PASS, 1 timeout, 7 не запущены. Операция с лимитом 45 секунд заняла 17 минут; полный процесс длился 34 минуты. Не считается успешным.
+- Serial unit `2026-10-04T17-25-24Z-unit-c9ec.log` также столкнулся с многочасовыми задержками в shell tests. Причина задержек не доказана; результат не считается зелёным. Для последующих проверок временно предотвращён idle sleep через `caffeinate`, без изменений тестовых assertions.
+
+- Итог serial unit: **3299 PASS, 27 FAIL, 28 skipped/not-run, 3 worker errors**. Новых skip-аннотаций в тестах нет; увеличившееся число непройденных тестов связано с неуспешным выполнением набора.
+- Повтор navigation browser с предотвращением idle sleep: **0 PASS, 1 FAIL, 14 not-run**, `2026-10-05T03-28-33Z-e2e-c087.log`. Chromium не запустился. Проблема среды остаётся неустранённой; этот повтор не доказывает исправность navigation suite.
+
+Итог на синхронизированной версии: typecheck/lint и 58 migrations PASS, real Beauty API UI 10/10 PASS; full integration RED из-за двух подтверждённых upstream bar дефектов; свежий full unit и дополнительный navigation browser не GREEN. До merge требуются исправление bar invariants и успешные полные проверки в стабильной среде. Более ранние 40/40 UI и 4/4 onboarding сохраняются как историческое доказательство до sync.
+
+Локальные синтетические организации `MV5-browser-*`: 0 после cleanup. Production не затрагивался. MV6 не начат. STOP.

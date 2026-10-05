@@ -262,6 +262,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /analytics/sites/:id': 'settings',
   'GET /analytics/sites/:id/report': 'settings',
   'GET /audit': 'journal',
+  'GET /audit/actors': 'journal',
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',

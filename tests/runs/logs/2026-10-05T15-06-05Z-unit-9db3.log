@@ -1,0 +1,211 @@
+# Модульные (unit) · 05.10.2026 20:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-06-05Z-unit-9db3.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 30ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 1ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 24ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 0ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 0ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 0ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 0ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 3 failed) 6ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 1ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 3ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 32ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 32ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--text-muted' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--text-muted",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/bar/bar.css: 0 → 18",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/bar/catalogs.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/bar/bar.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(298) } to deeply equal { 'GET /branches': 'desk', …(274) }
+
+- Expected
++ Received
+
+@@ -41,10 +41,19 @@
+    "GET /auth/options": "public",
+    "GET /auth/sessions": "self",
+    "GET /availability": "desk",
+    "GET /availability/nearest": "desk",
+    "GET /availability/offers": "desk",
++   "GET /bar/categories": "desk",
++   "GET /bar/folios": "desk",
++   "GET /bar/movements": "desk",
++   "GET /bar/products": "desk",
++   "GET /bar/receipts": "desk",
++   "GET /bar/report": "desk",
++   "GET /bar/sales": "desk",
++   "GET /bar/stock": "desk",
++   "GET /bar/suppliers": "desk",
+    "GET /beauty/appointments": "desk",
+    "GET /beauty/employees": "desk",
+    "GET /beauty/schedule": "desk",
+    "GET /beauty/services": "desk",
+    "GET /bot/agent-origins": "public",
+@@ -134,10 +143,14 @@
+    "GET /wizard/quota": "public",
+    "GET /wizard/status": "public",
+    "PATCH /analytics/sites/:id": "settings",
+    "PATCH /auth/members/:userId": "owner",
+    "PATCH /auth/members/:userId/details": "staff",
++   "PATCH /bar/categories/:id/active": "settings",
++   "PATCH /bar/products/:id/active": "settings",
++   "PATCH /bar/products/:id/price": "settings",
++   "PATCH /bar/suppliers/:id/active": "settings",
+    "PATCH /beauty/appointments/:id": "desk",
+    "PATCH /beauty/employees/:id": "property",
+    "PATCH /beauty/services/:id": "rates",
+    "PATCH /finance/cash/categories/:id": "settings",
+    "PATCH /guests/:id": "desk",
+@@ -181,10 +194,21 @@
+    "POST /auth/logout-all": "self",
+    "POST /auth/password": "self",
+    "POST /auth/password-reset/confirm": "public",
+    "POST /auth/password-reset/request": "public",
+    "POST /auth/register": "public",
++   "POST /bar/categories": "settings",
++   "POST /bar/inventory-counts": "desk",
++   "POST /bar/products": "settings",
++   "POST /bar/receipts": "desk",
++   "POST /bar/receipts/:id/payments": "desk",
++   "POST /bar/receipts/:id/post": "desk",
++   "POST /bar/sales/:id/reverse": "desk",
++   "POST /bar/sales/folio": "desk",
++   "POST /bar/sales/retail": "desk",
++   "POST /bar/suppliers": "settings",
++   "POST /bar/write-offs": "desk",
+    "POST /beauty/appointments": "desk",
+    "POST /beauty/appointments/:id/status": "desk",
+    "POST /beauty/employees": "property",
+    "POST /beauty/employees/:id/time-offs": "property",
+    "POST /beauty/services": "rates",
+
+ ❯ apps/api/src/auth/route-access.test.ts:377:20
+    375|       .map(([key]) => key);
+    376|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    377|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    378|   });
+    379|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 22 passed (27)
+   Start at  08:06:06
+   Duration  1.44s (transform 56%, import 39%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-06-05Z-unit-9db3.json
+
+# код выхода 1 · 2 с

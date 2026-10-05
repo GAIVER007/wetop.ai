@@ -50,7 +50,7 @@ test('журнал: выборка словами, разделы чипами, 
   // отказ API: поиск и раздел на месте, повтор возвращает строки с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал действий');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
   await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');

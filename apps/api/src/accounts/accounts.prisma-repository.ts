@@ -175,18 +175,20 @@ export class PrismaAccountsRepository implements AccountsRepository {
     createdBy: string;
     role: MembershipRole;
   }): Promise<InviteRecord> {
-    const row = await this.prisma.db.invite.create({
-      data: {
-        organizationId: input.organizationId,
-        email: input.email,
-        tokenHash: input.tokenHash,
-        expiresAt: input.expiresAt,
-        createdBy: input.createdBy,
-        role: input.role,
-      },
-      select: INVITE_SELECT,
+    return this.prisma.db.$transaction(async (tx) => {
+      const row = await tx.invite.create({ data: input, select: INVITE_SELECT });
+      await tx.auditLog.create({
+        data: {
+          organizationId: input.organizationId,
+          userId: input.createdBy,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'invite.created',
+          after: { inviteId: row.id, role: input.role },
+        },
+      });
+      return toInviteRecord(row);
     });
-    return toInviteRecord(row);
   }
 
   async pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]> {
@@ -207,20 +209,90 @@ export class PrismaAccountsRepository implements AccountsRepository {
     organizationId: string,
     at: Date,
     roles: readonly MembershipRole[],
+    by?: string,
+    deliveryFailed = false,
   ): Promise<boolean> {
-    // id из адреса: не uuid — такого приглашения нет, а не ошибка базы
     if (!UUID.test(id)) return false;
-    const { count } = await this.prisma.db.invite.updateMany({
-      where: {
-        id,
-        organizationId,
-        acceptedAt: null,
-        expiresAt: { gt: at },
-        role: { in: [...roles] },
-      },
-      data: { expiresAt: at },
+    return this.prisma.db.$transaction(async (tx) => {
+      const { count } = await tx.invite.updateMany({
+        where: {
+          id,
+          organizationId,
+          acceptedAt: null,
+          expiresAt: { gt: at },
+          role: { in: [...roles] },
+        },
+        data: { expiresAt: at },
+      });
+      if (!count) return false;
+      await tx.auditLog.create({
+        data: {
+          organizationId,
+          userId: by ?? null,
+          entityType: 'organization',
+          entityId: organizationId,
+          action: 'invite.revoked',
+          after: { inviteId: id, deliveryFailed },
+        },
+      });
+      return true;
     });
-    return count > 0;
+  }
+
+  async acceptInvite(input: {
+    id: string;
+    now: Date;
+    passwordTokenHash: string;
+    passwordExpiresAt: Date;
+  }): Promise<{ passwordTokenIssued: boolean } | null> {
+    return this.prisma.db.$transaction(async (tx) => {
+      // UPDATE блокирует приглашение: конкурентный приём или отзыв увидит итог первой транзакции.
+      const claimed = await tx.invite.updateMany({
+        where: { id: input.id, acceptedAt: null, expiresAt: { gt: input.now } },
+        data: { acceptedAt: input.now },
+      });
+      if (!claimed.count) return null;
+      const invite = await tx.invite.findUniqueOrThrow({ where: { id: input.id } });
+      const user = await tx.user.upsert({
+        where: { email: invite.email },
+        create: { email: invite.email, status: 'ACTIVE' },
+        update: {},
+        select: { id: true, status: true, passwordHash: true },
+      });
+      const member = await tx.membership.upsert({
+        where: {
+          userId_organizationId: { userId: user.id, organizationId: invite.organizationId },
+        },
+        create: { userId: user.id, organizationId: invite.organizationId, role: invite.role },
+        update: {},
+        select: { role: true },
+      });
+      const passwordTokenIssued = user.status === 'ACTIVE' && user.passwordHash === '';
+      if (passwordTokenIssued) {
+        await tx.passwordReset.updateMany({
+          where: { userId: user.id, usedAt: null },
+          data: { usedAt: input.now },
+        });
+        await tx.passwordReset.create({
+          data: {
+            userId: user.id,
+            tokenHash: input.passwordTokenHash,
+            expiresAt: input.passwordExpiresAt,
+          },
+        });
+      }
+      await tx.auditLog.create({
+        data: {
+          organizationId: invite.organizationId,
+          userId: user.id,
+          entityType: 'organization',
+          entityId: invite.organizationId,
+          action: 'invite.accepted',
+          after: { inviteId: invite.id, userId: user.id, role: member.role },
+        },
+      });
+      return { passwordTokenIssued };
+    });
   }
 
   async inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null> {

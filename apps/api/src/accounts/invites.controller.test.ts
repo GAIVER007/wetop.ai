@@ -175,6 +175,17 @@ describe('приглашение: создание и список', () => {
 });
 
 describe('приглашение: проверка и принятие по ссылке', () => {
+  it('одновременное принятие выдаёт доступ и ссылку на пароль только одному запросу', async () => {
+    await invite(await login(), INVITEE).expect(201);
+    const rawToken = linkFromLetter(INVITEE).split('/invite/')[1]!;
+    const service = app.get(AccountsService);
+    const results = await Promise.all([
+      service.acceptInvite(rawToken),
+      service.acceptInvite(rawToken),
+    ]);
+    expect(results.filter(Boolean)).toHaveLength(1);
+  });
+
   it('по ключу видно, кто зовёт и кого; чужой ключ — 404 одним текстом', async () => {
     const token = await login();
     await invite(token, INVITEE).expect(201);

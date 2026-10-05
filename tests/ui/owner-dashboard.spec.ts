@@ -129,7 +129,7 @@ test('owner overview stays usable at narrow widths and custom dates remain acces
   await page.getByLabel('Конец периода').fill('2026-10-07');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/period=custom/);
-  await expect(page.getByTestId('owner-paid')).toBeVisible();
+  await expect(page.locator('[data-testid="owner-paid"]:visible')).toBeVisible();
 });
 
 test('approved owner concept groups forecast with occupancy and matches attention count', async ({

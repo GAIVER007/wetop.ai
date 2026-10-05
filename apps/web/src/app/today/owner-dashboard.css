@@ -1,6 +1,5 @@
 /* Approved owner concept: one load card, one money card, compact daily overview. */
 .page:has(.owner-dashboard) {
-  --owner-display: 48px;
   max-width: 1200px;
   margin-inline: auto;
   padding: 24px;
@@ -80,7 +79,7 @@ body:has(.owner-dashboard) .header-tools {
 }
 .owner-load-value {
   display: block;
-  font-size: var(--owner-display);
+  font-size: 48px;
   line-height: 1.1;
   letter-spacing: -1.5px;
   font-variant-numeric: tabular-nums;

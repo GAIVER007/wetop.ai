@@ -1,0 +1,2 @@
+ROLLBACK complete
+record "new" has no field "supplier_id"

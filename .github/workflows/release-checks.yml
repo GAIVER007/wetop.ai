@@ -147,6 +147,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
         run: npm run test:schema -- --refresh
+      - name: Мастер настройки, сохранение и восстановление в браузере
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx playwright test --config tests/onboarding/playwright.config.ts
       - name: Сквозные тесты
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev

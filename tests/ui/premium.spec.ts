@@ -15,8 +15,8 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  // Главная пересобрана в компактный дашборд владельца (ea9dd3c): плитки — .owner-stat
-  await expect(page.locator('.owner-stat').first()).toBeVisible();
+  // После перезагрузки виджет загрузки сохраняется в выбранной теме.
+  await expect(page.getByTestId('c-occupancy')).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -34,6 +34,8 @@ test('shell: панель, меню профиля, поиск', async ({ page }
   await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('tour-restart')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  await page.goto('/guests');
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();

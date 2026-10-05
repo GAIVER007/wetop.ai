@@ -2,6 +2,29 @@
 
 Основание: утверждённое владельцем ТЗ MV6 от 05.10.2026. Production и release не выполняются. MV7 закрыт до отдельного разрешения.
 
+## Финальная приёмка после BAR merge и sync
+
+BAR #245 merged: `46c095bd33aa506902a86f594d2ebcac59d4b576`. MV6 синхронизирован с main `c98a9597fc004deb4fd5e1aab7fc529711793620`. Конфликты DATA_MODEL/DECISIONS сведены с сохранением Food и всех BAR решений. Upstream не менял Business.vertical, RequestActor/scope или channels boundaries.
+
+Food migration: **58**, `20261005000058_food_service_domain`. SQL/down побайтово совпадают с принятым e35588e6. BAR migrations 55/56/57 не изменены. План, runbook и down path в тесте обновлены; исторические журналы сохраняют исходные номера как evidence прежнего head.
+
+| Финальный набор | Результат | Evidence |
+|---|---|---|
+| Full unit | 3377 PASS, 4 прежних skips | [log](../../tests/runs/logs/2026-10-05T10-27-35Z-unit-379e.log) |
+| Full integration | 741 PASS, 9 прежних skips | [log](../../tests/runs/logs/2026-10-05T10-33-44Z-integration-e840.log) |
+| Root/API/web typecheck | PASS | [log](../../tests/runs/logs/2026-10-05T10-35-03Z-typecheck-6561.log) |
+| Lint | PASS | [log](../../tests/runs/logs/2026-10-05T10-35-37Z-lint-b89c.log) |
+| Full chain / schema drift / all down rehearsals | 64 migrations PASS | [log](check-migrations-post-bar.txt) |
+| git diff --check | PASS | Diff к свежему origin/main |
+
+Каждый fingerprint четырёх финальных recorded suites совпадает с текущими файлами своего набора; codeChangedDuringRun=false. После прогонов менялись только документы и журналы. Migration inputs после rehearsal не менялись, проверено diff последующих sync.
+
+Focused Food unit: 8/8, Food DB/HTTP/concurrency/populated RLS + function-search-path/rls-isolation: 31/31. Финальный full integration включает BAR ownership, reverse-parent/concurrency и populated RLS всех десяти таблиц, а также Food invariants: explicit Food Business+Location, cross-vertical/cross-tenant/READ_ONLY, CustomerBusiness, idempotency, WALK_IN/SEATED table requirements, capacity/overlap, assign/reassign/unassign, move/status races, overnight/timezone, audit, RLS пяти Food tables и pinned functions.
+
+Первый full unit после BAR sync имел один timeout старого auto-deploy теста. Отдельный прогон 16/16 и последующие полные unit GREEN; timeouts/assertions не изменялись. Промежуточные сбои сохранены в журнале. Новых skips нет.
+
+Изолированный стенд: PostgreSQL 16, UTF-8, UTC, localhost:55753, `/tmp/wetop-mv6-post-bar-pgdata`; Node 24.15.0, LC_ALL=C, один unit worker. Общая Supabase и чужие деревья не изменялись. Production/release не обновляются. После merge MV6 STOP; MV7 не начинать.
+
 ## AS-IS и результат
 
 База реализации: main `abe59d83693655f87c51059a8e1915196d35d07f`. BAR-FIX #244 и MV5 #242 уже вошли в main. Последующее upstream изменение №54 включает FORCE RLS для BAR. До MV6 Food имел registry, pilot signup и onboarding, но не имел собственных таблиц или API. Поиск выполнен до добавления модели.
@@ -84,6 +107,6 @@ Full integration финального кода: 371 PASS / 9 прежних skip
 
 Проверка diff: scope/permissions, rollback транзакций и audit, tenant paths, catalog immutability, SQL parameter binding, bounded lists, duplicate-create races. Дополнительных таблиц, roles, generic abstractions, dependencies или runtime flags нет. Ограничение v1: записи в одном Location сериализованы; прямые SQL writers обязаны соблюдать протокол блокировок API для overlap/capacity, отдельного EXCLUDE на assignment не вводилось.
 
-Свежий origin/main повторно проверен: abe59d83, без новых коммитов относительно базы. Production, release branch и migration apply на сервере не трогались. MV6 передаётся в PR на review, merge не выполняется. MV7, Food UI, POS, деньги, аналитика, public online booking и AI tools не начинались.
+На первоначальном head origin/main был abe59d83; результаты этого head ниже сохраняются как история реализации. Production, release branch и migration apply на сервере не трогались. MV6 передаётся в PR на review, merge не выполняется. MV7, Food UI, POS, деньги, аналитика, public online booking и AI tools не начинались.
 
-Migration handoff: [migration-runbook.md](migration-runbook.md). После отчёта STOP.
+Migration handoff: [migration-runbook.md](migration-runbook.md). После merge MV6 STOP, MV7 требует отдельного разрешения.

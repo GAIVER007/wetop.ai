@@ -6325,3 +6325,10 @@
 | 05.10.2026 15:33 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 18 с | 507e687 | [лог](logs/2026-10-05T10-33-44Z-integration-e840.log) | MV6 final integration on main c98a9597 sync; includes Food and BAR ownership concurrency RLS |
 | 05.10.2026 15:35 | typecheck | ✅ без ошибок | 32 с | 507e687 | [лог](logs/2026-10-05T10-35-03Z-typecheck-6561.log) | MV6 final c98 synced root API web typecheck |
 | 05.10.2026 15:35 | lint | ✅ без ошибок | 33 с | 507e687 | [лог](logs/2026-10-05T10-35-37Z-lint-b89c.log) | MV6 final c98 synced lint |
+| 05.10.2026 15:33 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep визуальная иерархия) | ❌ упало 1 из 1 | 9 с | 1c19368 +1 | [лог](logs/2026-10-05T10-33-35Z-e2e-88bf.log) | касса: визуальная иерархия итогов и спокойный сброс |
+| 05.10.2026 15:34 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-34-59Z-unit-0251.log) |  |
+| 05.10.2026 15:34 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts finance-f1.spec.ts finance-cash.spec.ts --workers=1) | ❌ упало 1 из 24 | 43 с | 1c19368 +5 | [лог](logs/2026-10-05T10-34-45Z-e2e-b212.log) | касса: доступность и верстка 360 |
+| 05.10.2026 15:35 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 6 из 6 | 15 с | 1c19368 +5 | [лог](logs/2026-10-05T10-35-47Z-e2e-6695.log) |  |
+| 05.10.2026 15:36 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1 --grep тёмное оформление) | ✅ 1 из 1 | 8 с | 1c19368 +5 | [лог](logs/2026-10-05T10-36-25Z-e2e-a1fe.log) |  |
+| 05.10.2026 15:36 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 1c19368 +3 | [лог](logs/2026-10-05T10-36-33Z-unit-237e.log) |  |
+| 05.10.2026 15:37 | e2e (частично: --config tests/ui/playwright.alt.config.ts finance-cash-first.spec.ts --workers=1) | ✅ 7 из 7 | 17 с | 4890433 | [лог](logs/2026-10-05T10-37-30Z-e2e-f836.log) |  |

@@ -97,3 +97,33 @@ test('касса: быстрые действия доступны без отч
   await page.getByRole('button', { name: 'Новый перевод', exact: true }).click();
   await expect(page.getByTestId('cash-transfer-form')).toBeVisible();
 });
+
+test('касса: визуальная иерархия итогов и спокойный сброс', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/finance');
+  const income = await page.getByTestId('cash-period-income').boundingBox();
+  const expense = await page.getByTestId('cash-period-expense').boundingBox();
+  expect(Math.abs(income!.y - expense!.y)).toBeLessThanOrEqual(1);
+  expect(expense!.x).toBeGreaterThan(income!.x);
+  await expect(page.getByTestId('finance-period')).not.toContainText('За период с');
+  expect(
+    await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).not.toBe('rgba(0, 0, 0, 0)');
+  expect(
+    await page
+      .getByRole('link', { name: 'Сбросить фильтр' })
+      .evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).toBe('rgba(0, 0, 0, 0)');
+});
+
+test('касса: тёмное оформление читается на телефоне', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/finance');
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
+  ).toBeLessThanOrEqual(1);
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+  await page.screenshot({ path: `${evidence}/390-dark.png`, fullPage: true });
+});

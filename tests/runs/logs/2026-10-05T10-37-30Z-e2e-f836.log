@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 05.10.2026 15:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4890433 (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' '--workers=1'
+[WebServer] (node:12637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:12711) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (2.3s)
+  ✓  2 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (1.3s)
+  ✓  3 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (1.3s)
+  ✓  4 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (1.4s)
+  ✓  5 tests/ui/finance-cash-first.spec.ts:90:1 › касса: быстрые действия доступны без отчётов (1.7s)
+  ✓  6 tests/ui/finance-cash-first.spec.ts:101:1 › касса: визуальная иерархия итогов и спокойный сброс (1.1s)
+  ✓  7 tests/ui/finance-cash-first.spec.ts:119:1 › касса: тёмное оформление читается на телефоне (1.7s)
+
+  7 passed (15.9s)
+
+# код выхода 0 · 17 с

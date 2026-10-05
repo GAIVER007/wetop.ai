@@ -74,6 +74,7 @@ export function CashPanel({
         {quickOnly && editable && (
           <>
             <Button type="button" onClick={() => open('operation')}>
+              <Icon name="plus" />
               Новая операция
             </Button>
             <Button type="button" tone="secondary" onClick={() => open('transfer')}>

@@ -6490,3 +6490,4 @@
 | 05.10.2026 19:40 | integration | ✅ 741 из 750, пропущено 9 | 44 с | e9555e7 | [лог](logs/2026-10-05T14-40-52Z-integration-76d5.log) | MV7 final merge gate full integration own localhost |
 | 05.10.2026 19:41 | lint | ✅ без ошибок | 18 с | e9555e7 | [лог](logs/2026-10-05T14-41-52Z-lint-3747.log) | MV7 final merge gate lint |
 | 05.10.2026 19:41 | typecheck | ✅ без ошибок | 19 с | e9555e7 | [лог](logs/2026-10-05T14-41-52Z-typecheck-ccad.log) | MV7 final merge gate root API web types |
+| 05.10.2026 19:35 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/premium.spec.ts tests/ui/product-tour.spec.ts --grep темы: system\|shell: панель\|первый вход:  | ❌ упало 3 из 3 | 1 мин 31 с | fe6cfc3 | [лог](logs/2026-10-05T14-35-58Z-e2e-9260.log) | RED: old owner-home selectors and tour highlight contract from release CI 95 |

@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 05.10.2026 18:09 Алматы · MacBook-Air-Urij.local
+# коммит 31a6850 (codex/owner-home-compact), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' '--workers=1'
+[WebServer] (node:37807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:40869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:41017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 17 tests using 1 worker
+
+(node:41869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/dashboard-desk.spec.ts:18:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (12.8s)
+  ✓   2 tests/ui/dashboard-desk.spec.ts:28:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (9.3s)
+  ✓   3 tests/ui/dashboard-desk.spec.ts:36:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (9.1s)
+  ✓   4 tests/ui/dashboard-desk.spec.ts:45:1 › 7. краткие подписи без декоративных разделителей (11.7s)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:49:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (20.9s)
+  ✓   6 tests/ui/dashboard-desk.spec.ts:83:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px (36.4s)
+[WebServer] (node:45066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (28.4s)
+  ✓   8 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (3.1s)
+  ✓   9 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (2.8s)
+  ✓  10 tests/ui/dashboard-resilience.spec.ts:37:1 › Главная открывается и с упавшими показателями периода: риски остаются доступны (2.7s)
+  ✓  11 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (3.1s)
+  ✓  12 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (5.2s)
+  ✓  13 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps attention available when finance fails (3.8s)
+  ✓  14 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (8.8s)
+  ✓  15 tests/ui/owner-dashboard.spec.ts:88:1 › owner mobile overview fits above navigation and omits refund metrics (3.6s)
+  ✓  16 tests/ui/owner-dashboard.spec.ts:115:1 › owner overview stays usable at narrow widths and custom dates remain accessible (6.2s)
+  ✓  17 tests/ui/owner-dashboard.spec.ts:135:1 › approved owner concept groups forecast with occupancy and matches attention count (6.8s)
+
+  17 passed (4.1m)
+
+# код выхода 0 · 4 мин 18 с

@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 05.10.2026 18:08 Алматы · MacBook-Air-Urij.local
+# коммит 31a6850 (codex/owner-home-compact), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' '--workers=1'
+[WebServer] (node:30811) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31025) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] /private/tmp/wetop-owner-home-verify-20261005/scripts/preview/fixture-api.ts:62
+[WebServer]   registrationBusiness,
+[WebServer]   ^
+[WebServer] SyntaxError: The requested module '@pms/domain' does not provide an export named 'registrationBusiness'
+[WebServer]     at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async ModuleJob.run (node:internal/modules/esm/module_job:561:5)
+[WebServer]     at async node:internal/modules/esm/loader:650:26
+[WebServer]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[WebServer] 
+[WebServer] Node.js v26.9.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 9 с

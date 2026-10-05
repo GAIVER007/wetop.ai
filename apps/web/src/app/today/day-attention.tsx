@@ -211,6 +211,11 @@ function attentionEvents(input: {
   return events.sort((a, b) => SEVERITY[a.severity].rank - SEVERITY[b.severity].rank);
 }
 
+/** Число событий совпадает с существующей очередью, включая несколько событий одной брони. */
+export function attentionCount(input: Parameters<typeof attentionEvents>[0]): number {
+  return attentionEvents(input).reduce((total, event) => total + event.count, 0);
+}
+
 /*
  * Один блок сразу под полосой «На стойке» (A1). Разбивка сверху видна и при нуле (решение владельца 23.09), теперь — по
  * важности: смена видит, что критичного нет, а не одно слово «всё в порядке». День без броней и без событий разбивку

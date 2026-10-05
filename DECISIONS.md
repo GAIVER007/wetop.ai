@@ -5623,3 +5623,15 @@ Consequences: down.sql restores the prior unpinned setting and therefore reintro
 Решение: migration 54 включает FORCE ROW LEVEL SECURITY для всех десяти таблиц бара. Служебная роль BYPASSRLS сохраняет полный доступ.
 Причина: остатки, себестоимость, выручка и оплаты поставщикам должны оставаться изолированными даже при запросе от владельца таблиц.
 Последствия: runtime-роль без BYPASSRLS всегда проходит tenant policies. Down снимает только FORCE, не удаляя ENABLE или policies. Production apply требует отдельного разрешения.
+
+## ADR-BAR-REPAIR-2: row-type dispatch in property guard (2026-10-05)
+
+Problem: migration 51 combines TG_TABLE_NAME and references to fields from different NEW record types;
+PostgreSQL rejects product and receipt inserts before the intended ownership validation completes.
+Options: separate trigger functions; explicit dispatch in the existing function; rewrite historical migrations.
+Decision approved by owner: migration 55 preserves the function and triggers and dispatches with IF / ELSIF
+before accessing category_id or supplier_id. Unknown tables fail closed. Pin search_path in this migration.
+Reason: restore the existing ownership contract without changing BAR pricing, stock or receipt semantics.
+Consequences: real PostgreSQL tests must prove both branches and isolation under FORCE RLS (migration 54).
+Application rollback retains the correct function. down.sql is an exact-history rehearsal only and
+restores the known broken body, so it is prohibited as an operational production rollback.

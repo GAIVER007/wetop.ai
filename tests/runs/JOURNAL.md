@@ -6188,3 +6188,11 @@
 | 05.10.2026 10:47 | lint | ✅ без ошибок | 38 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-lint-f7b3.log) | MV5 BAR-FIX head full lint Node 24 |
 | 05.10.2026 10:47 | typecheck | ✅ без ошибок | 54 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-typecheck-3719.log) | MV5 BAR-FIX head full typecheck Node 24 |
 | 05.10.2026 10:47 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 18 с | f223286 | [лог](logs/2026-10-05T05-47-38Z-integration-6d9e.log) | MV5 BAR-FIX head full integration Node 24 |
+| 05.10.2026 11:10 | integration (частично: tests/integration/bar-property-guard.test.ts) | ❌ упало 11 из 12 | 4 с | abe59d8 +1 | [лог](logs/2026-10-05T06-10-04Z-integration-c825.log) | BAR-REPAIR-2 RED on abe59d8 before dispatch repair |
+| 05.10.2026 11:10 | integration (частично: tests/integration/bar-property-guard.test.ts) | ❌ упало 9 из 12 | 2 с | abe59d8 +1 | [лог](logs/2026-10-05T06-10-34Z-integration-d763.log) | BAR-REPAIR-2 RED corrected SQL casts before dispatch repair |
+| 05.10.2026 11:11 | integration (частично: tests/integration/bar-property-guard.test.ts tests/integration/function-search-path.test.ts) | ✅ 14 из 14 | 2 с | abe59d8 +3 | [лог](logs/2026-10-05T06-11-25Z-integration-1de9.log) | BAR-REPAIR-2 GREEN dispatch and search_path |
+| 05.10.2026 11:13 | integration (частично: tests/integration/bar-populated-rls.test.ts tests/integration/rls-isolation.test.ts) | ❌ упало 8 из 30 | 2 с | abe59d8 +4 | [лог](logs/2026-10-05T06-13-39Z-integration-96a2.log) | BAR-REPAIR-2 populated visibility and child ownership acceptance |
+| 05.10.2026 11:14 | lint | ✅ без ошибок | 16 с | abe59d8 +4 | [лог](logs/2026-10-05T06-14-32Z-lint-154f.log) |  |
+| 05.10.2026 11:14 | typecheck | ✅ без ошибок | 23 с | abe59d8 +4 | [лог](logs/2026-10-05T06-14-30Z-typecheck-09d9.log) |  |
+| 05.10.2026 11:15 | unit (частично: apps/api/src/bar packages/domain/src/bar) | ✅ 15 из 15 | 2 с | abe59d8 +2 | [лог](logs/2026-10-05T06-15-59Z-unit-2ec3.log) |  |
+| 05.10.2026 11:16 | unit (частично: apps/web/src/app/bar/actions.test.ts) | ✅ 8 из 8 | 1 с | abe59d8 +2 | [лог](logs/2026-10-05T06-16-38Z-unit-8769.log) | BAR-REPAIR-2 existing BAR web actions regression |

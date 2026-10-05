@@ -6480,3 +6480,9 @@
 | 05.10.2026 20:16 | typecheck | ❌ ошибок: 1 | 18 с | 4af4193 +1 | [лог](logs/2026-10-05T15-16-24Z-typecheck-f789.log) | TS2304 |
 | 05.10.2026 20:15 | unit | ❌ упало 3 из 3402, пропущено 4 | 1 мин 52 с | 4af4193 +1 | [лог](logs/2026-10-05T15-15-30Z-unit-a2d2.log) | приглашение: отзыв и предел в сутки больше 20 приглашений за сутки — 429 словами, письма нет |
 | 05.10.2026 20:17 | unit (частично: apps/api/src/accounts/invites.controller.test.ts apps/api/src/reservations/reservations.controller.test.ts apps/api/src/tasks/tasks.controller.t | ✅ 69 из 69 | 4 с | 4af4193 +1 | [лог](logs/2026-10-05T15-17-39Z-unit-40ea.log) |  |
+| 05.10.2026 20:18 | typecheck | ✅ без ошибок | 21 с | 124346a | [лог](logs/2026-10-05T15-18-25Z-typecheck-4a9a.log) |  |
+| 05.10.2026 20:19 | lint | ✅ без ошибок | 1 мин 9 с | 124346a | [лог](logs/2026-10-05T15-19-10Z-lint-dd9b.log) |  |
+| 05.10.2026 20:18 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/owner-journal.spec.ts tests/ui/team.spec.ts tests/ui/system-screens.spec.ts --workers=1) | ✅ 19 из 19 | 2 мин 12 с | 124346a | [лог](logs/2026-10-05T15-18-56Z-e2e-204c.log) |  |
+| 05.10.2026 20:21 | integration (частично: tests/integration/owner-journal.test.ts tests/integration/audit-list.test.ts tests/integration/invites.test.ts --maxWorkers=1) | ✅ 12 из 12 | 4 с | 124346a | [лог](logs/2026-10-05T15-21-33Z-integration-b60c.log) |  |
+| 05.10.2026 20:18 | unit | ❌ упало 1 из 3380, пропущено 4 | 4 мин 7 с | 124346a | [лог](logs/2026-10-05T15-18-50Z-unit-abd0.log) | scripts/ops/auto-deploy.sh после сборки не отвечает — возвращает прежний коммит и прежний образ |
+| 05.10.2026 20:23 | unit (частично: tests/unit/auto-deploy.test.ts --maxWorkers=1) | ✅ 16 из 16 | 19 с | 124346a | [лог](logs/2026-10-05T15-23-19Z-unit-7c93.log) |  |

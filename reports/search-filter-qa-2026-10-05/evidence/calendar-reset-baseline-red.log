@@ -1,0 +1,74 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-mobile.spec.ts --grep возвращает обе позиции --note Baseline RED calendar Today scroll reset on installed 6d source
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-mobile.spec.ts' '--grep' 'возвращает обе позиции'
+
+[WebServer] (node:99765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:99846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:99851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-mobile.spec.ts:250:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (20.9s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:250:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 104
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      265 |   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
+      266 |   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+    > 267 |   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBe(0);
+          |                                                                 ^
+      268 | });
+      269 |
+      270 | test('мобильная форма: ввод гостя на низком экране не перекрыт действиями', async ({
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/chessboard-mobile.spec.ts:267:65
+
+    Error Context: test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-календар-c3c9b--и-сбрасывает-их-по-Сегодня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-mobile.spec.ts:250:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня 
+
+■ e2e: ❌ упало 1 из 1 · 33 с
+  лог: tests/runs/logs/2026-10-05T19-18-29Z-e2e-70f9.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 05.10.2026 14:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9698b49 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/reports-hub.spec.ts:186' 'tests/ui/workspace.spec.ts:1124' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:97058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97090) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97091) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:97132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (2.1s)
+  ✘  2 tests/ui/workspace.spec.ts:1124:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (45.1s)
+
+
+  1) tests/ui/workspace.spec.ts:1124:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Найти бронь для оплаты' })
+
+
+      1143 |   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
+      1144 |     expect(href).toMatch(/^\/reservations\/[^/#]+#booking-finance$/);
+    > 1145 |   await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
+           |                                                                    ^
+      1146 |   await expect(page).toHaveURL(/\/reservations$/);
+      1147 | });
+      1148 |
+        at /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/tests/ui/workspace.spec.ts:1145:68
+
+    Error Context: test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:1124:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони
+  1 passed (54.3s)
+
+# код выхода 1 · 55 с

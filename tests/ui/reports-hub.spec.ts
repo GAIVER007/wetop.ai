@@ -185,6 +185,7 @@ test('сбой одного запроса не роняет хаб: карто�
 
 test('CSV долгов: кнопка на вкладке «Долги», файл без имён гостей', async ({ page }) => {
   await page.goto(`/finance?from=${monthFrom}&to=${monthTo}`);
+  await page.getByRole('button', { name: 'Отчёты и управление' }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const link = page.getByTestId('debts-export');
   await expect(link).toHaveAttribute(

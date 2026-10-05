@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
@@ -68,11 +68,18 @@ export function FreeMenuPopover({
     el.style.top = `${top}px`;
   }, [anchor, menu]);
 
+  const closeWithFocus = useCallback(() => {
+    onClose();
+    if (!anchor.isConnected) return;
+    if (!anchor.hasAttribute('tabindex')) anchor.tabIndex = -1;
+    anchor.focus({ preventScroll: true });
+  }, [anchor, onClose]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        closeWithFocus();
       }
     };
     const onPointer = (event: PointerEvent) => {
@@ -96,7 +103,7 @@ export function FreeMenuPopover({
       wrap?.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
-  }, [anchor, onClose]);
+  }, [anchor, onClose, closeWithFocus]);
 
   return (
     <div
@@ -116,7 +123,7 @@ export function FreeMenuPopover({
           type="button"
           className="icon-button stay-preview__close"
           aria-label="Закрыть"
-          onClick={onClose}
+          onClick={closeWithFocus}
         >
           <Icon name="close" />
         </button>

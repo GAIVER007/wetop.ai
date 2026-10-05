@@ -103,3 +103,28 @@ for (const theme of ['light', 'dark'] as const) {
     });
   });
 }
+
+test('weekly dashboard opens a calendar day directly', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/today');
+  const days = page.getByTestId('owner-outlook-chart').getByRole('link');
+  await expect(days).toHaveCount(7);
+  const day = days.nth(2);
+  const href = await day.getAttribute('href');
+  expect(href).toMatch(/^\/chessboard\?from=(\d{4}-\d{2}-\d{2})&to=\1$/);
+  await day.focus();
+  await day.press('Enter');
+  await expect(page).toHaveURL(new RegExp(href!.replace('?', '\\?')));
+});
+
+test('compact owner overview fits a 360 by 800 phone', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/today');
+  await expect(page.getByTestId('owner-paid')).toBeVisible();
+  await expect(page.getByTestId('owner-outlook-chart').getByRole('link')).toHaveCount(7);
+  const bottom = await page
+    .getByTestId('owner-dashboard')
+    .evaluate((el) => el.getBoundingClientRect().bottom);
+  expect(bottom).toBeLessThanOrEqual(704);
+  await page.screenshot({ path: 'reports/owner-home-v4-mobile-360.png' });
+});

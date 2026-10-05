@@ -760,3 +760,39 @@ body:has(.owner-dashboard) .header-tools {
 .owner-placeholder--outlook .owner-placeholder-line {
   height: 16px;
 }
+
+/* The forecast is a direct entry point into the selected calendar day. */
+.owner-week a {
+  display: block;
+  min-height: 44px;
+  padding: 4px 0;
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+.owner-week a:hover,
+.owner-week a[aria-current='date'] {
+  background: var(--surface-muted);
+}
+.owner-week a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) and (max-height: 820px) {
+  .owner-dashboard {
+    gap: 6px;
+  }
+  .owner-surface {
+    padding-block: 6px;
+  }
+  .owner-ring {
+    width: 76px;
+    height: 76px;
+  }
+  .owner-load-value {
+    font-size: 40px;
+  }
+  .owner-week-track {
+    height: 24px;
+  }
+}

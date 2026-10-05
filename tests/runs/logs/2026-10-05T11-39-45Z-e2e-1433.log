@@ -1,0 +1,76 @@
+# Сквозные (e2e) · 05.10.2026 16:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd03f23 (codex/calendar-mobile), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--workers=1'
+[WebServer] (node:35900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+(node:35992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (5.0s)
+  ✓   2 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.4s)
+  ✓   3 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (3.7s)
+  ✓   4 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (1.1s)
+  ✓   5 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (1.9s)
+  ✓   6 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (1.7s)
+  ✓   7 tests/ui/chessboard-mobile.spec.ts:159:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (971ms)
+  ✓   8 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 360: восемь показателей перед календарём и вертикальная прокрутка (1.2s)
+  ✓   9 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 390: восемь показателей перед календарём и вертикальная прокрутка (1.3s)
+  ✓  10 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 430: восемь показателей перед календарём и вертикальная прокрутка (1.3s)
+  ✓  11 tests/ui/chessboard-mobile.spec.ts:230:1 › мобильная панель меняет заезд без закрытия и показывает выезд (1.3s)
+[WebServer] (node:36259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/chessboard-mobile.spec.ts:250:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (3.0s)
+  ✓  13 tests/ui/chessboard-mobile.spec.ts:270:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.8s)
+  ✓  14 tests/ui/chessboard-mobile.spec.ts:293:3 › телефон light: длинное имя и бронь на 28 ночей (2.9s)
+  ✓  15 tests/ui/chessboard-mobile.spec.ts:293:3 › телефон dark: длинное имя и бронь на 28 ночей (3.0s)
+[WebServer] (node:36317) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  16 tests/ui/chessboard-mobile.spec.ts:326:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (4.9s)
+
+  16 passed (46.6s)
+
+# код выхода 0 · 48 с

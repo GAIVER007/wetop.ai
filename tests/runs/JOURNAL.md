@@ -6313,3 +6313,6 @@
 | 05.10.2026 16:39 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --workers=1) | ✅ 16 из 16 | 48 с | bd03f23 +1 | [лог](logs/2026-10-05T11-39-45Z-e2e-1433.log) | Final visible touch row and settled fonts mobile Chromium |
 | 05.10.2026 16:41 | typecheck | ✅ без ошибок | 31 с | bd03f23 +1 | [лог](logs/2026-10-05T11-41-06Z-typecheck-b705.log) | Final mobile native touch test types |
 | 05.10.2026 16:41 | lint | ✅ без ошибок | 14 с | bd03f23 +1 | [лог](logs/2026-10-05T11-41-38Z-lint-c88c.log) | Final mobile native touch test lint |
+| 05.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/registration-closed.spe | ✅ 29 из 29 | 1 мин 13 с | 7e27389 | [лог](logs/2026-10-05T12-28-50Z-e2e-9ac1.log) | Release ancestry merge: calendar touch, viewport and registration |
+| 05.10.2026 17:31 | typecheck | ✅ без ошибок | 14 с | 7e27389 | [лог](logs/2026-10-05T12-31-45Z-typecheck-d3f7.log) | Release ancestry merge types |
+| 05.10.2026 17:31 | lint | ✅ без ошибок | 12 с | 7e27389 | [лог](logs/2026-10-05T12-31-59Z-lint-d193.log) | Release ancestry merge lint |

@@ -1,0 +1,21 @@
+import { test, expect } from '@playwright/test';
+const qa = 'http://127.0.0.1:55825';
+test('temporary full API failure on protected page must not invalidate login', async ({page, request}) => {
+ const f=await(await request.post(`${qa}/__qa/reset`,{data:{}})).json();
+ await page.goto('/auth/fallback');
+ await page.getByRole('main').getByLabel('Email',{exact:true}).fill(f.email);
+ await page.getByRole('main').getByLabel('Пароль',{exact:true}).fill(f.password);
+ await page.getByRole('button',{name:'Войти',exact:true}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByRole('main').getByLabel('Название бизнеса').fill('QA-freshpage-persisted');
+ await page.getByRole('button',{name:'Сохранить',exact:true}).click();
+ await expect(page.getByRole('status')).toHaveText('Сохранено');
+ await request.post(`${qa}/__qa/fault`,{data:{mode:'offline'}});
+ await page.reload();
+ expect(new URL(page.url()).pathname).toBe('/register/setup');
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Не удалось загрузить настройку');
+ await request.post(`${qa}/__qa/fault`,{data:{mode:'none'}});
+ await page.getByRole('button',{name:'Повторить загрузку',exact:true}).click();
+ await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue('QA-freshpage-persisted');
+});
+test.afterAll(async({request})=>expect((await request.post(`${qa}/__qa/cleanup`)).ok()).toBe(true));

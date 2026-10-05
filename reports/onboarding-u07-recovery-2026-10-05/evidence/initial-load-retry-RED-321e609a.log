@@ -1,0 +1,57 @@
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:113:11)
+[WebServer]     at async getJson (src/lib/api.ts:159:15)
+[WebServer]     at async Object.me (src/lib/api.ts:534:20)
+[WebServer]     at async signedInUser (src/app/login/signed-in.ts:18:14)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:11:9)
+[WebServer]   111 |       throw error;
+[WebServer]   112 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 113 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   114 |       503,
+[WebServer]   115 |       options.method && options.method !== 'GET'
+[WebServer]   116 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  1 tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login (10.5s)
+
+
+  1) tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').getByLabel('Название бизнеса')
+    Expected: "QA-freshpage-persisted"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByLabel('Название бизнеса') with timeout 5000ms
+      - waiting for getByRole('main').getByLabel('Название бизнеса')
+
+
+      17 |  await request.post(`${qa}/__qa/fault`,{data:{mode:'none'}});
+      18 |  await page.getByRole('button',{name:'Повторить загрузку',exact:true}).click();
+    > 19 |  await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue('QA-freshpage-persisted');
+         |                                                                      ^
+      20 | });
+      21 | test.afterAll(async({request})=>expect((await request.post(`${qa}/__qa/cleanup`)).ok()).toBe(true));
+      22 |
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/freshpage.qa.ts:19:70
+
+    Error Context: test-results/freshpage.qa.ts-temporary--e50fe-e-must-not-invalidate-login/error-context.md
+
+    Error Context: test-results/freshpage.qa.ts-temporary--e50fe-e-must-not-invalidate-login/error-context.md
+
+  1 failed
+    tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login 

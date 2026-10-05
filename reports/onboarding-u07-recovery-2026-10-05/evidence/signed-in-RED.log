@@ -1,0 +1,35 @@
+
+ RUN  v5.0.0 /private/tmp/wetop-u07-full-a5c5050c-20261005
+
+ ❯ |unit| apps/web/src/app/login/signed-in.test.ts (11 tests | 1 failed) 12ms
+   × API unavailable is not a revoked session 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > API unavailable is not a revoked session
+AssertionError: promise resolved "null" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+null
+
+ ❯ apps/web/src/app/login/signed-in.test.ts:40:31
+     38|   const failure = new ApiError(503, 'Нет связи с API');
+     39|   vi.spyOn(authApi, 'me').mockRejectedValue(failure);
+     40|   await expect(signedInUser()).rejects.toBe(failure);
+       |                               ^
+     41| });
+     42| it('confirmed 401 requires sign-in', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  17:46:57
+   Duration  229ms (transform 66%, import 19%, tests 11%, worker 4%)
+

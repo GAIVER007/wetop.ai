@@ -1,0 +1,50 @@
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/onboarding-full/acceptance.spec.ts:36:1 › U01 first launch uses verified vertical and creates no draft on read (3.9s)
+  ✓   2 tests/onboarding-full/acceptance.spec.ts:47:1 › U02 save/reload restores version, step and draft (2.0s)
+  ✓   3 tests/onboarding-full/acceptance.spec.ts:63:1 › U03 close/reopen and real re-login preserve saved progress (3.3s)
+  ✓   4 tests/onboarding-full/acceptance.spec.ts:82:1 › U04 commit with lost response, repeat and reload produce one progress (2.6s)
+  ✓   5 tests/onboarding-full/acceptance.spec.ts:99:1 › U05 unsaved/saved back and forward are explicit (3.7s)
+  ✓   6 tests/onboarding-full/acceptance.spec.ts:120:1 › U06 invalid input never persists, correction proceeds (3.3s)
+  ✓   7 tests/onboarding-full/acceptance.spec.ts:140:1 › U07 complete API disconnect preserves input and retry (3.0s)
+  ✓   8 tests/onboarding-full/acceptance.spec.ts:155:1 › U08 completion replay is denied and re-login preserves completion (4.1s)
+  ✓   9 tests/onboarding-full/acceptance.spec.ts:187:1 › U09 existing hotel fund and rates survive reopening wizard (5.7s)
+  ✓  10 tests/onboarding-full/acceptance.spec.ts:206:1 › U10 read-only UI and direct API forbid writes (2.3s)
+  ✓  11 tests/onboarding-full/acceptance.spec.ts:224:1 › U11 real STAFF rejected, MANAGER saved (3.1s)
+  ✓  12 tests/onboarding-full/acceptance.spec.ts:248:1 › U12 full guarded API and UI isolate organizations (5.2s)
+  ✓  13 tests/onboarding-full/recovery.spec.ts:16:3 › U07 offline: retains draft, retries and persists once (3.0s)
+  ✓  14 tests/onboarding-full/recovery.spec.ts:16:3 › U07 timeout: retains draft, retries and persists once (1.0m)
+  ✓  15 tests/onboarding-full/recovery.spec.ts:16:3 › U07 before503: retains draft, retries and persists once (1.7s)
+  ✓  16 tests/onboarding-full/recovery.spec.ts:16:3 › U07 after: retains draft, retries and persists once (1.5s)
+  ✓  17 tests/onboarding-full/recovery.spec.ts:36:1 › lost next response never advances twice (1.5s)
+  ✓  18 tests/onboarding-full/recovery.spec.ts:47:1 › 409 preserves unsaved input and never overwrites another window (2.4s)
+  ✓  19 tests/onboarding-full/recovery.spec.ts:73:3 › expire: real SessionGuard denies write and requires login (2.6s)
+  ✓  20 tests/onboarding-full/recovery.spec.ts:73:3 › revoke: real SessionGuard denies write and requires login (1.4s)
+  ✓  21 tests/onboarding-full/recovery.spec.ts:98:3 › STAFF: real guarded API rejects write (1.2s)
+  ✓  22 tests/onboarding-full/recovery.spec.ts:98:3 › READ_ONLY: real guarded API rejects write (1.2s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:113:11)
+[WebServer]     at async getJson (src/lib/api.ts:159:15)
+[WebServer]     at async Object.me (src/lib/api.ts:534:20)
+[WebServer]     at async signedInUser (src/app/login/signed-in.ts:18:14)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:11:9)
+[WebServer]   111 |       throw error;
+[WebServer]   112 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 113 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   114 |       503,
+[WebServer]   115 |       options.method && options.method !== 'GET'
+[WebServer]   116 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  23 tests/onboarding-full/recovery.spec.ts:118:1 › initial protected page outage requires a real reload after recovery, without invalidating session (1.7s)
+
+  23 passed (2.2m)

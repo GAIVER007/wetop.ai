@@ -1,0 +1,185 @@
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/onboarding-full/baseline.red.ts:14:3 › RED a5 offline: must keep form and offer safe retry (9.3s)
+  ✘  2 tests/onboarding-full/baseline.red.ts:14:3 › RED a5 timeout: must keep form and offer safe retry (1.1m)
+  ✘  3 tests/onboarding-full/baseline.red.ts:14:3 › RED a5 before503: must keep form and offer safe retry (6.2s)
+  ✘  4 tests/onboarding-full/baseline.red.ts:14:3 › RED a5 after: must keep form and offer safe retry (6.2s)
+  ✘  5 tests/onboarding-full/baseline.red.ts:24:1 › RED a5 lost next must have explicit safe repeat (6.1s)
+  ✘  6 tests/onboarding-full/baseline.red.ts:31:1 › RED a5 conflict must keep input and offer explicit recovery (6.6s)
+
+
+  1) tests/onboarding-full/baseline.red.ts:14:3 › RED a5 offline: must keep form and offer safe retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      19 |     await (await terminal).finished();
+      20 |     await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue(`QA-RED-${mode}`);
+    > 21 |     await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+         |                                                                                ^
+      22 |   });
+      23 | }
+      24 | test('RED a5 lost next must have explicit safe repeat', async ({ page, request }) => {
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:21:80
+
+    Error Context: test-results/baseline.red.ts-RED-a5-off-42ffa-p-form-and-offer-safe-retry/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-off-42ffa-p-form-and-offer-safe-retry/error-context.md
+
+  2) tests/onboarding-full/baseline.red.ts:14:3 › RED a5 timeout: must keep form and offer safe retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      19 |     await (await terminal).finished();
+      20 |     await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue(`QA-RED-${mode}`);
+    > 21 |     await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+         |                                                                                ^
+      22 |   });
+      23 | }
+      24 | test('RED a5 lost next must have explicit safe repeat', async ({ page, request }) => {
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:21:80
+
+    Error Context: test-results/baseline.red.ts-RED-a5-tim-c05b5-p-form-and-offer-safe-retry/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-tim-c05b5-p-form-and-offer-safe-retry/error-context.md
+
+  3) tests/onboarding-full/baseline.red.ts:14:3 › RED a5 before503: must keep form and offer safe retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      19 |     await (await terminal).finished();
+      20 |     await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue(`QA-RED-${mode}`);
+    > 21 |     await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+         |                                                                                ^
+      22 |   });
+      23 | }
+      24 | test('RED a5 lost next must have explicit safe repeat', async ({ page, request }) => {
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:21:80
+
+    Error Context: test-results/baseline.red.ts-RED-a5-bef-b5d6b-p-form-and-offer-safe-retry/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-bef-b5d6b-p-form-and-offer-safe-retry/error-context.md
+
+  4) tests/onboarding-full/baseline.red.ts:14:3 › RED a5 after: must keep form and offer safe retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      19 |     await (await terminal).finished();
+      20 |     await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue(`QA-RED-${mode}`);
+    > 21 |     await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+         |                                                                                ^
+      22 |   });
+      23 | }
+      24 | test('RED a5 lost next must have explicit safe repeat', async ({ page, request }) => {
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:21:80
+
+    Error Context: test-results/baseline.red.ts-RED-a5-aft-9c67c-p-form-and-offer-safe-retry/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-aft-9c67c-p-form-and-offer-safe-retry/error-context.md
+
+  5) tests/onboarding-full/baseline.red.ts:24:1 › RED a5 lost next must have explicit safe repeat ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      27 |   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
+      28 |   await (await terminal).finished();
+    > 29 |   await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+         |                                                                              ^
+      30 | });
+      31 | test('RED a5 conflict must keep input and offer explicit recovery', async ({ page, context }) => {
+      32 |   const other = await context.newPage();
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:29:78
+
+    Error Context: test-results/baseline.red.ts-RED-a5-los-016ca-t-have-explicit-safe-repeat/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-los-016ca-t-have-explicit-safe-repeat/error-context.md
+
+  6) tests/onboarding-full/baseline.red.ts:31:1 › RED a5 conflict must keep input and offer explicit recovery 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Загрузить сохранённую версию' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Загрузить сохранённую версию' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Загрузить сохранённую версию' })
+
+
+      38 |   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+      39 |   await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue('QA-RED-local');
+    > 40 |   await expect(page.getByRole('button', { name: 'Загрузить сохранённую версию' })).toBeVisible();
+         |                                                                                    ^
+      41 | });
+      42 |
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/baseline.red.ts:40:84
+
+    Error Context: test-results/baseline.red.ts-RED-a5-con-28b1d-and-offer-explicit-recovery/error-context.md
+
+    Error Context: test-results/baseline.red.ts-RED-a5-con-28b1d-and-offer-explicit-recovery/error-context.md
+
+  6 failed
+    tests/onboarding-full/baseline.red.ts:14:3 › RED a5 offline: must keep form and offer safe retry 
+    tests/onboarding-full/baseline.red.ts:14:3 › RED a5 timeout: must keep form and offer safe retry 
+    tests/onboarding-full/baseline.red.ts:14:3 › RED a5 before503: must keep form and offer safe retry 
+    tests/onboarding-full/baseline.red.ts:14:3 › RED a5 after: must keep form and offer safe retry ─
+    tests/onboarding-full/baseline.red.ts:24:1 › RED a5 lost next must have explicit safe repeat ───
+    tests/onboarding-full/baseline.red.ts:31:1 › RED a5 conflict must keep input and offer explicit recovery 

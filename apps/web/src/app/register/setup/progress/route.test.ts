@@ -40,3 +40,23 @@ for (const status of [401, 403, 409, 503])
     expect(body.state).toBeUndefined();
     expect(!!body.loginUrl).toBe(status === 401);
   });
+it('rejects oversized JSON before calling the API', async () => {
+  vi.stubEnv('APP_URL', 'http://127.0.0.1:55823');
+  const r = new Request('http://localhost:55823/register/setup/progress', {
+    method: 'POST',
+    headers: { origin: 'http://127.0.0.1:55823', 'content-type': 'application/json' },
+    body: JSON.stringify({ draft: { text: 'x'.repeat(128 * 1024) } }),
+  });
+  expect((await POST(r)).status).toBe(413);
+  expect(api.save).not.toHaveBeenCalled();
+});
+it('rejects unsupported body format before calling the API', async () => {
+  vi.stubEnv('APP_URL', 'http://127.0.0.1:55823');
+  const r = new Request('http://localhost:55823/register/setup/progress', {
+    method: 'POST',
+    headers: { origin: 'http://127.0.0.1:55823', 'content-type': 'text/plain' },
+    body: '{}',
+  });
+  expect((await POST(r)).status).toBe(415);
+  expect(api.save).not.toHaveBeenCalled();
+});

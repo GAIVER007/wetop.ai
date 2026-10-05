@@ -1,0 +1,45 @@
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login (7.4s)
+
+
+  1) tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Не удалось загрузить настройку"
+    Received: "Главная"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { level: 1 })
+        - waiting for "http://127.0.0.1:55823/today" navigation to finish...
+        - navigated to "http://127.0.0.1:55823/today"
+        8 × locator resolved to <h1 class="page__title">Главная</h1>
+          - unexpected value "Главная"
+
+
+      14 |  await page.reload();
+      15 |  expect(new URL(page.url()).pathname).toBe('/register/setup');
+    > 16 |  await expect(page.getByRole('heading',{level:1})).toHaveText('Не удалось загрузить настройку');
+         |                                                    ^
+      17 |  await request.post(`${qa}/__qa/fault`,{data:{mode:'none'}});
+      18 |  await page.getByRole('button',{name:'Повторить загрузку',exact:true}).click();
+      19 |  await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue('QA-freshpage-persisted');
+        at /private/tmp/wetop-u07-full-a5c5050c-20261005/tests/onboarding-full/freshpage.qa.ts:16:52
+
+    Error Context: test-results/freshpage.qa.ts-temporary--e50fe-e-must-not-invalidate-login/error-context.md
+
+    Error Context: test-results/freshpage.qa.ts-temporary--e50fe-e-must-not-invalidate-login/error-context.md
+
+  1 failed
+    tests/onboarding-full/freshpage.qa.ts:3:1 › temporary full API failure on protected page must not invalidate login 

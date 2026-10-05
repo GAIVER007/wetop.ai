@@ -114,3 +114,23 @@ for (const role of ['STAFF', 'READ_ONLY'])
     expect(new URL(page.url()).pathname).toBe('/register/setup');
     expect(await (await request.get(`${qa}/__qa/snapshot`)).json()).toEqual(before);
   });
+
+test('initial protected page outage requires a real reload after recovery, without invalidating session', async ({
+  page,
+  request,
+}) => {
+  await page.getByRole('main').getByLabel('Название бизнеса').fill('QA-freshpage-persisted');
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Сохранено');
+  await request.post(`${qa}/__qa/fault`, { data: { mode: 'offline' } });
+  await page.reload();
+  expect(new URL(page.url()).pathname).toBe('/register/setup');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Не удалось загрузить настройку',
+  );
+  await request.post(`${qa}/__qa/fault`, { data: { mode: 'none' } });
+  await page.getByRole('button', { name: 'Повторить загрузку', exact: true }).click();
+  await expect(page.getByRole('main').getByLabel('Название бизнеса')).toHaveValue(
+    'QA-freshpage-persisted',
+  );
+});

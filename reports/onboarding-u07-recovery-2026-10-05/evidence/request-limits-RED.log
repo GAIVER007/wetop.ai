@@ -1,0 +1,53 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-channex-recovery-20261004
+
+ ❯ |unit| apps/web/src/app/register/setup/progress/route.test.ts (9 tests | 2 failed) 33ms
+   × rejects oversized JSON before calling the API 6ms
+   × rejects unsupported body format before calling the API 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/register/setup/progress/route.test.ts > rejects oversized JSON before calling the API
+AssertionError: expected 200 to be 413 // Object.is equality
+
+- Expected
++ Received
+
+- 413
++ 200
+
+ ❯ apps/web/src/app/register/setup/progress/route.test.ts:49:34
+     47|     body: JSON.stringify({ draft: { text: 'x'.repeat(128 * 1024) } }),
+     48|   });
+     49|   expect((await POST(r)).status).toBe(413);
+       |                                  ^
+     50|   expect(api.save).not.toHaveBeenCalled();
+     51| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/register/setup/progress/route.test.ts > rejects unsupported body format before calling the API
+AssertionError: expected 200 to be 415 // Object.is equality
+
+- Expected
++ Received
+
+- 415
++ 200
+
+ ❯ apps/web/src/app/register/setup/progress/route.test.ts:57:34
+     55|     method: 'POST', headers: { origin: 'http://127.0.0.1:55823', 'cont…
+     56|   });
+     57|   expect((await POST(r)).status).toBe(415);
+       |                                  ^
+     58|   expect(api.save).not.toHaveBeenCalled();
+     59| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  17:56:54
+   Duration  213ms (transform 45%, tests 36%, import 15%, worker 4%)
+

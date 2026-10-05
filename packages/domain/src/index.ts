@@ -22,3 +22,5 @@ export * from './ai-agents/index';
 export * from './beauty/index';
 export * from './market/index';
 export * from './verticals/registry';
+
+export * from "./food/food";

@@ -79,6 +79,9 @@ model Location {
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  diningAreas DiningArea[]
+  servicePeriods ServicePeriod[]
+  restaurantReservations RestaurantReservation[]
   onboardingProgress OnboardingProgress?
   business     Business      @relation(fields: [businessId], references: [id])
   property     Property?
@@ -1666,6 +1669,9 @@ model User {
   extensionEdits      OrganizationExtension[]
 
   @@map("users")
+  foodReservationsCreated RestaurantReservation[]
+  foodAssignmentsCreated TableAssignment[]
+
 }
 
 /// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
@@ -2106,6 +2112,8 @@ model Customer {
 
   @@index([organizationId])
   @@map("customers")
+  restaurantReservations RestaurantReservation[]
+
 }
 
 /// Видимость клиента в конкретном бизнесе: строка появляется при первом обращении в этот бизнес
@@ -2292,4 +2300,102 @@ model OnboardingProgress {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
   location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
   @@map("onboarding_progress")
+}
+
+
+enum RestaurantReservationStatus {
+ BOOKED
+ CONFIRMED
+ SEATED
+ COMPLETED
+ NO_SHOW
+ CANCELLED
+}
+enum RestaurantReservationSource {
+ DESK
+ WALK_IN
+}
+model DiningArea {
+ id String @id @default(uuid()) @db.Uuid
+ locationId String @map("location_id") @db.Uuid
+ name String @db.VarChar(200)
+ sortOrder Int @default(0) @map("sort_order")
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+ location Location @relation(fields:[locationId],references:[id])
+ tables DiningTable[]
+ @@index([locationId])
+ @@map("dining_areas")
+}
+model DiningTable {
+ id String @id @default(uuid()) @db.Uuid
+ areaId String @map("area_id") @db.Uuid
+ name String @db.VarChar(100)
+ capacity Int
+ sortOrder Int @default(0) @map("sort_order")
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+ area DiningArea @relation(fields:[areaId],references:[id])
+ assignments TableAssignment[]
+ @@unique([areaId,name])
+ @@map("dining_tables")
+}
+model ServicePeriod {
+ id String @id @default(uuid()) @db.Uuid
+ locationId String @map("location_id") @db.Uuid
+ name String @db.VarChar(100)
+ weekday Int @db.SmallInt
+ timeFrom DateTime @map("time_from") @db.Time(0)
+ timeTo DateTime @map("time_to") @db.Time(0)
+ endsNextDay Boolean @default(false) @map("ends_next_day")
+ defaultDurationMinutes Int @map("default_duration_minutes")
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+ location Location @relation(fields:[locationId],references:[id])
+ reservations RestaurantReservation[]
+ @@index([locationId])
+ @@map("service_periods")
+}
+model RestaurantReservation {
+ id String @id @default(uuid()) @db.Uuid
+ locationId String @map("location_id") @db.Uuid
+ customerId String @map("customer_id") @db.Uuid
+ servicePeriodId String @map("service_period_id") @db.Uuid
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ partySize Int @map("party_size")
+ status RestaurantReservationStatus @default(BOOKED)
+ source RestaurantReservationSource @default(DESK)
+ notes String?
+ creationKey String @map("creation_key") @db.VarChar(200)
+ creationFingerprint String @map("creation_fingerprint") @db.VarChar(64)
+ createdById String? @map("created_by_id") @db.Uuid
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+ location Location @relation(fields:[locationId],references:[id])
+ customer Customer @relation(fields:[customerId],references:[id])
+ servicePeriod ServicePeriod @relation(fields:[servicePeriodId],references:[id])
+ createdBy User? @relation(fields:[createdById],references:[id])
+ tableAssignment TableAssignment?
+ @@unique([locationId,creationKey])
+ @@index([locationId,startsAt])
+ @@index([customerId])
+ @@index([status])
+ @@index([servicePeriodId])
+ @@map("restaurant_reservations")
+}
+model TableAssignment {
+ reservationId String @id @map("reservation_id") @db.Uuid
+ tableId String @map("table_id") @db.Uuid
+ assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+ assignedById String? @map("assigned_by_id") @db.Uuid
+ updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+ reservation RestaurantReservation @relation(fields:[reservationId],references:[id])
+ table DiningTable @relation(fields:[tableId],references:[id])
+ assignedBy User? @relation(fields:[assignedById],references:[id])
+ @@index([tableId])
+ @@map("table_assignments")
 }

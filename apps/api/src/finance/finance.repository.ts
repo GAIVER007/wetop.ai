@@ -1171,18 +1171,26 @@ export class PrismaFinanceRepository implements FinanceRepository {
     audit?: AuditEntry,
   ): Promise<boolean> {
     const { id: propertyId } = await this.property();
-    const found = await this.prisma.db.cashCategory.findFirst({ where: { id, propertyId } });
-    if (!found) return false;
     try {
-      await this.withAudit(audit, async (tx) => {
-        await tx.cashCategory.update({ where: { id }, data: patch });
+      return await this.prisma.db.$transaction(async (tx) => {
+        const [before] = await tx.$queryRaw<Array<{ name: string; active: boolean }>>`
+          SELECT name, active FROM cash_categories
+          WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
+        if (!before) return false;
+        const after = await tx.cashCategory.update({ where: { id }, data: patch });
+        if (audit)
+          await writeAudit(tx as unknown as TxClient, {
+            ...audit,
+            before: { name: before.name, active: before.active },
+            after: { name: after.name, active: after.active },
+          });
+        return true;
       });
     } catch (e) {
       if ((e as { code?: string }).code === 'P2002')
         throw new FinanceRuleError(`Статья «${patch.name}» уже есть`);
       throw e;
     }
-    return true;
   }
   async createCashOperation(op: NewCashOperation, audit?: AuditEntry): Promise<string> {
     const { id: propertyId } = await this.property();

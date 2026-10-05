@@ -35,18 +35,11 @@ test('первый вход: обучение открывается само, �
 
   await tour.getByRole('button', { name: 'Далее' }).click();
   await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
-  // подсветка стоит над полем поиска
-  const hole = page.locator('.tour__hole');
-  await expect(hole).toBeVisible();
-  await page.waitForTimeout(400); // вырез переезжает к элементу 180 мс
-  const [holeBox, searchBox] = await Promise.all([
-    hole.boundingBox(),
-    page.locator('[data-tour="search"]').boundingBox(),
-  ]);
-  expect(holeBox && searchBox).toBeTruthy();
-  // вырез охватывает поле поиска с запасом 6 px по краям
-  expect(Math.abs(holeBox!.x - (searchBox!.x - 6))).toBeLessThan(2);
-  expect(Math.abs(holeBox!.width - (searchBox!.width + 12))).toBeLessThan(2);
+  // На компактной главной поле поиска скрыто, обязательный шаг остаётся по центру.
+  await expect(page.locator('[data-tour="search"]')).toBeHidden();
+  await expect(page.locator('.tour__hole')).toHaveCount(0);
+  const cardBox = await tour.locator('.tour__card').boundingBox();
+  expect(cardBox && cardBox.x >= 0 && cardBox.y >= 0).toBeTruthy();
   await page.screenshot({ path: 'test-results/product-tour-2-search.png' });
 
   await tour.getByRole('button', { name: 'Далее' }).click();
@@ -143,4 +136,28 @@ test('администратор на телефоне видит рабочие
   ).toBeVisible();
   const box = await tour.locator('.tour__card').boundingBox();
   expect(box && box.y >= 0 && box.y + box.height <= 844).toBe(true);
+});
+
+test('обучение подсвечивает поиск в разделе гостей', async ({ page }) => {
+  await signIn(page);
+  await expect(page.getByTestId('product-tour')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.goto('/guests');
+  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await page.getByTestId('tour-restart').click();
+  const tour = page.getByTestId('product-tour');
+  await tour.getByRole('button', { name: 'Далее' }).click();
+  await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
+  // подсветка стоит над полем поиска
+  const hole = page.locator('.tour__hole');
+  await expect(hole).toBeVisible();
+  await page.waitForTimeout(400); // вырез переезжает к элементу 180 мс
+  const [holeBox, searchBox] = await Promise.all([
+    hole.boundingBox(),
+    page.locator('[data-tour="search"]').boundingBox(),
+  ]);
+  expect(holeBox && searchBox).toBeTruthy();
+  // вырез охватывает поле поиска с запасом 6 px по краям
+  expect(Math.abs(holeBox!.x - (searchBox!.x - 6))).toBeLessThan(2);
+  expect(Math.abs(holeBox!.width - (searchBox!.width + 12))).toBeLessThan(2);
 });

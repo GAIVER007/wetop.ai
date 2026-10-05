@@ -6364,3 +6364,4 @@
 | 05.10.2026 16:37 | unit (частично: tests/unit/db-restore-prod.test.ts) | ✅ 7 из 7 | 5 с | 6293670 +2 | [лог](logs/2026-10-05T11-37-06Z-unit-b599.log) | green: restore повторяет только чистые миграции прав |
 | 05.10.2026 16:39 | integration (частично: tests/integration/db-restore-prod.test.ts) | ✅ 0 из 2, пропущено 2 | 1 с | 6293670 +1 | [лог](logs/2026-10-05T11-39-26Z-integration-7143.log) | green: restore с Food schema+GRANT миграцией на PostgreSQL 16 |
 | 05.10.2026 16:40 | lint | ✅ без ошибок | 22 с | 6293670 +2 | [лог](logs/2026-10-05T11-40-17Z-lint-d379.log) | release: безопасный отбор чистых миграций прав для restore |
+| 05.10.2026 16:41 | unit (частично: tests/unit/db-restore-prod.test.ts) | ✅ 7 из 7 | 6 с | 6808349 | [лог](logs/2026-10-05T11-41-42Z-unit-7b30.log) | release: DB restore fix после rebase на main 5296ffd1 |

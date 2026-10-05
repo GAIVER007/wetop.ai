@@ -1,0 +1,82 @@
+# Интеграционные (integration) · 05.10.2026 10:26 Алматы · MacBook-Air-Urij.local
+# коммит 75c4529 (codex/bar-security-invariants-20261005)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T05-26-01Z-integration-83a5.json' 'tests/integration/function-search-path.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 391ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 16ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 141ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 6ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 4ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 2ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 168ms
+ ❯ |integration| tests/integration/function-search-path.test.ts (2 tests | 1 failed) 176ms
+   ❯ search_path у функций схемы закреплён (integration, DATABASE_URL required) (2)
+     × у каждой своей функции схемы search_path задан и начинается с её схемы 106ms
+     ✓ закреплённый путь не ломает функции: запись журнала идёт, правка записи запрещена 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/function-search-path.test.ts > search_path у функций схемы закреплён (integration, DATABASE_URL required) > у каждой своей функции схемы search_path задан и начинается с её схемы
+AssertionError: функции без закреплённого search_path своей схемы: expected [ 'bar_property_guard()' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bar_property_guard()",
++ ]
+
+ ❯ tests/integration/function-search-path.test.ts:48:77
+     46|         })
+     47|         .map((r) => r.fn);
+     48|       expect(unpinned, 'функции без закреплённого search_path своей сх…
+       |                                                                             ^
+     49|     });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'bar_categories', …(9) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bar_categories",
++   "bar_products",
++   "bar_receipt_lines",
++   "bar_receipts",
++   "bar_sale_lines",
++   "bar_sales",
++   "bar_stock_lots",
++   "bar_stock_movements",
++   "bar_supplier_payments",
++   "bar_suppliers",
++ ]
+
+ ❯ tests/integration/rls-isolation.test.ts:112:83
+    110|     );
+    111|     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABL…
+    112|     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(…
+       |                                                                                   ^
+    113|     const rls = await client.query<{ relname: string }>(
+    114|       `SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid =…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 6 passed (8)
+   Start at  09:26:02
+   Duration  1.89s (tests 49%, transform 34%, import 16%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T05-26-01Z-integration-83a5.json
+
+# код выхода 1 · 3 с

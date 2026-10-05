@@ -64,6 +64,7 @@ export function ReservationDrawer({
     <Overlay
       open
       drawer
+      trapFocus
       title={
         r
           ? 'Бронирование'
@@ -87,7 +88,7 @@ export function ReservationDrawer({
             <dd>{r.customer.phone ?? 'Не указан'}</dd>
             <dt>Дата / время</dt>
             <dd>
-              {localInput(r.startsAt, data.timezone).replace('T', ' · ')}–
+              {localInput(r.startsAt, data.timezone).replace('T', ', ')}–
               {localInput(r.endsAt, data.timezone).slice(11)}
             </dd>
             <dt>Период</dt>
@@ -95,7 +96,7 @@ export function ReservationDrawer({
             <dt>Гостей</dt>
             <dd>{r.partySize}</dd>
             <dt>Стол / зал</dt>
-            <dd>{r.table ? `${r.table.areaName} · ${r.table.name}` : 'Без стола'}</dd>
+            <dd>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</dd>
             <dt>Источник</dt>
             <dd>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</dd>
             <dt>Заметка</dt>
@@ -142,7 +143,7 @@ export function ReservationDrawer({
                         value={t.id}
                         disabled={t.capacity < r.partySize || t.id === r.table?.id}
                       >
-                        {data.areas.find((a) => a.id === t.areaId)?.name} · {t.name} · {t.capacity}{' '}
+                        {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name}, {t.capacity}{' '}
                         мест
                       </option>
                     ))}

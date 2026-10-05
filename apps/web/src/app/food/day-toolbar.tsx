@@ -42,7 +42,7 @@ export function DayToolbar({
           aria-label="Следующий день"
           onClick={() => go(shiftDate(data.date, 1))}
         >
-          →
+          {'→'}
         </Button>
       </div>
       <Field label="Период">

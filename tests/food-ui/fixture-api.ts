@@ -32,6 +32,7 @@ let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
 let unavailable = false;
+let failCreate = false;
 await db.organization.create({ data: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' } });
 await db.user.create({
   data: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
@@ -130,6 +131,7 @@ app.use(
               calls.length = 0;
               creationKeys.length = 0;
               unavailable = false;
+              failCreate = false;
               await db.location.updateMany({
                 where: { business: { organizationId: org } },
                 data: { status: 'ARCHIVED' },
@@ -184,6 +186,7 @@ app.use(
             if (req.path === '/__test/control') {
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
               unavailable = body.unavailable === true;
+              failCreate = body.failCreate === true;
               await db.organization.update({
                 where: { id: org },
                 data: { status: body.readOnly ? 'READ_ONLY' : 'ACTIVE' },
@@ -235,6 +238,11 @@ app.use(
     calls.push(req.path);
     if (req.path === '/food-service/reservations' && req.method === 'POST')
       creationKeys.push(req.headers['idempotency-key'] ?? '');
+    if (failCreate && req.path === '/food-service/reservations' && req.method === 'POST') {
+      failCreate = false;
+      res.status(503).json({ message: 'Тестовый сбой сохранения' });
+      return;
+    }
     if (unavailable && req.path.startsWith('/food-service') && req.method === 'GET') {
       res.status(503).json({ message: 'Тестовый сбой Food API' });
       return;

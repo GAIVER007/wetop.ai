@@ -161,7 +161,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                                     {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)}
                                   </span>
                                   <span>
-                                    {customer(r)} · {r.partySize} гостя
+                                    {customer(r)}, {r.partySize} гостя
                                   </span>
                                   <small>до {clock(r.endsAt)}</small>
                                 </>
@@ -180,11 +180,11 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
               ))
           )}
           <Panel>
-            <h2>Без стола · {unassigned.length}</h2>
+            <h2>Без стола, {unassigned.length}</h2>
             <div className="food-unassigned">
               {unassigned.map((r) => (
                 <button className="food-reservation-card" key={r.id} onClick={() => open(r)}>
-                  {clock(r.startsAt)} · {customer(r)} · {r.partySize} гостя
+                  {clock(r.startsAt)}, {customer(r)}, {r.partySize} гостя
                 </button>
               ))}
               {!unassigned.length && <p className="muted">Все бронирования назначены</p>}
@@ -275,7 +275,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                         </td>
                         <td>{r.partySize}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{r.table ? `${r.table.areaName} · ${r.table.name}` : 'Без стола'}</td>
+                        <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
                         <td>
                           <Badge>{foodStatusLabels[r.status]}</Badge>
                         </td>
@@ -296,7 +296,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                     </div>
                     <strong>{customer(r)}</strong>
                     <span>{r.partySize} гостя</span>
-                    <span>{r.table ? `${r.table.areaName} · ${r.table.name}` : 'Без стола'}</span>
+                    <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
                     <small>{r.servicePeriod.name}</small>
                   </button>
                 ))}

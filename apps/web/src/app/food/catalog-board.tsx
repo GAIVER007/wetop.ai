@@ -143,7 +143,7 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                   </Badge>
                 </div>
                 <p>
-                  {weekdays[p.weekday]} · {p.timeFrom}–{p.timeTo}
+                  {weekdays[p.weekday]}, {p.timeFrom}–{p.timeTo}
                   {p.endsNextDay ? ' (+1 день)' : ''}
                 </p>
                 <p className="muted">Длительность брони {p.defaultDurationMinutes} мин</p>

@@ -42,3 +42,23 @@ it('rejects malformed reservation data rather than displaying a free table', asy
     }),
   ).toBe(false);
 });
+
+it('requires complete details and valid next statuses before showing occupancy', async () => {
+  const { validFoodReservation } = await import('./food-data');
+  const r = {
+    id: 'r',
+    status: 'BOOKED',
+    startsAt: '2026-10-12T12:00:00Z',
+    endsAt: '2026-10-12T14:00:00Z',
+    updatedAt: '2026-10-12T11:00:00Z',
+    table: null,
+    customer: { firstName: 'Synthetic' },
+    servicePeriod: { id: 'p', name: 'Dinner' },
+    partySize: 2,
+    nextStatuses: ['CONFIRMED'],
+  };
+  expect(validFoodReservation(r)).toBe(true);
+  expect(validFoodReservation({ ...r, servicePeriod: null })).toBe(false);
+  expect(validFoodReservation({ ...r, nextStatuses: ['UNSUPPORTED'] })).toBe(false);
+  expect(validFoodReservation({ ...r, updatedAt: 'bad' })).toBe(false);
+});

@@ -14,10 +14,10 @@
 [WebServer] (node:11986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
-[WebServer] 
+[WebServer]
 [WebServer]   To migrate automatically, run:
 [WebServer]   npx @next/codemod@canary middleware-to-proxy .
-[WebServer] 
+[WebServer]
 [WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 
 Running 2 tests using 1 worker
@@ -31,7 +31,7 @@ Running 2 tests using 1 worker
   ✓  2 tests/food-ui/food.spec.ts:534:1 › marker guarded cleanup (712ms)
 
 
-  1) tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+  1) tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
 
     Test timeout of 90000ms exceeded.
 
@@ -60,7 +60,7 @@ Running 2 tests using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   1 failed
-    tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+    tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
   1 passed (1.7m)
 
 # код выхода 1 · 1 мин 45 с

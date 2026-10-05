@@ -14,10 +14,10 @@
 [WebServer] (node:10362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
-[WebServer] 
+[WebServer]
 [WebServer]   To migrate automatically, run:
 [WebServer]   npx @next/codemod@canary middleware-to-proxy .
-[WebServer] 
+[WebServer]
 [WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 
 Running 11 tests using 1 worker
@@ -66,7 +66,7 @@ Running 11 tests using 1 worker
   ✓  11 tests/food-ui/food.spec.ts:534:1 › marker guarded cleanup (256ms)
 
 
-  1) tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+  1) tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
 
     Error: expect(locator).toBeDisabled() failed
 
@@ -102,7 +102,7 @@ Running 11 tests using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   1 failed
-    tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+    tests/food-ui/food.spec.ts:429:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
   10 passed (2.0m)
 
 # код выхода 1 · 2 мин

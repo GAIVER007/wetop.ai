@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { notFound, redirect } from 'next/navigation';
 import { api, inventoryEditorApi, reservationsApi } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
@@ -18,6 +19,7 @@ export default async function RoomsPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (!section.length) redirect('/inventory');
   if (section.length !== 1 || !['categories', 'availability'].includes(section[0]!)) notFound();

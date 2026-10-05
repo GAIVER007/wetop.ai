@@ -5,6 +5,7 @@ export default defineConfig({
   workers: 1,
   timeout: 90000,
   use: {
+    locale: 'ru-RU',
     baseURL: 'http://127.0.0.1:55823',
     viewport: { width: 1440, height: 1000 },
     actionTimeout: 15000,

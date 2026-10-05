@@ -91,6 +91,17 @@ export function validFoodReservation(value: unknown): boolean {
     'firstName' in r.customer &&
     typeof r.customer.firstName === 'string' &&
     Number.isInteger(r.partySize) &&
-    Array.isArray(r.nextStatuses)
+    !!r.servicePeriod &&
+    typeof r.servicePeriod === 'object' &&
+    'id' in r.servicePeriod &&
+    typeof r.servicePeriod.id === 'string' &&
+    'name' in r.servicePeriod &&
+    typeof r.servicePeriod.name === 'string' &&
+    typeof r.updatedAt === 'string' &&
+    Number.isFinite(Date.parse(r.updatedAt)) &&
+    Array.isArray(r.nextStatuses) &&
+    r.nextStatuses.every(
+      (status) => typeof status === 'string' && Object.hasOwn(foodStatusLabels, status),
+    )
   );
 }

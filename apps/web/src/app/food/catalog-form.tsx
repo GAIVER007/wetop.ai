@@ -29,6 +29,7 @@ export function CatalogForm({
     <Overlay
       open
       drawer
+      trapFocus
       title={`${item ? 'Изменить' : 'Добавить'}: ${title}`}
       onClose={close}
       className="food-drawer"
@@ -109,6 +110,8 @@ export function CatalogForm({
           <Field label="Вместимость">
             <Input
               name="capacity"
+              aria-invalid={!!error && /вместим|capacity/i.test(error)}
+              aria-describedby={error ? 'food-catalog-error' : undefined}
               type="number"
               min={1}
               max={1000}
@@ -170,7 +173,11 @@ export function CatalogForm({
           <input name="active" type="checkbox" defaultChecked={item?.active ?? true} />
           Активен (снимите, чтобы архивировать)
         </label>
-        {error && <Alert tone="warning">{error}</Alert>}
+        {error && (
+          <Alert id="food-catalog-error" tone="warning">
+            {error}
+          </Alert>
+        )}
         <Button disabled={pending}>
           {pending ? 'Сохраняем…' : item ? 'Сохранить' : 'Создать'}
         </Button>

@@ -108,7 +108,7 @@ async function create(page: Page, walkIn = false) {
   if (walkIn)
     await dialog
       .getByRole('combobox', { name: 'Стол', exact: true })
-      .selectOption({ label: 'Основной зал · Стол 7 · 4 мест' });
+      .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
   await dialog
     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
     .click();
@@ -121,12 +121,12 @@ test('empty restaurant catalog and complete persisted desk flow', async ({ page,
   const dialog = await create(page);
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.reload();
-  await page.getByRole('button', { name: /19:00 · Анна Тестовая/ }).click();
+  await page.getByRole('button', { name: /19:00, Анна Тестовая/ }).click();
   await dialog
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал · Стол 7 · 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
-  await expect(dialog).toContainText('Основной зал · Стол 7');
+  await expect(dialog).toContainText('Основной зал, Стол 7');
   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await expect(dialog).toContainText('Подтверждено');
   await dialog.getByRole('button', { name: 'Посадить', exact: true }).click();
@@ -161,7 +161,7 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
   const d = await create(page);
   await d
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал · Стол 7 · 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
@@ -454,7 +454,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
     .getByRole('combobox', { name: 'Пересадить на другой стол', exact: true })
     .selectOption(second.id);
   await d.getByRole('button', { name: 'Пересадить', exact: true }).click();
-  await expect(d).toContainText('Основной зал · Стол 8');
+  await expect(d).toContainText('Основной зал, Стол 8');
   await d.getByRole('button', { name: 'Снять стол', exact: true }).click();
   await expect(d).toContainText('Без стола');
   await d.getByRole('button', { name: 'Изменить бронь', exact: true }).click();
@@ -492,6 +492,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+  await expect(d).toContainText('Основной зал, Стол 7');
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.goto('/dining-areas');
   await page.getByRole('button', { name: 'Изменить стол Стол 7', exact: true }).click();
@@ -539,6 +540,75 @@ test('API unavailable renders LoadError instead of free tables', async ({ page, 
   await expect(page.getByTestId('food-load-error')).toBeVisible();
   await expect(page.getByRole('button', { name: /Стол 7,/ })).toHaveCount(0);
   await request.post(`${api}/__test/control`, { data: {} });
+});
+test('creation 503 keeps the draft and retry key; invalid period stays inline', async ({
+  page,
+  request,
+}) => {
+  const { headers } = await seed(page, request);
+  await page.goto(`/floor-plan?date=${date}&time=19:00`);
+  await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+  const d = page.getByRole('dialog');
+  await d.getByLabel('Имя', { exact: true }).fill('Повтор синтетический');
+  await d.getByLabel('Заметка').fill('Сохранённый ввод');
+  await d.getByLabel('Время', { exact: true }).fill('10:00');
+  await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();
+  await expect(d.getByRole('alert')).toBeVisible();
+  await expect(d.getByLabel('Имя', { exact: true })).toHaveValue('Повтор синтетический');
+  await d.getByLabel('Время', { exact: true }).fill('19:00');
+  await request.post(`${api}/__test/control`, { data: { failCreate: true } });
+  await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();
+  await expect(d.getByRole('alert')).toContainText('Тестовый сбой сохранения');
+  await expect(d.getByLabel('Заметка')).toHaveValue('Сохранённый ввод');
+  await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();
+  await expect(d.getByRole('heading', { name: 'Повтор синтетический', exact: true })).toBeVisible();
+  const keys = await (await request.get(`${api}/__test/keys`)).json();
+  expect(keys).toHaveLength(3);
+  expect(new Set(keys).size).toBe(1);
+  const rows = await (
+    await request.get(`${api}/food-service/reservations?date=${date}`, { headers })
+  ).json();
+  expect(rows.items).toHaveLength(1);
+  expect(rows.items[0].notes).toBe('Сохранённый ввод');
+});
+test('Food excludes every registered foreign workspace route before API requests', async ({
+  page,
+  request,
+}) => {
+  await seed(page, request);
+  const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
+  for (const route of [
+    '/finance',
+    '/rooms/categories',
+    '/onboarding',
+    '/calendar',
+    '/appointments',
+    '/employees',
+    '/services',
+    '/beauty',
+    '/chessboard',
+    '/reservations',
+    '/today',
+    '/guests',
+    '/inventory',
+    '/rates',
+    '/channels',
+    '/bar',
+    '/hotel-settings',
+  ]) {
+    await page.goto(route);
+    await expect(page).toHaveURL(/\/floor-plan$/);
+  }
+  const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+  expect(
+    calls
+      .slice(before)
+      .filter((c) =>
+        /^\/(hotel|beauty|inventory|reservations|guests|rates|channels|bar|finance)(?:\/|$)/.test(
+          c,
+        ),
+      ),
+  ).toEqual([]);
 });
 test('marker guarded cleanup', async ({ request }) => {
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);

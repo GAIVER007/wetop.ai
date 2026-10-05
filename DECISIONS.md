@@ -5771,3 +5771,5 @@ Decision: migration 58 creates the schema and security invariants without grants
 Reason: restore stays unchanged, repeats only rights and never runs schema DDL a second time.
 
 Consequences: production applies migrations 58 and 59 together after backup and exact pending-list validation. The agent does not apply production migrations.
+
+Уточнение ADR-MV7: real browser Shift+Tab с первой кнопки нативного dialog переходил в chrome браузера. Для Food используется opt-in trapFocus в существующем Overlay, с циклом между видимыми доступными controls. Native showModal, Escape и возврат фокуса сохраняются; остальные consumers используют прежнее поведение. RED: food keyboard acceptance 12:37:43.

@@ -129,7 +129,7 @@ export function ReservationForm({
                 {data.customers.map((c) => (
                   <option key={c.id} value={c.id}>
                     {[c.firstName, c.lastName].filter(Boolean).join(' ')}
-                    {c.phone ? ` · ${c.phone}` : ''}
+                    {c.phone ? `, ${c.phone}` : ''}
                   </option>
                 ))}
               </Select>
@@ -162,6 +162,8 @@ export function ReservationForm({
       <Field label="Период обслуживания">
         <Select
           name="period"
+          aria-invalid={!!error && /период|врем|period|time/i.test(error)}
+          aria-describedby={error ? 'food-form-error' : undefined}
           required
           defaultValue={
             reservation?.servicePeriodId ??
@@ -172,9 +174,9 @@ export function ReservationForm({
           <option value="">Выберите период</option>
           {periods.map((p) => (
             <option value={p.id} key={p.id}>
-              {p.name} · {weekdays[p.weekday]} · {p.timeFrom}–{p.timeTo}
+              {p.name}, {weekdays[p.weekday]}, {p.timeFrom}–{p.timeTo}
               {p.endsNextDay ? ' (+1 день)' : ''}
-              {!p.active ? ' · В архиве' : ''}
+              {!p.active ? ', В архиве' : ''}
             </option>
           ))}
         </Select>
@@ -202,7 +204,7 @@ export function ReservationForm({
             <option value="">{walkIn ? 'Выберите стол' : 'Не назначать сейчас'}</option>
             {tables.map((t) => (
               <option key={t.id} value={t.id} disabled={t.capacity < party}>
-                {data.areas.find((a) => a.id === t.areaId)?.name} · {t.name} · {t.capacity} мест
+                {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name}, {t.capacity} мест
               </option>
             ))}
           </Select>

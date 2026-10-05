@@ -5717,3 +5717,7 @@ Ancestor refinement: f4a3 proves six stale Reservation snapshots can miss a newl
 Charge/Folio/ReservationItem reparent. Approved same-property external relinks therefore
 also fence only their new referenced ancestor chain when an existing BAR dependency exists.
 Unreferenced parents do not fence ancestors. This preserves the same narrow five-table scope.
+
+### 2026-10-05: быстрые действия на компактном входе в кассу
+
+Проблема: для новой кассовой операции приходилось раскрывать управление; общий остаток не пояснял период. Варианты: отдельные новые формы или повторное использование CashPanel. Решение: компактный режим существующего CashPanel с выбором поступления/расхода и переводом, подпись «за всё время», дополнительный источник в раскрываемом фильтре. Причина: доступны частые действия без дублирования финансовой логики. Последствия: существующие права и формы сохранены; активный источник раскрыт, лента появляется после применения фильтров, первый мобильный экран проверяется отдельно.

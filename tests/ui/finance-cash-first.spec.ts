@@ -41,6 +41,8 @@ test('касса: простой вход, фильтры применяются
   const before = await page.getByTestId('cash-period-income').innerText();
   await page.getByLabel('Тип операции', { exact: true }).selectOption('expense');
   await page.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');
+  await expect(page.getByLabel('Источник', { exact: true })).not.toBeVisible();
+  await page.getByText('Дополнительные фильтры', { exact: true }).click();
   await page.getByLabel('Источник', { exact: true }).selectOption('cash');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/op=expense.*method=KASPI.*src=cash/);
@@ -84,3 +86,14 @@ for (const width of [1440, 390, 360]) {
     await page.screenshot({ path: `${evidence}/${width}.png`, fullPage: true });
   });
 }
+
+test('касса: быстрые действия доступны без отчётов', async ({ page }) => {
+  await page.goto('/finance');
+  await expect(page.getByTestId('cash-summary')).toContainText('за всё время');
+  await page.getByRole('button', { name: 'Новая операция', exact: true }).click();
+  await page.getByRole('button', { name: 'Расход', exact: true }).last().click();
+  await expect(page.getByTestId('cash-operation-form')).toBeVisible();
+  await page.getByRole('button', { name: 'Отмена', exact: true }).click();
+  await page.getByRole('button', { name: 'Новый перевод', exact: true }).click();
+  await expect(page.getByTestId('cash-transfer-form')).toBeVisible();
+});

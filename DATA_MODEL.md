@@ -2776,3 +2776,44 @@ EmployeeService является явным допуском к услуге: п
 CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
 создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
 Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.
+
+### BAR Property boundary repair (2026-10-05, утверждено владельцем)
+
+BAR-REPAIR-2, migration 56 после неизменённой migration 55. Новых сущностей, полей,
+связей, цен или stock/FIFO правил нет. База проверяет ownership при INSERT и UPDATE
+relation fields независимо от RLS и роли, включая wetop_service с BYPASSRLS.
+
+1. Property принадлежность после INSERT неизменяема для bar_categories, bar_products,
+   bar_suppliers, bar_receipts, bar_stock_lots, bar_stock_movements, bar_sales.
+   Для другого объекта создаётся новая сущность. Присваивание прежнего property_id допустимо.
+2. Категория продукта (если задана) и обязательный поставщик прихода принадлежат той же Property.
+3. bar_receipt_lines: receipt.property = product.property.
+4. bar_stock_lots: property = product.property = receipt_line.receipt.property;
+   product = receipt_line.product.
+5. bar_stock_movements: property = product.property; если lot задан, lot.property = property
+   и lot.product = product. Изменение родителя не может разрушать равенство с уже связанным потомком.
+6. bar_sale_lines: sale.property = product.property, включая смену sale_id или product_id.
+7. bar_supplier_payments: receipt.property = cash_operation.property.
+8. bar_sales: заданные Folio, CashOperation и Charge через Folio принадлежат Property продажи.
+   Если одновременно заданы folio_id и charge_id, Charge.folio_id = BarSale.folio_id.
+
+Guards остаются SECURITY INVOKER; SECURITY DEFINER запрещён. Путь каждой новой функции
+закреплён: current_schema(), public, pg_temp (public без повторения).
+source_type/source_id движений остаются существующей ссылкой источника; отдельная
+polymorphic ownership система не вводится. Это отдельный audit item, не новая модель.
+
+### BAR external parent ownership (2026-10-05, approved Q-BAR-REVERSE-PARENTS)
+
+Only updates breaking an existing BAR reference are denied. CashOperation.property_id
+must preserve payment Receipt.property and Sale.property. Charge.folio_id must preserve
+Sale.property and an explicit Sale.folio_id. Folio.reservation_item_id,
+ReservationItem.reservation_id and Reservation.property_id must preserve the derived
+Property of every direct folio sale and indirect charge sale. Same-property relinks and
+unreferenced external rows remain mutable. No Hospitality/cashbox global immutability.
+Concurrent parent mutation and BAR create/relink must preserve these invariants.
+
+BAR link writes also fence referenced parent tuple versions, preserving all field values,
+so a stale REPEATABLE READ parent transaction must retry instead of missing a new link.
+
+Valid external reparenting with BAR dependencies fences the new ancestor tuple versions
+too, so an older ancestor snapshot cannot miss the relocated BAR dependency.

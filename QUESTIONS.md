@@ -1213,3 +1213,34 @@ MV2, 04.10.2026: вопрос pilot access закрыт прямым ответ�
 | # | Вопрос | Статус | Рекомендация |
 |---|---|---|---|
 | Q-BAR-9 | По какой себестоимости приходовать излишек, найденный при инвентаризации? | OPEN, ВЛАДЕЛЕЦ | Средняя себестоимость текущего остатка, а если остатка нет, требовать цену вручную. До решения положительную корректировку не делать. |
+
+## Q-BAR-REPAIR-2: child ownership boundary (2026-10-05, APPROVED)
+
+Isolated localhost acceptance after trigger repair proves wetop_app organization A can link
+receipt lines, stock lots, stock movements and sale lines to B's rows with direct SQL.
+Receipt creation service/repository does not verify line product ownership. FORCE RLS alone
+protects the owning row but not every reference. Seven bypass scenarios are recorded in
+reports/bar-repair-2/README.md; the cash reference fixture needs an unused cash row to prove ownership.
+
+Proposal: minimal forward INSERT/UPDATE DB guards for the existing receipt/product, lot,
+movement, sale/product and receipt/cash property invariants, including rejection of parent
+property changes that invalidate attached children. No pricing, FIFO or financial semantics redesign.
+Owner decision needed per the BAR-REPAIR-2 point 10 STOP: approve these invariant guards and
+record validation in DATA_MODEL.md before implementation. Do not merge the trigger-only repair
+as a completed security repair while these tests are RED.
+
+
+## Q-BAR-REVERSE-PARENTS: preserve BAR links when external parents change (2026-10-05, CLOSED)
+
+Owner approved narrow reverse DB guards on CashOperation.property_id, Charge.folio_id,
+Folio.reservation_item_id, ReservationItem.reservation_id and Reservation.property_id.
+Migration 57 preserves existing BAR ownership, including charge-only chains and stale
+snapshot concurrency, while allowing same-property and unrelated external mutations.
+SECURITY INVOKER, pinned paths, fail-closed dispatch and read-only preflight are verified.
+
+RED: 2f6f 10 FAIL / 2 PASS; ce0a expanded 14 FAIL; 980d 24 concurrent FAIL;
+514c two stale parent snapshot FAIL; f4a3 six selected stale ancestor FAIL.
+GREEN: 9d22 378 focused PASS; 9a0b 716 full integration PASS (11 existing skips);
+e08b 3368 full unit PASS (4 existing skips); 0b4f typecheck; 9b99 lint; all 63 down
+rehearsals and schema drift PASS. No new skips, weakened assertions or timeout increases.
+See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouched.

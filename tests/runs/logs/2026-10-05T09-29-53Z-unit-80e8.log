@@ -1,0 +1,58 @@
+# Модульные (unit) · 05.10.2026 14:29 Алматы · MacBook-Air-Urij.local
+# коммит 92dd989 (codex/bar-repair-2), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-29-53Z-unit-80e8.json' 'scripts/design/build-tokens.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 55ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 2ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 2ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 44ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--mobile-board-width' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--mobile-board-width",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:93:21
+     91|     ]);
+     92|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     93|     expect(missing).toEqual([]);
+       |                     ^
+     94|   });
+     95| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  13:29:54
+   Duration  234ms (tests 47%, transform 35%, import 16%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-29-53Z-unit-80e8.json
+
+# код выхода 1 · 2 с

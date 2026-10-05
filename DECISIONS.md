@@ -5624,6 +5624,33 @@ Consequences: down.sql restores the prior unpinned setting and therefore reintro
 Причина: остатки, себестоимость, выручка и оплаты поставщикам должны оставаться изолированными даже при запросе от владельца таблиц.
 Последствия: runtime-роль без BYPASSRLS всегда проходит tenant policies. Down снимает только FORCE, не удаляя ENABLE или policies. Production apply требует отдельного разрешения.
 
+## ADR-BAR-REPAIR-2: row-type dispatch in property guard (2026-10-05)
+
+Problem: migration 51 combines TG_TABLE_NAME and references to fields from different NEW record types;
+PostgreSQL rejects product and receipt inserts before the intended ownership validation completes.
+Options: separate trigger functions; explicit dispatch in the existing function; rewrite historical migrations.
+Decision approved by owner: migration 55 preserves the function and triggers and dispatches with IF / ELSIF
+before accessing category_id or supplier_id. Unknown tables fail closed. Pin search_path in this migration.
+Reason: restore the existing ownership contract without changing BAR pricing, stock or receipt semantics.
+Consequences: real PostgreSQL tests must prove both branches and isolation under FORCE RLS (migration 54).
+Application rollback retains the correct function. down.sql is an exact-history rehearsal only and
+restores the known broken body, so it is prohibited as an operational production rollback.
+
+## ADR-BAR-OWNERSHIP: complete Property boundary (2026-10-05)
+
+Problem: seven direct SQL acceptance scenarios bypass child ownership while populated RLS
+visibility is correct. Sale links to hospitality and cash have the same unprotected FK class.
+Options: rely on service/RLS; composite-key schema redesign; forward invoker trigger guards
+and immutable BAR property_id. Owner approved the third option including bar_sales links.
+Decision: separate migration 56; migration 55 stays unchanged. Check all existing referenced
+Property chains on INSERT/relation UPDATE. Reject reassignment of property_id on seven BAR
+parents. Reject parent relation edits invalidating existing lot/movement product equality.
+Use no SECURITY DEFINER; pin every function path to owning schema, public, pg_temp.
+Reason: BYPASSRLS service reads must coexist with identical ownership validation on writes.
+Consequences: no table/Prisma shape, money, FIFO, source polymorphism or status changes.
+Application rollback keeps both repaired guards; technical down rehearsal removes only new
+56 guards and reopens ownership defects, so it is not an operational production rollback.
+
 ## 2026-10-05: Финансы открываются компактной кассой
 
 **Проблема.** При входе владелец видел четыре показателя, предупреждения, таблицы начислений и пояснения. Требовался простой экран по предоставленному примеру Lite PMS.
@@ -5635,6 +5662,31 @@ Consequences: down.sql restores the prior unpinned setting and therefore reintro
 **Причина.** Существующие API предоставляют нужные факты. Общий остаток берётся из `cash.totalMinor`; поступления из `paidMinor + incomeMinor`, расходы из `refundedMinor + expenseMinor` операций без отбора. Сложение в BigInt. Аннулирование и переводы обрабатываются существующими серверными правилами. При отборе ленты полный итог периода загружается отдельно, лимит строк на него не влияет.
 
 **Последствия.** Схема, API-контракты и финансовые правила не меняются. Ошибки загрузки остаются явными, суммы не подменяются нулями. Закладки с хешами и CSV сохранены. UI проверки адаптированы к открытию обзора по запросу.
+
+## ADR-BAR-REVERSE-PARENTS (2026-10-05)
+
+Problem: ten permanent RED cases mutate external parents after valid BAR links exist.
+Options: global parent immutability; API-only checks; narrow reverse DB guards.
+Decision approved by owner: separate migration 57 (fresh main 2b271167, number verified),
+leaving 55/56 unchanged. Five external relation updates inspect affected BAR rows only.
+SECURITY INVOKER with pinned schema/public/pg_temp, fail closed table/operation dispatch.
+Parent UPDATE row locks conflict with existing BAR-side FOR SHARE checks. Reverse scans
+lock affected sales/payments FOR SHARE; new ancestor chains also lock FOR SHARE.
+Concurrent writers may receive a deadlock error and retry; neither may commit corruption.
+Read-only administrative preflight stops on existing violations without data repair.
+Reason: preserve BAR ownership under BYPASSRLS without changing unrelated workflows.
+Consequences: no API, pricing, booking or Prisma shape changes. Down removes only these
+reverse guards and reopens this defect, so operational rollback retains the guards.
+Validation: both roles, direct/indirect references, same-property and unrelated positives,
+parent-first/link-first create and relink schedules with observed database lock waits.
+
+Concurrency refinement before finalization: 514c proves two REPEATABLE READ bypasses.
+A BAR create/relink also performs a value-preserving UPDATE on its referenced external
+parents. PostgreSQL then detects stale parent snapshots as serialization failures (40001),
+including a READ COMMITTED link writer racing a REPEATABLE READ parent writer. This is
+a tuple version fence, not financial or booking data mutation. Only the linked five-table
+chains are touched; unrelated rows remain unchanged. Concurrent lock upgrades can abort
+one transaction; retry is required, and inconsistent commits are never accepted.
 
 ## 2026-10-05: Мобильная касса ограничена одним начальным экраном
 
@@ -5660,3 +5712,8 @@ Consequences: down.sql restores the prior unpinned setting and therefore reintro
 Последствия: мобильные проверки всех дней без прокрутки заменяются проверками локальной прокрутки сетки; десктопные проверки сохраняются. Данные, API, проверка доступности и финансовые правила не меняются. Тестовый стенд и рабочее дерево изолированы от соседней сессии.
 
 Уточнение ADR-148 от 05.10.2026: на телефоне сводка перед сеткой показывает восемь показателей из существующих API, включая проживания и дни рождения. Десктопная компактная сводка сохранена.
+
+Ancestor refinement: f4a3 proves six stale Reservation snapshots can miss a newly valid
+Charge/Folio/ReservationItem reparent. Approved same-property external relinks therefore
+also fence only their new referenced ancestor chain when an existing BAR dependency exists.
+Unreferenced parents do not fence ancestors. This preserves the same narrow five-table scope.

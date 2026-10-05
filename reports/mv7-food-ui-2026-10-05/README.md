@@ -90,7 +90,7 @@ Upstream browser fixture после merge ссылался на отсутств
 
 ## Завершение
 
-Проверенная реализация и evidence: `a3d81fc08b2f2673fc540e267e68ae38e0da3efc`. После создания PR main обновил owner dashboard до v3 и самостоятельно исправил fixture. Merge `7a692034` сохраняет обе upstream версии целиком. Итоговый diff MV7 больше не содержит owner-dashboard.css/tsx или scripts/preview/fixture-api.ts. Результаты повторных проверок после синхронизации приведены выше.
+Проверенная реализация и evidence: `650f74603a4f1647da884d958889ea355e64abff`. После создания PR main обновил owner dashboard до v3 и самостоятельно исправил fixture. Merge `7a692034` сохраняет обе upstream версии целиком. Итоговый diff MV7 больше не содержит owner-dashboard.css/tsx или scripts/preview/fixture-api.ts. Результаты повторных проверок после синхронизации приведены выше.
 
 Отдельный PR «MV7: Food Service workspace». Merge, release и production запрещены этим поручением. После готового PR работа останавливается, MV8 не начинается.
 

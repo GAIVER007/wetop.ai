@@ -6134,3 +6134,8 @@
 | 04.10.2026 20:07 | typecheck | ✅ без ошибок | 34 с | 3edd238 | [лог](logs/2026-10-04T15-07-03Z-typecheck-4ff1.log) | MV4 fresh main rebase validation |
 | 04.10.2026 20:07 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 2 с | 3edd238 | [лог](logs/2026-10-04T15-07-53Z-integration-56d3.log) | MV4 fresh main rebase validation |
 | 04.10.2026 20:08 | unit | ✅ 3339 из 3343, пропущено 4 | 3 мин 4 с | 3edd238 | [лог](logs/2026-10-04T15-08-51Z-unit-509f.log) | MV4 fresh main rebase validation |
+| 05.10.2026 10:26 | integration (частично: tests/integration/function-search-path.test.ts tests/integration/rls-isolation.test.ts) | ❌ упало 2 из 8 | 3 с | 75c4529 | [лог](logs/2026-10-05T05-26-01Z-integration-83a5.log) | BAR-FIX red on unchanged main |
+| 05.10.2026 10:26 | integration (частично: tests/integration/function-search-path.test.ts tests/integration/rls-isolation.test.ts) | ✅ 8 из 8 | 3 с | 75c4529 +3 | [лог](logs/2026-10-05T05-26-59Z-integration-bcd9.log) | BAR-FIX green forward migration and registry |
+| 05.10.2026 10:27 | lint | ✅ без ошибок | 39 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-15Z-lint-ea76.log) | BAR-FIX full lint |
+| 05.10.2026 10:27 | typecheck | ✅ без ошибок | 57 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-14Z-typecheck-0aae.log) | BAR-FIX full typecheck |
+| 05.10.2026 10:27 | integration | ✅ 348 из 357, пропущено 9 | 1 мин 26 с | 75c4529 +3 | [лог](logs/2026-10-05T05-27-29Z-integration-942b.log) | BAR-FIX full integration |

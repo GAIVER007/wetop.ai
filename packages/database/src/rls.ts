@@ -85,6 +85,17 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',
+  // Existing policies from 20261004000051_bar_inventory.
+  'bar_categories',
+  'bar_products',
+  'bar_receipt_lines',
+  'bar_receipts',
+  'bar_sale_lines',
+  'bar_sales',
+  'bar_stock_lots',
+  'bar_stock_movements',
+  'bar_supplier_payments',
+  'bar_suppliers',
 ];
 
 /**

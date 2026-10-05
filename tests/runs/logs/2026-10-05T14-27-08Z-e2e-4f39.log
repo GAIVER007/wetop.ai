@@ -1,0 +1,46 @@
+# Сквозные (e2e) · 05.10.2026 19:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7e27389 (codex/calendar-mobile-focus), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-card.spec.ts' '--workers=1'
+[WebServer] (node:81561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:81691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (2.0s)
+[WebServer] (node:81728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (4.4s)
+  ✓  3 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (4.8s)
+  ✓  4 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.2s)
+  ✓  5 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (3.4s)
+  ✓  6 tests/ui/chessboard-card.spec.ts:120:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (2.5s)
+  ✓  7 tests/ui/chessboard-card.spec.ts:148:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (1.3s)
+[WebServer] (node:81886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  8 tests/ui/chessboard-card.spec.ts:163:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (3.1s)
+
+  8 passed (30.7s)
+
+# код выхода 0 · 32 с

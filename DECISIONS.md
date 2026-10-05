@@ -5615,3 +5615,11 @@ Options: rewrite migration 51; add a forward-only repair and complete the regist
 Decision approved by owner: new migration 53 pins only bar_property_guard() following migration 43, current_schema then public then pg_temp (public listed once). Add ten existing tables to RLS_TENANT_TABLES.
 Reason: preserve migration history and existing policies while restoring security invariants. No data model or business rules change.
 Consequences: down.sql restores the prior unpinned setting and therefore reintroduces the defect; use only for an approved rollback. Production apply remains separately authorized.
+
+## ADR-BAR-RLS-FORCE: принудительная tenant-изоляция таблиц бара (2026-10-05)
+
+Проблема: политики RLS migration 51 включены, но владелец таблиц может обходить их по умолчанию PostgreSQL.
+Варианты: оставить только ENABLE; переписать примененную migration 51; добавить отдельную обратимую migration.
+Решение: migration 54 включает FORCE ROW LEVEL SECURITY для всех десяти таблиц бара. Служебная роль BYPASSRLS сохраняет полный доступ.
+Причина: остатки, себестоимость, выручка и оплаты поставщикам должны оставаться изолированными даже при запросе от владельца таблиц.
+Последствия: runtime-роль без BYPASSRLS всегда проходит tenant policies. Down снимает только FORCE, не удаляя ENABLE или policies. Production apply требует отдельного разрешения.

@@ -6292,3 +6292,10 @@
 | 05.10.2026 14:41 | lint | ✅ без ошибок | 25 с | 7f4873c | [лог](logs/2026-10-05T09-41-05Z-lint-9b99.log) | Post-sync e86c0af5 final lint |
 | 05.10.2026 14:41 | typecheck | ✅ без ошибок | 26 с | 7f4873c | [лог](logs/2026-10-05T09-41-05Z-typecheck-0b4f.log) | Post-sync e86c0af5 final root API web typecheck |
 | 05.10.2026 14:42 | unit | ✅ 3368 из 3372, пропущено 4 | 5 мин 32 с | 7f4873c | [лог](logs/2026-10-05T09-42-53Z-unit-e08b.log) | Final full unit on frozen complete BAR repair and fresh main e86c0af5, no concurrent heavy checks |
+| 05.10.2026 15:02 | unit (частично: packages/domain/src/food apps/api/src/food-service --maxWorkers=1) | ✅ 8 из 8 | 3 с | bdbc33d | [лог](logs/2026-10-05T10-02-44Z-unit-8493.log) | MV6 post BAR merge focused Food unit; migration 58 |
+| 05.10.2026 15:02 | integration (частично: tests/integration/mv6-food.test.ts tests/integration/mv6-food-database.test.ts tests/integration/function-search-path.test.ts tests/integ | ✅ 31 из 31 | 5 с | bdbc33d | [лог](logs/2026-10-05T10-02-48Z-integration-56c8.log) | MV6 post BAR merge Food integration and boundary regression; migration 58 |
+| 05.10.2026 15:03 | unit | ❌ упало 1 из 3381, пропущено 4 | 6 мин 8 с | bdbc33d | [лог](logs/2026-10-05T10-03-18Z-unit-3658.log) | MV6 final full unit after BAR main merge; unchanged timeouts and assertions |
+| 05.10.2026 15:10 | unit (частично: tests/unit/auto-deploy.test.ts --maxWorkers=1) | ✅ 16 из 16 | 50 с | bdbc33d | [лог](logs/2026-10-05T10-10-24Z-unit-1d77.log) | MV6 diagnose one full unit timeout with unchanged 5000ms limit |
+| 05.10.2026 15:11 | integration | ✅ 741 из 750, пропущено 9 | 1 мин 13 с | bdbc33d | [лог](logs/2026-10-05T10-11-16Z-integration-c2a9.log) | MV6 final full integration after BAR main merge; migration 58 |
+| 05.10.2026 15:12 | typecheck | ✅ без ошибок | 39 с | bdbc33d | [лог](logs/2026-10-05T10-12-30Z-typecheck-967c.log) | MV6 synced final root API web typecheck |
+| 05.10.2026 15:13 | lint | ✅ без ошибок | 24 с | bdbc33d | [лог](logs/2026-10-05T10-13-11Z-lint-2604.log) | MV6 synced final lint |

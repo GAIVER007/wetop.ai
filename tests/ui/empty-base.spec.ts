@@ -24,7 +24,7 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },
   { route: '/rates', title: /Тарифы/ },
-  { route: '/finance', title: /Финансы/ },
+  { route: '/finance', title: /Касса/ },
   { route: '/management/analytics', title: /Аналитика/, says: /Недостаточно данных/ },
   { route: '/management/analytics/occupancy', title: /Аналитика/ },
   { route: '/journal', title: /Журнал/ },

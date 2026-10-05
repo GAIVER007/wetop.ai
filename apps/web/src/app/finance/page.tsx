@@ -1,3 +1,4 @@
+import { FilterHistory } from './filter-history';
 import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
@@ -237,6 +238,15 @@ export default async function FinanceReportPage({
           className="finance-toolbar"
           data-testid="period-form"
         >
+          <FilterHistory
+            defaults={{
+              from,
+              to,
+              op: opParam ?? '',
+              method: filter.method ?? '',
+              src: srcParam ?? '',
+            }}
+          />
           <input type="hidden" name="show" value="1" />
           <Field inline label="С">
             <DateInput

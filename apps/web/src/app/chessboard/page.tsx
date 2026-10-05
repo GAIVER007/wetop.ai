@@ -126,7 +126,16 @@ export default async function ChessboardPage({
       title="Календарь"
       actions={
         <>
-          <Link className="btn btn--secondary" href="/rooms/availability">
+          <Link
+            className="btn btn--secondary"
+            href={`/rooms/availability?${new URLSearchParams({
+              arrival: board.from,
+              departure: new Date(Date.parse(`${board.to}T12:00:00Z`) + 86400000)
+                .toISOString()
+                .slice(0, 10),
+              ...(query.category ? { category: query.category } : {}),
+            })}`}
+          >
             Поиск свободных номеров
           </Link>
           {/* существующий фильтр «С долгом» (PR 7) — ссылкой, сетка читает stays= из адреса */}

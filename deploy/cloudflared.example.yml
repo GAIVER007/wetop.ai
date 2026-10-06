@@ -35,7 +35,7 @@ ingress:
     path: ^/a/(pms\.js|hit)$
     service: http://api:3001
   - hostname: api.wetop.ai
-    path: ^/w/(widget\.js|availability|book)$
+    path: ^/w/(widget\.js|config|availability|book)$
     service: http://api:3001
   - hostname: api.wetop.ai
     path: ^/channels/channex/webhook$

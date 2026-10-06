@@ -6641,3 +6641,5 @@
 | 06.10.2026 16:22 | typecheck | ✅ без ошибок | 56 с | b3bcd2c | [лог](logs/2026-10-06T11-22-11Z-typecheck-81c2.log) |  |
 | 06.10.2026 16:23 | lint | ✅ без ошибок | 52 с | b3bcd2c | [лог](logs/2026-10-06T11-23-08Z-lint-2343.log) |  |
 | 06.10.2026 16:24 | unit | ✅ 3402 из 3405, пропущено 3 | 2 мин 13 с | b3bcd2c | [лог](logs/2026-10-06T11-24-04Z-unit-5be0.log) |  |
+| 06.10.2026 17:25 | unit (частично: tests/unit/deploy-server.test.ts -t виджет брони наружу) | ❌ упало 1 из 40, пропущено 39 | 2 с | 64f2442 +1 | [лог](logs/2026-10-06T12-25-58Z-unit-d513.log) | MKT1B BOOK-3 red |
+| 06.10.2026 17:26 | unit (частично: tests/unit/deploy-server.test.ts tests/unit/launchd-domain-guard.test.ts) | ✅ 44 из 44 | 2 с | 64f2442 +2 | [лог](logs/2026-10-06T12-26-20Z-unit-2514.log) | MKT1B BOOK-3 green |

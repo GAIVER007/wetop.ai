@@ -6,7 +6,7 @@ import { roomiestCategory } from './pick-category';
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
  * Гости вымышленные (ADR-010). Проверяется то, что видит администратор:
- *  — «Количество мест» = 2 даёт два проживания на двух разных койках, и на шахматке две клетки с номером брони;
+ *  — «Количество мест» = 2 даёт два проживания на двух разных койках, и в календаре две клетки с номером брони;
  *  — заметки, источник и число гостей правятся с карточки, вместимость категории не обойти;
  *  — «Закрыть счёт» появляется только при нулевом балансе и закрывает счёт.
  * Ограничения продаж (ADR-020) здесь не ставятся: стоп-продажа на живой категории ушла бы в каналы —
@@ -38,6 +38,10 @@ test('групповая бронь на 2 койки → две клетки ш
   // ── Форма: «Количество мест» = 2, конкретная ячейка не выбирается ─────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('PHONE');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   await expect(form.locator('select[name="unitCode"]')).toHaveCount(1);

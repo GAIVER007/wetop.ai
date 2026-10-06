@@ -10,10 +10,12 @@ import { OnboardingGate } from './onboarding-gate';
 import { PropertyTimeProvider } from '../components/property-time';
 import { DeskAccessProvider } from '../components/desk-access';
 import { AccessGate } from '../components/access-gate';
-import { hotelApi, propertyTimezone } from '../lib/hotel-api';
+import { hotelApi } from '../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../lib/property-time';
+import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
+import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
@@ -22,24 +24,43 @@ import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
+import '../components/shell/top-menu.css';
 import './hotel-settings/settings.css';
 import './control.css';
 // Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).
 import './glass.css';
 
 export const metadata = {
-  title: 'WETOP · Управление гостиницей',
-  description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
+  title: 'WETOP: рабочее пространство',
+  description: 'Рабочее пространство вашего бизнеса.',
+};
+
+// Без viewport-fit=cover env(safe-area-inset-*) на iPhone равны нулю, и нижняя навигация (ADR-050)
+// ложится под жестовую полосу; отступы под «бровь» и полосу считает CSS этими же env().
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover' as const,
 };
 
 /** Public entry screens must never start authenticated hotel requests from the workspace shell. */
 function isPublicEntryPath(path: string): boolean {
-  return ['/create', '/login', '/register', '/invite', '/auth/fallback'].some(
+  return ['/create', '/login', '/register', '/invite', '/auth/fallback', '/status'].some(
     (entry) => path === entry || path.startsWith(`${entry}/`),
   );
 }
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
+  const shell=await deskShell();
+  if(shell.access.unknown) return 'Филиал недоступен';
+  if (shell.vertical !== 'HOSPITALITY') {
+    const branch = await selectedWorkspaceBranch().catch(() => null);
+    return branch
+      ? field === 'name'
+        ? branch.name
+        : (branch.address ?? (branch.vertical === 'FOOD_SERVICE' ? 'Ресторан' : 'Салон'))
+      : 'Выберите филиал';
+  }
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
@@ -78,7 +99,7 @@ export default async function RootLayout({
   const desk = deskShell();
   // Пояс объекта для календарей и времени в клиентских компонентах (С-13) — тоже обещанием. Отказ API или
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
-  const timezone = propertyTimezone().catch(() => FALLBACK_TIMEZONE);
+  const timezone = workspaceTimezone().catch(() => FALLBACK_TIMEZONE);
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -123,9 +144,14 @@ export default async function RootLayout({
         </ThemeProvider>
         {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
         <Suspense fallback={null}>
-          <AssistantWidget />
+          <WorkspaceAssistant desk={desk} />
         </Suspense>
       </body>
     </html>
   );
+}
+
+async function WorkspaceAssistant({ desk }: { desk: Promise<DeskShell> }) {
+  const shell=await desk;
+  return shell.vertical !== 'HOSPITALITY' || shell.access.unknown ? null : <AssistantWidget />;
 }

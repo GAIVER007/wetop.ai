@@ -1,8 +1,8 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: false },
   });
 });
@@ -32,7 +32,7 @@ test('ошибка настроек API закрывает регистраци�
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/auth/options' },
   });
   await page.goto('/auth/fallback?mode=register');
@@ -45,19 +45,19 @@ test('ранее открытая форма получает отказ чер�
   request,
   context,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: true },
   });
   await page.goto('/auth/fallback?mode=register');
   await page.getByLabel('Email', { exact: true }).fill('closed@example.invalid');
   await page.getByLabel('Имя', { exact: true }).fill('Тестовый сотрудник');
-  // с 21.09 форма спрашивает название отеля (обязательное поле): без него submit не уходит
-  await page.getByLabel('Название отеля', { exact: true }).fill('Хостел на Абая');
+  // MV2: обязательное название бизнеса, тот же контракт у резервной формы.
+  await page.getByLabel('Название бизнеса', { exact: true }).fill('Хостел на Абая');
   // с 29.09 — телефон и согласие с политикой (обязательные): без них submit тоже не уходит
   await page.getByLabel('Телефон', { exact: true }).fill('701 555 44 33');
   await page.getByLabel('Пароль', { exact: true }).fill('test-password-2026');
   await page.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: false },
   });
   await page.getByRole('button', { name: 'Создать организацию' }).click();

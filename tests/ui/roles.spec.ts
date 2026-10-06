@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -8,7 +8,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * (`scripts/preview/fixture-api.ts`) отдаёт роль в `/auth/me`, сотрудников и приглашения — как API. Проверяется, что
  * стойка показывает человеку ровно его разделы и кнопки; права в API закрыты тестами контроллеров и замка ролей.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -27,7 +27,7 @@ const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF')
 
 const menuLinks = (page: Page) =>
   page
-    .locator('.workspace-sidebar .workspace-links a')
+    .locator('.workspace-header .topmenu a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 const shot = (page: Page, name: string) =>
@@ -47,14 +47,17 @@ test('администратор: в меню — работа с гостями
       '/chessboard',
       '/reservations',
       '/guests',
-      '/ai-agents',
       '/finance',
+      '/bar',
+      '/market',
+      '/ai-agents',
+      '/reports',
       '/management/analytics',
       '/incidents',
     ]);
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');
-  // объект вверху меню в настройки гостиницы не ведёт
-  await expect(page.locator('.workspace-sidebar a.workspace-property')).toHaveCount(0);
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');
+  // объект в шапке в настройки гостиницы не ведёт
+  await expect(page.locator('.workspace-header a.workspace-property')).toHaveCount(0);
   await shot(page, 'menu-administrator');
 });
 
@@ -67,7 +70,7 @@ test('администратор: закрытые разделы по адре�
   const main = page.getByRole('main');
   for (const [route, title, text] of [
     ['/rates', 'Тарифы', '«Тарифы и цены»: доступ есть у владельца и управляющего.'],
-    ['/journal', 'Журнал', '«Журнал действий»: доступ есть у владельца и управляющего.'],
+    ['/journal', 'Журнал', '«Журнал операций»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
       '/hotel-settings',
@@ -81,7 +84,7 @@ test('администратор: закрытые разделы по адре�
     ],
   ] as const) {
     await page.goto(route);
-    const refusal = main.getByTestId('no-access');
+    const refusal = page.getByTestId('no-access').filter({ visible: true });
     await expect(refusal).toContainText(text);
     await expect(refusal).toContainText('Ваша роль — администратор');
     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
@@ -203,7 +206,7 @@ test('администратор меняет даты и продлевает �
   await expect(main.getByLabel('Тариф для продления')).toBeVisible();
 });
 
-test('управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их', async ({
+test('управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их', async ({
   page,
   request,
 }) => {
@@ -212,30 +215,35 @@ test('управляющий: всё, кроме «Платформы»; зов�
   await page.goto('/today');
   await expect.poll(() => menuLinks(page)).toContain('/rates');
   const links = await menuLinks(page);
-  for (const href of ['/journal', '/channels', '/hotel-settings', '/connections'])
+  for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Управляющий');
+  expect(links).not.toContain('/journal');
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Управляющий');
 
   await page.goto('/rates');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);
 
-  await page.goto('/profile/access');
-  const team = page.getByTestId('team');
-  await expect(team.getByTestId('invite-role-fixed')).toContainText(
+  // команда — на странице «Сотрудники» (TEAM1); приглашение — панелью из шапки
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(team.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
-  const rows = team.getByTestId('member-row');
+  await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+  await drawer.getByRole('button', { name: 'Отмена' }).click();
+  const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   await expect(
     rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Отключить' }),
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
-  await expect(team.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+  await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
   // приглашение управляющего отозвать нельзя, администратора — можно
-  const invites = team.getByTestId('invite-list');
+  const invites = main.getByTestId('invite-list');
   await expect(
     invites.locator('li', { hasText: 'boss@example.com' }).getByRole('button'),
   ).toHaveCount(0);
@@ -251,30 +259,34 @@ test('управляющий: всё, кроме «Платформы»; зов�
     .getByRole('button', { name: 'Отключить' })
     .click();
   await expect(rows).toHaveCount(2);
-  await expect(team).not.toContainText('Юрий Тестов');
+  await expect(main).not.toContainText('Юрий Тестов');
 });
 
 test('владелец: зовёт управляющего и администратора, меняет роль', async ({ page }) => {
   await signIn(page);
-  await page.goto('/profile/access');
-  const team = page.getByTestId('team');
-  const role = team.getByLabel('Роль приглашённого', { exact: true });
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  const role = drawer.getByLabel('Роль приглашённого', { exact: true });
   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   await expect(role).toHaveValue('STAFF');
 
-  await team.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
+  await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
   await role.selectOption('MANAGER');
-  await team.getByRole('button', { name: 'Отправить приглашение' }).click();
-  const invites = team.getByTestId('invite-list');
+  await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+  // панель закрылась, приглашение — в «Ожидают ответа» с ролью словом
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const invites = main.getByTestId('invite-list');
   await expect(invites.locator('li', { hasText: 'new.manager@example.com' })).toContainText(
-    'управляющий, приглашение отправлено',
+    'управляющий',
   );
   await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('управляющий');
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
     'администратор',
   );
 
-  const admin = team.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
   await expect(admin).toContainText('администратор');
   await admin.getByRole('combobox', { name: 'Роль: Юрий Тестов' }).selectOption('MANAGER');
   await expect(admin).toContainText('управляющий');

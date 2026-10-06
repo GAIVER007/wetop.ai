@@ -1,0 +1,46 @@
+# Сквозные (e2e) · 05.10.2026 19:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит c496352 (codex/release-owner-token)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/today-operations.spec.ts' 'tests/ui/top-menu.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:76370) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:76445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/today-operations.spec.ts:34:1 › операционные карточки убраны, а риски дня остались (1.2s)
+[WebServer] (node:76490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/today-operations.spec.ts:43:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём (1.6s)
+  ✓  3 tests/ui/today-operations.spec.ts:62:1 › финансы будущего периода не скрывают текущие риски (593ms)
+  ✓  4 tests/ui/today-operations.spec.ts:66:1 › сбой сторожа не скрывает показатели и действия (702ms)
+  ✓  5 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (1.9s)
+[WebServer] (node:76507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/top-menu.spec.ts:118:1 › вложенные адреса подсвечивают свою вкладку (3.7s)
+  ✓  7 tests/ui/top-menu.spec.ts:151:3 › шапка ровная, без прокрутки вбок и доступная: light (2.1s)
+  ✓  8 tests/ui/top-menu.spec.ts:151:3 › шапка ровная, без прокрутки вбок и доступная: dark (2.0s)
+
+  8 passed (19.0s)
+
+# код выхода 0 · 20 с

@@ -18,17 +18,35 @@ import { dirname, resolve } from 'node:path';
 export type DeskPage = { status: number; url: string; html: string; unreachable?: string };
 export type DeskVerdict = { verdict: 'ok' | 'fail' | 'locked'; detail: string };
 
-export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolean): DeskVerdict {
+/** Адрес ведёт на экран входа: `/login`, `/login/…`, с параметрами или без */
+function isLogin(url: string): boolean {
   // Без начального значения: eslint (no-useless-assignment) справедливо считает присваивание,
   // которое сразу же перезаписывается в обеих ветках, лишним — а вместе с ним теряется и подсказка,
   // что путь обязан быть заполнен.
   let path: string;
   try {
-    path = new URL(page.url).pathname;
+    path = new URL(url, 'http://desk').pathname;
   } catch {
-    path = page.url;
+    path = url;
   }
-  if (path === '/login' || path.startsWith('/login/')) {
+  return path === '/login' || path.startsWith('/login/');
+}
+
+/**
+ * Куда ведёт переход Next внутри страницы-потока, если он есть. У стойки общий `app/loading.tsx`: к моменту,
+ * когда API ответил 401 и `backendFetch` позвал `redirect('/login')`, ответ уже начат с кодом 200, и Next 16
+ * вставляет в страницу `<meta id="__next-page-redirect" http-equiv="refresh" content="1;url=/login">`
+ * (разбор 26.09.2026, reports/channex-cert-review-2026-09-24.md).
+ */
+function streamedRedirect(html: string): string | null {
+  const tag = /<meta\b[^>]*\bid="__next-page-redirect"[^>]*>/i.exec(html)?.[0];
+  if (!tag) return null;
+  const content = (/\bcontent="([^"]*)"/i.exec(tag)?.[1] ?? '').replace(/&amp;/g, '&');
+  return /\burl=(.+)$/i.exec(content)?.[1]?.trim() || null;
+}
+
+export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolean): DeskVerdict {
+  if (isLogin(page.url)) {
     return { verdict: 'locked', detail: 'стойка за замком: нет сессии, проверка пропущена' };
   }
   // Стойки по этому адресу нет вовсе (прогон изнутри контейнера API, другая машина, служба лежит).
@@ -40,6 +58,15 @@ export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolea
     };
   }
   if (page.status !== 200) return { verdict: 'fail', detail: `HTTP ${page.status}` };
+  // Раньше искомого: номер брони стоит в адресе карточки, Next кладёт параметры адреса в страницу,
+  // и без этой проверки карточка, которая не отрисовалась, проходила бы как «ок»
+  const to = streamedRedirect(page.html);
+  if (to !== null && isLogin(to))
+    return {
+      verdict: 'locked',
+      detail:
+        'стойка отдала переход на вход внутри страницы (метка Next): нет сессии, проверка пропущена',
+    };
   if (expected(page.html)) return { verdict: 'ok', detail: 'HTTP 200' };
 
   /**

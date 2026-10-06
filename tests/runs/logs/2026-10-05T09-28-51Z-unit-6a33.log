@@ -1,0 +1,16 @@
+# Модульные (unit) · 05.10.2026 14:28 Алматы · MacBook-Air-Urij.local
+# коммит 92dd989 (codex/bar-repair-2), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-28-51Z-unit-6a33.json' 'scripts/design/build-tokens.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 50ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  13:28:52
+   Duration  222ms (tests 45%, transform 37%, import 15%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-28-51Z-unit-6a33.json
+
+# код выхода 0 · 1 с

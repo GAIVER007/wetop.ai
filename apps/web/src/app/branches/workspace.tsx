@@ -9,6 +9,7 @@ import { Panel, Stack } from '../../components/ui';
 import { branchesApi } from '../../lib/api';
 import { BranchForm } from './form';
 import { selectBranch } from './actions';
+import { unstable_rethrow } from 'next/navigation';
 export async function BranchWorkspace({
   query,
   createLabel = 'Добавить филиал',
@@ -18,7 +19,10 @@ export async function BranchWorkspace({
 }) {
   const loaded = await branchesApi.list().then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
   if (!loaded.ok)
     return <LoadError testId="branches-load-error" {...loadErrorProps(loaded.error)} />;
@@ -53,12 +57,16 @@ export async function BranchWorkspace({
             <Panel key={item.id}>
               <h2>{item.name}</h2>
               <p>{item.address || 'Адрес пока не указан'}</p>
+              {/* У салона номеров и коек нет вовсе (DATA_MODEL §19): состав фонда ему не показывается */}
               <p>
-                {item._count.inventoryUnits} номеров и коек · {item._count.accommodationTypes}{' '}
-                категорий
+                {item.vertical === 'FOOD_SERVICE'
+                  ? 'Ресторан: залы, столы и бронирования'
+                  : item.vertical === 'BEAUTY'
+                    ? 'Салон красоты: клиенты, услуги и мастера'
+                    : `${item._count.inventoryUnits} номеров и коек, ${item._count.accommodationTypes} категорий`}
               </p>
               <p>
-                {item.currency} · {item.timezone}
+                Валюта {item.currency}, часовой пояс {item.timezone}
               </p>
               <p className="muted" style={{ overflowWrap: 'anywhere' }}>
                 <small>ID филиала: {item.locationId}</small>
@@ -66,7 +74,13 @@ export async function BranchWorkspace({
               <form action={selectBranch}>
                 <input type="hidden" name="id" value={item.id} />
                 <button className="btn" type="submit">
-                  {item._count.inventoryUnits ? 'Открыть филиал' : 'Настроить номера'}
+                  {item.vertical === 'FOOD_SERVICE'
+                    ? 'Открыть ресторан'
+                    : item.vertical === 'BEAUTY'
+                      ? 'Открыть салон'
+                      : item._count.inventoryUnits
+                        ? 'Открыть филиал'
+                        : 'Настроить номера'}
                 </button>
               </form>
             </Panel>

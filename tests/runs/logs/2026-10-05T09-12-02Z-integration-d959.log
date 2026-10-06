@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 05.10.2026 14:12 Алматы · MacBook-Air-Urij.local
+# коммит 8db4653 (codex/bar-repair-2), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-12-02Z-integration-d959.json' 'tests/integration/bar-parent-concurrency.test.ts' 'tests/integration/bar-external-parent-ownership.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (50 tests) 1206ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (28 tests) 390ms
+
+ Test Files  2 passed (2)
+      Tests  78 passed (78)
+   Start at  13:12:04
+   Duration  3.51s (tests 67%, transform 22%, import 11%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-12-02Z-integration-d959.json
+
+# код выхода 0 · 5 с

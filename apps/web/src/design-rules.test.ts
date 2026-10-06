@@ -161,7 +161,7 @@ describe('DESIGN.md §15: системных окон подтверждения
  *  — ссылка «перейти к содержимому» лежит на `--primary`, её текст — только `--on-primary`
  *    (`--muted` на синем давал контраст около 1,1:1, §10);
  *  — штриховка блокировки (`.board-block`, `background-image`) гаснет, если клетка ставит инлайн
- *    сокращение `background:` — оно сбрасывает и изображение; на шахматке инлайн только `backgroundColor`;
+ *    сокращение `background:` — оно сбрасывает и изображение; в календаре инлайн только `backgroundColor`;
  *  — мёртвые классы `.topbar*` и `.record-nav` удалены и не возвращаются.
  */
 describe('план дизайн-системы §10: попутные дефекты не возвращаются', () => {
@@ -174,7 +174,7 @@ describe('план дизайн-системы §10: попутные дефек
     expect(rule!.body).toMatch(/color:\s*var\(--on-primary\)/);
     expect(rule!.body).not.toMatch(/color:\s*var\(--muted\)/);
   });
-  it('на шахматке инлайн-фон клетки — backgroundColor, не сокращение background', () => {
+  it('в календаре инлайн-фон клетки — backgroundColor, не сокращение background', () => {
     const guilty = tsxFiles(join(SRC, 'app', 'chessboard'))
       .filter((f) => /style=\{\{[\s\S]*?\bbackground:/.test(readFileSync(f, 'utf8')))
       .map((f) => relative(SRC, f));
@@ -184,5 +184,33 @@ describe('план дизайн-системы §10: попутные дефек
     const dead = offenders((r) => /(^|[\s,])\.(topbar|record-nav)(\b|__)/.test(r.selector));
     expect(dead).toEqual([]);
     expect(workspaceCss).not.toMatch(/\.record-nav/);
+  });
+});
+
+describe('DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid)', () => {
+  const globalsCss = readFileSync(join(SRC, 'app', 'globals.css'), 'utf8');
+  const uiSource = readFileSync(join(SRC, 'components', 'ui.tsx'), 'utf8');
+  it('наведение меняет фон, а не текст или границу', () => {
+    const hover = globalsCss.match(/\.inp:hover[^{]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(hover).toMatch(/background:/);
+    expect(hover).not.toMatch(/(?:^|\s)(?:color|border-color):/);
+  });
+
+  it('отключённое поле приглушено прозрачностью, а серый фон остаётся признаком readOnly', () => {
+    const disabled = globalsCss.match(/\.inp:disabled\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(disabled).toMatch(/opacity:/);
+    expect(disabled).not.toMatch(/background:/);
+  });
+
+  it('поле ввода имеет стили disabled и aria-invalid', () => {
+    expect(globalsCss).toMatch(/\.inp:disabled/);
+    expect(globalsCss).toMatch(/\.inp\[aria-invalid=["']true["']\]/);
+  });
+
+  it('Field связывает hint и error с контролом', () => {
+    expect(uiSource).toContain('controlId');
+    expect(uiSource).toContain("'aria-describedby'");
+    expect(uiSource).toContain("'aria-invalid'");
+    expect(uiSource).toContain('htmlFor={controlId}');
   });
 });

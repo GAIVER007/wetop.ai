@@ -1,0 +1,174 @@
+# Интеграционные (integration) · 05.10.2026 14:10 Алматы · MacBook-Air-Urij.local
+# коммит 8db4653 (codex/bar-repair-2), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-10-48Z-integration-514c.json' 'tests/integration/bar-parent-concurrency.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ❯ |integration| tests/integration/bar-parent-concurrency.test.ts (50 tests | 2 failed) 1295ms
+   ❯ BAR parent mutation races preserve ownership (50)
+     ✓ wetop_app: payment cash, create, parent-first 54ms
+     ✓ wetop_app: payment cash, create, link-first 17ms
+     ✓ wetop_app: payment cash, relink, parent-first 27ms
+     ✓ wetop_app: payment cash, relink, link-first 15ms
+     ✓ wetop_app: sale cash, create, parent-first 26ms
+     ✓ wetop_app: sale cash, create, link-first 16ms
+     ✓ wetop_app: sale cash, relink, parent-first 25ms
+     ✓ wetop_app: sale cash, relink, link-first 13ms
+     ✓ wetop_app: charge, create, parent-first 27ms
+     ✓ wetop_app: charge, create, link-first 27ms
+     ✓ wetop_app: charge, relink, parent-first 24ms
+     ✓ wetop_app: charge, relink, link-first 28ms
+     ✓ wetop_app: folio, create, parent-first 24ms
+     ✓ wetop_app: folio, create, link-first 25ms
+     ✓ wetop_app: folio, relink, parent-first 12ms
+     ✓ wetop_app: folio, relink, link-first 25ms
+     ✓ wetop_app: item, create, parent-first 13ms
+     ✓ wetop_app: item, create, link-first 13ms
+     ✓ wetop_app: item, relink, parent-first 13ms
+     ✓ wetop_app: item, relink, link-first 13ms
+     ✓ wetop_app: reservation, create, parent-first 15ms
+     ✓ wetop_app: reservation, create, link-first 13ms
+     ✓ wetop_app: reservation, relink, parent-first 13ms
+     ✓ wetop_app: reservation, relink, link-first 13ms
+     ✓ wetop_service: payment cash, create, parent-first 11ms
+     ✓ wetop_service: payment cash, create, link-first 14ms
+     ✓ wetop_service: payment cash, relink, parent-first 11ms
+     ✓ wetop_service: payment cash, relink, link-first 11ms
+     ✓ wetop_service: sale cash, create, parent-first 13ms
+     ✓ wetop_service: sale cash, create, link-first 10ms
+     ✓ wetop_service: sale cash, relink, parent-first 11ms
+     ✓ wetop_service: sale cash, relink, link-first 12ms
+     ✓ wetop_service: charge, create, parent-first 21ms
+     ✓ wetop_service: charge, create, link-first 11ms
+     ✓ wetop_service: charge, relink, parent-first 13ms
+     ✓ wetop_service: charge, relink, link-first 11ms
+     ✓ wetop_service: folio, create, parent-first 10ms
+     ✓ wetop_service: folio, create, link-first 11ms
+     ✓ wetop_service: folio, relink, parent-first 10ms
+     ✓ wetop_service: folio, relink, link-first 9ms
+     ✓ wetop_service: item, create, parent-first 10ms
+     ✓ wetop_service: item, create, link-first 9ms
+     ✓ wetop_service: item, relink, parent-first 9ms
+     ✓ wetop_service: item, relink, link-first 9ms
+     ✓ wetop_service: reservation, create, parent-first 9ms
+     ✓ wetop_service: reservation, create, link-first 10ms
+     ✓ wetop_service: reservation, relink, parent-first 9ms
+     ✓ wetop_service: reservation, relink, link-first 9ms
+     × wetop_app: stale repeatable-read parent snapshot cannot miss a committed BAR link 16ms
+     × wetop_service: stale repeatable-read parent snapshot cannot miss a committed BAR link 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-parent-concurrency.test.ts > BAR parent mutation races preserve ownership > wetop_app: stale repeatable-read parent snapshot cannot miss a committed BAR link
+ FAIL  |integration| tests/integration/bar-parent-concurrency.test.ts > BAR parent mutation races preserve ownership > wetop_service: stale repeatable-read parent snapshot cannot miss a committed BAR link
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-parent-concurrency.test.ts:210:10
+    208|             a.unusedCash,
+    209|           ]),
+    210|         ).rejects.toMatchObject({ code: '40001' });
+       |          ^
+    211|       } finally {
+    212|         await parent.query('ROLLBACK');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 48 passed (50)
+   Start at  13:10:49
+   Duration  2.56s (tests 68%, transform 25%, import 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-10-48Z-integration-514c.json
+
+# код выхода 1 · 4 с

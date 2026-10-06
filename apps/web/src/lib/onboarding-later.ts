@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 /**
  * «Заполнить позже» в онбординге (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100).
  *
@@ -18,6 +19,7 @@ const SKIP = [
   '/invite',
   '/password-reset',
   '/profile/access',
+  '/status',
 ];
 
 export function needsOnboardingRedirect(input: {
@@ -26,10 +28,16 @@ export function needsOnboardingRedirect(input: {
   postponed: boolean;
   /** У организации нет объекта (после сброса, ADR-118): рабочие экраны пусты, «позже» не помогает */
   propertyMissing?: boolean;
+  /**
+   * Направление текущего филиала (срез B2, Q-254). У салона объекта нет и не будет: гостиничный онбординг
+   * создал бы ему номера, которых в этой вертикали не существует (DATA_MODEL §19), поэтому гейт его не трогает.
+   */
+  vertical?: WebVertical | undefined;
 }): boolean {
   const { path } = input;
   if (SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return false;
   if (path.includes('/print')) return false;
+  if (input.vertical && input.vertical !== 'HOSPITALITY') return false;
   if (input.propertyMissing) return true;
   return input.needsOnboarding && !input.postponed;
 }

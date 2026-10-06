@@ -71,7 +71,7 @@ it('обучение скрывает недоступные права, а до
     TOUR_STEPS,
     (permission) => permission === 'desk',
   );
-  expect(mobile.some((s) => s.title === 'Шахматка: размещение и продление')).toBe(true);
+  expect(mobile.some((s) => s.title === 'Календарь: размещение и продление')).toBe(true);
   expect(mobile.some((s) => s.target === 'section-settings')).toBe(false);
   expect(mobile.every((s) => !s.highlight)).toBe(true);
 });

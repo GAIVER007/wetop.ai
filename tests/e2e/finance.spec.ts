@@ -34,6 +34,10 @@ test('счёт на проживание: начисления, оплата, в
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(9)}&departure=${plus(10)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
@@ -108,6 +112,7 @@ test('счёт на проживание: начисления, оплата, в
 
   // журнал: действия записаны без ПД
   await page.goto('/journal');
-  await expect(page.getByText('finance.payment').first()).toBeVisible();
-  await expect(page.getByText('finance.refund').first()).toBeVisible();
+  const journal = page.getByRole('main').getByTestId('journal-row');
+  await expect(journal.filter({ hasText: 'Оплата принята' }).first()).toBeVisible();
+  await expect(journal.filter({ hasText: 'Возврат оплаты' }).first()).toBeVisible();
 });

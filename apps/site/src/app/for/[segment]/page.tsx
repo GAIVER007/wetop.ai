@@ -89,7 +89,11 @@ export default async function SegmentPage({ params }: Props) {
             <h2 className="cta__title">{typo(t.segments.ctaTitle)}</h2>
             <p className="cta__text">{typo(t.segments.ctaText)}</p>
             <div className="cta__actions">
-              <a className="btn btn--primary btn--lg" href={registerLink().href} data-auth="register">
+              <a
+                className="btn btn--primary btn--lg"
+                href={registerLink(undefined, 'HOSPITALITY').href}
+                data-auth="register"
+              >
                 {t.nav.register}
                 <Icon name="arrowRight" size={18} />
               </a>

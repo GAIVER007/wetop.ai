@@ -1,0 +1,40 @@
+# Интеграционные (integration) · 06.10.2026 00:42 Алматы · MacBook-Air-Urij.local
+# коммит 53d355d (codex/mv8-food-branch-contract-20261005), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-15Z-integration-8699.json' 'tests/integration/mv8-branches-contract.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-unblock-20261005
+
+ ❯ |integration| tests/integration/mv8-branches-contract.test.ts (1 test | 1 failed) 450ms
+   × MV8 requires real branches contract to expose selected Food Location and current timezone 449ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv8-branches-contract.test.ts > MV8 requires real branches contract to expose selected Food Location and current timezone
+AssertionError: Real BranchesService returns no Food Location although DB has active owned FOOD_SERVICE Business/Location: expected [] to deeply equal ArrayContaining{…}
+
+- Expected
++ Received
+
+- ArrayContaining [
+-   ObjectContaining {
+-     "locationId": "735b7ddd-f7a8-4a58-9c1b-99a76ecad3ca",
+-     "timezone": "Asia/Dubai",
+-     "vertical": "FOOD_SERVICE",
+-   },
+- ]
++ []
+
+ ❯ tests/integration/mv8-branches-contract.test.ts:39:135
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  23:42:18
+   Duration  2.29s (transform 42%, import 29%, tests 29%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-15Z-integration-8699.json
+
+# код выхода 1 · 6 с

@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 02.10.2026 23:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1d88b19 (main), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (19.0s)
+  ✓  2 tests/ui/support-queue.spec.ts:87:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (17.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✓  3 tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (11.4s)
+  ✓  4 tests/ui/support-queue.spec.ts:158:1 › помощник не отвечает — отдельно от «не подключён», с повтором (6.1s)
+  ✓  5 tests/ui/support-queue.spec.ts:168:1 › телефон: список на весь экран, переписка вместо него и «К списку» (7.5s)
+  ✓  6 tests/ui/support-queue.spec.ts:196:1 › снимки для владельца: тёмная тема, компьютер и телефон (12.2s)
+  ✓  7 tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория второй строкой чипов, статус держится (9.4s)
+  ✓  8 tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме (7.7s)
+
+  8 passed (1.8m)
+
+# код выхода 0 · 1 мин 52 с

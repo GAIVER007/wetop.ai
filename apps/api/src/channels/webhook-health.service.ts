@@ -12,6 +12,7 @@ import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.reposit
 import { InboundBookingsService } from './inbound.service';
 import { assessWebhook, callbackAnswered, type WebhookHealth } from './schedule';
 import { ChannexSyncService } from './sync.service';
+import { withIntegrationPropertyScope } from '../auth/request-context';
 
 export interface WebhookHealthSnapshot {
   webhookSuspect: boolean;
@@ -31,8 +32,14 @@ export interface WebhookHealthSnapshot {
 /** Проба адреса. Подменяется в тестах; в бою — обычный запрос. */
 export type CallbackProbe = (url: string, timeoutMs: number) => Promise<boolean>;
 export const CALLBACK_PROBE = Symbol('CALLBACK_PROBE');
-/** Как часто дёргать Channex за адресом и проверять его: чаще незачем, страховочный опрос и так раз в 5 минут */
+/** Как часто стучаться в наш собственный адрес webhook: эта проба идёт на наш сервер, Channex она не трогает */
 export const PROBE_EVERY_MS = 5 * 60_000;
+/**
+ * Как часто спрашивать у Channex, какой адрес у нас зарегистрирован (`GET /webhooks`). До 03.10.2026 сторож спрашивал
+ * на каждой пробе, раз в пять минут, 288 раз в сутки, и Channex попросил так не делать. Адрес постоянный
+ * (PUBLIC_API_URL) и меняется только регистрацией через PMS, а она сама обновляет память (ChannexSyncService).
+ */
+export const REGISTRATION_EVERY_MS = 24 * 60 * 60_000;
 export const PROBE_TIMEOUT_MS = 5_000;
 /**
  * Одна неудачная проба — ещё не мёртвый адрес. 20–21.09.2026 единичные пропуски (ответ через
@@ -74,6 +81,20 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
   private readonly log = new Logger(WebhookHealthService.name);
   private timer: NodeJS.Timeout | null = null;
   private ticking = false;
+  private activePropertyId = '';
+  private readonly propertyStates = new Map<
+    string,
+    {
+      state: WebhookHealth;
+      seen: { lastWebhookAt: Date | null; lastPullBookingAt: Date | null; checkedAt: Date | null };
+      callback: {
+        url: string | null;
+        reachable: boolean | null;
+        checkedAt: Date | null;
+        expectedUrl: string | null;
+      };
+    }
+  >();
   private state: WebhookHealth = { suspect: false, since: null, reason: null };
   private seen: {
     lastWebhookAt: Date | null;
@@ -108,15 +129,16 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Раз в PROBE_EVERY_MS спрашиваем у Channex зарегистрированный адрес и стучимся в него.
-   * Если Channex недоступен, результат — «не проверяли»: подозрение из чужого сбоя не выдумываем.
+   * Раз в PROBE_EVERY_MS стучимся в зарегистрированный адрес. Сам адрес берём из памяти ChannexSyncService: у Channex
+   * он спрашивается не чаще раза в REGISTRATION_EVERY_MS. Если Channex недоступен, пишем «не проверяли»:
+   * подозрение из чужого сбоя не выдумываем, а повтор не раньше следующей пробы, не на каждом тике.
    */
   private async probeCallback(now: Date): Promise<void> {
     if (!this.sync) return;
     const last = this.callback.checkedAt;
     if (last && now.getTime() - last.getTime() < PROBE_EVERY_MS) return;
     try {
-      const status = await this.sync.webhookStatus();
+      const status = await this.sync.webhookStatus({ maxAgeMs: REGISTRATION_EVERY_MS, now });
       const url = status.callbackUrl ?? null;
       const expectedUrl = status.expectedUrl ?? null;
       if (!url) {
@@ -142,7 +164,7 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
         this.log.log(`адрес webhook ${url}: ${reachable ? 'отвечает' : 'НЕ отвечает'}`);
       this.callback = { url, reachable, checkedAt: now, expectedUrl };
     } catch (e) {
-      this.callback = { ...this.callback, reachable: null };
+      this.callback = { ...this.callback, reachable: null, checkedAt: now };
       this.log.warn(`адрес webhook не проверен: ${(e as Error).message}`);
     }
   }
@@ -156,7 +178,7 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
       return;
     this.timer = setInterval(
       () =>
-        void this.tick().catch((e: unknown) =>
+        void this.tickConnectedProperties().catch((e: unknown) =>
           this.log.warn(`сторож webhook: ${(e as Error).message}`),
         ),
       HEALTH_TICK_MS,
@@ -167,10 +189,43 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
-  async tick(now = new Date()): Promise<WebhookHealth> {
+  private selectProperty(propertyId: string): void {
+    if (this.activePropertyId === propertyId) return;
+    this.propertyStates.set(this.activePropertyId, {
+      state: this.state,
+      seen: this.seen,
+      callback: this.callback,
+    });
+    const stored = this.propertyStates.get(propertyId);
+    this.state = stored?.state ?? { suspect: false, since: null, reason: null };
+    this.seen = stored?.seen ?? { lastWebhookAt: null, lastPullBookingAt: null, checkedAt: null };
+    this.callback = stored?.callback ?? {
+      url: null,
+      reachable: null,
+      checkedAt: null,
+      expectedUrl: null,
+    };
+    this.activePropertyId = propertyId;
+  }
+
+  /** Each mapped branch is checked independently, and one provider failure does not stop the others. */
+  async tickConnectedProperties(now = new Date()): Promise<void> {
+    for (const mapping of await this.repo.connectedProperties()) {
+      try {
+        await withIntegrationPropertyScope(mapping.localPropertyId, () =>
+          this.tick(now, mapping.localPropertyId),
+        );
+      } catch (error) {
+        this.log.warn(`сторож webhook ${mapping.localPropertyId}: ${(error as Error).message}`);
+      }
+    }
+  }
+
+  async tick(now = new Date(), propertyId = ''): Promise<WebhookHealth> {
     if (this.ticking) return this.state;
     this.ticking = true;
     try {
+      this.selectProperty(propertyId);
       const [lastWebhookAt, lastPullBookingAt] = await Promise.all([
         this.repo.lastEventAt(PROVIDER, 'WEBHOOK'),
         this.repo.lastEventAt(PROVIDER, 'PULL', 'booking'),
@@ -205,18 +260,34 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  snapshot(): WebhookHealthSnapshot {
+  snapshot(propertyId = ''): WebhookHealthSnapshot {
+    const selected =
+      propertyId === this.activePropertyId
+        ? { state: this.state, seen: this.seen, callback: this.callback }
+        : this.propertyStates.get(propertyId);
+    const state = selected?.state ?? { suspect: false, since: null, reason: null };
+    const seen = selected?.seen ?? {
+      lastWebhookAt: null,
+      lastPullBookingAt: null,
+      checkedAt: null,
+    };
+    const callback = selected?.callback ?? {
+      url: null,
+      reachable: null,
+      checkedAt: null,
+      expectedUrl: null,
+    };
     return {
-      webhookSuspect: this.state.suspect,
-      suspectSince: this.state.since?.toISOString() ?? null,
-      suspectReason: this.state.reason,
-      lastWebhookAt: this.seen.lastWebhookAt?.toISOString() ?? null,
-      lastPullBookingAt: this.seen.lastPullBookingAt?.toISOString() ?? null,
-      checkedAt: this.seen.checkedAt?.toISOString() ?? null,
-      callbackProbedUrl: this.callback.url,
-      callbackReachable: this.callback.reachable,
-      callbackCheckedAt: this.callback.checkedAt?.toISOString() ?? null,
-      callbackExpectedUrl: this.callback.expectedUrl,
+      webhookSuspect: state.suspect,
+      suspectSince: state.since?.toISOString() ?? null,
+      suspectReason: state.reason,
+      lastWebhookAt: seen.lastWebhookAt?.toISOString() ?? null,
+      lastPullBookingAt: seen.lastPullBookingAt?.toISOString() ?? null,
+      checkedAt: seen.checkedAt?.toISOString() ?? null,
+      callbackProbedUrl: callback.url,
+      callbackReachable: callback.reachable,
+      callbackCheckedAt: callback.checkedAt?.toISOString() ?? null,
+      callbackExpectedUrl: callback.expectedUrl,
     };
   }
 }

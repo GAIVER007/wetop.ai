@@ -1,11 +1,12 @@
 'use server';
 import { chessboardApi, financeApi, reservationsApi, type StayAvailability } from '../../lib/api';
 
-/** Что показывает предпросмотр брони на шахматке сверх клетки: точные даты и суммы по счёту проживания */
+/** Что показывает предпросмотр брони в календаре сверх клетки: точные даты и суммы по счёту проживания */
 export interface StayPreviewData {
   arrivalDate: string;
   departureDate: string;
   currency: string;
+  guestHref: string | null;
   /** Суммы счёта проживания, тиыны строкой (ADR-008); null — счёт не загрузился или ещё не открыт */
   money: {
     chargedMinor: string;
@@ -37,6 +38,7 @@ export async function stayPreviewAction(
       arrivalDate: item.arrivalDate,
       departureDate: item.departureDate,
       currency: card.currency,
+      guestHref: card.primaryGuest ? `/guests/${encodeURIComponent(card.primaryGuest.id)}` : null,
       money: folio
         ? {
             chargedMinor: folio.chargedMinor,

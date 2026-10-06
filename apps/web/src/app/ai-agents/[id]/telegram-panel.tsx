@@ -68,7 +68,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
     <section className="card" aria-labelledby="telegram-heading" style={{ padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <h2 id="telegram-heading">Telegram · тест агента</h2>
+          <h2 id="telegram-heading">Тест агента в Telegram</h2>
           <p>Подключите своего бота. Ответы доступны только указанным тестировщикам.</p>
         </div>
         <button className="btn btn--secondary" disabled={pending} onClick={() => run('status')}>
@@ -113,7 +113,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
             onChange={(e) => setToken(e.target.value)}
             placeholder={
               status?.username
-                ? 'Токен сохранён · новый нужен только для замены'
+                ? 'Токен сохранён, новый нужен только для замены'
                 : 'Вставьте токен бота'
             }
           />

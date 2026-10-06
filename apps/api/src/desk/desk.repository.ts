@@ -27,6 +27,8 @@ export interface DeskRepository {
   /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
   today(): Promise<string>;
   stays(date: string): Promise<DeskStay[]>;
+  /** Открытые задачи стойки со сроком не позже даты (DATA_MODEL §22): число для панели «Сегодня» */
+  openTasksDue(date: string): Promise<number>;
 }
 export const DESK_REPOSITORY = Symbol('DESK_REPOSITORY');
 
@@ -39,6 +41,15 @@ export class PrismaDeskRepository implements DeskRepository {
 
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, this.propertyName);
+  }
+  async openTasksDue(date: string): Promise<number> {
+    return this.prisma.db.deskTask.count({
+      where: {
+        propertyId: await propertyIdRef(this.prisma.db, this.propertyName),
+        doneAt: null,
+        dueDate: { lte: asDate(date) },
+      },
+    });
   }
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 

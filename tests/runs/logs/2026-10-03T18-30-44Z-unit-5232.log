@@ -1,0 +1,68 @@
+# Модульные (unit) · 03.10.2026 23:30 Алматы · vm
+# коммит 33292e4 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-30-44Z-unit-5232.json' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (19 tests | 2 failed) 16ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 1ms
+     ✓ пусто: значения нет 0ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 1ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 0ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 1ms
+     ✓ пустые необязательные поля при правке снимаются (null) 0ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 0ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 1ms
+   ✓ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 0ms
+     ✓ клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 0ms
+     ✓ конкуренты по расстоянию, без расстояния последними 0ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 0ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 1ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 1ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 0ms
+   ❯ buildNightHistory (2)
+     × по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 4ms
+     × нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildNightHistory > по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка
+TypeError: buildNightHistory is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:240:15
+    238|
+    239|   it('по дням снимка: значение переносится до нового снимка, отмечено,…
+    240|     const h = buildNightHistory({
+       |               ^
+    241|       stayDate: '2026-10-10',
+    242|       competitors: comps,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildNightHistory > нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются
+TypeError: buildNightHistory is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:267:12
+    265|
+    266|   it('нет снимков: пустая история, темп неизвестен; дней не больше пре…
+    267|     expect(buildNightHistory({ stayDate: '2026-10-10', competitors: co…
+       |            ^
+    268|       days: [],
+    269|       pickupBp: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  18:30:45
+   Duration  302ms (transform 75%, import 12%, tests 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-30-44Z-unit-5232.json
+
+# код выхода 1 · 1 с

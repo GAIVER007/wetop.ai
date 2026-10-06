@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 3 (ТЗ §18–§25, §58): карточка брони и быстрый предпросмотр.
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * действия по статусу), двойной — полная карточка. Подпись плашки подстраивается под ширину:
  * полное имя → «Имя Ф.» → инициалы; долг на узкой — точкой, на широкой — плашкой суммы.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

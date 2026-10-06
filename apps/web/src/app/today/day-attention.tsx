@@ -41,7 +41,7 @@ const waiting = (r: DeskRow) => r.status === 'CONFIRMED' || r.status === 'TENTAT
 
 /**
  * Очередь «Требуют внимания» (A3; ТЗ §5, план `plans/today-a3-2026-09-28.md`). Только данные, которые экран уже загрузил
- * (день стойки, шахматка дня, статус сторожа), и только существующие правила: пороги и важность инцидентов — сторожа,
+ * (день стойки, календарь дня, статус сторожа), и только существующие правила: пороги и важность инцидентов — сторожа,
  * «не готово» — уборка ≠ «проверено». С чем человек ничего не может сделать, сюда не попадает: у каждой строки действие.
  * Уборка и инциденты — текущее состояние, поэтому только на сегодня.
  */
@@ -81,7 +81,7 @@ function attentionEvents(input: {
       text: `${pluralRu(guard.open.critical, ['критичная неисправность', 'критичные неисправности', 'критичных неисправностей'])} системы`,
       action: { label: 'Посмотреть', href: '/incidents' },
     });
-  // Без ячейки: шахматка дня знает все такие брони, день стойки — только заезды; имя гостя берём из дня стойки
+  // Без ячейки: календарь дня знает все такие брони, день стойки — только заезды; имя гостя берём из дня стойки
   const known = new Map(
     [...day.arrivals, ...day.overdueArrivals, ...day.inHouse, ...day.departures].map((r) => [
       r.confirmationNumber,
@@ -125,7 +125,7 @@ function attentionEvents(input: {
       severity: 'critical',
       count: notReady.length,
       text: `${pluralRu(notReady.length, ['заезд', 'заезда', 'заездов'])} сегодня в неготовую ячейку`,
-      action: { label: 'Открыть шахматку', href: chessboard },
+      action: { label: 'Открыть календарь', href: chessboard },
       rows: notReady.map((r) =>
         bookingRow(r, `Ячейка ${r.unitCode}: уборка не проверена`, 'booking-actions'),
       ),
@@ -209,6 +209,11 @@ function attentionEvents(input: {
   });
 
   return events.sort((a, b) => SEVERITY[a.severity].rank - SEVERITY[b.severity].rank);
+}
+
+/** Число событий совпадает с существующей очередью, включая несколько событий одной брони. */
+export function attentionCount(input: Parameters<typeof attentionEvents>[0]): number {
+  return attentionEvents(input).reduce((total, event) => total + event.count, 0);
 }
 
 /*

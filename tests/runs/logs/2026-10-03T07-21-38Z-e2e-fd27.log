@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 03.10.2026 12:21 Алматы · vm
+# коммит d281497 (main)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'пилюля'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/homepage-blocks.spec.ts:107:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки (521ms)
+
+
+  1) tests/site/homepage-blocks.spec.ts:107:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки 
+
+    Error: ссылка переносится на вторую строку
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 48
+    Received:   66
+
+      115 |   const linkBox = (await link.boundingBox())!;
+      116 |   const cardBox = (await card.boundingBox())!;
+    > 117 |   expect(Math.round(linkBox.height), 'ссылка переносится на вторую строку').toBeLessThan(48);
+          |                                                                             ^
+      118 |   expect(
+      119 |     Math.round(linkBox.width),
+      120 |     'ссылка растянута во всю ширину карточки, а не по тексту',
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:117:77
+
+    Error Context: test-results/homepage-blocks-ссылка-в-к-23e32-о-всю-карточку-в-две-строки/error-context.md
+
+  1 failed
+    tests/site/homepage-blocks.spec.ts:107:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки 
+
+# код выхода 1 · 10 с

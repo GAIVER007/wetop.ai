@@ -1,0 +1,69 @@
+# Типы (typecheck) · 03.10.2026 14:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит ebaf8cf (claude/calendar-litepms-20261002), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/finance/finance.repository.ts(1043,45): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1051,35): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1078,43): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1081,28): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1089,39): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1093,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1102,12): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1107,18): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1120,40): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1124,18): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1136,29): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1151,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1170,36): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1172,45): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1197,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1237,35): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1249,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1261,17): error TS2339: Property 'cashReconciliation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(22,14): error TS2339: Property 'cashReconciliation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(23,14): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(24,14): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(67,27): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(78,29): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(79,26): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/integration/cash-operations.test.ts(92,30): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(143,14): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(144,14): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(163,14): error TS2339: Property 'cashReconciliation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(167,14): error TS2339: Property 'cashReconciliation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(168,14): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(169,14): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+tests/integration/cash-operations.test.ts(182,33): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/finance/finance.repository.ts(1043,45): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1051,35): error TS7006: Parameter 'o' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1078,43): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1081,28): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1089,39): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1093,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(1102,12): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1107,18): error TS2339: Property 'id' does not exist on type 'void | { id: string; }'.
+  Property 'id' does not exist on type 'void'.
+apps/api/src/finance/finance.repository.ts(1120,40): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1124,18): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1136,29): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1151,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1170,36): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1172,45): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1197,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1237,35): error TS2339: Property 'cashCategory' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1249,18): error TS2339: Property 'cashOperation' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(1261,17): error TS2339: Property 'cashReconciliation' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 10 с

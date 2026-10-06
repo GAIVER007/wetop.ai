@@ -1,0 +1,30 @@
+# Модульные (unit) · 02.10.2026 16:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9677bb9 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-17-01Z-unit-573a.json' 'packages/domain/src/finance/cash.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| packages/domain/src/finance/cash.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/finance/cash.test.ts [ packages/domain/src/finance/cash.test.ts ]
+Error: Cannot find module './cash' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/packages/domain/src/finance/cash.test.ts
+ ❯ packages/domain/src/finance/cash.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   DEFAULT_CASH_METHODS,
+      4|   NON_CASH_METHODS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:17:04
+   Duration  235ms (worker 99%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T11-17-01Z-unit-573a.json
+
+# код выхода 1 · 3 с

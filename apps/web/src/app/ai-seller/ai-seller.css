@@ -125,7 +125,7 @@
 .seller-wizard { background: var(--surface); border-radius: var(--radius); padding: var(--space-4); }
 .seller-wizard__steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); }
 .seller-wizard__steps button { display: flex; align-items: center; gap: var(--space-2); background: transparent; color: var(--muted); border: 0; border-radius: var(--radius-control); padding: var(--space-2); min-height: 44px; text-align: left; cursor: pointer; }
-.seller-wizard__steps button[aria-current] { background: var(--surface-elevated); color: var(--accent-1); }
+.seller-wizard__steps button[aria-current] { background: var(--surface-elevated); color: var(--primary); }
 .seller-wizard__steps button span { font-variant-numeric: tabular-nums; font-weight: 700; }
 .seller-wizard__heading { padding: var(--space-4) 0 var(--space-2); }
 .seller-wizard__heading h2 { margin: var(--space-2) 0; }

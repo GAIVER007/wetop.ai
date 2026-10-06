@@ -561,6 +561,21 @@ describe('manual reservation API', () => {
     expect(fake.state.guests).toBe(0);
     expect(published).toHaveLength(0);
   });
+  it('quote breaks the total down by night: one entry per night, sum equals total', async () => {
+    const q = await request(app.getHttpServer())
+      .post('/reservations/quote')
+      .send(body())
+      .expect(201);
+    expect(q.body.nights).toEqual([
+      { date: q.body.arrivalDate, priceMinor: '1100000' },
+      { date: expect.any(String), priceMinor: '1100000' },
+    ]);
+    const sum = (q.body.nights as Array<{ priceMinor: string }>).reduce(
+      (s, n) => s + BigInt(n.priceMinor),
+      0n,
+    );
+    expect(sum.toString()).toBe(q.body.totalMinor);
+  });
   it('replays one creation key and rejects changed payload without duplicate guests', async () => {
     const payload = body({ creationKey: '00000000-0000-4000-8000-000000000001' });
     const first = await request(app.getHttpServer())
@@ -599,7 +614,14 @@ describe('manual reservation API', () => {
     ]);
     // после коммита в каналы уходит дельта доступности по категории и ночам брони
     expect(published).toEqual([
-      { categoryCodes: ['category-single'], from: '2026-09-15', toExclusive: '2026-09-17' },
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-15',
+        toExclusive: '2026-09-17',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-17' },
+        ],
+      },
     ]);
   });
   it('ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно', async () => {
@@ -1049,6 +1071,10 @@ describe('manual reservation API', () => {
         categoryCodes: ['category-single', 'category-twin'],
         from: '2026-09-15',
         toExclusive: '2026-09-17',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-17' },
+          { categoryCode: 'category-twin', from: '2026-09-15', toExclusive: '2026-09-17' },
+        ],
       },
     ]);
   });
@@ -1139,7 +1165,17 @@ describe('manual reservation API', () => {
       unitCode: '9001',
     });
     expect(fake.state.allocations[0]).toMatchObject({ start: '2026-09-15', end: '2026-09-18' });
-    expect(published).toHaveLength(1);
+    // в канал — только добавленная ночь: остаток 15 и 16 сентября продление не меняло
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-17',
+        toExclusive: '2026-09-18',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-17', toExclusive: '2026-09-18' },
+        ],
+      },
+    ]);
 
     // чужая бронь занимает ту же койку на следующую ночь → продлить нельзя
     const other = await request(app.getHttpServer())
@@ -1896,13 +1932,22 @@ describe('manual reservation API', () => {
     expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-17' });
     const n = created.body.confirmationNumber as string;
 
-    // смена дат: старые и новые ночи вместе, иначе освободившаяся ночь останется закрытой в канале
+    // смена дат 15→17 на 16→19: освободившаяся 15-я и занятые 17-я и 18-я вместе, иначе освободившаяся ночь
+    // останется закрытой в канале; 16-я была занята и осталась — её остаток не менялся, она не уходит
     await send(
       `/reservations/${n}/dates`,
       { arrivalDate: '2026-09-16', departureDate: '2026-09-19', ratePlanCode: 'rate-base' },
       'patch',
     ).expect(200);
-    expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-19' });
+    expect(lastDelta()).toEqual({
+      categoryCodes: ['category-single'],
+      from: '2026-09-15',
+      toExclusive: '2026-09-19',
+      ranges: [
+        { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-16' },
+        { categoryCode: 'category-single', from: '2026-09-17', toExclusive: '2026-09-19' },
+      ],
+    });
 
     await send(`/reservations/${n}/cancel`).expect(200);
     expect(lastDelta()).toMatchObject({ from: '2026-09-16', toExclusive: '2026-09-19' });
@@ -1929,8 +1974,37 @@ describe('manual reservation API', () => {
     await send(`/reservations/${n3}/items/${i3}/check-in`).expect(200);
     expect(published).toHaveLength(0); // заезд остаток не меняет
     await send(`/reservations/${n3}/items/${i3}/check-out`).expect(200);
-    expect(lastDelta()).toMatchObject({ toExclusive: '2026-09-18' });
+    // только освободившиеся 16-я и 17-я: прожитая 15-я осталась за выехавшим
+    expect(lastDelta()).toMatchObject({
+      from: '2026-09-16',
+      toExclusive: '2026-09-18',
+      ranges: [{ categoryCode: 'category-single', from: '2026-09-16', toExclusive: '2026-09-18' }],
+    });
     vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
+  });
+  it('перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-16' }))
+      .expect(201);
+    published.length = 0;
+    await request(app.getHttpServer())
+      .patch(`/reservations/${created.body.confirmationNumber}/dates`)
+      .send({ arrivalDate: '2026-09-18', departureDate: '2026-09-19', ratePlanCode: 'rate-base' })
+      .expect(200);
+    // Сертификация Channex §13: «only send changes». 16-я и 17-я остаток не меняли, а до правки уходили вместе
+    // с переносом — live-тест 02.10 (задача 5577ce76: 15.12 → 7, 16–21.12 → 8, 22–28.12 → 7)
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-15',
+        toExclusive: '2026-09-19',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-16' },
+          { categoryCode: 'category-single', from: '2026-09-18', toExclusive: '2026-09-19' },
+        ],
+      },
+    ]);
   });
   it('заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением', async () => {
     const created = await request(app.getHttpServer())

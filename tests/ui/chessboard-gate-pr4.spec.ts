@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -11,7 +11,8 @@ import { mkdirSync } from 'node:fs';
  * артефакты гейта, а ожидания подтверждают, что снят нужный момент.
  */
 const DIR = 'reports/chessboard-v2-pr4-2026-09-28/gate';
-const fixture = 'http://127.0.0.1:4311';
+// адрес стенда общий для набора: `UI_FIXTURE_API` или `FIXTURE_PORT`, параллельные сессии не делят 4311
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const NUMBER = '20260913-TEST1';
 const ITEM = 'ui-item-1';
@@ -84,7 +85,7 @@ for (const theme of ['light', 'dark'] as const) {
     await dialog.getByRole('button', { name: 'Оставить как есть', exact: true }).click();
 
     // 5. В другую категорию — всё проживание, разница стоимости
-    await page.setViewportSize({ width: 1440, height: 1400 });
+    await page.setViewportSize({ width: 1440, height: 1500 });
     await source.hover();
     await page.mouse.down();
     await moveTo(page, at('M03'));

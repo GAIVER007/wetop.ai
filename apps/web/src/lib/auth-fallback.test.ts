@@ -37,6 +37,13 @@ it('экранирует вставляемую в HTML почту', async () =>
 });
 it('выдаёт HttpOnly cookie и безопасный 303 без ключа в HTML', async () => {
   vi.stubEnv('APP_URL', 'https://app.wetop.ai');
+  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
+    businessId: 'synthetic-business',
+    locationId: 'synthetic-location',
+    vertical: 'HOSPITALITY',
+    businessName: 'Отель',
+    locationName: 'Филиал',
+  });
   vi.spyOn(authApi, 'login').mockResolvedValue({
     token: 'synthetic-token',
     expiresAt: '2030-01-01T00:00:00Z',

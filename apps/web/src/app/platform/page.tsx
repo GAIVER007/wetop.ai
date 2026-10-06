@@ -27,6 +27,7 @@ import {
 import { ExtensionForm, StatusForm } from './forms';
 import { DataConnectionPanel } from './data-connection';
 import { hotelApi } from '../../lib/hotel-api';
+import { unstable_rethrow } from 'next/navigation';
 
 /**
  * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
@@ -64,7 +65,10 @@ async function Organizations({
 }) {
   const loaded = await platformApi.organizations().then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
   if (!loaded.ok) {
     if (loaded.error instanceof ApiError && loaded.error.status === 403)
@@ -122,7 +126,7 @@ async function Organizations({
                       <Link href={`/platform?org=${o.id}`} prefetch={false}>
                         {o.name}
                       </Link>
-                      <span className="sub"> · с {organizationSince(o.createdAt)}</span>
+                      <span className="sub">, с {organizationSince(o.createdAt)}</span>
                     </td>
                     <td>
                       <Badge tone={status.tone}>{status.label}</Badge>

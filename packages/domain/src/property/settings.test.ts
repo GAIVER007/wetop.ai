@@ -7,6 +7,16 @@ import { parseHotelSettingsPatch } from './settings';
  * попадают вовсе — они держат деньги и границы ночей.
  */
 describe('parseHotelSettingsPatch', () => {
+  it('accepts valid per-property Channex location and type, rejects malformed values', () => {
+    expect(
+      parseHotelSettingsPatch({ countryCode: 'KZ', city: 'Алматы', channexPropertyType: 'hostel' }),
+    ).toEqual({
+      ok: true,
+      value: { countryCode: 'KZ', city: 'Алматы', channexPropertyType: 'hostel' },
+    });
+    expect(parseHotelSettingsPatch({ countryCode: 'Kazakhstan' }).ok).toBe(false);
+    expect(parseHotelSettingsPatch({ channexPropertyType: 'unknown' }).ok).toBe(false);
+  });
   it('нормализует пробелы, пустое необязательное поле — null', () => {
     expect(
       parseHotelSettingsPatch({
@@ -35,10 +45,14 @@ describe('parseHotelSettingsPatch', () => {
   it('валюту, часовой пояс и неизвестные поля не принимает', () => {
     expect(parseHotelSettingsPatch({ currency: 'USD' })).toEqual({
       ok: false,
-      reason: 'Валюту и часовой пояс меняет поддержка WETOP: от них зависят деньги и границы ночей.',
+      reason:
+        'Валюту и часовой пояс меняет поддержка WETOP: от них зависят деньги и границы ночей.',
     });
     expect(parseHotelSettingsPatch({ timezone: 'UTC' }).ok).toBe(false);
-    expect(parseHotelSettingsPatch({ id: 'x' })).toEqual({ ok: false, reason: 'Неизвестное поле: id' });
+    expect(parseHotelSettingsPatch({ id: 'x' })).toEqual({
+      ok: false,
+      reason: 'Неизвестное поле: id',
+    });
   });
 
   it('проверяет время, почту, телефон, ИИН/БИН и пустое название словами', () => {
@@ -48,7 +62,7 @@ describe('parseHotelSettingsPatch', () => {
     });
     expect(parseHotelSettingsPatch({ email: 'не почта' })).toEqual({
       ok: false,
-      reason: 'Почта — в виде name@example.kz',
+      reason: 'Почта в виде name@example.kz',
     });
     expect(parseHotelSettingsPatch({ phone: '12' })).toEqual({
       ok: false,

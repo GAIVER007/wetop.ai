@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { formatMoney } from '../../../lib/money';
 import { bookingQuote } from './availability';
 import { AUTO_UNIT } from '../../../lib/booking-link';
+import { displayDate } from '../../../lib/display-date';
 
 export function useBookingQuote(
   arrival: string,
@@ -35,7 +36,11 @@ export function useBookingQuote(
   const key = JSON.stringify({ input, retry, attempt });
   const [result, setResult] = useState<{
     key: string;
-    quote: { totalMinor: string; currency: string } | null;
+    quote: {
+      totalMinor: string;
+      currency: string;
+      nights?: Array<{ date: string; priceMinor: string }>;
+    } | null;
     error: string;
   } | null>(null);
   useEffect(() => {
@@ -88,5 +93,34 @@ export function BookingPrice({ state }: { state: ReturnType<typeof useBookingQuo
         </button>
       )}
     </span>
+  );
+}
+
+/**
+ * «Детализация цены по дням» (образец — форма брони Exely, поручение 03.10): цена каждой ночи
+ * по всей брони из того же расчёта, что итог; средняя — целым тиыном вниз, сумма ночей равна итогу.
+ */
+export function PriceByNight({ state }: { state: ReturnType<typeof useBookingQuote> }) {
+  const nights = state.quote?.nights ?? [];
+  if (!state.quote || nights.length === 0) return null;
+  const { currency, totalMinor } = state.quote;
+  const average = BigInt(totalMinor) / BigInt(nights.length);
+  return (
+    <details className="booking-create__nights" data-testid="price-by-night">
+      <summary>Детализация цены по дням</summary>
+      <table className="booking-create__nights-table">
+        <tbody>
+          {nights.map((n) => (
+            <tr key={n.date}>
+              <th scope="row">{displayDate(n.date, 'full')}</th>
+              <td>{formatMoney(n.priceMinor, currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="booking-create__nights-sum" data-testid="price-by-night-sum">
+        Всего ночей: {nights.length}, средняя стоимость ночи: {formatMoney(average.toString(), currency)}
+      </p>
+    </details>
   );
 }

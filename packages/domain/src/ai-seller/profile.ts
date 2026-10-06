@@ -92,7 +92,7 @@ export const DEFAULT_SELLER_PROFILE: SellerProfileInput = {
   addressForm: 'FORMAL',
   emoji: 'NEVER',
   replyLength: 'SHORT',
-  languages: ['ru'],
+  languages: ['ru', 'kk', 'en', 'zh'],
   greeting: '',
   includedInPrice: '',
   extraCharges: '',

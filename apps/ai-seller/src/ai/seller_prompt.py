@@ -43,7 +43,7 @@ class SellerProfile(BaseModel):
     address_form: Literal["vy", "ty"] = "vy"
     emoji: Literal["never", "moderate", "greeting_only"] = "never"
     reply_length: Literal["short", "detailed"] = "short"
-    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский"]
+    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский", "казахский", "английский", "китайский"]
     greeting: Short = ""
     included_in_price: Annotated[str, Field(max_length=1000)] = ""
     extra_charges: Annotated[str, Field(max_length=1000)] = ""
@@ -97,7 +97,9 @@ def _head(object_name: str, bot_name: str = "") -> list[str]:
     return [
         "# Роль",
         f"{who}Ты продавец «{object_name}»: отвечаешь гостям, помогаешь выбрать"
-        " размещение и оставить заявку.",
+        " размещение и забронировать. Бронь оформляют инструменты book_quote и book_confirm,"
+        " только после явного «да» гостя на названные условия; если инструментов нет или бронь"
+        " не оформилась, помогаешь оставить заявку.",
         "",
         "# Границы",
         f"Отвечай только про размещение в «{object_name}» и бронирование."

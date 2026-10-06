@@ -1,7 +1,8 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import { serviceCatalogApi } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
@@ -31,7 +32,10 @@ const tabs = [
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
 
 export default async function HotelSettingsPage({
@@ -39,6 +43,7 @@ export default async function HotelSettingsPage({
 }: {
   params: Promise<{ section?: string[] }>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';

@@ -8,6 +8,7 @@ import {
   type DbTx,
 } from '@pms/database';
 import {
+  soldDeparture,
   folioBalance,
   channelPrepaymentToKeep,
   discountedMinor,
@@ -1152,13 +1153,25 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           departureDate: { gt: asDate(from) },
           ...(exceptItemId ? { id: { not: exceptItemId } } : {}),
         },
-        select: { arrivalDate: true, departureDate: true },
+        select: {
+          arrivalDate: true,
+          departureDate: true,
+          status: true,
+          allocations: { select: { endDate: true } },
+        },
       }),
     ]);
     let left = Number.POSITIVE_INFINITY;
     for (let d = from; d < toExclusive;) {
       const blocked = blocks.filter((b) => iso(b.dateFrom) <= d && d < iso(b.dateTo)).length;
-      const taken = sold.filter((s) => iso(s.arrivalDate) <= d && d < iso(s.departureDate)).length;
+      const taken = sold.filter((s) => {
+        const end = soldDeparture({
+          status: s.status,
+          departureDate: iso(s.departureDate),
+          allocationEndDates: s.allocations.map((a) => iso(a.endDate)),
+        });
+        return end !== null && iso(s.arrivalDate) <= d && d < end;
+      }).length;
       left = Math.min(left, units - blocked - taken);
       const next = new Date(`${d}T00:00:00Z`);
       next.setUTCDate(next.getUTCDate() + 1);

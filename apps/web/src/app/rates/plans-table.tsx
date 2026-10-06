@@ -9,7 +9,7 @@ import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Table } from '../../components/ui';
 import { derivedRuleText } from '../../lib/rate-rule-text';
 import { DerivedForm } from './derived-form';
-import { saveRatePlanPenalty, type RatePlanActionResult } from './actions';
+import { saveRatePlanPenalty, setDerivedPlanActive, type RatePlanActionResult } from './actions';
 import '../inventory/fund.css';
 
 /**
@@ -131,6 +131,15 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
               setEditing(null);
             }}
           />
+          {editing.derived && (
+            <RatePlanActiveForm
+              plan={editing}
+              onSaved={(text) => {
+                setSaved(text);
+                setEditing(null);
+              }}
+            />
+          )}
         </Overlay>
       )}
       {creating && (
@@ -152,6 +161,37 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
         </Overlay>
       )}
     </section>
+  );
+}
+
+function RatePlanActiveForm({
+  plan,
+  onSaved,
+}: {
+  plan: RatePlanRow;
+  onSaved: (text: string) => void;
+}) {
+  const [state, action, pending] = useActionState(setDerivedPlanActive, null);
+  useEffect(() => {
+    if (state?.saved) onSaved(state.saved.active ? 'Тариф включён' : 'Тариф отключён');
+  }, [state, onSaved]);
+  return (
+    <form action={action} className="stack stack--sm">
+      <input type="hidden" name="code" value={plan.code} />
+      <input type="hidden" name="active" value={String(!plan.active)} />
+      <p className="note">
+        Отключённый тариф нельзя выбрать для новой брони. История сохраняется. При отключении
+        проверяются действующие брони и сопоставления каналов.
+      </p>
+      {state?.error && (
+        <Alert boxed tone="warning">
+          {state.error}
+        </Alert>
+      )}
+      <Button type="submit" tone="secondary" disabled={pending}>
+        {pending ? 'Сохранение…' : plan.active ? 'Отключить тариф' : 'Включить тариф'}
+      </Button>
+    </form>
   );
 }
 

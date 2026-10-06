@@ -4,13 +4,13 @@ import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 
 /**
- * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
+ * Gate 3 живьём: бронь со стойки появляется в календаре и уменьшает доступность, отмена возвращает всё назад.
  * Гость вымышленный (ADR-010); даты далеко в будущем, чтобы не трогать контрольные числа 08.09.2026.
  */
 const ARRIVAL = '2027-05-10';
 const DEPARTURE = '2027-05-12';
 
-test('создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна', async ({
+test('создать бронь с ячейкой → видна в календаре → отменить → ячейка свободна', async ({
   page,
 }) => {
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
@@ -20,6 +20,10 @@ test('создать бронь с ячейкой → видна в шахмат
   expect(freeBefore).toBeGreaterThan(0);
 
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitOption(unitSelect);

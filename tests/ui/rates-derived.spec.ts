@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * Вкладка «Тарифные планы» получает «Добавить производный тариф» и колонку условий словами; вкладка «Промокоды» —
  * таблицу, добавление и выключение. Ошибки — словами у формы, «только чтение» — без кнопок. Стенд — подставной API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/direct-sales-d4-2026-09-29';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
@@ -60,6 +60,15 @@ test('производный тариф: добавить, условия сло
   await edit.getByLabel('Скидка, %').fill('20');
   await edit.getByRole('button', { name: 'Сохранить условия' }).click();
   await expect(row).toContainText('−20% от «Стандартный»');
+  await row.getByRole('button', { name: 'Раннее бронирование' }).click();
+  await edit.getByRole('button', { name: 'Отключить тариф', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.reload();
+  await expect(planRow(page, 'Раннее бронирование')).toContainText('не действует');
+  await row.getByRole('button', { name: 'Раннее бронирование' }).click();
+  await edit.getByRole('button', { name: 'Включить тариф', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(row.getByText('не действует')).toHaveCount(0);
 });
 
 test('промокоды: вкладка, добавить, повтор кода — ошибка, выключить', async ({ page }) => {
@@ -125,6 +134,7 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync(SHOTS, { recursive: true });
     const main = page.getByRole('main');
     const axe = async () => {
+      await expect(page).toHaveTitle(/.+/);
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();

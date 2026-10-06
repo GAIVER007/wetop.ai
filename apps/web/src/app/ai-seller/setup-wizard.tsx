@@ -56,7 +56,7 @@ export function SetupWizard({ children }: { children: ReactNode[] }) {
         <span className="muted">Изменения сохраняются кнопками внутри шага.</span>
         {step < steps.length - 1 ? (
           <button type="button" className="btn" onClick={() => go(step + 1)}>
-            Далее →
+            Далее
           </button>
         ) : (
           <a className="btn" href="/ai-agents">

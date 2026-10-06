@@ -1,6 +1,7 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Badge, Button, EmptyState, Field, Select, Table } from '../../components/ui';
@@ -41,6 +42,7 @@ export default async function GuestsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   // отбор целиком в адресе (G7, ТЗ §31): раздел, поиск, последний визит, визиты, порядок, страница
   const { f, error } = parseGuestFilters(sp);
@@ -62,7 +64,10 @@ export default async function GuestsPage({
         .directory(directoryQuery(f, 100))
         .then(
           (r) => ({ ok: true as const, r }),
-          (e: unknown) => ({ ok: false as const, e }),
+          (e: unknown) => {
+            unstable_rethrow(e);
+            return { ok: false as const, e };
+          },
         )
     : null;
   const result = loaded?.ok ? loaded.r : null;

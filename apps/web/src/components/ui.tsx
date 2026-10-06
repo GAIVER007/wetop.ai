@@ -9,6 +9,7 @@ import type {
   TableHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import { cloneElement, isValidElement } from 'react';
 import { Icon, type IconName } from './icon';
 
 /**
@@ -63,18 +64,64 @@ export function Textarea({ className, ...rest }: TextareaHTMLAttributes<HTMLText
   return <textarea className={cx('inp', className)} {...rest} />;
 }
 
-/** Подпись над полем (или слева, `inline`). Текст подписи идёт первым — так поле находится по label. */
+type FieldControlProps = {
+  id?: string | undefined;
+  'aria-describedby'?: string | undefined;
+  'aria-invalid'?: boolean | 'true' | 'false' | undefined;
+};
+
+type FieldProps = LabelHTMLAttributes<HTMLLabelElement> & {
+  label: ReactNode;
+  inline?: boolean | undefined;
+} & (
+    | { controlId: string; hint?: ReactNode | undefined; error?: ReactNode | undefined }
+    | { controlId?: undefined; hint?: undefined; error?: undefined }
+  );
+
+/**
+ * Подпись над полем (или слева, `inline`). Для hint/error обязателен `controlId`:
+ * компонент связывает подпись и пояснение с прямым дочерним Input/Select/Textarea.
+ */
 export function Field({
   label,
   inline,
+  controlId,
+  hint,
+  error,
   className,
   children,
   ...rest
-}: LabelHTMLAttributes<HTMLLabelElement> & { label: ReactNode; inline?: boolean | undefined }) {
+}: FieldProps) {
+  const hintId = hint && controlId ? `${controlId}-hint` : undefined;
+  const errorId = error && controlId ? `${controlId}-error` : undefined;
+  const descriptionId = errorId ?? hintId;
+  const control = isValidElement<FieldControlProps>(children)
+    ? cloneElement(children, {
+        id: children.props.id ?? controlId,
+        'aria-describedby':
+          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') || undefined,
+        'aria-invalid': error ? true : children.props['aria-invalid'],
+      })
+    : children;
+
   return (
-    <label className={cx('field', inline && 'field--inline', className)} {...rest}>
+    <label
+      htmlFor={controlId}
+      className={cx('field', inline && 'field--inline', error ? 'field--error' : false, className)}
+      {...rest}
+    >
       {label}
-      {children}
+      {control}
+      {hint && !error && (
+        <span className="field__hint" id={hintId}>
+          {hint}
+        </span>
+      )}
+      {error && (
+        <span className="field__error" id={errorId} role="alert">
+          {error}
+        </span>
+      )}
     </label>
   );
 }

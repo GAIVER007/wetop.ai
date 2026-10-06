@@ -1,0 +1,11 @@
+# Линтер (lint) · 03.10.2026 15:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4987106 (main), незакоммиченных файлов набора: 9
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/management/analytics/units/units.tsx
+  2:28  error  'UnitStats' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 4 мин 54 с

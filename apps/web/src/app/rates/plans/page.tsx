@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { ratesApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
@@ -7,6 +8,7 @@ import { EmptyState } from '../../../components/ui';
 import { deskShell } from '../../../lib/desk-shell';
 import { RatesTabs } from '../tabs';
 import { RatePlansTable } from '../plans-table';
+import { unstable_rethrow } from 'next/navigation';
 import '../rates.css';
 
 /**
@@ -15,10 +17,14 @@ import '../rates.css';
  * всех, кто его видит, — кроме «только чтения» (ADR-102). Отказ API не уносит экран: заголовок и вкладки на месте (D4).
  */
 export default async function RatePlansPage() {
+  await requireVertical(['HOSPITALITY']);
   const { readOnly } = await deskShell();
   const plans = await ratesApi.plans().then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
   return (
     <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">

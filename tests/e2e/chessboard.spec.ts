@@ -2,7 +2,7 @@ import { expect, test } from './fixtures';
 import { almatyToday, plusDays } from './dates';
 
 /**
- * Gate 2 (шахматка): сетка на 88 ячеек, и число занятых на экране совпадает с данными API,
+ * Gate 2 (календарь): сетка на 88 ячеек, и число занятых в сводке совпадает с данными API,
  * а занято + свободно + заблокировано всегда равно 88.
  * Сверка ИМЕННО С LEGACY по числам — в датированных отчётах `reports/double-entry-*.md`
  * (скрипт `cli-double-entry.ts` читает Legacy живьём). Жёсткое число здесь не зашивается:
@@ -24,10 +24,10 @@ test('шахматка показывает 88 ячеек, и занятость
   expect(summary.occupied).toBeGreaterThan(0);
 
   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 13)}`);
-  await expect(page.getByRole('heading', { name: 'Шахматка' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Календарь' })).toBeVisible();
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await expect(page.getByRole('main').getByTestId('date-col')).toHaveCount(14);
-  await expect(page.getByRole('main').getByTestId(`occupied-${TODAY}`)).toHaveText(
+  await expect(page.getByRole('main').getByTestId('day-occupied')).toHaveText(
     String(summary.occupied),
   );
   await page.screenshot({ path: 'reports/screenshots/chessboard-today.png', fullPage: false });

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -10,7 +10,7 @@ import type { Page } from '@playwright/test';
  * business-ai-seller-sa2-2026-09-30.md §4). Партнёр видит AI-продавца; карточка WETOP Support — только у главного
  * администратора. Старый адрес `/ai-seller` работает. Стенд — `scripts/preview/fixture-api.ts`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // снимки SA1 (`reports/business-ai-seller-sa1-2026-09-29/`) остаются как были; каталог с новой кнопкой снимается в отчёт SA2
 const SHOTS = 'reports/unified-sections-2026-10-01/agents';
 
@@ -28,39 +28,38 @@ async function signIn(page: Page) {
 
 test('партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец', async ({ page }) => {
   await signIn(page);
-  const sidebar = page.locator('.workspace-sidebar');
+  const sidebar = page.locator('.workspace-header .topmenu');
   await sidebar.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await sidebar.getByRole('link', { name: 'ИИ-агенты', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true }).click();
   await expect(page).toHaveURL(/\/ai-agents$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const seller = page.getByTestId('agent-seller');
   await expect(seller).toContainText('AI-продавец');
-  await expect(seller).toContainText('Продажи');
-  await expect(seller).toContainText('Hospitality');
+  // карточка пересобрана (89b2474): вместо меток «Продажи»/«Hospitality» — Business · Location и каналы
+  await expect(seller).toContainText('Сеть Тест');
+  await expect(seller).toContainText('Алматы');
   await expect(page.getByTestId('agent-support')).toHaveCount(0);
   await expect(page.getByText('WETOP Support')).toHaveCount(0);
   await seller.getByRole('link', { name: 'Открыть' }).click();
   await expect(page).toHaveURL(/\/ai-seller/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // страницы продавца подсвечивают тот же пункт меню
-  await expect(sidebar.getByRole('link', { name: 'ИИ-агенты', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  // страницы продавца подсвечивают тот же пункт меню; список группы закрыт, пункт скрыт
+  // от дерева доступности — ищем по CSS, как top-menu.spec
+  await expect(sidebar.locator('a[aria-current="page"]')).toHaveText('ИИ-продавцы');
 });
 
-test('главный администратор: рядом с продавцом карточка WETOP Support', async ({
+test('главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце»', async ({
   page,
   request,
 }) => {
+  // карточку WETOP Support из каталога сняли (89b2474): вход администратора — ссылка «Техподдержка»
+  // рядом с «Все агенты» на /ai-seller; в каталоге карточки нет и у администратора
   await request.post(`${API}/__test/control`, { data: { platformAdmin: true } });
   await signIn(page);
   await page.goto('/ai-agents');
-  const support = page.getByTestId('agent-support');
-  await expect(support).toContainText('WETOP Support');
-  await expect(support).toContainText('Техническая поддержка платформы');
-  await expect(support).toContainText('Platform Agent');
-  await support.getByRole('link', { name: 'Открыть' }).click();
+  await expect(page.getByTestId('agent-support')).toHaveCount(0);
+  await page.goto('/ai-seller');
+  await page.getByRole('link', { name: 'Техподдержка', exact: true }).click();
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 
@@ -184,13 +183,13 @@ test('каталог не загрузился: экран остаётся, в�
   });
   await signIn(page);
   await page.goto('/ai-agents');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const failure = page.getByTestId('agents-error');
   await expect(failure).toContainText('Не удалось загрузить агентов');
   await expect(failure.getByRole('button', { name: /Повторить/ })).toBeVisible();
   await expect(page.getByTestId('agent-seller')).toHaveCount(0);
-  // соседний агент платформы не зависит от каталога партнёра
-  await expect(page.getByTestId('agent-support')).toBeVisible();
+  // карточки WETOP Support в каталоге больше нет (89b2474): вход администратора — с /ai-seller
+  await expect(page.getByTestId('agent-support')).toHaveCount(0);
 });
 
 test('сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль', async ({
@@ -232,7 +231,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
         await signIn(page);
         await page.goto('/ai-agents');
-        await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+        await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
         await expect(page.getByTestId('agent-seller')).toBeVisible();
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations.map((v) => v.id)).toEqual([]);

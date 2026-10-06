@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../../../lib/vertical-guard';
 import Link from 'next/link';
 import { unitsApi } from '../../../../../lib/api';
 import { hotelToday } from '../../../../../lib/hotel-api';
@@ -14,6 +15,7 @@ import { FundEditor } from '../../../fund-editor';
  * шахматка, переименование комнаты, уборка и блокировки тем же блоком, что в полной карточке.
  */
 export default async function UnitDrawerPage({ params }: { params: Promise<{ code: string }> }) {
+  await requireVertical(['HOSPITALITY']);
   const { code } = await params;
   const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
   const today = await hotelToday();
@@ -27,7 +29,7 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
             href={`/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`}
           >
             <Icon name="board" />
-            Показать на шахматке
+            Показать в календаре
           </Link>
           <FundEditor categories={[]} room={{ code: unit.code, roomNumber: unit.roomNumber }} />
           {/* обычная ссылка, не Link: мягкий переход снова попал бы в перехват и открыл панель */}

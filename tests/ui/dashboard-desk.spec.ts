@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Locator } from './fixtures';
 
 /**
  * Разбор «Главной» 23.09.2026 — критика по DESIGN.md, находки 1–9 (отчёт и снимки —
@@ -7,105 +7,23 @@ import { expect, test, type Locator, type Page } from './fixtures';
  * Данные фикстуры на сегодня: заезды без заселения — TESTAA, TEST1, TEST2; не заехал вовремя — TEST8;
  * уезжает и ещё живёт — TEST3; уже выселен, но с долгом 16 000 ₸ — TEST4; живут — TEST5, TEST6, TEST7.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-const quick = (page: Page) => page.getByRole('region', { name: 'Быстрые действия' });
 const fontSize = (loc: Locator) => loc.evaluate((el) => getComputedStyle(el).fontSize);
-
-test('1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать', async ({
-  page,
-}) => {
-  await page.goto('/today');
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  const living = ['20260913-TEST3', '20260913-TEST5', '20260913-TEST6', '20260913-TEST7'];
-  const cases = [
-    {
-      // заезды сегодня без заселения и «не заехал вовремя»; живущий сюда не попадает
-      label: 'Заселить гостя',
-      has: ['20260913-TESTAA', '20260913-TEST1', '20260913-TEST2', '20260913-TEST8'],
-      not: ['20260913-TEST5'],
-    },
-    // уезжает сегодня и ещё живёт; уже выселенный — нет
-    { label: 'Выселить гостя', has: ['20260913-TEST3'], not: ['20260913-TEST4'] },
-    // живут сейчас, включая уезжающих сегодня: продлевают чаще всего именно их
-    { label: 'Продлить проживание', has: living, not: ['20260913-TESTAA', '20260913-TEST4'] },
-    { label: 'Переселить', has: living, not: ['20260913-TESTAA', '20260913-TEST4'] },
-  ];
-  for (const c of cases) {
-    const button = quick(page).getByRole('button', { name: new RegExp(c.label) });
-    await expect(button.locator('.quick-action__count')).toHaveText(String(c.has.length));
-    await button.click();
-    const dialog = page.getByRole('dialog', { name: c.label });
-    await expect(dialog.locator('.assistant-results > a')).toHaveCount(c.has.length);
-    for (const n of c.has) await expect(dialog).toContainText(n);
-    for (const n of c.not) await expect(dialog).not.toContainText(n);
-    await page.keyboard.press('Escape');
-    await expect(dialog).toBeHidden();
-  }
-  // «Создать счёт» — любая бронь дня, а не дело: число на нём ничего не значило бы
-  await expect(
-    quick(page)
-      .getByRole('button', { name: /Создать счёт/ })
-      .locator('.quick-action__count'),
-  ).toHaveCount(0);
-});
-
-test('2. из окна выбора карточка открывается на кнопке этого действия для этого проживания', async ({
-  page,
-}) => {
-  const cases = [
-    { label: 'Выселить гостя', booking: '20260913-TEST3', target: 'check-out-ui-item-3' },
-    { label: 'Заселить гостя', booking: '20260913-TEST8', target: 'check-in-ui-item-8' },
-    { label: 'Продлить проживание', booking: '20260913-TEST5', target: 'extend-ui-item-5' },
-    { label: 'Переселить', booking: '20260913-TEST6', target: 'assign-unit-ui-item-6' },
-  ];
-  for (const c of cases) {
-    await page.goto('/today');
-    await page
-      .getByTestId('owner-dashboard')
-      .getByRole('button', { name: 'Работа с гостями', exact: true })
-      .click();
-    await quick(page)
-      .getByRole('button', { name: new RegExp(c.label) })
-      .click();
-    await page
-      .getByRole('dialog', { name: c.label })
-      .getByRole('link', { name: new RegExp(c.booking) })
-      .click();
-    await expect(page).toHaveURL(new RegExp(`/reservations/${c.booking}\\?do=`));
-    const target = page.getByTestId(c.target);
-    // фокус и видимая рамка, но не нажатие: действие по-прежнему подтверждает человек
-    await expect(target).toBeFocused();
-    await expect(target).toHaveAttribute('data-quick-target', '');
-    await expect(target).toBeInViewport();
-  }
-});
 
 test('3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез', async ({
   page,
 }) => {
   await page.goto('/today?date=2027-06-01');
-  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await expect(page.locator('#day-attention')).toHaveCount(1);
   await expect(page.locator('#day-attention .attention-list')).toBeVisible();
   await expect(page.locator('#day-attention')).not.toContainText('Всё в порядке');
-});
-test('4. действия сохраняют читаемые размеры внутри панели', async ({ page }) => {
-  await page.goto('/today');
-  await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('15px');
-  expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('14px');
 });
 test('5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди', async ({
   page,
@@ -162,11 +80,11 @@ test('8. подробности дня на графике без наведен
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px', async ({
+test('9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки', async ({
   page,
 }) => {
   // шкала §6 с 29.09.2026 — на шаг крупнее прежней 12…28
-  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px'];
+  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px', '48px'];
   const offScale = (main: import('@playwright/test').Locator) =>
     main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
@@ -184,12 +102,12 @@ test('9. размеры шрифта на главной и в «Аналити�
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/today');
     const main = page.getByRole('main');
-    await expect(main.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+    await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
 
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
-    // число плитки дня — --text-3xl (26 px с 29.09)
+    // Поступления: --text-4xl (30 px), утверждённый концепт 05.10.2026.
     if (width === 1440)
-      expect(await fontSize(main.getByTestId('owner-guests').locator('strong'))).toBe('26px');
+      expect(await fontSize(main.getByTestId('owner-paid').locator('strong'))).toBe('30px');
     // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
     await page.goto('/management/analytics?period=week');
     await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
@@ -219,16 +137,12 @@ test('10. заголовок страницы и панели брони — п�
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/today');
+  // с 03.10 быстрых действий на Главной нет: бронь открывается из очереди «Требуют внимания»
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await page
-    .getByTestId('owner-dashboard')
-    .getByRole('button', { name: 'Работа с гостями', exact: true })
-    .click();
-  await quick(page)
-    .getByRole('button', { name: /Выселить гостя/ })
-    .click();
-  await page
-    .getByRole('dialog', { name: 'Выселить гостя' })
-    .getByRole('link', { name: /20260913-TEST3/ })
+    .locator('#day-attention')
+    .getByRole('link', { name: /20260913-TEST4/ })
+    .first()
     .click();
   const drawer = page.locator('.booking-drawer .page__title');
   await expect(drawer).toBeVisible();

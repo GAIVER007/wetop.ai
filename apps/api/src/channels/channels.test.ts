@@ -15,6 +15,7 @@ const property = {
   timezone: 'Asia/Almaty',
   country: 'KZ',
   city: 'Алматы',
+  propertyType: 'hostel',
   address: null,
   email: null,
   phone: null,
@@ -48,6 +49,14 @@ const categories = [
 const ratePlan = { id: 'p2', code: 'rate-ota', name: 'Тестовый для ОТА +35%', currency: 'KZT' };
 
 describe('buildChannexSetup', () => {
+  it('uses the selected property type instead of the installation default', () => {
+    const plan = buildChannexSetup({
+      property: { ...property, propertyType: 'hotel' },
+      categories,
+      ratePlan,
+    });
+    expect(plan.property.property_type).toBe('hotel');
+  });
   it('maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each', () => {
     const plan = buildChannexSetup({ property, categories, ratePlan });
     expect(plan.property).toMatchObject({
@@ -87,12 +96,11 @@ describe('buildChannexSetup', () => {
       buildChannexSetup({ property, categories, ratePlan: { ...ratePlan, currency: 'USD' } }),
     ).toThrow(/USD/);
   });
-  // hotels-collection.md, Property Settings: autoupdate on modification and on cancellation, «Recommended Setting is false».
-  // Остатки после изменения и отмены считает и шлёт PMS сама (channel_outbox, абсолютные значения); правка Channex поверх них лишняя.
-  // Разбор 01.10.2026 (reports/order-2026-10-01), пункт 3.
-  it('property settings: availability autoupdate only on confirmation, as the Channex docs recommend', () => {
-    const plan = buildChannexSetup({ property, categories, ratePlan });
-    expect(plan.property.settings).toMatchObject({
+  it('остаток при изменении и отмене брони Channex сам не трогает, его присылает PMS (hotels-collection.md: «Recommended Setting is false»)', () => {
+    // Замечание ментора 02.10.2026: при `true` остаток двигали и Channex, и дельта PMS, при расхождении это двойной
+    // счёт. Новая бронь остаётся `true`: место закрывается сразу, до разбора ревизии в PMS.
+    const { settings } = buildChannexSetup({ property, categories, ratePlan }).property;
+    expect(settings).toMatchObject({
       allow_availability_autoupdate_on_confirmation: true,
       allow_availability_autoupdate_on_modification: false,
       allow_availability_autoupdate_on_cancellation: false,
@@ -311,14 +319,19 @@ describe('ARI values', () => {
   });
 });
 
-
 describe('lastPricedDate — граница выгрузки ограничений (Channex требует rate в каждом объекте)', () => {
   const occ = { A: 2, B: 1 };
   const rate = (
     accommodationTypeCode: string,
     date: string,
     occupancy: number,
-  ): LocalDailyRate => ({ date, accommodationTypeCode, ratePlanId: 'rp', occupancy, priceMinor: 1n });
+  ): LocalDailyRate => ({
+    date,
+    accommodationTypeCode,
+    ratePlanId: 'rp',
+    occupancy,
+    priceMinor: 1n,
+  });
   it('последний день с ценой по вместимости категории', () => {
     expect(
       lastPricedDate(
@@ -334,7 +347,6 @@ describe('lastPricedDate — граница выгрузки ограничен�
     expect(lastPricedDate([], occ)).toBeNull();
   });
 });
-
 
 describe('Full Sync: ограничения тянутся до конца окна (Channex — end dates aligned)', () => {
   it('хвост без цены закрыт stop_sell, но с перенесённой ценой; конец окна = доступности', () => {

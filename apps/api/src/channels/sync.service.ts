@@ -18,6 +18,7 @@ import { buildAvailabilityValues, buildRestrictionValues, lastPricedDate } from 
 import { buildChannexSetup } from './setup-plan';
 import { DEFAULT_FULL_SYNC_HOUR, isFullSyncDue } from './schedule';
 import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
+import { withIntegrationPropertyScope } from '../auth/request-context';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -117,6 +118,12 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   private readonly log = new Logger(ChannexSyncService.name);
   private scheduleTimer: NodeJS.Timeout | null = null;
   private syncing = false;
+  /**
+   * Последнее, что Channex ответил о нашем webhook, и когда. Фоновые проверки берут адрес отсюда и не спрашивают Channex
+   * каждые пять минут: письмо Channex 03.10.2026 («You don't need to pull webhooks on a constant basis»). Обновляют
+   * память запрос статуса со страницы каналов, регистрация webhook и сторож не чаще раза в сутки.
+   */
+  private readonly knownWebhooks = new Map<string, { at: number; status: WebhookStatus }>();
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
@@ -132,7 +139,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       return;
     this.scheduleTimer = setInterval(
       () =>
-        void this.runScheduledFullSyncIfDue().catch((e: unknown) =>
+        void this.runScheduledFullSyncForConnectedProperties().catch((e: unknown) =>
           this.log.warn(`полная выгрузка по расписанию не удалась: ${(e as Error).message}`),
         ),
       SCHEDULE_CHECK_MS,
@@ -141,6 +148,20 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   }
   onModuleDestroy(): void {
     if (this.scheduleTimer) clearInterval(this.scheduleTimer);
+  }
+
+  private async runScheduledFullSyncForConnectedProperties(): Promise<void> {
+    for (const mapping of await this.repo.connectedProperties()) {
+      try {
+        await withIntegrationPropertyScope(mapping.localPropertyId, () =>
+          this.runScheduledFullSyncIfDue(),
+        );
+      } catch (e) {
+        this.log.warn(
+          `полная выгрузка объекта ${mapping.localPropertyId} не удалась: ${(e as Error).message}`,
+        );
+      }
+    }
   }
 
   /**
@@ -185,9 +206,19 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const local = await this.repo.localSetup(ratePlanCode);
     if (!local.ratePlan)
       throw new UnprocessableEntityException(
-        `Тариф ${ratePlanCode} не найден — сначала импорт тарифов`,
+        `Тариф ${ratePlanCode} не найден или отключён. Выберите действующий тариф`,
       );
     const ratePlan = local.ratePlan;
+    const today = await this.repo.today();
+    const rates = await this.repo.dailyRates([ratePlan.id], today, today);
+    const missingPrice = local.categories.find(
+      (category) =>
+        !rates.some((rate) => rate.accommodationTypeCode === category.code && rate.priceMinor > 0n),
+    );
+    if (missingPrice)
+      throw new UnprocessableEntityException(
+        `Для категории ${missingPrice.name} нет положительной цены на сегодня в выбранном тарифе`,
+      );
     const plan = buildChannexSetup({
       property: local.property,
       categories: local.categories,
@@ -291,8 +322,24 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     return { url, secret };
   }
 
-  /** Что зарегистрировано в Channex для нашего объекта (секрет наружу не отдаётся). */
-  async webhookStatus(): Promise<WebhookStatus> {
+  /**
+   * Что зарегистрировано в Channex для нашего объекта (секрет наружу не отдаётся). Без `maxAgeMs` всегда спрашивает
+   * Channex (страница каналов, кнопки). С `maxAgeMs` отвечает из памяти, если ответ Channex не старше: так ходит сторож.
+   */
+  async webhookStatus(opts: { maxAgeMs?: number; now?: Date } = {}): Promise<WebhookStatus> {
+    const now = (opts.now ?? new Date()).getTime();
+    const propertyId =
+      (await this.repo.mappings(PROVIDER)).find((row) => row.providerPropertyId)
+        ?.providerPropertyId ?? null;
+    const knownWebhook = this.knownWebhooks.get(propertyId ?? '');
+    if (opts.maxAgeMs !== undefined && knownWebhook && now - knownWebhook.at < opts.maxAgeMs)
+      return knownWebhook.status;
+    const status = await this.askWebhookStatus(propertyId);
+    this.knownWebhooks.set(propertyId ?? '', { at: now, status });
+    return status;
+  }
+
+  private async askWebhookStatus(propertyId: string | null): Promise<WebhookStatus> {
     const expectedUrl = this.expectedCallbackUrl();
     const secretConfigured = !!process.env.CHANNEX_WEBHOOK_SECRET?.trim();
     const none: WebhookStatus = {
@@ -305,10 +352,9 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       expectedUrl,
       secretConfigured,
     };
-    const m = (await this.repo.mappings(PROVIDER)).find((x) => x.providerPropertyId);
-    if (!m) return none;
+    if (!propertyId) return none;
     const own = (await viaChannex(() => this.gateway.listWebhooks())).filter(
-      (w) => webhookProperty(w) === m.providerPropertyId,
+      (w) => webhookProperty(w) === propertyId,
     );
     const w = own[0];
     if (!w) return none;
@@ -364,6 +410,20 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       callbackUrl: savedUrl,
       eventMask: WEBHOOK_EVENTS,
       created: !existing,
+    });
+    // Ответ Channex на регистрацию и есть новое состояние: сторож получит адрес из памяти, без запроса списка
+    this.knownWebhooks.set(propertyId, {
+      at: Date.now(),
+      status: {
+        registered: true,
+        id: saved.id,
+        callbackUrl: savedUrl,
+        eventMask: saved.attributes.event_mask,
+        active: saved.attributes.is_active,
+        sendData: saved.attributes.send_data,
+        expectedUrl: permanent,
+        secretConfigured: true,
+      },
     });
     return {
       id: saved.id,

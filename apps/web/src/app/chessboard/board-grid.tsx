@@ -17,6 +17,7 @@ import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-la
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
+import { useBoardPosition, type BoardSelection } from './board-position';
 import { BoardFiltersPopover, KIND_OPTIONS } from './board-filters-popover';
 import {
   NO_FILTERS,
@@ -171,7 +172,7 @@ export function ChessboardGrid({
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
-  // категория и тип места из адреса — так «Аналитика → Загрузка» открывает шахматку уже на номерах
+  // категория и тип места из адреса — так «Аналитика → Загрузка» открывает календарь уже на номерах
   // или койках нужной категории
   const [filters, setFilters] = useState<BoardFilters>(() => {
     const k = searchParams.get('kind');
@@ -179,6 +180,8 @@ export function ChessboardGrid({
       ...NO_FILTERS,
       category: searchParams.get('category') ?? '',
       kind: k === 'ROOM' || k === 'BED' ? k : '',
+      // «Неоплаченные» в шапке календаря — ссылка на существующий фильтр «С долгом»
+      stays: searchParams.get('stays') === 'debt' ? ['debt'] : [],
     };
   });
   const patchFilters = (patch: Partial<BoardFilters>) => setFilters((f) => ({ ...f, ...patch }));
@@ -261,6 +264,11 @@ export function ChessboardGrid({
    * проживания при прокрутке вбок (ТЗ v2 §58).
    */
   const wrapRef = useRef<HTMLDivElement>(null);
+  const restoreSelection = useCallback((saved: BoardSelection) => {
+    setQuery(saved.query);
+    setFilters(saved.filters);
+  }, []);
+  useBoardPosition(wrapRef, searchParams.toString(), { query, filters }, restoreSelection);
   useEffect(() => {
     const wrap = wrapRef.current;
     const head = wrap?.querySelector('thead');
@@ -304,6 +312,8 @@ export function ChessboardGrid({
   const swept = useRef(false);
   const [freeMenu, setFreeMenu] = useState<{
     menu: FreeMenu;
+    periods: FreeMenu[];
+    starts: Array<{ date: string; periods: FreeMenu[] }>;
     anchor: HTMLElement;
     unitCode: string;
     fromDate: string;
@@ -324,6 +334,40 @@ export function ChessboardGrid({
         fromDate,
         toDate,
       ),
+      starts: (() => {
+        const first = selectRange(row.cells, from, 0)?.from ?? from;
+        const last = selectRange(row.cells, from, row.cells.length - 1)?.to ?? from;
+        return row.cells.slice(first, last + 1).map((cell, index) => ({
+          date: cell.date,
+          periods: row.cells.slice(first + index, last + 1).map((end) =>
+            freeMenuModel(
+              {
+                code: row.unit.code,
+                kind: row.unit.kind,
+                categoryName: row.unit.accommodationTypeName,
+              },
+              cell.date,
+              end.date,
+            ),
+          ),
+        }));
+      })(),
+      periods: row.cells.slice(from).flatMap((cell, offset) => {
+        const selected = selectRange(row.cells, from, from + offset);
+        return selected?.to === from + offset
+          ? [
+              freeMenuModel(
+                {
+                  code: row.unit.code,
+                  kind: row.unit.kind,
+                  categoryName: row.unit.accommodationTypeName,
+                },
+                fromDate,
+                cell.date,
+              ),
+            ]
+          : [];
+      }),
       anchor,
       unitCode: row.unit.code,
       fromDate,
@@ -397,6 +441,10 @@ export function ChessboardGrid({
       : checkDrop(source, dropRow(row));
   };
   const onDragStart = (source: DragSource) => (e: React.DragEvent) => {
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData(DRAG_MIME, encodeDrag(source));
     e.dataTransfer.effectAllowed = 'move';
     dragging.current = source;
@@ -797,7 +845,7 @@ export function ChessboardGrid({
           <span className="board-search-label">Поиск</span>
           <Input
             type="search"
-            aria-label="Поиск на шахматке"
+            aria-label="Поиск в календаре"
             placeholder="Гость, телефон, бронь, номер, койка"
             // Ctrl/Cmd+K шапки ставит курсор сюда, а не в общий поиск (§40)
             data-page-search=""
@@ -815,7 +863,7 @@ export function ChessboardGrid({
         <label className="board-category field field--inline">
           <span>Категория</span>
           <Select
-            aria-label="Категория на шахматке"
+            aria-label="Категория в календаре"
             value={filters.category}
             onChange={(e) => patchFilters({ category: e.target.value })}
           >
@@ -833,7 +881,7 @@ export function ChessboardGrid({
         >
           <span>{stateLabel}</span>
           <Select
-            aria-label="Места на шахматке"
+            aria-label="Места в календаре"
             value={filters.state}
             onChange={(e) => patchFilters({ state: e.target.value as UnitState })}
           >
@@ -859,7 +907,7 @@ export function ChessboardGrid({
         <label className="board-view field field--inline">
           <span>Вид</span>
           <Select
-            aria-label="Вид строк шахматки"
+            aria-label="Вид строк календаря"
             value={view}
             onChange={(e) => pickView(e.target.value as BoardView)}
           >
@@ -944,7 +992,7 @@ export function ChessboardGrid({
         className="tbl-wrap board-wrap"
         data-density={view}
         role="region"
-        aria-label="Шахматка по дням"
+        aria-label="Календарь по дням"
         tabIndex={0}
         style={{ opacity: pending ? 0.6 : 1 }}
       >
@@ -952,13 +1000,16 @@ export function ChessboardGrid({
           data-testid="chessboard"
           className={cx('board', fitMonth && 'board--month', fitWeek && 'board--week')}
           style={
-            fitMonth
-              ? ({
-                  '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
-                } as CSSProperties)
-              : fitWeek
-                ? undefined
-                : { width: 190 + dayWidth * board.dates.length }
+            {
+              '--mobile-board-width': `${144 + 104 * board.dates.length}px`,
+              ...(fitMonth
+                ? ({
+                    '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
+                  } as CSSProperties)
+                : fitWeek
+                  ? undefined
+                  : { width: 190 + dayWidth * board.dates.length }),
+            } as CSSProperties
           }
         >
           <colgroup>
@@ -1011,38 +1062,12 @@ export function ChessboardGrid({
                   data-testid="date-col"
                   data-date={d}
                   scope="col"
-                  aria-label={`${d}, ${weekday(d)}, свободно ${board.summary[d]!.free}, занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
+                  aria-label={`${d}, ${weekday(d)}`}
                   className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                 >
                   <div className="board-day-date">
                     <div className="board__d">{d.slice(8)}</div>
                     <div className="board__wd">{weekday(d)}</div>
-                  </div>
-                  <div className="board-day-metrics">
-                    <div
-                      className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
-                      title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
-                    >
-                      {board.summary[d]!.free === 0 ? (
-                        <>
-                          <span className="board__free-word">мест </span>нет
-                        </>
-                      ) : (
-                        <>
-                          <span className="board__free-word">своб. </span>
-                          {board.summary[d]!.free}
-                        </>
-                      )}
-                    </div>
-                    <div
-                      className="board__occ"
-                      title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
-                    >
-                      <span className="board__occ-word">занято </span>
-                      {/* В testid только число занятых: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
-                      <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
-                      <span className="board-occ-total"> / {board.rows.length}</span>
-                    </div>
                   </div>
                 </th>
               ))}
@@ -1182,6 +1207,8 @@ export function ChessboardGrid({
         <FreeMenuPopover
           key={`${freeMenu.unitCode}:${freeMenu.fromDate}:${freeMenu.toDate}`}
           menu={freeMenu.menu}
+          periods={freeMenu.periods}
+          starts={freeMenu.starts}
           anchor={freeMenu.anchor}
           readOnly={readOnly}
           onClose={closeFreeMenu}
@@ -1528,7 +1555,7 @@ function Cell({
           tabIndex={-1}
           aria-hidden="true"
           {...free}
-        />
+        ></Link>
       ) : (
         <Link
           href={`/units/${encodeURIComponent(unitCode)}`}

@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 01.10.2026 15:56 Алматы · vm
+# коммит 6e4b768 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 37
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/organization.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/organization.spec.ts:32:1 › один филиал: подпись без переключателя; владелец добавляет филиал, ошибки у поля, тёзка — от API (5.0s)
+  ✓  2 tests/ui/organization.spec.ts:70:1 › выбор филиала: «Открыть» и переключатель ставят куку, объект стойки и текущая строка меняются (3.4s)
+  ✓  3 tests/ui/organization.spec.ts:99:1 › сводка по филиалам: строки по каждому, итог суммой, готовые отрезки (2.4s)
+  ✓  4 tests/ui/organization.spec.ts:118:1 › роли: управляющий видит без кнопки, администратору раздел закрыт, в «только чтении» кнопки нет (3.9s)
+  ✓  5 tests/ui/organization.spec.ts:141:1 › «Платформа → Организации» показывает структуру партнёра (2.3s)
+  ✓  6 tests/ui/organization.spec.ts:150:3 › доступность и снимки (light) (4.4s)
+  ✓  7 tests/ui/organization.spec.ts:150:3 › доступность и снимки (dark) (4.3s)
+
+  7 passed (34.5s)
+
+# код выхода 0 · 36 с

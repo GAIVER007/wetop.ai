@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
@@ -11,6 +12,7 @@ import { RatesEditDrawer } from './edit-drawer';
 import { RatesCalendar } from './rates-calendar';
 import { RatesTabs } from './tabs';
 import { deskShell } from '../../lib/desk-shell';
+import { unstable_rethrow } from 'next/navigation';
 import './rates.css';
 
 const monthRange = (ym: string) => {
@@ -28,7 +30,10 @@ const monthTitle = new Intl.DateTimeFormat('ru-RU', {
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 
 /**
@@ -40,6 +45,7 @@ const settle = <T,>(p: Promise<T>) =>
  * состоянием с причиной; месяц листается кнопками-значками.
  */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  await requireVertical(['HOSPITALITY']);
   const q = normalizeSearchParams(await searchParams);
   const clock = await hotelClock();
   const month = q.month ?? clock.month();

@@ -3,11 +3,15 @@ import { PLATFORM_TIMEZONE } from '@pms/domain';
 import { supportApi } from '../../../lib/api';
 import { propertyClock } from '../../../lib/property-time';
 import { actionClassLabel, actionLabel, actionStatus } from '../../../lib/support-actions';
+import { unstable_rethrow } from 'next/navigation';
 
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
     (value) => ({ ok: true as const, value }),
-    () => ({ ok: false as const }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const };
+    },
   );
 
 /**

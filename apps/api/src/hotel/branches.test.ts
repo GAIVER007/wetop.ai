@@ -16,6 +16,11 @@ function setup(existing: unknown = null) {
   const tx = {
     $executeRaw: vi.fn(async () => 1),
     property: { findFirst: vi.fn(async () => existing) },
+    // срез B2: путь салона идёт по Location и своему бизнесу, объект в нём не участвует
+    location: { findFirst: vi.fn(async () => existing) },
+    business: { findFirst: vi.fn(async () => ({ id: 'business-test' })) },
+    organization: { findUniqueOrThrow: vi.fn(async () => ({ name: 'Тестовая сеть' })) },
+    auditLog: { create: vi.fn(async () => undefined) },
   };
   const transaction = vi.fn(async (fn: (db: unknown) => unknown) => fn(tx));
   const service = new BranchesService({
@@ -39,7 +44,8 @@ describe('создание филиала', () => {
   it('повтор с тем же UUID возвращает исходный объект', async () => {
     const saved = { ...input, address: null };
     const { service, tx } = setup(saved);
-    expect(await run(() => service.create(input))).toEqual(saved);
+    // срез B2: ответ создания той же формы, что строка списка, значит с направлением филиала
+    expect(await run(() => service.create(input))).toEqual({ ...saved, vertical: 'HOSPITALITY' });
     expect(tx.property.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: input.id, organizationId: 'org-test' } }),
     );
@@ -58,17 +64,117 @@ it('создаёт пустой объект в цепочке и возвращ
     location: { create: vi.fn(async () => ({ id: 'location-test' })) },
     property: {
       findFirst: vi.fn(async () => saved),
-      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => { saved = data; return data; }),
+      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+        saved = data;
+        return data;
+      }),
       findFirstOrThrow: vi.fn(async () => saved),
     },
     auditLog: { create: vi.fn(async () => ({})) },
   };
-  const service = new BranchesService({ db: { $transaction: async (fn: (db: unknown) => unknown) => fn(tx) } } as unknown as PrismaService);
+  const service = new BranchesService({
+    db: { $transaction: async (fn: (db: unknown) => unknown) => fn(tx) },
+  } as unknown as PrismaService);
   const first = await run(() => service.create(input));
   const repeat = await run(() => service.create(input));
   expect(repeat).toEqual(first);
-  expect(saved).toMatchObject({ organizationId: 'org-test', locationId: 'location-test', id: input.id });
+  expect(saved).toMatchObject({
+    organizationId: 'org-test',
+    locationId: 'location-test',
+    id: input.id,
+  });
   expect(tx.property.create).toHaveBeenCalledTimes(1);
   expect(tx.location.create).toHaveBeenCalledTimes(1);
   expect(tx.auditLog.create).toHaveBeenCalledTimes(1);
+});
+
+/**
+ * Филиал салона (срез B2, решения Q-254 и Q-256 от 03.10.2026, ADR-141): та же команда, другая вертикаль.
+ * Объекта у салона нет вовсе, поэтому путь создания объекта в неё не заходит.
+ */
+describe('вертикаль филиала', () => {
+  it('без вертикали создаётся гостиница, как было до среза', async () => {
+    const { service, tx } = setup();
+    await run(() => service.create(input)).catch(() => undefined);
+    expect(tx.property.findFirst).toHaveBeenCalled();
+  });
+
+  it('вертикаль BEAUTY не трогает объекты вовсе', async () => {
+    const { service, tx } = setup();
+    await run(() => service.create({ ...input, vertical: 'BEAUTY' })).catch(() => undefined);
+    expect(tx.property.findFirst).not.toHaveBeenCalled();
+    expect(tx.location.findFirst).toHaveBeenCalled();
+  });
+
+  it('незнакомое направление отклоняется до записи', async () => {
+    const { service, transaction } = setup();
+    await expect(run(() => service.create({ ...input, vertical: 'SPA' }))).rejects.toThrow(
+      'направление',
+    );
+    expect(transaction).not.toHaveBeenCalled();
+  });
+
+  it('сотрудник не создаёт и салон', async () => {
+    const { service, transaction } = setup();
+    await expect(
+      run(() => service.create({ ...input, vertical: 'BEAUTY' }), 'STAFF'),
+    ).rejects.toThrow('владелец');
+    expect(transaction).not.toHaveBeenCalled();
+  });
+});
+
+it('Food is read-only for /branches creation contract', async () => {
+  const { service, transaction } = setup();
+  await expect(run(() => service.create({ ...input, vertical: 'FOOD_SERVICE' }))).rejects.toThrow(
+    'направление',
+  );
+  expect(transaction).not.toHaveBeenCalled();
+});
+
+it('canonical read projection includes only active owned Beauty/Food Locations', async () => {
+  const findMany = vi.fn(async () => [
+    {
+      id: 'food',
+      businessId: 'fb',
+      name: 'Food',
+      timezone: 'Asia/Dubai',
+      currency: 'AED',
+      address: 'Synthetic address',
+      business: { vertical: 'FOOD_SERVICE' },
+    },
+  ]);
+  const service = new BranchesService({
+    db: {
+      organization: { findUniqueOrThrow: async () => ({ id: 'org-test' }) },
+      property: { findMany: async () => [] },
+      location: { findMany },
+    },
+  } as unknown as PrismaService);
+  const result = await run(() => service.list());
+  expect(result.items).toEqual([
+    {
+      id: 'food',
+      name: 'Food',
+      address: 'Synthetic address',
+      currency: 'AED',
+      timezone: 'Asia/Dubai',
+      vertical: 'FOOD_SERVICE',
+      locationId: 'food',
+      location: { businessId: 'fb' },
+      _count: { inventoryUnits: 0, accommodationTypes: 0 },
+    },
+  ]);
+  expect(findMany).toHaveBeenCalledWith(
+    expect.objectContaining({
+      where: {
+        status: 'ACTIVE',
+        property: null,
+        business: {
+          organizationId: 'org-test',
+          status: 'ACTIVE',
+          vertical: { in: ['BEAUTY', 'FOOD_SERVICE'] },
+        },
+      },
+    }),
+  );
 });

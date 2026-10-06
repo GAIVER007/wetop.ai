@@ -1,236 +1,77 @@
-# Что делает владелец после разбора 01.10.2026: по шагам
+# Что делает владелец после разбора 01.10.2026: по шагам (редакция 06.10.2026)
 
-Всё, что можно было сделать из репозитория, сделано в PR #211. Ниже только то, для чего нужны сервер, панели и
-решения. Порядок важен: шаги 1, 2 и 7 первыми, они открывают дорогу слиянию; 3, 4 и 5 после слияния и выкладки,
-потому что скрипты для них приезжают на сервер с этим PR.
+Редакция после слияния `main` 06.10.2026. Пункты аудита 1, 2, 3, 4, 6, 7 и 9 закрыты на `main` решениями ADR-137
+(02.10) и ADR-139 (03.10), поэтому прежние шаги про раннер `wetop`, рулсеты GitHub, папку `migrations-held`, вопрос
+Q-237 и ответ про миграцию 039 сняты. Осталось то, что по ADR-137 «Последствия» делается руками владельца, плюс два
+шага этой ветки. Значения ключей в чат не диктуются (SECURITY.md §3): вписывайте их сами.
 
-Что прислать мне после каждого шага, написано в конце шага. Я по ответам доделываю свою часть.
+## Шаг 1. Слить PR #211 (5 минут, браузер)
 
----
+1. https://github.com/GAIVER007/wetop.ai/pull/211 → Ready for review → Merge pull request.
+   Проверок GitHub на PR нет: по ADR-139 единственная проверка `release-checks` запускается на кандидата, а не на PR.
+   Что доказано на слитом дереве локально: `README.md` §5 (typecheck, lint, полный unit, integration на PostgreSQL 16).
+2. Миграций в этом PR нет. В `main` после слияния остаются миграции, которых ещё нет в `release` (`c86e5296`):
+   автовыкладка на такую вершину откажет до `--migrations-applied <sha>` (`docs/deploy.md` §1д).
 
-## Шаг 0. Две вещи с сервера, замеченные 01.10 в 18:26 UTC
+## Шаг 2. Выкладка стойки (после шага 1; 100 минут проверки, 5 минут рук)
 
-- **Диск заполнен на 95 %** (`/` 95,82 ГБ). Сборка образа и ночная копия на полном диске упадут. Безопасно сразу:
-  `docker system df`, затем `docker image prune -f` (только висячие слои), `du -sh /root/backups /var/lib/docker
-  /var/log`; образы отката `pms-lux:rollback-*` старше недели можно снять `docker rmi`. Журналы:
-  `journalctl --vacuum-size=200M`.
-- **«System restart required»** и 33 обновления: перезагрузка в тихий час, не перед живой сменой; после неё
-  `docker compose ps` в `deploy/`, раннере и дежурном агенте.
-- После `up -d --build` стойка ответила 502: `web` в этот момент был `health: starting`. Через полминуты повторить
-  `curl -s https://app.wetop.ai/login -o /dev/null -w '%{http_code}\n'`; если снова 502:
-  `docker compose -f compose.yml -f compose.hostinger.yml logs --tail 30 web` из `/root/wetop/deploy`.
+1. Actions → `release-checks` → Run workflow на ветке `main`. Около 95 минут.
+2. По зелёному результату, на Mac из клона (нужен вошедший `gh` или `GITHUB_TOKEN` в окружении):
 
-## Шаг 1. Поднять раннер `wetop` (10 минут, сервер)
+```bash
+git fetch origin main
+scripts/ops/promote-release.sh origin/main
+```
 
-Он не берёт задачи с 14:50 UTC 01.10. Без него проверки `lint · typecheck · unit · главная`, `UI` и `pytest` не
-завершатся, рулсет не пропустит слияние, а `promote-release.sh` не сдвинет `release`.
+   Скрипт проверит, что коммит в `main`, что `release-checks` на нём зелёная, что перемотка только вперёд, спросит
+   «да» и запушит. Запасной путь с теми же условиями, проверенными глазами: `git push origin <sha>:release`.
+3. Сервер заберёт `release` сам в течение двух минут; миграции в обновлении остановят выкладку до вашего
+   `--migrations-applied` (`docs/deploy.md` §1д).
+
+## Шаг 3. Channex, боевой объект (5 минут, кабинет или сервер; после шага 2)
+
+Два выключателя у объекта в кабинете Channex: `allow_availability_autoupdate_on_modification` и
+`allow_availability_autoupdate_on_cancellation` выключить, `..._on_confirmation` оставить (ADR-137 п. 3). Или на
+сервере, когда образ со слитым PR уже выложен:
 
 ```bash
 cd /root/wetop
-docker compose -f scripts/ops/ci-runner/compose.yml ps
-docker compose -f scripts/ops/ci-runner/compose.yml logs --tail 30 runner
+docker compose -f deploy/compose.yml exec -w /app api node --import tsx \
+  scripts/reconciliation/src/cli-channex-property-settings.ts            # показать, что стоит сейчас
+docker compose -f deploy/compose.yml exec -w /app api node --import tsx \
+  scripts/reconciliation/src/cli-channex-property-settings.ts --apply    # поставить рекомендованные
 ```
 
-- В логе есть `Listening for Jobs`, контейнер `Up`: раннер жив, задачи возьмёт сам.
-- Контейнера нет или он `Restarting`: `docker compose -f scripts/ops/ci-runner/compose.yml up -d --build`.
-- **В логе по кругу «Request headers must contain only ASCII characters» на шаге Authentication** (так было
-  01.10 в 18:26 UTC): в `.env` раннера токен или адрес с не-ASCII символом. Чаще всего это многоточие «…»,
-  оставшееся от примера `RUNNER_TOKEN=…`, или неразрывный пробел из буфера обмена. Найти строку:
+Если объектов в маппинге несколько, добавьте `--property=<id>`. Это запись в production Channex, поэтому только
+по вашей команде; агент сам этого не делает (AGENTS.md §15).
 
-  ```bash
-  grep -nP '[^\x00-\x7F]' /root/wetop/scripts/ops/ci-runner/.env
-  ```
+## Шаг 4. Вторая копия базы вне сервера (20 минут, Cloudflare и сервер)
 
-  Дальше новая регистрация (токен живёт час, старый всё равно просрочен): GitHub → Settings → Actions → Runners →
-  New self-hosted runner → Linux → скопировать только значение после `--token` → в `.env` строка
-  `RUNNER_TOKEN=<значение>` без кавычек и пробелов, `RUNNER_REPO_URL=https://github.com/GAIVER007/wetop.ai` →
+По `docs/ops/backups.md`, раздел «Вторая копия вне сервера (Cloudflare R2, ADR-137)»: пара ключей age (закрытый
+остаётся у вас, публичный `age1…` в `.env` сервера как `OFFSITE_AGE_RECIPIENT`), бакет R2 и ключ с правами только на
+объекты этого бакета, строки `OFFSITE_*` в `/root/wetop/.env`, cron после ночной копии, затем «Проба восстановления из
+R2». Скрипт `scripts/ops/db-backup-offsite.sh` уже на `main` и выложен.
 
-  ```bash
-  cd /root/wetop
-  docker compose -f scripts/ops/ci-runner/compose.yml down -v
-  docker compose -f scripts/ops/ci-runner/compose.yml up -d --build
-  docker compose -f scripts/ops/ci-runner/compose.yml logs --tail 20 runner     # ждём «Listening for Jobs»
-  ```
+## Шаг 5. Ключ дежурного агента (15 минут, консоль Anthropic и сервер)
 
-  После PR #211 вход раннера сам отказывает словами на не-ASCII, вместо цикла.
-- В логе `not configured`, `invalid token`, `runner version … deprecated`: та же новая регистрация, что выше.
+По `scripts/ops/guard/README.md`, раздел «Ключ или подписка»: рабочее пространство `wetop-guard` в консоли Anthropic с
+пределом расхода, ключ API в `.env` рядом с `scripts/ops/guard/compose.yml`, строку `CLAUDE_CODE_OAUTH_TOKEN=…`
+убрать, пересобрать образ. В журнале первого разбора должно быть «платит ключ API». С токеном подписки без
+`GUARD_ALLOW_SUBSCRIPTION=1` агент не стартует: это намеренно.
 
-Проверка: GitHub → Settings → Actions → Runners: `wetop` зелёный, `Idle` или `Active`; в PR #211 задачи своего
-раннера перешли из «Queued» в работу.
+## Шаг 6. Откат и тихие сутки (5 минут решения, учение отдельно)
 
-**Прислать:** «раннер поднят» или последние строки лога, если не поднялся.
+`CUTOVER.md`, раздел ROLLBACK, таблица в конце: дата тихих суток, ночной дежурный первой ночи (имя и телефон; лучше
+служебный номер, репозиторий читают все, у кого есть доступ), дата учения ступеней 1 и 2. Двойная смена назначена на
+вторник 06.10.2026 (`plans/double-shift-2026-10-06.md`): учение имеет смысл до неё.
 
-## Шаг 2. Настройки GitHub (10 минут, браузер)
+## Шаг 7. Настройки Actions (2 минуты, браузер)
 
-1. Settings → Rules → Rulesets → New ruleset → **Import a ruleset** → файл `docs/ops/github-rulesets/main.json`
-   из репозитория → Create. То же с `docs/ops/github-rulesets/release.json`.
-   Проверка: в списке два активных рулсета; внизу PR #211 три проверки помечены `Required`.
-2. Settings → General → Features: снять галочку **Allow forking**.
-3. Settings → Actions → General: **Fork pull request workflows from outside collaborators** →
-   «Require approval for all outside collaborators»; **Workflow permissions** → «Read repository contents and
-   packages permissions»; Save.
-
-**Прислать:** «рулсеты импортированы» (если импорт отказал, снимок ошибки: тогда настрою таблицей из
-`docs/ops/github-protection.md` §1).
-
-## Шаг 7 (делается до слияния). Что применено на рабочей базе (5 минут, Supabase)
-
-Supabase → проект WETOP → SQL Editor:
-
-```sql
-SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY migration_name DESC LIMIT 6;
-```
-
-**Прислать:** шесть строк вывода. По ним я решу до слияния:
-
-- есть `20260930000039_seller_profile_agent_key`: верну её из `migrations-held` в цепочку в этом же PR, применять
-  ничего не нужно;
-- нет `…038_rls_integration_grants` и `…040_reservation_creation_key`: их надо применить при первой выкладке (шаг 8),
-  порядок уже описан в `docs/ops/rls.md` («стадия B») и `docs/deploy.md` §1д.
-
-## Шаг 6. Откат при живой смене, Q-237 (5 минут решения, учения отдельно)
-
-Ответить в чате четырьмя строками, я впишу в `CUTOVER.md` и закрою вопрос:
-
-1. Четыре уровня отката из `CUTOVER.md` ROLLBACK (код, база, канал в ручной экстранет, всё в стоп-продажи):
-   принимаете или меняете.
-2. Время полного отката, минут: после учений на сервере, не оценка.
-3. Дата тихих суток для учений: день с минимумом заездов.
-4. Дежурный первой ночи: имя. Телефон в описание группы дежурных в Telegram, в репозиторий он не идёт.
-
-## Решение по сквозным тестам (нужно до или сразу после слияния)
-
-На `main` с 01.10 форма новой брони переставлена (коммиты codex `a7065b1`, `6c4d0f1`, `e8b3914`): «Источник» ушёл под
-свёрнутый блок «Дополнительно», цена читается иначе. 13 живых сквозных спеков из 25 на это падают, и теперь это видно в
-задаче `db` в CI (раньше её маскировали красные интеграционные). Один ответ в чат: **(а)** переписать спеки под новую
-форму (сделаю отдельным PR) или **(б)** вернуть «Источник» на видное место формы. До ответа задача `db` красная на шаге
-сквозных; слиянию PR #211 это не мешает, в обязательные проверки рулсета она не входит.
-
-## Шаг 8. Слияние и первая выкладка (после шагов 1, 2 и 7)
-
-1. Слияние PR #211: ваше слово «вливай», сливаю я или вы кнопкой.
-2. На Mac, в клоне, с вошедшим `gh` (`gh auth status`):
-
-   ```bash
-   git fetch origin main
-   scripts/ops/promote-release.sh origin/main
-   ```
-
-   Скрипт покажет проверки на вершине и спросит «да». Красная или незавершённая проверка: он откажет, и это
-   правильно.
-3. Сервер в течение двух минут откажет выкладывать один раз: либо «из цепочки сняты миграции (…039)», либо
-   «в обновлении миграции (…038 …040)». В первом случае ничего не применять. Во втором: по `docs/deploy.md` §1д,
-   сначала копия базы (`$BACKUP` из `docs/ops/backups.md`), потом `mig status`, `mig deploy`, `mig status`.
-4. Затем на сервере: `/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина из сообщения>`. Через три
-   минуты в Telegram придёт «выложен».
-5. `cd /root/wetop && git pull`: скрипты шагов 3, 4 и 5 на сервере.
-
-**Прислать:** сообщение автовыкладки «выложен за N с».
-
-## Шаг 3. Ключ дежурного агента (15 минут, консоль Anthropic и сервер; после шага 8)
-
-1. console.anthropic.com → Settings → Workspaces → Create workspace, имя `wetop-guard` (у отдельного workspace
-   свой предел расхода и свой отзыв) → в нём Limits → Monthly spend limit, например 20 USD.
-2. API keys → Create key в workspace `wetop-guard` → скопировать, больше он не показывается.
-3. На сервере:
-
-   ```bash
-   cd /root/wetop
-   nano scripts/ops/guard/.env     # удалить строку CLAUDE_CODE_OAUTH_TOKEN=…, добавить ANTHROPIC_API_KEY=…
-   docker compose -f scripts/ops/guard/compose.yml up -d --build
-   docker compose -f scripts/ops/guard/compose.yml logs --tail 20 guard-agent
-   grep -c '^CLAUDE_CODE_OAUTH_TOKEN=' scripts/ops/guard/.env    # ждём 0
-   ```
-
-   В логе ждём «тихий час» или «есть что разобрать». Если там «в .env дежурного агента стоит
-   CLAUDE_CODE_OAUTH_TOKEN», строка не удалена: скрипт нарочно не стартует.
-
-**Прислать:** «агент на ключе».
-
-## Шаг 4. Вторая копия базы вне сервера (20 минут, Cloudflare и сервер; после шага 8)
-
-1. Cloudflare → R2 Object Storage → Create bucket: имя `wetop-backups`, location Automatic → Create.
-   В ведре: Settings → Object lifecycle rules → Add rule → удалять объекты старше 30 дней → Save.
-2. R2 → Manage R2 API Tokens → Create API token: имя `wetop-backups-write`, Permissions «Object Read & Write»,
-   Specify bucket `wetop-backups`, TTL Forever → Create. Записать Access Key ID, Secret Access Key и endpoint вида
-   `https://<account_id>.r2.cloudflarestorage.com` (показан на той же странице).
-3. Пароль шифрования на Mac: `openssl rand -base64 24`. Положить в менеджер паролей. Если сервер пропадёт вместе с
-   `.env`, копию без этого пароля не прочитать.
-4. На сервере в `/root/wetop/.env` четыре строки (значения в чат не диктовать):
-
-   ```
-   BACKUP_OFFSITE_URL=https://<account_id>.r2.cloudflarestorage.com/wetop-backups
-   BACKUP_OFFSITE_KEY_ID=…
-   BACKUP_OFFSITE_SECRET=…
-   BACKUP_OFFSITE_PASSPHRASE=…
-   ```
-
-5. Проба:
-
-   ```bash
-   cd /root/wetop && scripts/ops/db-backup-offsite.sh
-   cat /root/backups/status/offsite.json
-   ```
-
-   Ждём строку `db-backup-offsite: wetop-…Z.dump.enc, N байт, в хранилище на <account_id>.r2.cloudflarestorage.com`;
-   в панели R2 в ведре появился объект `.enc`.
-6. В cron той же строкой, что ночная копия (переменная `$BACKUP` из `docs/ops/backups.md`, раздел «Установка»):
-
-   ```bash
-   BACKUP='docker run --rm -v /root/wetop/scripts/ops/db-backup.sh:/db-backup.sh:ro -v /root/wetop/.env:/wetop.env:ro -v /root/backups:/root/backups -e ENV_FILE=/wetop.env postgres:17 bash /db-backup.sh'
-   ( crontab -l 2>/dev/null | grep -v 'db-backup'
-     echo "30 23 * * * $BACKUP >> /var/log/wetop-db-backup.log 2>&1 && cd /root/wetop && scripts/ops/db-backup-offsite.sh >> /var/log/wetop-db-backup.log 2>&1" ) | crontab -
-   crontab -l | grep db-backup
-   ```
-
-7. Раз в месяц на Mac: скачать свежий `.enc` из R2 и проверить, что он читается:
-
-   ```bash
-   read -s OFFSITE_PASS && export OFFSITE_PASS
-   openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -md sha256 -pass env:OFFSITE_PASS -in wetop-….dump.enc -out wetop-….dump
-   ```
-
-   Дальше проба восстановления из `docs/ops/backups.md`.
-
-**Прислать:** строку пробы из п. 5.
-
-## Шаг 5. Channex, боевой объект (5 минут, сервер; после шага 8)
-
-Скрипт живёт в образе API, ключ Channex уже в `.env` сервера. **Только после слияния PR #211 и выкладки:** на образе
-`release` до него команда отвечает `Cannot find module …/cli-channex-property-settings.ts` (так было 01.10 в 18:27 UTC,
-это ожидаемо, не поломка). Раньше выкладки можно с Mac из клона на ветке PR, ключ и адрес боевого Channex из `.env`
-сервера, объект по id из панели Channex:
-
-```bash
-CHANNEX_API_BASE_URL=https://app.channex.io/api/v1 CHANNEX_API_KEY=<ключ> \
-  npx tsx scripts/reconciliation/src/cli-channex-property-settings.ts --property=<id объекта>
-```
-
-На сервере после выкладки:
-
-```bash
-cd /root/wetop/deploy
-docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api node --import tsx scripts/reconciliation/src/cli-channex-property-settings.ts
-```
-
-Покажет три поля. Если «отличаются от рекомендации», повторить с `--apply`:
-
-```bash
-docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api node --import tsx scripts/reconciliation/src/cli-channex-property-settings.ts --apply
-```
-
-Скрипт меняет только эти настройки, остатки и цены не трогает. Проверка в панели Channex: Properties → объект →
-Settings: «Allow availability autoupdate on modification» и «… on cancellation» сняты, «… on confirmation» стоит.
-
-**Прислать:** вывод «после записи».
-
----
+Settings → Actions → General: убедиться, что запуск workflow из форков требует одобрения (Fork pull request
+workflows from outside collaborators: Require approval for all outside collaborators). Своего раннера больше нет
+(ADR-139), поэтому это единственная настройка из пункта 9, которая ещё что-то защищает.
 
 ## Что я делаю сам, без вас
 
-- Слежу за PR #211: проверки, слияние `main`, ревью. Красное чиню и пушу.
-- По ответу шага 7 возвращаю 039 в цепочку или оставляю отложенной.
-- По ответу шага 6 вписываю откат в `CUTOVER.md` и закрываю Q-237.
-- После зелёного прогона задачи `db` на `main` добавляю её в обязательные проверки рулсета и в
-  `promote-release.sh`.
-- После шага 1 проверяю, что `fast`, `UI` и `pytest` прошли, и говорю, можно ли сливать.
+Слежу за PR #211 до слияния: конфликты с `main`, замечания ревью. Проверок GitHub на PR по ADR-139 нет, поэтому
+доказательства лежат в журнале прогонов (`tests/runs/JOURNAL.md`) и в `README.md` §5.

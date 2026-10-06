@@ -480,6 +480,120 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
+/* Панель «Сегодня» (поручение 02.10, образец — Lite PMS): рядом со строками управления,
+   чтобы не отнимать высоту у сетки; на экранах уже 1200px скрыта — день живёт на Главной */
+.board-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.board-top > .board-controls {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* При панели «Сегодня» слева управление календарём прижато вправо */
+.board-day-panel + .board-controls {
+  justify-content: flex-end;
+}
+.board-day-panel + .board-controls .board-bar {
+  margin-left: 0;
+}
+.board-day-panel {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(290px, 1.4fr);
+  gap: var(--space-2);
+  flex: 0 1 600px;
+  min-width: 0;
+}
+.board-day-panel section {
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  padding: calc(var(--space-4) * 0.75);
+}
+.board-day-panel__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.board-day-panel__title h2 {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.board-day-panel__title > span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+.board-day-panel__load {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.board-day-panel__load > b {
+  font-size: 32px;
+  color: var(--primary);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.board-day-panel__load > span {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.board-day-panel__load small {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.board-day-panel__meter {
+  margin-top: calc(var(--space-4) * 0.75);
+  height: 6px;
+  border-radius: var(--radius-control);
+  background: var(--primary-soft);
+  overflow: hidden;
+}
+.board-day-panel__meter > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.board-day-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-4);
+}
+.board-day-panel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  min-height: 28px;
+}
+.board-day-panel__row--arrivals {
+  grid-column: 1 / -1;
+}
+.board-day-panel__row > a {
+  color: var(--text-2);
+}
+.board-day-panel__row > b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (min-width: 601px) and (max-width: 1199px) {
+  .board-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .board-day-panel {
+    flex: none;
+    width: 100%;
+  }
+}
 .board-stay-caption {
   top: 0;
   font-size: var(--text-sm);
@@ -506,40 +620,24 @@
   color: var(--warning);
 }
 
-/* шапка даты: число, день недели, свободно (главное число смены) и занято (по нему сверяют) */
+/* Шапка даты: только число и день недели. Сводка фонда показана один раз над календарём. */
 .board .board__d {
   width: var(--space-8);
   height: var(--space-8);
   font-size: var(--text-xl);
   font-weight: 600;
 }
-.board-day-date,
-.board-day-metrics {
+.board-day-date {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-}
-.board-day-metrics {
-  margin-top: var(--space-1);
-  flex-wrap: wrap;
-  gap: 0 var(--space-2);
-}
-.board-day-metrics > div {
-  white-space: nowrap;
 }
 .board .board__d {
   display: inline-grid;
   place-items: center;
   margin: 0;
   border-radius: var(--radius-control);
-}
-.board .board-occ-total {
-  display: none;
-}
-.board__occ-word,
-.board__free-word {
-  font-weight: var(--weight-regular);
 }
 .board th.is-today .board__d {
   background: var(--primary);
@@ -548,26 +646,6 @@
 .board .board__wd {
   margin-top: 1px;
   font-size: var(--text-xs);
-}
-.board .board__free-count {
-  margin-top: 3px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--success);
-  font-variant-numeric: tabular-nums;
-}
-.board .board__free-count.is-full {
-  color: var(--danger);
-}
-.board .board__occ {
-  margin-top: 1px;
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--muted);
-}
-.board .board-day-metrics .board__free-count,
-.board .board-day-metrics .board__occ {
-  margin-top: 0;
 }
 
 /* выходные — нейтральная подложка, а не цвет «свободно» */
@@ -663,7 +741,7 @@
   font-size: var(--text-xs);
 }
 
-/* Месяц и неделя: колонка 24 px — у шапки нет боковых отступов, слово «своб.» скрыто, числа мельче.
+/* Месяц и неделя: колонка 24 px, у шапки нет боковых отступов, числа мельче.
    Иначе последняя дата вылезала за контейнер на 768 px (tests/ui/chessboard-month.spec.ts). */
 .board--month thead th,
 .board--week thead th {
@@ -674,26 +752,9 @@
 .board--week .board__d {
   max-width: 100%;
 }
-.board--month .board__free-count,
-.board--month .board__occ {
-  font-size: var(--text-xs);
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.board--month .board__free-word {
-  display: none;
-}
-.board--month .board__occ-word {
-  display: none;
-}
-.board--month .board-day-date,
-.board--month .board-day-metrics {
+.board--month .board-day-date {
   flex-direction: column;
   gap: 0;
-}
-.board--month .board-day-metrics {
-  margin-top: 0;
 }
 .board--month .board__d {
   width: var(--space-6);
@@ -713,28 +774,49 @@
   text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
+  /* Одна строка управления вместо двух: период, сегмент, «Даты» и «Помощь» — элементы одного
+   * переносящегося ряда (у .board-period и .board-bar на телефоне своей рамки нет). */
   .board-controls {
-    display: block;
-  }
-  .board-controls .board-period {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-2);
   }
+  .board-controls .board-period {
+    display: contents;
+  }
+  /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
+   * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
   .page:has(> .board-wrap) > .page__head {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: nowrap;
     gap: var(--space-2);
   }
+  /* на телефоне календарь — про сетку: вторые кнопки — в меню и в «Фильтрах»
+     (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
+  .page:has(> .board-wrap) > .page__head .btn--secondary {
+    display: none;
+  }
+  /* «Новая бронь» осталась одна — ставим её рядом с заголовком: общее правило телефона
+   * (.page__actions width:100%) уводило кнопку на свою строку и отнимало у сетки 34 px. */
   .page:has(> .board-wrap) > .page__head .page__actions {
     width: auto;
+    margin-left: auto;
+  }
+  /* «Даты» и «Помощь» встают в ряд к сегменту 7/14/30, а не отдельной строкой: своей рамки
+   * у .board-bar на телефоне нет, раскрытые формы по-прежнему берут строку целиком (order ниже). */
+  .board-controls .board-bar {
+    display: contents;
+  }
+  /* Подсказка остаётся в первой строке рядом со стрелками дат (контракт chessboard-week C1
+   * «не выходит за экран на телефоне»), а сегмент и «Даты» идут во вторую: две строки вместо трёх. */
+  .board-controls .board-period > .seg,
+  .board-controls .board-custom-range > .btn {
+    order: 1;
   }
   .board-controls .board-date-nav {
     display: grid;
     grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target) auto;
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .board-period-label {
     font-size: var(--text-sm);
@@ -763,7 +845,7 @@
   .board-controls .board-custom-range[data-open='true'] .board-range-form {
     display: grid;
     flex: 1 1 100%;
-    order: 1;
+    order: 2;
   }
   .board-controls .board-bar > .board-help {
     width: auto;
@@ -771,7 +853,7 @@
   }
   .board-controls .board-bar > .board-help[open] {
     flex-basis: 100%;
-    order: 2;
+    order: 3;
   }
   .board-controls .board-range-form .inp {
     height: var(--touch-target);
@@ -781,21 +863,15 @@
     gap: var(--space-2);
   }
   .board-toolbar .board-search {
-    flex: 1 1 100%;
+    flex: 1 1 160px;
+    min-width: 0;
   }
   .board--week {
     --board-caption-end: 8px;
   }
-  .board--week .board-day-date,
-  .board--week .board-day-metrics {
+  .board--week .board-day-date {
     flex-direction: column;
     gap: 0;
-  }
-  .board--week .board-day-metrics {
-    margin-top: 0;
-  }
-  .board--week .board__occ-word {
-    display: none;
   }
   .board--week .board__d {
     width: var(--space-6);
@@ -806,8 +882,7 @@
     margin-left: 0;
   }
 
-  .board--week .board-stay-nights,
-  .board--week .board__free-word {
+  .board--week .board-stay-nights {
     display: none;
   }
 }
@@ -861,15 +936,16 @@
   .board-range-form > .btn {
     grid-column: 1 / -1;
   }
-  /* Своя строка целиком: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` (basis 0) переключатель
-     сжимался до 13 px между «Новая бронь» и стрелками дат, а ссылки «Неделя · 14 дней · Месяц» оставались
-     под ними с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
+  /* Ширина по содержимому: своей строки сегменту больше не нужно, рядом встают «Даты» (03.10).
+     basis 0 по-прежнему нельзя: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` переключатель
+     сжимался до 13 px, а ссылки оставались с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
   .board-period .seg {
-    flex: 1 1 100%;
+    flex: 0 1 auto;
     min-width: 0;
   }
   .board-period .seg a {
     display: inline-flex;
+    white-space: nowrap;
     align-items: center;
     justify-content: center;
     flex: 1;
@@ -1659,6 +1735,14 @@
   padding: var(--space-4);
   gap: 0;
 }
+/* Месяц на узком десктопе: колонка мест схлопнута, 31 день по 24px помещаются только с полями 8px
+   (premium.css задаёт те же 8px, но это правило стоит ниже в каскаде и перебивало их 16px) */
+@media (min-width: 760px) and (max-width: 1279px) {
+  .page:has(> .board-wrap):has(.board--month) {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
 .page:has(> .board-wrap) > .page__head {
   margin-bottom: var(--space-2);
   flex-shrink: 0;
@@ -1757,4 +1841,354 @@
   margin-inline-end: 5px;
   color: var(--muted);
   font-weight: normal;
+}
+
+.free-menu__period {
+  display: none;
+}
+
+/* Телефон: свайп прокручивает даты, касание открывает действия. */
+@media (max-width: 600px) {
+  .page:has(> .board-wrap) > .board-wrap {
+    overflow: auto;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+  }
+  .board.board--week,
+  .board.board--month,
+  .board {
+    --week-unit-width: 144px;
+    --month-unit-width: 144px;
+    width: var(--mobile-board-width) !important;
+    min-width: var(--mobile-board-width);
+    table-layout: fixed;
+  }
+  .board col:first-child {
+    width: 144px !important;
+  }
+  .board col:not(:first-child) {
+    width: 104px !important;
+  }
+  .board td.board__cell,
+  .board td.board__unit,
+  .board-wrap[data-density='compact'] .board td.board__cell,
+  .board-wrap[data-density='compact'] .board td.board__unit {
+    height: 52px;
+  }
+  .board .board__stay,
+  .board-wrap[data-density='compact'] .board .board__stay {
+    height: 44px;
+    top: 4px;
+    touch-action: pan-x pan-y;
+  }
+  .board .board__free {
+    min-height: 44px;
+  }
+  .board .board__d {
+    font-size: var(--text-lg);
+    width: 32px;
+    height: 32px;
+    max-width: none;
+  }
+  .board .board-day-date,
+  .board .board-day-metrics {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+  .board .board-stay-resize,
+  .board .board-stay-menu {
+    display: none;
+  }
+  .board-toolbar .inp {
+    font-size: 16px;
+  }
+  .stay-preview {
+    inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important;
+    width: calc(100% - 16px);
+    max-height: calc(85dvh - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+  }
+  .stay-preview__close,
+  .stay-preview__actions .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .stay-preview__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .free-menu__period {
+    display: flex;
+    margin-block: var(--space-4);
+  }
+  .free-menu__period .inp {
+    min-height: 48px;
+    width: 100%;
+    font-size: 16px;
+  }
+}
+
+/* Two compact daily widgets above the mobile calendar. */
+@media (max-width: 600px) {
+  .board-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: calc(var(--space-4) * 0.75);
+    margin-bottom: var(--space-2);
+  }
+  .board-top > .board-controls {
+    flex: none;
+    justify-content: flex-start;
+  }
+  .board-day-panel {
+    flex: none;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .board-day-panel section {
+    padding: calc(var(--space-4) * 0.75) var(--space-4);
+  }
+  .board-day-panel__title h2 {
+    font-size: var(--text-md);
+  }
+  .board-day-panel__load > b {
+    font-size: 40px;
+  }
+  .board-day-panel__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .board-day-panel__row {
+    min-height: 44px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .board-day-panel__row:last-child {
+    border-bottom: 0;
+  }
+  .board-day-panel__row > a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    flex: 1;
+  }
+  .board-day-panel__row > b {
+    font-size: var(--text-md);
+  }
+}
+
+.free-menu__arrival,
+.free-menu__summary {
+  display: none;
+}
+@media (max-width: 600px) {
+  .free-menu__arrival {
+    display: flex;
+    margin-block: var(--space-4);
+  }
+  .free-menu__arrival .inp {
+    min-height: 48px;
+    width: 100%;
+    font-size: 16px;
+  }
+  .free-menu__summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-block: var(--space-4);
+  }
+  .free-menu__summary dt {
+    color: var(--muted);
+  }
+  .free-menu__summary dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .stay-preview__guest,
+  .stay-preview__facts dd {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .free-menu__dates {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .board .board-group-toggle {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    column-gap: 4px;
+    min-height: 44px;
+  }
+  .board .board-group-toggle > .muted {
+    display: none;
+  }
+  .board .board-group-name-text {
+    display: block;
+    overflow: visible;
+    overflow-wrap: normal;
+    word-break: normal;
+    -webkit-line-clamp: unset;
+    line-height: 1.35;
+    min-width: 0;
+  }
+  .board td.board__unit {
+    padding-inline: 8px;
+  }
+  .board td.board__unit > .muted-2 {
+    display: none;
+  }
+  .board .board-unit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: calc(100% - 48px);
+  }
+  .board .board-unit-link > svg {
+    display: none;
+  }
+  .board .board-hk__menu {
+    float: right;
+    margin-left: 0;
+  }
+  .board .board-hk__menu .action-menu__button {
+    width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Preserve the compact desktop header while mobile uses stacked widgets. */
+@media (min-width: 1200px) {
+  .board-day-panel {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .board-day-panel section {
+    padding: var(--space-1) var(--space-2);
+  }
+  .board-day-panel__title {
+    margin-bottom: var(--space-1);
+  }
+  .board-day-panel__title h2 {
+    font-size: var(--text-xs);
+  }
+  .board-day-panel__title > span {
+    display: none;
+  }
+  .board-day-panel__load {
+    gap: var(--space-2);
+  }
+  .board-day-panel__load > b {
+    font-size: 24px;
+  }
+  .board-day-panel__load > span {
+    font-size: var(--text-xs);
+  }
+  .board-day-panel__meter {
+    margin-top: var(--space-1);
+    height: 4px;
+  }
+  .board-day-panel__guests .board-day-panel__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .board-day-panel__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-2);
+  }
+  .board-day-panel__row--arrivals {
+    grid-column: span 2;
+  }
+  .board-day-panel__row {
+    min-height: 24px;
+    font-size: var(--text-xs);
+    line-height: 16px;
+  }
+  .board-day-panel__row > a {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .board-day-panel__load > span {
+    white-space: nowrap;
+  }
+  .board-day-panel__load small {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* Mobile revision: a single daily summary leaves room for the calendar. */
+@media (max-width: 600px) {
+  .board-day-panel {
+    gap: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .board-day-panel section {
+    padding: var(--space-2) calc(var(--space-4) * 0.75);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .board-day-panel__occupancy {
+    border-bottom: 1px solid var(--border-soft) !important;
+  }
+  .board-day-panel__title {
+    margin-bottom: var(--space-1);
+  }
+  .board-day-panel__title h2 {
+    font-size: var(--text-sm);
+  }
+  .board-day-panel__load {
+    gap: var(--space-4);
+  }
+  .board-day-panel__load > b {
+    font-size: 32px;
+  }
+  .board-day-panel__load small {
+    display: inline;
+    margin-left: var(--space-1);
+  }
+  .board-day-panel__meter {
+    margin-top: var(--space-2);
+    height: 4px;
+  }
+  .board-day-panel__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+  }
+  .board-day-panel__row {
+    border-bottom: 0;
+    gap: var(--space-1);
+  }
+  .board-day-panel__row > a {
+    font-size: var(--text-sm);
+    line-height: 1.25;
+  }
+  .board-day-panel__row--arrivals {
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .board-day-panel__row > b {
+    font-size: var(--text-lg);
+  }
 }

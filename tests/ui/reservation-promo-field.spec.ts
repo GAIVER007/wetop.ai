@@ -1,10 +1,10 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * D4 (ADR-128): в форме брони стойки есть необязательное поле «Промокод». Заполненное — уходит в
  * POST /reservations как `promoCode`; пустое в запрос не попадает.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 // подставной API один на все спеки: журнал команд общий, поэтому тесты идут по очереди
 test.describe.configure({ mode: 'serial' });
@@ -16,7 +16,9 @@ async function createBooking(
   request: import('@playwright/test').APIRequestContext,
   promo: string,
 ): Promise<Record<string, unknown> | undefined> {
-  await request.post(`${fixture}/__test/control`, { data: {} });
+  // чистый стенд на каждую бронь: прошлая бронь на M03 занимает те же даты, и форма с живой проверкой
+  // мест (01.10.2026) честно не даёт создать вторую на занятую ячейку
+  await request.post(`${fixture}/__test/reset`);
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
   await form.getByText('Дополнительно', { exact: true }).click();

@@ -275,6 +275,77 @@ describe.skipIf(!url)(
       });
     });
 
+    it('телефон и должность (v2.10, Q-244): запись под замком роли, в журнале нет номера', async () => {
+      await rolledBack(async (tx) => {
+        const { org, ids } = await organization(tx, { owner: 'OWNER', manager: 'MANAGER', admin: 'STAFF' });
+        const repo = new PrismaAccountsRepository({ db: tx } as PrismaService);
+        expect(
+          await repo.setMemberDetails({
+            organizationId: org,
+            userId: ids.admin!,
+            phone: '+77015554433',
+            position: 'Старший администратор',
+            by: ids.manager!,
+            roles: ['STAFF'],
+          }),
+        ).toEqual({ outcome: 'done', role: 'STAFF' });
+        // управляющий с правом только на администраторов владельцу контакты не правит
+        expect(
+          await repo.setMemberDetails({
+            organizationId: org,
+            userId: ids.owner!,
+            phone: null,
+            position: 'Директор',
+            by: ids.manager!,
+            roles: ['STAFF'],
+          }),
+        ).toEqual({ outcome: 'role', role: 'OWNER' });
+        // свои: без сверки роли
+        expect(
+          await repo.setMemberDetails({
+            organizationId: org,
+            userId: ids.owner!,
+            phone: null,
+            position: 'Директор',
+            by: ids.owner!,
+            roles: null,
+          }),
+        ).toEqual({ outcome: 'done', role: 'OWNER' });
+        expect(
+          (await repo.members(org)).map((m) => [m.role, m.phone, m.position]),
+        ).toEqual([
+          ['OWNER', null, 'Директор'],
+          ['MANAGER', null, null],
+          ['STAFF', '+77015554433', 'Старший администратор'],
+        ]);
+        const journal = await tx.auditLog.findMany({
+          where: { entityType: 'organization', entityId: org, action: 'membership.details.updated' },
+          select: { userId: true, before: true, after: true },
+        });
+        expect(journal).toHaveLength(2);
+        expect(JSON.stringify(journal)).not.toContain('7015554433');
+        expect(journal).toContainEqual({
+          userId: ids.manager,
+          before: { userId: ids.admin, position: null },
+          after: { userId: ids.admin, position: 'Старший администратор', phoneChanged: true },
+        });
+      });
+    });
+
+    it('база не примет телефон не в виде +цифры и пустую должность', async () => {
+      for (const data of [{ phone: '8 701 555 44 33' }, { position: '   ' }]) {
+        await rolledBack(async (tx) => {
+          const { org, ids } = await organization(tx, { owner: 'OWNER' });
+          await expect(
+            tx.membership.update({
+              where: { userId_organizationId: { userId: ids.owner!, organizationId: org } },
+              data,
+            }),
+          ).rejects.toThrow();
+        });
+      }
+    });
+
     it('агенты продавца: управляющему — можно, администратору — нет (ADR-107)', async () => {
       const before = process.env.WIZARD_ENABLED;
       process.env.WIZARD_ENABLED = '1';

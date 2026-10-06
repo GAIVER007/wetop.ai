@@ -1,24 +1,16 @@
 import type { PeriodOperations } from '../../lib/api';
+import { csvField as field, csvTenge as tenge } from './csv';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 
 type Operation = PeriodOperations['rows'][number];
 
-/** Тиыны → «12500,50»: без пробелов между разрядами и с запятой — так число понимает Excel в русской раскладке */
-function tenge(minor: string, negative: boolean): string {
-  const v = BigInt(minor);
-  const abs = v < 0n ? -v : v;
-  const sign = negative !== v < 0n ? '-' : '';
-  return `${sign}${abs / 100n},${String(abs % 100n).padStart(2, '0')}`;
-}
-
-const field = (s: string) => (/[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
-
 /**
- * Оплаты и возвраты за период для бухгалтера (ADR-113, F2): «;», UTF-8 с BOM, строки через CRLF. Дата и время —
- * по часам объекта, возврат — с минусом. Имён гостей нет: файл уходит из системы, а бронь находится по номеру.
+ * Общая лента денег за период для бухгалтера (ADR-113 F2; касса — §21): «;», UTF-8 с BOM, строки через CRLF.
+ * Дата и время — по часам объекта, возврат и расход — с минусом, перевод — «откуда → куда». Имён гостей нет:
+ * файл уходит из системы, бронь находится по номеру.
  */
 export function operationsCsv(rows: Operation[]): string {
-  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', 'Сумма, ₸', 'Бронь'];
+  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', 'Сумма, ₸', 'Бронь', 'Статья', 'Комментарий'];
   const lines = rows.map((o) => {
     const [day = '', time = ''] = o.localAt.split(' ');
     const [y, m, d] = day.split('-');
@@ -27,14 +19,20 @@ export function operationsCsv(rows: Operation[]): string {
         ? `${o.confirmationNumber} и ещё ${o.reservations - 1}`
         : o.confirmationNumber
       : '';
+    const method =
+      o.kind === 'TRANSFER' && o.methodTo
+        ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo] ?? o.methodTo}`
+        : (METHOD_RU[o.method] ?? o.method);
     return [
       `${d}.${m}.${y}`,
       time,
       operationKind(o.kind),
       operationStatus(o.kind, o.status),
-      METHOD_RU[o.method] ?? o.method,
-      tenge(o.amountMinor, o.kind === 'REFUND'),
+      method,
+      tenge(o.amountMinor, o.kind === 'REFUND' || o.kind === 'EXPENSE'),
       booking,
+      o.category ?? '',
+      o.note ?? '',
     ]
       .map(field)
       .join(';');

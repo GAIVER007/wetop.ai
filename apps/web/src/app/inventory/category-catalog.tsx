@@ -63,7 +63,7 @@ export function CategoryCatalog({
     c.ratePlans
       ? { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` }
       : { label: 'Настроить тариф', onSelect: () => setRating(c) },
-    { label: 'Показать на шахматке', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
+    { label: 'Показать в календаре', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
     { label: 'Свободные места', href: '/rooms/availability' },
   ];
   const fund = (c: InventoryCategory) => {
@@ -84,12 +84,13 @@ export function CategoryCatalog({
     ) : (
       <Badge tone="warn">тариф не настроен</Badge>
     );
-  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-119) */
+  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-119).
+      Обычное состояние — текстом, бейджи только у исключений (упрощение 02.10, как в фонде) */
   const status = (c: InventoryCategory) =>
     !c.active ? (
       <Badge tone="neutral">В архиве</Badge>
     ) : memberCount(c) && c.ratePlans ? (
-      <Badge tone="ok">Активна</Badge>
+      <span className="muted">активна</span>
     ) : (
       <Badge tone="warn">Не готова к продаже</Badge>
     );
@@ -195,12 +196,13 @@ export function CategoryCatalog({
           <thead>
             <tr>
               <th>Категория</th>
-              <th>Тип продажи</th>
               <th>Фонд</th>
               <th>Вместимость</th>
               <th>Тарифы</th>
               <th>Статус</th>
-              <th>Действия</th>
+              <th>
+                <span className="sr-only">Действия</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -210,8 +212,12 @@ export function CategoryCatalog({
                 data-testid="fund-category-row"
                 onClick={(e) => onSurface(e, () => setPreview(c))}
               >
-                <td className="fund-cat-name">{open(c)}</td>
-                <td className="fund-cat-kind">{kindCell(c)}</td>
+                {/* Тип продажи — значком у названия и словом фонда («36 коек»), не отдельной колонкой */}
+                <td className="fund-cat-name">
+                  <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
+                  <span className="sr-only">{KIND_WORD[c.kind]}</span>
+                  {open(c)}
+                </td>
                 <td className="fund-cat-units">{fund(c)}</td>
                 <td className="fund-cat-capacity">{capacityShort(c)}</td>
                 <td className="fund-cat-rates">{rates(c)}</td>

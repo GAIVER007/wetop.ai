@@ -31,7 +31,16 @@ export function rangeCaption(from: string, to: string): string {
  * переключатель-ссылка. У одного дня — стрелки на соседние дни (AN2: «Статистика» смотрела день за днём).
  * Большой кнопки «Показать» нет.
  */
-export function AnalyticsToolbar({ query, today }: { query: AnalyticsQuery; today: string }) {
+export function AnalyticsToolbar({
+  query,
+  today,
+  noCompare = false,
+}: {
+  query: AnalyticsQuery;
+  today: string;
+  /** «По номерам» (REP3) не считает прошлый отрезок — переключателя сравнения у неё нет */
+  noCompare?: boolean;
+}) {
   const { period, fund, compare } = query;
   const prev = previousPeriod(period.from, period.to);
   const custom = period.preset === 'custom';
@@ -117,20 +126,22 @@ export function AnalyticsToolbar({ query, today }: { query: AnalyticsQuery; toda
             </Link>
           ))}
         </nav>
-        <Link
-          href={analyticsHref(query, { compare: !compare })}
-          className={cx('pa-compare', compare && 'is-on')}
-          data-testid="pa-compare-toggle"
-        >
-          <span className="pa-compare__box" aria-hidden="true">
-            {compare && <Icon name="check" width={14} height={14} />}
-          </span>
-          Сравнить с {displayDate(prev.from)}
-          {prev.from !== prev.to && ` — ${displayDate(prev.to)}`}
-          <span className="sr-only">
-            {compare ? ' — включено, выключить' : ' — выключено, включить'}
-          </span>
-        </Link>
+        {!noCompare && (
+          <Link
+            href={analyticsHref(query, { compare: !compare })}
+            className={cx('pa-compare', compare && 'is-on')}
+            data-testid="pa-compare-toggle"
+          >
+            <span className="pa-compare__box" aria-hidden="true">
+              {compare && <Icon name="check" width={14} height={14} />}
+            </span>
+            Сравнить с {displayDate(prev.from)}
+            {prev.from !== prev.to && ` — ${displayDate(prev.to)}`}
+            <span className="sr-only">
+              {compare ? ' — включено, выключить' : ' — выключено, включить'}
+            </span>
+          </Link>
+        )}
       </div>
     </section>
   );

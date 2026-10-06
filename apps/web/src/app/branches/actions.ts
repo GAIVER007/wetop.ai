@@ -1,8 +1,9 @@
 'use server';
+import { landingForVertical } from '../../lib/vertical-landing';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { branchesApi, ApiError } from '../../lib/api';
+import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { branchDestination } from '../../lib/branch-destination';
 import { hotelApi } from '../../lib/hotel-api';
 import { SCOPE_COOKIE } from '../../lib/scope-pointer';
@@ -22,6 +23,8 @@ export async function selectBranch(form: FormData) {
     },
   );
   revalidatePath('/', 'layout');
+  // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
+  if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))
@@ -33,16 +36,23 @@ export async function createBranch(
   form: FormData,
 ) {
   try {
+    const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
     await branchesApi.create({
       id: String(form.get('id')),
       name: String(form.get('name') ?? ''),
       address: String(form.get('address') ?? ''),
       currency: String(form.get('currency') ?? ''),
       timezone: String(form.get('timezone') ?? ''),
+      vertical,
     });
     revalidatePath('/branches');
     revalidatePath('/platform');
-    return { message: 'Филиал создан. Откройте его, чтобы добавить категории и номера.' };
+    return {
+      message:
+        vertical === 'BEAUTY'
+          ? 'Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.'
+          : 'Филиал создан. Откройте его, чтобы добавить категории и номера.',
+    };
   } catch (e) {
     return {
       error:
@@ -53,10 +63,17 @@ export async function createBranch(
 
 export async function branchChoices() {
   try {
-    const [{ items }, hotel] = await Promise.all([branchesApi.list(), hotelApi.settings()]);
+    const [{ items }, me] = await Promise.all([branchesApi.list(), authApi.me()]);
+    const selected = items.find(
+      (item) =>
+        item.locationId === me.context?.locationId &&
+        item.location.businessId === me.context?.businessId,
+    );
+    const currentId =
+      selected?.id ?? (me.context?.businessId ? null : (await hotelApi.settings()).property.id);
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
-      currentId: hotel.property.id,
+      currentId,
     };
   } catch {
     return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };

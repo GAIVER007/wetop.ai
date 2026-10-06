@@ -41,6 +41,12 @@ const KNOWN_GAPS = [
 ];
 
 describe('tokens.css генерируется из design/tokens.json', () => {
+  it('контрастная тема задаёт светлый фон даже внутри тёмной темы', () => {
+    const block = buildTokensCss(tree).split("[data-theme='contrast'] {")[1]!.split('}')[0]!;
+    expect(block).toContain('--bg: #e9f0f8;');
+    expect(block).toContain('--surface: #ffffff;');
+    expect(block).toContain('--on-primary: #ffffff;');
+  });
   it('файл на диске совпадает с выводом генератора (ручная правка — красный тест)', () => {
     expect(readFileSync(resolve(ROOT, CSS_FILE), 'utf8')).toBe(buildTokensCss(tree));
   });
@@ -62,11 +68,13 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       .split('\n')
       .filter(Boolean);
     const used = new Set<string>();
-    for (const f of files) {
-      for (const m of readFileSync(resolve(ROOT, f), 'utf8').matchAll(/var\((--[a-z0-9-]+)/g))
-        used.add(m[1]!);
-    }
     const defined = new Set(tree.tokens.map((t) => t.cssVar));
+    for (const f of files) {
+      const source = readFileSync(resolve(ROOT, f), 'utf8');
+      for (const m of source.matchAll(/var\((--[a-z0-9-]+)/g)) used.add(m[1]!);
+      // Inline CSS properties count only when their declaration exists in component source.
+      for (const m of source.matchAll(/['"](--[a-z0-9-]+)['"]\s*:/g)) defined.add(m[1]!);
+    }
     // переменные, которые страницы объявляют сами: локальные размеры сетки и цвет точки бейджа
     const local = new Set([
       '--dot',
@@ -74,6 +82,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--week-unit-width',
       '--month-unit-width',
       '--month-min-width',
+      '--mobile-board-width', // board-grid.tsx: ширина мобильной сетки по числу дней
       '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--board-head-real', // board.css: фактическая высота шапки дат, замер из board-grid.tsx
       '--board-unit-real', // board.css: фактическая ширина колонки мест — к ней липнет имя длинной брони

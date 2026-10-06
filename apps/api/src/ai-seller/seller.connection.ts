@@ -22,14 +22,20 @@ export interface SellerConfig {
 /** То, что платформе нужно от продавца (docs/assistant/README.md §4) */
 export interface SellerPort {
   telegram(orgId: string, action: 'status' | 'check' | 'connect' | 'disconnect', body?: unknown): Promise<unknown>;
-  listConversations(query: { mode?: string; limit?: number }): Promise<unknown>;
+  /** `excludeSandbox`: без диалогов вкладки «Проверка» */
+  listConversations(query: {
+    mode?: string;
+    limit?: number;
+    excludeSandbox?: boolean;
+  }): Promise<unknown>;
   conversation(id: string): Promise<unknown>;
   takeover(id: string): Promise<unknown>;
   release(id: string): Promise<unknown>;
   reply(id: string, text: string): Promise<unknown>;
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;
-  summary(): Promise<unknown>;
+  /** `excludeSandbox`: числа за сутки без проверок агента */
+  summary(excludeSandbox?: boolean): Promise<unknown>;
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
   putProfile(payload: unknown): Promise<unknown>;
   /** Инструкция одним текстом (ADR-097): ядро правил бот ставит сам и сверху */

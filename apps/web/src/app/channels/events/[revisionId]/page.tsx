@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
@@ -49,6 +50,7 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const clock = await hotelClock();
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
   // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
@@ -224,7 +226,7 @@ export default async function RevisionPageView({
         </div>
         <section className="chain__card" aria-labelledby="chain-unit">
           <h2 id="chain-unit" className="chain__title">
-            3. Ячейка на шахматке
+            3. Ячейка в календаре
           </h2>
           {reservation?.items.length ? (
             reservation.items.map((it) => (
@@ -242,13 +244,13 @@ export default async function RevisionPageView({
                 <div className="muted">
                   {it.unitCode
                     ? 'назначена автоматически: первая свободная в категории (Q-094)'
-                    : 'место не назначено — на шахматке в строке «Без ячейки»'}
+                    : 'место не назначено — в календаре в строке «Без ячейки»'}
                 </div>
                 <Link
                   href={`/chessboard?from=${it.arrivalDate}&to=${it.departureDate}`}
                   className="btn btn--secondary btn--sm"
                 >
-                  Открыть шахматку на эти даты
+                  Открыть календарь на эти даты
                 </Link>
               </div>
             ))

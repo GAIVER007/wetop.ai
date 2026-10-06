@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * D4 «Журнал и неисправности» (tasks/todo.md): выборка журнала названа словами, разделы — чипами, отказ API не
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * последним операциям, время в `<time>`; у «Неисправностей» отказ состояния сторожа — сбой с повтором, пустые
  * таблицы говорят, что это значит; на телефоне строки читаются без прокрутки вбок; загрузка — словом.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -50,7 +50,7 @@ test('журнал: выборка словами, разделы чипами, 
   // отказ API: поиск и раздел на месте, повтор возвращает строки с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал действий');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
   await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -241,7 +241,7 @@ test('аналитика и статистика: пустое состояни�
   });
   await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
-    'Считаем загрузку по шахматке',
+    'Считаем загрузку по календарю',
   );
   await expect(main.getByTestId('statistics-table')).toBeVisible({ timeout: 15_000 });
 });

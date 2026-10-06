@@ -54,7 +54,8 @@ export async function saveRatePlanPenalty(
   }
 }
 
-const errorText = (e: unknown) => (e instanceof ApiError || e instanceof Error ? e.message : String(e));
+const errorText = (e: unknown) =>
+  e instanceof ApiError || e instanceof Error ? e.message : String(e);
 
 /** Целое из поля формы: пусто — `null`, не число — `undefined` (ошибка словами у формы) */
 function wholeOrNull(form: FormData, key: string): number | null | undefined {
@@ -66,6 +67,23 @@ function wholeOrNull(form: FormData, key: string): number | null | undefined {
 export interface DerivedActionResult {
   error: string | null;
   saved?: RatePlanRow;
+}
+
+export async function setDerivedPlanActive(
+  _prev: RatePlanActionResult | null,
+  form: FormData,
+): Promise<RatePlanActionResult> {
+  const active = String(form.get('active'));
+  if (active !== 'true' && active !== 'false') return { error: 'Выберите состояние тарифа' };
+  try {
+    const saved = await ratesApi.updateDerived(String(form.get('code') ?? ''), {
+      active: active === 'true',
+    });
+    for (const path of ['/rates/plans', '/reservations/new', '/channels']) revalidatePath(path);
+    return { error: null, saved };
+  } catch (e) {
+    return { error: errorText(e) };
+  }
 }
 
 function derivedFields(form: FormData) {

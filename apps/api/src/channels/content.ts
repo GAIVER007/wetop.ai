@@ -1,7 +1,15 @@
 import 'reflect-metadata';
-import { Controller, Get, Inject, Injectable, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  Injectable,
+  Query,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ChannelOperatorInterceptor } from './operator-access';
-import { IntegrationOwnerGuard } from './integration-owner';
+import { ChannelOrganizationGuard } from './integration-owner';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
@@ -32,13 +40,7 @@ export function contentReaderFromEnv(): ContentReader | null {
 }
 
 export type ContentState =
-  | 'READY'
-  | 'NO_KEY'
-  | 'NO_MAPPING'
-  | 'DENIED'
-  | 'NOT_FOUND'
-  | 'RATE_LIMITED'
-  | 'UNREACHABLE';
+  'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'NOT_FOUND' | 'RATE_LIMITED' | 'UNREACHABLE';
 export interface HotelContent {
   checkedAt: string;
   source: 'channex';
@@ -102,7 +104,8 @@ export class ChannelContentService {
   ) {}
 
   async content(refresh = false, now = Date.now()): Promise<HotelContent> {
-    if (!refresh && this.cache?.state === 'READY' && now - this.cachedAt < CACHE_MS) return this.cache;
+    if (!refresh && this.cache?.state === 'READY' && now - this.cachedAt < CACHE_MS)
+      return this.cache;
     const result = await this.read();
     if (result.state === 'READY') {
       this.cache = result;
@@ -155,11 +158,17 @@ export class ChannelContentService {
       facilities: [],
       photos: [],
     };
-    if (!this.reader) return { ...base, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
+    if (!this.reader)
+      return { ...base, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
     const propertyId = (await this.repo.mappings(PROVIDER)).find(
       (m) => m.providerPropertyId,
     )?.providerPropertyId;
-    if (!propertyId) return { ...base, state: 'NO_MAPPING', message: 'Объект не сопоставлен с менеджером каналов' };
+    if (!propertyId)
+      return {
+        ...base,
+        state: 'NO_MAPPING',
+        message: 'Объект не сопоставлен с менеджером каналов',
+      };
     try {
       const filter = { 'filter[property_id]': propertyId };
       const [property, dictionary, policies, photos] = await Promise.all([
@@ -205,7 +214,10 @@ export class ChannelContentService {
         facilities: selected
           .map((id) => (typeof id === 'string' ? titles.get(id) : undefined))
           .filter((f): f is { title: string; category: string | null } => !!f)
-          .sort((x, y) => (x.category ?? '').localeCompare(y.category ?? '') || x.title.localeCompare(y.title)),
+          .sort(
+            (x, y) =>
+              (x.category ?? '').localeCompare(y.category ?? '') || x.title.localeCompare(y.title),
+          ),
         photos: photos
           .map((ph) => ph.attributes)
           .filter((ph) => typeof ph['url'] === 'string')
@@ -238,7 +250,7 @@ export class ChannelContentService {
 }
 
 @Access('channels')
-@UseGuards(IntegrationOwnerGuard)
+@UseGuards(ChannelOrganizationGuard)
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

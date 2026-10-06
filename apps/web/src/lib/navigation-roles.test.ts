@@ -10,7 +10,7 @@ import {
   navigationItems,
   pageOpen,
   routeRule,
-  sidebarSectionsFor,
+  menuSectionsFor,
   type NavigationAccess,
 } from './navigation';
 
@@ -25,8 +25,8 @@ const access = (role: NavigationAccess['role'], platform = false): NavigationAcc
   role,
 });
 const hrefs = (a: NavigationAccess) =>
-  sidebarSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
-const everything = sidebarSectionsFor(access(null, true)).flatMap((s) =>
+  menuSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
+const everything = menuSectionsFor(access(null, true)).flatMap((s) =>
   s.items.map((i) => i.href),
 );
 
@@ -41,22 +41,31 @@ describe('меню по ролям', () => {
       '/chessboard',
       '/reservations',
       '/guests',
-      '/ai-agents',
       '/finance',
+      '/bar',
+      // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
+      '/market',
+      '/ai-agents',
+      '/reports',
       '/management/analytics',
+      '/incidents',
     ]);
-    expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
+      'chessboard',
+      'reservations',
       'guests',
-      'sales',
       'finance',
-      'analytics',
+      'bar',
+      'sales',
+      'reports',
+      'settings',
     ]);
   });
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
     const noPlatform = everything.filter((h) => !h.startsWith('/platform'));
-    expect(hrefs(access('MANAGER'))).toEqual(noPlatform);
+    expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
   });
@@ -77,6 +86,7 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('settings');
     expect(routeRule('/journal')?.requires).toBe('journal');
     expect(routeRule('/finance')?.requires).toBe('reports');
+    expect(routeRule('/bar')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 
@@ -159,8 +169,8 @@ describe('«ИИ-агенты» (S0)', () => {
 });
 
 it('сотрудники доступны в настройках только владельцу и управляющему', () => {
-  expect(routeRule('/staff')?.requires).toBe('staff');
-  expect(hrefs(access('OWNER'))).toContain('/staff');
-  expect(hrefs(access('MANAGER'))).toContain('/staff');
-  expect(hrefs(access('STAFF'))).not.toContain('/staff');
+  expect(routeRule('/team')?.requires).toBe('staff');
+  expect(hrefs(access('OWNER'))).toContain('/team');
+  expect(hrefs(access('MANAGER'))).toContain('/team');
+  expect(hrefs(access('STAFF'))).not.toContain('/team');
 });

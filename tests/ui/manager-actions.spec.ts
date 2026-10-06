@@ -1,13 +1,13 @@
-import { expect, test, type Page, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, devNoise } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**
  * Срез 7.3 «Четыре действия управляющего» (plans/slice-7-3-manager-actions-2026-09-16.md) на синтетическом API:
  * суммы до подтверждения (Д5) — переселение в другую категорию, продление, отмена, незаезд, выселение
- * с долгом; «Разрешить» и плашки конфликтов на шахматке (Д3–Д4). Цены синтетические: номер 8 000 ₸,
+ * с долгом; «Разрешить» и плашки конфликтов в календаре (Д3–Д4). Цены синтетические: номер 8 000 ₸,
  * койка 4 000 ₸ за ночь; карточка 20260913-TESTAA — R01, три ночи, 24 000 ₸, предоплата 8 000 ₸.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const BOOKING = '20260913-TESTAA';
 /**
  * «Сегодня» объекта — дата стенда: он считает её при каждом сбросе (Asia/Almaty). Своя дата, посчитанная при загрузке
@@ -230,7 +230,7 @@ test('карточка: долгое проживание объясняет, п
   await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText(
     'длиннее 62 ночей',
   );
-  await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText('с шахматки');
+  await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText('из календаря');
   await expect(page.getByRole('main')).not.toContainText(
     'Доступность части периодов не загрузилась',
   );
@@ -366,7 +366,9 @@ test('карточка B3 на телефоне: полоса и прожива�
 test('шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag', async ({
   page,
 }) => {
-  await page.goto('/chessboard');
+  // окно с сегодняшнего дня: неделя по умолчанию идёт с понедельника, и в воскресенье бронь «с сегодня на три
+  // ночи» видна одной клеткой, а меню у плашки появляется с двух (CI 03.10.2026, воскресенье по Алматы)
+  await page.goto(`/chessboard?from=${today}&to=${plus(6)}`);
   const main = page.getByRole('main');
   const plate = main.locator(`[data-testid="stay-cell"][data-number="${BOOKING}"]`).first();
   await expect(plate).toBeVisible();

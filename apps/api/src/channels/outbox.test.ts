@@ -165,6 +165,96 @@ describe('OutboxAriPublisher', () => {
       },
     ]);
   });
+  it('reservationChanged с отрезками (live-тест Channex 02.10): одно сообщение, только ночи отрезков — ночи между ними не уходят и через разрыв не склеиваются', async () => {
+    const { repo, rows } = makeRepo();
+    const pub = new OutboxAriPublisher(repo);
+    await pub.reservationChanged({
+      categoryCodes: ['category-dorm'],
+      from: '2026-11-20',
+      toExclusive: '2026-11-27',
+      ranges: [
+        { categoryCode: 'category-dorm', from: '2026-11-20', toExclusive: '2026-11-21' },
+        { categoryCode: 'category-dorm', from: '2026-11-24', toExclusive: '2026-11-25' },
+        { categoryCode: 'category-dorm', from: '2026-11-26', toExclusive: '2026-11-27' },
+      ],
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.payload).toEqual([
+      {
+        property_id: 'P',
+        room_type_id: 'RT3',
+        date_from: '2026-11-20',
+        date_to: '2026-11-20',
+        availability: 35,
+      },
+      // 24 и 26 — одно и то же число, но 25-го в отрезках нет: два значения, а не «24 → 26»
+      {
+        property_id: 'P',
+        room_type_id: 'RT3',
+        date_from: '2026-11-24',
+        date_to: '2026-11-24',
+        availability: 36,
+      },
+      {
+        property_id: 'P',
+        room_type_id: 'RT3',
+        date_from: '2026-11-26',
+        date_to: '2026-11-26',
+        availability: 36,
+      },
+    ]);
+  });
+  it('live-тест Channex 02.10, перенос брони 15.12 → 22.12 в категории на 8 мест: в сообщении 15.12 → 8 и 22.12 → 7, ничего между', async () => {
+    const { repo, rows } = makeRepo();
+    Object.assign(repo, {
+      categoryUnits: async () => [{ code: 'category-single', active: 8, capacityAdults: 1 }],
+      // после переноса бронь держит только 22.12
+      soldItems: async () => [
+        {
+          accommodationTypeCode: 'category-single',
+          arrivalDate: '2026-12-22',
+          departureDate: '2026-12-23',
+        },
+      ],
+    });
+    await new OutboxAriPublisher(repo).reservationChanged({
+      categoryCodes: ['category-single'],
+      from: '2026-12-15',
+      toExclusive: '2026-12-23',
+      ranges: [
+        { categoryCode: 'category-single', from: '2026-12-15', toExclusive: '2026-12-16' },
+        { categoryCode: 'category-single', from: '2026-12-22', toExclusive: '2026-12-23' },
+      ],
+    });
+    expect(rows.map((r) => r.payload)).toEqual([
+      [
+        {
+          property_id: 'P',
+          room_type_id: 'RT1',
+          date_from: '2026-12-15',
+          date_to: '2026-12-15',
+          availability: 8,
+        },
+        {
+          property_id: 'P',
+          room_type_id: 'RT1',
+          date_from: '2026-12-22',
+          date_to: '2026-12-22',
+          availability: 7,
+        },
+      ],
+    ]);
+  });
+  it('reservationChanged с пустыми отрезками — остаток не менялся, очередь не трогается', async () => {
+    const { repo, rows } = makeRepo();
+    await new OutboxAriPublisher(repo).reservationChanged({
+      categoryCodes: ['category-dorm'],
+      from: '2026-11-20',
+      toExclusive: '2026-11-23',
+      ranges: [],
+    });
+    expect(rows).toHaveLength(0);
+  });
   it('ratesChanged: maps (category, tariff) to the Channex rate plan, rate as minor-unit integer, unmapped tariff skipped', async () => {
     const { repo, rows } = makeRepo();
     const pub = new OutboxAriPublisher(repo);

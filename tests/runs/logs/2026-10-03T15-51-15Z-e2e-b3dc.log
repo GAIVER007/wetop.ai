@@ -1,0 +1,110 @@
+# Сквозные (e2e) · 03.10.2026 20:51 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-channels.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (16.9s)
+  ✓  2 tests/ui/analytics-channels.spec.ts:86:1 › отбор по каналу, каналы без броней и сравнение — из полосы отбора (4.3s)
+  ✓  3 tests/ui/analytics-channels.spec.ts:117:1 › CSV — те же строки и итог, с разделителем «;» и BOM (1.5s)
+[WebServer] ⨯ RangeError: Invalid time value
+[WebServer]     at Date1.toISOString (<anonymous>)
+[WebServer]     at isDate (src/app/management/analytics/channels/query.ts:26:70)
+[WebServer]     at range (src/app/management/analytics/channels/query.ts:41:8)
+[WebServer]     at parseChannelsQuery (src/app/management/analytics/channels/query.ts:49:16)
+[WebServer]     at ChannelsPage (src/app/management/analytics/channels/page.tsx:18:35)
+[WebServer]   24 |
+[WebServer]   25 | const isDate = (s: string | undefined): s is string =>
+[WebServer] > 26 |   !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
+[WebServer]      |                                                                      ^
+[WebServer]   27 | const monthEnd = (month: string) => {
+[WebServer]   28 |   const [y, m] = month.split('-').map(Number) as [number, number];
+[WebServer]   29 |   return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10); {
+[WebServer]   digest: '1191028190'
+[WebServer] }
+  ✘  4 tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы (17.9s)
+  ✓  5 tests/ui/analytics-channels.spec.ts:151:1 › телефон: страница без горизонтальной прокрутки (1.1s)
+  ✓  6 tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, light (3.3s)
+  ✓  7 tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, dark (3.3s)
+
+
+  1) tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').getByRole('columnheader', { name: /Ночи/ })
+    Expected: "descending"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByRole('columnheader', { name: /Ночи/ }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('columnheader', { name: /Ночи/ })
+
+
+      78 |   await main.getByRole('link', { name: 'Сортировать по ночам' }).click();
+      79 |   await expect(page).toHaveURL(/sort=nights/);
+    > 80 |   await expect(main.getByRole('columnheader', { name: /Ночи/ })).toHaveAttribute(
+         |                                                                  ^
+      81 |     'aria-sort',
+      82 |     'descending',
+      83 |   );
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:80:66
+
+    Error Context: test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert').or(getByRole('main').locator('.alert')).first()
+    Expected substring: "Показан текущий месяц"
+    Received string:    "Проверьте подключение и повторите запрос.Код ошибки1191028190Повторить загрузкуПодключения API"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('alert').or(getByRole('main').locator('.alert')).first() with timeout 15000ms
+      - waiting for getByRole('main').getByRole('alert').or(getByRole('main').locator('.alert')).first()
+        31 × locator resolved to <section role="alert" class="empty-state">…</section>
+           - unexpected value "Проверьте подключение и повторите запрос.Код ошибки1191028190Повторить загрузкуПодключения API"
+
+
+      136 |   await expect(main.getByTestId('pa-channels-empty')).toContainText('нет броней');
+      137 |   await page.goto('/management/analytics/channels?from=2026-13-01&to=2026-01-01');
+    > 138 |   await expect(main.getByRole('alert').or(main.locator('.alert')).first()).toContainText(
+          |                                                                            ^
+      139 |     'Показан текущий месяц',
+      140 |   );
+      141 |   const down = await page.request.post(`${fixture}/__test/control`, {
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:138:76
+
+    Error Context: test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API 
+    tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы 
+  5 passed (58.5s)
+
+# код выхода 1 · 1 мин

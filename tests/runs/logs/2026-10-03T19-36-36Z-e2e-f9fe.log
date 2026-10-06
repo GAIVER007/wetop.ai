@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 04.10.2026 00:36 Алматы · vm
+# коммит a59d8d9 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channels-reconcile.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (2.2s)
+  ✓  2 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (1.1s)
+  ✓  3 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.1s)
+  ✓  4 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (1.1s)
+  ✓  5 tests/ui/channels-reconcile.spec.ts:12:1 › свежая сверка без расхождений (1.1s)
+  ✓  6 tests/ui/channels-reconcile.spec.ts:21:1 › канал видит больше мест: расхождение с числом ночей и что делает сторож (1.2s)
+
+  6 passed (15.2s)
+
+# код выхода 0 · 16 с

@@ -1,16 +1,9 @@
-/* Одна структура и ритм для desktop-панели и мобильной навигации. */
-.workspace-sidebar {
-  overflow: hidden;
-}
+/* Меню телефона и планшета (окно «Навигация», ADR-134): объект, разделы, пробный срок, свежесть, кто вошёл. */
 .sidebar-shell {
   display: flex;
   flex-direction: column;
   min-height: 0;
   height: 100%;
-}
-.sidebar-shell .brand-row {
-  flex: none;
-  margin: 0 var(--space-1) var(--space-4);
 }
 .sidebar-shell .workspace-property {
   flex: none;
@@ -144,27 +137,6 @@
   margin-top: var(--space-2);
   padding-top: var(--space-2);
 }
-.sidebar-shell.is-compact .brand-name,
-.sidebar-shell.is-compact .workspace-property,
-.sidebar-shell.is-compact .sidebar-section-toggle > span,
-.sidebar-shell.is-compact .sidebar-section-chevron,
-.sidebar-shell.is-compact .sidebar-bottom {
-  display: none;
-}
-.sidebar-shell.is-compact .brand-row {
-  flex-direction: column;
-  gap: var(--space-4);
-}
-.sidebar-shell.is-compact .sidebar-collapse {
-  margin: 0;
-}
-.sidebar-shell.is-compact .sidebar-section-toggle {
-  display: flex;
-  justify-content: center;
-}
-.sidebar-shell.is-compact .sidebar-section-toggle.has-current-page {
-  background: var(--primary-soft);
-}
 .mobile-navigation.ui-overlay {
   width: min(360px, calc(100vw - var(--space-4)));
   margin: var(--space-2) auto var(--space-2) var(--space-2);
@@ -190,9 +162,6 @@
   flex: 1;
   min-height: 0;
   padding: var(--space-4) var(--space-2) var(--space-2);
-}
-.mobile-navigation .sidebar-shell .brand-row {
-  display: none;
 }
 .mobile-navigation .sidebar-shell .workspace-property {
   margin: 0 var(--space-1) var(--space-2);
@@ -230,10 +199,10 @@
   position: absolute;
   top: calc(100% - var(--space-2));
   inset-inline: 0;
-  z-index: 20;
+  z-index: var(--layer-sidebar);
   max-height: calc(100dvh - 210px);
   overflow-y: auto;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 24%);
+  box-shadow: var(--shadow-floating);
   padding: var(--space-2);
   margin-bottom: var(--space-4);
   border: 1px solid var(--border);
@@ -273,16 +242,12 @@
 .branch-switcher__options small {
   color: var(--primary);
 }
-.sidebar-shell.is-compact .branch-switcher {
-  position: relative;
-  display: none;
-}
 
 .branch-switcher__heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 4px 10px;
+  padding: var(--space-1) var(--space-1) var(--space-2);
 }
 .branch-switcher__heading > span {
   color: var(--muted);
@@ -290,14 +255,14 @@
 .branch-switcher__list .inp {
   width: 100%;
   min-width: 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 .branch-switcher__options button {
   grid-template-columns: minmax(0, 1fr) 20px;
-  padding: 10px;
+  padding: var(--space-2);
 }
 .branch-switcher__options button > strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .branch-switcher__options button > svg {
   color: var(--primary);

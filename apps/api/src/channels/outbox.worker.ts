@@ -9,6 +9,7 @@ import {
 import { redactText } from '@pms/domain';
 import { PROVIDER } from './ari-publisher';
 import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
+import { withIntegrationPropertyScope } from '../auth/request-context';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -40,6 +41,8 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
   private lastSentAt: Record<OutboxKind, number> = { AVAILABILITY: 0, RESTRICTIONS: 0 };
   private timer: NodeJS.Timeout | null = null;
   private running = false;
+  private scanning = false;
+  private nextPropertyIndex = 0;
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
@@ -57,11 +60,42 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
       !process.env.CHANNEX_API_KEY?.trim()
     )
       return;
-    this.timer = setInterval(() => void this.flush().catch(() => undefined), 5_000);
+    this.timer = setInterval(
+      () =>
+        void this.flushConnectedProperties().catch((e: unknown) =>
+          new Logger(OutboxWorker.name).warn(`Очередь менеджера каналов: ${(e as Error).message}`),
+        ),
+      5_000,
+    );
     this.timer.unref();
   }
   onModuleDestroy(): void {
     if (this.timer) clearInterval(this.timer);
+  }
+
+  /** Each connected property owns its own outbox; never read a tenant through a default property. */
+  private async flushConnectedProperties(): Promise<void> {
+    if (this.scanning) return;
+    this.scanning = true;
+    try {
+      const mappings = await this.repo.connectedProperties();
+      const start = this.nextPropertyIndex % Math.max(1, mappings.length);
+      for (let offset = 0; offset < mappings.length; offset += 1) {
+        const index = (start + offset) % mappings.length;
+        const mapping = mappings[index]!;
+        try {
+          const result = await withIntegrationPropertyScope(mapping.localPropertyId, () => this.flush());
+          // Keep the next branch first until throttling allows a send, rather than always serving branch one.
+          if (result.sent.length > 0) this.nextPropertyIndex = (index + 1) % mappings.length;
+        } catch (e) {
+          new Logger(OutboxWorker.name).warn(
+            `Очередь объекта ${mapping.localPropertyId}: ${redactText((e as Error).message, 1000)}`,
+          );
+        }
+      }
+    } finally {
+      this.scanning = false;
+    }
   }
 
   /** Один проход: на каждый вид — все PENDING в один вызов Channex (last-win FIFO), с троттлингом и backoff. */

@@ -1,4 +1,6 @@
 'use server';
+import { cookies } from 'next/headers';
+import { SCOPE_COOKIE } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
@@ -110,7 +112,9 @@ function errorText(e: unknown): string {
 export async function registerAction(input: {
   email: string;
   name: string;
-  hotelName: string;
+  hotelName?: string;
+  businessName?: string;
+  vertical?: import('@pms/domain').BusinessVertical;
   password: string;
   phoneCountry: string;
   phone: string;
@@ -133,13 +137,28 @@ export async function registerAction(input: {
  * человек назвал при регистрации, спрашивать его второй раз незачем.
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
+  let pilot: boolean;
   try {
     const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    const context = await authApi.registrationContext(result.token);
+    pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    if (context) {
+      (await cookies()).set(
+        SCOPE_COOKIE,
+        `business=${context.businessId};location=${context.locationId}`,
+        {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+        },
+      );
+    }
   } catch (e) {
     return { error: errorText(e) };
   }
-  redirect('/today');
+  redirect(pilot ? '/register/complete' : '/today');
 }
 
 export interface ResendState {
@@ -177,7 +196,7 @@ export async function inviteAction(email: string, role: string): Promise<InviteA
   try {
     const invite = await authApi.invite(token, email, invited, await clientInfo());
     revalidatePath('/profile/access');
-    revalidatePath('/staff');
+    revalidatePath('/team');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
@@ -198,7 +217,7 @@ async function teamAction(run: (token: string) => Promise<void>): Promise<TeamAc
     return { error: errorText(e) };
   }
   revalidatePath('/profile/access');
-  revalidatePath('/staff');
+  revalidatePath('/team');
   return { error: null };
 }
 
@@ -218,6 +237,17 @@ export async function setMemberRoleAction(userId: string, role: string): Promise
   if (!next) return { error: 'Роль сотрудника — «управляющий» или «администратор».' };
   return teamAction(async (token) =>
     authApi.setMemberRole(token, userId, next, await clientInfo()),
+  );
+}
+
+/** Телефон и должность сотрудника: проверку и слова отказа даёт API (TEAM2, Q-244) */
+export async function setMemberDetailsAction(
+  userId: string,
+  phone: string,
+  position: string,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberDetails(token, userId, { phone, position }, await clientInfo()),
   );
 }
 

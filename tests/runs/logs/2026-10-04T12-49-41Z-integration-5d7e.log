@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 04.10.2026 17:49 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-49-41Z-integration-5d7e.json' 'tests/integration/mv2-registration.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |integration| tests/integration/mv2-registration.test.ts (5 tests) 813ms
+   ✓ MV2 real registration persistence (5)
+     ✓ HOSPITALITY persists through resend and confirmation 455ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:49:43
+   Duration  2.78s (tests 43%, transform 33%, import 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-49-41Z-integration-5d7e.json
+
+# код выхода 0 · 5 с

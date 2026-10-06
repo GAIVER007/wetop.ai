@@ -5,6 +5,7 @@ import {
   INVITE_TTL_MS,
   MEMBERSHIP_ROLES,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
@@ -19,6 +20,7 @@ import {
   isEmailShaped,
   normalizeEmail,
   resetExpiry,
+  parseMemberDetails,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -59,17 +61,31 @@ export interface MemberView {
   name: string | null;
   role: MembershipRole;
   joinedAt: Date;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: Date | null;
   /** Это вы */
   you: boolean;
   /** Этот вошедший может его отключить */
   removable: boolean;
   /** Этот вошедший может сменить ему роль (между управляющим и администратором) */
   roleEditable: boolean;
+  /** Телефон и должность в организации (v2.10, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  /** Этот вошедший может поменять ему телефон и должность */
+  detailsEditable: boolean;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
 export type MemberRefusal =
-  'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
+  | 'staff'
+  | 'missing'
+  | 'self'
+  | 'owner-target'
+  | 'manager-target'
+  | 'role'
+  | 'owner-only'
+  | 'details-target';
 
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
@@ -196,6 +212,8 @@ export class AccountsService {
         who.organizationId,
         new Date(),
         invitableRoles(who.role),
+        who.userId,
+        true,
       );
       this.log.error('Не удалось отправить приглашение; ссылка отозвана');
       throw new ServiceUnavailableException(
@@ -219,7 +237,7 @@ export class AccountsService {
     if (!canManageStaff(who.role)) return 'owner';
     // отзывает тот, кто вправе позвать с этой ролью: приглашение управляющего управляющему «не найдено»
     const allowed = invitableRoles(who.role);
-    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed))
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed, who.userId))
       ? 'ok'
       : 'missing';
   }
@@ -252,8 +270,44 @@ export class AccountsService {
         removable: !you && canRemoveMember(who.role, m.role),
         roleEditable:
           !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(who.role, m.role, you),
       };
     });
+  }
+
+  /** Телефон и должность (TEAM2, Q-244): свои: каждому, кому открыт раздел; чужие: тому, кто вправе отключить */
+  async setMemberDetails(
+    sessionToken: string | null,
+    userId: string,
+    raw: unknown,
+  ): Promise<
+    | { ok: true; member: { userId: string; phone: string | null; position: string | null } }
+    | { ok: false; reason: MemberRefusal }
+    | { ok: false; message: string }
+    | null
+  > {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    const details = parseMemberDetails(raw);
+    if (!details.ok) return { ok: false, message: details.message };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    const self = target.userId === who.userId;
+    if (!canEditMemberDetails(who.role, target.role, self))
+      return { ok: false, reason: 'details-target' };
+    // роль сверяется ещё раз в момент записи, как у отключения: владелец мог повысить человека
+    const write = await this.repo.setMemberDetails({
+      organizationId: who.organizationId,
+      userId,
+      phone: details.phone,
+      position: details.position,
+      by: who.userId,
+      roles: self ? null : invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role') return { ok: false, reason: 'details-target' };
+    return { ok: true, member: { userId, phone: details.phone, position: details.position } };
   }
 
   /**
@@ -371,30 +425,21 @@ export class AccountsService {
   async acceptInvite(rawToken: string): Promise<InvitePreview | null> {
     const invite = await this.liveInvite(rawToken);
     if (!invite) return null;
-    await this.repo.joinOrganization({
-      email: invite.email,
-      organizationId: invite.organizationId,
-      role: invite.role,
-    });
     const now = new Date();
-    await this.repo.markInviteAccepted(invite.id, now);
-    // Раньше здесь уходил код на почту. С 20.09.2026 вход один — по паролю (ADR-053), и код с экрана
-    // снят; вдобавок письмо требует настроенной почтовой службы, а её может не быть. Поэтому выдаём
-    // одноразовую ссылку «задайте пароль» прямо в ответ: сама ссылка-приглашение и есть доказательство,
-    // что перед нами приглашённый, — второго такого же секрета в письме не нужно.
     const token = newSessionToken();
-    const issued = await this.repo.issuePasswordSetToken({
-      email: invite.email,
-      tokenHash: hashSessionToken(token),
-      expiresAt: resetExpiry(now),
+    const accepted = await this.repo.acceptInvite({
+      id: invite.id,
       now,
+      passwordTokenHash: hashSessionToken(token),
+      passwordExpiresAt: resetExpiry(now),
     });
+    if (!accepted) return null;
     return {
       organizationName: invite.organizationName,
       email: invite.email,
       expiresAt: invite.expiresAt,
       // null — пароль у человека уже есть: он просто входит им, задавать заново нечего
-      setPasswordToken: issued ? token : null,
+      setPasswordToken: accepted.passwordTokenIssued ? token : null,
     };
   }
 

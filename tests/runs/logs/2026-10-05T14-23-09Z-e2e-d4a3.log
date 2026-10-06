@@ -1,0 +1,131 @@
+# Сквозные (e2e) · 05.10.2026 19:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7e27389 (codex/calendar-mobile-focus), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-focus.spec.ts' '--workers=1'
+[WebServer] (node:79920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:80013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (2.2s)
+  ✓  2 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (1.2s)
+  ✓  3 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (1.1s)
+  ✓  4 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (1.2s)
+  ✓  5 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (1.1s)
+  ✓  6 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (1.2s)
+  ✘  7 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (45.3s)
+(node:80645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (45.2s)
+(node:80771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 tests/ui/chessboard-focus.spec.ts:55:1 › free panel outside click leaves focus on the selected control (1.5s)
+
+
+  1) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByLabel('Период проживания')
+        - locator resolved to <select class="inp">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        87 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      44 |       await cell.getByTestId('free-cell').click();
+      45 |       await expect(panel).toBeVisible();
+    > 46 |       await panel.getByLabel('Период проживания').selectOption('2');
+         |                                                   ^
+      47 |       await expect(panel.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveAttribute(
+      48 |         'href',
+      49 |         `/reservations/new?arrival=${add(from, 3)}&departure=${add(from, 6)}&unit=R07`,
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:46:51
+
+    Error Context: test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByLabel('Период проживания')
+        - locator resolved to <select class="inp">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        85 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      44 |       await cell.getByTestId('free-cell').click();
+      45 |       await expect(panel).toBeVisible();
+    > 46 |       await panel.getByLabel('Период проживания').selectOption('2');
+         |                                                   ^
+      47 |       await expect(panel.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveAttribute(
+      48 |         'href',
+      49 |         `/reservations/new?arrival=${add(from, 3)}&departure=${add(from, 6)}&unit=R07`,
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:46:51
+
+    Error Context: test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling 
+  7 passed (1.8m)
+
+# код выхода 1 · 1 мин 48 с

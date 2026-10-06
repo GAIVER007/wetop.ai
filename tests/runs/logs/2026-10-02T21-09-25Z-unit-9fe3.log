@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 02:09 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T21-09-25Z-unit-9fe3.json' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (6 tests) 1020ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  14:09:26
+   Duration  1.24s (tests 93%, transform 5%, import 2%)
+
+JSON report written to /tmp/pms-test-2026-10-02T21-09-25Z-unit-9fe3.json
+
+# код выхода 0 · 2 с

@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * База без броней, но с фондом — состояние боевой PMS после очистки 19.09.2026 (ADR-052) и до
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * Смена увидит именно это, поэтому каждый экран обязан открыться и сказать, что броней нет,
  * а не показать ошибку, пустоту без объяснения или ноль вместо данных.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const ERROR_TEXT =
   /Не удалось загрузить|Проверьте подключение|Application error|Что-то пошло не так|Страница не найдена/;
 
@@ -17,20 +17,20 @@ test.beforeEach(async ({ request }) => {
 
 const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/today', title: /Главная/ },
-  { route: '/chessboard', title: /Шахматка/ },
+  { route: '/chessboard', title: /Календарь/ },
   { route: '/reservations', title: /Брони|Бронирован/, says: /нет|не найден/i },
   { route: '/guests', title: /Гости/, says: /нет|не найден/i },
   { route: '/rooms', title: /номер/i },
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },
   { route: '/rates', title: /Тарифы/ },
-  { route: '/finance', title: /Финансы/ },
+  { route: '/finance', title: /Касса/ },
   { route: '/management/analytics', title: /Аналитика/, says: /Недостаточно данных/ },
   { route: '/management/analytics/occupancy', title: /Аналитика/ },
   { route: '/journal', title: /Журнал/ },
   { route: '/incidents', title: /Неисправност/ },
   { route: '/channels', title: /Подключени|Channex|Каналы/ },
-  { route: '/connections', title: /Интеграции/ },
+  { route: '/connections', title: /Подключения/ },
   { route: '/website', title: /Сайт и онлайн-бронирование/ },
   { route: '/website/analytics', title: /Сайт и онлайн-бронирование/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
@@ -62,7 +62,9 @@ test('пустая база: шахматка показывает все мес
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {
   await page.goto('/today');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('c-arrivals')).toContainText('0');
-  const text = (await main.innerText()).replace(/\s+/g, ' ');
-  expect(text).toMatch(/Заезд|Выезд|Проживают/);
+  await expect(main.getByTestId('owner-paid').locator('strong')).toContainText('0');
+  await expect(main.getByTestId('c-occupancy')).toHaveText('0 %');
+  await expect(main.getByTestId('c-free')).toHaveText('88');
+  await expect(main.getByTestId('owner-expenses')).toContainText('Нет данных');
+  await expect(main.getByTestId('owner-outlook-chart').getByRole('listitem')).toHaveCount(7);
 });

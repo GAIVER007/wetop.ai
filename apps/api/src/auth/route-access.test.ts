@@ -22,6 +22,8 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  'GET /onboarding': 'self',
+  'POST /onboarding': 'settings',
   'GET /branches': 'desk',
   'POST /branches': 'owner',
   'GET /branches/overview': 'reports',
@@ -35,6 +37,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/password-reset/request': 'public',
   'POST /auth/password-reset/confirm': 'public',
   'GET /auth/me': 'self',
+  'GET /auth/registration-context': 'self',
   'POST /auth/password': 'self',
   'GET /auth/sessions': 'self',
   'POST /auth/logout-all': 'self',
@@ -46,6 +49,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /auth/members': 'staff',
   'DELETE /auth/members/:userId': 'staff',
   'PATCH /auth/members/:userId': 'owner',
+  'PATCH /auth/members/:userId/details': 'staff',
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
@@ -62,6 +66,67 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /chessboard': 'desk',
   'GET /availability': 'desk',
   'GET /availability/offers': 'desk',
+  // Бар: смена ведёт приход, продажи, списания и остатки; справочники меняют в настройках
+  'GET /bar/categories': 'desk',
+  'POST /bar/categories': 'settings',
+  'PATCH /bar/categories/:id/active': 'settings',
+  'GET /bar/products': 'desk',
+  'POST /bar/products': 'settings',
+  'PATCH /bar/products/:id/active': 'settings',
+  'PATCH /bar/products/:id/price': 'settings',
+  'GET /bar/suppliers': 'desk',
+  'POST /bar/suppliers': 'settings',
+  'PATCH /bar/suppliers/:id/active': 'settings',
+  'GET /bar/receipts': 'desk',
+  'GET /bar/stock': 'desk',
+  'GET /bar/sales': 'desk',
+  'GET /bar/folios': 'desk',
+  'GET /bar/movements': 'desk',
+  'GET /bar/report': 'desk',
+  'POST /bar/sales/retail': 'desk',
+  'POST /bar/sales/folio': 'desk',
+  'POST /bar/sales/:id/reverse': 'desk',
+  'POST /bar/write-offs': 'desk',
+  'POST /bar/inventory-counts': 'desk',
+  'POST /bar/receipts': 'desk',
+  'POST /bar/receipts/:id/post': 'desk',
+  'POST /bar/receipts/:id/payments': 'desk',
+  // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
+  // MV6 Food Service: explicit Business and Location on every route.
+  'GET /food-service/areas': 'desk',
+  'POST /food-service/areas': 'property',
+  'PATCH /food-service/areas/:id': 'property',
+  'GET /food-service/tables': 'desk',
+  'POST /food-service/tables': 'property',
+  'PATCH /food-service/tables/:id': 'property',
+  'GET /food-service/service-periods': 'desk',
+  'POST /food-service/service-periods': 'property',
+  'PATCH /food-service/service-periods/:id': 'property',
+  'GET /food-service/customers': 'desk',
+  'GET /food-service/reservations': 'desk',
+  'POST /food-service/reservations': 'desk',
+  'PATCH /food-service/reservations/:id': 'desk',
+  'POST /food-service/reservations/:id/status': 'desk',
+  'PUT /food-service/reservations/:id/table': 'desk',
+  'DELETE /food-service/reservations/:id/table': 'desk',
+  'GET /beauty/customers': 'desk',
+  'GET /beauty/services': 'desk',
+  'POST /beauty/services': 'rates',
+  'PATCH /beauty/services/:id': 'rates',
+  'PUT /beauty/services/:id/location': 'rates',
+  'GET /beauty/employees': 'desk',
+  'POST /beauty/employees': 'property',
+  'PATCH /beauty/employees/:id': 'property',
+  'PUT /beauty/employees/:id/services': 'property',
+  'PUT /beauty/employees/:id/locations': 'property',
+  'GET /beauty/schedule': 'desk',
+  'PUT /beauty/employees/:id/working-hours': 'property',
+  'POST /beauty/employees/:id/time-offs': 'property',
+  'DELETE /beauty/employees/:id/time-offs/:timeOffId': 'property',
+  'GET /beauty/appointments': 'desk',
+  'POST /beauty/appointments': 'desk',
+  'PATCH /beauty/appointments/:id': 'desk',
+  'POST /beauty/appointments/:id/status': 'desk',
   'GET /availability/nearest': 'desk',
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
@@ -87,6 +152,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /guests': 'desk',
   'GET /guests/:id': 'desk',
   // «Гости v2» (G1–G3): каталог и предпросмотр гостя — работа смены
+  'GET /guests/birthdays': 'desk',
+  // Задачи стойки (DATA_MODEL §22): работа смены, все роли объекта
+  'GET /tasks': 'desk',
+  'POST /tasks': 'desk',
+  'PATCH /tasks/:id': 'desk',
   'GET /guests/directory': 'desk',
   'GET /guests/:id/preview': 'desk',
   'PATCH /guests/:id': 'desk',
@@ -103,6 +173,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // неисправности — работа смены; пробная тревога — настройка оповещений
   'GET /guard/status': 'desk',
   'GET /guard/incidents': 'desk',
+  'GET /guard/reconciliation': 'desk',
   'POST /guard/incidents/:id/acknowledge': 'desk',
   'POST /guard/incidents/:id/resolve': 'desk',
   'POST /guard/tick': 'desk',
@@ -115,12 +186,38 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/folios/:id/stay-extras': 'desk',
   'POST /finance/folios/:id/close': 'desk',
   'POST /finance/payments': 'desk',
+  'POST /finance/payments/:id/receipt': 'desk',
+  // Запросы оплаты (DATA_MODEL §24, ADR-144): администратор выставляет счёт и отмечает оплату
+  'GET /finance/reservations/:number/payment-requests': 'desk',
+  'POST /finance/reservations/:number/payment-requests': 'desk',
+  'POST /finance/payment-requests/:id/paid': 'desk',
+  'POST /finance/payment-requests/:id/cancel': 'desk',
   'POST /finance/charges/:id/void': 'refunds',
   'POST /finance/payments/:id/refunds': 'refunds',
   'GET /finance/report': 'reports',
+  'GET /finance/services-report': 'reports',
+  'GET /desk/dashboard/units': 'reports',
+  'GET /desk/dashboard/channels': 'reports',
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
+  // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
+  'GET /finance/cash': 'desk',
+  'POST /finance/cash/categories': 'settings',
+  'PATCH /finance/cash/categories/:id': 'settings',
+  'POST /finance/cash/operations': 'desk',
+  'POST /finance/cash/transfers': 'desk',
+  'POST /finance/cash/reconciliations': 'desk',
+  'POST /finance/cash/operations/:id/void': 'refunds',
+
+  // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /market/occupancy': 'reports',
+  'GET /market/night': 'reports',
+  'POST /market/competitors': 'rates',
+  'PATCH /market/competitors/:id': 'rates',
+  'PUT /market/competitors/:id/occupancy': 'rates',
+  'GET /market/collector/competitors': 'service',
+  'PUT /market/collector/competitors/:id/occupancy': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -160,6 +257,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /channels/channex/outbox/messages': 'channels',
   'POST /channels/channex/outbox/flush': 'channels',
   'GET /channels/channex/connection': 'channels',
+  'GET /channels/channex/channels': 'channels',
+  'POST /channels/channex/channels/connect-session': 'owner',
+  'POST /channels/channex/channels/:id/load-future-reservations': 'owner',
   'GET /channels/channex/content': 'channels',
   'GET /channels/channex/content/names': 'channels',
   'GET /hotel/channel-report': 'channels',
@@ -179,6 +279,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /analytics/sites/:id': 'settings',
   'GET /analytics/sites/:id/report': 'settings',
   'GET /audit': 'journal',
+  'GET /audit/actors': 'journal',
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',
@@ -263,7 +364,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
+  // H14 (ADR-144): страница статуса сервиса без входа
+  'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
+  // ADR-144, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
+  'POST /bot/booking-intents': 'public',
+  'POST /bot/booking-intents/confirm': 'public',
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
@@ -290,7 +396,9 @@ async function routes(): Promise<Record<string, RouteAccess | 'public' | undefin
         const path = Reflect.getMetadata(PATH_METADATA, handler) as string | undefined;
         const method = Reflect.getMetadata(METHOD_METADATA, handler) as RequestMethod | undefined;
         if (path === undefined || method === undefined) continue;
-        const full = `/${[base, path].filter(Boolean).join('/')}`.replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+        const full = `/${[base, path].filter(Boolean).join('/')}`
+          .replace(/\/+/g, '/')
+          .replace(/(.)\/$/, '$1');
         const key = `${RequestMethod[method]} ${full}`;
         const isPublic =
           Reflect.getMetadata(PUBLIC_ROUTE, handler) ?? Reflect.getMetadata(PUBLIC_ROUTE, cls);

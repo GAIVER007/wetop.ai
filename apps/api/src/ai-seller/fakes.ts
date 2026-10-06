@@ -63,8 +63,8 @@ export class FakeSeller implements SellerPort {
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }) {
     return this.call('uploadKnowledge', file);
   }
-  summary() {
-    return this.call('summary');
+  summary(excludeSandbox?: boolean) {
+    return this.call('summary', excludeSandbox);
   }
   sandbox(input: { externalId: string; text: string }) {
     return this.call('sandbox', input);

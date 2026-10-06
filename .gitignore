@@ -23,6 +23,9 @@ backups/
 # туда пишутся абсолютные пути и команды целиком; worktrees — рабочие копии сессий.
 .claude/settings.local.json
 .claude/worktrees/
+# Папка выдачи Cowork на Mac: туда ложатся файлы для владельца, в том числе ссылки с правом правки
+# (ссылка на правку анкеты Channex лежала здесь в git до 02.10.2026, замечание ментора, ADR-137)
+/Claude outputs/
 
 # --- Персональные данные: реальные выгрузки НЕ коммитим (SECURITY.md §4) ---
 project-input/retired-source/*
@@ -101,3 +104,8 @@ ds-bundle/
 .omx/
 # PostgreSQL для локального стенда, скачанная scripts/ops/local-db.sh из npm (22.09.2026)
 .local-pg/
+
+# Вложенные клоны проекта на машине владельца: в индекс попали как ссылки без .gitmodules
+# (коммит 1ca70ee9), git их не скачивает, а `git submodule status` на них падает насмерть
+WETOP-pr93/
+/Чат агент/

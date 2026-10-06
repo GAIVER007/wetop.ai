@@ -1,0 +1,17 @@
+# Модульные (unit) · 05.10.2026 18:39 Алматы · MacBook-Air-Urij.local
+# коммит 5a133eb (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T13-39-08Z-unit-a0e2.json' 'apps/api/src/tasks/tasks.controller.test.ts' 'apps/api/src/web-booking/bot-booking.controller.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv7-20261005
+
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 194ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 115ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  17:39:09
+   Duration  2.51s (import 43%, transform 43%, tests 13%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T13-39-08Z-unit-a0e2.json
+
+# код выхода 0 · 4 с

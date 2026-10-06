@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 02.10.2026 18:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4bdbad3 (claude/calendar-litepms-20261002), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'chessboard-design.spec.ts' 'chessboard-week.spec.ts' 'chessboard-calendar.spec.ts' 'chessboard-dnd.spec.ts' 'chessboard-gate-pr4.spec.ts' 'chessboard-gate-pr5.spec.ts'
+Error: http://127.0.0.1:4311/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 1 с

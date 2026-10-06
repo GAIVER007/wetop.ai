@@ -1,13 +1,13 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Показатели за период» не должны пропадать целиком, когда числа не пришли (замечание владельца
  * 16.09.2026: «выбираю период и нифига не открывает»; с A1, ADR-103, блок жил на
- * `/management/dashboard`, с AN2, ADR-114, — «Аналитика → Обзор»). Числа считаются из шахматки и
+ * `/management/dashboard`, с AN2, ADR-114, — «Аналитика → Обзор»). Числа считаются из календаря и
  * счетов за месяц, и на медленной связи этот вызов может не успеть — экран обязан открыться и назвать причину. Главная (`/today`) от
  * `GET /desk/dashboard` больше не зависит вовсе.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.afterEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -28,18 +28,19 @@ test('показатели не пришли — экран открыт, пер
 
 test('период выбирается: «этот месяц» открывается с числами', async ({ page }) => {
   await page.goto('/management/analytics?period=month');
-  await expect(page.getByTestId('pa-period')).toContainText(/дн(я|ей)/);
+  // «31 день», «30 дней», «28 дней»: в месяце из 31 дня (октябрь) слово «день», не «дня»/«дней»
+  await expect(page.getByTestId('pa-period')).toContainText(/\d+ (день|дня|дней)/);
   await expect(page.getByTestId('pa-kpi-occupancy')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });
 
-test('Главная открывается и с упавшими показателями периода: операционный блок остаётся доступен', async ({
+test('Главная открывается и с упавшими показателями периода: риски остаются доступны', async ({
   page,
   request,
 }) => {
   await request.post(`${API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/today');
   await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
-  await expect(page.getByTestId('owner-movements')).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 04.10.2026 18:44 Алматы · MacBook-Air-Urij.local
+# коммит a4fac4b (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T13-44-31Z-integration-a5b5.json' 'tests/integration/mv3-onboarding.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |integration| tests/integration/mv3-onboarding.test.ts (4 tests) 415ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:44:32
+   Duration  1.76s (tests 38%, transform 36%, import 26%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T13-44-31Z-integration-a5b5.json
+
+# код выхода 0 · 3 с

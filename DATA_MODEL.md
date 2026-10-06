@@ -45,6 +45,7 @@ v2.6 (28.09.2026; **поручение владельца после закры�
 v2.7 (29.09.2026; **SEC-1b, стадия A — по слову владельца «давай делай» на план аудита 29.09.2026**, ADR-124, `plans/sec1b-credential-grants-2026-09-29.md`): §17.2–17.3 — права роли `wetop_app` на десять таблиц без RLS приведены к замыслу §17.3 «только `wetop_service` читает по делу». Миграция `20260929000033_rls_credential_grants` отзывает у `wetop_app` всё на `password_resets`, `email_verifications`, `wizard_sessions`, `wizard_events`, `wizard_surveys`; на `users` оставляет только чтение колонок `id`, `email`, `name`, `status`, `email_verified_at`; на `platform_admins` — только чтение `user_id`, `revoked_at`. Таблицы, колонки, связи и политики не меняются; `external_events`, `channel_outbox`, `system_incidents` не тронуты (стадия B). `down.sql` возвращает полный доступ. **На рабочей базе применяет владелец — после выкладки кода**
 v2.8 (29.09.2026; **утверждено владельцем 30.09.2026 с поправками** — SA1.5 плана `plans/business-ai-seller-v2-2026-09-29.md`, ADR-127): §20 «Business Agent: личность, филиал и рабочий продавец» — `seller_agents.location_id`, не более одного неархивного AI-продавца (`scenario = 'sales'`) на филиал, четыре хранимых состояния `draft`/`active`/`paused`/`archived` (`TESTING` и `ERROR` вычисляются), перенос существующего продавца в агента с `id = organization_id` вместе со всей историей, ключ провайдера модели — секрет платформы (перевод отдельным срезом), секреты WhatsApp — на подключении канала агента, порядок выкладки и откат. Кода и миграций ещё нет — их делает SA1.6; номер версии уточнить при слиянии (ADR-052).
 v2.9 (30.09.2026; **SEC-1b, стадия B — по решению владельца 30.09.2026 (Q-222 вариант (б\*), Q-225 вариант (а\*))**, ADR-124, `plans/sec1b-stage-b-2026-09-30.md`): §17.2–17.3 — права роли `wetop_app` на три оставшиеся таблицы без RLS. Миграция `20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox` оставляет только `INSERT` (без `RETURNING`: постановка изменения остатков в очередь остаётся в транзакции команды человека и откатывается вместе с ней). Права `wetop_service` не меняются. Таблицы, колонки, связи и политики не меняются. `down.sql` возвращает полный доступ обеим ролям. **На рабочей базе применяет владелец — после выкладки кода** (PR #188, #189, #198: все обращения через `integrationTables(db)` и интеграционную команду на служебной роли)
+v2.10 (03.10.2026; **утверждено владельцем 03.10.2026 ответом «да нужны» на Q-244**, TEAM2, `plans/team-contacts-2026-10-03.md`): §13.3: `memberships.phone` и `memberships.position`, обе необязательные; телефон и должность принадлежат членству, а не человеку (у двух организаций свои); миграция `20261003000050_membership_contacts` (в сессии была 044, при слиянии 044-049 заняли другие срезы; ADR-052)
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -722,6 +723,27 @@ channel_rate_id
 > `created_at/updated_at`; UNIQUE(provider, provider_rate_plan_id). Строка без `provider_room_type_id` = маппинг самого объекта.
 > Клиент — `packages/integrations/src/channex`, оркестрация — `apps/api/src/channels` (домен Channex не видит).
 
+> **01.10.2026, утверждено владельцем для нескольких организаций и филиалов.** Один служебный аккаунт
+> Channex WETOP может содержать несколько объектов. Каждая гостиница `Property` имеет 0 или 1
+> сопоставление уровня объекта для провайдера Channex и 0 или более сопоставлений её категорий и
+> тарифов. `channel_mappings.property_id` всегда указывает на гостиницу-владельца, а
+> `provider_property_id` на её отдельный объект Channex. Один объект Channex не связывается с двумя
+> гостиницами WETOP. `external_events.property_id` и `channel_outbox.property_id` обязательны для
+> **новых** событий и задач; старые строки с NULL не приписываются объекту автоматически.
+> Обработка webhook, ленты, очереди, полной выгрузки и отображение статуса идут по этой паре ID,
+> с проверкой принадлежности организации и выбранного филиала. Действующая модель полей позволяет
+> начать без миграции; уникальность пары и дальнейшее ограничение NULL проверяются отдельно после
+> аудита существующих данных и подготовки отката. Ключ API остаётся серверным секретом WETOP;
+> организации не получают его и не видят объекты других организаций.
+
+> **01.10.2026, дополнение для настройки новых объектов, утверждено владельцем.** `Property`
+> получает `country_code` (ISO 3166-1 alpha-2, nullable), `city` (nullable) и
+> `channex_property_type` (значение из каталога Channex, nullable). Для существующего Luxx Aparts
+> миграция устанавливает `KZ`, `Алматы`, `hostel`; для остальных объектов значения не угадываются.
+> Эти поля редактирует владелец в «Настройках объекта». Перед созданием объекта Channex все три
+> значения обязательны; если какого-то нет, подключение не начинается. Они не меняют адрес,
+> валюту, timezone и расчёт бронирования.
+
 ### ChannelOutbox (техническая очередь, 09.09.2026)
 
 ```
@@ -1107,6 +1129,8 @@ resolved_by       GUARD (исчезла после починки или сам�
 | `user_id` | `uuid` FK → `users` | |
 | `organization_id` | `uuid` FK → `organizations` | |
 | `created_at` | `timestamptz` NOT NULL | |
+| `phone` | `varchar(16)` | v2.10 (Q-244): рабочий телефон в этой организации, `+` и 10–15 цифр (CHECK); NULL: не указан |
+| `position` | `varchar(100)` | v2.10 (Q-244): должность свободным текстом («Старший администратор»); права даёт роль, не должность |
 
 PK составной (`user_id`, `organization_id`). Ролей нет намеренно: ADR-023 в этой части в силе.
 
@@ -1441,7 +1465,7 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 | `rates` | Тарифы и цены; сменить тариф у существующей брони (Q-200); назначить брони без тарифа тариф с мягким штрафом (Q-201) | да | да | — |
 | `channels` | Менеджер каналов и синхронизация Channex | да | да | — |
 | `settings` | Настройки гостиницы, правила отмены, услуги, интеграции, сайт и его аналитика, первичная настройка объекта | да | да | — |
-| `journal` | Журнал действий | да | да | — |
+| `journal` | Журнал операций (решение владельца 05.10.2026) | да | нет | нет |
 | `seller` | ИИ-продавец: инструкция, знания, подключения, проверка, агенты | да | да | — |
 | `staff` | Сотрудники и приглашения; управляющий приглашает и отключает только администраторов | да | да | — |
 | `owner` | Приглашать управляющих и менять роль, напоминание о продлении платного расширения | да | — | — |
@@ -1841,6 +1865,156 @@ businesses(id, organization_id)`, чтобы не разъехаться (уро
 `price` integer minor units, `notes`, `created_at` / `updated_at`. Пересечение записей одного мастера
 запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
 механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
+
+### 19.1. Уточнение перед фазой 3 (v2.9, УТВЕРЖДЕНО владельцем 03.10.2026, ADR-138)
+
+**Статус.** Раздел §19 выше утверждён ADR-104 как состав и связи и сам требует уточнения планом среза
+(«Перед фазой 3 раздел уточняется планом среза»). Здесь поля, типы, ограничения, RLS и порядок миграции.
+План, `plans/beauty-phase3-2026-10-03.md`. **Утверждено владельцем 03.10.2026** («да давай делай», ADR-138);
+по разделу сделан срез B1: миграция `20261003000044_beauty_domain`, модели в `schema.prisma`, домен
+`packages/domain/src/beauty/`, отчёт `reports/beauty-b1-2026-10-03/README.md`. **Миграцию на рабочей базе
+применяет владелец** (`AGENTS.md` §15).
+
+**Поправка к §19, не новое решение.** В §19 у `Customer` указан `business_id` FK NOT NULL со ссылкой на
+развилку Q-198. **Q-198 закрыт владельцем 27.09.2026** (freeze-решение №2, оно же в §17.3 и в
+`ARCHITECTURE.md` §9): канонический клиент живёт на Organization, видимость в бизнесе ведёт
+`CustomerBusiness`. Текст §19 приводится к принятому решению, как там и записано.
+
+Деньги целыми тиынами (ADR-008), моменты `timestamptz` в UTC, показ в часовом поясе филиала
+(`AGENTS.md` §13), удаления строк нет (архив статусом, как во всём §13).
+
+#### `customers` (Organization)
+
+`id` uuid PK; `organization_id` uuid NOT NULL FK → `organizations`; `first_name` varchar(100) NOT NULL;
+`last_name` varchar(100) NULL; `phone` varchar(32) NULL; `email` varchar(320) NULL; `notes` text NULL;
+`status` `CustomerStatus` (`ACTIVE` | `ARCHIVED`) default `ACTIVE`; `created_at`, `updated_at`.
+UNIQUE (`organization_id`, `phone`) при непустом телефоне, индекс по `organization_id`. Гость §3 не
+меняется: переход Hospitality на Customer отдельное будущее решение (§17.3).
+
+#### `customer_businesses` (Customer × Business)
+
+`customer_id` + `business_id`, PK по паре, `created_at`. Строку создаёт код при первом обращении клиента в
+этот бизнес. Триггер: организация клиента равна организации бизнеса.
+
+#### `employees` (Business)
+
+`id` uuid PK; `business_id` uuid NOT NULL FK → `businesses`; `name` varchar(200) NOT NULL; `phone`
+varchar(32) NULL; `email` varchar(320) NULL; `user_id` uuid NULL FK → `users` ON DELETE SET NULL (мастер со
+входом в систему, уровень «Employee / Self» из `ARCHITECTURE.md` §13; самого входа фаза 3 не делает);
+`status` `EmployeeStatus` (`ACTIVE` | `ARCHIVED`) default `ACTIVE`; `created_at`, `updated_at`.
+UNIQUE (`business_id`, `user_id`) при непустом `user_id`, индекс по `business_id`.
+
+#### `employee_locations` (Employee × Location)
+
+`employee_id` + `location_id`, PK по паре, `created_at`. Триггер: филиал принадлежит бизнесу мастера.
+
+#### `beauty_services` (Business)
+
+`id` uuid PK; `business_id` uuid NOT NULL FK → `businesses`; `name` varchar(200) NOT NULL; `category`
+varchar(100) NULL; `duration_minutes` integer NOT NULL CHECK > 0; `price` bigint NOT NULL CHECK >= 0
+(тиыны); `currency` varchar(3) NOT NULL; `active` boolean NOT NULL default true; `created_at`,
+`updated_at`. Индекс по `business_id`.
+
+**Валюта каталога (Q-257).** В §19 у услуги есть цена и нет валюты, а операционная валюта живёт на филиале
+(`locations.currency`, §18.2). Предложение: у услуги своя `currency`; действующая цена в филиале равна
+`location_services.price_override` в валюте филиала, если переопределение задано, иначе цене каталога,
+если валюта каталога совпадает с валютой филиала. Не совпадает и переопределения нет, услуга в этом
+филиале не продаётся и экран говорит это словами. Так цена всегда имеет известную валюту и сеть с
+филиалами в разных валютах не получает 1 000 в неизвестных деньгах.
+
+#### `location_services` (Location × BeautyService)
+
+`location_id` + `service_id`, PK по паре; `enabled` boolean NOT NULL default true; `price_override` bigint
+NULL CHECK >= 0; `duration_override` integer NULL CHECK > 0; `created_at`, `updated_at`. Триггер: филиал и
+услуга одного бизнеса. Пусто, действует каталог бизнеса с оговоркой о валюте выше.
+
+#### `employee_services` (Employee × BeautyService)
+
+`employee_id` + `service_id`, PK по паре, `created_at`. Триггер: мастер и услуга одного бизнеса.
+
+#### `working_hours` (Employee × Location)
+
+`id` uuid PK; `employee_id` uuid NOT NULL; `location_id` uuid NOT NULL; `weekday` smallint NOT NULL
+CHECK 0..6; `time_from` time NOT NULL; `time_to` time NOT NULL CHECK `time_to` > `time_from`;
+`created_at`, `updated_at`. UNIQUE (`employee_id`, `location_id`, `weekday`, `time_from`). Триггер: пара
+мастер и филиал есть в `employee_locations`. **Форма графика (Q-251):** предложен недельный шаблон,
+исключения через `time_offs`; календарные интервалы на дату добавляются позже additive.
+
+#### `time_offs` (Employee)
+
+`id` uuid PK; `employee_id` uuid NOT NULL FK → `employees`; `date_from` date NOT NULL; `date_to` date NOT
+NULL CHECK >= `date_from`; `reason` varchar(200) NULL; `created_at`, `updated_at`. Индекс по
+(`employee_id`, `date_from`).
+
+#### `appointments` (Location)
+
+`id` uuid PK; `location_id` uuid NOT NULL FK → `locations`; `customer_id` uuid NOT NULL FK → `customers`;
+`employee_id` uuid NOT NULL FK → `employees`; `service_id` uuid NOT NULL FK → `beauty_services`;
+`starts_at`, `ends_at` timestamptz NOT NULL CHECK `ends_at` > `starts_at`; `status` `AppointmentStatus`
+(`BOOKED` | `CONFIRMED` | `DONE` | `NO_SHOW` | `CANCELLED`) default `BOOKED`; `price` bigint NOT NULL
+CHECK >= 0 и `currency` varchar(3) NOT NULL (снимок цены и валюты на момент записи, не ссылка на каталог);
+`notes` text NULL; `created_by` uuid NULL FK → `users` ON DELETE SET NULL; `created_at`, `updated_at`.
+
+Пересечение записей одного мастера запрещает база, не код:
+
+```
+EXCLUDE USING gist (
+  employee_id WITH =,
+  tstzrange(starts_at, ends_at, '[)') WITH &&
+) WHERE (status NOT IN ('CANCELLED', 'NO_SHOW'))
+```
+
+Расширение `btree_gist` уже стоит (миграция `…003`). Триггеры: мастер работает в этом филиале
+(`employee_locations`), услуга включена в этом филиале (`location_services.enabled`), организация клиента
+равна организации бизнеса филиала. Что ещё считать конфликтом, Q-255: предложено только занятого мастера.
+
+#### RLS (дополнение к §17.3)
+
+У `locations` нет `organization_id` по §18.3, поэтому Beauty не ложится ни на правило «своя
+`organization_id`», ни на `app_property_visible`. **Сделано без новых функций** (поправка к предложению,
+срез B1): у `locations` в миграции `…030` уже есть образец «через родителя»,
+`EXISTS (SELECT 1 FROM businesses parent WHERE parent."id" = …)`, и политика родителя сама режет чужие
+строки. Применён он; функции `app_business_visible` и `app_location_visible` не понадобились.
+
+| Правило | Таблицы |
+|---|---|
+| `organization_id = app_current_org()` | `customers` |
+| через родителя-`businesses` | `employees`, `beauty_services`, `customer_businesses` |
+| через родителя-`locations` | `appointments`, `working_hours`, `location_services`, `employee_locations` |
+| через родителя-`employees` | `employee_services`, `time_offs` |
+
+Все десять таблиц вписаны в `RLS_TENANT_TABLES` (`packages/database/src/rls.ts`): реестр и база сверяются
+тестом `rls-isolation`.
+
+**Триггерные функции принадлежности пишут имена таблиц без схемы**, как `cash_operations_category_guard`
+в §21: те же таблицы живут и в схеме `pms_test` (ADR-042), и одна функция должна работать в обеих.
+
+**Поправка 03.10.2026 (миграция `20261003000045_beauty_function_search_path`).** В B1 путь у этих шести
+функций не закреплялся вовсе: первая версия с `SET search_path = ''` и именами через `public.` роняла все
+одиннадцать интеграционных тестов. Способ из миграции `…043` (той же датой, соседняя сессия, советник
+Supabase «function_search_path_mutable») решает это лучше: путь закрепляется **по своей схеме**,
+`current_schema()`, то есть `public, pg_temp` в `public` и `pms_test, public, pg_temp` в `pms_test`.
+Неквалифицированные имена по-прежнему находят таблицы своей схемы, а подменить их таблицей из чужой схемы,
+стоящей в пути раньше, уже нельзя. Функции Beauty приведены к этому правилу отдельной миграцией: тела не
+менялись, только путь. Новые функции обязаны закреплять путь сами, это держит
+`tests/integration/function-search-path.test.ts`.
+
+#### Миграция
+
+Одна миграция `20261003000044_beauty_domain` с `down.sql` (`AGENTS.md` §14): enum'ы, десять таблиц,
+ограничения, триггеры принадлежности, exclusion constraint и RLS. Права `wetop_app` отдельной строкой не
+выдаются: `ALTER DEFAULT PRIVILEGES` из миграции `…026` накрывает таблицы, созданные позже.
+**Сделано в срезе B1 и проверено:** цепочка из 46 миграций на чистой базе, откат этой миграции возвращает
+схему в прежнее состояние, своего дрейфа схемы она не даёт (разбор общего FAIL скрипта, в отчёте
+`reports/beauty-b1-2026-10-03/README.md`). **На рабочей базе применяет владелец** (`AGENTS.md` §15), до
+выкладки кода.
+
+#### Чего подраздел не вводит
+
+Онлайн-запись на сайте салона, вход мастера, зарплаты и комиссии, склад материалов, лояльность и
+абонементы, напоминания клиенту, Beauty в аналитике и управленческих финансах (фаза 4). Финансовый контур
+записи (счёт, касса или только цена в `appointments`) **не решён**: Q-252, до ответа владельца срез B7 не
+начинается.
 
 ---
 
@@ -2265,3 +2439,397 @@ validation, rollback и отдельное разрешение по §14–15 A
 Автоматического перерасчёта начислений или возврата нет. При выезде после дня заезда
 общая дата брони пересчитывается по обновлённым периодам всех её проживаний.
 Схема БД не меняется. Уборка продолжает отдельный цикл DIRTY → CLEAN → INSPECTED.
+
+## 21. Касса: операции мимо счетов гостей, переводы, статьи (УТВЕРЖДЕНО владельцем 02.10.2026 — «давай делай»; ADR-135 (в сессии — ADR-135; номер при интеграции 02.10.2026: ADR-135 занял top-nav))
+
+Поручение владельца 02.10.2026 (снимки кассы старой системы); закрывает «F2 касса» из Q-207 п. 2
+в части операций и остатков — кассовые смены и сверка наличных сюда **не входят** (отдельный ADR).
+План — `plans/finance-cashbox-2026-10-02.md`. Миграция `20261002000040_cashbox` (+`down.sql`);
+Q-236…Q-239 закрыты умолчаниями тем же ответом. **На рабочей базе миграцию применяет владелец.**
+
+Принцип: гостевые оплаты в кассу не дублируются. Остаток по способу оплаты вычисляется:
+Σ `payments` COMPLETED по способу − Σ `refunds` (по способу платежа) + поступления кассы
+− расходы − переводы-откуда + переводы-куда. Валюта — валюта объекта.
+
+```prisma
+enum CashOperationKind { INCOME EXPENSE TRANSFER }
+
+/// Статья кассы: справочник объекта. Удаления нет — архив через active (как Service).
+model CashCategory {
+  id         String            @id @default(uuid()) @db.Uuid
+  propertyId String            @map("property_id") @db.Uuid
+  kind       CashOperationKind // INCOME или EXPENSE; у TRANSFER статей нет
+  name       String
+  active     Boolean           @default(true)
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyId, kind, name])
+  @@map("cash_categories")
+}
+
+/// Движение денег мимо счетов гостей: поступление, расход, перевод между способами.
+model CashOperation {
+  id          String            @id @default(uuid()) @db.Uuid
+  propertyId  String            @map("property_id") @db.Uuid
+  kind        CashOperationKind
+  method      PaymentMethod     // для TRANSFER — «откуда»
+  methodTo    PaymentMethod?    @map("method_to") // только TRANSFER — «куда»
+  /// integer minor units (тиын), ADR-008; > 0
+  amount      BigInt
+  categoryId  String?           @map("category_id") @db.Uuid // статья INCOME/EXPENSE
+  note        String?
+  relatedId   String?           @map("related_id") @db.Uuid // комиссия → своя операция/перевод
+  status      PaymentStatus     @default(COMPLETED) // VOIDED — аннулирование; прошлое не правится
+  occurredAt  DateTime          @map("occurred_at") @db.Timestamptz(6)
+  createdById String?           @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property      @relation(fields: [propertyId], references: [id])
+  category CashCategory? @relation(fields: [categoryId], references: [id])
+
+  @@index([propertyId, occurredAt])
+  @@map("cash_operations")
+}
+```
+
+Правила (детали — план §3): начальный остаток — поступление со служебной статьёй
+«Начальный остаток»; комиссия — связанный расход (`relatedId`) одной транзакцией, в базе
+только сумма целыми тиынами; аннулирование — `status = VOIDED` с записью в журнал, комиссия
+аннулируется вместе с основной; `EXTERNAL`, `DEPOSIT`, `CARD_GUARANTEE` в остатках кассы
+не участвуют (Q-237); RLS — как у остальных таблиц организации (§17). `payments`, `refunds`,
+`folios` не меняются. Открытые вопросы — Q-236…Q-239.
+
+### 21.4. Сверка наличных (K4 — утверждено владельцем 02.10.2026, «давай продолжай»; дополнение к ADR-135)
+
+Закрывает остаток Q-207 п. 2 («наличные требуют проверки»). Миграция `20261002000041_cash_reconciliations`.
+
+```prisma
+/// Пересчёт денег в кассе: снимок «по системе» и факт. Аннулирования нет — ошиблись, сверили заново
+model CashReconciliation {
+  id          String        @id @default(uuid()) @db.Uuid
+  propertyId  String        @map("property_id") @db.Uuid
+  method      PaymentMethod
+  /// остаток по системе в момент сверки, тиыны: потом не восстановить — операции сдвигают историю
+  expected    BigInt
+  /// фактически пересчитано, ≥ 0
+  counted     BigInt
+  note        String?
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+}
+```
+
+Правила: CHECK `counted >= 0`, способ — кассовый (как у операций: без `EXTERNAL`/`DEPOSIT`/
+`CARD_GUARANTEE`); RLS `rls_tenant`. Расхождение (`counted − expected`) не хранится; по галочке
+«выровнять поправкой» API той же транзакцией создаёт обычную `cash_operations`: излишек —
+INCOME «Излишек кассы», недостача — EXPENSE «Недостача кассы» (статьи создаются по требованию) —
+лента операций остаётся единственным источником движений. Право сверки — `desk` (сверяет смена).
+Кассовых смен (открытие/закрытие) по-прежнему нет — при необходимости отдельным решением.
+
+### 21.5. Касса филиала (решение по Q-252 от 03.10.2026, ADR-143; кода нет, срез B7)
+
+**Статус.** Владелец 03.10.2026 поручил закрыть вопросы по Beauty самому («ответь на все вопросы сам»).
+По Q-252 решено: **Beauty не использует Folio §6**, а касса салона это этот раздел, расширенный с объекта
+на филиал. Предложение ниже утверждено тем же поручением; **кода по нему нет**, он делается срезом B7
+(`plans/beauty-phase3-2026-10-03.md`).
+
+**Почему не Folio.** Счёт §6 висит на `ReservationItem`: без второй сущности «проживание» к записи салона
+он не прикладывается, а заводить её ради денег значит придумать Beauty второе бронирование, чего ADR-104
+прямо запрещает. Деньги записи это её собственный снимок `price` и `currency` (§19.1, сделано в B1).
+
+**Что меняется.** `cash_categories` и `cash_operations` (и `cash_reconciliations`) получают
+`location_id uuid NULL` FK на `locations`, а `property_id` становится необязательным; CHECK: ровно одно из
+двух полей заполнено. Объект и филиал равноправны: гостиница ведёт кассу по объекту, как сейчас, салон по
+филиалу. Остальное не меняется: статьи, переводы, комиссия, аннулирование, сверка наличных и правило
+«гостевые оплаты в кассу не дублируются» остаются как в §21.1 и §21.4.
+
+**Остаток и выручка.** У гостиницы остаток по способу считается как сейчас (§21.1). У салона гостевых
+`payments` нет вовсе, поэтому остаток это только операции кассы филиала, а выручка за период это сумма
+записей в статусе `DONE` по их снимку цены. Пересчёта валют нет (Q-239 открыт): филиалы с разными валютами
+считаются раздельно.
+
+**RLS.** Политика `rls_tenant` на трёх таблицах переписывается на «объект своей организации **или** филиал
+своей организации»: `app_property_visible(property_id)` при заполненном объекте, иначе через родителя
+`locations`, как у таблиц Beauty в §19.1.
+
+**Миграция.** Своя, с `down.sql`: добавление колонки, снятие `NOT NULL`, CHECK, перезапись политик.
+Существующие строки не трогаются, у них остаётся `property_id`. **На рабочей базе применяет владелец**
+(`AGENTS.md` §15).
+
+**Чего раздел не вводит:** кассовых смен (их нет и у гостиницы), пересчёта валют, зарплат и комиссий
+мастеров, эквайринга.
+
+## 22. Задачи стойки (УТВЕРЖДЕНО владельцем 03.10.2026 — «давай да делай что надо», «доводи до рабочего состояния»; ADR-145, Q-249)
+
+**Утверждение 03.10.2026, уточнения при миграции `20261003000049_desk_tasks`:** (1) `organization_id` не хранится: изоляция по `property_id` через `app_property_visible`, как у кассы §21, организацию даёт объект; (2) `due_time` — текст «HH:MM» с CHECK, как `properties.check_in_time`, а не тип TIME; (3) автор закрытия — `done_by_id`, CHECK «нет `done_at` — нет и `done_by_id`». Видимость (Q-249-б): все роли объекта видят и закрывают задачи объекта, право `desk`.
+
+Поручение-образец: экран Lite PMS «Новая задача» (что сделать, описание, срок, повтор, приоритет,
+ответственный, уведомление) и счётчик «Задачи» в панели дня. Предложение сознательно уже образца.
+
+**Таблица `desk_tasks`** (RLS `rls_tenant`, как у кассы §21):
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | uuid PK | |
+| `organization_id` | FK organizations NOT NULL | изоляция RLS |
+| `property_id` | FK properties NOT NULL | задача живёт у объекта |
+| `title` | text NOT NULL, CHECK length ≤ 200 | «что сделать» |
+| `note` | text NULL, ≤ 2000 | описание |
+| `due_date` | DATE NOT NULL | срок по поясу объекта (правило §5 CLAUDE.md) |
+| `due_time` | TIME NULL | NULL = «весь день» |
+| `priority` | enum `LOW/NORMAL/HIGH`, default NORMAL | как в образце «обычный» |
+| `assignee_user_id` | FK users NULL | ответственный; NULL = «не назначен» |
+| `reservation_id` | FK reservations NULL | задача из карточки брони (вкладка «Задачи» образца) |
+| `guest_id` | FK guests NULL | задача по гостю |
+| `done_at` / `done_by` | timestamptz NULL / FK users NULL | закрытие; статусов-enum нет: открыта или сделана |
+| `created_by`, `created_at`, `updated_at` | | журнал — `audit_logs`, как у кассы |
+
+Индексы: `(organization_id, property_id, due_date)`; частичный `WHERE done_at IS NULL` для счётчиков.
+
+**Что НЕ входит в v1 (решение владельца при утверждении):**
+- повторы задач («повторять: ежедневно/еженедельно…») — генерация следующих экземпляров, отдельный срез;
+- «отправить уведомление» — каналов уведомлений в модели нет (SMS исключены владельцем 02.10, письма — Q-234);
+- задачи уборки — у уборки свой поток (`housekeeping_events`), не смешиваем.
+
+**Счётчики без новой модели:** «Задачи: N» в панели «Сегодня» календаря и на Главной — открытые с
+`due_date` не позже сегодня. **«Дни рождения» из образца вообще не требуют модели**: `guests.birth_date`
+уже есть, счётчик и список именинников — выборка; можно сделать отдельным маленьким срезом до задач.
+
+Срезы — `plans/desk-tasks-2026-10-03.md`.
+
+## 23. Загрузка конкурентов (УТВЕРЖДЕНО поручением владельца 03.10.2026 «реализуй полностью»; ADR-142)
+
+Снимки загрузки ближайших отелей по ночам: сравнение «вы и рынок» и подсказки к цене. Своей загрузки модель не
+хранит: она считается из календаря, как в «Аналитике → Загрузка». План, `plans/market-competitor-occupancy-2026-10-03.md`.
+
+**Таблица `competitors`** (RLS `rls_tenant`, как у кассы §21):
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | uuid PK | |
+| `property_id` | FK properties NOT NULL | конкуренты у объекта, не у организации: у филиалов разные соседи |
+| `name` | text NOT NULL, 1…120 знаков | уникально в объекте |
+| `distance_m` | integer NULL, ≥ 0 | расстояние в метрах, для сортировки «ближайшие» |
+| `units_total` | integer NULL, > 0 | номеров у конкурента, если известно; в расчёт средней пока не входит (Q-258) |
+| `url` | text NULL, ≤ 500 | страница отеля, откуда смотрят загрузку |
+| `note` | text NULL, ≤ 500 | |
+| `active` | boolean NOT NULL default true | «убрать из списка» = архив; снимки остаются |
+| `created_by_id`, `created_at`, `updated_at` | | правки пишутся в `audit_logs` |
+
+**Таблица `competitor_occupancy`** (RLS `rls_tenant`):
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | uuid PK | |
+| `property_id` | FK properties NOT NULL | тот же объект, что у конкурента (триггер) |
+| `competitor_id` | FK competitors NOT NULL, RESTRICT | |
+| `stay_date` | DATE NOT NULL | ночь, загрузку которой наблюдали |
+| `observed_on` | DATE NOT NULL | день снимка по поясу объекта; повтор за день заменяет значение |
+| `occupancy_bp` | integer NOT NULL, 0…10 000 | загрузка в базисных пунктах (85,5 % = 8 550): без float, как деньги (ADR-008) |
+| `source` | enum `CompetitorObservationSource` = `MANUAL`, `AI_AGENT` | `AI_AGENT` пишет только служебный ключ сборщика (срез M2) |
+| `created_by_id` | FK users NULL | человек, внёсший значение; у сборщика NULL |
+| `observed_at` | timestamptz NOT NULL default now() | момент записи (UTC) |
+
+Уникальность `(competitor_id, stay_date, observed_on)`; индекс `(property_id, observed_on, stay_date)`.
+Значение «на дату снимка D» = последний снимок с `observed_on ≤ D`; сравнение = то же на `D − 1` или `D − 7`.
+
+**Чего нет и почему:** цен конкурентов (раздел о загрузке, цены, отдельное решение); своей загрузки по дням
+снимка (Q-259); весов по числу номеров в средней (Q-258); сборщика ИИ (Q-257, срез M2).
+
+## 24. Запросы оплаты: счёт Kaspi и ссылка банка в брони (УТВЕРЖДЕНО 03.10.2026 поручением владельца, ADR-144)
+
+**Зачем.** Гостю нужно отправить счёт на предоплату или остаток: в Kaspi по номеру телефона (официального API для
+внешнего софта у Kaspi нет), ссылку банка (Halyk ePay, Freedom, Tiptop) или реквизиты перевода. До этой таблицы такой
+счёт жил в телефоне администратора, и оплата переносилась в WETOP руками без связи со счётом. Запрос оплаты связывает
+выставленный счёт со счётом проживания и превращается в обычный платёж одним действием.
+
+**`payment_requests`**
+
+| Колонка | Тип | Правило |
+|---|---|---|
+| `id` | uuid | |
+| `property_id` | uuid → properties | RLS `app_property_visible` |
+| `folio_id` | uuid → folios | счёт проживания, на который ляжет оплата |
+| `amount` | bigint | > 0, тиыны (ADR-008) |
+| `currency` | char(3) | валюта счёта проживания |
+| `method` | `PaymentMethod` | только `KASPI`, `HALYK`, `BANK_TRANSFER_PERSON`, `CARD_TERMINAL`: живые деньги, у которых бывает счёт или ссылка |
+| `link` | text, null | ссылка банка, только `https://`, до 500 знаков; у Kaspi по телефону ссылки нет |
+| `status` | `PaymentRequestStatus` | `PENDING`, `PAID`, `CANCELLED` |
+| `payment_id` | uuid → payments, null, unique | платёж, которым запрос закрыт; `PAID` ⇔ не null |
+| `note` | text, null | маска контактов, как у платежа |
+| `created_by_id` | uuid → users, null | |
+| `created_at`, `closed_at` | timestamptz | `closed_at` у `PAID` и `CANCELLED` |
+
+**Правила.**
+1. «Оплачено» создаёт обычный `Payment` (способ и сумма запроса, распределение на счёт запроса) и закрывает запрос
+   **одной транзакцией** под блокировкой строки запроса: повтор нажатия не создаёт второй платёж (409).
+2. Закрытый счёт проживания (`CLOSED`) запрос не принимает, как и платёж (аудит 26.09, С-25).
+3. Отменить можно только `PENDING`; оплаченный запрос не отменяется: деньги возвращаются возвратом платежа.
+4. Сумма запроса не обязана равняться остатку (предоплата первой ночи, часть суммы); экран предлагает остаток.
+5. Ссылка банка в этой версии вставляется администратором из кабинета банка; адаптеры банков (создание ссылки и
+   отметка оплаты по уведомлению банка) появятся после документации в `/docs` (Q-262), без изменения таблицы:
+   у запроса добавится только внешний идентификатор.
+6. Журнал: `finance.payment_request.created`, `.paid`, `.cancelled`.
+
+**Миграция** `20261003000046_payment_requests` с `down.sql`; на рабочей базе применяет владелец.
+
+## 25. Намерение брони ИИ-продавца (контракт утверждён 30.09.2026 и 01.10.2026, реализация 03.10.2026, ADR-144)
+
+Оформление того, что записано в «30.09.2026: бронь из WhatsApp» выше. **`seller_booking_intents`**: `id`, `agent_id` →
+seller_agents, `organization_id`, `property_id` (выводятся из агента на сервере, не из запроса бота), `conversation_id`,
+`channel` (`whatsapp` → источник брони WHATSAPP, `widget` → WEBSITE; Telegram остаётся тестовым каналом без брони),
+`channel_message_id` (ключ подтверждения: отпечаток сообщения гостя с согласием; UNIQUE(agent_id, channel_message_id)),
+`accommodation_type_id`, `rate_plan_id` (тариф сайта филиала), `arrival_date`, `departure_date`, `adults`, `total_minor`
+(> 0, тиыны), `currency`, `expires_at` (создание + 30 минут), `state` (`QUOTED`, `CONFIRMED`, `REJECTED`),
+`reservation_id` (UNIQUE; CHECK «подтверждено ⇔ есть бронь»), `request_hash` (sha256 параметров котировки), `created_at`,
+`updated_at`. RLS по `organization_id`.
+
+**Правила.** Котировку считает тот же расчёт, что у виджета сайта (`quoteForAgent`), продать можно только категорию,
+которая вмещает гостей, не закрыта и свободна. Подтверждение: намерение своего агента, не истекло, ключ согласия не
+занят другим сообщением; бронь создаётся `ReservationsService.create` с `creationKey = id намерения` и
+`expectedTotalMinor = total_minor`: повтор возвращает ту же бронь, изменившаяся цена и занятые места дают отказ, намерение
+становится `REJECTED`, нужна новая котировка и новое согласие. Контакт в эту таблицу не копируется: гость записывается
+обычным путём брони (псевдоним, пока база вне РК, ADR-018); телефон WhatsApp берётся из канала. Узкий ключ записи
+`SELLER_BOOK_KEY` открывает только `POST /bot/booking-intents` и `POST /bot/booking-intents/confirm`; ключ котировки на
+них не пускается. Миграция `20261003000047_seller_booking_intents` с `down.sql`; на рабочей базе применяет владелец.
+
+## 26. Фискальный чек по запросу гостя (УТВЕРЖДЕНО 03.10.2026 поручением владельца, ADR-144; K2)
+
+**Зачем.** Владелец 03.10.2026: «фискальный чек выдаём по запросу». Чек пробивает касса объекта (онлайн-ККМ); подключение
+облачной кассы ждёт документацию оператора (Q-263). До этого WETOP хранит факт: по какому платежу, когда и кем выдан
+чек и его номер из кассы, чтобы не пробить второй чек на тот же платёж и найти чек при споре.
+
+**`fiscal_receipts`**
+
+| Колонка | Тип | Правило |
+|---|---|---|
+| `id` | uuid | |
+| `property_id` | uuid → properties | RLS `app_property_visible` |
+| `payment_id` | uuid → payments, unique | один чек на платёж |
+| `number` | text | номер чека или фискальный признак из кассы, 1–64 знака после обрезки пробелов |
+| `issued_at` | timestamptz | когда отмечено |
+| `issued_by_id` | uuid → users, null | кто отметил |
+
+**Правила.**
+1. Отметить можно только проведённый платёж (`COMPLETED`); второй чек на тот же платёж — отказ 409 (проверка под
+   блокировкой строки платежа, уникальный индекс страхует).
+2. Счёт проживания может быть уже закрыт: гость просит чек и после выезда.
+3. Отметка не меняет деньги, платёж и кассу. Возврат по платежу с чеком в этой версии чек возврата не пробивает:
+   экран напоминает, что чек возврата пробивается в кассе.
+4. Журнал: `finance.receipt.issued` (платёж, номер).
+5. Адаптер облачной кассы добавит внешний идентификатор и состояние отправки, не меняя смысла строки.
+
+**Миграция** `20261003000048_fiscal_receipts` с `down.sql`; на рабочей базе применяет владелец.
+
+
+## MV1 amendment, 04.10.2026, утверждён владельцем
+
+BusinessVertical расширяется FOOD_SERVICE. Canonical источник только Business.vertical, без нового vertical на Organization/Location. HOSPITALITY доступен, BEAUTY/FOOD_SERVICE PILOT, публичная регистрация закрыта до operational acceptance. MV1 не меняет Beauty tables, financial logic и Hospitality Guest. Новые Food tables не вводятся. Additive enum migration с guarded down; при FOOD_SERVICE rows откат останавливается без потери данных. Production migration отдельно.
+
+### MV2 registration execution, 04.10.2026
+
+Утверждённый MV2 использует существующие Organization/Business/Location/User/Membership, без schema migration. Первый Business получает явный canonical vertical в атомарной регистрации; Location наследует его через FK. Только Hospitality создаёт Property. Verification и resend не пересоздают Business/Location. Старый hotelName-only запрос поддерживается как Hospitality compatibility; новые Beauty/Food flows требуют verified Business/Location context.
+
+### MV3 OnboardingProgress, утверждено владельцем 04.10.2026
+
+Для серверного resume предлагается `OnboardingProgress` / `onboarding_progress`: `location_id` UUID PK/FK -> Location (0..1 state на Location); `flow_version` integer; `current_step` varchar(50); `draft` JSONB с валидируемым содержимым текущего adapter; `completed_at` nullable timestamptz; `updated_at` timestamptz. Не добавлять vertical или organization_id: ownership выводится через существующую цепочку Location -> Business -> Organization, RLS проверяет эту цепочку. State не является источником прав или vertical. Domain данные создаются только настоящим adapter после валидации. Миграция и rollback должны быть отдельным reviewable срезом. Владелец явно подтвердил серверную OnboardingProgress в ответ на предложение модели.
+
+## 27. Бар и товарный учет (УТВЕРЖДЕНО владельцем 04.10.2026)
+
+План: `plans/bar-inventory-2026-10-04.md`. Владелец ответом «давай делай» 04.10.2026 утвердил
+рекомендованные варианты Q-BAR-1...Q-BAR-8.
+
+Предлагаемые сущности:
+
+| Сущность | Назначение | Ключевые правила |
+| --- | --- | --- |
+| `bar_products` | Карточка товара | Объект, код, название, штрихкод, единица, наценка по умолчанию в basis points, текущая цена продажи в minor units, минимальный остаток, `active` |
+| `bar_suppliers` | Поставщик | Объект, название, контакты, реквизиты без секретов, `active` |
+| `bar_receipts` | Шапка прихода | Поставщик, номер и дата документа, дата приемки, `DRAFT`, `POSTED`, `REVERSED`, валюта, итог в minor units, автор и время |
+| `bar_receipt_lines` | Строка прихода | Товар, количество как decimal-safe, цена за единицу, итог, наценка, рассчитанная цена продажи |
+| `bar_stock_lots` | Партия и себестоимость | Строка прихода, принятое и оставшееся количество, цена закупки, срок годности при наличии |
+| `bar_stock_movements` | Неизменяемая лента остатка | `RECEIPT`, `SALE`, `WRITE_OFF`, `SALE_RETURN`, `INVENTORY_ADJUSTMENT`, количество со знаком, партия, источник, автор, UTC timestamp |
+| `bar_sales` / `bar_sale_lines` | Розничная продажа | Опциональная связь с Folio/Charge или CashOperation/Payment, снимок цены и себестоимости, статус, ключ повтора |
+| `bar_supplier_payments` | Оплата закупки | Приход, связанная кассовая операция, сумма в minor units, дата, автор |
+
+Важные инварианты:
+
+1. Проведенный приход не редактируется, только сторнируется.
+2. Каждое движение имеет источник, автора, время и аудит.
+3. Остаток не хранится как единственное изменяемое число. Он сходится с лентой движений и партиями.
+4. Приход товара не равен оплате поставщику. Денежный расход создается при оплате.
+5. Суммы хранятся только в integer minor units. Количество и проценты хранятся в decimal-safe виде, не float.
+6. Продажа и списание не могут уменьшить остаток ниже нуля без отдельного утвержденного режима.
+7. Себестоимость продажи и цена продажи фиксируются снимком на момент операции.
+
+### MV4 acceptance: Beauty v1 boundaries (2026-10-04, утверждено владельцем)
+
+MV4 принимает существующую модель §19.1 и миграции 44/45. Новых сущностей, полей, связей или enum нет.
+Статусы Appointment сохраняются: BOOKED, CONFIRMED, DONE, NO_SHOW, CANCELLED. Одна запись:
+Customer + BeautyService + Employee + Location. Exclusion по Employee действует между всеми филиалами;
+CANCELLED/NO_SHOW интервал не удерживают. Цена и валюта Appointment остаются snapshot.
+
+Authenticated Beauty API требует явный проверенный ACTIVE Business с vertical BEAUTY, для филиальных
+операций также проверенный ACTIVE Location этого Business. Первый салон или филиал не выбирается автоматически.
+EmployeeService является явным допуском к услуге: пустой список не разрешает все услуги.
+CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
+создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
+Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.
+
+### BAR Property boundary repair (2026-10-05, утверждено владельцем)
+
+BAR-REPAIR-2, migration 56 после неизменённой migration 55. Новых сущностей, полей,
+связей, цен или stock/FIFO правил нет. База проверяет ownership при INSERT и UPDATE
+relation fields независимо от RLS и роли, включая wetop_service с BYPASSRLS.
+
+1. Property принадлежность после INSERT неизменяема для bar_categories, bar_products,
+   bar_suppliers, bar_receipts, bar_stock_lots, bar_stock_movements, bar_sales.
+   Для другого объекта создаётся новая сущность. Присваивание прежнего property_id допустимо.
+2. Категория продукта (если задана) и обязательный поставщик прихода принадлежат той же Property.
+3. bar_receipt_lines: receipt.property = product.property.
+4. bar_stock_lots: property = product.property = receipt_line.receipt.property;
+   product = receipt_line.product.
+5. bar_stock_movements: property = product.property; если lot задан, lot.property = property
+   и lot.product = product. Изменение родителя не может разрушать равенство с уже связанным потомком.
+6. bar_sale_lines: sale.property = product.property, включая смену sale_id или product_id.
+7. bar_supplier_payments: receipt.property = cash_operation.property.
+8. bar_sales: заданные Folio, CashOperation и Charge через Folio принадлежат Property продажи.
+   Если одновременно заданы folio_id и charge_id, Charge.folio_id = BarSale.folio_id.
+
+Guards остаются SECURITY INVOKER; SECURITY DEFINER запрещён. Путь каждой новой функции
+закреплён: current_schema(), public, pg_temp (public без повторения).
+source_type/source_id движений остаются существующей ссылкой источника; отдельная
+polymorphic ownership система не вводится. Это отдельный audit item, не новая модель.
+
+### BAR external parent ownership (2026-10-05, approved Q-BAR-REVERSE-PARENTS)
+
+Only updates breaking an existing BAR reference are denied. CashOperation.property_id
+must preserve payment Receipt.property and Sale.property. Charge.folio_id must preserve
+Sale.property and an explicit Sale.folio_id. Folio.reservation_item_id,
+ReservationItem.reservation_id and Reservation.property_id must preserve the derived
+Property of every direct folio sale and indirect charge sale. Same-property relinks and
+unreferenced external rows remain mutable. No Hospitality/cashbox global immutability.
+Concurrent parent mutation and BAR create/relink must preserve these invariants.
+
+BAR link writes also fence referenced parent tuple versions, preserving all field values,
+so a stale REPEATABLE READ parent transaction must retry instead of missing a new link.
+
+Valid external reparenting with BAR dependencies fences the new ancestor tuple versions
+too, so an older ancestor snapshot cannot miss the relocated BAR dependency.
+
+## 28. Food Service v1 (MV6, approved by owner 2026-10-05)
+
+Location -> DiningArea -> DiningTable; Location -> ServicePeriod; Location + existing Customer -> RestaurantReservation -> optional TableAssignment -> DiningTable. Business.vertical is the only vertical source, FOOD_SERVICE required. No new guest/customer identity, POS, payments or UI.
+
+- DiningArea: UUID id, locationId FK, name varchar(200), sortOrder int default 0, active default true, createdAt/updatedAt timestamptz.
+- DiningTable: UUID id, areaId FK, name varchar(100), capacity int > 0, sortOrder int default 0, active default true, timestamps. Unique(areaId,name). No duplicate location/tenant.
+- ServicePeriod: UUID id, locationId FK, name varchar(100), weekday smallint 0..6 (Sunday=0), timeFrom/timeTo TIME, endsNextDay boolean, defaultDurationMinutes int > 0, active, timestamps. Same-day end > start; overnight ends on following date. Local calendar belongs to Location.timezone.
+- RestaurantReservation: UUID id, locationId/customerId/servicePeriodId FKs, startsAt/endsAt timestamptz, partySize int > 0, status, source, notes nullable, creationKey varchar(200), creationFingerprint varchar(64), createdById nullable user FK, timestamps. Unique(locationId,creationKey); indexes locationId+startsAt, customerId, status, servicePeriodId. Server derives endsAt from ServicePeriod; whole interval inside local service window.
+- TableAssignment: reservationId UUID PK/FK, tableId FK, assignedAt timestamptz, assignedById nullable user FK, updatedAt. One table maximum; history only in audit.
+
+Status: BOOKED -> CONFIRMED/SEATED/CANCELLED/NO_SHOW; CONFIRMED -> SEATED/CANCELLED/NO_SHOW; SEATED -> COMPLETED. Terminal cannot mutate. DESK initially BOOKED, optional table. WALK_IN initially SEATED, table required. No ONLINE enum or route.
+
+Assignment requires active same-Location table/area, capacity >= partySize, no intersecting [startsAt,endsAt) BOOKED/CONFIRMED/SEATED assignments. Unassign only BOOKED/CONFIRMED. Move recalculates duration and revalidates capacity/overlap atomically. Status+updatedAt guards stale writes; audit rolls back with failure. Customer must be non-archived and same Organization; CustomerBusiness upsert and new customer are atomic with create.
+
+All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.

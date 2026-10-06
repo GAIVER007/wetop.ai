@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 05.10.2026 19:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 17
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-55-32Z-integration-0de6.json' 'tests/integration/owner-journal.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ❯ |integration| tests/integration/owner-journal.test.ts (5 tests | 1 failed) 163ms
+   ❯ журнал владельца и принятие приглашения: PostgreSQL (5)
+     ✓ безопасные поля, локальные сутки, изоляция организации и курсор без потери микросекунд 18ms
+     ✓ отключение сотрудника не скрывает историю и автора из фильтра 9ms
+     × владелец видит журнал организации до настройки гостиницы 3ms
+     ✓ два принятия: одно членство, одна запись аудита, одна ссылка на пароль 20ms
+     ✓ сбой выдачи пароля откатывает принятие и членство, повтор после сбоя успешен 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-journal.test.ts > журнал владельца и принятие приглашения: PostgreSQL > владелец видит журнал организации до настройки гостиницы
+NotFoundException: У вашей организации ещё нет объекта. Создайте его в настройках.
+ ❯ organizationPropertyRef apps/api/src/database/property-ref.ts:138:21
+    136|     select: { id: true, name: true, organizationId: true, timezone: tr…
+    137|   });
+    138|   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+       |                     ^
+    139|   cache.set(key, found);
+    140|   return found;
+ ❯ propertyIdRef apps/api/src/database/property-ref.ts:144:11
+ ❯ ownAuditRows apps/api/src/audit/audit.module.ts:127:22
+ ❯ AuditService.list apps/api/src/audit/audit.module.ts:61:40
+ ❯ apps/api/src/auth/request-context.ts:56:41
+ ❯ tests/integration/owner-journal.test.ts:128:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  07:55:33
+   Duration  876ms (transform 42%, tests 30%, import 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-55-32Z-integration-0de6.json
+
+# код выхода 1 · 1 с

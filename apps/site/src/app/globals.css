@@ -331,6 +331,13 @@ button {
     gap var(--ease),
     border-color var(--ease);
 }
+/*
+ * Пилюля прямым ребёнком карточки: карточка выкладывает детей колонкой и растягивает их по ширине,
+ * из-за чего ссылка превращалась в плашку во всю карточку и ломалась на две строки (02.10.2026).
+ */
+.card > .link-arrow {
+  align-self: flex-start;
+}
 .link-arrow:hover {
   gap: 12px;
   border-color: color-mix(in srgb, var(--accent-1) 50%, transparent);
@@ -546,10 +553,16 @@ button {
   gap: clamp(32px, 5vw, 56px);
   align-items: center;
 }
-@media (min-width: 64rem) {
+/*
+ * Две колонки от 72rem, левая шире правой. При равных колонках и пороге 64rem две кнопки первого экрана
+ * не помещались в строку и вставали в столбик разной ширины (02.10.2026): на 1024 px левой колонке доставалось
+ * 452 px при нужных 501. Ниже 72rem первый экран идёт одной колонкой, места хватает с запасом.
+ * Проверяет `tests/site/homepage-blocks.spec.ts`.
+ */
+@media (min-width: 72rem) {
   .hero__inner {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(40px, 4vw, 64px);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 48px);
   }
 }
 .hero__copy {
@@ -613,38 +626,17 @@ button {
   gap: 12px;
   margin-top: 28px;
 }
+/*
+ * Вторая кнопка первого экрана обычной ширины (не `--lg`): в большой паре они не помещались в строку.
+ * Высоту выравниваем здесь, иначе соседние кнопки стоят разного роста.
+ */
+.hero__actions .btn {
+  padding-block: 16px;
+}
 .hero__note {
   margin-top: 14px;
   color: var(--muted);
   font-size: 0.9375rem;
-}
-.hero__points {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  margin: 28px 0 0;
-  padding: 20px 0 0;
-  border-top: 1px solid var(--border-soft);
-  list-style: none;
-}
-.hero__points li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-2);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.hero__point-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent-1) 10%, transparent);
-  color: var(--accent-1);
 }
 .hero__visual {
   position: relative;
@@ -663,8 +655,60 @@ button {
 }
 
 /*
+ * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа «что это даёт». Карточек тут нет
+ * намеренно: страница и так идёт карточками, а полоса разделяет первый экран и «Направления» и читается
+ * одним взглядом. Хайрлайн сверху и снизу отделяет её от соседей в обеих темах.
+ */
+.facts {
+  border-block: 1px solid var(--border-soft);
+}
+.facts__grid {
+  display: grid;
+  gap: 24px 32px;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 40rem) {
+  .facts__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .facts__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.facts__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.facts__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--glass-border-dim);
+  border-radius: var(--radius-control);
+  background: var(--accent-grad-soft);
+  color: var(--primary);
+}
+.facts__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.facts__text {
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/*
  * Карта разделов на первом экране (01.10.2026): окно продукта с шестью плитками-ссылками на блоки страницы.
- * Это схема, а не снимок системы: без имён, сумм и процентов. Внизу состояние направлений (`.vertical-status`).
+ * Это схема, а не снимок системы: без имён, сумм и процентов. Строки состояния направлений сняты 03.10.2026.
  */
 .product-map {
   overflow: hidden;
@@ -754,14 +798,11 @@ button {
   border-color: var(--primary);
   background: var(--primary-soft);
 }
-.product-map__foot {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--border-soft);
-}
-@media (max-width: 24rem) {
+/*
+ * На телефоне карта разделов идёт одной колонкой: в двух подпись плитки ломалась по одному слову в строку
+ * («Каналы / продаж, / сайт / объекта»), а подсказка «Что внутри» выдавливала название окна на две строки.
+ */
+@media (max-width: 36rem) {
   .product-map__grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1092,6 +1133,15 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* Строки-пункты по высоте содержимого: тянуть их до высоты соседа значит рисовать пустые прямоугольники */
+.card-grid--2 {
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .card-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 @media (min-width: 64rem) {
   .card-grid--3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1158,6 +1208,36 @@ button {
   font-size: 0.8125rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/*
+ * Строка-пункт (02.10.2026): иконка слева, заголовок и одна фраза справа. Так собран раздел «Что умеет WETOP»:
+ * восемь абзацев в колонках читались как стена текста, восемь строк просматриваются за десять секунд.
+ */
+.card--compact {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+}
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.card--compact .card__text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.card--compact .tag-list {
+  margin-top: 4px;
+}
+.icon-tile--sm {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control);
 }
 
 /* Карточка в строку: заголовок с текстом слева, действие справа (карточка калькулятора в «Продажах») */
@@ -1350,7 +1430,7 @@ button {
 }
 @media (min-width: 56rem) {
   .company {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     align-items: center;
   }
 }
@@ -2102,47 +2182,20 @@ button {
   font-size: 0.9375rem;
 }
 
-/* «Направления»: работающее Hospitality с шахматкой и следующее направление отдельной тихой карточкой */
-.vertical-live {
+/* Панель с макетом шахматки в «Для кого» и приглашение салонам под ней (03.10.2026) */
+.showcase {
   display: grid;
   justify-items: center;
   gap: 16px;
   margin-bottom: 24px;
 }
-.vertical-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  width: fit-content;
-  margin: 0;
-  padding: 6px 14px;
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  background: var(--glass-bg-strong);
-  color: var(--text-2);
-  font-family: var(--font-head);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.vertical-status__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--muted);
-}
-.vertical-status--live .vertical-status__dot {
-  background: var(--success);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 22%, transparent);
-}
-.vertical-next {
+.invite {
   margin-top: 16px;
 }
-/* Шахматка в «Направлениях» стоит ниже первого экрана: анимация появления там проигрывается невидимой,
-   а полупрозрачная на её середине плашка валит проверку контраста — макет здесь статичный */
-.vertical-live .mockup__stay--new,
-.vertical-live .mockup__toast {
+/* Шахматка в «Для кого» стоит ниже первого экрана: анимация появления там проигрывается невидимой,
+   а полупрозрачная на её середине плашка валит проверку контраста, макет здесь статичный */
+.showcase .mockup__stay--new,
+.showcase .mockup__toast {
   animation: none;
 }
 
@@ -2203,31 +2256,35 @@ button {
   border-top: 1px solid var(--border);
 }
 
-#audience .vertical-live {
+#audience .showcase {
   display: grid;
   grid-template-columns: 1fr;
   max-width: 850px;
   margin: 32px auto;
 }
-#audience .vertical-next {
+#audience .invite {
   display: grid;
-  grid-template-columns: auto 1fr 2fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 24px;
   padding: 24px;
 }
-#audience .vertical-next p,
-#audience .vertical-next h3 {
+#audience .invite p,
+#audience .invite h3 {
   margin: 0;
+}
+#audience .invite .card__text {
+  margin-top: 8px;
 }
 @media (max-width: 60rem) {
   .faq__layout {
     gap: 32px;
     grid-template-columns: 1fr;
   }
-  #audience .vertical-next {
+  #audience .invite {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
+    justify-items: start;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2236,48 +2293,48 @@ button {
   }
 }
 
-.vertical-live__caption {
+.showcase__caption {
   color: var(--muted);
   text-align: center;
   font-size: 0.875rem;
   margin: 20px 0 0;
 }
-.vertical-live__layout {
+.showcase__layout {
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
   gap: 48px;
   align-items: center;
 }
-.vertical-live__layout .section-heading {
+.showcase__layout .section-heading {
   margin-bottom: 24px;
 }
-.vertical-live__cases {
+.showcase__cases {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
   gap: 24px;
 }
-.vertical-live__cases li {
+.showcase__cases li {
   display: flex;
   gap: 16px;
   align-items: flex-start;
 }
-.vertical-live__cases h3 {
+.showcase__cases h3 {
   font-size: 1rem;
   margin: 0 0 8px;
 }
-.vertical-live__cases p {
+.showcase__cases p {
   font-size: 1rem;
   color: var(--text-2);
   line-height: 1.6;
   margin: 0;
 }
-.vertical-live__cases .icon-tile {
+.showcase__cases .icon-tile {
   flex-shrink: 0;
 }
 @media (max-width: 60rem) {
-  .vertical-live__layout {
+  .showcase__layout {
     grid-template-columns: 1fr;
     gap: 24px;
   }
@@ -2479,4 +2536,39 @@ button {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-variant-numeric: tabular-nums;
   font-weight: 800;
+}
+
+/* Registration uses the existing site tokens; pilot access is verified by API. */
+.auth-verticals {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.auth-verticals legend {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.auth-vertical {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.auth-vertical:has(input:checked) {
+  border-color: var(--text);
+  background: var(--surface);
+}
+.auth-vertical:focus-within {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.auth-vertical small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.875rem;
 }

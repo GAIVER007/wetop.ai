@@ -1,14 +1,16 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
- * «Интеграции → Channex», срез INT2 (ADR-121, план `plans/integrations-int2-2026-09-28.md`): подключено ли
- * соединение и как им управлять. Проверяет, что страница не дублирует «Каналы продаж», не показывает ключей и сырых
- * ответов, считает состояние теми же правилами, что карточка, и не рисует кнопок, которых API не умеет. Последний
- * тест снимает стоп-гейт для владельца: светлая и тёмная темы, телефон, работает, устарело, webhook не отвечает,
- * не подключено, только чтение.
+ * «Подключения → Channex» (`/connections/channex`). Срез INT2 (ADR-121, 28.09.2026) держал здесь отдельную страницу
+ * состояния; 01.10.2026 навигация по задачам (`plans/workspace-order-2026-10-01.md`, решение в DECISIONS.md
+ * от 01.10) собрала настройку Channex в одно место: страница «Подключение каналов» с прежними серверными данными и
+ * командами (`ChannelConnectionSetup`), старый адрес `/channels/connections` ведёт сюда. Роли (кнопки владельцу,
+ * управляющему словами, администратору закрыто) держит `channex-screens.spec.ts`; здесь: что страница говорит в
+ * каждом состоянии подставного API, что ключей и сырых ответов на ней нет и что карточка на «Подключениях»
+ * делает тот же вывод. Последний тест снимает экраны для владельца: обе темы, телефон.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int2-2026-09-28';
 
 type Mode = 'ok' | 'stale' | 'webhook' | 'foreign' | 'no-key';
@@ -22,7 +24,7 @@ test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-/** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
+/** Роль и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
 async function signIn(page: Page) {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
@@ -31,7 +33,7 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-test('работает: соединение и состояние без очереди, событий, ключей и лишних кнопок', async ({
+test('работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте', async ({
   page,
 }) => {
   await control(page, { channex: 'ok' satisfies Mode });
@@ -44,61 +46,54 @@ test('работает: соединение и состояние без оче
     .click();
   await expect(page).toHaveURL(/\/connections\/channex$/);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
-  await expect(main.getByRole('link', { name: 'Интеграции' })).toHaveAttribute(
-    'href',
-    '/connections',
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
+  await expect(
+    main.getByRole('link', { name: 'Подключения', exact: true }).first(),
+  ).toHaveAttribute('href', '/connections');
+  // очередь, сопоставление и события остаются экранами «Каналов продаж»: отсюда к ним ссылки
+  const tabs = main.getByRole('navigation', { name: 'Настройка каналов' });
+  await expect(tabs.getByRole('link')).toHaveText([
+    'Статистика продаж',
+    'Сопоставление категорий и тарифов',
+    'Очередь обмена',
+    'События',
+  ]);
+  const connection = main.getByTestId('channel-connection');
+  await expect(connection).toContainText('Соединение установлено');
+  await expect(connection).toContainText('Тестовая');
+  await expect(connection).toContainText('ui-property');
+  await expect(connection).toContainText('категорий 3, тарифных планов 1, сопоставлений 3');
+  await expect(main.getByTestId('webhook-state')).toHaveText('активен, события booking');
+  await expect(main.getByTestId('channel-webhook')).toContainText('адрес отвечает');
+  await expect(main.getByTestId('webhook-url-mismatch')).toHaveCount(0);
+  // ключ хранится только на сервере: на странице его нет, есть только слова об этом
+  await expect(main.getByTestId('channel-content-location')).toContainText(
+    'Ключ менеджера каналов хранится только на сервере',
   );
-  await expect(main.getByTestId('integration-health')).toHaveText('Работает');
-  await expect(main.getByTestId('integration-issues')).toHaveCount(0);
-  await expect(main.getByTestId('channex-connection')).toContainText('Luxx Aparts');
-  await expect(main.getByTestId('channex-connection')).toContainText(
-    'задан, хранится на сервере WETOP',
-  );
-  await expect(main.getByTestId('channex-check')).toHaveText(/^прошла в \d{2}:\d{2}$/);
-  await expect(main.getByTestId('channex-webhook')).toHaveText('включён и отвечает');
-  await expect(main.getByTestId('channex-categories')).toHaveText('3 из 3');
-  await expect(main.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
-  // действия — только те, что API умеет: проверка (чтение) и переход в «Каналы продаж»
-  await expect(main.getByRole('button', { name: 'Проверить соединение' })).toBeVisible();
-  await expect(main.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute(
-    'href',
-    '/channels',
-  );
-  for (const name of [
-    /Переподключить/,
-    /Отключить/,
-    /Подключить/,
-    /Полная выгрузка/,
-    /Зарегистрировать/,
-  ])
-    await expect(main.getByRole('button', { name })).toHaveCount(0);
-  await expect(main.getByTestId('channex-manage')).toContainText('поддержка WETOP');
-  // очередь, события и сырые данные остаются в «Каналах продаж»; ключей и адреса webhook нет
-  for (const text of [
-    'Очередь в каналы',
-    'ui-task-4f2a',
-    'https://api.example.invalid',
-    'API key',
-    'secret',
-  ])
+  for (const text of ['API key', 'api_key', 'secret', 'ui-task-4f2a'])
     await expect(main).not.toContainText(text);
-  // среда и ID объекта — только в свёрнутых технических деталях
-  const tech = main.getByTestId('integration-tech');
-  await expect(tech.getByText('Тестовая')).toBeHidden();
-  await tech.getByText('Технические детали').click();
-  await expect(tech).toContainText('ui-property');
-  // «Проверить соединение» только читает: команд в API нет
-  await main.getByRole('button', { name: 'Проверить соединение' }).click();
-  await expect(main.getByTestId('integration-health')).toHaveText('Работает');
-  expect(await (await page.request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
 });
 
-test('устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад', async ({
+test('webhook не отвечает: причина словами и тот же вывод на карточке «Подключений»', async ({
   page,
 }) => {
-  await control(page, { channex: 'stale' satisfies Mode });
+  await control(page, { channex: 'webhook' satisfies Mode });
   await page.goto('/connections/channex');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('channel-webhook')).toContainText('адрес не отвечает');
+  await expect(main.getByTestId('channel-webhook')).toContainText('брони подберёт опрос ленты');
+  await page.goto('/connections');
+  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
+    'Требует внимания',
+  );
+  await expect(page.getByRole('main').getByTestId('integration-issues')).toHaveText(
+    /Webhook не отвечает/,
+  );
+});
+
+test('устарело: очередь стоит, карточка «Подключений» зовёт в очередь', async ({ page }) => {
+  await control(page, { channex: 'stale' satisfies Mode });
+  await page.goto('/connections');
   const main = page.getByRole('main');
   await expect(main.getByTestId('integration-health')).toHaveText('Требует внимания');
   const issues = main.getByTestId('integration-issues');
@@ -107,82 +102,36 @@ test('устарело: очередь стоит — внимание, ссыл
     'href',
     '/channels/sync?queue=PENDING',
   );
-  await expect(main.getByTestId('channex-webhook')).toHaveText('включён и отвечает');
-  await expect(main.getByTestId('integration-last-exchange')).toHaveText(
-    /^(сегодня|вчера), \d{2}:\d{2}$/,
-  );
-  // карточка на «Интеграциях» говорит то же самое
-  await page.goto('/connections');
-  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
-    'Требует внимания',
-  );
 });
 
-test('webhook не отвечает: причина словами и тот же вывод на карточке', async ({ page }) => {
-  await control(page, { channex: 'webhook' satisfies Mode });
-  await page.goto('/connections/channex');
-  const main = page.getByRole('main');
-  await expect(main.getByTestId('integration-health')).toHaveText('Требует внимания');
-  await expect(main.getByTestId('integration-issues')).toHaveText(/Webhook не отвечает/);
-  await expect(main.getByTestId('channex-webhook')).toHaveText('не отвечает');
-});
-
-test('не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния', async ({
-  page,
-}) => {
+test('интеграция у другой организации: проверить нельзя, это сказано словами', async ({ page }) => {
   await control(page, { channex: 'foreign' satisfies Mode });
   await page.goto('/connections/channex');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('integration-health')).toHaveText('Не подключено');
-  await expect(main.getByTestId('integration-connect')).toContainText('Подключает поддержка WETOP');
-  await expect(main.getByTestId('channex-settings')).toHaveCount(0);
-  await expect(main.getByRole('link', { name: 'Каналы продаж' })).toHaveCount(0);
-  await expect(main.getByRole('button')).toHaveCount(0);
-});
-
-test('ключ не задан — тоже «не подключено»', async ({ page }) => {
-  await control(page, { channex: 'no-key' satisfies Mode });
-  await page.goto('/connections/channex');
-  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
-    'Не подключено',
+  await expect(main.getByRole('alert').first()).toContainText(
+    'Не удалось проверить подключение менеджера каналов.',
   );
+  await expect(main.getByTestId('channel-connection')).toContainText('Не проверено');
+  await expect(main.getByTestId('channel-webhook')).toContainText('Статус webhook не загрузился');
 });
 
-test('только чтение: состояние и проверка доступны, изменения — после оплаты', async ({ page }) => {
-  await control(page, { channex: 'ok' satisfies Mode, orgTrialDays: 'ended' });
+test('ключ не задан: так и сказано, кнопки настройки без ключа не работают', async ({ page }) => {
+  await control(page, { channex: 'no-key' satisfies Mode });
   await signIn(page);
   await page.goto('/connections/channex');
   const main = page.getByRole('main');
-  await expect(page.getByTestId('read-only-banner')).toBeVisible();
-  await expect(main.getByTestId('integration-health')).toHaveText('Работает');
-  await expect(main.getByRole('button', { name: 'Проверить соединение' })).toBeEnabled();
-  await expect(main.getByTestId('channex-read-only')).toContainText('после оплаты подписки');
-  await expect(main.getByTestId('channex-manage')).not.toContainText('владелец настраивает');
-});
-
-test('управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто', async ({
-  page,
-}) => {
-  await control(page, { channex: 'ok' satisfies Mode, role: 'MANAGER' });
-  await signIn(page);
-  await page.goto('/connections/channex');
-  const main = page.getByRole('main');
-  await expect(main.getByTestId('integration-health')).toHaveText('Работает');
-  await expect(main.getByTestId('integration-tech')).toHaveCount(0);
-  await expect(main).not.toContainText('ui-property');
-  await expect(main.getByTestId('channex-manage')).not.toContainText('владелец настраивает');
-  // раздел «Интеграции» — владельцу и управляющему (ADR-107); страница Channex под тем же правилом
-  await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
-  await page.goto('/connections/channex');
-  await expect(main.getByTestId('no-access')).toBeVisible();
-  await expect(main.getByTestId('channex-settings')).toHaveCount(0);
+  await expect(main.getByTestId('channel-connection')).toContainText(
+    'Не задан ключ менеджера каналов',
+  );
+  await expect(main.getByTestId('channel-setup')).toBeDisabled();
+  await expect(main.getByTestId('channel-sync')).toBeDisabled();
 });
 
 test('телефон: страница без прокрутки вбок', async ({ page }) => {
   await control(page, { channex: 'stale' satisfies Mode });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/connections/channex');
-  await expect(page.getByTestId('integration-health')).toBeVisible();
+  await expect(page.getByTestId('channel-connection')).toBeVisible();
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -193,8 +142,25 @@ test('телефон: страница без прокрутки вбок', asyn
   expect(layout.content, 'экран шире телефона').toBeLessThanOrEqual(layout.viewport + 1);
 });
 
+// 03.10.2026: экраны ожидания остались с прежними названиями («Интеграции», «Менеджер каналов»), и заголовок
+// менялся на глазах, когда приходила страница
+for (const [route, loading, title] of [
+  ['/connections', 'connections-loading', 'Подключения'],
+  ['/connections/channex', 'channex-loading', 'Подключение каналов'],
+] as const)
+  test(`${route}: пока соединение проверяется, заголовок тот же, что у страницы`, async ({
+    page,
+  }) => {
+    await control(page, { delayPath: '/channels/channex/connection', delayMs: 8000 });
+    await page.goto(route, { waitUntil: 'commit' });
+    await expect(page.getByTestId(loading)).toBeVisible({ timeout: 30_000 });
+    // заголовок ищем в той же разметке, что и экран ожидания: настоящая страница его не подменит
+    const waiting = page.getByRole('main').filter({ has: page.getByTestId(loading) });
+    await expect(waiting.getByRole('heading', { level: 1 })).toHaveText(title, { timeout: 2000 });
+  });
+
 for (const theme of ['light', 'dark'] as const) {
-  test(`INT2, стоп-гейт: снимки для владельца, ${theme}`, async ({ page }) => {
+  test(`снимки страницы настройки Channex для владельца, ${theme}`, async ({ page }) => {
     test.setTimeout(120_000);
     mkdirSync(report, { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
@@ -203,7 +169,7 @@ for (const theme of ['light', 'dark'] as const) {
       await control(page, { channex: mode, ...extra });
       await page.goto('/connections/channex');
       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-        'Менеджер каналов',
+        'Подключение каналов',
       );
       await page.mouse.move(0, 0);
       await page.screenshot({

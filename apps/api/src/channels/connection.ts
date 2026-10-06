@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Controller, Get, Inject, Injectable, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ChannelOperatorInterceptor } from './operator-access';
-import { IntegrationOwnerGuard } from './integration-owner';
+import { ChannelOrganizationGuard } from './integration-owner';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
@@ -56,19 +56,18 @@ export class ChannelConnectionService {
       propertyId,
       propertyAccessible: false,
       mappedCategories: new Set(mapping.map((m) => m.providerRoomTypeId).filter(Boolean)).size,
+      mappedLocalRatePlans: new Set(
+        mapping
+          .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+          .map((m) => m.localRatePlanId),
+      ).size,
       mappedRatePlans: new Set(mapping.map((m) => m.providerRatePlanId).filter(Boolean)).size,
       lastWebhookAt: lastWebhookAt?.toISOString() ?? null,
       lastPullAt: lastPullAt?.toISOString() ?? null,
     };
-    if (!this.reader) return { ...result, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
+    if (!this.reader)
+      return { ...result, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
     if (!propertyId) return { ...result, state: 'NO_MAPPING', message: 'Объект не сопоставлен' };
-    const configuredId = process.env.CHANNEX_PROPERTY_ID?.trim();
-    if (configuredId && configuredId !== propertyId)
-      return {
-        ...result,
-        state: 'MAPPING_MISMATCH',
-        message: 'Идентификаторы объекта не совпадают',
-      };
     try {
       await this.reader.getProperty(propertyId);
       return { ...result, state: 'READY', propertyAccessible: true, message: 'Объект доступен' };
@@ -94,7 +93,7 @@ export class ChannelConnectionService {
 }
 
 @Access('channels')
-@UseGuards(IntegrationOwnerGuard)
+@UseGuards(ChannelOrganizationGuard)
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

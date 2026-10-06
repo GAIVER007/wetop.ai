@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 03.10.2026 16:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4987106 (claude/mobile-rest-screens), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] [Nest] 3212  - 10/03/2026, 4:47:38 AM   ERROR [ExceptionHandler] Error: DATABASE_URL is not set
+[WebServer]     at createPrismaClient (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/packages/database/src/index.ts:38:11)
+[WebServer]     at new PrismaService (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/apps/api/src/database/prisma.provider.ts:42:11)
+[WebServer]     at Injector.instantiateClass (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/injector.js:439:19)
+[WebServer]     at callback (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at async Injector.resolveConstructorParams (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer]     at async InstanceLoader.createInstancesOfProviders (file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/7775600d-d80b-4ec0-a19f-0e31ecee4141/scratchpad/mobile-wt/node_modules/@nestjs/core/injector/instance-loader.js:56:9)
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mobile-wt/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mobile-wt/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

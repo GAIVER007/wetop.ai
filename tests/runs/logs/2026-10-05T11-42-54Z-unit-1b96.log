@@ -1,0 +1,18 @@
+# Модульные (unit) · 05.10.2026 16:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5296ffd (HEAD), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-42-54Z-unit-1b96.json' 'packages/domain/src/food/food.test.ts' 'apps/api/src/food-service/boundary.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/today-final-release/WETOP
+
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 18ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 17ms
+
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  04:42:55
+   Duration  1.20s (transform 61%, import 36%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-42-54Z-unit-1b96.json
+
+# код выхода 0 · 2 с

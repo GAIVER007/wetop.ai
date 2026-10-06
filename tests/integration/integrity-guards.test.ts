@@ -134,21 +134,19 @@ describe.skipIf(!url)('предохранители базы: UNIQUE external_id
     const other = createPrismaClient(url);
     let release!: () => void;
     const held = new Promise<void>((r) => (release = r));
+    let lockTaken!: () => void;
+    const taken = new Promise<void>((r) => (lockTaken = r));
     let lockTakenAt = 0;
     // «бронь» держит категорию: тот же ключ, что lockCategories в reservations.repository
     const holder = other.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${unit.accommodationTypeId}`}, 0))`;
       lockTakenAt = Date.now();
+      lockTaken();
       await held;
     });
-    // Ждём, пока «бронь» и правда возьмёт замок, а не 50 мс по таймеру: на раннере GitHub новое подключение второго
-    // клиента не укладывалось в 50 мс, блокировка проходила первой, и тест видел «done» вместо «waiting»
-    // (run 36907844128, 01.10.2026; на машине разработчика та же гонка не проявлялась)
-    const lockDeadline = Date.now() + 10_000;
-    while (lockTakenAt === 0) {
-      if (Date.now() > lockDeadline) throw new Error('«бронь» не взяла замок категории за 10 с');
-      await new Promise((r) => setTimeout(r, 10));
-    }
+    // ждём, пока замок действительно взят: свежее соединение второго клиента в CI открывалось дольше прежних
+    // 50 мс, блокировка успевала пройти до замка, и тест падал не по делу (прогон main 03.10.2026)
+    await taken;
     const repo = new PrismaUnitsRepository({ db } as PrismaService);
     const block = repo
       .createBlock(

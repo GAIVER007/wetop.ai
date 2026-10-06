@@ -7,16 +7,18 @@ import {
 
 export const ANALYTICS_PATH = '/management/analytics';
 
-/** Вкладки модуля с полосой периода: «Обзор» (AN1) и «Загрузка» (AN2) */
-export type AnalyticsTab = 'overview' | 'occupancy';
+/** Вкладки модуля с полосой периода: «Обзор» (AN1), «Загрузка» (AN2) и «По номерам» (REP3) */
+export type AnalyticsTab = 'overview' | 'occupancy' | 'units';
 const TAB_PATH: Record<AnalyticsTab, string> = {
   overview: ANALYTICS_PATH,
   occupancy: `${ANALYTICS_PATH}/occupancy`,
+  units: `${ANALYTICS_PATH}/units`,
 };
 /** Отрезок по умолчанию: «Обзор» отвечает за месяц, «Загрузка» — за сегодняшний день, как прежняя «Статистика» */
 const TAB_DEFAULT: Record<AnalyticsTab, ResolvedPeriod['preset']> = {
   overview: 'month',
   occupancy: 'today',
+  units: 'month',
 };
 
 /** Готовые отрезки «Аналитики» — по ТЗ §4: без «Вчера», его закрывает свой период и стрелки дня */

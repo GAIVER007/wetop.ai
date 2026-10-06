@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { FundTabs } from './fund-tabs';
 import './fund.css';
 import Link from 'next/link';
@@ -9,8 +10,9 @@ import { AddMenu } from './add-menu';
 import { InventoryCatalog } from './inventory-catalog';
 import './inventory.css';
 
-/** Состав фонда из API; занятость и команды остаются в шахматке и карточке места. */
+/** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
 export default async function InventoryPage() {
+  await requireVertical(['HOSPITALITY']);
   const [summary, units, categories] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),
@@ -29,7 +31,7 @@ export default async function InventoryPage() {
           <AddMenu categories={categories} />
           <Link href="/chessboard" className="btn btn--secondary">
             <Icon name="board" />
-            Шахматка
+            Календарь
           </Link>
         </>
       }

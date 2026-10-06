@@ -1,0 +1,473 @@
+# Сквозные (e2e) · 02.10.2026 21:44 Алматы · vm
+# коммит 402516e (claude/great-cray-1d5t94), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/accessibility.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 115 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (1.2m)
+  ✓    2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (1.1m)
+  ✓    3 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (1.1m)
+  ✓    4 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (1.1m)
+  ✓    5 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px (6.9s)
+  ✓    6 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 1440px (5.9s)
+  ✓    7 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 390px (5.7s)
+  ✓    8 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 390px (5.7s)
+  ✘    9 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (17.5s)
+  ✓   10 tests/ui/ai-agents.spec.ts:53:1 › главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце» (3.4s)
+  ✓   11 tests/ui/ai-agents.spec.ts:68:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (2.1s)
+  ✓   12 tests/ui/ai-agents.spec.ts:90:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (2.0s)
+  ✓   13 tests/ui/ai-agents.spec.ts:111:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (2.0s)
+  ✓   14 tests/ui/ai-agents.spec.ts:127:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (1.8s)
+  ✓   15 tests/ui/ai-agents.spec.ts:153:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (1.5s)
+  ✓   16 tests/ui/ai-agents.spec.ts:164:1 › черновики гостевого мастера: «Черновик», без Business и Location (1.7s)
+  ✓   17 tests/ui/ai-agents.spec.ts:179:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (1.6s)
+  ✓   18 tests/ui/ai-agents.spec.ts:197:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (1.5s)
+  ✓   19 tests/ui/ai-agents.spec.ts:212:1 › старый адрес /ai-seller работает (1.9s)
+  ✓   20 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, working, light, 1440 (2.6s)
+  ✓   21 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, off, light, 1440 (2.6s)
+  ✓   22 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, expired, light, 1440 (2.5s)
+  ✓   23 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, setup, light, 1440 (2.5s)
+  ✓   24 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, working, light, 390 (2.7s)
+  ✓   25 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, off, light, 390 (2.5s)
+  ✓   26 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, expired, light, 390 (2.6s)
+  ✓   27 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, setup, light, 390 (2.8s)
+  ✓   28 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, working, dark, 1440 (2.4s)
+  ✓   29 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, off, dark, 1440 (3.1s)
+  ✓   30 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, expired, dark, 1440 (2.5s)
+  ✓   31 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, setup, dark, 1440 (2.6s)
+  ✓   32 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, working, dark, 390 (2.8s)
+  ✓   33 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, off, dark, 390 (2.4s)
+  ✓   34 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, expired, dark, 390 (2.3s)
+  ✓   35 tests/ui/ai-agents.spec.ts:228:7 › каталог: axe и снимок, setup, dark, 390 (2.4s)
+  ✓   36 tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (2.2s)
+  ✓   37 tests/ui/ai-seller.spec.ts:101:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (2.2s)
+  ✓   38 tests/ui/ai-seller.spec.ts:132:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.5s)
+  ✓   39 tests/ui/ai-seller.spec.ts:162:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (2.2s)
+  ✓   40 tests/ui/ai-seller.spec.ts:179:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.5s)
+  ✓   41 tests/ui/ai-seller.spec.ts:216:1 › продавец недоступен — метка, причина и обещание повтора (1.1s)
+  ✓   42 tests/ui/ai-seller.spec.ts:227:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   43 tests/ui/ai-seller.spec.ts:246:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (6.7s)
+  ✓   44 tests/ui/ai-seller.spec.ts:260:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (1.9s)
+  ✓   45 tests/ui/ai-seller.spec.ts:298:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.5s)
+  ✓   46 tests/ui/ai-seller.spec.ts:341:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   47 tests/ui/ai-seller.spec.ts:347:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (4.4s)
+  ✓   48 tests/ui/ai-seller.spec.ts:375:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (3.4s)
+  ✓   49 tests/ui/ai-seller.spec.ts:390:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.2s)
+  ✓   50 tests/ui/ai-seller.spec.ts:408:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (2.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/ai-seller..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <AiSellerPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <Suspense fallback={<div>}>
+[WebServer]                 <SellerScreen>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       <ConnectionsView>
+[WebServer]                         <div className="seller-con...">
+[WebServer]                           ...
+[WebServer]                             <Field label="API-ключ м...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="key" type="password" maxLength={200} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="key"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="Вставьте ключ модели"
+[WebServer]                                     data-testid="seller-llm-key-input"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                           ...
+[WebServer]                             <section className="card" aria-labelledby="telegram-h..." style={{padding:24}}>
+[WebServer]                               <div>
+[WebServer]                               <p>
+[WebServer]                               <div style={{display:"grid", ...}}>
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     type="password"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     value=""
+[WebServer]                                     maxLength={256}
+[WebServer]                                     disabled={true}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     placeholder="Вставьте токен бота"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     value=""
+[WebServer]                                     disabled={true}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     placeholder="123456789, 987654321"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]                             <form className="stack stac...">
+[WebServer]                               <Field label="phone_numb...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Input name="phoneNumberId" inputMode="numeric" maxLength={64} ...>
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       name="phoneNumberId"
+[WebServer]                                       inputMode="numeric"
+[WebServer]                                       maxLength={64}
+[WebServer]                                       placeholder="из консоли Meta, только цифры"
+[WebServer]                                       data-testid="seller-whatsapp-phone-id"
+[WebServer]                                       disabled={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               <Field label="Постоянный...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Input name="token" type="password" maxLength={512} autoComplete="off" ...>
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       name="token"
+[WebServer]                                       type="password"
+[WebServer]                                       maxLength={512}
+[WebServer]                                       autoComplete="off"
+[WebServer]                                       placeholder="EAAG…"
+[WebServer]                                       data-testid="seller-whatsapp-token"
+[WebServer]                                       disabled={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               <Field label="Секрет при...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Input name="appSecret" type="password" maxLength={200} autoComplete="off" ...>
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       name="appSecret"
+[WebServer]                                       type="password"
+[WebServer]                                       maxLength={200}
+[WebServer]                                       autoComplete="off"
+[WebServer]                                       data-testid="seller-whatsapp-secret"
+[WebServer]                                       disabled={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]       ...
+[WebServer]  
+  ✓   51 tests/ui/ai-seller.spec.ts:440:1 › снимки экранов раздела (4.9s)
+  ✓   52 tests/ui/ai-seller.spec.ts:468:1 › Все агенты возвращает в единый каталог, а не только к черновикам (1.6s)
+  ✓   53 tests/ui/ai-seller.spec.ts:477:1 › закрытое расширение: администратор видит действие для управления доступом (1.8s)
+  ✓   54 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (38.5s)
+  ✓   55 tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (4.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   56 tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.5s)
+  ✓   57 tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.4s)
+  ✓   58 tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.0s)
+  ✓   59 tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (5.7s)
+  ✓   60 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.3s)
+  ✓   61 tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.3s)
+  ✓   62 tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.6s)
+  ✓   63 tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions (3.4s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   64 tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.9s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:57:13)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   65 tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.0s)
+  ✓   66 tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.2s)
+  ✓   67 tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.3s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   68 tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.0s)
+  ✓   69 tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.5s)
+  ✓   70 tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (878ms)
+  ✓   71 tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления (977ms)
+  ✓   72 tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.4s)
+  ✓   73 tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте (1.9s)
+  ✓   74 tests/ui/workspace.spec.ts:603:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.5s)
+  ✓   75 tests/ui/workspace.spec.ts:630:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (2.8s)
+  ✓   76 tests/ui/workspace.spec.ts:662:1 › ошибка буфера обмена видна, код остаётся доступен (1.6s)
+  ✓   77 tests/ui/workspace.spec.ts:680:1 › финансы: неверные даты можно исправить без падения страницы (1.8s)
+  ✓   78 tests/ui/workspace.spec.ts:691:1 › ошибка загрузки тарифов не позволяет включить виджет (926ms)
+  ✓   79 tests/ui/workspace.spec.ts:700:1 › номера: статус уборки, блокировка и снятие сохраняются (2.9s)
+  ✓   80 tests/ui/workspace.spec.ts:730:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.6s)
+  ✓   81 tests/ui/workspace.spec.ts:757:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.6s)
+  ✓   82 tests/ui/workspace.spec.ts:766:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.2s)
+  ✓   83 tests/ui/workspace.spec.ts:785:1 › неисправности: когда история обрезана, это написано (1.8s)
+  ✓   84 tests/ui/workspace.spec.ts:793:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.3s)
+  ✓   85 tests/ui/workspace.spec.ts:805:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.5s)
+  ✓   86 tests/ui/workspace.spec.ts:831:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (4.6s)
+  ✓   87 tests/ui/workspace.spec.ts:876:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (4.9s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:68:45)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   88 tests/ui/workspace.spec.ts:931:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (7.7s)
+  ✓   89 tests/ui/workspace.spec.ts:998:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.0s)
+  ✓   90 tests/ui/workspace.spec.ts:1027:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (1.9s)
+  ✓   91 tests/ui/workspace.spec.ts:1051:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.5s)
+  ✓   92 tests/ui/workspace.spec.ts:1070:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.5s)
+  ✓   93 tests/ui/workspace.spec.ts:1083:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.6s)
+  ✓   94 tests/ui/workspace.spec.ts:1090:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.1s)
+  ✓   95 tests/ui/workspace.spec.ts:1121:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.5s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   96 tests/ui/workspace.spec.ts:1143:1 › фонд и категории открываются независимо от сбоя шахматки (4.6s)
+  ✓   97 tests/ui/workspace.spec.ts:1164:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.3s)
+  ✓   98 tests/ui/workspace.spec.ts:1180:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.2s)
+  ✓   99 tests/ui/workspace.spec.ts:1199:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.7s)
+  ✓  100 tests/ui/workspace.spec.ts:1214:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (886ms)
+  ✓  101 tests/ui/workspace.spec.ts:1227:1 › счета: приём оплаты подтверждается суммой на экране (2.0s)
+  ✓  102 tests/ui/workspace.spec.ts:1244:1 › деньги за период: период длиннее года объясняется на странице (1.2s)
+  ✓  103 tests/ui/workspace.spec.ts:1263:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.7s)
+  ✓  104 tests/ui/workspace.spec.ts:1282:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.7s)
+  ✓  105 tests/ui/workspace.spec.ts:1309:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.1s)
+  ✓  106 tests/ui/workspace.spec.ts:1329:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.3s)
+  ✓  107 tests/ui/workspace.spec.ts:1345:1 › каналы: входящая бронь ведёт на карточку брони (1.9s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓  108 tests/ui/workspace.spec.ts:1358:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.6s)
+  ✓  109 tests/ui/workspace.spec.ts:1377:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (1.8s)
+  ✓  110 tests/ui/workspace.spec.ts:1395:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.1s)
+  ✓  111 tests/ui/workspace.spec.ts:1433:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.5s)
+  ✓  112 tests/ui/workspace.spec.ts:1500:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (3.8s)
+  ✓  113 tests/ui/workspace.spec.ts:1579:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.1s)
+  ✓  114 tests/ui/workspace.spec.ts:1627:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (4.2s)
+  ✓  115 tests/ui/workspace.spec.ts:1654:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (2.2s)
+
+
+  1) tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.workspace-header .topmenu').getByRole('link', { name: 'ИИ-продавцы', exact: true })
+    Expected: "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.workspace-header .topmenu').getByRole('link', { name: 'ИИ-продавцы', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header .topmenu').getByRole('link', { name: 'ИИ-продавцы', exact: true })
+
+
+      45 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
+      46 |   // страницы продавца подсвечивают тот же пункт меню
+    > 47 |   await expect(sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true })).toHaveAttribute(
+         |                                                                                 ^
+      48 |     'aria-current',
+      49 |     'page',
+      50 |   );
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:47:81
+
+    Error Context: test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец ─
+  114 passed (10.3m)
+
+# код выхода 1 · 10 мин 19 с

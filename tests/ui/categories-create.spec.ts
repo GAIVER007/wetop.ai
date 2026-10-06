@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { FIXTURE_API } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const shots = 'reports/categories-v2-c3-2026-09-28';
 const hideDevOverlay = (page: Page) =>
   page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });

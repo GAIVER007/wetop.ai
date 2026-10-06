@@ -63,13 +63,17 @@
 .channels-period .field {
   flex: 0 1 180px;
 }
-.channels-period input,
-.channels-period select,
-.channels-period button {
-  min-height: 36px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  font-size: 13px;
+/* Компактная полоса периода: 36 px только на компьютере. На телефоне цель нажатия не ниже 44 px
+ * (DESIGN.md), иначе это правило перебивает общее и даёт поля и кнопку по 36–40 px. */
+@media (min-width: 601px) {
+  .channels-period input,
+  .channels-period select,
+  .channels-period button {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 13px;
+  }
 }
 .channels-period label {
   font-size: 12px;
@@ -138,8 +142,11 @@
     padding: 8px 8px;
   }
 }
-.page:has(.channels-overview) {
-  padding-bottom: 16px;
+/* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
+@media (min-width: 601px) {
+  .page:has(.channels-overview) {
+    padding-bottom: 16px;
+  }
 }
 .channels-overview .state-bar__state {
   border: 0;
@@ -250,5 +257,135 @@
   }
   .channels-overview > details:not([open]) {
     grid-column: auto;
+  }
+}
+
+/* Раздел «Каналы» (ADR-140): подвкладки, поиск, таблица подключений и окно Channex */
+.channel-list__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.channel-list__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.channel-list__tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.channel-list__tabs a[aria-current='page'] {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+.channel-list__count {
+  min-width: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-muted);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+.channel-list__search {
+  max-width: 360px;
+}
+.channel-list__sub {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.channel-list__actions {
+  text-align: right;
+}
+.channex-window.ui-overlay {
+  width: min(1100px, calc(100vw - 32px));
+}
+.channex-window__frame {
+  display: block;
+  width: 100%;
+  height: min(720px, calc(100vh - 280px));
+  margin: 8px 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+
+/* Телефон: строка подключения — карточка (как «Проживания» в directory.css), без прокрутки таблицы вбок */
+@media (max-width: 600px) {
+  .tbl.channel-table--connections,
+  .channel-table--connections tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .channel-table--connections thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .channel-table--connections tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .channel-table--connections tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .channel-table--connections tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+  }
+  .channel-table--connections tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .channel-table--connections tbody td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .channel-table--connections tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .channel-table--connections tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .channel-table--connections tbody td:nth-child(2)::before {
+    content: 'ID в канале: ';
+  }
+  .channel-table--connections tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .channel-table--connections tbody td:nth-child(4)::before {
+    content: 'Брони за 30 дней: ';
+    color: var(--muted);
+  }
+  .channel-table--connections tbody td:nth-child(3) {
+    display: none;
   }
 }

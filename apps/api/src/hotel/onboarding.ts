@@ -22,10 +22,11 @@ import {
 import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import {
-  currentOrganizationId,
-  currentLocationId,
   currentBusinessId,
+  currentLocationId,
+  currentOrganizationId,
   currentScope,
+  currentVertical,
   hasSignedInActor,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -94,6 +95,8 @@ export class OnboardingService {
   /** Организация вошедшего; служебный ходок сюда не ходит — онбординг только для человека. */
   private organizationId(): string {
     if (!hasSignedInActor()) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+    if (currentBusinessId() && currentVertical() !== 'HOSPITALITY')
+      throw new ForbiddenException('Гостиничная настройка недоступна для выбранного бизнеса');
     const organizationId = currentOrganizationId();
     if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
     return organizationId;
@@ -108,6 +111,8 @@ export class OnboardingService {
     organizationId: string,
     db: Pick<PrismaService['db'], 'property'> = this.prisma.db,
   ) {
+    // Несколько филиалов (Platform P3): объект текущего scope, как у остальных экранов (`property-ref.ts`); без
+    // указателя самый ранний, а не случайный
     const property = await db.property.findFirst({
       where: {
         organizationId,
@@ -118,6 +123,7 @@ export class OnboardingService {
           ? { location: { businessId: currentBusinessId()!, business: { organizationId } } }
           : {}),
       },
+      orderBy: { createdAt: 'asc' },
       select: { id: true, name: true, currency: true, timezone: true },
     });
     if (!property && currentLocationId())
@@ -276,6 +282,12 @@ export class OnboardingService {
             days: dates.length,
           },
         },
+      });
+      // Shared adapter completion is committed with actual inventory and rates.
+      const locationId = currentLocationId();
+      if (locationId) await tx.onboardingProgress.updateMany({
+        where: { locationId, location: { business: { organizationId } } },
+        data: { completedAt: new Date() },
       });
     });
 

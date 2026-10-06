@@ -1,0 +1,178 @@
+# Модульные (unit) · 03.10.2026 17:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6cd2fa4 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-29-03Z-unit-ccd6.json' 'tests/unit/deploy-server.test.ts' '--testTimeout=20000'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| tests/unit/deploy-server.test.ts (39 tests | 2 failed) 1002ms
+   ❯ deploy/Dockerfile (7)
+     ✓ копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся 6ms
+     ✓ копирует схему базы и prisma.config.ts до npm ci: клиент Prisma генерируется на postinstall 1ms
+     ✓ ставит и devDependencies: API и скрипты идут через tsx, стойка собирается next-ом 0ms
+     ✓ собирает стойку: next start без сборки не поднимется 0ms
+     × сборка стойки с потолком кучи: на 8 ГБ рядом с боевыми службами next build не берёт всю память 18ms
+     ✓ ставит пояс объекта 1ms
+     ✓ не запускается от root и держит PID 1 за tini 0ms
+   ❯ deploy/compose.yml (25)
+     ✓ поднимает три службы: API, стойка, туннель 1ms
+     ✓ службы синхронизации с Legacy нет: Legacy перестал быть источником (ADR-052, 19.09.2026) 3ms
+     ✓ API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются 1ms
+     × API, стойка и туннель последними под OOM-killer: сборку и проверки ядро убьёт раньше 1ms
+     ✓ туннель ровно один и никогда не масштабируется 1ms
+     ✓ живость меряется маршрутами, которые отвечают и с включённым замком 1ms
+     ✓ API в контейнере слушает 0.0.0.0 — иначе до него не достучится никто, даже стойка 1ms
+     ✓ API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает 1ms
+     ✓ у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию 0ms
+     ✓ стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1 0ms
+     ✓ стойка ходит в API по имени службы, а не в собственный контейнер 0ms
+     ✓ стойка получает только свои переменные (INFRA-ENV) (3)
+       ✓ всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая 827ms
+       ✓ лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает 109ms
+       ✓ стойка по-прежнему поднимается next start на 0.0.0.0 из одного `.env` с API 5ms
+     ✓ проверки синхронизации из Legacy у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073) 1ms
+     ✓ выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам 0ms
+     ✓ API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет 1ms
+     ✓ сторож проверяет стойку по имени службы, а не собственный контейнер 0ms
+     ✓ порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose 0ms
+     ✓ выключатель ARI подхватывается файлом и не обязателен 0ms
+     ✓ секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория 0ms
+     ✓ боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15) 0ms
+     ✓ команды служб зовут то, что есть в репозитории 0ms
+     ✓ ключ туннеля монтируется только на чтение 0ms
+     ✓ сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение 1ms
+   ✓ контекст сборки (7)
+     ✓ runtime multer не содержит известные multipart DoS из версий до 2.3.0 8ms
+     ✓ Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile 1ms
+     ✓ секреты в образ не попадают 1ms
+     ✓ папка с ключом туннеля не едет в git 1ms
+     ✓ образец конфига туннеля ходит в службы по именам, а не на 127.0.0.1 1ms
+     ✓ помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает 2ms
+     ✓ продавец наружу — только вебхук WhatsApp гостиницы (С3, SECURITY.md §11): чат, панель и /internal/* — нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/Dockerfile > сборка стойки с потолком кучи: на 8 ГБ рядом с боевыми службами next build не берёт всю память
+AssertionError: expected '# Образ PMS для сервера (plans/server…' to match /NODE_OPTIONS=--max-old-space-size=…/web
+
+- Expected:
+/NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps\/web/
+
++ Received:
+"# Образ PMS для сервера (plans/server-kz-2026-09-17.md шаг 0, plans/server-kz-2026-09-18.md шаг 4).
+# Один образ на службы api и web: команды разные, код один. Поэтому собранная стойка и
+# клиент базы заведомо от одного и того же кода — 17.09.2026 на Mac они разошлись, и журнал действий отвечал 500.
+#
+# Node 24, как у сторожа на Hostinger (scripts/ops/watch/Dockerfile). API идёт через tsx без сборки
+# (apps/api: `tsx src/main.ts`), стойке сборка нужна (`next build` → `next start`, ADR-034).
+# Не «тонкий» образ на `next build --standalone`: стойка тянет рабочие пакеты монорепозитория
+# (@pms/domain, @pms/shared), standalone их не собирает без отдельной настройки; размер образа здесь ничего не решает.
+#
+# Секретов в образе нет: .env исключён из контекста сборки (.dockerignore) и подаётся снаружи через env_file (SECURITY.md §3).
+FROM node:24-alpine AS build
+WORKDIR /app
+
+# Зависимости отдельным слоем: правка кода не переустанавливает node_modules.
+# Копируем манифесты всех рабочих пакетов, сохраняя пути, — без любого из них `npm ci` не сойдётся с
+# package-lock.json, и падает он не сразу, а на шаге установки; это сторожит tests/unit/deploy-server.test.ts.
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+# apps/site наружу с этого сервера не выкладывается (главная живёт на Cloudflare Pages),
+# но это рабочий пакет: без его манифеста `npm ci` не сойдётся с package-lock.json.
+COPY apps/site/package.json apps/site/
+COPY packages/database/package.json packages/database/
+COPY packages/domain/package.json packages/domain/
+COPY packages/integrations/package.json packages/integrations/
+COPY packages/shared/package.json packages/shared/
+COPY scripts/imports/package.json scripts/imports/
+COPY scripts/reconciliation/package.json scripts/reconciliation/
+
+# postinstall пакета базы генерирует Prisma Client из схемы: схема и prisma.config.ts нужны ДО `npm ci`.
+# Самой базы для генерации не нужно — только schema.prisma.
+COPY packages/database/prisma packages/database/prisma
+COPY packages/database/prisma.config.ts packages/database/
+
+# devDependencies нужны и в работе: API и скрипты идут через tsx, стойка собирается next-ом
+RUN npm ci --no-audit --no-fund --include=dev
+
+COPY . .
+RUN npm run build -w apps/web
+
+# --- рабочий слой ---------------------------------------------------------------------------------
+FROM node:24-alpine AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+# Даты проживания — DATE в поясе объекта, события — UTC (AGENTS.md §13).
+# Системный пояс контейнера ставим явно, чтобы он не зависел от образа хоста.
+ENV TZ=Asia/Almaty
+# tzdata — пояс; tini — сигналы и зомби-процессы (PID 1); openssl — клиенту Prisma
+RUN apk add --no-cache tzdata tini openssl
+
+COPY --from=build /app /app
+USER node
+EXPOSE 3000 3001
+
+ENTRYPOINT [\"/sbin/tini\", \"--\"]
+# Команду задаёт compose: api или web.
+CMD [\"node\", \"--import\", \"tsx\", \"apps/api/src/main.ts\"]
+"
+
+ ❯ tests/unit/deploy-server.test.ts:93:24
+     91|
+     92|   it('сборка стойки с потолком кучи: на 8 ГБ рядом с боевыми службами …
+     93|     expect(DOCKERFILE).toMatch(/NODE_OPTIONS=--max-old-space-size=2048…
+       |                        ^
+     94|   });
+     95|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > API, стойка и туннель последними под OOM-killer: сборку и проверки ядро убьёт раньше
+AssertionError: x-app (api и web): expected 'x-app: &app\n  build:\n    context: .…' to match /oom_score_adj: -500/
+
+- Expected:
+/oom_score_adj: -500/
+
++ Received:
+"x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: pms-lux:latest
+  restart: unless-stopped
+  env_file:
+    # Один .env на сервере — в корне клона. Копии в deploy/ нет намеренно: два файла разъезжаются.
+    - path: ../.env
+      required: true
+    # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
+    # Файл есть — ARI выключен, файла нет — включён. В отличие от `launchctl setenv` на Mac,
+    # это переживает перезагрузку сервера.
+    - path: ari.env
+      required: false
+  security_opt: ['no-new-privileges:true']
+
+# Общая сеть с ИИ-помощником и ИИ-продавцом (ADR-081, docs/assistant/README.md §3): помощник читает у API ошибки
+# человека и состояние сторожа, API зовёт продавца по SELLER_URL. Заводит её платформа — с постоянным именем, чтобы бот
+# подключился к ней из своего compose как к внешней; внешней здесь она не объявлена, иначе выкладка падала бы, пока сеть
+# не заведена руками. internal: true — выхода наружу у этой сети нет, она только для служб между собой. В ней api и
+# cloudflared: туннель выводит наружу assistant.wetop.ai (только чат и живость, deploy/cloudflared.example.yml). Стойки нет."
+
+ ❯ tests/unit/deploy-server.test.ts:131:38
+    129|   it('API, стойка и туннель последними под OOM-killer: сборку и провер…
+    130|     const app = COMPOSE.slice(COMPOSE.indexOf('x-app: &app'), COMPOSE.…
+    131|     expect(app, 'x-app (api и web)').toMatch(/oom_score_adj: -500/);
+       |                                      ^
+    132|     expect(service('cloudflared')).toMatch(/oom_score_adj: -500/);
+    133|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 37 passed (39)
+   Start at  05:29:48
+   Duration  3.84s (tests 44%, transform 29%, import 26%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T12-29-03Z-unit-ccd6.json
+
+# код выхода 1 · 49 с

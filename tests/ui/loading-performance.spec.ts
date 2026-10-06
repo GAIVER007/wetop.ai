@@ -1,6 +1,6 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
@@ -34,15 +34,14 @@ test('Главная показывает блоки, пока настройк�
     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByTestId('owner-guests')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('owner-movements')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+    await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );
   } finally {
     await request.post(`${API}/__test/control`, { data: { holdHotel: false } });
   }
-  await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText('Luxx Aparts');
+  await expect(page.locator('.workspace-header .workspace-property')).toContainText('Luxx Aparts');
 });
 
 test('стойка и её шахматка запрашиваются параллельно', async ({ page, request }) => {
@@ -67,7 +66,7 @@ test('стойка и её шахматка запрашиваются пара�
       { timeout: 2000 },
     )
     .toBe(1);
-  await expect(page.getByTestId('owner-movements')).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
 });
 
 test('мобильное меню использует уже загруженную свежесть без второго опроса', async ({ page }) => {
@@ -82,7 +81,7 @@ test('мобильное меню использует уже загруженн
     });
   });
   await page.goto('/today');
-  await expect(page.locator('.workspace-sidebar [data-testid="data-freshness"]')).toContainText(
+  await expect(page.locator('.workspace-header [data-testid="data-freshness"]')).toContainText(
     'очередь 7',
   );
   const before = calls;
@@ -107,8 +106,8 @@ test('замер: блоки Главной при задержке настро
     await Promise.all(
       [
         ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
-        ['strip', page.getByTestId('owner-guests')],
-        ['desk', page.getByTestId('owner-movements')],
+        ['money', page.getByTestId('owner-paid')],
+        ['risks', page.getByTestId('owner-risks')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();
         sample[key as string] = Math.round(performance.now() - start);
@@ -152,7 +151,7 @@ test('фоновый опрос не перекрывается и восста�
     });
   });
   await page.goto('/today');
-  const status = page.locator('.workspace-sidebar [data-testid="data-freshness"]');
+  const status = page.locator('.workspace-header [data-testid="data-freshness"]');
   await expect(status).toContainText('очередь 0');
   await expect(status).not.toHaveClass(/freshness--warn/);
   hold = true;

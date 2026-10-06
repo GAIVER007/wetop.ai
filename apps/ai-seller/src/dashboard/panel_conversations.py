@@ -23,7 +23,7 @@ from src import dependencies
 from src.config import Settings
 from src.agent_scope import AgentScope
 from src.dashboard.auth_router import request_agent
-from src.dashboard.panel_common import iso, log_action, mask_name, sessions
+from src.dashboard.panel_common import SANDBOX_CHANNEL, iso, log_action, mask_name, sessions
 from src.db.base import ConversationMode, MessageRole, utcnow
 from src.db.models import Client, Conversation, Message
 
@@ -91,6 +91,7 @@ async def list_conversations(
     queue: str | None = None,
     nonempty: bool = False,
     closed: bool | None = None,
+    exclude_sandbox: bool = False,
     limit: int = 50,
     scope: AgentScope | None = Depends(request_agent),
 ) -> dict:
@@ -98,8 +99,12 @@ async def list_conversations(
     У продавца — только диалоги АГЕНТА запроса (SA2.5: X-Organization + X-Agent).
 
     Очередь техподдержки (S1): `nonempty` — без диалогов без сообщений, `queue=new` — начатые за сутки,
-    `queue=waiting` — последнее слово за пользователем, `closed` — закрытые (`is_active = false`) или открытые;
-    без параметров ответ прежний — все диалоги."""
+    `queue=waiting`: последнее слово за пользователем, `closed`: закрытые (`is_active = false`) или открытые,
+    `exclude_sandbox`: без диалогов вкладки «Проверка»; без параметров ответ прежний, все диалоги.
+
+    🔴 Песочница заводит клиента канала `sandbox` и ничем не отличается от обращения партнёра:
+    02.10.2026 все четыре строки очереди на рабочей базе были проверками агента, одна с
+    отметкой «срочно · нужен человек». Удаление строк чистит прошлое, отбор чистит будущее."""
     try:
         wanted = ConversationMode(mode) if mode else None
     except ValueError:
@@ -147,6 +152,8 @@ async def list_conversations(
         stmt = stmt.where(counts.c.n > 0)
     if closed is not None:
         stmt = stmt.where(Conversation.is_active.is_(not closed))
+    if exclude_sandbox:
+        stmt = stmt.where(Client.channel != SANDBOX_CHANNEL)
     if queue == "waiting":
         stmt = stmt.where(waiting.c.since.is_not(None))
     elif queue == "new":
@@ -154,7 +161,9 @@ async def list_conversations(
 
     async with sessions()() as session:
         rows = (await session.execute(stmt)).all()
-        last = await _last_messages(session, [conv.id for conv, *_ in rows])
+        ids = [conv.id for conv, *_ in rows]
+        last = await _edge_messages(session, ids)
+        first = await _edge_messages(session, ids, newest=False, only_role=MessageRole.USER)
     return {
         "items": [
             {
@@ -168,6 +177,9 @@ async def list_conversations(
                 "has_contact": bool(client.phone or client.email),
                 "started_at": iso(conv.created_at),
                 "last_message": last.get(conv.id),
+                # Категорию обращения платформа считает по первому сообщению ПОЛЬЗОВАТЕЛЯ: в последнем
+                # обычно стоит ответ помощника, по которому «возврат» от «ошибки» не отличить.
+                "first_message": first.get(conv.id),
                 "waiting_since": iso(_utc(since)),
                 "closed": not conv.is_active,
             }
@@ -176,10 +188,21 @@ async def list_conversations(
     }
 
 
-async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
-    """Последнее сообщение каждого диалога страницы — одним запросом, не по запросу на строку."""
+async def _edge_messages(
+    session,
+    conversation_ids: list[uuid.UUID],
+    *,
+    newest: bool = True,
+    only_role: MessageRole | None = None,
+) -> dict[uuid.UUID, dict]:
+    """Крайнее сообщение каждого диалога страницы берём одним запросом, не по запросу на строку:
+    `newest`: последнее, иначе первое; `only_role`: только этой роли (первый вопрос пользователя)."""
     if not conversation_ids:
         return {}
+    order = Message.created_at.desc() if newest else Message.created_at.asc()
+    where = [Message.conversation_id.in_(conversation_ids)]
+    if only_role is not None:
+        where.append(Message.role == only_role)
     ranked = (
         sa.select(
             Message.conversation_id,
@@ -187,10 +210,10 @@ async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uui
             Message.content,
             Message.created_at,
             sa.func.row_number()
-            .over(partition_by=Message.conversation_id, order_by=Message.created_at.desc())
+            .over(partition_by=Message.conversation_id, order_by=order)
             .label("rn"),
         )
-        .where(Message.conversation_id.in_(conversation_ids))
+        .where(*where)
         .subquery()
     )
     result = await session.execute(sa.select(ranked).where(ranked.c.rn == 1))

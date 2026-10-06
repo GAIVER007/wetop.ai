@@ -1,0 +1,120 @@
+# Интеграционные (integration) · 06.10.2026 17:39 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-39-10Z-integration-1750.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:5704) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration)
+[mkt1b] уборка не закончена: 
+Invalid `prisma.reservationItem.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `stay_guests_reservation_item_id_fkey`
+
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (8 tests | 4 failed) 1054ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (8)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 17ms
+     ✓ BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 143ms
+     ✓ BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний 53ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 49ms
+     × BOOK-2: K+A дважды — та же бронь, одна запись, одно письмо, проверка Turnstile один раз 75ms
+     × BOOK-2: K+A, затем K+B — 409 без данных первой брони 71ms
+     × BOOK-2: два одновременных K+A — ровно одна бронь 74ms
+     × BOOK-2: новый ключ требует действующего токена; ключ не UUID v4 — 400 114ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-2: K+A дважды — та же бронь, одна запись, одно письмо, проверка Turnstile один раз
+ForbiddenException: Проверка не пройдена: обновите страницу и повторите
+ ❯ turnstileFailureError apps/api/src/web-booking/turnstile.ts:147:14
+    145|       return new ServiceUnavailableException('Не удалось выполнить про…
+    146|     default:
+    147|       return new ForbiddenException('Проверка не пройдена: обновите ст…
+       |              ^
+    148|   }
+    149| }
+ ❯ WebBookingService.book apps/api/src/web-booking/web-booking.service.ts:396:30
+ ❯ tests/integration/web-booking-exact-property.test.ts:306:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-2: K+A, затем K+B — 409 без данных первой брони
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/web-booking-exact-property.test.ts:325:47
+    323|     const error = (await tampered.catch((e: unknown) => e)) as { messa…
+    324|     expect(JSON.stringify(error.getResponse?.() ?? error.message)).not…
+    325|     expect(await reservationsWithKey(S, key)).toBe(1);
+       |                                               ^
+    326|   }, 60_000);
+    327|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-2: два одновременных K+A — ровно одна бронь
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/web-booking-exact-property.test.ts:337:47
+    335|       svc.book({ ...withKey(S, key, 39), turnstileToken: 'c-1' }, ctx(…
+    336|     ]);
+    337|     expect(await reservationsWithKey(S, key)).toBe(1);
+       |                                               ^
+    338|     const ok = results.filter((r) => r.status === 'fulfilled').map((r)…
+    339|     expect(new Set(ok).size).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-2: новый ключ требует действующего токена; ключ не UUID v4 — 400
+AssertionError: promise resolved "{ …(10) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "adults": 1,
++   "arrivalDate": "2026-11-24",
++   "categoryName": "Номер S",
++   "checkInTime": "14:00",
++   "confirmationNumber": "20261006-EZSLUG",
++   "currency": "KZT",
++   "departureDate": "2026-11-25",
++   "nights": 1,
++   "status": "CONFIRMED",
++   "totalMinor": "2000000",
+  }
+
+ ❯ tests/integration/web-booking-exact-property.test.ts:365:94
+    363|     });
+    364|     expect(await reservationsWithKey(S, reused)).toBe(0);
+    365|     await expect(svc.book({ ...withKey(S, 'not-a-key', 49), turnstileT…
+       |                                                                                              ^
+    366|       status: 400,
+    367|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  12:39:12
+   Duration  5.70s (transform 54%, tests 26%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-39-10Z-integration-1750.json
+
+# код выхода 1 · 7 с

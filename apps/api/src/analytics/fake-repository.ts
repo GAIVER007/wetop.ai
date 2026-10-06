@@ -143,7 +143,7 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     }
     return found.slice(0, 2);
   }
-  /** Цепочки объектов, заданные тестом; без записи — действующая цепочка организации сайта этого объекта */
+  /** Цепочки объектов, заданные тестом; без записи: действующая цепочка организации сайта этого объекта */
   chains = new Map<string, ServingChain | null>();
   async servingChain(propertyId: string): Promise<ServingChain | null> {
     if (this.chains.has(propertyId)) return this.chains.get(propertyId) ?? null;

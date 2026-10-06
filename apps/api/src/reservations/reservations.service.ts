@@ -331,6 +331,28 @@ function existingGuest(
   return id;
 }
 
+/** Ключ создания брони: UUID v4 (повтор ручной брони, MKT1B BOOK-2) */
+const CREATION_KEY_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CREATION_KEY_CONFLICT = 'Этот запрос уже создал бронь с другими данными. Откройте новую форму.';
+
+/** Отпечаток запроса создания: sha256 канонической записи (ключи по порядку, без undefined), ключ в нижнем регистре */
+function creationFingerprint(dto: CreateReservationDto, key: string): string {
+  const canonical = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(canonical)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(
+            Object.entries(value)
+              .filter(([, v]) => v !== undefined)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => [k, canonical(v)]),
+          )
+        : value;
+  return createHash('sha256')
+    .update(JSON.stringify(canonical({ ...dto, creationKey: key.toLowerCase() })))
+    .digest('hex');
+}
+
 @Injectable()
 export class ReservationsService {
   constructor(
@@ -380,40 +402,42 @@ export class ReservationsService {
    * гость записывается псевдонимом, и имя не обязательно. `guestPrepared` — гость уже приведён к хранению
    * вызывающим (бронь с сайта: `guestForStorage`), берётся как есть.
    */
+  /**
+   * Ранний повтор (MKT1B BOOK-2): бронь, уже созданная этим ключом в объекте текущего контекста, если её отпечаток
+   * совпадает с отпечатком ЭТОГО запроса, тем же алгоритмом, что у `create`. Ключ без совпадения отпечатка данных
+   * брони не открывает: другой запрос с тем же ключом: 409. Брони с этим ключом нет: `null`. Ничего не пишет.
+   */
+  async replayOf(dto: CreateReservationDto): Promise<ReservationCard | null> {
+    const key = dto.creationKey;
+    if (typeof key !== 'string' || !CREATION_KEY_RE.test(key))
+      throw new BadRequestException('Обновите форму: некорректный ключ создания');
+    const fingerprint = creationFingerprint(dto, key);
+    return this.uow.read(async (repo) => {
+      const previous = await repo.reservationByCreationKey(key.toLowerCase());
+      if (!previous) return null;
+      if (previous.fingerprint !== fingerprint) throw new ConflictException(CREATION_KEY_CONFLICT);
+      return (await repo.card(previous.confirmationNumber)) ?? null;
+    });
+  }
+
   create(dto: CreateReservationDto, opts: { preview: true }): Promise<ReservationQuote>;
-  create(dto: CreateReservationDto, opts?: { guestPrepared?: boolean }): Promise<ReservationCard>;
+  create(
+    dto: CreateReservationDto,
+    opts?: { guestPrepared?: boolean; onReplay?: () => void },
+  ): Promise<ReservationCard>;
   async create(
     dto: CreateReservationDto,
-    opts: { guestPrepared?: boolean; preview?: boolean } = {},
+    opts: { guestPrepared?: boolean; preview?: boolean; onReplay?: () => void } = {},
   ): Promise<ReservationCard | ReservationQuote> {
     const key = dto.creationKey;
-    if (
-      key !== undefined &&
-      (typeof key !== 'string' ||
-        !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key))
-    )
+    if (key !== undefined && (typeof key !== 'string' || !CREATION_KEY_RE.test(key)))
       throw new BadRequestException('Обновите форму: некорректный ключ создания');
     if (
       dto.expectedTotalMinor !== undefined &&
       (typeof dto.expectedTotalMinor !== 'string' || !/^\d+$/.test(dto.expectedTotalMinor))
     )
       throw new BadRequestException('Обновите расчёт стоимости');
-    const canonical = (value: unknown): unknown =>
-      Array.isArray(value)
-        ? value.map(canonical)
-        : value && typeof value === 'object'
-          ? Object.fromEntries(
-              Object.entries(value)
-                .filter(([, v]) => v !== undefined)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([k, v]) => [k, canonical(v)]),
-            )
-          : value;
-    const fingerprint = key
-      ? createHash('sha256')
-          .update(JSON.stringify(canonical({ ...dto, creationKey: key.toLowerCase() })))
-          .digest('hex')
-      : null;
+    const fingerprint = key ? creationFingerprint(dto, key) : null;
     let replay = false;
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
       throw new BadRequestException(`source обязателен: один из ${RESERVATION_SOURCES.join(', ')}`);
@@ -461,9 +485,7 @@ export class ReservationsService {
           const previous = await repo.reservationByCreationKey(key.toLowerCase());
           if (previous) {
             if (previous.fingerprint !== fingerprint)
-              throw new ConflictException(
-                'Этот запрос уже создал бронь с другими данными. Откройте новую форму.',
-              );
+              throw new ConflictException(CREATION_KEY_CONFLICT);
             replay = true;
             return (await repo.card(previous.confirmationNumber))!;
           }
@@ -673,6 +695,7 @@ export class ReservationsService {
       }),
     );
     if (!replay && 'confirmationNumber' in created) await this.publish(null, created);
+    if (replay) opts.onReplay?.();
     return created;
   }
 

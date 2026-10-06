@@ -6651,3 +6651,20 @@
 | 06.10.2026 17:34 | integration (частично: tests/integration/web-booking-exact-property.test.ts) | ✅ 4 из 4 | 6 с | 117bce9 +8 | [лог](logs/2026-10-06T12-34-52Z-integration-1e63.log) | MKT1B BOOK-4 green |
 | 06.10.2026 17:35 | unit (частично: apps/api/src/web-booking apps/api/src/analytics apps/api/src/reservations apps/api/src/ai-seller) | ✅ 340 из 340 | 11 с | 117bce9 +7 | [лог](logs/2026-10-06T12-35-04Z-unit-fb4d.log) | MKT1B BOOK-4 targeted unit |
 | 06.10.2026 17:35 | integration (частично: tests/integration/seller-booking-intents.test.ts tests/integration/website-reservations.test.ts tests/integration/reservation-create-retr | ✅ 30 из 30 | 15 с | 117bce9 +8 | [лог](logs/2026-10-06T12-35-22Z-integration-4aeb.log) | MKT1B BOOK-4 integration regression |
+| 06.10.2026 17:39 | unit (частично: packages/domain/src/web-booking apps/api/src/web-booking) | ❌ упало 6 из 139 | 7 с | 550e572 +2 | [лог](logs/2026-10-06T12-39-00Z-unit-5a90.log) | MKT1B BOOK-2 red (domain + unit) |
+| 06.10.2026 17:39 | integration (частично: tests/integration/web-booking-exact-property.test.ts) | ❌ упало 4 из 8 | 7 с | 550e572 +3 | [лог](logs/2026-10-06T12-39-10Z-integration-1750.log) | MKT1B BOOK-2 red (integration) |
+| 06.10.2026 17:41 | unit (частично: packages/domain/src/web-booking apps/api/src/web-booking apps/api/src/reservations) | ❌ упало 1 из 203 | 7 с | 550e572 +5 | [лог](logs/2026-10-06T12-41-45Z-unit-02c3.log) | MKT1B BOOK-2 green (domain + unit) |
+| 06.10.2026 17:41 | integration (частично: tests/integration/web-booking-exact-property.test.ts) | ❌ упало 1 из 8 | 6 с | 550e572 +6 | [лог](logs/2026-10-06T12-41-53Z-integration-8114.log) | MKT1B BOOK-2 green (integration) |
+| 06.10.2026 17:42 | unit (частично: packages/domain/src/web-booking apps/api/src/web-booking apps/api/src/reservations) | ✅ 203 из 203 | 7 с | 550e572 +5 | [лог](logs/2026-10-06T12-42-10Z-unit-4679.log) | MKT1B BOOK-2 green (domain + unit) |
+| 06.10.2026 17:42 | integration (частично: tests/integration/web-booking-exact-property.test.ts) | ✅ 8 из 8 | 6 с | 550e572 +6 | [лог](logs/2026-10-06T12-42-18Z-integration-36b0.log) | MKT1B BOOK-2 green (integration) |
+| 06.10.2026 17:42 | e2e (частично: --config tests/ui/playwright.booking-widget.config.ts --workers=1 -g ключ создания) | ❌ упало 3 из 4 | 11 с | 550e572 +6 | [лог](logs/2026-10-06T12-42-52Z-e2e-d52c.log) | MKT1B BOOK-2 widget red |
+| 06.10.2026 17:43 | e2e (частично: --config tests/ui/playwright.booking-widget.config.ts --workers=1) | ✅ 13 из 13 | 8 с | 550e572 +7 | [лог](logs/2026-10-06T12-43-27Z-e2e-e314.log) | MKT1B BOOK-2 widget green + widget suite |
+| 06.10.2026 17:45 | typecheck | ✅ без ошибок | 56 с | 550e572 +13 | [лог](logs/2026-10-06T12-45-24Z-typecheck-6bc5.log) | MKT1B BOOK-1..4 |
+| 06.10.2026 17:46 | lint | ❌ ошибок: 1 | 35 с | 550e572 +13 | [лог](logs/2026-10-06T12-46-21Z-lint-074f.log) | MKT1B BOOK-1..4 |
+| 06.10.2026 17:47 | lint | ✅ без ошибок | 34 с | 550e572 +13 | [лог](logs/2026-10-06T12-47-05Z-lint-b383.log) | MKT1B BOOK-1..4 |
+| 06.10.2026 17:47 | unit | ✅ 3411 из 3414, пропущено 3 | 1 мин 57 с | 550e572 +11 | [лог](logs/2026-10-06T12-47-42Z-unit-9deb.log) | MKT1B full unit |
+| 06.10.2026 17:49 | integration | ❌ упало 3 из 766, пропущено 763 | 59 с | 550e572 +12 | [лог](logs/2026-10-06T12-49-40Z-integration-b34e.log) | MKT1B full integration |
+| 06.10.2026 17:50 | integration | ✅ 766 из 766 | 2 мин 7 с | 550e572 +12 | [лог](logs/2026-10-06T12-50-59Z-integration-a922.log) | MKT1B full integration |
+| 06.10.2026 17:53 | e2e (частично: --config tests/ui/playwright.booking-widget.config.ts --workers=1) | ✅ 13 из 13 | 8 с | 550e572 +12 | [лог](logs/2026-10-06T12-53-11Z-e2e-5f88.log) | MKT1B widget suite final |
+| 06.10.2026 17:53 | integration (частично: tests/integration/web-booking-exact-property.test.ts) | ✅ 8 из 8 | 7 с | 550e572 +12 | [лог](logs/2026-10-06T12-53-35Z-integration-4859.log) | MKT1B cleanup audit |
+| 06.10.2026 17:54 | e2e | ✅ 25 из 25 | 1 мин 12 с | 550e572 +12 | [лог](logs/2026-10-06T12-54-51Z-e2e-dc7a.log) | MKT1B live e2e |

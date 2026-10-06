@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
-import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -24,6 +23,7 @@ import {
   priceStay,
   ReservationRuleError,
   RestrictionViolationError,
+  type BookingRequest,
 } from '@pms/domain';
 import { guestForStorage } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -37,6 +37,7 @@ import { CollectService } from '../analytics/collect.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
+import type { ReservationCard } from '../reservations/reservation-card';
 import { withIntegrationPropertyScope, withOrganizationScope } from '../auth/request-context';
 import { TurnstileService, turnstileFailureError } from './turnstile';
 
@@ -111,7 +112,7 @@ const newLimits = () => ({
 });
 
 /**
- * Расчёт и бронь сайта — от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4) и строго в объекте
+ * Расчёт и бронь сайта: от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4) и строго в объекте
  * САЙТА (MKT1B BOOK-4): прежде контекст был только организацией, и репозитории брали её самый ранний объект, поэтому
  * сайт второй гостиницы той же организации получал отказ, а без проверки продавал бы фонд первой. Объект берётся из
  * найденной сервером строки сайта (никогда не из запроса) и проверяется `assertServingProperty` до вызова. Сайт без
@@ -198,8 +199,8 @@ export class WebBookingService {
     if ((await this.sites.salesAgentCount(organizationId)) > 1) {
       throw new BadRequestException('у организации несколько AI-продавцов: нужен agent');
     }
-    // MKT1B BOOK-4: у прежнего пути нет выбора филиала. Ровно один подходящий сайт — работаем строго в его объекте;
-    // больше одного — отказ, а не «самый ранний»: угаданный объект продал бы чужой фонд
+    // MKT1B BOOK-4: у прежнего пути нет выбора филиала. Ровно один подходящий сайт: работаем строго в его объекте;
+    // больше одного: отказ, а не «самый ранний»: угаданный объект продал бы чужой фонд
     const candidates = await this.sites.bookingSitesForOrganization(organizationId);
     if (candidates.length === 0) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
@@ -378,6 +379,15 @@ export class WebBookingService {
     const parsed = parseBookingRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const req = parsed.value;
+    // MKT1B BOOK-2: вход брони строится только из канонического запроса, поэтому повтор той же формы даёт тот же
+    // отпечаток в `ReservationsService` (второй системы повторов нет)
+    const input = this.reservationInput(site, req);
+
+    // Ранний точный повтор: бронь с этим ключом в объекте сайта уже есть и её отпечаток совпал с этим запросом. Без новой
+    // проверки Turnstile (токен одноразовый), без слота лимита, без письма, без привязки и журнала. Другой запрос с тем же
+    // ключом: 409 из `replayOf`, данных брони в ответе нет; одного ключа для чтения брони мало.
+    const earlier = await asSite(site, () => this.reservations.replayOf(input));
+    if (earlier) return this.bookingResult(earlier, req, site);
 
     if (ctx.ip && !this.limits.bookPerIp.allow(visitorKey(ctx.ip), now.getTime())) {
       await this.flood(site, { limit: 'ip-hour', perHour: BOOKING_RATE_LIMITS.perIpPerHour }, now);
@@ -426,39 +436,25 @@ export class WebBookingService {
       );
     }
 
-    // ADR-018: настоящие ФИО и контакты — только в production-БД в РК; иначе псевдоним, как у каналов
-    const guest = guestForStorage(req.guest, `web:${site.id}:${randomUUID()}`);
-    const notes =
-      `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
+    // Одновременный близнец мог записать бронь между ранней проверкой и этой точкой: `create` под блокировкой ключа
+    // отдаёт её же (тот же отпечаток) и сообщает о повторе: тогда слот лимита возвращается, письма и журнала нет
+    let replayed = false;
     const card = await asSite(site, () =>
-      this.reservations.create(
-        {
-          source: 'WEBSITE',
-          arrivalDate: req.arrivalDate,
-          departureDate: req.departureDate,
-          notes,
-          promoCode: req.promoCode,
-          guest: {
-            firstName: guest.firstName,
-            lastName: guest.lastName,
-            phone: guest.phone,
-            email: guest.email,
-          },
-          items: [
-            {
-              accommodationTypeCode: req.categoryCode,
-              ratePlanCode: site.bookingRatePlan!.code,
-              adults: req.adults,
-              autoAssign: true,
-            },
-          ],
+      this.reservations.create(input, {
+        guestPrepared: true,
+        onReplay: () => {
+          replayed = true;
         },
-        { guestPrepared: true },
-      ),
+      }),
     ).catch((e: unknown) => {
       this.limits.bookPerSite.release(site.id, slot);
       throw e;
     });
+    if (replayed) {
+      this.limits.bookPerSite.release(site.id, slot);
+      if (ctx.ip) this.limits.bookPerIp.release(visitorKey(ctx.ip), now.getTime());
+      return this.bookingResult(card, req, site);
+    }
     // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
     // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
     const item = card.items[0];
@@ -492,6 +488,49 @@ export class WebBookingService {
         `[web-booking] бронь ${card.confirmationNumber} записана, привязка или журнал сайта — нет: ${(e as Error).message}`,
       );
     }
+    return this.bookingResult(card, req, site);
+  }
+
+  /**
+   * Канонический вход брони с сайта (MKT1B BOOK-2): только данные, от которых зависит бронь. Токен проверки, ключи
+   * счётчика, ловушка для ботов и время сюда не входят. Зерно псевдонима гостя выводится из сайта и ключа создания,
+   * а не случайно: повтор той же формы обязан дать тот же отпечаток.
+   */
+  private reservationInput(site: SiteRecord, req: BookingRequest) {
+    // ADR-018: настоящие ФИО и контакты: только в production-БД в РК; иначе псевдоним, как у каналов
+    const guest = guestForStorage(req.guest, `web:${site.id}:${req.creationKey}`);
+    const notes =
+      `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
+    return {
+      source: 'WEBSITE' as const,
+      creationKey: req.creationKey,
+      arrivalDate: req.arrivalDate,
+      departureDate: req.departureDate,
+      notes,
+      promoCode: req.promoCode,
+      guest: {
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        phone: guest.phone,
+        email: guest.email,
+      },
+      items: [
+        {
+          accommodationTypeCode: req.categoryCode,
+          ratePlanCode: site.bookingRatePlan!.code,
+          adults: req.adults,
+          autoAssign: true,
+        },
+      ],
+    };
+  }
+
+  private bookingResult(
+    card: ReservationCard,
+    req: BookingRequest,
+    site: SiteRecord,
+  ): BookingResult {
+    const item = card.items[0];
     return {
       confirmationNumber: card.confirmationNumber,
       status: card.status,

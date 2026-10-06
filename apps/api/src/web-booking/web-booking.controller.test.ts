@@ -189,11 +189,14 @@ const createBooking = async (dto: { arrivalDate: string; departureDate: string }
     ],
   };
 };
-const reservations = { create: vi.fn(createBooking) };
+/** Ранний повтор (MKT1B BOOK-2): по умолчанию брони с этим ключом ещё нет */
+const reservations = { create: vi.fn(createBooking), replayOf: vi.fn(async () => null) };
 /** Письма гостю (ADR-144): только заглушка, живых писем в тестах нет */
 const mailer = new mail.StubMailSender();
 
 const booking = () => ({
+  // MKT1B BOOK-2: ключ создания обязателен (UUID v4)
+  creationKey: '6a1f0b2c-3d4e-4f50-8a6b-7c8d9e0f1a2b',
   k: SITE.publicKey,
   arrival: '2026-09-13',
   departure: '2026-09-15',

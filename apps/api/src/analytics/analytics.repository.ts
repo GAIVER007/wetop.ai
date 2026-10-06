@@ -108,7 +108,7 @@ export interface AnalyticsRepository {
   /**
    * Цепочка объекта сайта: организация объекта, состояние филиала и Business, вертикаль, организация Business
    * (MKT1B BOOK-4). Читается без арендатора: чужую цепочку политика RLS спрятала бы, а отказ должен быть явным.
-   * `null` — объекта нет
+   * `null`: объекта нет
    */
   servingChain(propertyId: string): Promise<ServingChain | null>;
   /** Строка агента для области запроса (SA2.5); `null` — агента нет или он в архиве */

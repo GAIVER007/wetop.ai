@@ -17,7 +17,7 @@ import { ReservationsService } from '../reservations/reservations.service';
 import type { ReservationCard } from '../reservations/reservation-card';
 import { WebBookingService } from './web-booking.service';
 
-/** Организация и объект брони ИИ-продавца (MKT1B BOOK-4): объект — из строки агента или предложения, не из запроса */
+/** Организация и объект брони ИИ-продавца (MKT1B BOOK-4): объект: из строки агента или предложения, не из запроса */
 const withPropertyOf = <T>(organizationId: string, propertyId: string, fn: () => Promise<T>): Promise<T> =>
   withOrganizationScope(organizationId, () => withIntegrationPropertyScope(propertyId, fn));
 
@@ -102,7 +102,7 @@ export class BookingIntentsService {
     if (cat.available <= 0) throw new ConflictException(`«${cat.name}»: мест на эти даты нет`);
     if (cat.totalMinor === null)
       throw new ConflictException(`«${cat.name}»: цена на эти даты не задана`);
-    // MKT1B BOOK-4: категория, бронь и сводка — строго в объекте филиала агента, не в самом раннем объекте организации
+    // MKT1B BOOK-4: категория, бронь и сводка: строго в объекте филиала агента, не в самом раннем объекте организации
     const typeId = await withPropertyOf(site.organizationId, site.propertyId, () =>
       this.uow.read(
         async (repo) => (await repo.activeCategories()).find((c) => c.code === cat.code)?.id,

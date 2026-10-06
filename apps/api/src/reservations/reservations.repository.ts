@@ -484,7 +484,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       if (exact && actsForOrganization()) {
         // MKT1B BOOK-4: публичный путь сайта и ИИ-продавца назвал объект сайта (проверенный сервером), и цены, фонд,
         // ключ идемпотентности и бронь идут строго в него, а не в первый объект организации. Объект чужой
-        // организации — тот же отказ, что у вошедшего. Стойка этот путь не берёт: объект в её контексте не задан.
+        // организации: тот же отказ, что у вошедшего. Стойка этот путь не берёт: объект в её контексте не задан.
         const organizationId = currentOrganizationId();
         const found = await this.db.property.findUnique({
           where: { id: exact },

@@ -16,6 +16,7 @@ import {
 } from '../../apps/api/src/web-booking/web-booking.service';
 import { TurnstileService } from '../../apps/api/src/web-booking/turnstile';
 import { deleteOrganizationChain } from '../tools/property-owner';
+import { purgeAuditRows } from '../tools/audit-purge';
 
 const url = process.env.DATABASE_URL;
 const local = !!url && ['127.0.0.1', 'localhost'].includes(new URL(url).hostname);
@@ -108,7 +109,24 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     };
   }
 
-  function service(): WebBookingService {
+  /** Поддельная проверка Turnstile: токен одноразовый, как у Cloudflare; считает обращения */
+  function oneTimeTurnstile() {
+    const used = new Set<string>();
+    const calls: string[] = [];
+    return {
+      calls,
+      enabled: () => true,
+      verify: async (token: unknown) => {
+        calls.push(String(token));
+        if (typeof token !== 'string' || !token) return { ok: false as const, reason: 'missing' as const };
+        if (used.has(token)) return { ok: false as const, reason: 'invalid' as const };
+        used.add(token);
+        return { ok: true as const };
+      },
+    };
+  }
+
+  function service(turnstile: unknown = new TurnstileService()): WebBookingService {
     const sites = new PrismaAnalyticsRepository({ db } as never);
     const uow = {
       run: <T>(fn: (repo: PrismaReservationsRepository) => Promise<T>) =>
@@ -124,7 +142,7 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
       reservations,
       new CollectService(sites),
       incidents,
-      new TurnstileService(),
+      turnstile as never,
       mailer as never,
     );
   }
@@ -137,6 +155,7 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     adults: 1,
     category: 'STD',
     guest: { firstName: 'Тест', lastName: 'Сайтов', phone: '+77010000000', email: null },
+    creationKey: randomUUID(),
   });
 
   beforeAll(async () => {
@@ -174,6 +193,7 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
       await db.paymentAllocation.deleteMany({ where: { folio: { reservationItem: { reservationId: { in: ids } } } } });
       await db.charge.deleteMany({ where: { folio: { reservationItem: { reservationId: { in: ids } } } } });
       await db.folio.deleteMany({ where: { reservationItem: { reservationId: { in: ids } } } });
+      await db.stayGuest.deleteMany({ where: { reservationItem: { reservationId: { in: ids } } } });
       await db.reservationItem.deleteMany({ where: { reservationId: { in: ids } } });
       await db.reservation.deleteMany({ where: { id: { in: ids } } });
       await db.guest.deleteMany({ where: { organizationId: { in: orgs } } });
@@ -190,6 +210,7 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
       await db.property.deleteMany({ where: { id: properties.propertyId } });
       await deleteOrganizationChain(db, orgs);
       await db.user.deleteMany({ where: { id: user } });
+      await purgeAuditRows(db, { organizationId: { in: orgs } });
       await db.organization.deleteMany({ where: { id: { in: orgs } } });
     } catch (e) {
       console.warn(`[mkt1b] уборка не закончена: ${(e as Error).message}`);
@@ -229,7 +250,7 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     expect(await db.reservation.count({ where: { propertyId: A.propertyId } })).toBe(0);
   }, 60_000);
 
-  it('BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний', async () => {
+  it('BOOK-4: котировка агента B: объект B; по организации с двумя сайтами: отказ, а не самый ранний', async () => {
     const svc = service();
     const byAgent = await svc.quoteForAgent(agentB, { arrival: day(41), departure: day(43), adults: '1' });
     expect(byAgent.categories.map((c) => c.name)).toEqual(['Номер B']);
@@ -264,5 +285,92 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     }
     // после возврата сайт снова работает
     expect((await svc.quote(quoteBody(S), ctx(S))).categories.map((c) => c.name)).toEqual(['Номер S']);
+  }, 60_000);
+  // MKT1B BOOK-2: идемпотентность /w/book существующими creationKey и creationFingerprint ReservationsService
+  // у каждого объекта один номер: каждая новая бронь берёт свои даты
+  const withKey = (h: Hotel, creationKey: string | undefined, at: number, over: Record<string, unknown> = {}) => ({
+    ...bookBody(h),
+    arrival: day(at),
+    departure: day(at + 1),
+    creationKey,
+    guest: { firstName: 'Тест', lastName: 'Повтор', phone: '+77010000001', email: 'guest@example.invalid' },
+    comment: 'Приеду вечером',
+    ...over,
+  });
+  const reservationsWithKey = (h: Hotel, key: string) =>
+    db.reservation.count({ where: { propertyId: h.propertyId, creationKey: key } });
+
+  it('BOOK-2: K+A дважды: та же бронь, одна запись, одно письмо, проверка Turnstile один раз', async () => {
+    const ts = oneTimeTurnstile();
+    const svc = service(ts);
+    const key = randomUUID();
+    const before = mails.length;
+    const first = await svc.book({ ...withKey(S, key, 33), turnstileToken: 't-1' }, ctx(S));
+    // клиент не узнал исход и повторил тот же запрос с тем же, уже потраченным токеном
+    const again = await svc.book({ ...withKey(S, key, 33), turnstileToken: 't-1' }, ctx(S));
+    expect(again.confirmationNumber).toBe(first.confirmationNumber);
+    expect(again.totalMinor).toBe(first.totalMinor);
+    expect(await reservationsWithKey(S, key)).toBe(1);
+    expect(mails.length - before).toBe(1);
+    expect(ts.calls).toEqual(['t-1']);
+  }, 60_000);
+
+  it('BOOK-2: K+A, затем K+B: 409 без данных первой брони', async () => {
+    const svc = service(oneTimeTurnstile());
+    const key = randomUUID();
+    const first = await svc.book({ ...withKey(S, key, 36), turnstileToken: 'a-1' }, ctx(S));
+    const tampered = svc.book(
+      { ...withKey(S, key, 36, { comment: 'Другой комментарий' }), turnstileToken: 'a-2' },
+      ctx(S),
+    );
+    await expect(tampered).rejects.toMatchObject({ status: 409 });
+    const error = (await tampered.catch((e: unknown) => e)) as { message: string; getResponse?: () => unknown };
+    expect(JSON.stringify(error.getResponse?.() ?? error.message)).not.toContain(first.confirmationNumber);
+    expect(await reservationsWithKey(S, key)).toBe(1);
+  }, 60_000);
+
+  it('BOOK-2: два одновременных K+A: ровно одна бронь', async () => {
+    const svc = service(oneTimeTurnstile());
+    const key = randomUUID();
+    const before = mails.length;
+    // двойной щелчок: один и тот же одноразовый токен в обоих запросах
+    const results = await Promise.allSettled([
+      svc.book({ ...withKey(S, key, 39), turnstileToken: 'c-1' }, ctx(S)),
+      svc.book({ ...withKey(S, key, 39), turnstileToken: 'c-1' }, ctx(S)),
+    ]);
+    expect(await reservationsWithKey(S, key)).toBe(1);
+    const ok = results.filter((r) => r.status === 'fulfilled').map((r) => (r as PromiseFulfilledResult<{ confirmationNumber: string }>).value.confirmationNumber);
+    expect(new Set(ok).size).toBe(1);
+    expect(mails.length - before).toBe(1);
+    // повтор виджета с тем же ключом после отказа проверки получает ту же бронь
+    const retry = await svc.book({ ...withKey(S, key, 39), turnstileToken: 'c-2' }, ctx(S));
+    expect(retry.confirmationNumber).toBe(ok[0]);
+    expect(mails.length - before).toBe(1);
+    // разные токены (две вкладки): оба ответа: одна бронь
+    const key2 = randomUUID();
+    const pair = await Promise.all([
+      svc.book({ ...withKey(S, key2, 44), turnstileToken: 'd-1' }, ctx(S)),
+      svc.book({ ...withKey(S, key2, 44), turnstileToken: 'd-2' }, ctx(S)),
+    ]);
+    expect(pair[0].confirmationNumber).toBe(pair[1].confirmationNumber);
+    expect(await reservationsWithKey(S, key2)).toBe(1);
+    expect(mails.length - before).toBe(2);
+  }, 60_000);
+
+  it('BOOK-2: новый ключ требует действующего токена; ключ не UUID v4: 400', async () => {
+    const ts = oneTimeTurnstile();
+    const svc = service(ts);
+    await svc.book({ ...withKey(S, randomUUID(), 47), turnstileToken: 'n-1' }, ctx(S));
+    const reused = randomUUID();
+    await expect(svc.book({ ...withKey(S, reused, 49), turnstileToken: 'n-1' }, ctx(S))).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(await reservationsWithKey(S, reused)).toBe(0);
+    await expect(svc.book({ ...withKey(S, 'not-a-key', 49), turnstileToken: 'n-2' }, ctx(S))).rejects.toMatchObject({
+      status: 400,
+    });
+    await expect(
+      svc.book({ ...withKey(S, undefined, 49), turnstileToken: 'n-3' }, ctx(S)),
+    ).rejects.toMatchObject({ status: 400 });
   }, 60_000);
 });

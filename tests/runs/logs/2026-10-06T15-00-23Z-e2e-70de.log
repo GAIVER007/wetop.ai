@@ -1,0 +1,166 @@
+# Сквозные (e2e) · 06.10.2026 20:00 Алматы · vm
+# коммит e3fadd0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (6.1s)
+  ✘  2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (17.0s)
+  ✘  3 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (17.2s)
+  ✓  4 tests/ui/marketing.spec.ts:132:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (4.9s)
+  ✘  5 tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: light (16.6s)
+  ✘  6 tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: dark (16.8s)
+
+
+  1) tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').visible().locator('.page__crumbs').getByRole('link')
+    Expected: "/marketing"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').visible().locator('.page__crumbs').getByRole('link') with timeout 15000ms
+      - waiting for getByRole('main').visible().locator('.page__crumbs').getByRole('link')
+
+
+      77 |       'Сайт и онлайн-бронирование',
+      78 |     );
+    > 79 |     await expect(main(page).locator('.page__crumbs').getByRole('link')).toHaveAttribute(
+         |                                                                         ^
+      80 |       'href',
+      81 |       '/marketing',
+      82 |     );
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:79:73
+
+    Error Context: test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+       98 |
+       99 |   const hub = main(page);
+    > 100 |   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                        ^
+      101 |   await expect(hub.locator('.page__subtitle')).toHaveText(
+      102 |     'Привлекайте гостей, развивайте сайт и управляйте продвижением из WETOP.',
+      103 |   );
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:100:56
+
+    Error Context: test-results/marketing-хаб-карточка-«Са-02ebb-ок-ни-одного-запроса-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-карточка-«Са-02ebb-ок-ни-одного-запроса-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-карточка-«Са-02ebb-ок-ни-одного-запроса-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: light ───────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        30 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      163 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      164 |       await page.goto('/marketing');
+    > 165 |       await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                                   ^
+      166 |       expect(
+      167 |         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      168 |       ).toBe(true);
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:165:67
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Маркетинг"
+    Received: "Страница не найдена"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        30 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      163 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      164 |       await page.goto('/marketing');
+    > 165 |       await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+          |                                                                   ^
+      166 |       expect(
+      167 |         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      168 |       ).toBe(true);
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:165:67
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+    tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных 
+    tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: light ────────────
+    tests/ui/marketing.spec.ts:154:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+  2 passed (1.9m)
+
+# код выхода 1 · 1 мин 57 с

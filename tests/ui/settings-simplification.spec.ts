@@ -15,7 +15,7 @@ test('короткое меню настроек ведёт в единый об
   const group = sidebar
     .locator('.topmenu__group')
     .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
+  // Сайт объекта в «Маркетинг → Сайт и SEO» (MKT2; до 06.10 в «Продажах», ADR-117), в «Настройках» его больше нет
   await expect(group.locator('a')).toHaveText([
     'Объект',
     'Сотрудники и доступ',

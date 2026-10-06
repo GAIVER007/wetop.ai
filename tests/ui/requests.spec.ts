@@ -60,6 +60,8 @@ for (const screen of [
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',
+  // хаб «Маркетинг» (MKT2): статичная страница, данных не спрашивает
+  '/marketing',
   '/website',
   '/website/booking',
   '/website/analytics',

@@ -483,8 +483,8 @@
 /* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
    расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
    гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
-   занято, заблокировано, загрузка), значения жирно столбцом. Карточка слева, управление календарём
-   справа; на телефоне карточка на всю ширину, управление под ней. */
+   занято, загрузка), значения жирно столбцом. На компьютере карточка справа, управление календарём
+   слева (владелец 06.10: «с компа сделай это справа»); до 1199 px карточка на всю ширину, управление под ней. */
 .board-top {
   display: flex;
   align-items: flex-start;
@@ -494,14 +494,18 @@
 .board-top > .board-controls {
   flex: 1 1 auto;
   min-width: 0;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-bottom: 0;
 }
 .board-top > .board-controls .board-bar {
   margin-left: 0;
 }
+.board-top > .board-controls .board-period > .seg {
+  margin-left: 0;
+}
 .board-day-panel {
-  flex: 0 1 720px;
+  order: 1;
+  flex: 0 1 560px;
   min-width: 0;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-control);
@@ -560,6 +564,7 @@
     align-items: stretch;
   }
   .board-day-panel {
+    order: 0;
     flex: none;
   }
 }

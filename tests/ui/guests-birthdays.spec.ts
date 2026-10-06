@@ -32,7 +32,8 @@ test('календарь исключает дни рождения, отдел�
   await expect(panel.getByText('Дни рождения')).toHaveCount(0);
   const panelBox = (await panel.boundingBox())!;
   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
-  expect(panelBox.x + panelBox.width <= navBox.x || panelBox.y + panelBox.height <= navBox.y).toBe(
+  // на компьютере карточка справа от стрелок дат (владелец 06.10), на узком экране над ними
+  expect(navBox.x + navBox.width <= panelBox.x || panelBox.y + panelBox.height <= navBox.y).toBe(
     true,
   );
   await page.goto('/guests/birthdays');

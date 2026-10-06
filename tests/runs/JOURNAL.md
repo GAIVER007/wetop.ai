@@ -6821,3 +6821,6 @@
 | 06.10.2026 20:43 | typecheck | ✅ без ошибок | 44 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-11Z-typecheck-41ef.log) |  |
 | 06.10.2026 20:43 | lint | ✅ без ошибок | 40 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-56Z-lint-9f70.log) |  |
 | 06.10.2026 20:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 90 из 90 | 6 мин 59 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-11Z-e2e-d0c9.log) | календарь: сводка без «Всего номеров» |
+| 06.10.2026 20:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 59 из 59 | 5 мин 51 с | 5601a8e +3 | [лог](logs/2026-10-06T15-54-26Z-e2e-37d4.log) | календарь: сводка справа на компьютере |
+| 06.10.2026 21:00 | lint | ✅ без ошибок | 36 с | 5601a8e +3 | [лог](logs/2026-10-06T16-00-27Z-lint-6b60.log) |  |
+| 06.10.2026 21:01 | unit (частично: tests/unit/design-slop.test.ts scripts/design/build-tokens.test.ts) | ✅ 26 из 26 | 2 с | 5601a8e +1 | [лог](logs/2026-10-06T16-01-04Z-unit-9271.log) | сторожа после карточки справа |

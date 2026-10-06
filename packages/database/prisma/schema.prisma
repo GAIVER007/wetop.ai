@@ -90,6 +90,7 @@ model Location {
   services LocationService[]
   workingHours WorkingHours[]
   appointments Appointment[]
+  marketingSites MarketingSite[]
 
   @@index([businessId])
   @@map("locations")
@@ -1451,9 +1452,80 @@ model TrackedSite {
   property        Property     @relation(fields: [propertyId], references: [id])
   bookingRatePlan RatePlan?    @relation(fields: [bookingRatePlanId], references: [id])
   sessions        WebSession[]
+  marketingSite   MarketingSite?
 
   @@index([propertyId])
   @@map("tracked_sites")
+}
+
+/// Состояние управляемого сайта (DATA_MODEL §29.8). MKT3 заводит сайт только в DRAFT; публикация, пауза и архив
+/// появятся со своими срезами (MKT7), значения заведены сразу как часть утверждённой целевой модели.
+enum MarketingSiteState {
+  DRAFT
+  PUBLISHED
+  PAUSED
+  ARCHIVED
+}
+
+/// Откуда версия: ручная правка, результат ИИ (с MKT6 вместе с generation_run_id), перенос документа
+enum SiteVersionSource {
+  MANUAL
+  AI
+  IMPORT
+}
+
+/// Управляемый сайт филиала (DATA_MODEL §29.2, ADR-149, MKT3). Владелец Location; в v1 не больше одного неархивного
+/// сайта на филиал и уникальный slug среди неархивных (частичные индексы в миграции …060). Указатели на версии только
+/// этого же сайта держит триггер marketing_site_guard. TrackedSite не CMS: связь заводится при публикации (MKT7).
+model MarketingSite {
+  id                 String             @id @default(uuid()) @db.Uuid
+  locationId         String             @map("location_id") @db.Uuid
+  trackedSiteId      String?            @unique @map("tracked_site_id") @db.Uuid
+  name               String             @db.VarChar(120)
+  slug               String             @db.VarChar(40)
+  state              MarketingSiteState @default(DRAFT)
+  latestVersionId    String?            @map("latest_version_id") @db.Uuid
+  publishedVersionId String?            @map("published_version_id") @db.Uuid
+  createdById        String?            @map("created_by_id") @db.Uuid
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  archivedAt         DateTime?          @map("archived_at") @db.Timestamptz(6)
+
+  location         Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  trackedSite      TrackedSite?           @relation(fields: [trackedSiteId], references: [id], onDelete: SetNull)
+  latestVersion    MarketingSiteVersion?  @relation("MarketingSiteLatest", fields: [latestVersionId], references: [id], onDelete: Restrict)
+  publishedVersion MarketingSiteVersion?  @relation("MarketingSitePublished", fields: [publishedVersionId], references: [id], onDelete: Restrict)
+  createdBy        User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  versions         MarketingSiteVersion[] @relation("MarketingSiteVersions")
+
+  @@index([locationId])
+  @@map("marketing_sites")
+}
+
+/// Неизменяемая версия SiteSpec (DATA_MODEL §29.3, MKT3). UPDATE и DELETE запрещает триггер, у ролей приложения прав на
+/// них нет. Первая версия revision 1 без родителя, следующая revision родителя + 1 с родителем того же сайта
+/// (триггер marketing_site_version_guard). generation_run_id появится с generation_runs в MKT6.
+model MarketingSiteVersion {
+  id              String            @id @default(uuid()) @db.Uuid
+  siteId          String            @map("site_id") @db.Uuid
+  revision        Int
+  parentVersionId String?           @map("parent_version_id") @db.Uuid
+  schemaVersion   String            @map("schema_version") @db.VarChar(20)
+  spec            Json
+  specHash        String            @map("spec_hash") @db.Char(64)
+  source          SiteVersionSource
+  createdById     String?           @map("created_by_id") @db.Uuid
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  site        MarketingSite          @relation("MarketingSiteVersions", fields: [siteId], references: [id], onDelete: Restrict)
+  parent      MarketingSiteVersion?  @relation("MarketingSiteVersionParent", fields: [parentVersionId], references: [id], onDelete: Restrict)
+  children    MarketingSiteVersion[] @relation("MarketingSiteVersionParent")
+  latestOf    MarketingSite[]        @relation("MarketingSiteLatest")
+  publishedOf MarketingSite[]        @relation("MarketingSitePublished")
+  createdBy   User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([siteId, revision])
+  @@map("marketing_site_versions")
 }
 
 /// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.
@@ -1671,6 +1743,8 @@ model User {
   @@map("users")
   foodReservationsCreated RestaurantReservation[]
   foodAssignmentsCreated TableAssignment[]
+  marketingSitesCreated MarketingSite[]
+  marketingSiteVersionsCreated MarketingSiteVersion[]
 
 }
 

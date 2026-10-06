@@ -3,6 +3,11 @@ import type { TrackedSiteCard } from '../../lib/api';
 import { EmptyState, Notice, Stack } from '../../components/ui';
 import { WEBSITE_TABS, WEBSITE_TITLE, type WebsiteView } from '../../lib/website';
 
+/** Сайт объекта, продукт «Маркетинга» (MKT2): над заголовком ссылка в хаб, тем же приёмом, что у «Каналов продаж» */
+export function MarketingCrumb() {
+  return <Link href="/marketing">Маркетинг</Link>;
+}
+
 /** Вкладки модуля — ссылки со своим адресом, как у «ИИ-продавца» и «Настроек гостиницы» (`.settings-tabs`) */
 export function WebsiteTabs({ current }: { current: WebsiteView }) {
   return (

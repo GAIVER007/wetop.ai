@@ -43,7 +43,9 @@ test('одна точка входа в меню и четыре вкладки 
   const hrefs = await sidebar
     .locator('a')
     .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
-  expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual(['/website']);
+  // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
+  expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
+  expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual(['/marketing']);
   expect(hrefs.filter((href) => href?.startsWith('/analytics'))).toEqual([]);
   const tabs = page.getByRole('navigation', { name: TITLE, exact: true });
   await expect(tabs.getByRole('link')).toHaveText([
@@ -64,7 +66,7 @@ test('одна точка входа в меню и четыре вкладки 
       'aria-current',
       'page',
     );
-    await expect(sidebar.locator('[aria-current="page"]')).toHaveText(TITLE);
+    await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
   }
 });
 

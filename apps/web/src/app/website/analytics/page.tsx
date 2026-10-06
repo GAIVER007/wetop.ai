@@ -23,7 +23,7 @@ import {
 } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
 import { DailyChart } from './daily-chart';
-import { WebsiteTabs } from '../parts';
+import { MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
 
 const MAX_PERIOD_DAYS = 366;
@@ -86,7 +86,7 @@ export default async function AnalyticsPage({
       else failure = e;
     }
   return (
-    <Page title={WEBSITE_TITLE} subtitle={<span data-testid="an-site-name">{site.name}</span>}>
+    <Page crumbs={<MarketingCrumb />} title={WEBSITE_TITLE} subtitle={<span data-testid="an-site-name">{site.name}</span>}>
       <WebsiteTabs current="analytics" />
       {!primaryHost(site) && (
         <Notice className="block" data-testid="an-domain-missing">
@@ -104,7 +104,7 @@ export default async function AnalyticsPage({
 
 function NoSites() {
   return (
-    <Page title={WEBSITE_TITLE}>
+    <Page crumbs={<MarketingCrumb />} title={WEBSITE_TITLE}>
       <WebsiteTabs current="analytics" />
       <EmptyState
         data-testid="an-no-sites"

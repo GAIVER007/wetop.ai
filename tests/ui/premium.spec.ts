@@ -141,6 +141,7 @@ test('новые страницы и обе темы: адаптивность �
     '/channels/sync',
     '/journal',
     '/incidents',
+    '/marketing',
     '/website',
     '/website/analytics',
     '/management/analytics',

@@ -32,12 +32,17 @@ it('несколько филиалов: никогда не выбираетс�
 
 it('next чужого направления заменяется стартовой страницей направления', () => {
   expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/today' });
-  expect(decideScope([branch('FOOD_SERVICE')], '/today')).toMatchObject({
+  expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({
     target: '/register/setup',
   });
   expect(decideScope([branch('BEAUTY')], '/floor-plan')).toMatchObject({
     target: '/register/setup',
   });
+});
+
+it('/today общий для всех направлений: сохраняется у салона и ресторана (MV8)', () => {
+  for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
+    expect(decideScope([branch(v)], '/today')).toMatchObject({ target: '/today' });
 });
 
 it('next своего направления и общие разделы сохраняются', () => {

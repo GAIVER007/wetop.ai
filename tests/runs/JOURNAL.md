@@ -6846,3 +6846,14 @@
 | 06.10.2026 23:16 | unit | ✅ 3473 из 3476, пропущено 3 | 1 мин 52 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-16-06Z-unit-4d08.log) |  |
 | 06.10.2026 23:18 | integration | ✅ 807 из 807 | 2 мин 8 с | 3d7a1b2 +6 | [лог](logs/2026-10-06T18-18-01Z-integration-08b7.log) |  |
 | 06.10.2026 23:20 | e2e (частично: tests/ui/marketing.spec.ts tests/ui/website.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 46 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-20-14Z-e2e-f5b2.log) |  |
+| 06.10.2026 20:45 | unit (частично: apps/web/src/app/today/vertical-metrics.test.ts) | ❌ код выхода 1 | 7 с | c6044ba +1 | [лог](logs/2026-10-06T15-45-54Z-unit-6bc8.log) | (файл не выполнился) |
+| 06.10.2026 20:46 | unit (частично: apps/web/src/app/today/vertical-metrics.test.ts) | ✅ 12 из 12 | 1 с | c6044ba +2 | [лог](logs/2026-10-06T15-46-24Z-unit-ee60.log) |  |
+| 06.10.2026 20:46 | unit (частично: apps/web/src/app/today/vertical-load.test.ts) | ❌ код выхода 1 | 1 с | c6044ba +3 | [лог](logs/2026-10-06T15-46-54Z-unit-3d22.log) | (файл не выполнился) |
+| 06.10.2026 20:47 | unit (частично: apps/web/src/app/today/vertical-load.test.ts) | ✅ 5 из 5 | 1 с | c6044ba +4 | [лог](logs/2026-10-06T15-47-04Z-unit-77a3.log) |  |
+| 06.10.2026 20:47 | unit (частично: apps/web/src/app/today/page.test.ts) | ❌ код выхода 1 | 1 с | c6044ba +6 | [лог](logs/2026-10-06T15-47-53Z-unit-b366.log) | (файл не выполнился) |
+| 06.10.2026 20:48 | unit (частично: apps/web/src/app/today/dispatch.test.ts) | ❌ код выхода 1 | 1 с | c6044ba +6 | [лог](logs/2026-10-06T15-48-11Z-unit-f9a1.log) | (файл не выполнился) |
+| 06.10.2026 20:48 | unit (частично: apps/web/src/app/today/dispatch.test.ts) | ✅ 4 из 4 | 1 с | c6044ba +8 | [лог](logs/2026-10-06T15-48-22Z-unit-232d.log) |  |
+| 06.10.2026 20:50 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts apps/web/src/lib/navigation-food.test.ts apps/web/src/app/branches/switch.test.ts apps/web/src/lib/sc | ❌ упало 9 из 28 | 3 с | c6044ba +16 | [лог](logs/2026-10-06T15-50-02Z-unit-c326.log) | меню салона у филиала салона есть только то, что в нём работает |
+| 06.10.2026 20:50 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts apps/web/src/lib/navigation-food.test.ts apps/web/src/app/branches/switch.test.ts apps/web/src/lib/sc | ✅ 28 из 28 | 2 с | c6044ba +19 | [лог](logs/2026-10-06T15-50-13Z-unit-b5ac.log) |  |
+| 06.10.2026 20:50 | unit | ❌ упало 1 из 3450, пропущено 3 | 1 мин 48 с | c6044ba +19 | [лог](logs/2026-10-06T15-50-21Z-unit-fede.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 06.10.2026 20:52 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts) | ✅ 11 из 11 | 1 с | c6044ba +19 | [лог](logs/2026-10-06T15-52-14Z-unit-fe63.log) |  |

@@ -25,8 +25,8 @@ export type ScopeDecision =
   | { kind: 'choose'; target: '/branches' }
   | { kind: 'empty'; target: '/onboarding' };
 
-/** Разделы, общие для всех направлений: их меню есть и у салона, и у ресторана */
-const SHARED = ['/journal', '/help', '/profile', '/staff', '/team'];
+/** Разделы, общие для всех направлений: их меню есть и у салона, и у ресторана; `/today` с MV8 */
+const SHARED = ['/today', '/journal', '/help', '/profile', '/staff', '/team'];
 
 function compatible(path: string, vertical: WebVertical): boolean {
   const pathname = path.split('?')[0]!;

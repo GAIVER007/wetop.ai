@@ -225,7 +225,7 @@ export async function OwnerLoad({ date }: { date: string }) {
           </svg>
           <div>
             <strong>{summary ? total : '…'}</strong>
-            <span>в фонде</span>
+            <span>мест всего</span>
           </div>
         </div>
       </div>

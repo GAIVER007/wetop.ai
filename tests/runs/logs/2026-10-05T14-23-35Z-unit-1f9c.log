@@ -1,0 +1,18 @@
+# Модульные (unit) · 05.10.2026 19:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит efa6651 (codex/remaining-release-20261005)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-23-35Z-unit-1f9c.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (20 tests) 1336ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 989ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  07:23:35
+   Duration  1.43s (tests 98%, transform 1%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-23-35Z-unit-1f9c.json
+
+# код выхода 0 · 2 с

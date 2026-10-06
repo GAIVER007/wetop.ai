@@ -1,3 +1,5 @@
+import { requireVertical } from '../../lib/vertical-guard';
+import { FilterHistory } from './filter-history';
 import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
@@ -79,6 +81,7 @@ export default async function FinanceReportPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);
@@ -237,6 +240,15 @@ export default async function FinanceReportPage({
           className="finance-toolbar"
           data-testid="period-form"
         >
+          <FilterHistory
+            defaults={{
+              from,
+              to,
+              op: opParam ?? '',
+              method: filter.method ?? '',
+              src: srcParam ?? '',
+            }}
+          />
           <input type="hidden" name="show" value="1" />
           <Field inline label="С">
             <DateInput

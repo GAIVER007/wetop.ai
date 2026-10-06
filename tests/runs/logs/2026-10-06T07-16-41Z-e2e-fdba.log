@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 06.10.2026 12:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 53d355d (codex/remaining-release-20261005)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/real-data.spec.ts' '--grep' 'недоступный API не скрывается|поздняя загрузка гостиницы' '--workers=1'
+[WebServer] (node:21547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:21649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/real-data.spec.ts:68:1 › недоступный API не скрывается за демо или выдуманным объектом (4.4s)
+  ✘  2 tests/ui/real-data.spec.ts:82:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (31.4s)
+
+
+  1) tests/ui/real-data.spec.ts:82:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.workspace-header .workspace-property')
+    Expected substring: "Филиал недоступен"
+    Received string:    "Объект не загруженНастройки объекта"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" locator('.workspace-header .workspace-property') with timeout 15000ms
+      - waiting for locator('.workspace-header .workspace-property')
+        34 × locator resolved to <div class="workspace-property">…</div>
+           - unexpected value "Объект не загруженНастройки объекта"
+
+
+       97 |       await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+       98 |     }).toPass({ timeout: 15_000 });
+    >  99 |     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
+          |                                                                         ^
+      100 |       'Филиал недоступен',
+      101 |     );
+      102 |     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/real-data.spec.ts:99:73
+
+    Error Context: test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/real-data.spec.ts:82:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+  1 passed (48.9s)
+
+# код выхода 1 · 53 с

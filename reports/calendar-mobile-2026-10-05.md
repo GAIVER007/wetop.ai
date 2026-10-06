@@ -87,3 +87,15 @@ release-checks #71, SHA fddf28a984bda27f886b4b8c30475543eee92af7: бот, lint/t
 Те же сценарии на локальном Chromium: 3/3, 2026-10-05T11-31-13Z-e2e-aa75.log. Проверка теперь ожидает загрузки шрифтов, видимость строки и корректный hit point; затем посылает touchStart/touchMove/touchEnd. Требования к прокрутке, sticky номеру и отсутствию случайного открытия клетки сохранены. Локальный финальный Chromium: 16/16, 2026-10-05T11-39-45Z-e2e-1433.log. Linux GREEN ещё требует нового полного release-checks.
 
 Финальные типы и lint: 2026-10-05T11-41-06Z-typecheck-b705.log, 2026-10-05T11-41-38Z-lint-c88c.log.
+
+## Production preparation, 2026-10-05 12:25 UTC
+
+CI #80 c98d516: GREEN, UI 319+310+314; unit 3365 passed (7 skipped), database 715 passed (12 skipped). Fresh backup wetop-20261005T122354Z.dump: 75 tables, 388K, validated. All six approved migrations 51, 53-57 applied. Prisma status up to date. Read-only validation: ten BAR tables RLS/FORCE; six functions search_path=public,pg_temp; 22 enabled triggers. Counts unchanged: reservations11, reservation_items23, guests11, inventory_units88, cash_operations0. Food58 excluded.
+
+Release fast-forward stopped: production-only a5c5050c and d3766c44 were not ancestors. Preserved both in 7e273890d55b10ef08c9276d74b137632b8f61fb. Full CI #87: https://github.com/GAIVER007/wetop.ai/actions/runs/37310109839. Local 29/29, typecheck and lint: 2026-10-05T12-28-50Z-e2e-9ac1.log, 2026-10-05T12-31-45Z-typecheck-d3f7.log, 2026-10-05T12-31-59Z-lint-d193.log. App remains a5c5050c until new exact SHA gate passes.
+
+## Production verified, 2026-10-05 13:09 UTC
+
+release-checks #87 exact 7e273890d55b10ef08c9276d74b137632b8f61fb: all seven jobs GREEN, UI319+310+314=943 passed, database716 passed/12 skipped plus browser onboarding4 and e2e25 passed. Release fast-forward a5c5050c to 7e273890 successful. Official auto-deploy completed 13:04:50 UTC in172s. Server HEAD and deployed file both 7e273890. API/web image sha256:fe21ae9aa5a5efcb0e8eefc342a66ea1d510a2bcd51f52781f404a024c39abbe, both healthy. Next BUILD_ID 8kozzWMcG4EZWDN-dbNyE. Internal health status=ok,database=up. Public auth/fallback,today,chessboard,reservations HTTP200. Previous rollback SHA a5c5050c preserved.
+
+Authenticated live public mobile: 360/390/430px all document overflow0; local grid widths342/372/412px, content840px; sticky unit112px; touch-action pan-x pan-y. Top panel has all eight counters in this deployed candidate. A free unit opened its bottom panel. Selecting three nights produced /reservations/new?arrival=2026-10-05&departure=2026-10-08&unit=1. Panel closed, desktop1710px restored. No reservation/guest/block writes, no real guest data in screenshots. Physical phone keyboard not verified. Images: production-390-stats.jpg, release-checks-87-green.jpg. Parallel later main changes, including Food58/59 and simplified six-counter summary, are preserved in source but excluded from this bounded deployment.

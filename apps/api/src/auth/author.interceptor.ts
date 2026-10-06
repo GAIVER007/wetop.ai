@@ -86,6 +86,8 @@ export class AuthorInterceptor implements NestInterceptor {
       assertBusinessCapability(vertical, capability);
       return;
     }
+    if (capability.startsWith('food.'))
+      throw new ForbiddenException('Выберите доступный бизнес Food Service и филиал');
     if (capability.startsWith('beauty.'))
       throw new ForbiddenException('Выберите доступный бизнес Beauty');
     if (!this.prisma) throw new ForbiddenException('Не удалось проверить направление бизнеса');

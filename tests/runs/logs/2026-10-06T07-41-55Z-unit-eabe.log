@@ -1,0 +1,52 @@
+# Модульные (unit) · 06.10.2026 12:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит d52065e (codex/remaining-release-20261005)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-41-55Z-unit-eabe.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP
+
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 1 failed) 7ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 1ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 5ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ снимок покрывает все правила 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 10 → 11",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  00:41:57
+   Duration  135ms (import 66%, transform 22%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-41-55Z-unit-eabe.json
+
+# код выхода 1 · 1 с

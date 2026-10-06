@@ -1,0 +1,241 @@
+# Сквозные (e2e) · 05.10.2026 18:53 Алматы · MacBook-Air-Urij.local
+# коммит 7a69203 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=90000' 'tests/ui/top-menu.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/registration-closed.spec.ts'
+[WebServer] (node:88394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 31 tests using 1 worker
+
+(node:88453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (3.9s)
+[WebServer] (node:88535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/branches.spec.ts:31:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (4.5s)
+[WebServer] (node:88546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/branches.spec.ts:78:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (6.0s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (1.7s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:41:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (959ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer]
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer]
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer]
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer]
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-05" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: light (2.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer]
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer]
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer]
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer]
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-05" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: dark (2.7s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:67:1 › пустая клетка не дублирует дату из шапки календаря (3.5s)
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:75:1 › даты в шапке не повторяют свободные и занятые места (2.7s)
+  ✓  10 tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day (4.5s)
+  ✓  11 tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure (4.4s)
+  ✓  12 tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried (5.4s)
+  ✓  13 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (9.9s)
+  ✓  14 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in light theme (5.9s)
+  ✓  15 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in dark theme (4.8s)
+  ✓  16 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (3.5s)
+  ✓  17 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (4.7s)
+  ✓  18 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps attention available when finance fails (2.7s)
+  ✓  19 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (7.2s)
+  ✓  20 tests/ui/owner-dashboard.spec.ts:88:1 › owner mobile overview fits above navigation and omits refund metrics (2.9s)
+  ✓  21 tests/ui/owner-dashboard.spec.ts:115:1 › owner overview stays usable at narrow widths and custom dates remain accessible (3.0s)
+  ✓  22 tests/ui/owner-dashboard.spec.ts:135:1 › approved owner concept groups forecast with occupancy and matches attention count (2.4s)
+  ✓  23 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (363ms)
+  ✓  24 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (564ms)
+[WebServer] (node:88906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (485ms)
+  ✓  26 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (455ms)
+[WebServer] (node:88919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (779ms)
+[WebServer] (node:88923) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (4.3s)
+[WebServer] (node:88932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 tests/ui/top-menu.spec.ts:126:1 › вложенные адреса подсвечивают свою вкладку (4.4s)
+  ✓  30 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: light (3.2s)
+  ✓  31 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.2s)
+
+  31 passed (1.9m)
+
+# код выхода 0 · 1 мин 55 с

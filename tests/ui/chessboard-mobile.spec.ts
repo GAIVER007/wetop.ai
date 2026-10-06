@@ -148,6 +148,7 @@ for (const theme of ['light', 'dark'] as const) {
     const wrap = page.locator('.board-wrap');
     expect(await wrap.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeGreaterThan(1000);
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-grid.png` });
+    await wrap.scrollIntoViewIfNeeded();
     await wrap.evaluate((el) => {
       el.scrollTop = el.scrollHeight;
     });
@@ -184,7 +185,7 @@ test('форма брони на телефоне: крупные поля, со
 });
 
 for (const width of [360, 390, 430]) {
-  test(`статистика ${width}: восемь показателей перед календарём и вертикальная прокрутка`, async ({
+  test(`статистика ${width}: виджеты дня перед календарём и вертикальная прокрутка`, async ({
     page,
     request,
   }) => {
@@ -196,8 +197,8 @@ for (const width of [360, 390, 430]) {
       'arrivals',
       'departures',
       'inhouse',
-      'birthdays',
-      'tasks',
+      'noshow',
+      'hot',
       'free',
       'units',
       'occupied',
@@ -210,6 +211,8 @@ for (const width of [360, 390, 430]) {
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
     await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(stats.getByTestId('day-birthdays')).toHaveCount(0);
+    await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

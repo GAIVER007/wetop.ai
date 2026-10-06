@@ -18,6 +18,7 @@ beforeEach(() => {
     items: [
       {
         id: 'own',
+        vertical: 'HOSPITALITY',
         locationId: 'location',
         location: { businessId: 'business' },
         _count: { inventoryUnits: 2 },
@@ -46,3 +47,28 @@ it('чужой филиал не меняет cookie', async () => {
   await expect(selectBranch(form)).rejects.toThrow('Филиал недоступен');
   expect(state.set).not.toHaveBeenCalled();
 });
+
+it.each([
+  ['FOOD_SERVICE', '/floor-plan'],
+  ['BEAUTY', '/calendar'],
+])(
+  'canonical landing for verified %s branch ignores old vertical route',
+  async (vertical, expected) => {
+    state.list.mockResolvedValue({
+      items: [
+        {
+          id: 'own',
+          vertical,
+          locationId: 'location',
+          location: { businessId: 'business' },
+          _count: { inventoryUnits: 0 },
+        },
+      ],
+    });
+    const form = new FormData();
+    form.set('id', 'own');
+    form.set('returnTo', '/chessboard');
+    await expect(selectBranch(form)).rejects.toThrow(`redirect:${expected}`);
+    expect(state.set).toHaveBeenCalledOnce();
+  },
+);

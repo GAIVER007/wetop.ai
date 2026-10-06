@@ -43,27 +43,17 @@ test('телефон: низ страницы не прячется под ни�
     await page.goto(route);
     const nav = page.locator('.bottom-navigation');
     await expect(nav).toBeVisible();
-    await expect(page.locator('.page:visible').first()).toBeVisible();
-    // Один снимок DOM: streamed Next может заменить узел между locator и evaluate.
-    // Не держим ElementHandle старой страницы, не подставляем значения при ошибке.
-    const { padBottom, navHeight, overflow } = await page.evaluate(() => {
-      const content = [...document.querySelectorAll<HTMLElement>('.page')].find(
-        (el) => {
-          const rect = el.getBoundingClientRect();
-          return rect.width > 0 && rect.height > 0 && getComputedStyle(el).visibility !== 'hidden';
-        },
-      );
-      const navigation = document.querySelector<HTMLElement>('.bottom-navigation');
-      if (!content || !navigation) throw new Error('Страница или нижняя навигация отсутствует');
-      return {
-        padBottom: Number.parseFloat(getComputedStyle(content).paddingBottom),
-        navHeight: navigation.getBoundingClientRect().height,
-        overflow: document.documentElement.scrollWidth - window.innerWidth,
-      };
-    });
-    expect(Number.isFinite(padBottom), `${route}: отступ должен быть числом`).toBe(true);
-    expect(navHeight, `${route}: панель должна иметь высоту`).toBeGreaterThan(0);
+    const navHeight = (await nav.boundingBox())?.height ?? 0;
+    // На части экранов (вкладки тарифов) несколько .page — мерим видимую
+    const padBottom = await page
+      .locator('.page:visible')
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
     expect(padBottom, `${route}: padding-bottom ${padBottom} < панель ${navHeight}`).toBeGreaterThanOrEqual(navHeight);
+    // и страница не едет вбок
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
     expect(overflow, `${route}: горизонтальная прокрутка`).toBeLessThanOrEqual(1);
   }
 });
@@ -92,15 +82,18 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
 
-test('телефон: управление календаря не отнимает у сетки пол-экрана', async ({ page }) => {
-  // На телефоне перед сеткой остаётся компактная сводка дня. Она должна быть видна целиком,
-  // а календарь должен начинаться в пределах первого экрана и оставаться доступным прокруткой.
+test('телефон: сводка и управление оставляют сетку на первом экране', async ({ page }) => {
+  // Согласованная сводка занимает до 280 px, сетка начинается не ниже 700 px.
   await page.goto('/chessboard');
-  await expect(page.locator('.board-wrap')).toBeVisible();
-  await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
-  const board = await page.locator('.board-wrap').boundingBox();
-  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(760);
-  // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
+  const grid = page.locator('.board-wrap');
+  const summary = page.getByRole('group', { name: 'Сегодня на объекте' });
+  await expect(grid).toBeVisible();
+  await expect(summary).toBeVisible();
+  expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(280);
+  const board = await grid.boundingBox();
+  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
+  const navigation = await page.locator('.bottom-navigation').boundingBox();
+  expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
 });
 

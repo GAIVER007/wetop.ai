@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
@@ -42,6 +43,7 @@ export default async function HotelSettingsPage({
 }: {
   params: Promise<{ section?: string[] }>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';

@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 05.10.2026 18:33 Алматы · MacBook-Air-Urij.local
+# коммит c519f0a (codex/owner-home-compact), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/requests.spec.ts' '--grep' 'forecast|inventory|temporary API|owner|пустая база: главная|после запуска отеля|экран /today:' '--workers=1'
+[WebServer] (node:10135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:11088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 17 tests using 1 worker
+
+(node:11484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (3.1s)
+  ✓   2 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (3.5s)
+  ✓   3 tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day (2.9s)
+  ✓   4 tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure (2.2s)
+  ✓   5 tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried (2.3s)
+  ✓   6 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.7s)
+  ✓   7 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in light theme (3.9s)
+  ✓   8 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in dark theme (2.9s)
+  ✓   9 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (1.9s)
+  ✓  10 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (2.0s)
+  ✓  11 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps attention available when finance fails (1.4s)
+  ✓  12 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (4.4s)
+  ✓  13 tests/ui/owner-dashboard.spec.ts:88:1 › owner mobile overview fits above navigation and omits refund metrics (1.8s)
+  ✓  14 tests/ui/owner-dashboard.spec.ts:115:1 › owner overview stays usable at narrow widths and custom dates remain accessible (2.6s)
+  ✓  15 tests/ui/owner-dashboard.spec.ts:135:1 › approved owner concept groups forecast with occupancy and matches attention count (2.0s)
+  ✓  16 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.8s)
+  ✓  17 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (3.3s)
+
+  17 passed (1.1m)
+
+# код выхода 0 · 1 мин 6 с

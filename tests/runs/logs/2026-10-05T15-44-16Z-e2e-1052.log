@@ -1,0 +1,151 @@
+# Сквозные (e2e) · 05.10.2026 20:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6d9b470 (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/booking-price-nights.spec.ts' '--grep' 'панель' '--workers=1'
+[WebServer] (node:348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:386) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+widget geometry [
+  {
+    class: 'board-day-panel__occupancy',
+    width: 156,
+    height: 115.59375,
+    font: '15px',
+    padding: '4px 8px',
+    min: 'auto',
+    display: 'block'
+  },
+  {
+    class: 'board-day-panel__title',
+    width: 138,
+    height: 15.59375,
+    font: '15px',
+    padding: '0px',
+    min: '0px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__load',
+    width: 138,
+    height: 78,
+    font: '15px',
+    padding: '0px',
+    min: '0px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__guests',
+    width: 436,
+    height: 115.59375,
+    font: '15px',
+    padding: '4px 8px',
+    min: 'auto',
+    display: 'block'
+  },
+  {
+    class: 'board-day-panel__title',
+    width: 1,
+    height: 1,
+    font: '15px',
+    padding: '0px',
+    min: '0px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__row board-day-panel__row--arrivals',
+    width: 418,
+    height: 18,
+    font: '13px',
+    padding: '0px',
+    min: '18px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__row board-day-panel__row--departures',
+    width: 201,
+    height: 18,
+    font: '13px',
+    padding: '0px',
+    min: '18px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__row board-day-panel__row--inhouse',
+    width: 201,
+    height: 18,
+    font: '13px',
+    padding: '0px',
+    min: '18px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__row board-day-panel__row--noshow',
+    width: 201,
+    height: 18,
+    font: '13px',
+    padding: '0px',
+    min: '18px',
+    display: 'flex'
+  },
+  {
+    class: 'board-day-panel__row board-day-panel__row--free',
+    width: 201,
+    height: 18,
+    font: '13px',
+    padding: '0px',
+    min: '18px',
+    display: 'flex'
+  }
+]
+  ✘  1 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (2.0s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 68
+    Received:    115.59375
+
+      37 |   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
+      38 |   // было 5 строк (~150px) против одной строки управления; теперь две строки показателей
+    > 39 |   expect(p.height).toBeLessThanOrEqual(Math.max(c.height, 64) + 4);
+         |                    ^
+      40 |   await expect(panel.getByTestId('day-free')).toBeVisible();
+      41 |   await expect(panel.getByTestId('day-units')).toBeVisible();
+      42 |   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/booking-price-nights.spec.ts:39:20
+
+    Error Context: test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты 
+
+# код выхода 1 · 8 с

@@ -21,10 +21,15 @@ test.afterEach(async ({ request }) => {
 const plus = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 async function today(request: import('@playwright/test').APIRequestContext) {
-  return ((await (await request.get(`${API}/desk/today`, { headers: H })).json()) as { date: string }).date;
+  return (
+    (await (await request.get(`${API}/desk/today`, { headers: H })).json()) as { date: string }
+  ).date;
 }
 
-test('создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря', async ({ page, request }) => {
+test('создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря', async ({
+  page,
+  request,
+}) => {
   const t0 = await today(request);
   await page.goto('/tasks');
   await expect(page.getByRole('heading', { name: 'Задачи', exact: true })).toBeVisible();
@@ -41,21 +46,32 @@ test('создать задачу, увидеть в «Сегодня», зак�
 
   // счётчик в панели «Сегодня» календаря
   await page.goto('/chessboard');
-  await expect(page.getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-tasks')).toHaveText('1');
+  await expect(
+    page.getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-tasks'),
+  ).toHaveCount(0);
 
   await page.goto('/tasks');
   await page.getByRole('checkbox', { name: 'Сделано: Позвонить гостю' }).click();
-  await expect(page.getByTestId('tasks-done').getByTestId('task-row')).toContainText('Позвонить гостю');
+  await expect(page.getByTestId('tasks-done').getByTestId('task-row')).toContainText(
+    'Позвонить гостю',
+  );
   await expect(page.getByTestId('tasks-today')).toContainText('На сегодня задач нет');
   await page.getByRole('checkbox', { name: 'Сделано: Позвонить гостю' }).click();
   await expect(page.getByTestId('tasks-today').getByTestId('task-row')).toHaveCount(1);
 
   // просроченная и предстоящая
-  for (const [title, d] of [['Старая задача', plus(t0, -2)], ['Заказать воду', plus(t0, 3)]])
+  for (const [title, d] of [
+    ['Старая задача', plus(t0, -2)],
+    ['Заказать воду', plus(t0, 3)],
+  ])
     await request.post(`${API}/tasks`, { headers: H, data: { title, dueDate: d } });
   await page.reload();
-  await expect(page.getByTestId('tasks-overdue').getByTestId('task-row')).toContainText('Старая задача');
-  await expect(page.getByTestId('tasks-upcoming').getByTestId('task-row')).toContainText('Заказать воду');
+  await expect(page.getByTestId('tasks-overdue').getByTestId('task-row')).toContainText(
+    'Старая задача',
+  );
+  await expect(page.getByTestId('tasks-upcoming').getByTestId('task-row')).toContainText(
+    'Заказать воду',
+  );
 });
 
 test('ошибка словами у формы, введённое не теряется', async ({ page }) => {
@@ -71,7 +87,10 @@ test('ошибка словами у формы, введённое не тер�
 
 test('«только чтение»: список виден, создавать и закрывать нельзя', async ({ page, request }) => {
   const t0 = await today(request);
-  await request.post(`${API}/tasks`, { headers: H, data: { title: 'Вымышленная задача', dueDate: t0 } });
+  await request.post(`${API}/tasks`, {
+    headers: H,
+    data: { title: 'Вымышленная задача', dueDate: t0 },
+  });
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
   // срок пробного периода приходит с сессией: сначала вход, как в спеке рынка
   await page.goto('/auth/fallback');

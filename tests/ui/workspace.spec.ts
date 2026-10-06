@@ -976,40 +976,34 @@ test('пустые ответы дают нули; сбой API не выдаё�
   for (const id of ['total-units', 'rooms', 'beds', 'max-guests', 'blocks'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of ['/chessboard', '/inventory']) {
+  // Без ответа авторизации новый контур филиалов закрывает рабочие экраны.
+  for (const route of ['/chessboard', '/inventory', '/channels', '/finance', '/today']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
+    await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
+    await expect(page.getByTestId('owner-paid')).toHaveCount(0);
   }
-  // «Каналы продаж» с D4 (20.09) остаются на экране: заголовок и форма на месте, вместо чисел — сбой
+  // Частичные сбои данных при доступной авторизации сохраняют экран и явную ошибку отчёта.
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
   await page.goto('/channels');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Каналы продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
-  // (и у итогов, и у списка долгов — ADR-113)
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Касса');
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
-  // Сбой списка долгов виден после раскрытия подробностей.
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
+  await page.goto('/finance');
   await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
-  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  /*
-   * «Главная» с 16.09.2026 ведёт себя иначе намеренно (замечание владельца «выбираю период и нифига
-   * не открывает»): экран открывается, а каждый неудавшийся блок называет причину сам. Правило этой
-   * проверки остаётся тем же — нули вместо неизвестных чисел не показываются.
-   */
-  await page.goto('/today');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Главная');
-  await expect(page.getByTestId('desk-error')).toBeVisible();
-  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  await expect(page.locator('.desk-stat__value:visible')).toHaveCount(0);
-  await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
   await page.goto('/management/analytics');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');

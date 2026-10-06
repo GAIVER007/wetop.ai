@@ -1,0 +1,144 @@
+# Сквозные (e2e) · 05.10.2026 20:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит b5fe87f (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/booking-price-nights.spec.ts' '--workers=1'
+[WebServer] (node:4671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+(node:4762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (1.8s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (1.1s)
+  ✘   3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (1.1s)
+(node:4806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (1.4s)
+(node:4824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (1.3s)
+(node:4840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/chessboard-statistics.spec.ts:78:1 › today statistics stay available when the calendar shows another month (2.3s)
+  ✓   7 tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (1.0s)
+  ✓   8 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets light: accessible labels and contrasts (4.3s)
+  ✓   9 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets dark: accessible labels and contrasts (2.7s)
+  ✘  10 tests/ui/chessboard-statistics.spec.ts:121:1 › marked no-show increments no-show count and leaves hot bookings (2.5m)
+
+
+  1) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 700
+    Received:    870.1875
+
+      23 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      24 |     const gridBox = await page.locator('.board-wrap').boundingBox();
+    > 25 |     expect(gridBox!.y).toBeLessThanOrEqual(700);
+         |                        ^
+      26 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+      27 |     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+      28 |     const noShows = await (
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:25:24
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 700
+    Received:    790.1875
+
+      23 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      24 |     const gridBox = await page.locator('.board-wrap').boundingBox();
+    > 25 |     expect(gridBox!.y).toBeLessThanOrEqual(700);
+         |                        ^
+      26 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+      27 |     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+      28 |     const noShows = await (
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:25:24
+
+    Error Context: test-results/chessboard-statistics-stat-d9659-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 700
+    Received:    767.6875
+
+      23 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      24 |     const gridBox = await page.locator('.board-wrap').boundingBox();
+    > 25 |     expect(gridBox!.y).toBeLessThanOrEqual(700);
+         |                        ^
+      26 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+      27 |     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+      28 |     const noShows = await (
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:25:24
+
+    Error Context: test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-statistics.spec.ts:121:1 › marked no-show increments no-show count and leaves hot bookings 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/chessboard-statistics-mark-d4498-unt-and-leaves-hot-bookings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-mark-d4498-unt-and-leaves-hot-bookings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-mark-d4498-unt-and-leaves-hot-bookings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:121:1 › marked no-show increments no-show count and leaves hot bookings 
+  6 passed (2.9m)
+
+# код выхода 1 · 2 мин 54 с

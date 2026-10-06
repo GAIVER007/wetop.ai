@@ -1001,7 +1001,7 @@ export function ChessboardGrid({
           className={cx('board', fitMonth && 'board--month', fitWeek && 'board--week')}
           style={
             {
-              '--mobile-board-width': `${112 + 104 * board.dates.length}px`,
+              '--mobile-board-width': `${144 + 104 * board.dates.length}px`,
               ...(fitMonth
                 ? ({
                     '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,

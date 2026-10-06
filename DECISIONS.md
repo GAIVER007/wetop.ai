@@ -5755,6 +5755,14 @@ Unreferenced parents do not fence ancestors. This preserves the same narrow five
 
 Последствия: полный CI включает дополнительный browser запуск на отдельной БД. Production migration 052 и общий release остаются под отдельным согласованием; рабочие данные не изменяются.
 
+
+## Календарь: компактные виджеты дня (05.10.2026)
+
+Проблема: мобильная сводка перегружена, категории рвутся посреди слов. Варианты: сохранить восемь показателей, скрыть статистику, две компактные карточки. Решение владельца: две карточки «Загрузка на сегодня» и «Гости сегодня», убрать задачи и дни рождения. Названия переносить целыми словами, липкая мобильная колонка144px, повтор «номер» скрыть.
+
+Горящая бронь: создана в текущие сутки объекта с заездом сегодня, активный статус TENTATIVE/CONFIRMED/CHECKED_IN. Владелец поручил определить логику, определение сверено с https://exely.com/help/281526/. Используем существующий read-only date=created с полной пагинацией; не создаём сущность или автоматическую смену статуса. Незаезды читаются из существующего NO_SHOW с датой заезда сегодня. Свободные номера считают ROOM, койки не выдаются за номера; загрузка сохраняет существующий общий фонд с явной подписью. При другом периоде календаря сегодняшнюю доступность читаем отдельным запросом. При сбое источника показываем н/д, не ноль.
+
+Последствия: только отображение и read-only запросы, без миграций и изменения денег, booking rules или availability. Изолированные проверки и полный CI перед разрешённой выкладкой.
 ## ADR-MV6: Food reservations backend (2026-10-05)
 
 Problem: Food pilot plumbing exists without domain tables/API. AS-IS main abe59d83 has no Food entities; BAR is a separate Hospitality module.
@@ -5833,6 +5841,18 @@ Consequences: production applies migrations 58 and 59 together after backup and 
 Решение: отдельная ветка codex/staff-owner-journal-release от release, только сотрудники, аудит и соответствующие проверки. Запустить полный release-checks через workflow_dispatch на этой ветке, не менять общий release-candidate и не отменять чужой прогон. После GREEN точного SHA продвинуть release fast-forward и проверить deployed marker, образы, health и публичные маршруты. Реализацию сохранить также в main.
 Причина: код сотрудников не требует миграций, общий кандидат не должен блокировать или отменять независимый выпуск.
 Последствия: проверяемый SHA этого выпуска отличается от main; исключение относится только к этому изолированному выпуску. Production schema, Food и внешние интеграции не изменяются. Если release уйдёт вперёд, повторно согласовать историю и проверки до продвижения.
+Уточнение выпуска сотрудников 05.10.2026: в кандидат включён уже подготовленный отдельной сессией выпуск Главной 6342e9ad. Это сохраняет fast-forward историю при любом порядке выкладок и исключает откат главной. Полный release-checks проверяет объединённый SHA. Миграций по сравнению с работающим 6d9b4705 нет.
+
+Уточнение календаря 05.10.2026: владелец одобрил продолжение компактного варианта после предпросмотра. Мобильная сводка единая, показатели в две колонки. Выпуск поверх актуального release сохраняет уже выпущенные Главную и журнал, не включает миграции Food 58/59 из main. Полный release-checks запускается на отдельной ветке календаря; код также объединяется в main.
+
+
+## ADR-MV8-UNBLOCK (2026-10-05): canonical branch read projection
+
+Проблема: GET /branches пропускает Food Locations, поэтому selectedWorkspaceBranch и переключатель не могут получить актуальный филиал ресторана.
+Варианты: новый endpoint; расширить write contract; минимально дополнить существующую read projection.
+Решение владельца: GET /branches является canonical read projection selectable Location всех поддерживаемых vertical. Hospitality адаптируется через Property, Beauty/Food через Location. Только ACTIVE Location и Business текущей Organization, без Property для Beauty/Food.
+Причина: BranchItem уже поддерживает FOOD_SERVICE, модель и write contract менять не требуется.
+Последствия: Food получает текущие name/address/timezone/currency и canonical IDs; inventory counts равны нулю. BranchVertical и POST /branches остаются HOSPITALITY | BEAUTY. Scope/RLS/permissions и Food reservation/financial logic не меняются. Real HTTP RED/GREEN и isolation matrix обязательны. Разрешён merge unblock PR в main после GREEN; production/release запрещены.
 
 
 ## ADR-MV8: Vertical Today (2026-10-05)

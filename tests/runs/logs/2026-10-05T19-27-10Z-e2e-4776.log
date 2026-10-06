@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 06.10.2026 00:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 77a9e9c (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/booking-price-nights.spec.ts' '--workers=1'
+[WebServer] (node:15339) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:15424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (1.9s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (1.3s)
+  ✓   3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (1.3s)
+  ✓   4 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (1.3s)
+  ✓   5 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (1.2s)
+  ✓   6 tests/ui/chessboard-statistics.spec.ts:76:1 › today statistics stay available when the calendar shows another month (2.8s)
+  ✓   7 tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (1.1s)
+  ✓   8 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets light: accessible labels and contrasts (1.9s)
+  ✓   9 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets dark: accessible labels and contrasts (1.8s)
+  ✓  10 tests/ui/chessboard-statistics.spec.ts:121:1 › marked no-show increments no-show count and leaves hot bookings (919ms)
+  ✓  11 tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets light: accessible pointer targets (1.7s)
+  ✓  12 tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets dark: accessible pointer targets (1.7s)
+
+  12 passed (23.6s)
+
+# код выхода 0 · 25 с

@@ -34,7 +34,7 @@ test('пробный срок вышел — полоса «оплатите п�
   for (const path of ['/today', '/chessboard', '/reservations', '/guests']) {
     await page.goto(path);
     const banner = page.getByTestId('read-only-banner');
-    await expect(banner).toContainText('Пробный период закончился — оплатите подписку');
+    await expect(banner).toContainText('Пробный период закончился, оплатите подписку');
     await expect(banner).toContainText('Данные доступны для просмотра');
   }
   // «Гости» после срока читаются целиком: список со счётчиками, поиск, карточка и документы;

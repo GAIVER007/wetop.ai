@@ -1,0 +1,249 @@
+# Сквозные (e2e) · 06.10.2026 16:40 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 46 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (5.6s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:56:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (4.3s)
+  ✓   3 tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен» (3.9s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:88:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.4s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в светлой теме (5.5s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в тёмной теме (5.5s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (6.2s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (7.2s)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (4.6s)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (10.7s)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:129:1 › каталог салона на телефоне: без прокрутки вбок (6.0s)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в светлой теме (7.8s)
+  ✓  13 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в тёмной теме (7.8s)
+  ✓  14 tests/ui/beauty-journal.spec.ts:97:1 › запись из пустой клетки появляется в сетке и в списке дня (12.6s)
+  ✓  15 tests/ui/beauty-journal.spec.ts:113:1 › занятое время мастера не предлагается и отказ приходит словами (10.8s)
+  ✓  16 tests/ui/beauty-journal.spec.ts:126:1 › вне графика мастера клетки нерабочие (9.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  17 tests/ui/beauty-journal.spec.ts:133:1 › состояния записи идут по жизни, из выполненной дороги нет (15.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  18 tests/ui/beauty-journal.spec.ts:157:1 › отмена спрашивает и освобождает время мастера (12.9s)
+  ✓  19 tests/ui/beauty-journal.spec.ts:179:1 › перенос меняет время записи (12.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  20 tests/ui/beauty-journal.spec.ts:195:1 › журнал на телефоне: день списком, без прокрутки вбок (11.4s)
+  ✓  21 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в светлой теме (12.8s)
+  ✓  22 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в тёмной теме (12.9s)
+  ✓  23 tests/ui/beauty-schedule.spec.ts:76:1 › неделя мастера ставится и читается словами (7.1s)
+  ✓  24 tests/ui/beauty-schedule.spec.ts:97:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (6.4s)
+  ✓  25 tests/ui/beauty-schedule.spec.ts:124:1 › два интервала через перерыв сохраняются (7.6s)
+  ✓  26 tests/ui/beauty-schedule.spec.ts:144:1 › отсутствие предупреждает о записях, снимается с вопросом (8.6s)
+  ✓  27 tests/ui/beauty-schedule.spec.ts:179:1 › отсутствие с концом раньше начала не уходит на сервер (6.2s)
+  ✓  28 tests/ui/beauty-schedule.spec.ts:194:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (11.1s)
+  ✓  29 tests/ui/beauty-schedule.spec.ts:232:1 › график на телефоне: без прокрутки вбок (5.8s)
+  ✓  30 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в светлой теме (8.1s)
+  ✓  31 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в тёмной теме (8.0s)
+  ✓  32 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.9s)
+  ✓  33 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.7s)
+  ✓  34 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (19.6s)
+  ✓  35 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (5.1s)
+  ✓  36 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (4.3s)
+  ✓  37 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (3.6s)
+[WebServer] ⨯ Error: No UI fixture for /onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:15:17)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✘  38 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (17.5s)
+  ✓  39 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.5s)
+  ✓  40 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (1.8s)
+  ✓  41 tests/ui/onboarding.spec.ts:100:1 › у работающего отеля с бронями «Первых шагов» нет (1.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  42 tests/ui/onboarding.spec.ts:111:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (3.8s)
+  ✓  43 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (5.9s)
+  ✓  44 tests/ui/top-menu.spec.ts:126:1 › вложенные адреса подсвечивают свою вкладку (6.3s)
+  ✓  45 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: light (4.3s)
+  ✓  46 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.0s)
+
+
+  1) tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('onboarding-waiting')
+    Expected substring: "настройку делают владелец и управляющий"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('onboarding-waiting') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('onboarding-waiting')
+
+
+      58 |   await expect(page).toHaveURL(/\/onboarding/);
+      59 |   const main = page.getByRole('main');
+    > 60 |   await expect(main.getByTestId('onboarding-waiting')).toContainText(
+         |                                                        ^
+      61 |     'настройку делают владелец и управляющий',
+      62 |   );
+      63 |   await expect(main.getByRole('button', { name: 'Запустить отель' })).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/onboarding.spec.ts:60:56
+
+    Error Context: test-results/onboarding-администратор-в-3b8d4--а-кто-настраивает-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-администратор-в-3b8d4--а-кто-настраивает-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-администратор-в-3b8d4--а-кто-настраивает-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) 
+  45 passed (6.0m)
+
+# код выхода 1 · 6 мин 1 с

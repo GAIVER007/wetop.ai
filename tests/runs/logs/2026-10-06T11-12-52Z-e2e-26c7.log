@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 06.10.2026 16:12 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+[WebServer] (node:12765) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (10.3s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (4.0s)
+  ✓   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (37.9s)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (3.3s)
+  ✓   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (2.6s)
+  ✓   6 tests/food-ui/food.spec.ts:297:1 › READ_ONLY and STAFF permissions on real API (2.2s)
+  ✓   7 tests/food-ui/food.spec.ts:324:1 › server branch switch isolates Food businesses and locations and other verticals (17.3s)
+  ✓   8 tests/food-ui/food.spec.ts:370:1 › pagination beyond 100 and previous local day keep table occupied after reload (7.5s)
+  ✓   9 tests/food-ui/food.spec.ts:438:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (13.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  10 tests/food-ui/food.spec.ts:536:1 › API unavailable renders LoadError instead of free tables (1.3s)
+  ✓  11 tests/food-ui/food.spec.ts:544:1 › creation 503 keeps the draft and retry key; invalid period stays inline (2.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✘  12 tests/food-ui/food.spec.ts:574:1 › Food excludes every registered foreign workspace route before API requests (7.8s)
+  ✓  13 tests/food-ui/food.spec.ts:613:1 › marker guarded cleanup (113ms)
+
+
+  1) tests/food-ui/food.spec.ts:574:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/floor-plan$/
+    Received string:  "http://127.0.0.1:55823/rooms/categories"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55823/rooms/categories"
+
+
+      598 |   ]) {
+      599 |     await page.goto(route);
+    > 600 |     await expect(page).toHaveURL(/\/floor-plan$/);
+          |                        ^
+      601 |   }
+      602 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      603 |   expect(
+        at /home/user/wetop.ai/tests/food-ui/food.spec.ts:600:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:574:1 › Food excludes every registered foreign workspace route before API requests 
+  12 passed (1.9m)
+
+# код выхода 1 · 1 мин 57 с

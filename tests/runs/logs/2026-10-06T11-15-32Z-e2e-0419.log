@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 06.10.2026 16:15 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts' '--workers=1' '-g' 'foreign workspace route|marker guarded cleanup'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/food.spec.ts:574:1 › Food excludes every registered foreign workspace route before API requests (23.6s)
+  ✓  2 tests/food-ui/food.spec.ts:613:1 › marker guarded cleanup (75ms)
+
+  2 passed (30.2s)
+
+# код выхода 0 · 31 с

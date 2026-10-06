@@ -1,11 +1,17 @@
 'use server';
-import { cookies } from 'next/headers';
-import { SCOPE_COOKIE } from '../../lib/scope-pointer';
+import { scopeResolvePath } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
-import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
+import {
+  clearScopeCookie,
+  clearSessionCookie,
+  clientInfo,
+  sessionToken,
+  setScopeCookie,
+  setSessionCookie,
+} from '../../lib/session';
 import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
 
 /**
@@ -29,11 +35,12 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
   try {
     const result = await authApi.login({ email, password }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    await clearScopeCookie();
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  redirect(safeReturnPath(form.get('next')));
+  redirect(scopeResolvePath(safeReturnPath(form.get('next'))));
 }
 
 /** «Выйти»: сессия отзывается в базе (ключ мёртв, даже если его скопировали), cookie удаляется. Access — отдельный замок. */
@@ -143,18 +150,9 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
     await setSessionCookie(result.token, result.expiresAt);
     const context = await authApi.registrationContext(result.token);
     pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
-    if (context) {
-      (await cookies()).set(
-        SCOPE_COOKIE,
-        `business=${context.businessId};location=${context.locationId}`,
-        {
-          httpOnly: true,
-          sameSite: 'lax',
-          secure: process.env.NODE_ENV === 'production',
-          path: '/',
-        },
-      );
-    }
+    // Завершение регистрации: единственный филиал новой организации (регистрационный помощник, не выбор входа)
+    if (context)
+      await setScopeCookie(`business=${context.businessId};location=${context.locationId}`);
   } catch (e) {
     return { error: errorText(e) };
   }

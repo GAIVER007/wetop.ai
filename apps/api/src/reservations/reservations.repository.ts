@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import {
   ensureFolioWithAccommodation,
   recordExternalPayment,
@@ -22,7 +22,7 @@ import type {
   ReservationStatus,
   StayRestriction,
 } from '@pms/domain';
-import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
+import { FOREIGN_PROPERTY_MESSAGE, propertyRef } from '../database/property-ref';
 import {
   actsForOrganization,
   currentIntegrationPropertyId,
@@ -478,8 +478,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     organizationId: string;
   }> {
     if (!this.propertyCache) {
-      // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
-      // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
+      // Порядок веток важен: точный объект сайта (BOOK-4) выше вошедшего сотрудника, иначе выбранный в стойке филиал
+      // перехватил бы публичную бронь сайта; служебный путь по имени последним.
       const exact = currentIntegrationPropertyId();
       if (exact && actsForOrganization()) {
         // MKT1B BOOK-4: публичный путь сайта и ИИ-продавца назвал объект сайта (проверенный сервером), и цены, фонд,
@@ -494,14 +494,15 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         this.propertyCache = found;
       } else if (actsForOrganization()) {
-        const organizationId = currentOrganizationId();
-        if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-        const found = await this.db.property.findFirst({
-          where: { organizationId },
+        // Вошедший человек: объект выбранного филиала по той же цепочке и тому же scope, что шахматка, финансы и фонд
+        // (`propertyRef`, Platform P2 К1). Раньше здесь был первый попавшийся объект организации: при двух гостиницах
+        // бронь, котировка и выгрузка в канал уходили не в выбранный филиал (SCOPE-HARDENING, 06.10.2026). Филиал без
+        // объекта (Beauty, Food) получает 404, а не чужую гостиницу.
+        const ref = await propertyRef(this.db, this.propertyName);
+        this.propertyCache = await this.db.property.findUniqueOrThrow({
+          where: { id: ref.id },
           select: { id: true, currency: true, timezone: true, organizationId: true },
         });
-        if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
-        this.propertyCache = found;
       } else {
         // самый ранний с этим именем — как `propertyRef` (аудит 26.09, С-2)
         const found = await this.db.property.findFirstOrThrow({

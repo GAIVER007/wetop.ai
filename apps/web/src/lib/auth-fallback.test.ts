@@ -37,13 +37,6 @@ it('экранирует вставляемую в HTML почту', async () =>
 });
 it('выдаёт HttpOnly cookie и безопасный 303 без ключа в HTML', async () => {
   vi.stubEnv('APP_URL', 'https://app.wetop.ai');
-  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
-    businessId: 'synthetic-business',
-    locationId: 'synthetic-location',
-    vertical: 'HOSPITALITY',
-    businessName: 'Отель',
-    locationName: 'Филиал',
-  });
   vi.spyOn(authApi, 'login').mockResolvedValue({
     token: 'synthetic-token',
     expiresAt: '2030-01-01T00:00:00Z',
@@ -56,9 +49,15 @@ it('выдаёт HttpOnly cookie и безопасный 303 без ключа �
     }),
   );
   expect(response.status).toBe(303);
-  expect(response.headers.get('location')).toBe('/today');
-  expect(response.headers.get('set-cookie')).toContain('HttpOnly');
-  expect(response.headers.get('set-cookie')).toContain('Secure');
+  // чужой next заменён безопасным, а филиал выбирает сервер по `GET /branches`
+  expect(response.headers.get('location')).toBe('/scope/resolve?next=%2Ftoday');
+  const cookies = response.headers.getSetCookie();
+  const session = cookies.find((c) => c.startsWith('wetop_session='));
+  expect(session).toContain('HttpOnly');
+  expect(session).toContain('Secure');
+  expect(cookies.find((c) => c.startsWith('wetop_scope='))).toMatch(
+    /^wetop_scope=;.*Max-Age=0.*Secure/,
+  );
   expect(await response.text()).not.toContain('synthetic-token');
 });
 it('ограничивает тело до отправки в API', async () => {

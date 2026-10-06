@@ -2,6 +2,7 @@ import { parseBusinessVertical } from '@pms/domain';
 import { ApiError } from '../../../../lib/api-error';
 import { authApi } from '../../../../lib/api';
 import { safeReturnPath } from '../../../../lib/auth-entry';
+import { scopeResolvePath } from '../../../../lib/scope-pointer';
 import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
 
@@ -46,14 +47,9 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       const password = field(body, 'password');
       if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
       const result = await authApi.login({ email, password }, info);
-      const context = await authApi.registrationContext(result.token);
+      // Рабочий филиал выбирает сервер по `GET /branches` (SCOPE-HARDENING), не регистрационный помощник
       return {
-        body: {
-          next:
-            context && context.vertical !== 'HOSPITALITY'
-              ? '/register/complete'
-              : safeReturnPath(field(body, 'next')),
-        },
+        body: { next: scopeResolvePath(safeReturnPath(field(body, 'next'))) },
         session: { token: result.token, expiresAt: result.expiresAt },
       };
     },

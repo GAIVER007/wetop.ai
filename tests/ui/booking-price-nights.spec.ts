@@ -36,6 +36,6 @@ test('календарь: сводка дня карточкой слева, у�
   expect(p.height).toBeLessThanOrEqual(190);
   expect(c.x).toBeGreaterThanOrEqual(p.x + p.width);
   await expect(panel.getByTestId('day-free')).toBeVisible();
-  await expect(panel.getByTestId('day-units')).toBeVisible();
+  await expect(panel.getByTestId('day-units')).toHaveCount(0);
   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });
 });

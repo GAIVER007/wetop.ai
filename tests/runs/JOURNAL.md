@@ -6818,3 +6818,6 @@
 | 06.10.2026 20:32 | lint | ✅ без ошибок | 41 с | bd77fc7 +5 | [лог](logs/2026-10-06T15-32-16Z-lint-b2ab.log) |  |
 | 06.10.2026 20:32 | unit (частично: tests/unit/design-slop.test.ts scripts/design/build-tokens.test.ts tests/unit/design-rules.test.ts) | ✅ 26 из 26 | 2 с | bd77fc7 +1 | [лог](logs/2026-10-06T15-32-59Z-unit-48dc.log) | сторожа дизайна после сводки без лишнего |
 | 06.10.2026 20:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 111 из 111 | 9 мин 26 с | bd77fc7 +5 | [лог](logs/2026-10-06T15-31-29Z-e2e-3272.log) | календарь: сводка без лишнего, итоговый прогон в один поток |
+| 06.10.2026 20:43 | typecheck | ✅ без ошибок | 44 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-11Z-typecheck-41ef.log) |  |
+| 06.10.2026 20:43 | lint | ✅ без ошибок | 40 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-56Z-lint-9f70.log) |  |
+| 06.10.2026 20:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 90 из 90 | 6 мин 59 с | 66752d5 +4 | [лог](logs/2026-10-06T15-43-11Z-e2e-d0c9.log) | календарь: сводка без «Всего номеров» |

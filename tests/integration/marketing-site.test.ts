@@ -167,6 +167,8 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     }
     if (db) {
       await purgeAuditRows(db, { organizationId: { in: [orgA, orgB] } });
+      await db.trackedSite.deleteMany({ where: { property: { organizationId: { in: [orgA, orgB] } } } });
+      await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
       await db.location.deleteMany({ where: { business: { organizationId: { in: [orgA, orgB] } } } });
       await db.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
       await db.user.deleteMany({ where: { id: { in: [userA, userB] } } });
@@ -453,6 +455,129 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
       await expect(
         sql.query(`UPDATE marketing_sites SET location_id = $1 WHERE id = $2`, [archivedLocation, siteA2.id]),
       ).rejects.toThrow(/филиал сайта не меняется/);
+    });
+  });
+
+  describe('база: инварианты MKT3 без API (поручение владельца по ревью)', () => {
+    const property = (id: string, locationId: string) =>
+      db.property.create({
+        data: {
+          id, organizationId: orgA, locationId, name: `MKT3 ${id.slice(0, 4)}`,
+          timezone: 'Asia/Almaty', currency: 'KZT', checkInTime: '14:00', checkOutTime: '12:00',
+        },
+      });
+    const trackedSite = (propertyId: string) =>
+      db.trackedSite.create({
+        data: { propertyId, name: 'MKT3 site', hosts: [], publicKey: `pms_${randomUUID().replace(/-/g, '').slice(0, 12)}` },
+      });
+    /** Пробы идут в транзакции владельцем таблицы и откатываются: MKT3 ничего не связывает и ничего не оставляет */
+    async function probe(fn: (attempt: (q: string, params: unknown[]) => Promise<unknown>) => Promise<void>) {
+      await sql.query('BEGIN');
+      try {
+        await fn(async (q, params) => {
+          await sql.query('SAVEPOINT probe');
+          try {
+            const r = await sql.query(q, params);
+            await sql.query('RELEASE SAVEPOINT probe');
+            return r;
+          } catch (error) {
+            await sql.query('ROLLBACK TO SAVEPOINT probe');
+            throw error;
+          }
+        });
+      } finally {
+        await sql.query('ROLLBACK');
+      }
+    }
+
+    it('tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL', async () => {
+      const siteA1 = await db.marketingSite.findFirstOrThrow({ where: { locationId: a1 } });
+      const [ownSite, otherSite] = await Promise.all([
+        property(randomUUID(), a1).then((p) => trackedSite(p.id)),
+        property(randomUUID(), a2).then((p) => trackedSite(p.id)),
+      ]);
+      await probe(async (attempt) => {
+        await expect(
+          attempt(`UPDATE marketing_sites SET tracked_site_id = $1 WHERE id = $2`, [otherSite.id, siteA1.id]),
+        ).rejects.toThrow(/объекту другого филиала/);
+        await attempt(`UPDATE marketing_sites SET tracked_site_id = $1 WHERE id = $2`, [ownSite.id, siteA1.id]);
+        await attempt(`UPDATE marketing_sites SET tracked_site_id = NULL WHERE id = $1`, [siteA1.id]);
+      });
+      const after = await db.marketingSite.findUniqueOrThrow({ where: { id: siteA1.id } });
+      expect(after.trackedSiteId).toBeNull();
+    });
+
+    it('зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит', async () => {
+      await probe(async (attempt) => {
+        const insert = (slug: string) =>
+          attempt(
+            `INSERT INTO marketing_sites (id, location_id, name, slug, updated_at) VALUES ($1, $2, 'Raw', $3, now())`,
+            [randomUUID(), archivedLocation, slug],
+          );
+        for (const slug of ['admin', 'www']) await expect(insert(slug)).rejects.toThrow(/marketing_sites_slug_reserved/);
+        await insert(`raw-${randomUUID().slice(0, 8)}`);
+      });
+    });
+
+    describe('версия мимо API', () => {
+      const insertVersion = (siteId: string, spec: unknown, schemaVersion: string, source: string) =>
+        `INSERT INTO marketing_site_versions (id, site_id, revision, schema_version, spec, spec_hash, source)
+         VALUES ('${randomUUID()}', '${siteId}', 1, '${schemaVersion}', '${JSON.stringify(spec).replace(/'/g, "''")}'::jsonb, repeat('a', 64), '${source}')`;
+      async function freshSite(): Promise<string> {
+        const id = randomUUID();
+        await sql.query(
+          `INSERT INTO marketing_sites (id, location_id, name, slug, updated_at) VALUES ($1, $2, 'Raw', $3, now())`,
+          [id, archivedLocation, `raw-${id.slice(0, 8)}`],
+        );
+        return id;
+      }
+
+      it('schema_version совпадает с schemaVersion документа', async () => {
+        await probe(async (attempt) => {
+          const site = await freshSite();
+          await expect(attempt(insertVersion(site, { ...SPEC, schemaVersion: 'site-spec/999' }, 'site-spec/0', 'MANUAL'), []))
+            .rejects.toThrow(/marketing_site_versions_schema_matches_spec/);
+          const noVersion: Record<string, unknown> = structuredClone(SPEC);
+          delete noVersion['schemaVersion'];
+          await expect(attempt(insertVersion(site, noVersion, 'site-spec/0', 'MANUAL'), []))
+            .rejects.toThrow(/marketing_site_versions_schema_matches_spec/);
+          await attempt(insertVersion(site, SPEC, 'site-spec/0', 'MANUAL'), []);
+        });
+      });
+
+      it('до MKT6 источник только MANUAL: AI и IMPORT отклонены', async () => {
+        await probe(async (attempt) => {
+          const site = await freshSite();
+          for (const source of ['AI', 'IMPORT'])
+            await expect(attempt(insertVersion(site, SPEC, 'site-spec/0', source), []))
+              .rejects.toThrow(/marketing_site_versions_source_manual/);
+          await attempt(insertVersion(site, SPEC, 'site-spec/0', 'MANUAL'), []);
+        });
+      });
+
+      it('страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит', async () => {
+        await probe(async (attempt) => {
+          const site = await freshSite();
+          const big = { ...SPEC, pad: 'x'.repeat(400 * 1024) };
+          await expect(attempt(insertVersion(site, big, 'site-spec/0', 'MANUAL'), []))
+            .rejects.toThrow(/marketing_site_versions_spec_size/);
+          // 300 КБ больше предела SiteSpec 256 КБ, но меньше страховки: база его пропускает, отклоняет проверка
+          // документа (тест ниже), то есть 384 КБ не второй допустимый размер, а грубая граница базы
+          await attempt(insertVersion(site, { ...SPEC, pad: 'x'.repeat(300 * 1024) }, 'site-spec/0', 'MANUAL'), []);
+        });
+      });
+    });
+
+    it('API отклоняет документ больше 256 КБ канонической записи, версия не пишется', async () => {
+      const site = await db.marketingSite.findFirstOrThrow({ where: { locationId: a1 } });
+      const before = await db.marketingSiteVersion.count({ where: { siteId: site.id } });
+      const big = { ...SPEC, pad: 'x'.repeat(270 * 1024) };
+      const r = await call('POST', '/marketing/site/versions', { body: { baseRevision: before, spec: big } });
+      // Сегодня отказ даёт общий лимит тела запроса Nest (100 КБ, 413) раньше проверки документа: документ от 100 до
+      // 256 КБ API тоже не примет. Поднимать лимит или нет, решает владелец (итог плана MKT3); тогда здесь будет 400
+      // с кодом too_large от validateSiteSpec, а предел 256 КБ держит юнит-тест валидатора
+      expect(r.status).toBe(413);
+      expect(await db.marketingSiteVersion.count({ where: { siteId: site.id } })).toBe(before);
     });
   });
 });

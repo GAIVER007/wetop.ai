@@ -81,27 +81,43 @@ ALTER TABLE "marketing_sites"
   ADD CONSTRAINT "marketing_sites_slug_format" CHECK ("slug" ~ '^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$'),
   ADD CONSTRAINT "marketing_sites_name_present" CHECK (length(btrim("name")) > 0),
   ADD CONSTRAINT "marketing_sites_published_version" CHECK ("state" NOT IN ('PUBLISHED', 'PAUSED') OR "published_version_id" IS NOT NULL),
-  ADD CONSTRAINT "marketing_sites_archived_at" CHECK (("state" = 'ARCHIVED') = ("archived_at" IS NOT NULL));
+  ADD CONSTRAINT "marketing_sites_archived_at" CHECK (("state" = 'ARCHIVED') = ("archived_at" IS NOT NULL)),
+  -- зарезервированные адреса, тот же список, что RESERVED_SITE_SLUGS (packages/domain/src/marketing/site-slug.ts;
+  -- совпадение держит tests/unit/marketing-reserved-slugs.test.ts)
+  ADD CONSTRAINT "marketing_sites_slug_reserved" CHECK ("slug" NOT IN (
+    'www', 'app', 'api', 'assistant', 'seller', 'admin', 'mail', 'status', 'preview',
+    'static', 'assets', 'cdn', 'help', 'support', 'wetop', 'docs', 'blog'));
 
 -- v1: не больше одного неархивного сайта на филиал; адрес уникален среди неархивных
 CREATE UNIQUE INDEX "marketing_sites_location_active_key" ON "marketing_sites"("location_id") WHERE "state" <> 'ARCHIVED';
 CREATE UNIQUE INDEX "marketing_sites_slug_active_key" ON "marketing_sites"("slug") WHERE "state" <> 'ARCHIVED';
 
--- Версия: ревизия с единицы, хэш sha256 в нижнем регистре, документ объектом. Предел размера: проверка документа держит
--- 256 КБ канонической записи; jsonb::text ставит пробел после ':' и ',' и выходит до 1,5 раза длиннее, поэтому здесь
--- страховка 384 КБ, чтобы база не отклонила документ, который проверку прошёл
+-- Версия: ревизия с единицы, хэш sha256 в нижнем регистре, документ объектом. Предел размера SiteSpec один: 256 КБ
+-- канонической записи, его держит проверка документа (validateSiteSpec, API). 384 КБ здесь только грубая страховка
+-- базы, а не второй допустимый размер документа: jsonb::text не каноническая запись (пробел после ':' и ',', до 1,5
+-- раза длиннее), поэтому тот же порог в базе отклонял бы документы, которые проверку прошли.
+-- schema_version совпадает с schemaVersion внутри документа. Источник пока только MANUAL: AI требует связи с
+-- generation_runs (MKT6), IMPORT появится вместе с путём импорта; тот срез снимет или заменит этот CHECK.
 ALTER TABLE "marketing_site_versions"
   ADD CONSTRAINT "marketing_site_versions_revision_positive" CHECK ("revision" > 0),
   ADD CONSTRAINT "marketing_site_versions_hash_format" CHECK ("spec_hash" ~ '^[0-9a-f]{64}$'),
   ADD CONSTRAINT "marketing_site_versions_spec_object" CHECK (jsonb_typeof("spec") = 'object'),
   ADD CONSTRAINT "marketing_site_versions_spec_size" CHECK (octet_length("spec"::text) <= 393216),
-  ADD CONSTRAINT "marketing_site_versions_schema_version" CHECK (length("schema_version") > 0);
+  ADD CONSTRAINT "marketing_site_versions_schema_version" CHECK (length("schema_version") > 0),
+  ADD CONSTRAINT "marketing_site_versions_schema_matches_spec" CHECK (("spec" ->> 'schemaVersion') IS NOT DISTINCT FROM "schema_version"),
+  ADD CONSTRAINT "marketing_site_versions_source_manual" CHECK ("source" = 'MANUAL');
 
--- Указатели сайта ведут только на его версии; филиал сайта после создания не меняется
+-- Указатели сайта ведут только на его версии; филиал сайта после создания не меняется; TrackedSite сайта принадлежит
+-- объекту того же филиала (§29.2, BOOK-4 на уровне данных; MKT3 связь ещё не ставит, MKT7 берёт готовую колонку)
 CREATE FUNCTION marketing_site_guard() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF TG_OP = 'UPDATE' AND NEW.location_id <> OLD.location_id THEN
   RAISE EXCEPTION 'marketing_sites: филиал сайта не меняется';
+ END IF;
+ IF NEW.tracked_site_id IS NOT NULL AND NOT EXISTS (
+   SELECT 1 FROM tracked_sites t JOIN properties p ON p.id = t.property_id
+    WHERE t.id = NEW.tracked_site_id AND p.location_id = NEW.location_id) THEN
+  RAISE EXCEPTION 'marketing_sites: tracked_site_id принадлежит объекту другого филиала';
  END IF;
  IF NEW.latest_version_id IS NOT NULL AND NOT EXISTS (
    SELECT 1 FROM marketing_site_versions v WHERE v.id = NEW.latest_version_id AND v.site_id = NEW.id) THEN

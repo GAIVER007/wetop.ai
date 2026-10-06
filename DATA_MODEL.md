@@ -2872,7 +2872,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `location_id` | UUID NOT NULL FK → `locations` ON DELETE RESTRICT | владелец; берётся из проверенного scope, не из тела запроса |
 | `tracked_site_id` | UUID NULL UNIQUE FK → `tracked_sites` ON DELETE SET NULL | заводится или привязывается при первой публикации Hospitality; для вертикали без `Property` остаётся NULL, пока `TrackedSite` не научится владению через Location (будущий срез) |
 | `name` | VARCHAR(120) NOT NULL | внутреннее имя в стойке |
-| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; список зарезервированных слов в `docs/marketing/README.md` §6 |
+| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; зарезервированные слова (`RESERVED_SITE_SLUGS`, `docs/marketing/README.md` §6) запрещает и база, CHECK `marketing_sites_slug_reserved` |
 | `state` | enum `MarketingSiteState` | `DRAFT`, `PUBLISHED`, `PAUSED`, `ARCHIVED` (§29.8) |
 | `latest_version_id` | UUID NULL FK → `marketing_site_versions` | голова черновика, последняя сохранённая версия |
 | `published_version_id` | UUID NULL FK → `marketing_site_versions` | то, что видит рантайм; NULL у ни разу не опубликованного |
@@ -2885,7 +2885,8 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
   если владелец захочет несколько сайтов филиала;
 - версии по указателям принадлежат этому же сайту (триггер или составной FK);
 - для Hospitality: `tracked_sites.property_id` связанного `TrackedSite` это `Property` того же `Location`
-  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных;
+  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных; **сделано в MKT3** в
+  `marketing_site_guard`, хотя связь MKT3 ещё не ставит: MKT7 берёт уже безопасную колонку;
 - `published_version_id` NOT NULL при `state IN ('PUBLISHED','PAUSED')`.
 
 ### 29.3 `MarketingSiteVersion` (утверждено, в базе с MKT3)
@@ -2898,10 +2899,10 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `site_id` | UUID NOT NULL FK → `marketing_sites` ON DELETE RESTRICT | |
 | `revision` | INT NOT NULL | 1, 2, 3… внутри сайта; UNIQUE (`site_id`, `revision`) |
 | `parent_version_id` | UUID NULL FK → эта же таблица | от какой версии сделана правка |
-| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0` |
-| `spec` | JSONB NOT NULL | документ `SiteSpec`, объект; предел 256 КБ канонической записи проверяет приложение, CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ: `jsonb::text` добавляет пробелы и выходит до полутора раз длиннее канонической записи) |
+| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0`; CHECK `(spec ->> 'schemaVersion') IS NOT DISTINCT FROM schema_version` |
+| `spec` | JSONB NOT NULL | документ `SiteSpec`, объект. Допустимый размер один: 256 КБ канонической записи, держит проверка документа и API. CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ) только грубая страховка, не второй допустимый размер: `jsonb::text` не каноническая запись и выходит до полутора раз длиннее |
 | `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
-| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы) |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). Enum целевой и полный уже в MKT3, но **база в MKT3 временно разрешает только `MANUAL`** (CHECK `source = 'MANUAL'`): MKT6 вместе с `generation_runs` и `generation_run_id` снимает или заменяет его правилом «AI требует `generation_run_id`», `IMPORT` открывается в срезе, где появится путь импорта |
 | `generation_run_id` | UUID NULL FK → `generation_runs` | **появляется в MKT6** вместе с таблицей; обязателен при `source = 'AI'`. В MKT3 колонки нет, сохранение пишет только `MANUAL` |
 | `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
 | `created_at` | timestamptz | |
@@ -2932,7 +2933,10 @@ MKT3 нет, и сторож неизменяемости исключения �
 с `revision = 1`, родитель того же сайта, `revision` ровно на 1 больше родителя. Триггер `marketing_site_guard`:
 `latest_version_id` и `published_version_id` указывают только на версии этого сайта, `location_id` не меняется.
 CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED` и `PAUSED`, `archived_at` задан ровно при
-`ARCHIVED`. Частичные UNIQUE: один неархивный сайт на `location_id`, неархивный `slug` глобально.
+`ARCHIVED`. Частичные UNIQUE: один неархивный сайт на `location_id`, неархивный `slug` глобально. После ревью владельца
+(06.10.2026) добавлено: `tracked_site_id`, если задан, ведёт на `TrackedSite` объекта того же филиала (триггер
+`marketing_site_guard`); зарезервированные адреса запрещены CHECK; `schema_version` совпадает с `schemaVersion`
+документа; источник версии пока только `MANUAL`.
 
 ### 29.4 `MarketingSitePublication` (кандидат, добавлен к списку ADR-149 с обоснованием)
 

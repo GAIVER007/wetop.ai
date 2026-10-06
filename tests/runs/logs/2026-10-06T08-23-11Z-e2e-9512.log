@@ -1,0 +1,886 @@
+# Сквозные (e2e) · 06.10.2026 13:23 Алматы · vm
+# коммит a8359c3 (claude/youthful-dirac-70ewqs), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-mobile.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 2 workers
+
+  ✓   2 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (7.2s)
+  ✓   3 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.7s)
+  ✓   4 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (4.5s)
+  ✓   5 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (2.0s)
+  ✘   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (20.4s)
+  ✓   6 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (3.8s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:47:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: light (2.9s)
+  ✓   8 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (4.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓  10 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: dark (2.7s)
+  ✓  11 tests/ui/chessboard-mobile.spec.ts:159:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (3.1s)
+  ✓  12 tests/ui/chessboard-calendar.spec.ts:73:1 › пустая клетка не дублирует дату из шапки календаря (1.9s)
+  ✓  14 tests/ui/chessboard-calendar.spec.ts:81:1 › даты в шапке не повторяют свободные и занятые места (2.0s)
+  ✓  13 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (3.2s)
+  ✓  16 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (3.3s)
+  ✓  17 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (2.7s)
+  ✓  18 tests/ui/chessboard-mobile.spec.ts:232:1 › мобильная панель меняет заезд без закрытия и показывает выезд (2.2s)
+  ✓  19 tests/ui/chessboard-mobile.spec.ts:252:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (5.9s)
+  ✓  20 tests/ui/chessboard-mobile.spec.ts:281:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.6s)
+  ✘  15 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (18.1s)
+  ✓  21 tests/ui/chessboard-mobile.spec.ts:304:3 › телефон light: длинное имя и бронь на 28 ночей (3.6s)
+  ✓  23 tests/ui/chessboard-mobile.spec.ts:304:3 › телефон dark: длинное имя и бронь на 28 ночей (3.3s)
+  ✓  24 tests/ui/chessboard-mobile.spec.ts:337:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (5.4s)
+  ✘  22 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (17.0s)
+  ✓  25 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (2.3s)
+  ✘  26 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (16.5s)
+  ✘  27 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (17.1s)
+  ✘  28 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (16.2s)
+  ✘  29 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (17.0s)
+  ✘  30 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (18.9s)
+  ✘  31 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (17.6s)
+  ✘  32 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (2.5s)
+  ✘  33 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (16.9s)
+  ✘  34 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (16.9s)
+  ✓  35 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (2.5s)
+  ✘  36 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (16.7s)
+  ✘  37 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (16.9s)
+  ✘  38 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (16.0s)
+  ✘  39 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (16.9s)
+  ✘  40 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (18.2s)
+  ✘  41 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (16.9s)
+  ✘  42 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (1.7s)
+
+
+  1) tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('link', { name: 'Поиск свободных номеров' })
+    Expected: "/rooms/availability?arrival=2026-10-05&departure=2026-10-12"
+    Received: "/rooms/availability"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Поиск свободных номеров' }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Поиск свободных номеров' })
+        33 × locator resolved to <a class="btn btn--secondary" href="/rooms/availability">Поиск свободных номеров</a>
+           - unexpected value "/rooms/availability"
+
+
+      34 |   const last = (await dateColumns.last().getAttribute('data-date'))!;
+      35 |   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+    > 36 |   await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
+         |                                                                             ^
+      37 |     'href',
+      38 |     `/rooms/availability?arrival=${arrival}&departure=${departure}`,
+      39 |   );
+        at /home/user/wetop.ai/tests/ui/chessboard-calendar.spec.ts:36:77
+
+    Error Context: test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-07"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-07" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      33 |         await link.click();
+      34 |         await expect(page).toHaveURL(target.href);
+    > 35 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      36 |           target.searchParams.get('arrival')!,
+      37 |         );
+      38 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:35:65
+
+    Error Context: test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-09"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-09" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      33 |         await link.click();
+      34 |         await expect(page).toHaveURL(target.href);
+    > 35 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      36 |           target.searchParams.get('arrival')!,
+      37 |         );
+      38 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:35:65
+
+    Error Context: test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Выходные', exact: true })
+    Expected pattern: /guests=3&category=MALE/
+    Received string:  "/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Выходные', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Выходные', exact: true })
+        34 × locator resolved to <a href="/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2">Выходные</a>
+           - unexpected value "/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2"
+
+
+      68 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+      69 |       const weekend = page.getByRole('link', { name: 'Выходные', exact: true });
+    > 70 |       await expect(weekend).toHaveAttribute('href', /guests=3&category=MALE/);
+         |                             ^
+      71 |       const weekendUrl = new URL((await weekend.getAttribute('href'))!, page.url()).href;
+      72 |       await weekend.click();
+      73 |       await expect(page).toHaveURL(weekendUrl);
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:70:29
+
+    Error Context: test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-1a7c9-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+       98 |         .click();
+       99 |       await page.getByRole('menuitem', { name: 'Свободные места', exact: true }).click();
+    > 100 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+          |                                                                                    ^
+      101 |         'MALE',
+      102 |       );
+      103 |       expect(new URL(page.url()).searchParams.get('category')).toBe('MALE');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:100:84
+
+    Error Context: test-results/search-filter-recovery-sea-abff7-nsfers-category-into-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-abff7-nsfers-category-into-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-abff7-nsfers-category-into-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+      109 |       await page.goto(`${search}&category=MALE`);
+      110 |       const category = page.getByRole('combobox', { name: 'Категория', exact: true });
+    > 111 |       await expect(category).toHaveValue('MALE');
+          |                              ^
+      112 |       await page.getByLabel('Заезд', { exact: true }).fill('2026-10-13');
+      113 |       await page.getByLabel('Выезд', { exact: true }).fill('2026-10-16');
+      114 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:111:30
+
+    Error Context: test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-10"
+    Received: "2026-10-06"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        30 × locator resolved to <input required="" type="date" name="arrival" value="2026-10-06" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-06"
+
+
+      139 |         await page.goto((await link.getAttribute('href'))!);
+      140 |       } else await link.click();
+    > 141 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+          |                                                               ^
+      142 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      143 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+      144 |         'MALE',
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:141:63
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Способ оплаты', exact: true })
+    Expected: "CASH"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Способ оплаты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Способ оплаты', exact: true })
+        33 × locator resolved to <select class="inp" name="method" aria-label="Способ оплаты">…</select>
+           - unexpected value ""
+
+
+      167 |       expect(q.get('to')).toBe('2026-10-05');
+      168 |       await page.goBack();
+    > 169 |       await expect(method).toHaveValue('CASH');
+          |                            ^
+      170 |       await page.goForward();
+      171 |       await expect(method).toHaveValue('');
+      172 |     });
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:169:28
+
+    Error Context: test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('bulk-editor').getByRole('alert')
+    Expected substring: "Укажите хотя бы одно изменение"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('bulk-editor').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('bulk-editor').getByRole('alert')
+
+
+      180 |       const add = editor.getByRole('button', { name: '+ Добавить в список', exact: true });
+      181 |       await add.click();
+    > 182 |       await expect(editor.getByRole('alert')).toContainText('Укажите хотя бы одно изменение');
+          |                                               ^
+      183 |       await expect(editor.getByTestId('pending-changes')).toHaveCount(0);
+      184 |       await expect(editor.getByTestId('apply-changes')).toBeDisabled();
+      185 |       await editor.getByLabel('Мин. ночей', { exact: true }).fill('0');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:182:47
+
+    Error Context: test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kz"
+    Received: null
+
+      199 |       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
+      200 |       await settleStreaming(page);
+    > 201 |       expect(new URL(page.url()).searchParams.get('lang')).toBe('kz');
+          |                                                            ^
+      202 |       expect(new URL(page.url()).searchParams.get('date')).toBe('2026-10-05');
+      203 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      204 |         'Тұрып жатқан қонақтар тізімі',
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:201:60
+
+    Error Context: test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-07"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-07" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      33 |         await link.click();
+      34 |         await expect(page).toHaveURL(target.href);
+    > 35 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      36 |           target.searchParams.get('arrival')!,
+      37 |         );
+      38 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:35:65
+
+    Error Context: test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-09"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-09" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      33 |         await link.click();
+      34 |         await expect(page).toHaveURL(target.href);
+    > 35 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      36 |           target.searchParams.get('arrival')!,
+      37 |         );
+      38 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:35:65
+
+    Error Context: test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Выходные', exact: true })
+    Expected pattern: /guests=3&category=MALE/
+    Received string:  "/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Выходные', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Выходные', exact: true })
+        34 × locator resolved to <a href="/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2">Выходные</a>
+           - unexpected value "/rooms/availability?arrival=2026-10-09&departure=2026-10-11&guests=2"
+
+
+      68 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+      69 |       const weekend = page.getByRole('link', { name: 'Выходные', exact: true });
+    > 70 |       await expect(weekend).toHaveAttribute('href', /guests=3&category=MALE/);
+         |                             ^
+      71 |       const weekendUrl = new URL((await weekend.getAttribute('href'))!, page.url()).href;
+      72 |       await weekend.click();
+      73 |       await expect(page).toHaveURL(weekendUrl);
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:70:29
+
+    Error Context: test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-88f5e-ick-period-and-booking-link/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+       98 |         .click();
+       99 |       await page.getByRole('menuitem', { name: 'Свободные места', exact: true }).click();
+    > 100 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+          |                                                                                    ^
+      101 |         'MALE',
+      102 |       );
+      103 |       expect(new URL(page.url()).searchParams.get('category')).toBe('MALE');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:100:84
+
+    Error Context: test-results/search-filter-recovery-sea-ee94b-nsfers-category-into-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-ee94b-nsfers-category-into-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-ee94b-nsfers-category-into-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+      109 |       await page.goto(`${search}&category=MALE`);
+      110 |       const category = page.getByRole('combobox', { name: 'Категория', exact: true });
+    > 111 |       await expect(category).toHaveValue('MALE');
+          |                              ^
+      112 |       await page.getByLabel('Заезд', { exact: true }).fill('2026-10-13');
+      113 |       await page.getByLabel('Выезд', { exact: true }).fill('2026-10-16');
+      114 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:111:30
+
+    Error Context: test-results/search-filter-recovery-sea-def90-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-10"
+    Received: "2026-10-06"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        - locator resolved to <input type="date" required="" name="arrival" value="2026-10-06" class="inp date-field__input"/>
+        32 × unexpected value "2026-10-06"
+           - locator resolved to <input type="date" required="" name="arrival" value="2026-10-06" aria-label="Заезд" class="inp date-field__input"/>
+        - unexpected value "2026-10-06"
+
+
+      139 |         await page.goto((await link.getAttribute('href'))!);
+      140 |       } else await link.click();
+    > 141 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+          |                                                               ^
+      142 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      143 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+      144 |         'MALE',
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:141:63
+
+    Error Context: test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Способ оплаты', exact: true })
+    Expected: "CASH"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Способ оплаты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Способ оплаты', exact: true })
+        31 × locator resolved to <select class="inp" name="method" aria-label="Способ оплаты">…</select>
+           - unexpected value ""
+
+
+      167 |       expect(q.get('to')).toBe('2026-10-05');
+      168 |       await page.goBack();
+    > 169 |       await expect(method).toHaveValue('CASH');
+          |                            ^
+      170 |       await page.goForward();
+      171 |       await expect(method).toHaveValue('');
+      172 |     });
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:169:28
+
+    Error Context: test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('bulk-editor').getByRole('alert')
+    Expected substring: "Укажите хотя бы одно изменение"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('bulk-editor').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('bulk-editor').getByRole('alert')
+
+
+      180 |       const add = editor.getByRole('button', { name: '+ Добавить в список', exact: true });
+      181 |       await add.click();
+    > 182 |       await expect(editor.getByRole('alert')).toContainText('Укажите хотя бы одно изменение');
+          |                                               ^
+      183 |       await expect(editor.getByTestId('pending-changes')).toHaveCount(0);
+      184 |       await expect(editor.getByTestId('apply-changes')).toBeDisabled();
+      185 |       await editor.getByLabel('Мин. ночей', { exact: true }).fill('0');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:182:47
+
+    Error Context: test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kz"
+    Received: null
+
+      199 |       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
+      200 |       await settleStreaming(page);
+    > 201 |       expect(new URL(page.url()).searchParams.get('lang')).toBe('kz');
+          |                                                            ^
+      202 |       expect(new URL(page.url()).searchParams.get('date')).toBe('2026-10-05');
+      203 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      204 |         'Тұрып жатқан қонақтар тізімі',
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:201:60
+
+    Error Context: test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link 
+    tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search 
+    tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+    tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+    tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link 
+    tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search 
+    tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+    tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+    tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+  23 passed (5.8m)
+
+# код выхода 1 · 5 мин 52 с

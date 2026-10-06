@@ -369,6 +369,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /w/widget.js': 'public',
   'GET /w/config': 'public',
   'GET /w/availability': 'public',
+  // Q-276: цена «от» тарифа брони сайта, тот же ключ и домен, что у availability
+  'GET /w/from-prices': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',

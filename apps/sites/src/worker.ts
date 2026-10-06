@@ -1,7 +1,9 @@
 import { ContractClient, type ContractResult } from './contract';
 import { apiOriginOf, BASE_SECURITY_HEADERS, CACHE, contentSecurityPolicy } from './headers';
 import { RenderError, type RenderContext } from './render/context';
-import { renderNotFound, renderPage } from './render/page';
+import { CSS_PATH, PRICES_PATH } from './assets';
+import { pageNeedsPrices, renderNotFound, renderPage } from './render/page';
+import { PRICES_JS } from './render/prices-script';
 import { SITE_CSS } from './render/theme';
 import { robotsTxt, seoSettings, sitemapXml } from './seo';
 import type { Env, Page } from './types';
@@ -10,16 +12,7 @@ import type { Env, Page } from './types';
  * Публичный рантайм сайтов WETOP (MKT4, Q-269: Cloudflare Worker, origin сайта). Полномочие одно: имя хоста запроса.
  * Ни сессии, ни куки `wetop_scope`, ни выбора организации; в API ходит только `GET /sites-runtime/current`.
  */
-function fnv1a(text: string): string {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash.toString(16).padStart(8, '0');
-}
-
-export const CSS_PATH = `/_wetop/site-${fnv1a(SITE_CSS)}.css`;
+export { CSS_PATH, PRICES_PATH };
 
 type Log = (event: Record<string, unknown>) => void;
 
@@ -41,6 +34,11 @@ export function createRuntime(
       const url = new URL(request.url);
       if (url.pathname === CSS_PATH)
         return respond(request, SITE_CSS, 200, { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': CACHE.immutable });
+      if (url.pathname === PRICES_PATH)
+        return respond(request, PRICES_JS, 200, {
+          'Content-Type': 'application/javascript; charset=utf-8',
+          'Cache-Control': CACHE.immutable,
+        });
       if (url.pathname === '/favicon.ico') return plain('Not Found', 404, { 'Cache-Control': CACHE.notFound });
       const host = url.hostname.toLowerCase().replace(/\.$/, '');
       const result = await contract.get(host);
@@ -80,7 +78,7 @@ export function createRuntime(
       };
       const analytics = spec.integrations.analytics.mode === 'WETOP_TRACKER' && !!current.publicKey;
       const bookingOnPage = bookingLive && !!page?.sections.some((s) => s.type === 'booking');
-      const csp = contentSecurityPolicy({ apiOrigin, analytics, booking: bookingOnPage });
+      const csp = contentSecurityPolicy({ apiOrigin, analytics, booking: bookingOnPage, prices: !!page && pageNeedsPrices(ctx) });
       let html: string;
       try {
         html = page ? renderPage(ctx, seo, CSS_PATH) : renderNotFound(ctx, seo, CSS_PATH);

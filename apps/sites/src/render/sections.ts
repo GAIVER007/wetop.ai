@@ -1,6 +1,7 @@
 import type { Cta, LocalizedText, Section } from '../types';
 import {
   actionHref,
+  pricingRows,
   RenderError,
   resolvedImages,
   sectionVisible,
@@ -68,9 +69,11 @@ const accommodations: Renderer = (s, ctx, { h1 }) => {
       const pics = resolvedImages(item['images'], ctx.assets)
         .map((img) => `<img src="${esc(img.src)}" alt="${t(img.alt, ctx)}" loading="lazy" decoding="async">`)
         .join('');
-      // B-FROMPRICE не выводится до решения Q-276: цены в HTML нет вовсе
+      // B-FROMPRICE (Q-276): в HTML только скрытое место, число ставит скрипт цен по живому ответу API
+      const price =
+        s['showFromPrice'] === true && ctx.bookingLive ? fromPricePlace(String(item['categoryCode'])) : '';
       const action = ctaLink((s['itemAction'] as Cta | undefined) ?? { label: { [ctx.locale]: ui(ctx.locale).book }, action: { kind: 'BOOK' } }, ctx);
-      const body = `${pics}<h3>${t(item['title'], ctx)}</h3><p>${t(item['description'], ctx)}</p>${capacity}${chips}${action ? `<div class="actions">${action}</div>` : ''}`;
+      const body = `${pics}<h3>${t(item['title'], ctx)}</h3><p>${t(item['description'], ctx)}</p>${capacity}${price}${chips}${action ? `<div class="actions">${action}</div>` : ''}`;
       return s.variant === 'ROWS' ? `<li class="row"><div>${body}</div></li>` : `<li class="card">${body}</li>`;
     })
     .join('');
@@ -88,9 +91,23 @@ const amenities: Renderer = (s, ctx, { h1 }) => {
   return `${open(s)}${heading(s, ctx, h1)}<ul class="list list--cols">${items}</ul>${close}`;
 };
 
-/** Секция `pricing` скрыта до Q-276 (`sectionVisible`); рендерер есть, чтобы реестр был полон и вызов не дошёл сюда */
-const pricing: Renderer = () => {
-  throw new RenderError('pricing:hidden_until_Q-276');
+/** Скрытое место под цену «от»: число ставит только скрипт цен, в HTML его нет никогда */
+const fromPricePlace = (code: string) => `<p class="from-price" data-from-price="${esc(code)}" hidden></p>`;
+
+/**
+ * `pricing` (Q-276): строки категорий с живой ценой. Секция и строки скрыты в HTML; скрипт цен показывает строку, когда
+ * пришла её цена, и секцию, когда видна хотя бы одна строка. Ответа нет: секция остаётся скрытой.
+ */
+const pricing: Renderer = (s, ctx, { h1 }) => {
+  const action = ctaLink({ label: { [ctx.locale]: ui(ctx.locale).book }, action: { kind: 'BOOK' } }, ctx);
+  const rows = pricingRows(s, ctx)
+    .map(
+      (row) =>
+        `<li class="row" data-price-row hidden><div><h3>${t(row.title, ctx)}</h3>${fromPricePlace(row.code)}</div>${action ? `<div>${action}</div>` : ''}</li>`,
+    )
+    .join('');
+  const note = s['note'] ? `<p class="muted">${t(s['note'], ctx)}</p>` : '';
+  return `${open(s, ' class="pricing" data-price-section hidden')}${heading(s, ctx, h1)}<ul class="list">${rows}</ul>${note}${close}`;
 };
 
 const gallery: Renderer = (s, ctx, { h1 }) => {

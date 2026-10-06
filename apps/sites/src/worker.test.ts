@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRuntime, CSS_PATH } from './worker';
+import { createRuntime, CSS_PATH, PRICES_PATH } from './worker';
 import { current } from './test/fixtures';
 import type { RuntimeCurrent } from './types';
 
@@ -42,7 +42,9 @@ describe('страница сайта', () => {
     const html = await (await get('http://stepnoy.localhost/')).text();
     const scripts = html.match(/<script[^>]*>/g) ?? [];
     for (const tag of scripts)
-      expect(tag).toMatch(/^<script (type="application\/ld\+json"|async src="https:\/\/api\.example\.test\/(a\/pms|w\/widget)\.js" data-site="pms_0123456789ab")>$/);
+      expect(tag).toMatch(
+        /^<script (type="application\/ld\+json"|async src="https:\/\/api\.example\.test\/(a\/pms|w\/widget)\.js" data-site="pms_0123456789ab"|defer src="\/_wetop\/prices-[0-9a-f]{8}\.js" data-api="https:\/\/api\.example\.test" data-site="pms_0123456789ab" data-locale="ru-RU" data-label="от \{price\} \/ ночь")>$/,
+      );
     expect(html).toContain('<script async src="https://api.example.test/a/pms.js" data-site="pms_0123456789ab"></script>');
     expect(html).toContain('<script async src="https://api.example.test/w/widget.js" data-site="pms_0123456789ab"></script>');
   });
@@ -111,6 +113,36 @@ describe('страница сайта', () => {
     expect(res.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
     expect(res.headers.get('content-type')).toBe('text/css; charset=utf-8');
     expect(calls).toEqual([]);
+  });
+});
+
+describe('цена «от» (Q-276)', () => {
+  it('главная: скрипт цен в CSP через self, числа цены в HTML нет', async () => {
+    const { get } = runtime({ 'stepnoy.localhost': ok() });
+    const res = await get('http://stepnoy.localhost/');
+    const html = await res.text();
+    expect(html).toContain(`<script defer src="${PRICES_PATH}"`);
+    expect(res.headers.get('content-security-policy')).toMatch(/script-src 'self' https:\/\/api\.example\.test/);
+    expect(html).not.toMatch(/₸/);
+  });
+
+  it('файл цен: JavaScript, долгий кэш, без запроса к API', async () => {
+    const { get, calls } = runtime({});
+    const res = await get(`http://any.localhost${PRICES_PATH}`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/javascript; charset=utf-8');
+    expect(res.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
+    expect(await res.text()).toContain('/w/from-prices');
+    expect(calls).toEqual([]);
+  });
+
+  it('бронь сайта выключена: ни скрипта цен, ни секции цен, ни self в script-src', async () => {
+    const { get } = runtime({ 'stepnoy.localhost': ok({ bookingEnabled: false }) });
+    const res = await get('http://stepnoy.localhost/');
+    const html = await res.text();
+    expect(html).not.toContain(PRICES_PATH);
+    expect(html).not.toContain('sec-pricing');
+    expect(res.headers.get('content-security-policy')).not.toContain("'self' https");
   });
 });
 

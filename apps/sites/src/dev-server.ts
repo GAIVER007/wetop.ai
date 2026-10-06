@@ -7,7 +7,9 @@ import type { Env, RuntimeCurrent, SiteSpec } from './types';
 /**
  * Локальный просмотр рантайма на Node без Cloudflare: тот же `createRuntime`, что у Worker. Режимы:
  * - по умолчанию ходит в API по `SITES_API_URL` с ключом `SITES_RUNTIME_KEY` из окружения (ключ в код не пишется);
- * - `--fixture` отвечает контрактом из `docs/marketing/sitespec-v0.example.json` без API (снимки и проверки UI).
+ * - `--fixture` отвечает контрактом из `docs/marketing/sitespec-v0.example.json` без API (снимки и проверки UI); адрес
+ *   API в контракте это тот же сервер по `127.0.0.1`: он отдаёт подставной `/w/from-prices` (Q-276) с CORS и пустые
+ *   скрипты виджета и счётчика. Хост `pricefail.*` получает ошибку цены, `nobooking.*` выключенную бронь.
  * Порт: `SITES_PREVIEW_PORT`, по умолчанию 8788.
  */
 const fixture = process.argv.includes('--fixture');
@@ -22,6 +24,7 @@ function fixtureFetch(): typeof fetch {
     const host = url.searchParams.get('host') ?? '';
     if (!host.endsWith('.localhost') && host !== '127.0.0.1') return new Response('{}', { status: 404 });
     const booking = !host.startsWith('nobooking.');
+    const key = host.startsWith('pricefail.') ? 'pms_pricefail00' : 'pms_000000000000';
     const body: RuntimeCurrent = {
       siteId: '00000000-0000-4000-8000-000000000001',
       state: 'PUBLISHED',
@@ -31,9 +34,9 @@ function fixtureFetch(): typeof fetch {
       schemaVersion: 'site-spec/0',
       specHash: 'f'.repeat(64),
       spec,
-      publicKey: 'pms_000000000000',
+      publicKey: key,
       bookingEnabled: booking,
-      publicApiUrl: 'http://127.0.0.1:9',
+      publicApiUrl: `http://127.0.0.1:${port}`,
       assets: {},
       publicFacts: {
         loadedAt: new Date().toISOString(),
@@ -56,7 +59,40 @@ const env: Env = {
 };
 const runtime = createRuntime(env, fixture ? { fetchImpl: fixtureFetch() } : {});
 
+/** Подставной API WETOP для `--fixture`: цена «от» (Q-276) и пустые скрипты, чтобы страница не ходила наружу */
+function fixtureApi(req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse): boolean {
+  const url = new URL(req.url ?? '/', 'http://127.0.0.1');
+  const origin = req.headers.origin;
+  const cors: Record<string, string> = origin ? { 'access-control-allow-origin': origin, vary: 'Origin' } : {};
+  if (url.pathname === '/w/from-prices') {
+    if (url.searchParams.get('k') === 'pms_pricefail00') {
+      res.writeHead(500, { 'content-type': 'application/json', ...cors });
+      res.end('{"message":"сбой"}');
+      return true;
+    }
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'public, max-age=60', ...cors });
+    res.end(
+      JSON.stringify({
+        currency: 'KZT',
+        window: { from: '2026-10-07', to: '2026-11-05' },
+        categories: [
+          { code: 'standard-double', fromMinor: '2500000' },
+          { code: 'dorm-bed', fromMinor: '800000' },
+        ],
+      }),
+    );
+    return true;
+  }
+  if (url.pathname === '/w/widget.js' || url.pathname === '/a/pms.js') {
+    res.writeHead(200, { 'content-type': 'application/javascript' });
+    res.end('');
+    return true;
+  }
+  return false;
+}
+
 createServer(async (req, res) => {
+  if (fixture && (req.headers.host ?? '').startsWith('127.0.0.1') && fixtureApi(req, res)) return;
   const request = new Request(`http://${req.headers.host ?? '127.0.0.1'}${req.url ?? '/'}`, { method: req.method ?? 'GET' });
   const response = await runtime.fetch(request);
   res.writeHead(response.status, Object.fromEntries(response.headers));

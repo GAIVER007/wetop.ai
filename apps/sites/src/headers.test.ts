@@ -32,6 +32,19 @@ describe('CSP рантайма', () => {
   });
 });
 
+describe('CSP со скриптом цены «от» (Q-276)', () => {
+  it("свой файл цен с того же хоста ('self') и запрос к API, без unsafe-inline", () => {
+    const csp = contentSecurityPolicy({ apiOrigin: 'https://api.example.test', analytics: false, booking: false, prices: true });
+    expect(directive(csp, 'script-src')).toBe("script-src 'self'");
+    expect(directive(csp, 'connect-src')).toBe('connect-src https://api.example.test');
+    expect(directive(csp, 'script-src')).not.toContain('unsafe');
+  });
+  it('без адреса API цен нет и в CSP', () => {
+    const csp = contentSecurityPolicy({ apiOrigin: null, analytics: false, booking: false, prices: true });
+    expect(directive(csp, 'script-src')).toBe("script-src 'none'");
+  });
+});
+
 describe('адрес API', () => {
   it.each([
     ['https://api.wetop.ai/', 'https://api.wetop.ai'],

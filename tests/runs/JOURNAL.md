@@ -7012,3 +7012,22 @@
 | 07.10.2026 00:17 | integration | ✅ 820 из 820 | 2 мин 8 с | 6a6a46b +15 | [лог](logs/2026-10-06T19-17-32Z-integration-f1df.log) | MKT4 full integration after copyPlan fix |
 | 07.10.2026 00:20 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 40 из 40 | 1 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-04Z-unit-61f4.log) | MKT4: Dockerfile copies apps/sites manifest |
 | 07.10.2026 00:20 | unit | ✅ 3647 из 3650, пропущено 3 | 1 мин 47 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-09Z-unit-2d0a.log) | MKT4 full unit after Dockerfile and copyPlan |
+| 07.10.2026 00:41 | unit (частично: packages/domain/src/web-booking/from-price.test.ts) | ❌ код выхода 1 | 3 с | e8497b0 +1 | [лог](logs/2026-10-06T19-41-57Z-unit-030e.log) | Q-276 red: from-price domain absent |
+| 07.10.2026 00:42 | unit (частично: packages/domain/src/web-booking) | ✅ 46 из 46 | 2 с | e8497b0 +3 | [лог](logs/2026-10-06T19-42-18Z-unit-732f.log) | Q-276 green: from-price domain |
+| 07.10.2026 00:43 | integration (частично: tests/integration/from-prices.test.ts) | ❌ код выхода 1 | 3 с | e8497b0 +4 | [лог](logs/2026-10-06T19-43-35Z-integration-ca56.log) | Q-276 red: fromPrices absent |
+| 07.10.2026 00:43 | integration (частично: tests/integration/from-prices.test.ts) | ❌ упало 9 из 9 | 6 с | e8497b0 +4 | [лог](logs/2026-10-06T19-43-51Z-integration-eefc.log) | Q-276 red: fromPrices absent |
+| 07.10.2026 00:44 | integration (частично: tests/integration/from-prices.test.ts) | ❌ упало 1 из 9 | 5 с | e8497b0 +6 | [лог](logs/2026-10-06T19-44-34Z-integration-4bea.log) | Q-276 green: /w/from-prices |
+| 07.10.2026 00:44 | integration (частично: tests/integration/from-prices.test.ts) | ✅ 9 из 9 | 5 с | e8497b0 +6 | [лог](logs/2026-10-06T19-44-47Z-integration-26cf.log) | Q-276 green: /w/from-prices |
+| 07.10.2026 00:44 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 5 с | e8497b0 +5 | [лог](logs/2026-10-06T19-44-59Z-unit-f01d.log) | Q-276 red: route table without /w/from-prices |
+| 07.10.2026 00:45 | unit (частично: apps/api/src/web-booking apps/api/src/auth/route-access.test.ts) | ✅ 106 из 106 | 7 с | e8497b0 +7 | [лог](logs/2026-10-06T19-45-23Z-unit-d484.log) | Q-276 green: /w/from-prices route, CORS, route table |
+| 07.10.2026 00:46 | unit (частично: apps/sites/src/render/from-price.test.ts) | ❌ упало 4 из 21 | 2 с | e8497b0 +11 | [лог](logs/2026-10-06T19-46-32Z-unit-d625.log) | Q-276 red: worker price placeholders absent |
+| 07.10.2026 00:47 | unit (частично: apps/sites) | ❌ упало 6 из 159 | 3 с | e8497b0 +19 | [лог](logs/2026-10-06T19-47-45Z-unit-fb5b.log) | Q-276 green: worker live from-price |
+| 07.10.2026 00:48 | unit (частично: apps/sites) | ✅ 160 из 160 | 2 с | e8497b0 +21 | [лог](logs/2026-10-06T19-48-24Z-unit-b1b6.log) | Q-276 green: worker live from-price |
+| 07.10.2026 00:49 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ упало 1 из 11 | 14 с | e8497b0 +22 | [лог](logs/2026-10-06T19-49-15Z-e2e-8fb8.log) | Q-276 runtime UI 390/1440 axe with live from-price |
+| 07.10.2026 00:49 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 12 с | e8497b0 +22 | [лог](logs/2026-10-06T19-49-43Z-e2e-2319.log) | Q-276 runtime UI 390/1440 axe with live from-price |
+| 07.10.2026 00:50 | typecheck | ✅ без ошибок | 51 с | e8497b0 +24 | [лог](logs/2026-10-06T19-50-57Z-typecheck-8dac.log) | Q-276 |
+| 07.10.2026 00:52 | lint | ❌ ошибок: 1 | 39 с | e8497b0 +24 | [лог](logs/2026-10-06T19-52-02Z-lint-e667.log) | Q-276 |
+| 07.10.2026 00:52 | unit | ✅ 3683 из 3686, пропущено 3 | 1 мин 50 с | e8497b0 +22 | [лог](logs/2026-10-06T19-52-41Z-unit-3768.log) | Q-276 full unit |
+| 07.10.2026 00:54 | lint | ✅ без ошибок | 33 с | e8497b0 +24 | [лог](logs/2026-10-06T19-54-41Z-lint-0019.log) | Q-276 |
+| 07.10.2026 00:55 | unit (частично: apps/sites) | ✅ 160 из 160 | 3 с | e8497b0 +22 | [лог](logs/2026-10-06T19-55-15Z-unit-fdc4.log) | Q-276 after lint fix |
+| 07.10.2026 00:55 | integration | ✅ 829 из 829 | 2 мин 6 с | e8497b0 +8 | [лог](logs/2026-10-06T19-55-23Z-integration-1aa3.log) | Q-276 full integration |

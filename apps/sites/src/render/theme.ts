@@ -67,6 +67,7 @@ export const SITE_CSS = [
   ...Object.entries(RADIUS).map(([k, r]) => vars(`.r-${k.toLowerCase()}`, { radius: r })),
   ...Object.entries(DENSITY).map(([k, d]) => vars(`.d-${k.toLowerCase()}`, { section: d.section, gap: d.gap })),
   `*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:88px}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;line-height:1.6;overflow-wrap:anywhere}
 a{color:var(--accent)}
@@ -119,6 +120,8 @@ main section.cta-band{background:var(--accent)}
 .site-footer{border-top:1px solid var(--border);padding:40px 0;font-size:15px;color:var(--muted)}
 .site-footer nav{display:flex;flex-wrap:wrap;gap:4px 20px;margin-bottom:16px}
 .site-footer a{color:var(--text);min-height:44px;display:inline-flex;align-items:center}
+.from-price{font-weight:700;font-size:19px;color:var(--text);margin:8px 0 0}
+.pricing .row{align-items:center}
 .page-title{padding-top:48px;margin-bottom:0}
 .not-found{padding:96px 0}`,
 ].join('\n');

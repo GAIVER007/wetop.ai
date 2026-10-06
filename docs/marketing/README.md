@@ -67,7 +67,7 @@ MKT4: `apps/sites`, план `plans/mkt4-public-site-runtime-2026-10-06.md`, в�
 **ФАКТ MKT4 (06.10.2026).** Путь `GET /sites-runtime/current` и ключ `SITES_RUNTIME_KEY` есть
 (`apps/api/src/sites-runtime/`). Отличия от кандидата ниже: `SiteDomain` ещё нет, поэтому хост разрешает только карта
 dev и test (`SITES_RUNTIME_DEV_RESOLVER=1` и `SITES_RUNTIME_DEV_HOSTS`, вне `production`), `primaryHost` всегда `null`;
-`assets` всегда `{}`; неверный документ даёт 503 `spec_invalid`; цены «от» в ответе нет (Q-276).
+`assets` всегда `{}`; неверный документ даёт 503 `spec_invalid`; цены в ответе нет: цена «от» живая, браузер берёт её у `/w/from-prices` (Q-276).
 
 Рантайм ходит в API по узкому служебному ключу (кандидат `SITES_RUNTIME_KEY`), тем же образцом, что узкие ключи
 помощника и сборщика (`apps/api/src/auth/auth.guard.ts:60-113`, сравнение `timingSafeEqual` :39-46).
@@ -87,7 +87,7 @@ dev и test (`SITES_RUNTIME_DEV_RESOLVER=1` и `SITES_RUNTIME_DEV_HOSTS`, вне
 журнала. Только после этого рантайм увидит её как текущую через тот же `/sites-runtime/current`.
 
 Бронь (`B-BOOK`) браузер посетителя берёт напрямую у публичного API существующими путями `/w/config`,
-`/w/availability`, `/w/book`; цену «от» (`B-FROMPRICE`) будущим узким публичным контрактом цены (MKT4). Рантайм не
+`/w/availability`, `/w/book`; цену «от» (`B-FROMPRICE`) узким публичным контрактом `GET /w/from-prices?k=` (MKT4, Q-276 RESOLVED OWNER 07.10.2026: тариф брони сайта, 30 ночей, полная вместимость, без стоп-продажи; подсказка тарифа, а не обещание мест). Рантайм не
 проксирует бронь и не держит у себя данные гостей. `B-CATEGORY` и `B-CHECKINOUT` приходят в `publicFacts` (§4.4).
 
 ### 4.3 Обязательные свойства рантайма

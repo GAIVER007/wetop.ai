@@ -17,7 +17,6 @@ function sectionOf(type: string, variant: string): Section {
 }
 
 const cases = Object.entries(SITE_SPEC_SECTIONS)
-  .filter(([type]) => type !== 'pricing')
   .flatMap(([type, variants]) => variants.map((variant) => [type, variant] as const));
 
 describe('каждый вариант рисуется', () => {
@@ -30,8 +29,10 @@ describe('каждый вариант рисуется', () => {
     expect(html).toContain(`<h2 id="${s.id}-title">`);
   });
 
-  it('pricing не рисуется до Q-276: рендерер отказывает, а не выдумывает цену', () => {
-    expect(() => SECTION_RENDERERS['pricing']!['FROM_PRICES']!(sectionOf('pricing', 'FROM_PRICES'), ctx(), { h1: false })).toThrow(/Q-276/);
+  it('pricing (Q-276): только скрытые места под живую цену, числа в HTML нет', () => {
+    const html = SECTION_RENDERERS['pricing']!['FROM_PRICES']!(sectionOf('pricing', 'FROM_PRICES'), ctx(), { h1: false });
+    expect(html).toContain('data-price-section hidden');
+    expect(html).not.toMatch(/₸|от \d/);
   });
 
   it('картинка с картой ассетов: адрес из карты, ALT экранирован, ленивая загрузка', () => {

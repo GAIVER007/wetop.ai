@@ -652,6 +652,23 @@ describe('виджет бронирования /w/*', () => {
   });
 
   // Аудит 26.09, С-36: цены с сайта — около 30 обращений к базе на запрос, ключ публичен, лимита не было
+  it('Q-276: GET /w/from-prices — свой домен с CORS и коротким кэшем, чужой домен 403 без CORS, без ключа 404', async () => {
+    const own = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', ORIGIN)
+      .set('cf-connecting-ip', '203.0.113.60')
+      .expect(200);
+    expect(own.headers['access-control-allow-origin']).toBe(ORIGIN);
+    expect(own.headers['cache-control']).toBe('public, max-age=60');
+    expect(Object.keys(own.body).sort()).toEqual(['categories', 'currency', 'window']);
+    const foreign = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', 'http://evil.local')
+      .expect(403);
+    expect(foreign.headers['access-control-allow-origin']).toBeUndefined();
+    await request(app.getHttpServer()).get('/w/from-prices').set('Origin', ORIGIN).expect(404);
+  });
+
   it('цены: больше 60 запросов в минуту с одного адреса — 429', async () => {
     const quote = () =>
       request(app.getHttpServer())

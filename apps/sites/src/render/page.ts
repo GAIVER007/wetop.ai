@@ -1,6 +1,8 @@
+import { PRICES_PATH } from '../assets';
 import { renderHead, type SeoSettings } from '../seo';
 import type { Cta } from '../types';
-import { pagePath, targetHref, type RenderContext } from './context';
+import { pagePath, sectionVisible, targetHref, type RenderContext } from './context';
+import { INTL_LOCALE, PRICE_LABEL } from './price-format';
 import { ctaLink, renderSections } from './sections';
 import { themeClasses } from './theme';
 import { esc, tx, ui } from './text';
@@ -60,6 +62,16 @@ function documentHtml(ctx: RenderContext, seo: SeoSettings, cssHref: string, mai
   return `<!doctype html><html lang="${esc(locale)}"><head>${renderHead(ctx, seo, cssHref)}</head><body class="${themeClasses(spec.theme as unknown as Record<string, unknown>)}"><a class="skip" href="#main">${esc(strings.skip)}</a>${header}<main id="main">${main}</main>${footer}${scripts(ctx)}</body></html>`;
 }
 
+/** На странице есть место под живую цену «от»: карточки с `showFromPrice` или видимая секция цен (Q-276) */
+export function pageNeedsPrices(ctx: RenderContext): boolean {
+  if (!ctx.bookingLive || !ctx.apiOrigin || !ctx.publicKey) return false;
+  return ctx.page.sections.some(
+    (s) =>
+      (s.type === 'accommodations' && s['showFromPrice'] === true && sectionVisible(s, ctx)) ||
+      (s.type === 'pricing' && sectionVisible(s, ctx)),
+  );
+}
+
 /** Только скрипты WETOP с публичным ключом связанного сайта счётчика; ни одного своего встроенного скрипта */
 function scripts(ctx: RenderContext): string {
   if (!ctx.apiOrigin || !ctx.publicKey) return '';
@@ -73,5 +85,9 @@ function scripts(ctx: RenderContext): string {
   }
   const bookingOnPage = ctx.page.sections.some((s) => s.type === 'booking');
   if (ctx.bookingLive && bookingOnPage) parts.push(`<script async src="${api}/w/widget.js" data-site="${key}"></script>`);
+  if (pageNeedsPrices(ctx))
+    parts.push(
+      `<script defer src="${PRICES_PATH}" data-api="${api}" data-site="${key}" data-locale="${INTL_LOCALE[ctx.locale]}" data-label="${esc(PRICE_LABEL[ctx.locale])}"></script>`,
+    );
   return parts.join('');
 }

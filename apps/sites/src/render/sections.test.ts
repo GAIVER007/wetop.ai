@@ -43,8 +43,8 @@ describe('каждая секция примера', () => {
     },
   );
 
-  it('pricing скрыт до Q-276: цены «от» в HTML нет', () => {
-    expect(html).not.toContain('sec-pricing');
+  it('pricing (Q-276): секция скрыта до живой цены, числа «от» в HTML нет', () => {
+    expect(html).toContain('id="sec-pricing" aria-labelledby="sec-pricing-title" class="pricing" data-price-section hidden');
     expect(html).not.toMatch(/₸|тенге|от \d/);
   });
 

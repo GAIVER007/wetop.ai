@@ -43,8 +43,11 @@ for (const vp of WIDTHS) {
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toHaveText('Тихие номера у вокзала');
       await expect(page.locator('#pms-booking')).toHaveCount(1);
-      await expect(page.locator('#sec-pricing')).toHaveCount(0);
       await expect(page.locator('#sec-gallery')).toHaveCount(0);
+      // Q-276: цена «от» приходит живой из /w/from-prices и ставится скриптом WETOP
+      await expect(page.locator('#sec-rooms [data-from-price="standard-double"]')).toHaveText(/^от 25\s000\s₸ \/ ночь$/);
+      await expect(page.locator('#sec-pricing')).toBeVisible();
+      await expect(page.locator('#sec-pricing [data-price-row]')).toHaveCount(2);
       await expect(page.getByText('Заезд с 14:00, выезд до 12:00')).toBeVisible();
       await noHorizontalScroll(page);
       await targets(page);
@@ -83,6 +86,23 @@ for (const vp of WIDTHS) {
     });
   });
 }
+
+test.describe('цена «от» (Q-276)', () => {
+  test('в исходном HTML числа нет: место под цену скрыто до ответа API', async ({ request }) => {
+    const html = await (await request.get(`http://127.0.0.1:${PORT}/`)).text();
+    expect(html).toContain('data-from-price="standard-double" hidden');
+    expect(html).not.toMatch(/25\s?000/);
+  });
+
+  test('ошибка цены: число не показывается, секция цен скрыта, карточки номеров на месте', async ({ page }) => {
+    await page.goto(`http://pricefail.localhost:${PORT}/`);
+    await expect(page.locator('#sec-rooms h3').first()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-from-price]:not([hidden])')).toHaveCount(0);
+    await expect(page.locator('#sec-pricing')).toBeHidden();
+    await expect(page.getByText(/₸/)).toHaveCount(0);
+  });
+});
 
 test('неизвестный хост: нейтральная 404 без имени сайта', async ({ page }) => {
   const res = await page.goto(`http://127.0.0.2:${PORT}/`).catch(() => null);

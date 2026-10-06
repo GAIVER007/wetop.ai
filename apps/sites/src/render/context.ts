@@ -20,14 +20,38 @@ export class RenderError extends Error {}
 
 export const pagePath = (page: Page) => (page.isHome ? '/' : `/${page.slug}`);
 
-/** Секции, которые рантайм покажет: без картинок и без цены «от» часть секций прячется (план MKT4 §7, §8) */
-export function sectionVisible(section: Section, ctx: Pick<RenderContext, 'facts' | 'assets'>): boolean {
+/**
+ * Строки секции цен: категории секции, действующие по `B-CATEGORY` (факты не загрузились: все), с названием из карточек
+ * номеров документа. Служебного имени категории у рантайма нет, поэтому строка без карточки не выводится.
+ */
+export function pricingRows(
+  section: Section,
+  ctx: Pick<RenderContext, 'spec' | 'facts'>,
+): Array<{ code: string; title: unknown }> {
+  const codes = Array.isArray(section['categoryCodes']) ? (section['categoryCodes'] as unknown[]) : [];
+  const titles = new Map<string, unknown>();
+  for (const s of ctx.spec.pages.flatMap((p) => p.sections))
+    if (s.type === 'accommodations' && Array.isArray(s['items']))
+      for (const item of s['items'] as Array<Record<string, unknown>>)
+        if (typeof item['categoryCode'] === 'string' && !titles.has(item['categoryCode']))
+          titles.set(item['categoryCode'], item['title']);
+  return codes
+    .filter((code): code is string => typeof code === 'string' && titles.has(code))
+    .filter((code) => !ctx.facts || ctx.facts.categories.some((c) => c.code === code && c.active))
+    .map((code) => ({ code, title: titles.get(code) }));
+}
+
+/** Секции, которые рантайм покажет: без картинок часть секций прячется (план MKT4 §8) */
+export function sectionVisible(
+  section: Section,
+  ctx: Pick<RenderContext, 'spec' | 'facts' | 'assets' | 'bookingLive'>,
+): boolean {
   switch (section.type) {
     case 'gallery':
       return resolvedImages(section['images'], ctx.assets).length > 0;
     case 'pricing':
-      // Q-276: правила цены «от» без дат нет, цена не показывается, секция целиком скрыта
-      return false;
+      // Q-276: цена живая и приходит только по тарифу брони сайта; без брони цен нет, без строк секции нет
+      return ctx.bookingLive && pricingRows(section, ctx).length > 0;
     case 'accommodations':
       return visibleCards(section, ctx.facts).length > 0;
     default:
@@ -65,7 +89,8 @@ export function targetHref(target: Target, ctx: RenderContext): { href: string; 
   }
   const found = findSection(ctx.spec, target.pageId, target.kind === 'SECTION' ? target.sectionId : undefined);
   if (!found) return null;
-  if (found.section && !sectionVisible(found.section, ctx)) return null;
+  // секция цен скрыта, пока скрипт не покажет строку с ценой: ссылка на неё вела бы в пустоту
+  if (found.section && (found.section.type === 'pricing' || !sectionVisible(found.section, ctx))) return null;
   const path = pagePath(found.page);
   if (!found.section) return { href: path, external: false };
   return { href: found.page.id === ctx.page.id ? `#${found.section.id}` : `${path}#${found.section.id}`, external: false };

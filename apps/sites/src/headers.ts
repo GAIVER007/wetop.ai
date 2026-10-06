@@ -10,13 +10,16 @@ export interface PolicyInput {
   apiOrigin: string | null;
   analytics: boolean;
   booking: boolean;
+  /** Скрипт цены «от» (Q-276): свой файл с того же хоста и запрос к API за ценой */
+  prices?: boolean;
 }
 
 export function contentSecurityPolicy(input: PolicyInput): string {
   const scripts: string[] = [];
   const connect: string[] = [];
-  if (input.apiOrigin && (input.analytics || input.booking)) {
-    scripts.push(input.apiOrigin);
+  if (input.apiOrigin && input.prices) scripts.push("'self'");
+  if (input.apiOrigin && (input.analytics || input.booking || input.prices)) {
+    if (input.analytics || input.booking) scripts.push(input.apiOrigin);
     connect.push(input.apiOrigin);
   }
   if (input.apiOrigin && input.booking) {

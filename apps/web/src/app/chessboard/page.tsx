@@ -366,131 +366,105 @@ function DayPanel({
     `/reservations?from=${today}&to=${today}&date=${date}${status ? `&status=${status}` : ''}`;
   const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
   const c = day.counts;
+  const availability = `/rooms/availability?arrival=${today}&departure=${tomorrow}`;
   return (
     <div className="board-day-panel" role="group" aria-label="Сегодня на объекте">
-      <section className="board-day-panel__occupancy">
-        <h2>Загрузка на сегодня</h2>
-        <div className="board-day-panel__body">
-          <div className="board-day-panel__load">
-            <b data-testid="day-occupancy">{occupancy === null ? 'н/д' : `${occupancy}%`}</b>
-            <span>
-              <b data-testid="day-occupied">{n(s?.occupied)}</b> занято из{' '}
-              <b data-testid="day-units">{n(units)}</b> мест
-              {s && s.blocked > 0 && (
-                <small>
-                  заблокировано <b>{s.blocked}</b>
-                </small>
-              )}
+      <div className="board-stat board-stat--occupancy">
+        <span className="board-stat__label">Загрузка</span>
+        <span className="board-stat__value">
+          <b data-testid="day-occupancy">{occupancy === null ? 'н/д' : `${occupancy}%`}</b>
+          <small>
+            <span data-testid="day-occupied">{n(s?.occupied)}</span> из{' '}
+            <span data-testid="day-units">{n(units)}</span>
+            {s && s.blocked > 0 && <>, блок {s.blocked}</>}
+          </small>
+        </span>
+        {occupancy !== null && (
+          <span
+            className="board-stat__meter"
+            role="meter"
+            aria-label="Загрузка на сегодня"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={occupancy}
+            aria-valuetext={`${occupancy}%`}
+          >
+            <span style={{ width: `${occupancy}%` }} />
+          </span>
+        )}
+      </div>
+      <Tile
+        id="arrivals"
+        label="Заезды"
+        value={n(c.arrivals)}
+        href={dayHref('arrival')}
+        note={
+          <>
+            {c.toCheckIn > 0 && <>ждут {c.toCheckIn}, </>}
+            <span title="Созданы сегодня с заездом сегодня">
+              новых <span data-testid="day-hot">{n(hotBookings)}</span>
             </span>
-          </div>
-          {occupancy !== null && (
-            <div
-              className="board-day-panel__meter"
-              role="meter"
-              aria-label="Загрузка на сегодня"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={occupancy}
-              aria-valuetext={`${occupancy}%`}
-            >
-              <span style={{ width: `${occupancy}%` }} />
-            </div>
-          )}
-        </div>
-      </section>
-      <section className="board-day-panel__guests">
-        <h2>Гости сегодня</h2>
-        <div className="board-day-panel__tiles">
-          <Tile
-            id="arrivals"
-            label="Заезды"
-            value={n(c.arrivals)}
-            href={dayHref('arrival')}
-            tone="ok"
-            note={
-              <>
-                {c.toCheckIn > 0 && <>ждут {c.toCheckIn}, </>}
-                <span title="Созданы сегодня с заездом сегодня">
-                  новых <span data-testid="day-hot">{n(hotBookings)}</span>
-                </span>
-              </>
-            }
-          />
-          <Tile
-            id="departures"
-            label="Выезды"
-            value={n(c.departures)}
-            href={dayHref('departure')}
-            tone="warn"
-            note={c.toCheckOut > 0 ? `ждут ${c.toCheckOut}` : undefined}
-          />
-          <Tile
-            id="inhouse"
-            label="Проживают"
-            value={n(c.inHouse)}
-            href="/reservations?view=inhouse"
-            tone="info"
-          />
-          <Tile
-            id="noshow"
-            label="Незаезды"
-            value={n(noShows)}
-            href={dayHref('arrival', 'NO_SHOW')}
-            tone={noShows ? 'bad' : 'muted'}
-            note={c.overdueArrivals > 0 ? `не заехали ${c.overdueArrivals}` : undefined}
-          />
-        </div>
-      </section>
-      <section className="board-day-panel__free">
-        <h2>Свободно сегодня</h2>
-        <div className="board-day-panel__tiles">
-          {/* Отдельно номера и отдельно койки: одно число «16» без слова «из каких 88» читалось
-              как ошибка (замечание владельца 06.10); фонд из одних коек — одна плитка */}
-          <Tile
-            id="free"
-            label={onlyBeds ? 'Койки' : 'Номера'}
-            value={n(onlyBeds ? freeBeds : freeRooms)}
-            href={`/rooms/availability?arrival=${today}&departure=${tomorrow}`}
-            tone="ok"
-            note={`из ${onlyBeds ? beds : rooms}`}
-          />
-          {!onlyBeds && beds > 0 && (
-            <Tile
-              id="free-beds"
-              label="Койки"
-              value={n(freeBeds)}
-              href={`/rooms/availability?arrival=${today}&departure=${tomorrow}`}
-              tone="ok"
-              note={`из ${beds}`}
-            />
-          )}
-        </div>
-      </section>
+          </>
+        }
+      />
+      <Tile
+        id="departures"
+        label="Выезды"
+        value={n(c.departures)}
+        href={dayHref('departure')}
+        note={c.toCheckOut > 0 ? `ждут ${c.toCheckOut}` : undefined}
+      />
+      <Tile id="inhouse" label="Проживают" value={n(c.inHouse)} href="/reservations?view=inhouse" />
+      <Tile
+        id="noshow"
+        label="Незаезды"
+        value={n(noShows)}
+        href={dayHref('arrival', 'NO_SHOW')}
+        note={c.overdueArrivals > 0 ? `не заехали ${c.overdueArrivals}` : undefined}
+      />
+      {/* Отдельно номера и отдельно койки: одно число «16» без слова «из каких 88» читалось
+          как ошибка (замечание владельца 06.10); фонд из одних коек — одна плитка */}
+      <Tile
+        id="free"
+        label={onlyBeds ? 'Свободно коек' : 'Свободно номеров'}
+        value={n(onlyBeds ? freeBeds : freeRooms)}
+        href={availability}
+        note={`из ${onlyBeds ? beds : rooms}`}
+      />
+      {!onlyBeds && beds > 0 && (
+        <Tile
+          id="free-beds"
+          label="Свободно коек"
+          value={n(freeBeds)}
+          href={availability}
+          note={`из ${beds}`}
+        />
+      )}
     </div>
   );
 }
 
-/** Плитка показателя дня: подпись, число и короткая оговорка; вся плитка — ссылка в список */
+/** Показатель дня: подпись, число и короткая оговорка одной строкой; весь блок — ссылка в список */
 function Tile({
   id,
   label,
   value,
   href,
-  tone,
   note,
 }: {
   id: string;
   label: string;
   value: string;
   href: string;
-  tone: 'ok' | 'warn' | 'bad' | 'info' | 'muted';
   note?: React.ReactNode | undefined;
 }) {
   return (
-    <Link className={`board-tile board-tile--${tone} board-tile--${id}`} href={href}>
-      <span className="board-tile__label">{label}</span>
-      <b data-testid={`day-${id}`}>{value}</b>
-      {note && <small>{note}</small>}
+    <Link className={`board-stat board-stat--${id}`} href={href}>
+      <span className="board-stat__label">{label}</span>
+      <span className="board-stat__value">
+        <b data-testid={`day-${id}`}>{value}</b>
+        {note && <small>{note}</small>}
+      </span>
     </Link>
   );
 }

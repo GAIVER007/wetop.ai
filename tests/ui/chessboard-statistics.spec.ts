@@ -15,8 +15,10 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    await expect(panel.getByRole('heading', { name: 'Загрузка на сегодня' })).toBeVisible();
-    await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
+    // одна строка показателей без заголовков секций (06.10): подписи мелко, числа крупно
+    await expect(panel.getByText('Загрузка', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Заезды', { exact: true })).toBeVisible();
+    await expect(panel.getByRole('heading')).toHaveCount(0);
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
     const panelBox = await panel.boundingBox();

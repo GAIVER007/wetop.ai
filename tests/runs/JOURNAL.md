@@ -6647,3 +6647,6 @@
 | 06.10.2026 12:30 | lint | ✅ без ошибок | 13 с | a70cff8 +2 | [лог](logs/2026-10-06T07-30-58Z-lint-cb7d.log) | Calendar CI repair final lint |
 | 06.10.2026 12:38 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 2 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-13Z-unit-156f.log) | Calendar summary spacing follows design token scale |
 | 06.10.2026 12:38 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-statistics.spec.ts --workers=1) | ✅ 11 из 11 | 24 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-15Z-e2e-b87b.log) | Verify token-compliant desktop summary and unchanged mobile widgets |
+| 06.10.2026 12:58 | typecheck | ✅ без ошибок | 50 с | a49e7b9 | [лог](logs/2026-10-06T07-58-02Z-typecheck-5c39.log) | tree merged with main a616d393 (PR #211) |
+| 06.10.2026 12:58 | lint | ✅ без ошибок | 44 с | a49e7b9 | [лог](logs/2026-10-06T07-58-53Z-lint-7674.log) | tree merged with main a616d393 (PR #211) |
+| 06.10.2026 12:59 | unit | ✅ 3414 из 3417, пропущено 3 | 2 мин 15 с | a49e7b9 | [лог](logs/2026-10-06T07-59-38Z-unit-5f33.log) | tree merged with main a616d393 (PR #211) |

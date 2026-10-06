@@ -37,7 +37,10 @@ async function createAndOpenSalon(page: Page, name: string) {
     .filter({ hasText: name })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/calendar');
+  // MV8: открытый салон начинает с общего рабочего экрана дня
+  await page.waitForURL('**/today');
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await page.goto('/calendar');
 }
 
 test('салон заводится той же формой и открывается своим рабочим местом', async ({
@@ -63,9 +66,14 @@ test('в салоне меню без гостиничных разделов: �
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
   await createAndOpenSalon(page, 'Студия Айна');
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
-  for (const label of ['Сегодня', 'Брони', 'Номерной фонд', 'Гости']) {
+  for (const label of ['Главная', 'Брони', 'Номерной фонд', 'Гости']) {
     await expect(menu.getByRole('link', { name: label, exact: true })).toHaveCount(0);
   }
+  // MV8: «Сегодня» салона на общем адресе
+  await expect(menu.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+    'href',
+    '/today',
+  );
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
     'href',
     '/calendar',

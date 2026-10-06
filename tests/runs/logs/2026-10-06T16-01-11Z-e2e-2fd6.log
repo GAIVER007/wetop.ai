@@ -1,0 +1,216 @@
+# Сквозные (e2e) · 06.10.2026 21:01 Алматы · vm
+# коммит e454eea (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1' 'today.spec' '--grep-invert' 'снимок'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (7.1s)
+  ✘  2 tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (6.4s)
+  ✘  3 tests/branches-ui/today.spec.ts:190:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (6.2s)
+  ✘  4 tests/branches-ui/today.spec.ts:207:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (6.2s)
+  ✘  5 tests/branches-ui/today.spec.ts:246:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (6.3s)
+  ✓  6 tests/branches-ui/today.spec.ts:266:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (1.9s)
+
+
+  1) tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Сегодня', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Сегодня', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Сегодня', exact: true })
+        - waiting for "http://127.0.0.1:55863/calendar" navigation to finish...
+        - navigated to "http://127.0.0.1:55863/calendar"
+
+
+      118 |     const from = await callCount(request);
+      119 |     await page.goto('/today');
+    > 120 |     await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
+          |                                                                               ^
+      121 |     await expect(page.getByTestId('beauty-today')).toBeVisible();
+      122 |     const { m } = await expectedBeauty(request, f.salon);
+      123 |     expect(m.masters).toBe(2);
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:120:79
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('food-today') with timeout 5000ms
+      - waiting for getByTestId('food-today')
+        - waiting for "http://127.0.0.1:55863/floor-plan" navigation to finish...
+        - navigated to "http://127.0.0.1:55863/floor-plan"
+
+
+      158 |     const from = await callCount(request);
+      159 |     await page.goto('/today');
+    > 160 |     await expect(page.getByTestId('food-today')).toBeVisible();
+          |                                                  ^
+      161 |     const m = await expectedFood(request, f.food, f.localDay);
+      162 |     expect(m.reservations).toBeGreaterThan(100);
+      163 |     expect(m.seatedNow).toBeGreaterThanOrEqual(2);
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:160:50
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/today.spec.ts:190:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('food-today') with timeout 5000ms
+      - waiting for getByTestId('food-today')
+        - waiting for "http://127.0.0.1:55863/floor-plan" navigation to finish...
+        - navigated to "http://127.0.0.1:55863/floor-plan"
+
+
+      195 |     await setScope(page, f.food);
+      196 |     await page.goto('/today');
+    > 197 |     await expect(page.getByTestId('food-today')).toBeVisible();
+          |                                                  ^
+      198 |     const local = new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Kiritimati' }).format(
+      199 |       new Date(),
+      200 |     );
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:197:50
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/today.spec.ts:207:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByTestId('beauty-today')
+        - waiting for "http://127.0.0.1:55863/calendar" navigation to finish...
+        - navigated to "http://127.0.0.1:55863/calendar"
+
+
+      212 |     await setScope(page, f.salon);
+      213 |     await page.goto('/today');
+    > 214 |     await expect(page.getByTestId('beauty-today')).toBeVisible();
+          |                                                    ^
+      215 |     await choose(page, 'Тестовый филиал Центр');
+      216 |     await expect(page).toHaveURL(/\/today$/);
+      217 |     await expect(page.getByTestId('food-today')).toBeVisible();
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:214:52
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/branches-ui/today.spec.ts:246:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+
+    Error: {"readOnly":true}
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - {"readOnly":true} getByTestId('food-today') with timeout 5000ms
+      - waiting for getByTestId('food-today')
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:55863/floor-plan"
+
+
+      257 |         await setScope(page, scope);
+      258 |         await page.goto('/today');
+    > 259 |         await expect(page.getByTestId(testId), JSON.stringify(control)).toBeVisible();
+          |                                                                         ^
+      260 |         await expect(page.getByTestId('today-error')).toHaveCount(0);
+      261 |       }
+      262 |     }
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:259:73
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+    tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+    tests/branches-ui/today.spec.ts:190:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+    tests/branches-ui/today.spec.ts:207:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+    tests/branches-ui/today.spec.ts:246:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+  1 passed (48.2s)
+
+# код выхода 1 · 49 с

@@ -46,6 +46,7 @@ v2.7 (29.09.2026; **SEC-1b, стадия A — по слову владельц�
 v2.8 (29.09.2026; **утверждено владельцем 30.09.2026 с поправками** — SA1.5 плана `plans/business-ai-seller-v2-2026-09-29.md`, ADR-127): §20 «Business Agent: личность, филиал и рабочий продавец» — `seller_agents.location_id`, не более одного неархивного AI-продавца (`scenario = 'sales'`) на филиал, четыре хранимых состояния `draft`/`active`/`paused`/`archived` (`TESTING` и `ERROR` вычисляются), перенос существующего продавца в агента с `id = organization_id` вместе со всей историей, ключ провайдера модели — секрет платформы (перевод отдельным срезом), секреты WhatsApp — на подключении канала агента, порядок выкладки и откат. Кода и миграций ещё нет — их делает SA1.6; номер версии уточнить при слиянии (ADR-052).
 v2.9 (30.09.2026; **SEC-1b, стадия B — по решению владельца 30.09.2026 (Q-222 вариант (б\*), Q-225 вариант (а\*))**, ADR-124, `plans/sec1b-stage-b-2026-09-30.md`): §17.2–17.3 — права роли `wetop_app` на три оставшиеся таблицы без RLS. Миграция `20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox` оставляет только `INSERT` (без `RETURNING`: постановка изменения остатков в очередь остаётся в транзакции команды человека и откатывается вместе с ней). Права `wetop_service` не меняются. Таблицы, колонки, связи и политики не меняются. `down.sql` возвращает полный доступ обеим ролям. **На рабочей базе применяет владелец — после выкладки кода** (PR #188, #189, #198: все обращения через `integrationTables(db)` и интеграционную команду на служебной роли)
 v2.10 (03.10.2026; **утверждено владельцем 03.10.2026 ответом «да нужны» на Q-244**, TEAM2, `plans/team-contacts-2026-10-03.md`): §13.3: `memberships.phone` и `memberships.position`, обе необязательные; телефон и должность принадлежат членству, а не человеку (у двух организаций свои); миграция `20261003000050_membership_contacts` (в сессии была 044, при слиянии 044-049 заняли другие срезы; ADR-052)
+v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A, ADR-149): §29 «Маркетинг: управляемый сайт», кандидаты `MarketingSite`, `MarketingSiteVersion`, `MarketingSitePublication`, `SiteAsset`, `SiteDomain`, `GenerationRun`. Владелец сайта `Location` и раздельность с `TrackedSite` утверждены ADR-149; поля, таблицы и ограничения ждут отдельного «да». Prisma и миграций нет
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -2833,3 +2834,213 @@ Status: BOOKED -> CONFIRMED/SEATED/CANCELLED/NO_SHOW; CONFIRMED -> SEATED/CANCEL
 Assignment requires active same-Location table/area, capacity >= partySize, no intersecting [startsAt,endsAt) BOOKED/CONFIRMED/SEATED assignments. Unassign only BOOKED/CONFIRMED. Move recalculates duration and revalidates capacity/overlap atomically. Status+updatedAt guards stale writes; audit rolls back with failure. Customer must be non-archived and same Organization; CustomerBusiness upsert and new customer are atomic with create.
 
 All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.
+
+## 29. Маркетинг: управляемый сайт (v2.11, ПРЕДЛОЖЕНИЕ 06.10.2026, НЕ УТВЕРЖДЕНО; MKT1A, ADR-149)
+
+> **Статус.** Утверждено ADR-149: владелец сайта `Location`; `TrackedSite` остаётся идентичностью аналитики и брони
+> и не становится CMS; содержимое версионируется, публичный рантайм читает только опубликованную неизменяемую
+> версию; Option B (`SiteSpec`). **Не утверждено:** таблицы, поля, типы, ограничения и RLS ниже. Это кандидаты для
+> среза MKT3. Prisma, миграции и код по этому разделу начинаются только после отдельного «да» владельца
+> (AGENTS.md §2). Формат содержимого версии: `docs/marketing/sitespec-v0.md`. Архитектура и жизненные циклы:
+> `docs/marketing/README.md`.
+
+### 29.1 Что уже есть и не дублируется
+
+| Уже есть | Где | Что остаётся там |
+|---|---|---|
+| `TrackedSite` | §11, `schema.prisma:1434-1457` | `public_key`, `hosts[]` (allowlist счётчика и виджета), `status`, `booking_enabled`, `booking_rate_plan_id`, связь с `web_sessions`/`web_pageviews`/`web_events` |
+| Цепочка владения | §18, `schema.prisma:45-125` | Organization → Business → Location → Property (Hospitality) |
+| Аналитика | §11 | сессии, просмотры, события, воронка, связь сессии с бронью |
+| Бронь с сайта | §11 v1.2, ADR-026 | `/w/*`, тариф виджета, источник `WEBSITE` |
+
+`MarketingSite` не хранит копий `public_key`, `booking_enabled`, `booking_rate_plan_id`, хостов аналитики, сессий и
+событий. Публичный ключ рантайм получает через связь `tracked_site_id` в момент разрешения хоста.
+
+### 29.2 `MarketingSite` (кандидат)
+
+Управляемый сайт WETOP одного филиала.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `location_id` | UUID NOT NULL FK → `locations` ON DELETE RESTRICT | владелец; берётся из проверенного scope, не из тела запроса |
+| `tracked_site_id` | UUID NULL UNIQUE FK → `tracked_sites` ON DELETE SET NULL | заводится или привязывается при первой публикации Hospitality; для вертикали без `Property` остаётся NULL, пока `TrackedSite` не научится владению через Location (будущий срез) |
+| `name` | VARCHAR(120) NOT NULL | внутреннее имя в стойке |
+| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; список зарезервированных слов в `docs/marketing/README.md` §6 |
+| `state` | enum `MarketingSiteState` | `DRAFT`, `PUBLISHED`, `PAUSED`, `ARCHIVED` (§29.8) |
+| `latest_version_id` | UUID NULL FK → `marketing_site_versions` | голова черновика, последняя сохранённая версия |
+| `published_version_id` | UUID NULL FK → `marketing_site_versions` | то, что видит рантайм; NULL у ни разу не опубликованного |
+| `created_by_id` | UUID NULL FK → `users` | |
+| `created_at`, `updated_at` | timestamptz | |
+| `archived_at` | timestamptz NULL | |
+
+Ограничения (кандидаты):
+- не более одного неархивного сайта на Location (частичный UNIQUE по `location_id` WHERE `state <> 'ARCHIVED'`); снять,
+  если владелец захочет несколько сайтов филиала;
+- версии по указателям принадлежат этому же сайту (триггер или составной FK);
+- для Hospitality: `tracked_sites.property_id` связанного `TrackedSite` это `Property` того же `Location`
+  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных;
+- `published_version_id` NOT NULL при `state IN ('PUBLISHED','PAUSED')`.
+
+### 29.3 `MarketingSiteVersion` (кандидат)
+
+Неизменяемый снимок `SiteSpec`.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK → `marketing_sites` ON DELETE RESTRICT | |
+| `revision` | INT NOT NULL | 1, 2, 3… внутри сайта; UNIQUE (`site_id`, `revision`) |
+| `parent_version_id` | UUID NULL FK → эта же таблица | от какой версии сделана правка |
+| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0` |
+| `spec` | JSONB NOT NULL | документ `SiteSpec`; предел 256 КБ (CHECK по `octet_length(spec::text)`) |
+| `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы) |
+| `generation_run_id` | UUID NULL FK → `generation_runs` | обязателен при `source = 'AI'` |
+| `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
+| `created_at` | timestamptz | |
+
+**Что значит «неизменяемая».** После вставки строку не меняют и не удаляют командами приложения: `UPDATE` и
+`DELETE` запрещает триггер, как у `audit_logs` (`20260925000022_integrity_guards`). В таблицу попадает только
+документ, прошедший проверку схемы `SiteSpec` той версии, что указана в `schema_version`.
+
+**Как правится черновик.** Правки не меняют версию, а создают новую: сохранение принимает `baseRevision`; если оно
+не равно `revision` версии `latest_version_id`, ответ 409 (кто-то сохранил раньше); иначе в одной транзакции
+вставляется версия `revision + 1` с `parent_version_id = latest_version_id`, и `latest_version_id` переставляется на неё.
+Невалидный документ не сохраняется вовсе (ошибки показываются в редакторе). Ссылки на ассеты проверяются при
+сохранении и повторно при публикации.
+
+**Как публикация ссылается на версию.** `published_version_id` указывает на одну из версий сайта. Публикация и откат
+только переставляют указатель и пишут строку `marketing_site_publications`; сама версия не меняется.
+
+Хранение: версии, которые хоть раз были опубликованы, хранятся всегда; остальные черновые можно чистить по сроку
+(кандидат: старше 90 дней и не последние 50). Решение о сроке: вместе с MKT3.
+
+### 29.4 `MarketingSitePublication` (кандидат, добавлен к списку ADR-149 с обоснованием)
+
+Журнал переключений, только дописывается. Нужен для отката (список ранее опубликованных версий) и для разбора
+инцидентов; хранить это полем в неизменяемой версии нельзя.
+
+| Поле | Тип |
+|---|---|
+| `id` | UUID PK |
+| `site_id` | UUID NOT NULL FK |
+| `action` | enum `PUBLISH`, `ROLLBACK`, `PAUSE`, `RESUME`, `ARCHIVE` |
+| `version_id` | UUID NULL FK → `marketing_site_versions` (NULL у `PAUSE`/`ARCHIVE`) |
+| `previous_version_id` | UUID NULL |
+| `actor_id` | UUID NULL FK → `users` |
+| `created_at` | timestamptz |
+
+`UPDATE`/`DELETE` запрещены триггером. Дублирует ли это `audit_logs`: частично; отдельная таблица нужна, чтобы откат
+не читал журнал аудита по JSON. Если владелец решит обойтись `audit_logs`, таблица снимается.
+
+### 29.5 `SiteAsset` (кандидат, хранилище не выбрано)
+
+Логический контракт медиафайла. Поставщик хранилища, бакеты и CDN не выбраны (Q-270); полей конкретного поставщика нет.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | ссылка из `SiteSpec` (`assetId`) |
+| `location_id` | UUID NOT NULL FK → `locations` | владелец; ассет чужого Location в `SiteSpec` отклоняется |
+| `kind` | enum `IMAGE`, `LOGO`, `FAVICON` | |
+| `mime_type` | VARCHAR(40) | allowlist: `image/jpeg`, `image/png`, `image/webp`; SVG запрещён (может нести скрипт) |
+| `storage_ref` | VARCHAR(500) | непрозрачная ссылка на объект в хранилище; не URL и не секрет |
+| `byte_size` | INT | предел кандидат 10 МБ на оригинал |
+| `width`, `height` | INT NULL | известны после обработки |
+| `sha256` | CHAR(64) | повторная загрузка того же файла в Location даёт тот же ассет |
+| `status` | enum `UPLOADING`, `PROCESSING`, `READY`, `REJECTED`, `DELETED` | в `SiteSpec` годится только `READY` |
+| `default_alt` | JSONB NULL | `LocalizedText`, подсказка ALT; ALT в секции главнее |
+| `source` | enum `UPLOAD`, `CHANNEX_IMPORT` | изображения, созданные ИИ, вне v0 |
+| `created_by_id` | UUID NULL FK → `users` | |
+| `created_at`, `updated_at`, `deleted_at` | timestamptz | |
+
+Удаление: ассет, на который ссылается опубликованная версия, физически не удаляется, пока ссылка жива (иначе откат
+сломается); `DELETED` скрывает его из библиотеки. Тип файла проверяется по содержимому, не по расширению; при
+обработке метаданные EXIF снимаются (геометка телефона владельца).
+
+### 29.6 `SiteDomain` (кандидат)
+
+Хост сайта и жизненный цикл владения им. Отдельно от `TrackedSite.hosts`: там allowlist для счётчика и виджета, здесь
+право сайта отвечать на хост.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK → `marketing_sites` | |
+| `host` | VARCHAR(253) | нормализован: нижний регистр, без порта, без конечной точки, punycode; UNIQUE среди строк со статусом не `REMOVED`/`FAILED` |
+| `kind` | enum `PLATFORM_SUBDOMAIN`, `CUSTOM` | |
+| `is_primary` | BOOLEAN | не более одного основного на сайт (частичный UNIQUE); остальные хосты отдают 301 на основной |
+| `status` | enum `PENDING`, `VERIFYING`, `VERIFIED`, `ACTIVE`, `FAILED`, `REMOVED` | §29.8 |
+| `verification_method` | enum `DNS_TXT`, `HTTP_FILE` NULL | у платформенного поддомена NULL |
+| `verification_token` | VARCHAR(64) NULL | публичный по смыслу (кладётся в DNS), не секрет |
+| `verified_at`, `activated_at`, `removed_at` | timestamptz NULL | |
+| `last_check_at` | timestamptz NULL | |
+| `failure_code` | VARCHAR(40) NULL | словарь кодов, без ответа поставщика целиком |
+| `provider_ref` | VARCHAR(200) NULL | непрозрачная ссылка на запись у поставщика сертификатов, если он понадобится |
+| `created_at`, `updated_at` | timestamptz | |
+
+Синхронизация: при переходе в `ACTIVE` хост добавляется в `tracked_sites.hosts` связанного `TrackedSite`, при `REMOVED`
+убирается. Родительский домен платформенных поддоменов в `hosts` не кладётся никогда: `hostMatches` пускает любой
+поддомен (`packages/domain/src/web-analytics/source.ts:84-91`).
+
+### 29.7 `GenerationRun` (кандидат)
+
+Сохранённая задача генерации ИИ.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK | |
+| `type` | enum `INITIAL`, `SECTION`, `PATCH`, `SEO` | первая сборка из брифа, одна секция заново, правка командой, SEO-предложение |
+| `status` | enum `QUEUED`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED` | §29.8 |
+| `request_key` | UUID NOT NULL | повтор того же запроса не ставит вторую задачу; UNIQUE (`site_id`, `request_key`) |
+| `requested_by_id` | UUID NULL FK → `users` | |
+| `base_version_id` | UUID NULL FK → `marketing_site_versions` | от какой версии правка |
+| `output_version_id` | UUID NULL FK → `marketing_site_versions` | версия-результат при `SUCCEEDED` |
+| `brief_hash` | CHAR(64) NULL | хэш собранного брифа; сам бриф строится заново из данных |
+| `instruction` | VARCHAR(2000) NULL | текст команды человека (данные, не инструкция системе); срок хранения как у черновиков |
+| `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
+| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274) |
+| `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
+| `next_attempt_at` | timestamptz NULL | |
+| `error_code` | VARCHAR(40) NULL | словарь: `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT` |
+| `error_message` | VARCHAR(500) NULL | замаскированный текст для человека |
+| `created_at`, `started_at`, `finished_at` | timestamptz | |
+
+Не хранится: собранный промпт целиком, ответ модели целиком (только принятая версия), ключи, адреса поставщика.
+Образец исполнения: очередь в Postgres с воркером, как `channel_outbox` (`apps/api/src/channels/outbox.worker.ts:35-70`).
+Таблица `wizard_jobs` (`schema.prisma:1985-2000`) не переиспользуется: она про мастер продавца и кодом не используется.
+
+### 29.8 Жизненные циклы (три отдельных, не одним статусом)
+
+`MarketingSite.state`:
+
+```
+(создан) → DRAFT ──publish──→ PUBLISHED ──pause──→ PAUSED ──resume──→ PUBLISHED
+                                  │  ↑ publish/rollback (меняют только указатель)
+DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
+```
+
+«Сгенерирован», «превью», «правится черновик» не состояния сайта: это факты версий и задач. Сайт в `PUBLISHED`
+продолжает получать новые черновые версии; рантайм их не видит до следующей публикации.
+
+`GenerationRun.status`: `QUEUED → RUNNING → SUCCEEDED | FAILED`; `RUNNING → QUEUED` при повторной попытке;
+`QUEUED → CANCELLED`. Конечные: `SUCCEEDED`, `FAILED`, `CANCELLED`.
+
+`SiteDomain.status`: платформенный поддомен `PENDING → ACTIVE` при публикации; свой домен
+`PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
+`ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
+
+### 29.9 Изоляция (кандидат)
+
+Все шесть таблиц в `RLS_TENANT_TABLES`. Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
+`EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;
+для дочерних таблиц через `marketing_sites`. Функции триггеров закрепляют `search_path` (`current_schema(), public, pg_temp`).
+Публичному рантайму роль `wetop_app` не выдаётся: он читает опубликованное через узкий служебный путь API
+(`docs/marketing/README.md` §4).
+
+### 29.10 Чего в модели нет
+
+Страниц и секций отдельными таблицами (они внутри `SiteSpec`), пользовательского CSS и JavaScript, отзывов, блога,
+формы обратной связи, оплаты на сайте, изображений, созданных ИИ, сайтов Beauty и Food (возможны позже без смены
+владельца, `docs/marketing/README.md` §8).

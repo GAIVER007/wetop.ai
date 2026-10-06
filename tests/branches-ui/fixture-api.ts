@@ -47,17 +47,10 @@ await db.user.create({
 await db.organization.create({
   data: { id: orgB, name: `MV8-branches-browser-B-${orgB}`, status: 'ACTIVE' },
 });
-const foodB = await db.business.create({
-  data: { organizationId: orgB, name: 'Ресторан другой организации', vertical: 'FOOD_SERVICE' },
-});
-const foodBLocation = await db.location.create({
-  data: {
-    businessId: foodB.id,
-    name: 'Единственный филиал Б',
-    timezone: 'Asia/Almaty',
-    currency: 'KZT',
-  },
-});
+// Филиал второй организации заводится в `/__test/reset`, как и данные первой: прерванный до уборки прогон не оставляет
+// в общей тестовой схеме филиалов без объекта (их считает `platform-p1-backfill`)
+let foodB: { id: string } | null = null;
+let foodBLocation: { id: string } | null = null;
 
 class FixtureController {
   async me() {
@@ -131,6 +124,23 @@ app.use(
             if (req.path === '/__test/reset') {
               role = 'OWNER';
               actorOrg = org;
+              if (!foodB) {
+                foodB = await db.business.create({
+                  data: {
+                    organizationId: orgB,
+                    name: 'Ресторан другой организации',
+                    vertical: 'FOOD_SERVICE',
+                  },
+                });
+                foodBLocation = await db.location.create({
+                  data: {
+                    businessId: foodB.id,
+                    name: 'Единственный филиал Б',
+                    timezone: 'Asia/Almaty',
+                    currency: 'KZT',
+                  },
+                });
+              }
               calls.length = 0;
               creationKeys.length = 0;
               unavailable = false;
@@ -216,7 +226,7 @@ app.use(
                 },
               });
               return res.json({
-                foodB: { business: foodB.id, location: foodBLocation.id },
+                foodB: { business: foodB.id, location: foodBLocation!.id },
                 hotelProperty: property.id,
                 business: b1.id,
                 otherBusiness: b2.id,

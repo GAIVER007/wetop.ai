@@ -6,7 +6,12 @@ const { set } = vi.hoisted(() => ({ set: vi.fn() }));
 vi.mock('next/headers', () => ({ cookies: async () => ({ set }) }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }));
-vi.mock('../../lib/session', () => ({ clientInfo: async () => ({}), setSessionCookie: vi.fn() }));
+// Указатель ставит общий помощник `setScopeCookie` (SCOPE-HARDENING): он настоящий и пишет в подменённый `cookies()`
+vi.mock('../../lib/session', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../lib/session')>()),
+  clientInfo: async () => ({}),
+  setSessionCookie: vi.fn(),
+}));
 afterEach(() => {
   vi.restoreAllMocks();
   set.mockReset();

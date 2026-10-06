@@ -2071,7 +2071,7 @@
     grid-template-columns: 200px minmax(0, 1fr);
   }
   .board-day-panel section {
-    padding: var(--space-1) var(--space-2);
+    padding: 2px var(--space-2);
   }
   .board-day-panel__title {
     margin-bottom: var(--space-1);

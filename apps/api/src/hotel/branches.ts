@@ -264,7 +264,9 @@ export class BranchesController {
   async overview(@Query('from') from: string, @Query('to') to: string) {
     const { items } = await this.service.list();
     const rows = [];
-    for (const branch of items) {
+    // Сводка гостиничная (решение владельца 06.10.2026, вариант A): показатели DashboardService есть только у филиала с
+    // объектом. Салон и ресторан сюда не входят и нулями не показываются: их метрики относятся к MV9.
+    for (const branch of items.filter((item) => item.vertical === 'HOSPITALITY')) {
       const stats = await withReportLocation(branch.location.businessId, branch.locationId, () =>
         this.dashboard.dashboard(from, to),
       );

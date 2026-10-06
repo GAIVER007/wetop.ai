@@ -51,6 +51,7 @@ test('все разделы, карточки и печать открывают
     ['/channels/events', 'События'],
     ['/journal', 'Журнал операций'],
     ['/incidents', 'Неисправности'],
+    ['/marketing', 'Маркетинг'],
     ['/website', 'Сайт и онлайн-бронирование'],
     ['/website/booking', 'Сайт и онлайн-бронирование'],
     ['/website/analytics', 'Сайт и онлайн-бронирование'],
@@ -136,10 +137,10 @@ test('вложенные разделы: раскрытие, один актив
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
-  // вкладка модуля сайта подсвечивает один пункт «Продаж» (ADR-117)
+  // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
   await page.goto('/connections');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');

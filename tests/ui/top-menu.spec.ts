@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 
 /**
  * Навигация стойки сверху (ADR-134, plans/workspace-top-navigation-2026-10-02.md): вместо бокового меню
- * строка вкладок во второй строке шапки. Главное одним щелчком, группы «Продажи», «Настройки» и
+ * строка вкладок во второй строке шапки. Главное одним щелчком, группы «Продажи», «Маркетинг», «Настройки» и
  * «Платформа» раскрывают список под вкладкой; на телефоне и планшете по-прежнему выдвижное меню
  * «Навигация» и нижняя панель.
  */
@@ -17,7 +17,8 @@ const routes = [
   '/inventory',
   '/market',
   '/channels',
-  '/website',
+  // MKT2: вход в сайт через хаб «Маркетинг», у страниц /website/* своего пункта меню нет
+  '/marketing',
   '/reports',
   '/finance',
   '/bar',
@@ -37,6 +38,7 @@ const TABS = [
   'Финансы',
   'Бар',
   'Продажи',
+  'Маркетинг',
   'Отчёты',
   'Номерной фонд',
   'Настройки',
@@ -139,10 +141,13 @@ test('вложенные адреса подсвечивают свою вкла
     'aria-current',
     'page',
   );
-  // вкладка модуля сайта: один пункт «Продаж» (ADR-117)
+  // вкладка модуля сайта: один пункт «Сайт и SEO» группы «Маркетинг» (MKT2, раньше «Продажи», ADR-117)
   await page.goto('/website/settings');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
-  await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).toHaveClass(
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(menu.getByRole('button', { name: 'Маркетинг', exact: true })).toHaveClass(
+    /has-current-page/,
+  );
+  await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).not.toHaveClass(
     /has-current-page/,
   );
   // страницы продавца: пункт «ИИ-продавцы» (S0)

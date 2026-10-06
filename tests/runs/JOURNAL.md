@@ -6834,3 +6834,15 @@
 | 06.10.2026 22:28 | unit | ✅ 3469 из 3472, пропущено 3 | 1 мин 49 с | 1923efc +2 | [лог](logs/2026-10-06T17-28-15Z-unit-c976.log) |  |
 | 06.10.2026 22:30 | integration | ✅ 804 из 804 | 2 мин 11 с | 1923efc +2 | [лог](logs/2026-10-06T17-30-08Z-integration-95e0.log) |  |
 | 06.10.2026 22:32 | e2e (частично: tests/ui/marketing.spec.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 58 из 58 | 3 мин 50 с | 1923efc +1 | [лог](logs/2026-10-06T17-32-25Z-e2e-aa6c.log) |  |
+| 06.10.2026 23:11 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ код выхода 1 | 3 с | 3d7a1b2 +4 | [лог](logs/2026-10-06T18-11-32Z-integration-cc97.log) |  |
+| 06.10.2026 23:12 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ упало 2 из 37 | 6 с | 3d7a1b2 +4 | [лог](logs/2026-10-06T18-12-15Z-integration-c1d6.log) | MKT3 marketing site core размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) документ больше 100 КБ и меньше 256 КБ доходит до |
+| 06.10.2026 23:12 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ упало 2 из 37 | 6 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-12-31Z-integration-24dc.log) | MKT3 marketing site core размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) документ больше 100 КБ и меньше 256 КБ доходит до |
+| 06.10.2026 23:13 | integration (частично: tests/integration/marketing-site.test.ts) | ✅ 37 из 37 | 6 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-13-31Z-integration-af5b.log) |  |
+| 06.10.2026 23:13 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ упало 2 из 37 | 6 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-13-44Z-integration-412a.log) | MKT3 marketing site core размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) документ больше 100 КБ и меньше 256 КБ доходит до |
+| 06.10.2026 23:14 | unit (частично: apps/api/src/body-parsers.test.ts) | ✅ 4 из 4 | 2 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-14-12Z-unit-3f70.log) |  |
+| 06.10.2026 23:14 | unit (частично: apps/api/src/body-parsers.test.ts) | ❌ упало 1 из 4 | 2 с | 3d7a1b2 +4 | [лог](logs/2026-10-06T18-14-19Z-unit-d314.log) | разбор тела API main.ts выключает встроенные парсеры Nest и ставит свои |
+| 06.10.2026 23:14 | typecheck | ✅ без ошибок | 39 с | 3d7a1b2 +6 | [лог](logs/2026-10-06T18-14-53Z-typecheck-124b.log) |  |
+| 06.10.2026 23:15 | lint | ✅ без ошибок | 33 с | 3d7a1b2 +6 | [лог](logs/2026-10-06T18-15-32Z-lint-86b3.log) |  |
+| 06.10.2026 23:16 | unit | ✅ 3473 из 3476, пропущено 3 | 1 мин 52 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-16-06Z-unit-4d08.log) |  |
+| 06.10.2026 23:18 | integration | ✅ 807 из 807 | 2 мин 8 с | 3d7a1b2 +6 | [лог](logs/2026-10-06T18-18-01Z-integration-08b7.log) |  |
+| 06.10.2026 23:20 | e2e (частично: tests/ui/marketing.spec.ts tests/ui/website.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 46 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-20-14Z-e2e-f5b2.log) |  |

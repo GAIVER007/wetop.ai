@@ -9,7 +9,9 @@ MKT8, когда появится `SiteAsset`; §11 п. 8 (`categoryCode` объ
 Это единственный допустимый размер SiteSpec. В базе стоит CHECK `octet_length(spec::text) <= 393216` (384 КБ): это
 грубая страховка базы, а не второй допустимый размер документа (384 KiB is a coarse database safety ceiling, not an
 alternative allowed SiteSpec size). `jsonb::text` не каноническая запись, второй канонический сериализатор в PostgreSQL
-не делается. Сегодня общий лимит тела запроса API 100 КБ отвечает 413 раньше проверки документа (итог плана MKT3).
+не делается. Транспорт: тело `POST /marketing/site/versions` принимается до 300 КБ (SiteSpec плюс конверт запроса,
+`apps/api/src/body-parsers.ts`), больше даёт 413; у остальных маршрутов API прежние 100 КБ. Итого три уровня: HTTP
+300 КБ, SiteSpec 256 КБ (400 `too_large`), база 384 КБ.
 
 Полный валидный пример: [`sitespec-v0.example.json`](sitespec-v0.example.json). Архитектура, рантайм и безопасность:
 [`README.md`](README.md).

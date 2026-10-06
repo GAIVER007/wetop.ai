@@ -8,11 +8,12 @@ import { resolve } from 'node:path';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { siteSpecHash } from '@pms/domain';
+import { canonicalJson, SITE_SPEC_MAX_BYTES, siteSpecHash, validateSiteSpec } from '@pms/domain';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
+import { SITE_VERSION_BODY_LIMIT, useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
 
@@ -132,7 +133,9 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
       .overrideProvider(PrismaService)
       .useValue({ db })
       .compile();
-    app = module.createNestApplication();
+    // разбор тела как в main.ts: встроенные парсеры Nest выключены, свои ставятся до маршрутов
+    app = module.createNestApplication({ bodyParser: false });
+    useApiBodyParsers(app);
     app.use((req: { user?: object; headers: Record<string, string> }, _res: unknown, next: () => void) => {
       const b = req.headers['x-test-user'] === 'B';
       req.user = {
@@ -567,17 +570,78 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
         });
       });
     });
+  });
 
-    it('API отклоняет документ больше 256 КБ канонической записи, версия не пишется', async () => {
-      const site = await db.marketingSite.findFirstOrThrow({ where: { locationId: a1 } });
-      const before = await db.marketingSiteVersion.count({ where: { siteId: site.id } });
-      const big = { ...SPEC, pad: 'x'.repeat(270 * 1024) };
-      const r = await call('POST', '/marketing/site/versions', { body: { baseRevision: before, spec: big } });
-      // Сегодня отказ даёт общий лимит тела запроса Nest (100 КБ, 413) раньше проверки документа: документ от 100 до
-      // 256 КБ API тоже не примет. Поднимать лимит или нет, решает владелец (итог плана MKT3); тогда здесь будет 400
-      // с кодом too_large от validateSiteSpec, а предел 256 КБ держит юнит-тест валидатора
+  describe('размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026)', () => {
+    /** Пример плюс n страниц с FAQ по 30 ответов (около 62 КБ каждая): n = 2 даёт около 133 КБ, n = 4 около 256,7 КБ (меньше 256 КиБ) */
+    function grown(pages: number, extraItems = 0): Record<string, unknown> {
+      const spec = structuredClone(SPEC) as unknown as { pages: Array<Record<string, unknown>> } & Record<string, unknown>;
+      const faq = spec.pages
+        .flatMap((p) => p['sections'] as Array<Record<string, unknown>>)
+        .find((x) => x['type'] === 'faq')!;
+      const item = (i: number) => ({ question: { ru: `Вопрос ${i}` }, answer: { ru: 'ж'.repeat(1000) } });
+      const bigFaq = { ...structuredClone(faq), items: Array.from({ length: 30 }, (_, i) => item(i)) };
+      const page = (i: number, items: unknown[]) => ({
+        ...structuredClone(spec.pages[1]!),
+        id: `page-big-${i}`,
+        slug: `big-${i}`,
+        sections: [{ ...structuredClone(bigFaq), id: `sec-big-${i}`, items }],
+      });
+      for (let i = 0; i < pages; i++) spec.pages.push(page(i, bigFaq.items));
+      if (extraItems) spec.pages.push(page(pages, Array.from({ length: extraItems }, (_, i) => item(i))));
+      return spec;
+    }
+    const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value), 'utf8');
+    async function head(): Promise<{ siteId: string; revision: number }> {
+      const site = await db.marketingSite.findFirstOrThrow({ where: { locationId: a1 }, include: { latestVersion: true } });
+      return { siteId: site.id, revision: site.latestVersion?.revision ?? 0 };
+    }
+
+    it('документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется', async () => {
+      const { siteId, revision } = await head();
+      for (const pages of [2, 4]) {
+        const spec = grown(pages);
+        const canonical = Buffer.byteLength(canonicalJson(spec), 'utf8');
+        expect(canonical).toBeGreaterThan(100 * 1024);
+        expect(canonical).toBeLessThanOrEqual(SITE_SPEC_MAX_BYTES);
+        expect(validateSiteSpec(spec).ok).toBe(true);
+        const base = revision + (pages === 2 ? 0 : 1);
+        const r = await call('POST', '/marketing/site/versions', { body: { baseRevision: base, spec } });
+        expect(r.status, JSON.stringify(r.body).slice(0, 300)).toBe(201);
+        expect(r.body.version.revision).toBe(base + 1);
+      }
+      const saved = await db.marketingSiteVersion.findFirstOrThrow({ where: { siteId, revision: revision + 2 } });
+      expect(saved.specHash).toBe(siteSpecHash(grown(4)));
+    });
+
+    it('SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413', async () => {
+      const { siteId, revision } = await head();
+      const spec = grown(4, 5);
+      expect(Buffer.byteLength(canonicalJson(spec), 'utf8')).toBeGreaterThan(SITE_SPEC_MAX_BYTES);
+      const body = { baseRevision: revision, spec };
+      expect(bytes(body)).toBeLessThanOrEqual(SITE_VERSION_BODY_LIMIT);
+      const r = await call('POST', '/marketing/site/versions', { body });
+      expect(r.status).toBe(400);
+      expect(r.body.errors).toEqual([expect.objectContaining({ path: '', code: 'too_large' })]);
+      expect(await db.marketingSiteVersion.count({ where: { siteId, revision: revision + 1 } })).toBe(0);
+    });
+
+    it('тело больше транспортного предела 300 КБ: 413, версия не пишется', async () => {
+      const { siteId, revision } = await head();
+      const body = { baseRevision: revision, spec: grown(6) };
+      expect(bytes(body)).toBeGreaterThan(SITE_VERSION_BODY_LIMIT);
+      const r = await call('POST', '/marketing/site/versions', { body });
       expect(r.status).toBe(413);
-      expect(await db.marketingSiteVersion.count({ where: { siteId: site.id } })).toBe(before);
+      expect(await db.marketingSiteVersion.count({ where: { siteId, revision: revision + 1 } })).toBe(0);
+    });
+
+    it('другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413', async () => {
+      const before = await db.marketingSite.count({ where: { location: { business: { organizationId: orgA } } } });
+      const body = { name: 'x'.repeat(150 * 1024), slug: `big-${randomUUID().slice(0, 8)}` };
+      expect(bytes(body)).toBeGreaterThan(100 * 1024);
+      const r = await call('POST', '/marketing/site', { scope: A2, body });
+      expect(r.status).toBe(413);
+      expect(await db.marketingSite.count({ where: { location: { business: { organizationId: orgA } } } })).toBe(before);
     });
   });
 });

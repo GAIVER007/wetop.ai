@@ -1,4 +1,26 @@
-/**
+# Модульные (unit) · 06.10.2026 23:14 Алматы · vm
+# коммит 3d7a1b2 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-14-19Z-unit-d314.json' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/body-parsers.test.ts (4 tests | 1 failed) 108ms
+   ❯ разбор тела API (4)
+     ✓ большой предел только у POST /marketing/site/versions 3ms
+     ✓ сохранение версии принимает 200 КБ, а больше 300 КБ отклоняет 413 57ms
+     ✓ другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded 40ms
+     × main.ts выключает встроенные парсеры Nest и ставит свои 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/body-parsers.test.ts > разбор тела API > main.ts выключает встроенные парсеры Nest и ставит свои
+AssertionError: expected '/**\n * PMS API. Запуск из корня: `np…' to match /NestFactory\.create\(AppModule, \{[^}…/
+
+- Expected:
+/NestFactory\.create\(AppModule, \{[^}]*bodyParser: false[^}]*\}\)/
+
++ Received:
+"/**
  * PMS API. Запуск из корня: `npm run dev -w apps/api` или `npm run start -w apps/api`
  * (порт API_PORT, по умолчанию 3001). Именно через workspace-скрипт: tsx должен взять
  * apps/api/tsconfig.json с experimentalDecorators, из корня он берёт корневой и падает.
@@ -18,7 +40,6 @@ import { integrationBindingNotice } from './channels/integration-property';
 import { turnstileConfigNotice } from './web-booking/turnstile';
 import { listenHost, listenPort } from './listen-address';
 import { apiSecurityHeaders } from './security-headers';
-import { useApiBodyParsers } from './body-parsers';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
@@ -46,10 +67,7 @@ if (turnstile?.level === 'error') {
 }
 if (turnstile) console.warn(turnstile.message);
 
-// Разбор тела ставим сами (body-parsers.ts): встроенный JSON-парсер режет тело на 100 КБ до контроллера, а сохранению
-// версии сайта нужно до 300 КБ. Остальные маршруты живут с прежними 100 КБ
-const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'], bodyParser: false });
-useApiBodyParsers(app);
+const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
 // Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
 app.getHttpAdapter().getInstance().disable('x-powered-by');
 app.use(apiSecurityHeaders);
@@ -57,3 +75,24 @@ const port = listenPort();
 const host = listenHost();
 await app.listen(port, host);
 console.log(`PMS API: http://${host}:${port}/health`);
+"
+
+ ❯ apps/api/src/body-parsers.test.ts:57:18
+     55|   it('main.ts выключает встроенные парсеры Nest и ставит свои', () => {
+     56|     const main = readFileSync(resolve(__dirname, 'main.ts'), 'utf8');
+     57|     expect(main).toMatch(/NestFactory\.create\(AppModule, \{[^}]*bodyP…
+       |                  ^
+     58|     expect(main.indexOf('useApiBodyParsers(app)')).toBeGreaterThan(mai…
+     59|     expect(main.indexOf('useApiBodyParsers(app)')).toBeLessThan(main.i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  18:14:20
+   Duration  586ms (import 48%, tests 25%, transform 25%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-14-19Z-unit-d314.json
+
+# код выхода 1 · 2 с

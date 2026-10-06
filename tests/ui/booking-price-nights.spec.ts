@@ -25,7 +25,7 @@ test('форма брони: детализация цены по дням, су
   await expect(form.getByTestId('price-by-night-sum')).toContainText('средняя стоимость ночи');
 });
 
-test('календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты', async ({
+test('календарь: полоса дня одной строкой, управление сразу под ней', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -34,8 +34,10 @@ test('календарь: панель «Сегодня» не выше стро
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // было 5 строк (~150px) против одной строки управления; теперь две строки показателей
-  expect(p.height).toBeLessThanOrEqual(Math.max(c.height, 64) + 4);
+  // полоса дня над управлением (06.10): одна строка плиток, выше 80 px не растёт
+  expect(p.height).toBeLessThanOrEqual(80);
+  // управление стоит сразу под полосой, пустоты между ними нет
+  expect(c.y - (p.y + p.height)).toBeLessThanOrEqual(12);
   await expect(panel.getByTestId('day-free')).toBeVisible();
   await expect(panel.getByTestId('day-units')).toBeVisible();
   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });

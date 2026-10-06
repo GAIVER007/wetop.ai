@@ -480,29 +480,23 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
-/* Панель «Сегодня» (поручение 02.10, образец — Lite PMS): рядом со строками управления,
-   чтобы не отнимать высоту у сетки; на экранах уже 1200px скрыта — день живёт на Главной */
+/* Полоса дня над управлением (06.10.2026, замечание владельца: панель двумя столбиками рядом со
+   стрелками дат читалась плохо, «Свободные номера 16» не говорило, что койки не считаются).
+   Три секции в одну строку: загрузка с полосой, гости плитками, свободно отдельно номера и койки.
+   На телефоне секции идут друг под другом, плитки в две колонки. */
 .board-top {
   display: flex;
-  align-items: center;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 .board-top > .board-controls {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-/* При панели «Сегодня» слева управление календарём прижато вправо */
-.board-day-panel + .board-controls {
-  justify-content: flex-end;
-}
-.board-day-panel + .board-controls .board-bar {
-  margin-left: 0;
+  margin-bottom: 0;
 }
 .board-day-panel {
-  display: grid;
-  grid-template-columns: minmax(200px, 1fr) minmax(290px, 1.4fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  flex: 0 1 600px;
   min-width: 0;
 }
 .board-day-panel section {
@@ -510,32 +504,35 @@
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-control);
   background: var(--surface);
-  padding: calc(var(--space-4) * 0.75);
-}
-.board-day-panel__title {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.board-day-panel__title h2 {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-.board-day-panel__title > span {
-  color: var(--muted);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
-.board-day-panel__load {
+  padding: var(--space-1) var(--space-4);
   display: flex;
   align-items: center;
   gap: var(--space-4);
 }
+.board-day-panel__occupancy {
+  flex: 0 1 260px;
+}
+.board-day-panel__guests {
+  flex: 1 1 420px;
+}
+.board-day-panel__free {
+  flex: 0 1 240px;
+}
+.board-day-panel h2 {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--muted);
+  flex: 0 0 72px;
+  line-height: 1.25;
+}
+.board-day-panel__load {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
 .board-day-panel__load > b {
-  font-size: 32px;
+  font-size: var(--text-2xl);
   color: var(--primary);
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -550,48 +547,113 @@
   font-size: var(--text-xs);
 }
 .board-day-panel__meter {
-  margin-top: calc(var(--space-4) * 0.75);
+  margin-top: var(--space-1);
   height: 6px;
   border-radius: var(--radius-control);
   background: var(--primary-soft);
   overflow: hidden;
+}
+.board-day-panel__body {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .board-day-panel__meter > span {
   display: block;
   height: 100%;
   background: var(--primary);
 }
-.board-day-panel__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 var(--space-4);
-}
-.board-day-panel__row {
+.board-day-panel__tiles {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-4);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+/* Плитка — вся ссылка: подпись, число, оговорка; цветная черта слева по смыслу числа */
+.board-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: var(--space-2);
+  border-left: 3px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.25;
+}
+.board-tile:hover .board-tile__label,
+.board-tile:focus-visible .board-tile__label {
+  text-decoration: underline;
+}
+.board-tile--ok {
+  border-left-color: var(--success);
+}
+.board-tile--warn {
+  border-left-color: var(--warning);
+}
+.board-tile--bad {
+  border-left-color: var(--danger);
+}
+.board-tile--info {
+  border-left-color: var(--primary);
+}
+.board-tile--muted {
+  border-left-color: var(--border);
+}
+.board-tile__label {
   font-size: var(--text-sm);
-  min-height: 28px;
-}
-.board-day-panel__row--arrivals {
-  grid-column: 1 / -1;
-}
-.board-day-panel__row > a {
   color: var(--text-2);
 }
-.board-day-panel__row > b {
+.board-tile > b {
+  font-size: var(--text-lg);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
-@media (min-width: 601px) and (max-width: 1199px) {
-  .board-top {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.board-tile > small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Сегмент 7/14/30 с «Датами» и «Помощью» прижат вправо, стрелки дат слева */
+.board-controls .board-period > .seg {
+  margin-left: auto;
+}
+@media (max-width: 600px) {
+  /* Одна карточка на три секции: свои рамки и зазоры между ними отнимали у сетки 25 px */
   .board-day-panel {
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .board-day-panel section {
     flex: none;
-    width: 100%;
+    align-items: flex-start;
+    gap: var(--space-2);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: var(--space-1) var(--space-2);
+  }
+  .board-day-panel section + section {
+    border-top: 1px solid var(--border-soft);
+  }
+  .board-day-panel h2 {
+    flex-basis: 64px;
+    padding-top: var(--space-1);
+  }
+  .board-day-panel__tiles {
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+  }
+  .board-tile {
+    flex: 1 1 40%;
+  }
+  .board-tile > small {
+    white-space: normal;
   }
 }
 .board-stay-caption {
@@ -1933,53 +1995,6 @@
   }
 }
 
-/* Two compact daily widgets above the mobile calendar. */
-@media (max-width: 600px) {
-  .board-top {
-    flex-direction: column;
-    align-items: stretch;
-    gap: calc(var(--space-4) * 0.75);
-    margin-bottom: var(--space-2);
-  }
-  .board-top > .board-controls {
-    flex: none;
-    justify-content: flex-start;
-  }
-  .board-day-panel {
-    flex: none;
-    width: 100%;
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .board-day-panel section {
-    padding: calc(var(--space-4) * 0.75) var(--space-4);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-md);
-  }
-  .board-day-panel__load > b {
-    font-size: 40px;
-  }
-  .board-day-panel__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .board-day-panel__row {
-    min-height: 44px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .board-day-panel__row:last-child {
-    border-bottom: 0;
-  }
-  .board-day-panel__row > a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    flex: 1;
-  }
-  .board-day-panel__row > b {
-    font-size: var(--text-md);
-  }
-}
-
 .free-menu__arrival,
 .free-menu__summary {
   display: none;
@@ -2062,133 +2077,5 @@
   .board .board-hk__menu .action-menu__button {
     width: 44px;
     min-height: 44px;
-  }
-}
-
-/* Preserve the compact desktop header while mobile uses stacked widgets. */
-@media (min-width: 1200px) {
-  .board-day-panel {
-    grid-template-columns: 200px minmax(0, 1fr);
-  }
-  .board-day-panel section {
-    padding: 0 var(--space-2);
-  }
-  .board-day-panel__title {
-    margin-bottom: var(--space-1);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-xs);
-  }
-  .board-day-panel__title > span {
-    display: none;
-  }
-  .board-day-panel__load {
-    gap: var(--space-2);
-  }
-  .board-day-panel__load > b {
-    font-size: 24px;
-  }
-  .board-day-panel__load > span {
-    font-size: var(--text-xs);
-  }
-  .board-day-panel__meter {
-    margin-top: var(--space-1);
-    height: 4px;
-  }
-  .board-day-panel__guests .board-day-panel__title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .board-day-panel__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: var(--space-2);
-  }
-  .board-day-panel__row--arrivals {
-    grid-column: span 2;
-  }
-  .board-day-panel__row {
-    min-height: 24px;
-    font-size: var(--text-xs);
-    line-height: 16px;
-  }
-  .board-day-panel__row > a {
-    display: flex;
-    align-items: center;
-    min-height: 24px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .board-day-panel__load > span {
-    white-space: nowrap;
-  }
-  .board-day-panel__load small {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-}
-
-/* Mobile revision: a single daily summary leaves room for the calendar. */
-@media (max-width: 600px) {
-  .board-day-panel {
-    gap: 0;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    overflow: hidden;
-  }
-  .board-day-panel section {
-    padding: var(--space-2) calc(var(--space-4) * 0.75);
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-  .board-day-panel__occupancy {
-    border-bottom: 1px solid var(--border-soft) !important;
-  }
-  .board-day-panel__title {
-    margin-bottom: var(--space-1);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-sm);
-  }
-  .board-day-panel__load {
-    gap: var(--space-4);
-  }
-  .board-day-panel__load > b {
-    font-size: 32px;
-  }
-  .board-day-panel__load small {
-    display: inline;
-    margin-left: var(--space-1);
-  }
-  .board-day-panel__meter {
-    margin-top: var(--space-2);
-    height: 4px;
-  }
-  .board-day-panel__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-4);
-    row-gap: var(--space-2);
-  }
-  .board-day-panel__row {
-    border-bottom: 0;
-    gap: var(--space-1);
-  }
-  .board-day-panel__row > a {
-    font-size: var(--text-sm);
-    line-height: 1.25;
-  }
-  .board-day-panel__row--arrivals {
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .board-day-panel__row > b {
-    font-size: var(--text-lg);
   }
 }

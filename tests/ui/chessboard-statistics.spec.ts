@@ -39,7 +39,7 @@ for (const width of [360, 390, 430]) {
         r.arrivalDate === day.date && ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'].includes(r.status),
     ).length;
     await expect(panel.getByTestId('day-hot')).toHaveText(String(hot));
-    await expect(panel.getByRole('link', { name: 'Незаезды', exact: true })).toHaveAttribute(
+    await expect(panel.getByRole('link', { name: /^Незаезды/ })).toHaveAttribute(
       'href',
       `/reservations?from=${day.date}&to=${day.date}&date=arrival&status=NO_SHOW`,
     );
@@ -51,6 +51,12 @@ for (const width of [360, 390, 430]) {
         r.unit.kind === 'ROOM' && r.cells[0]?.state === 'FREE',
     ).length;
     await expect(panel.getByTestId('day-free')).toHaveText(String(freeRooms));
+    // койки считаются отдельной плиткой, а не прячутся в «свободных номерах» (06.10)
+    const freeBeds = board.rows.filter(
+      (r: { unit: { kind: string }; cells: { state: string }[] }) =>
+        r.unit.kind === 'BED' && r.cells[0]?.state === 'FREE',
+    ).length;
+    await expect(panel.getByTestId('day-free-beds')).toHaveText(String(freeBeds));
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);

@@ -23,7 +23,9 @@ test('календарь: заголовок, сводка дня и быстр�
   await expect(stats.getByTestId('day-free')).toBeVisible();
   await expect(stats.getByTestId('day-occupied')).toBeVisible();
   await expect(stats.getByTestId('day-occupancy')).toBeVisible();
-  await expect(stats.getByText('Проживания')).toBeVisible();
+  await expect(stats.getByText('Проживают')).toBeVisible();
+  // свободно — отдельно номера и отдельно койки (06.10): одно число «16» читалось как ошибка
+  await expect(stats.getByTestId('day-free-beds')).toBeVisible();
   await expect(stats.getByText('Дни рождения')).toBeHidden();
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);

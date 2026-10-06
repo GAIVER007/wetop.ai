@@ -1,0 +1,88 @@
+# Модульные (unit) · 06.10.2026 18:12 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-12-49Z-unit-0c8c.json' 'packages/domain/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/web-booking/request.test.ts (38 tests | 2 failed) 36ms
+   ✓ запрос цен с сайта (quote) (10)
+     ✓ принимает даты в окне и гостей 3ms
+     ✓ отклоняет: заезд вчера 1ms
+     ✓ отклоняет: выезд не позже заезда 0ms
+     ✓ отклоняет: дальше окна 0ms
+     ✓ отклоняет: слишком долго 0ms
+     ✓ отклоняет: кривая дата 0ms
+     ✓ отклоняет: гостей 0 0ms
+     ✓ отклоняет: гостей 9 0ms
+     ✓ отклоняет: ключ не по форме 1ms
+     ✓ заезд сегодня допустим; окно — 365 дней и 30 ночей 0ms
+   ✓ запрос брони с сайта (book) (11)
+     ✓ нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр 1ms
+     ✓ телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500 1ms
+     ✓ отклоняет: honeypot заполнен (бот) 0ms
+     ✓ отклоняет: нет имени 0ms
+     ✓ отклоняет: нет фамилии 0ms
+     ✓ отклоняет: телефон короткий 0ms
+     ✓ отклоняет: телефон с буквами 0ms
+     ✓ отклоняет: почта кривая 0ms
+     ✓ отклоняет: нет категории 0ms
+     ✓ отклоняет: имя длиннее 80 0ms
+     ✓ ключи счётчика необязательны и должны быть по форме 0ms
+   ✓ промокод в запросе виджета (DATA_MODEL §20) (3)
+     ✓ приводит к верхнему регистру и обрезает пробелы 0ms
+     ✓ пустой и отсутствующий — без промокода 0ms
+     ✓ введённый неверно — отказ словами, а не «без скидки» 0ms
+   ✓ язык гостя в запросе брони (ADR-144, срез «подтверждение брони») (7)
+     ✓ без языка — русский 0ms
+     ✓ принимает ru 3ms
+     ✓ принимает kk 0ms
+     ✓ принимает en 0ms
+     ✓ принимает zh 0ms
+     ✓ регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk 1ms
+     ✓ незнакомый язык — русский, а не отказ: бронь важнее языка письма 0ms
+   ❯ ключ создания брони с сайта (MKT1B BOOK-2) (7)
+     ✓ UUID v4 обязателен и приводится к нижнему регистру 0ms
+     × нет поля: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет 12ms
+     × null: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет 4ms
+     ✓ пустой: отказ 0ms
+     ✓ не UUID: отказ 0ms
+     ✓ UUID не версии 4: отказ 1ms
+     ✓ число: отказ 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > нет поля: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > ключ создания брони с сайта (MKT1B BOOK-2) > null: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет
+AssertionError: expected { ok: false, …(1) } to match object { ok: true, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "value": {
+-     "creationKey": null,
+-   },
++   "ok": false,
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:185:46
+    183|     const body: Record<string, unknown> = { ...good, creationKey };
+    184|     if (creationKey === undefined) delete body['creationKey'];
+    185|     expect(parseBookingRequest(body, today)).toMatchObject({ ok: true,…
+       |                                              ^
+    186|   });
+    187|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 36 passed (38)
+   Start at  13:12:56
+   Duration  696ms (transform 75%, import 12%, tests 11%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-12-49Z-unit-0c8c.json
+
+# код выхода 1 · 8 с

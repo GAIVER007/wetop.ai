@@ -13,6 +13,37 @@
   var key = script.getAttribute('data-site');
   if (!key) return;
   var api = script.src.replace(/\/w\/widget\.js(\?.*)?$/, '');
+  /*
+   * Ключ создания брони (MKT1B BOOK-2): одна логическая попытка брони, а не один HTTP-запрос. Ключ рождается при первой
+   * отправке формы и повторяется, пока гость отправляет ту же форму (обрыв сети, неизвестный исход, новая проверка
+   * Turnstile): сервер узнаёт повтор и отдаёт ту же бронь. Изменил даты, категорию, гостей, промокод, контакты или
+   * комментарий: это новая попытка и новый ключ. После подтверждённой брони попытка закрыта.
+   */
+  var attempt = null;
+  function uuidV4() {
+    var c = window.crypto;
+    if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+    var b = new Uint8Array(16);
+    c.getRandomValues(b);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    var h = [];
+    for (var i = 0; i < 16; i++) h.push((b[i] + 0x100).toString(16).slice(1));
+    return (
+      h.slice(0, 4).join('') + '-' + h.slice(4, 6).join('') + '-' + h.slice(6, 8).join('') + '-' +
+      h.slice(8, 10).join('') + '-' + h.slice(10).join('')
+    );
+  }
+  function attemptKey(body) {
+    var g = body.guest;
+    var form = JSON.stringify([
+      body.k, body.arrival, body.departure, body.category, body.adults, body.promo,
+      g.firstName.trim(), g.lastName.trim(), g.phone.trim(), g.email.trim().toLowerCase(),
+      body.comment.trim(),
+    ]);
+    if (!attempt || attempt.form !== form) attempt = { form: form, key: uuidV4() };
+    return attempt.key;
+  }
   var targetSel = script.getAttribute('data-target') || '#pms-booking';
   /*
    * Языки (ADR-144). Язык по умолчанию задаёт владелец сайта атрибутом data-lang, иначе русский: язык браузера
@@ -478,7 +509,9 @@
           .then(function (j) {
             if (!r.ok) {
               var m = j && j.message;
-              throw new Error(Array.isArray(m) ? m.join('; ') : m || t('error') + r.status);
+              var err = new Error(Array.isArray(m) ? m.join('; ') : m || t('error') + r.status);
+              err.status = r.status;
+              throw err;
             }
             return j;
           });
@@ -892,8 +925,10 @@
             s: keys.s,
             turnstileToken: token || undefined,
           };
+          body.creationKey = attemptKey(body);
           request('POST', '/w/book', body)
             .then(function (b) {
+              attempt = null;
               track('booking_step', { step: 'done', category: c.code });
               list.textContent = '';
               list.appendChild(
@@ -920,6 +955,8 @@
               say(t('keep'), 'ok');
             })
             .catch(function (e) {
+              // 409: этим ключом уже создана другая бронь: следующая отправка начнёт новую попытку
+              if (e.status === 409) attempt = null;
               say(e.message, 'err');
               // токен использован: с проверкой кнопка ждёт нового, без неё — сразу доступна
               if (!resetCaptcha()) submit.disabled = false;

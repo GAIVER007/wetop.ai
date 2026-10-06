@@ -1,0 +1,35 @@
+# Модульные (unit) · 06.10.2026 15:48 Алматы · vm
+# коммит 03496b2 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-48-27Z-unit-75bf.json' 'apps/api/src/database/connection.test.ts' 'apps/api/src/database/integration-tables.guard.test.ts' 'apps/api/src/database/integration-tables.test.ts' 'apps/api/src/database/location-ref.test.ts' 'apps/api/src/database/property-ref.test.ts' 'apps/api/src/hotel/branch-context.test.ts' 'apps/api/src/hotel/branches.test.ts' 'apps/api/src/hotel/first-steps.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts' 'apps/api/src/hotel/onboarding.test.ts' 'apps/api/src/hotel/reservation-directory.test.ts' 'apps/api/src/hotel/services-catalog.test.ts' 'apps/api/src/hotel/settings-concurrency.test.ts' 'apps/api/src/hotel/settings-update.test.ts' 'apps/api/src/reservations/audit-card-redact.test.ts' 'apps/api/src/reservations/early-checkout-availability.test.ts' 'apps/api/src/reservations/rate-plans-read.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/reservations/stay-offers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 39ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 18ms
+ ✓ |unit| apps/api/src/database/integration-tables.guard.test.ts (5 tests) 55ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 32ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (11 tests) 38ms
+[Nest] 2505  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 21ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 266ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (53 tests) 1003ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 22ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 9ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 246ms
+ ✓ |unit| apps/api/src/database/integration-tables.test.ts (4 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 8ms
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 9ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 8ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 8ms
+ ✓ |unit| apps/api/src/reservations/early-checkout-availability.test.ts (1 test) 5ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 208ms
+
+ Test Files  19 passed (19)
+      Tests  179 passed (179)
+   Start at  10:48:28
+   Duration  7.79s (import 47%, transform 41%, tests 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-48-27Z-unit-75bf.json
+
+# код выхода 0 · 9 с

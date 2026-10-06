@@ -29,7 +29,10 @@ const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const prisma = { db } as unknown as PrismaService;
 const onboarding = new SharedOnboardingService(prisma);
 const org = randomUUID(),
-  user = randomUUID();
+  user = randomUUID(),
+  // Вторая организация с единственным рестораном: вход «другим человеком» на том же устройстве (SCOPE-HARDENING)
+  orgB = randomUUID();
+let actorOrg = org;
 let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
@@ -41,6 +44,13 @@ await db.organization.create({
 await db.user.create({
   data: { id: user, name: 'Тестовый владелец', email: `mv8-branches-${user}@example.invalid` },
 });
+await db.organization.create({
+  data: { id: orgB, name: `MV8-branches-browser-B-${orgB}`, status: 'ACTIVE' },
+});
+// Филиал второй организации заводится в `/__test/reset`, как и данные первой: прерванный до уборки прогон не оставляет
+// в общей тестовой схеме филиалов без объекта (их считает `platform-p1-backfill`)
+let foodB: { id: string } | null = null;
+let foodBLocation: { id: string } | null = null;
 
 class FixtureController {
   async me() {
@@ -50,7 +60,7 @@ class FixtureController {
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,
-        organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
+        organization: await db.organization.findUniqueOrThrow({ where: { id: actorOrg } }),
       },
       context: {
         businessId: currentBusinessId(),
@@ -113,6 +123,24 @@ app.use(
             if (req.path === '/__test/keys') return res.json(creationKeys);
             if (req.path === '/__test/reset') {
               role = 'OWNER';
+              actorOrg = org;
+              if (!foodB) {
+                foodB = await db.business.create({
+                  data: {
+                    organizationId: orgB,
+                    name: 'Ресторан другой организации',
+                    vertical: 'FOOD_SERVICE',
+                  },
+                });
+                foodBLocation = await db.location.create({
+                  data: {
+                    businessId: foodB.id,
+                    name: 'Единственный филиал Б',
+                    timezone: 'Asia/Almaty',
+                    currency: 'KZT',
+                  },
+                });
+              }
               calls.length = 0;
               creationKeys.length = 0;
               unavailable = false;
@@ -198,6 +226,7 @@ app.use(
                 },
               });
               return res.json({
+                foodB: { business: foodB.id, location: foodBLocation!.id },
                 hotelProperty: property.id,
                 business: b1.id,
                 otherBusiness: b2.id,
@@ -206,7 +235,41 @@ app.use(
                 locations: locations.map((l) => l.id),
               });
             }
+            if (req.path === '/__test/archive') {
+              await db.location.update({
+                where: { id: String(body.location) },
+                data: { status: 'ARCHIVED' },
+              });
+              return res.json({ ok: true });
+            }
+            if (req.path === '/__test/second-hotel') {
+              const hotel = await db.business.findFirstOrThrow({
+                where: { organizationId: org, vertical: 'HOSPITALITY', status: 'ACTIVE' },
+                orderBy: { createdAt: 'desc' },
+              });
+              const location = await db.location.create({
+                data: {
+                  businessId: hotel.id,
+                  name: 'Гостиница Б',
+                  timezone: 'Asia/Almaty',
+                  currency: 'KZT',
+                },
+              });
+              const property = await db.property.create({
+                data: {
+                  organizationId: org,
+                  locationId: location.id,
+                  name: 'Гостиница Б',
+                  timezone: 'Asia/Almaty',
+                  currency: 'KZT',
+                  checkInTime: '14:00',
+                  checkOutTime: '12:00',
+                },
+              });
+              return res.json({ business: hotel.id, location: location.id, property: property.id });
+            }
             if (req.path === '/__test/control') {
+              actorOrg = body.org === 'B' ? orgB : org;
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
               unavailable = body.unavailable === true;
               failCreate = body.failCreate === true;
@@ -252,6 +315,9 @@ app.use(
                 await tx.property.deleteMany({ where: properties });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
+                await tx.location.deleteMany({ where: { business: { organizationId: orgB } } });
+                await tx.business.deleteMany({ where: { organizationId: orgB } });
+                await tx.organization.delete({ where: { id: orgB } });
                 await tx.organization.delete({ where: { id: org } });
                 await tx.user.delete({ where: { id: user } });
               });
@@ -279,7 +345,7 @@ app.use(
       res.status(503).json({ message: 'Тестовый сбой Food API' });
       return;
     }
-    req.user = { id: user, organizationId: org, role };
+    req.user = { id: user, organizationId: actorOrg, role };
     next();
   },
 );

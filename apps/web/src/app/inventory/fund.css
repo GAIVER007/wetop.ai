@@ -246,13 +246,10 @@
   white-space: nowrap;
 }
 /* Значок типа продажи у названия — вместо отдельной колонки (упрощение 02.10) */
-td.fund-cat-name {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
+/* ячейка остаётся ячейкой таблицы: `display: flex` на td отрывал её границу от строки */
 td.fund-cat-name svg {
-  flex-shrink: 0;
+  vertical-align: -3px;
+  margin-right: var(--space-2);
   color: var(--muted);
 }
 .fund-cat-kind svg {
@@ -488,10 +485,16 @@ td.fund-cat-name svg {
     align-items: center;
     min-height: var(--touch-target);
   }
+  /* «Изменить» и «Удалить» на телефоне — отдельной строкой под фактами, цели 44 px */
   .fund-cat-table tbody td.fund-cat-actions {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .fund-cat-table tbody td.fund-cat-index {
+    display: none;
+  }
+  .fund-cat-ops .btn {
+    min-height: var(--touch-target);
   }
   .fund-cat-table tbody td.fund-cat-units {
     grid-column: 1;
@@ -588,4 +591,22 @@ td.fund-cat-name svg {
   font-size: var(--text-md);
   margin: 0;
   color: var(--muted);
+}
+
+/* «Категории номеров» как в прежней системе (план categories-price-2026-10-06): номер строки, цена, операции */
+.fund-cat-table .fund-cat-index {
+  width: 1%;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.fund-cat-price {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fund-cat-ops {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
 }

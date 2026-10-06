@@ -14,10 +14,20 @@ import { OnboardingForm } from './onboarding-form';
  */
 export default async function OnboardingPage() {
   await requireVertical(['HOSPITALITY']);
-  const verified = await authApi.me().catch(() => null);
-  if (verified?.context?.businessId && verified.context.locationId) redirect('/register/setup');
-  const [status, desk] = await Promise.all([onboardingApi.status().catch(() => null), deskShell()]);
+  const [verified, status, desk] = await Promise.all([
+    authApi.me().catch(() => null),
+    onboardingApi.status().catch(() => null),
+    deskShell(),
+  ]);
   if (status && !status.needed) redirect('/today');
+  // Общий экран настройки (MV3) открывается только тем, кто вправе настраивать: после входа филиал выбран сразу
+  // (SCOPE-HARDENING), и администратор не должен попадать в форму, которую отклонит API
+  if (
+    pageOpen(desk.access, 'settings') &&
+    verified?.context?.businessId &&
+    verified.context.locationId
+  )
+    redirect('/register/setup');
   // номера и цены заводят владелец и управляющий (ADR-107): администратору — не форма и не «Нет доступа», а кто и что;
   // роль не узнали — форма: отправку без права отклонит API
   if (!pageOpen(desk.access, 'settings'))

@@ -84,31 +84,10 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByRole('main').getByTestId('group-hint')).toBeVisible();
     await shot(page, 'reservation-form-group', theme, true);
 
-    // календарь цен (ТЗ v2, RT1): сетка месяца, правка — панелью за кнопкой «Изменить цены»
-    await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
-    await expect(main.getByTestId('rates-calendar')).toBeVisible();
-    await shot(page, 'rates', theme);
-    await shot(page, 'rates-full', theme, true);
-    await main.getByTestId('rates-edit-open').click();
-    await expect(main.getByTestId('bulk-editor')).toBeVisible();
-    await shot(page, 'rates-drawer', theme);
-    await page.keyboard.press('Escape');
-    // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
-    // выпадающий список фильтра, и экран уезжал вбок на 94 px — найдено обходом стойки 17.09.2026
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
-    const ratesLayout = await page.evaluate(() => {
-      const w = globalThis as unknown as {
-        innerWidth: number;
-        document: { documentElement: { scrollWidth: number } };
-      };
-      return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
-    });
-    expect(ratesLayout.content, 'цены шире экрана телефона').toBeLessThanOrEqual(
-      ratesLayout.viewport + 1,
-    );
+    // цена категории (план categories-price-2026-10-06): раздела «Тарифы и цены» больше нет
+    await page.goto('/rooms/categories');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Категории номеров');
+    await shot(page, 'categories-price', theme);
     await page.setViewportSize({ width: 1440, height: 1000 });
 
     // модуль «Каналы продаж» (ADR-112): обзор и журнал событий

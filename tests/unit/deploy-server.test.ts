@@ -395,4 +395,24 @@ describe('контекст сборки', () => {
     ])
       expect(path.test(closed), closed).toBe(false);
   });
+
+  // MKT1B BOOK-3: образец туннеля обязан пропускать наружу каждый путь, который зовёт публичный виджет брони, иначе
+  // на краю туннеля `/w/config` получает 404, Turnstile не рисуется и обязательная проверка отказывает каждой брони
+  it('виджет брони наружу целиком: все пути, которые зовёт widget.js, проходят туннель, демо-страницы нет', () => {
+    const rules = withoutComments(read('deploy/cloudflared.example.yml'));
+    const api = [...rules.matchAll(/- hostname: api\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g)];
+    const open = (path: string) => api.some((m) => new RegExp(m[1]!).test(path));
+    const widget = read('apps/api/src/web-booking/widget.js');
+    // Пути сетевых вызовов виджета: request('GET'|'POST', '/w/...'), в том числе с переносом строки внутри вызова
+    const called = [
+      ...widget.matchAll(/request\(\s*'(?:GET|POST)',\s*'(\/[^'?]+)/g),
+    ].map((m) => m[1]!);
+    // Сам скрипт сайт берёт по адресу /w/widget.js (шапка widget.js)
+    const required = [...new Set(['/w/widget.js', ...called])].sort();
+    expect(required).toEqual(['/w/availability', '/w/book', '/w/config', '/w/widget.js']);
+    for (const path of required) expect(open(path), path).toBe(true);
+    // Бронь с демо-страницы настоящая (SECURITY.md §11): наружу не выходит
+    for (const closed of ['/w/demo', '/a/demo', '/w/config/x', '/w/configs'])
+      expect(open(closed), closed).toBe(false);
+  });
 });

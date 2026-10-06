@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 06.10.2026 16:30 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/branches.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/sessions.spec.ts' 'tests/ui/trial-read-only.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 47 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (4.4s)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (6.1s)
+  ✘   3 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (45.2s)
+  ✓   4 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (3.7s)
+  ✓   5 tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (263ms)
+  ✓   6 tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (2.9s)
+  ✓   7 tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (957ms)
+  ✓   8 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.7s)
+  ✓   9 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.2s)
+  ✓  10 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.2s)
+  ✓  11 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.2s)
+  ✓  12 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (2.9s)
+  ✓  13 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (7.5s)
+  ✓  14 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (7.6s)
+  ✓  15 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.6s)
+  ✓  16 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (4.3s)
+  ✓  17 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.1s)
+  ✓  18 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.7s)
+  ✓  19 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (3.6s)
+  ✓  20 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (763ms)
+  ✓  21 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (3.2s)
+  ✓  22 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (3.0s)
+  ✓  23 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (2.3s)
+  ✓  24 tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку (2.8s)
+  ✓  25 tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (6.1s)
+  ✓  26 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light (4.9s)
+  ✓  27 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark (4.8s)
+  ✓  28 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.4s)
+  ✓  29 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.5s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  30 tests/ui/roles.spec.ts:102:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.7s)
+  ✓  31 tests/ui/roles.spec.ts:119:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  32 tests/ui/roles.spec.ts:147:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  33 tests/ui/roles.spec.ts:209:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (4.8s)
+  ✓  34 tests/ui/roles.spec.ts:265:1 › владелец: зовёт управляющего и администратора, меняет роль (3.2s)
+  ✓  35 tests/ui/roles.spec.ts:296:1 › администратор: сотрудниками ведают владелец и управляющий (1.8s)
+  ✓  36 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.2s)
+  ✓  37 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.7s)
+  ✓  38 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, light, 390px (5.8s)
+  ✓  39 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.6s)
+  ✓  40 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (1.9s)
+  ✓  41 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (3.0s)
+  ✓  42 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (4.5s)
+  ✓  43 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (317ms)
+  ✓  44 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (355ms)
+  ✓  45 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (3.4s)
+  ✓  46 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (11.8s)
+  ✓  47 tests/ui/trial-read-only.spec.ts:75:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (3.2s)
+
+
+  1) tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+      navigated to "http://127.0.0.1:3100/branches"
+    ============================================================
+
+       98 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+       99 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 100 |   await page.waitForURL('**/today');
+          |              ^
+      101 |   await page.goto('/chessboard');
+      102 |   // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
+      103 |   const sidebar = page.locator('.workspace-header');
+        at /home/user/wetop.ai/tests/ui/branches.spec.ts:100:14
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+  46 passed (3.9m)
+
+# код выхода 1 · 3 мин 58 с

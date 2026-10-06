@@ -2631,6 +2631,9 @@ export interface InventoryCategory {
   upcomingReservations: number;
   /** Категория сопоставлена с типом номера в Channex */
   channexMapped: boolean;
+  /** Цена категории: сегодняшняя ночь основного тарифа, тиыны строкой; null — цена не задана */
+  priceMinor: string | null;
+  currency: string | null;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
@@ -2639,6 +2642,13 @@ export const inventoryEditorApi = {
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
       body,
+    ),
+  /** «Удалить»: пустая категория удаляется, с историей — в архив, с бронями впереди — 409 словами */
+  remove: (code: string) =>
+    sendJson<{ code: string; result: 'deleted' | 'archived' }>(
+      'DELETE',
+      `/inventory/categories/${encodeURIComponent(code)}`,
+      {},
     ),
   /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
   linkRatePlan: (code: string, body: Record<string, unknown>) =>

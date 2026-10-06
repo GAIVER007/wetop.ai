@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 06.10.2026 18:13 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-13-32Z-integration-36e8.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1109) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests | 1 failed) 1571ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (9)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 21ms
+     ✓ BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 208ms
+     ✓ BOOK-4: котировка агента B: объект B; по организации с двумя сайтами: отказ, а не самый ранний 53ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 50ms
+     ✓ BOOK-2: K+A дважды: та же бронь, одна запись, одно письмо, проверка Turnstile один раз 65ms
+     ✓ BOOK-2: K+A, затем K+B: 409 без данных первой брони 65ms
+     ✓ BOOK-2: два одновременных K+A: ровно одна бронь 147ms
+     ✓ BOOK-2: новый ключ требует действующего токена; ключ не UUID v4: 400 61ms
+     × BOOK-2: тело старого виджета без creationKey бронирует, Turnstile для него действует 24ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-2: тело старого виджета без creationKey бронирует, Turnstile для него действует
+AssertionError: expected BadRequestException: creationKey: UUID v4 { …(4) } to match object { status: 403 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 403,
++ BadRequestException {
++   "status": 400,
+  }
+
+ ❯ tests/integration/web-booking-exact-property.test.ts:388:54
+    386|       return body;
+    387|     };
+    388|     await expect(svc.book(legacy(undefined), ctx(S))).rejects.toMatchO…
+       |                                                      ^
+    389|     const before = mails.length;
+    390|     const card = await svc.book(legacy('l-1'), ctx(S));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  13:13:33
+   Duration  6.74s (transform 40%, tests 31%, import 29%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-13-32Z-integration-36e8.json
+
+# код выхода 1 · 8 с

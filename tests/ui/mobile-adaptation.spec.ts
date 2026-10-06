@@ -28,7 +28,6 @@ test('телефон: низ страницы не прячется под ни�
   for (const route of [
     '/guests',
     '/finance',
-    '/rates',
     '/inventory',
     '/channels',
     '/today',
@@ -108,19 +107,6 @@ test('узкий телефон: плитки финансов встают в �
   expect(columns).toBe(1);
 });
 
-test('телефон: месяц цен не растягивается на четыре экрана', async ({ page }) => {
-  // День стоял тремя блоками по 44 px (дата, цена на полную вместимость, цена на меньшую) —
-  // месяц прокручивался примерно на 4 300 px. Одна строка на день держит высоту дня в пределах 80 px.
-  await page.goto('/rates');
-  const cal = page.getByTestId('rates-calendar');
-  await expect(cal).toBeVisible();
-  const days = cal.locator('.rate-cal__day');
-  const count = await days.count();
-  expect(count).toBeGreaterThan(27);
-  const height = (await cal.boundingBox())!.height;
-  expect(height / count, `высота дня ${Math.round(height / count)} px`).toBeLessThan(80);
-});
-
 test('телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px', async ({ page }) => {
   test.slow(); // обход 14 разделов
   // ADR-134 свёл телефонный блок workspace.css в @media (max-width: 360px), и на 361–600 px правило
@@ -131,7 +117,6 @@ test('телефон: кнопки, поля и вкладки разделов 
     '/finance',
     '/finance?tab=cash',
     '/guests',
-    '/rates',
     '/today',
     '/reservations',
     '/management/analytics',
@@ -172,7 +157,6 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
     '/finance?tab=cash',
     '/management/analytics',
     '/reports',
-    '/rates',
     '/inventory',
     '/rooms/categories',
     '/rooms/availability',

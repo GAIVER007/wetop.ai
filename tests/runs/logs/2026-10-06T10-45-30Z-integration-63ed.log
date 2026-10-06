@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 06.10.2026 15:45 Алматы · vm
+# коммит 03496b2 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-45-30Z-integration-63ed.json' 'tests/integration/scope-hardening.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/scope-hardening.test.ts (2 tests | 2 failed) 1145ms
+   ❯ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     × two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 426ms
+   ❯ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     × mixed Organization: 200, rows and totals only for Hospitality branches 597ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/scope-hardening.test.ts > SCOPE-HARDENING: Hospitality property follows the selected branch > two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only
+AssertionError: expected PrismaClientValidationError{ …(4) } to be an instance of Rollback
+ ❯ tests/integration/scope-hardening.test.ts:160:6
+    158|         { timeout: 60_000 },
+    159|       ),
+    160|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    161|     forgetPropertyRef();
+    162|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/scope-hardening.test.ts > SCOPE-HARDENING: /branches/overview is a Hospitality-only summary > mixed Organization: 200, rows and totals only for Hospitality branches
+AssertionError: {"message":"У вашей организации ещё нет объекта. Создайте его в настройках.","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/scope-hardening.test.ts:224:62
+    222|       await app.listen(0, '127.0.0.1');
+    223|       const response = await fetch(`${await app.getUrl()}/branches/ove…
+    224|       expect(response.status, await response.clone().text()).toBe(200);
+       |                                                              ^
+    225|       const body = (await response.json()) as { rows: Array<{ branch: …
+    226|       expect(body.rows.map((row) => row.branch.name)).toEqual(['SH Оте…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  10:45:32
+   Duration  5.90s (transform 48%, tests 31%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-45-30Z-integration-63ed.json
+
+# код выхода 1 · 7 с

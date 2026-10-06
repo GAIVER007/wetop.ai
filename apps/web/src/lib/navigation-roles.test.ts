@@ -81,7 +81,8 @@ describe('меню по ролям', () => {
 
 describe('страница по адресу: какое право её открывает', () => {
   it('разделы меню и их вложенные адреса', () => {
-    expect(routeRule('/rates')?.requires).toBe('rates');
+    // «Тарифы и цены» сняты 06.10.2026: адрес только переадресует в «Категории номеров», права у него нет
+    expect(routeRule('/rates')).toBeUndefined();
     expect(routeRule('/channels/events/rev-1')?.requires).toBe('channels');
     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('settings');
     expect(routeRule('/journal')?.requires).toBe('journal');

@@ -1,0 +1,31 @@
+# Модульные (unit) · 06.10.2026 19:09 Алматы · vm
+# коммит 4ce9e90 (claude/blissful-newton-6pa4ky)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T14-09-26Z-unit-7e78.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/web/src/lib/session.test.ts' 'apps/web/src/app/login/verify-registration.test.ts' 'apps/api/src/web-booking/widget-cors.test.ts' 'apps/api/src/web-booking/web-booking.controller.test.ts' 'packages/domain/src/web-booking/request.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 58ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 58ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (4 tests) 53ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 61ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 7ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 20ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (7 tests) 13ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (3 tests) 9ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 661ms
+
+ Test Files  10 passed (10)
+      Tests  110 passed (110)
+   Start at  14:09:27
+   Duration  3.66s (transform 64%, import 25%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-10-06T14-09-26Z-unit-7e78.json
+
+# код выхода 0 · 5 с

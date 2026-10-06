@@ -178,6 +178,9 @@ const categorySeed: {
   rateNames?: string[];
   /** Что использует категорию (C4): у засеянных — брони и Channex, у созданных через POST — ничего */
   usage?: { reservations: number; upcomingReservations: number; channexMapped: boolean };
+  /** Цена категории тиынами (план categories-price-2026-10-06); у засеянных — по типу, у архивных — как была */
+  priceMinor?: string | null;
+  active?: boolean;
 }[] = [
   {
     code: 'ROOM',
@@ -299,6 +302,13 @@ function ratePlanRows() {
   }));
 }
 /** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
+/** Цена категории из тела запроса → тиыны строкой; undefined — не передана, null — неверная (как categoryPrice API) */
+function fixturePrice(raw: unknown): string | null | undefined {
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const m = /^(\d{1,8})(?:\.(\d{1,2}))?$/.exec(String(raw).replace(/\s/g, '').replace(',', '.'));
+  if (!m || Number(m[0]) <= 0) return null;
+  return (BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0'))).toString();
+}
 function fixturePlanChoice(body: Record<string, unknown>) {
   if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
   if (typeof body.newRatePlanName === 'string' && body.newRatePlanName.trim()) {
@@ -2995,7 +3005,15 @@ function read(path: string, q: URLSearchParams): unknown {
           ? 'DORM_BED'
           : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
-      active: true,
+      active: c.active ?? true,
+      // как настоящий API: цена сегодняшней ночи основного тарифа; засеянные — 6 000 ₸ койка, 11 000 ₸ номер
+      priceMinor:
+        c.priceMinor !== undefined
+          ? c.priceMinor
+          : units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
+            ? '600000'
+            : '1100000',
+      currency: 'KZT',
       ratePlans: (c.rateNames ?? [plans[0]!.name]).length,
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
@@ -4370,6 +4388,11 @@ function marketRoute(
 }
 
 const fixtureBranches: Array<Record<string, unknown>> = [];
+/**
+ * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
+ * Иначе указатель, который сервер сам выбрал (`/scope/resolve`, SCOPE-HARDENING), стойка сочла бы устаревшим.
+ */
+const DEFAULT_FIXTURE_BRANCH = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
 
 /** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
 interface FixtureBeautyService {
@@ -4706,6 +4729,16 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
+      // «Удалить» категорию (план categories-price-2026-10-06): тест меняет её использование, reset возвращает засев
+      if (body['categoryUsage'] && typeof body['categoryUsage'] === 'object')
+        for (const [code, patch] of Object.entries(body['categoryUsage'] as Record<string, object>)) {
+          const c = categories.find((item) => item.code === code);
+          if (c)
+            c.usage = {
+              ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
+              ...patch,
+            };
+        }
       if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
@@ -5167,7 +5200,7 @@ createServer(async (req, res) => {
       const { organization, ...user } = signedInView(who);
       // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
       const pointer = String(req.headers['x-wetop-scope'] ?? '');
-      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
+      const scoped = [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
       return send(200, {
         user,
         organization,
@@ -5613,7 +5646,7 @@ createServer(async (req, res) => {
       return send(404, { message: 'Нет такого маршрута салона' });
     }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = DEFAULT_FIXTURE_BRANCH;
       if (req.method === 'POST') {
         // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
         const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
@@ -6746,8 +6779,10 @@ createServer(async (req, res) => {
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {
-      // как на настоящем API (ADR-119): тариф — существующий, новый с названием или явно «позже»
-      const rate = fixturePlanChoice(body);
+      // как на настоящем API: с ценой тариф не выбирают (основной тариф объекта); без цены — прежний выбор ADR-119
+      const price = fixturePrice(body.price);
+      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      const rate = price ? { name: plans[0]!.name } : fixturePlanChoice(body);
       if (rate === undefined && body.ratePlanLater !== true)
         return send(400, { message: 'Выберите тариф или «Настроить позже»' });
       if (rate === null) return send(404, { message: 'Тариф не найден' });
@@ -6760,6 +6795,7 @@ createServer(async (req, res) => {
         prefix: 'T',
         kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
         rateNames: rate ? [rate.name] : [],
+        priceMinor: price ?? null,
       });
       return send(201, { code });
     }
@@ -6777,8 +6813,30 @@ createServer(async (req, res) => {
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
       if (!c) return send(404, { message: 'Категория не найдена' });
-      c.name = String(body.name);
+      const price = fixturePrice(body.price);
+      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      if (body.name === undefined && price === undefined)
+        return send(400, { message: 'Укажите название или цену' });
+      if (price !== undefined && c.active === false)
+        return send(409, { message: 'Категория в архиве: цену у неё не меняют' });
+      if (body.name !== undefined) c.name = String(body.name);
+      if (price !== undefined) c.priceMinor = price;
       return send(200, { code: c.code });
+    }
+    if (path.startsWith('/inventory/categories/') && req.method === 'DELETE') {
+      // то же правило, что categoryRemoval на API: брони впереди — отказ, места или история — архив, иначе удалить
+      const i = categories.findIndex((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
+      if (i < 0) return send(404, { message: 'Категория не найдена' });
+      const c = categories[i]!;
+      const usage = c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false };
+      if (usage.upcomingReservations)
+        return send(409, {
+          message: `У категории ${usage.upcomingReservations} броней впереди. Дождитесь выезда или переселите гостей, затем удалите категорию.`,
+        });
+      const used = units.some((u) => u.accommodationTypeCode === c.code) || usage.reservations > 0 || usage.channexMapped;
+      if (used) c.active = false;
+      else categories.splice(i, 1);
+      return send(200, { code: c.code, result: used ? 'archived' : 'deleted' });
     }
     if (path === '/inventory/rooms' && req.method === 'POST') {
       const c = categories.find((c) => c.code === body.categoryCode);

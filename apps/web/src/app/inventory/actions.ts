@@ -9,7 +9,6 @@ const FUND_PATHS = [
   '/rooms/availability',
   '/chessboard',
   '/reservations/new',
-  '/rates',
   '/today',
 ];
 const failure = (e: unknown) =>
@@ -29,6 +28,20 @@ export async function saveInventory(
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { error: null, ...(saved?.code ? { code: saved.code } : {}) };
+}
+
+/** «Удалить» категорию: ответ сервера говорит, удалена она насовсем или ушла в архив */
+export async function removeCategory(
+  code: string,
+): Promise<{ error: string | null; result?: 'deleted' | 'archived' }> {
+  let result: 'deleted' | 'archived';
+  try {
+    result = (await inventoryEditorApi.remove(code)).result;
+  } catch (e) {
+    return { error: failure(e) };
+  }
+  for (const path of FUND_PATHS) revalidatePath(path);
+  return { error: null, result };
 }
 
 /** «Настроить тариф» (ADR-119): привязать существующий или новый тариф к категории */

@@ -171,26 +171,6 @@ for (const width of [1440, 390]) {
       await expect(method).toHaveValue('');
     });
 
-    test('rates: empty row is rejected, zero nights and false restrictions remain changes', async ({
-      page,
-    }) => {
-      await page.goto('/rates?month=2026-10');
-      await page.getByTestId('rates-edit-open').click();
-      const editor = page.getByTestId('bulk-editor');
-      const add = editor.getByRole('button', { name: '+ Добавить в список', exact: true });
-      await add.click();
-      await expect(editor.getByRole('alert')).toContainText('Укажите хотя бы одно изменение');
-      await expect(editor.getByTestId('pending-changes')).toHaveCount(0);
-      await expect(editor.getByTestId('apply-changes')).toBeDisabled();
-      await editor.getByLabel('Мин. ночей', { exact: true }).fill('0');
-      await add.click();
-      await expect(editor.getByTestId('pending-changes')).toContainText('мин. ночей 0');
-      await editor.locator('[name=stopSell]').selectOption('false');
-      await add.click();
-      await expect(editor.getByTestId('pending-changes')).toContainText('стоп-продажа нет');
-      await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить 2 изменения');
-    });
-
     test('print: KZ and RU survive form changes, reload and history', async ({ page }) => {
       await page.goto('/reports/print?form=day&date=2026-10-05');
       await page.getByRole('link', { name: 'KZ', exact: true }).click();

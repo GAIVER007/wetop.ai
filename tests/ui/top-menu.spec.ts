@@ -15,7 +15,6 @@ const routes = [
   '/reservations',
   '/guests',
   '/inventory',
-  '/rates',
   '/market',
   '/channels',
   '/website',
@@ -87,17 +86,17 @@ test('строка вкладок в шапке: порядок, одна акт
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await expect(menu.locator('[aria-expanded="true"]')).toHaveCount(1);
-  const rates = menu.getByRole('link', { name: 'Тарифы и цены', exact: true });
+  const rates = menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true });
   await expect(rates).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(rates).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/rates$/);
+  await expect(page).toHaveURL(/\/market$/);
   // переход закрывает список, текущий пункт остаётся в разметке и подсвечивает вкладку группы
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(rates).toBeHidden();
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).not.toHaveAttribute(
     'aria-current',
@@ -113,7 +112,9 @@ test('строка вкладок в шапке: порядок, одна акт
   // щелчок мимо списка закрывает его
   await sales.click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await page.getByRole('main').getByRole('heading', { level: 1 }).click();
+  // мимо — в нижний угол окна: на «Загрузке конкурентов» раскрытый список лежит поверх заголовка страницы
+  const viewport = page.viewportSize()!;
+  await page.mouse.click(8, viewport.height - 8);
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // вторая группа закрывает первую: открытый список один
   await sales.click();

@@ -177,7 +177,14 @@ describe('ключ создания брони с сайта (MKT1B BOOK-2)', ()
     expect(r).toMatchObject({ ok: true, value: { creationKey: 'b6f2c1e4-0a3d-4f1b-9c2e-7d8a9b0c1d2e' } });
   });
   it.each([
-    ['нет ключа', undefined],
+    ['нет поля', undefined],
+    ['null', null],
+  ])('%s: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет', (_name, creationKey) => {
+    const body: Record<string, unknown> = { ...good, creationKey };
+    if (creationKey === undefined) delete body['creationKey'];
+    expect(parseBookingRequest(body, today)).toMatchObject({ ok: true, value: { creationKey: null } });
+  });
+  it.each([
     ['пустой', ''],
     ['не UUID', 'not-a-key'],
     ['UUID не версии 4', 'b6f2c1e4-0a3d-1f1b-9c2e-7d8a9b0c1d2e'],

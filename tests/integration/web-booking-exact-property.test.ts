@@ -212,8 +212,17 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
       await db.user.deleteMany({ where: { id: user } });
       await purgeAuditRows(db, { organizationId: { in: orgs } });
       await db.organization.deleteMany({ where: { id: { in: orgs } } });
-    } catch (e) {
-      console.warn(`[mkt1b] уборка не закончена: ${(e as Error).message}`);
+      // уборка не глотает ошибок: сбой здесь роняет набор, а не оставляет строки этого прогона в общей тестовой базе
+      const left = {
+        organizations: await db.organization.count({ where: { id: { in: orgs } } }),
+        businesses: await db.business.count({ where: { organizationId: { in: orgs } } }),
+        properties: await db.property.count({ where: { id: properties.propertyId } }),
+        reservations: await db.reservation.count({ where: properties }),
+        guests: await db.guest.count({ where: { organizationId: { in: orgs } } }),
+        audit: await db.auditLog.count({ where: { organizationId: { in: orgs } } }),
+        users: await db.user.count({ where: { id: user } }),
+      };
+      expect(left).toEqual({ organizations: 0, businesses: 0, properties: 0, reservations: 0, guests: 0, audit: 0, users: 0 });
     } finally {
       forgetPropertyRef();
       await db.$disconnect();
@@ -369,8 +378,37 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     await expect(svc.book({ ...withKey(S, 'not-a-key', 49), turnstileToken: 'n-2' }, ctx(S))).rejects.toMatchObject({
       status: 400,
     });
-    await expect(
-      svc.book({ ...withKey(S, undefined, 49), turnstileToken: 'n-3' }, ctx(S)),
-    ).rejects.toMatchObject({ status: 400 });
+    await expect(svc.book({ ...withKey(S, '', 49), turnstileToken: 'n-3' }, ctx(S))).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(ts.calls).toEqual(['n-1', 'n-1']);
+  }, 60_000);
+
+  // MKT1B: старый виджет из кэша браузера (до выкладки) ключа не шлёт. Переходный путь: бронь проходит обычным
+  // путём с ключом, который сервер создал на этот один запрос; Turnstile, лимиты и письмо прежние
+  it('BOOK-2: тело старого виджета без creationKey бронирует, Turnstile для него действует', async () => {
+    const ts = oneTimeTurnstile();
+    const svc = service(ts);
+    const legacy = (token?: string) => {
+      const body: Record<string, unknown> = { ...withKey(S, undefined, 52), turnstileToken: token };
+      delete body['creationKey'];
+      return body;
+    };
+    // без токена: отказ проверки Turnstile (400 «Подтвердите…» по правилу BOOK-SEC1), брони нет
+    await expect(svc.book(legacy(undefined), ctx(S))).rejects.toMatchObject({
+      status: 400,
+      message: expect.stringContaining('Подтвердите'),
+    });
+    const before = mails.length;
+    const card = await svc.book(legacy('l-1'), ctx(S));
+    expect(card.confirmationNumber).toBeTruthy();
+    const row = await db.reservation.findFirstOrThrow({
+      where: { propertyId: S.propertyId, confirmationNumber: card.confirmationNumber },
+      select: { creationKey: true, source: true },
+    });
+    expect(row.source).toBe('WEBSITE');
+    expect(row.creationKey).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(mails.length - before).toBe(1);
+    expect(ts.calls).toEqual(['undefined', 'l-1']);
   }, 60_000);
 });

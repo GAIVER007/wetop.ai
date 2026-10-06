@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -378,7 +379,10 @@ export class WebBookingService {
     const site = await this.bookingSite(siteKey, ctx);
     const parsed = parseBookingRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const req = parsed.value;
+    // Переходный путь MKT1B: старый виджет из кэша браузера ключа не шлёт. Такой запрос получает ключ на один раз и
+    // проходит тот же путь брони; повторы между запросами у старого клиента не узнаются, как и до MKT1B. Новый виджет
+    // ключ шлёт всегда. Снять отдельным срезом, когда в журнале не останется броней старого виджета.
+    const req = { ...parsed.value, creationKey: parsed.value.creationKey ?? randomUUID() };
     // MKT1B BOOK-2: вход брони строится только из канонического запроса, поэтому повтор той же формы даёт тот же
     // отпечаток в `ReservationsService` (второй системы повторов нет)
     const input = this.reservationInput(site, req);
@@ -496,7 +500,7 @@ export class WebBookingService {
    * счётчика, ловушка для ботов и время сюда не входят. Зерно псевдонима гостя выводится из сайта и ключа создания,
    * а не случайно: повтор той же формы обязан дать тот же отпечаток.
    */
-  private reservationInput(site: SiteRecord, req: BookingRequest) {
+  private reservationInput(site: SiteRecord, req: BookingRequest & { creationKey: string }) {
     // ADR-018: настоящие ФИО и контакты: только в production-БД в РК; иначе псевдоним, как у каналов
     const guest = guestForStorage(req.guest, `web:${site.id}:${req.creationKey}`);
     const notes =

@@ -6631,3 +6631,7 @@
 | 06.10.2026 13:37 | unit | ✅ 3377 из 3380, пропущено 3 | 1 мин 43 с | a8359c3 | [лог](logs/2026-10-06T08-37-28Z-unit-77cb.log) | candidate release+search |
 | 06.10.2026 13:39 | integration | ✅ 734 из 734 | 1 мин 32 с | a8359c3 | [лог](logs/2026-10-06T08-39-27Z-integration-6c9b.log) | candidate release+search, local db |
 | 06.10.2026 13:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-channels.spec.ts tests/ui/availability-gate.spec.ts tests/ui/beauty-branch. | ✅ 465 из 465 | 30 мин 34 с | a8359c3 | [лог](logs/2026-10-06T08-41-09Z-e2e-aab7.log) | regression: release features + touched screens |
+| 06.10.2026 16:14 | typecheck | ✅ без ошибок | 1 мин 32 с | 1065a26 | [лог](logs/2026-10-06T11-14-41Z-typecheck-98a9.log) |  |
+| 06.10.2026 16:16 | lint | ✅ без ошибок | 55 с | 1065a26 | [лог](logs/2026-10-06T11-16-14Z-lint-6226.log) |  |
+| 06.10.2026 16:17 | unit | ❌ упало 1 из 3405, пропущено 3 | 2 мин 21 с | 1065a26 | [лог](logs/2026-10-06T11-17-24Z-unit-98cb.log) | AuthService.register регистрация не останавливает главный поток на время scrypt |
+| 06.10.2026 16:19 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 59 из 59 | 13 с | 1065a26 | [лог](logs/2026-10-06T11-19-50Z-unit-fe08.log) |  |

@@ -13,3 +13,9 @@ Final local GREEN:8/8 statistics scenarios including a positive NO_SHOW,2026-10-
 ## Mobile design revision after owner feedback
 
 The owner rejected the first visual design before main integration or deployment. The new mobile layout combines the daily widgets into one summary with a two-column guest grid. RED:2026-10-05T15-54-02Z-e2e-3534.log proved the previous summary was404.5 px tall. GREEN:2026-10-05T18-38-41Z-e2e-0435.log,35/35 scenarios across360/390/430, touch swipe, creation, focus restoration, both themes and compact desktop. The summary stays within280 px; ordinary calendar starts within700 px. Operational warnings remain visible and may push the calendar down. Typecheck:2026-10-05T18-41-44Z-typecheck-f0ce.log, passed. Updated screenshots show synthetic fixtures. The rejected candidate was not deployed; this revision is a visual preview pending further owner feedback.
+
+## Final CI repair, 6 October
+
+Run122 (a70cff84) was not green: UI1 found two slow analytics-to-calendar transitions and a notebook grid height of399.61px. GitHub also failed to allocate runners for bot and aggregate jobs. No release was advanced.
+
+Local RED reproduced all three failures in2026-10-06T07-15-17Z-e2e-141e.log. The synthetic reservation directory enriched every row before pagination and rebuilt complete guest stay histories only to read email. It now enriches the requested page and reads email from the same guest record directly. Total, ordering and pagination are preserved. All9 analytics scenarios passed in2026-10-06T07-23-18Z-e2e-0cfe.log. Desktop summary vertical padding is2px; pointer targets remain24px and mobile padding is unchanged. GREEN11/11 compact notebook/statistics/theme/accessibility checks:2026-10-06T07-29-50Z-e2e-d82b.log. Typecheck and lint passed:2026-10-06T07-30-41Z-typecheck-1c74.log and2026-10-06T07-30-58Z-lint-cb7d.log. Intermediate diagnostic runs remain in the journal. Full CI and production verification remain pending.

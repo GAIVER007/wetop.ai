@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
@@ -41,6 +42,7 @@ export default async function GuestsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   // отбор целиком в адресе (G7, ТЗ §31): раздел, поиск, последний визит, визиты, порядок, страница
   const { f, error } = parseGuestFilters(sp);

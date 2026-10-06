@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { ratesApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
@@ -16,6 +17,7 @@ import '../rates.css';
  * всех, кто его видит, — кроме «только чтения» (ADR-102). Отказ API не уносит экран: заголовок и вкладки на месте (D4).
  */
 export default async function RatePlansPage() {
+  await requireVertical(['HOSPITALITY']);
   const { readOnly } = await deskShell();
   const plans = await ratesApi.plans().then(
     (r) => ({ ok: true as const, r }),

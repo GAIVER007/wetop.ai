@@ -1,0 +1,212 @@
+# Сквозные (e2e) · 05.10.2026 20:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6d9b470 (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-range.spec.ts' '--workers=1'
+[WebServer] (node:99409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+(node:99530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.2s)
+  ✘   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (1.7s)
+(node:99586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (3.9s)
+  ✓   4 tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (3.1s)
+[WebServer] (node:99664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (2.3s)
+[WebServer] (node:99670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (1.7s)
+  ✓   7 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (1.3s)
+  ✓   8 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (1.2s)
+  ✓   9 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (1.4s)
+  ✓  10 tests/ui/chessboard-statistics.spec.ts:74:1 › today statistics stay available when the calendar shows another month (2.5s)
+  ✓  11 tests/ui/chessboard-statistics.spec.ts:86:1 › empty booking base shows zero occupancy and no urgent bookings (984ms)
+  ✘  12 tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets light: accessible labels and contrasts (2.1s)
+(node:99762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets dark: accessible labels and contrasts (2.2s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 68
+    Received:    115.59375
+
+      36 |   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
+      37 |   // было 5 строк (~150px) против одной строки управления; теперь две строки показателей
+    > 38 |   expect(p.height).toBeLessThanOrEqual(Math.max(c.height, 64) + 4);
+         |                    ^
+      39 |   await expect(panel.getByTestId('day-free')).toBeVisible();
+      40 |   await expect(panel.getByTestId('day-units')).toBeVisible();
+      41 |   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/booking-price-nights.spec.ts:38:20
+
+    Error Context: test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-ed4b5-авления-под-ней-нет-пустоты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets light: accessible labels and contrasts 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 37
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure role attribute has an appropriate value for the element",
+    +     "help": "ARIA role should be appropriate for the element",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-allowed-role?application=playwright",
+    +     "id": "aria-allowed-role",
+    +     "impact": "minor",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Array [
+    +               "group",
+    +             ],
+    +             "id": "aria-allowed-role",
+    +             "impact": "minor",
+    +             "message": "ARIA role group is not allowed for given element",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   ARIA role group is not allowed for given element",
+    +         "html": "<aside class=\"board-day-panel\" role=\"group\" aria-label=\"Сегодня на объекте\">",
+    +         "impact": "minor",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "aside",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.aria",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      106 |     const AxeBuilder = (await import('@axe-core/playwright')).default;
+      107 |     const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
+    > 108 |     expect(results.violations).toEqual([]);
+          |                                ^
+      109 |     await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+      110 |     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
+      111 |     await page.screenshot({
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:108:32
+
+    Error Context: test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets dark: accessible labels and contrasts 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 37
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure role attribute has an appropriate value for the element",
+    +     "help": "ARIA role should be appropriate for the element",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-allowed-role?application=playwright",
+    +     "id": "aria-allowed-role",
+    +     "impact": "minor",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Array [
+    +               "group",
+    +             ],
+    +             "id": "aria-allowed-role",
+    +             "impact": "minor",
+    +             "message": "ARIA role group is not allowed for given element",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   ARIA role group is not allowed for given element",
+    +         "html": "<aside class=\"board-day-panel\" role=\"group\" aria-label=\"Сегодня на объекте\">",
+    +         "impact": "minor",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "aside",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.aria",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      106 |     const AxeBuilder = (await import('@axe-core/playwright')).default;
+      107 |     const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
+    > 108 |     expect(results.violations).toEqual([]);
+          |                                ^
+      109 |     await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+      110 |     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
+      111 |     await page.screenshot({
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:108:32
+
+    Error Context: test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты 
+    tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets light: accessible labels and contrasts 
+    tests/ui/chessboard-statistics.spec.ts:101:3 › daily widgets dark: accessible labels and contrasts 
+  10 passed (36.3s)
+
+# код выхода 1 · 38 с

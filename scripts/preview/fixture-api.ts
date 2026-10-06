@@ -1,4 +1,5 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
+import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
@@ -1462,6 +1463,7 @@ const mixClosed = (): Incident[] =>
 let extraIncidents: Incident[] = [];
 /** Журнал за несколько дней: без него все строки фикстуры — сегодняшние, и группы по дням не проверить */
 let journalHistory = false;
+let journalFinance = false;
 let guardTick = false;
 
 function desk(date: string): DeskDay {
@@ -4136,7 +4138,28 @@ function read(path: string, q: URLSearchParams): unknown {
         : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
     return { ...base, ...channelsOverrides.webhook };
   }
+  if (path === '/audit/actors') return [{ id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый кассир' }];
   if (path === '/audit') {
+    if (journalFinance) {
+      const actor = '11111111-1111-4111-8111-111111111111';
+      const rows = Array.from({ length: 65 }, (_, i) => ({
+        id: `22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
+        at: `${today}T08:00:00.123Z`, authorId: actor, author: 'Тестовый кассир',
+        entityType: 'CashOperation', entityId: `cash-${i}`, subject: null, targetAvailable: null,
+        action: i === 0 ? 'finance.cash.operation.void' : 'finance.cash.operation',
+        before: i === 0 ? { amountMinor: '150050', method: 'CASH', kind: 'EXPENSE' } : {},
+        after: i === 0 ? { voided: true } : { amountMinor: '250000', method: 'CASH', kind: 'INCOME' },
+        cursor: `${today}T08:00:00.123000Z|22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
+      }));
+      const cursor = q.get('cursor');
+      const start = cursor ? rows.findIndex((r) => r.cursor === cursor) + 1 : 0;
+      return rows.filter((r) => !q.get('actor') || q.get('actor') === r.authorId)
+        .filter((r) => !q.get('action') || r.action.startsWith(q.get('action')!))
+        .filter(() => !q.get('group') || q.get('group') === 'finance')
+        .filter(() => !q.get('from') || today >= q.get('from')!)
+        .filter(() => !q.get('to') || today <= q.get('to')!)
+        .slice(start, start + Number(q.get('limit') || 50));
+    }
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
     const entries: Array<{
@@ -4533,6 +4556,7 @@ createServer(async (req, res) => {
       extraIncidents = [];
       guardTick = false;
       journalHistory = false;
+      journalFinance = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -4668,6 +4692,7 @@ createServer(async (req, res) => {
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
       journalHistory = body['journalHistory'] === true;
+      journalFinance = body['journalFinance'] === true;
       if (body['incidentsMix'] === true) {
         extraIncidents = [...mixIncidents(), ...mixClosed()];
         guardTick = true;
@@ -4968,7 +4993,10 @@ createServer(async (req, res) => {
             return a.arrivalDate < b.arrivalDate ? 1 : -1;
           return 0;
         });
-      const rows = ordered.map((r) => {
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
+      // Enrich only the requested page, matching the production directory query.
+      const rows = ordered.slice((page - 1) * pageSize, page * pageSize).map((r) => {
         const { money } = moneyOf(r);
         return {
           confirmationNumber: r.confirmationNumber,
@@ -4987,20 +5015,21 @@ createServer(async (req, res) => {
           unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
           itemsCount: r.items.length,
           primaryGuest: r.primaryGuest
-            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+            ? {
+                ...r.primaryGuest,
+                email: (r.primaryGuest.id === guest.id ? guest : extraGuests.get(r.primaryGuest.id))?.email ?? null,
+              }
             : null,
         };
       });
-      const pageSize = Number(url.searchParams.get('pageSize') || 25);
-      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
-        total: emptyFixture ? 0 : rows.length,
+        total: emptyFixture ? 0 : ordered.length,
         page,
         pageSize,
         counts,
-        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
+        rows: emptyFixture ? [] : rows,
       });
     }
     // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
@@ -6646,7 +6675,8 @@ createServer(async (req, res) => {
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
       if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
-      if (!businessName) return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+      if (!businessName || businessName.length > 200)
+        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
       if (password.trim().length < 10)
         return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
       // телефон и согласие — те же правила домена, что у настоящего API (форма 29.09.2026)

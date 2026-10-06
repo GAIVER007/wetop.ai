@@ -109,6 +109,13 @@ export interface AccountsRepository {
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
   inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null>;
   markInviteAccepted(id: string, at: Date): Promise<void>;
+  /** Принятие, членство, ссылка на пароль и аудит одной транзакцией. */
+  acceptInvite(input: {
+    id: string;
+    now: Date;
+    passwordTokenHash: string;
+    passwordExpiresAt: Date;
+  }): Promise<{ passwordTokenIssued: boolean } | null>;
   /** Сколько приглашений организация создала с `since` — для суточного предела (аудит 26.09, С-11). */
   invitesCreatedSince(organizationId: string, since: Date): Promise<number>;
   /**
@@ -121,6 +128,8 @@ export interface AccountsRepository {
     organizationId: string,
     at: Date,
     roles: readonly MembershipRole[],
+    by?: string,
+    deliveryFailed?: boolean,
   ): Promise<boolean>;
   /** Есть ли у адреса членство в этой организации (любой статус человека). */
   isMember(email: string, organizationId: string): Promise<boolean>;

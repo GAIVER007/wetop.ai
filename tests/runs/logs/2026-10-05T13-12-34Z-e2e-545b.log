@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 05.10.2026 18:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит b154a43 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/registration-closed.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:65956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:66031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (1.1s)
+  ✓  2 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (379ms)
+[WebServer] (node:66052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (252ms)
+  ✓  4 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (216ms)
+[WebServer] (node:66063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (653ms)
+
+  5 passed (8.5s)
+
+# код выхода 0 · 9 с

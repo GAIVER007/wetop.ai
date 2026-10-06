@@ -212,6 +212,8 @@ export class AccountsService {
         who.organizationId,
         new Date(),
         invitableRoles(who.role),
+        who.userId,
+        true,
       );
       this.log.error('Не удалось отправить приглашение; ссылка отозвана');
       throw new ServiceUnavailableException(
@@ -235,7 +237,7 @@ export class AccountsService {
     if (!canManageStaff(who.role)) return 'owner';
     // отзывает тот, кто вправе позвать с этой ролью: приглашение управляющего управляющему «не найдено»
     const allowed = invitableRoles(who.role);
-    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed))
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed, who.userId))
       ? 'ok'
       : 'missing';
   }
@@ -423,30 +425,21 @@ export class AccountsService {
   async acceptInvite(rawToken: string): Promise<InvitePreview | null> {
     const invite = await this.liveInvite(rawToken);
     if (!invite) return null;
-    await this.repo.joinOrganization({
-      email: invite.email,
-      organizationId: invite.organizationId,
-      role: invite.role,
-    });
     const now = new Date();
-    await this.repo.markInviteAccepted(invite.id, now);
-    // Раньше здесь уходил код на почту. С 20.09.2026 вход один — по паролю (ADR-053), и код с экрана
-    // снят; вдобавок письмо требует настроенной почтовой службы, а её может не быть. Поэтому выдаём
-    // одноразовую ссылку «задайте пароль» прямо в ответ: сама ссылка-приглашение и есть доказательство,
-    // что перед нами приглашённый, — второго такого же секрета в письме не нужно.
     const token = newSessionToken();
-    const issued = await this.repo.issuePasswordSetToken({
-      email: invite.email,
-      tokenHash: hashSessionToken(token),
-      expiresAt: resetExpiry(now),
+    const accepted = await this.repo.acceptInvite({
+      id: invite.id,
       now,
+      passwordTokenHash: hashSessionToken(token),
+      passwordExpiresAt: resetExpiry(now),
     });
+    if (!accepted) return null;
     return {
       organizationName: invite.organizationName,
       email: invite.email,
       expiresAt: invite.expiresAt,
       // null — пароль у человека уже есть: он просто входит им, задавать заново нечего
-      setPasswordToken: issued ? token : null,
+      setPasswordToken: accepted.passwordTokenIssued ? token : null,
     };
   }
 

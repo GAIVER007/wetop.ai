@@ -65,7 +65,7 @@ describe('меню по ролям', () => {
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
     const noPlatform = everything.filter((h) => !h.startsWith('/platform'));
-    expect(hrefs(access('MANAGER'))).toEqual(noPlatform);
+    expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
   });

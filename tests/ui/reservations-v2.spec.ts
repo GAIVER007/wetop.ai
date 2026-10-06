@@ -162,7 +162,7 @@ test('R1: «только чтение» — список, поиск и карт
   await page.goto('/reservations');
   const main = page.getByRole('main');
   await expect(page.getByTestId('read-only-banner')).toContainText(
-    'Пробный период закончился — оплатите подписку',
+    'Пробный период закончился, оплатите подписку',
   );
   await expect(main.getByRole('link', { name: 'Новая бронь', exact: true })).toHaveCount(0);
   // чтение не сужено: таблица, чипы, поиск и карточка работают

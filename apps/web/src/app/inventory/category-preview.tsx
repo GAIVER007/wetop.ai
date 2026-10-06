@@ -131,7 +131,7 @@ export function CategoryPreview({
           <Link className="btn btn--secondary" href={`/chessboard?category=${code}`} prefetch={false}>
             Открыть в календаре
           </Link>
-          <Link href="/rooms/availability" prefetch={false}>
+          <Link href={`/rooms/availability?category=${code}`} prefetch={false}>
             Посмотреть доступность
           </Link>
           <Button tone="ghost" onClick={onEdit}>

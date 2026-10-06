@@ -1,0 +1,306 @@
+# Сквозные (e2e) · 06.10.2026 13:32 Алматы · vm
+# коммит a8359c3 (claude/youthful-dirac-70ewqs)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-mobile.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 2 workers
+
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.5s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:47:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.5s)
+  ✓   1 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (6.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: light (2.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   5 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (3.9s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: dark (2.8s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:73:1 › пустая клетка не дублирует дату из шапки календаря (2.4s)
+  ✓   7 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (4.5s)
+  ✓   9 tests/ui/chessboard-calendar.spec.ts:81:1 › даты в шапке не повторяют свободные и занятые места (2.1s)
+  ✓  10 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (2.3s)
+  ✓  11 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (4.2s)
+  ✓  13 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (2.6s)
+  ✓  12 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (5.0s)
+  ✓  14 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (3.0s)
+  ✓  15 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (4.6s)
+  ✓  16 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (2.2s)
+  ✓  17 tests/ui/chessboard-mobile.spec.ts:159:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (2.5s)
+  ✓  18 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (2.5s)
+  ✓  19 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (3.5s)
+  ✓  20 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (4.3s)
+  ✓  22 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (2.2s)
+  ✓  21 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (3.7s)
+  ✓  24 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (3.5s)
+  ✓  23 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (5.6s)
+  ✓  25 tests/ui/chessboard-mobile.spec.ts:232:1 › мобильная панель меняет заезд без закрытия и показывает выезд (3.2s)
+  ✓  26 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (2.5s)
+  ✓  28 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (4.9s)
+  ✓  27 tests/ui/chessboard-mobile.spec.ts:252:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (6.9s)
+  ✓  30 tests/ui/chessboard-mobile.spec.ts:281:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.8s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  29 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (2.9s)
+  ✓  32 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (3.1s)
+  ✓  33 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (2.5s)
+  ✓  34 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (2.1s)
+  ✓  35 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (2.0s)
+  ✓  36 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (3.4s)
+  ✓  37 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (1.9s)
+  ✘  31 tests/ui/chessboard-mobile.spec.ts:304:3 › телефон light: длинное имя и бронь на 28 ночей (19.1s)
+  ✓  39 tests/ui/chessboard-mobile.spec.ts:304:3 › телефон dark: длинное имя и бронь на 28 ночей (3.4s)
+  ✓  40 tests/ui/chessboard-mobile.spec.ts:337:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (5.5s)
+  ✘  38 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (17.4s)
+  ✓  41 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.9s)
+  ✓  42 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (3.6s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:304:3 › телефон light: длинное имя и бронь на 28 ночей ─────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-preview').getByTestId('preview-dates')
+    Expected substring: "28 ночей"
+    Received string:    "в карточке брони"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-preview').getByTestId('preview-dates') with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByTestId('preview-dates')
+        3 × locator resolved to <dd data-testid="preview-dates">Загружаю…</dd>
+          - unexpected value "Загружаю…"
+        31 × locator resolved to <dd data-testid="preview-dates">в карточке брони</dd>
+           - unexpected value "в карточке брони"
+
+
+      323 |     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
+      324 |     const preview = page.getByTestId('stay-preview');
+    > 325 |     await expect(preview.getByTestId('preview-dates')).toContainText('28 ночей');
+          |                                                        ^
+      326 |     await expect(preview.getByRole('link', { name: 'Открыть гостя', exact: true })).toBeVisible();
+      327 |     expect(await preview.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+      328 |     const guest = preview.getByTestId('preview-guest');
+        at /home/user/wetop.ai/tests/ui/chessboard-mobile.spec.ts:325:56
+
+    Error Context: test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('combobox', { name: 'Способ оплаты', exact: true })
+    Expected: "CASH"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Способ оплаты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Способ оплаты', exact: true })
+
+
+      167 |       expect(q.get('to')).toBe('2026-10-05');
+      168 |       await page.goBack();
+    > 169 |       await expect(method).toHaveValue('CASH');
+          |                            ^
+      170 |       await page.goForward();
+      171 |       await expect(method).toHaveValue('');
+      172 |     });
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:169:28
+
+    Error Context: test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-mobile.spec.ts:304:3 › телефон light: длинное имя и бронь на 28 ночей ──────
+    tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+  40 passed (1.7m)
+
+# код выхода 1 · 1 мин 40 с

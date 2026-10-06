@@ -88,6 +88,7 @@ export function useBoardPosition(
       restoring = false;
     }
     const reset = () => {
+      cancelAnimationFrame(frame);
       restoring = false;
       wrap.scrollLeft = 0;
       wrap.scrollTop = 0;

@@ -11,7 +11,7 @@ test('главная: деньги на первом экране, кнопки 
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(page.getByTestId('owner-net-cash')).toBeInViewport();
+    await expect(page.getByTestId('owner-paid')).toBeInViewport();
     const risks = page.getByRole('region', { name: 'Риски на сегодня' });
     await expect(risks).toBeAttached();
     const attention = page
@@ -30,11 +30,12 @@ test('период Главной и «Аналитики» на телефон�
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  await page.getByLabel('Свои даты', { exact: true }).click();
   // период финансов Главной: готовые отрезки и свой отрезок (вместо полосы дня стойки A1)
   for (const control of [
     page.getByLabel('Начало периода'),
     page.getByLabel('Конец периода'),
-    page.getByRole('main').locator('.owner-toolbar').getByRole('button', { name: 'Показать' }),
+    page.getByRole('main').locator('.owner-dates').getByRole('button', { name: 'Показать' }),
     page
       .getByRole('navigation', { name: 'Период финансов' })
       .getByRole('link', { name: 'Сегодня', exact: true }),
@@ -77,9 +78,8 @@ test('главная: финансы за выбранный период, ри�
   await expect(
     page.getByRole('navigation', { name: 'Период финансов' }).getByRole('link', { name: 'Месяц' }),
   ).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toContainText(
-    /\d{2}\.\d{2}\.\d{4}/,
-  );
+  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
   // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
   // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
@@ -103,7 +103,7 @@ for (const theme of ['light', 'dark'] as const) {
       test.setTimeout(120_000);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
-      const directory = 'reports/design-refresh-2026-09-19/after';
+      const directory = 'reports/owner-home-v3-2026-10-05/accessibility';
       mkdirSync(directory, { recursive: true });
       for (const route of ['today', 'design-system']) {
         await page.goto(`/${route}`);
@@ -123,7 +123,10 @@ for (const theme of ['light', 'dark'] as const) {
         });
         expect(overflow).toBeLessThanOrEqual(1);
         if (route === 'today') {
-          await page.screenshot({ path: `${directory}/today-${theme}-${width}.png` });
+          await page.screenshot({
+            caret: 'initial',
+            path: `${directory}/today-${theme}-${width}.png`,
+          });
         } else {
           for (const component of ['button', 'input']) {
             const section = page

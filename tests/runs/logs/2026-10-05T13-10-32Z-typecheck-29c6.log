@@ -1,0 +1,100 @@
+# Типы (typecheck) · 05.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит b154a43 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/food-service/food.service.ts(26,29): error TS2305: Module '"@pms/database"' has no exported member 'DiningArea'.
+apps/api/src/food-service/food.service.ts(26,41): error TS2305: Module '"@pms/database"' has no exported member 'DiningTable'.
+apps/api/src/food-service/food.service.ts(26,54): error TS2305: Module '"@pms/database"' has no exported member 'ServicePeriod'.
+apps/api/src/food-service/food.service.ts(36,19): error TS2724: '"/Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'RestaurantReservationGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/food-service/food.service.ts(148,30): error TS2339: Property 'diningArea' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(156,30): error TS2339: Property 'diningTable' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(164,30): error TS2339: Property 'servicePeriod' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(168,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/food.service.ts(177,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(187,22): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(192,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(202,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(231,30): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(234,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(243,30): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(251,21): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(259,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(269,30): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(284,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(334,39): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(347,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(366,28): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(374,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(393,28): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(424,26): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(441,18): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(457,18): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(469,24): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(512,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(548,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(570,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(575,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(597,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(598,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+scripts/preview/fixture-api.ts(6637,24): error TS2304: Cannot find name 'registrationBusiness'.
+tests/integration/mv6-food.test.ts(133,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(137,16): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(140,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(167,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(168,16): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(169,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(170,16): error TS2339: Property 'diningTable' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(171,16): error TS2339: Property 'diningArea' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(172,16): error TS2339: Property 'servicePeriod' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(195,11): error TS2339: Property 'status' does not exist on type '{ id: string; }'.
+tests/integration/mv6-food.test.ts(207,21): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(279,30): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(299,18): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(521,21): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/food-service/food.service.ts(26,29): error TS2305: Module '"@pms/database"' has no exported member 'DiningArea'.
+apps/api/src/food-service/food.service.ts(26,41): error TS2305: Module '"@pms/database"' has no exported member 'DiningTable'.
+apps/api/src/food-service/food.service.ts(26,54): error TS2305: Module '"@pms/database"' has no exported member 'ServicePeriod'.
+apps/api/src/food-service/food.service.ts(36,19): error TS2724: '"/Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'RestaurantReservationGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/food-service/food.service.ts(148,30): error TS2339: Property 'diningArea' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(156,30): error TS2339: Property 'diningTable' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(164,30): error TS2339: Property 'servicePeriod' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(168,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/food.service.ts(177,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(187,22): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(192,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(202,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(231,30): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(234,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(243,30): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(251,21): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(259,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(269,30): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(284,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(334,39): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(347,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(366,28): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(374,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(393,28): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(424,26): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(441,18): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(457,18): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(469,24): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(512,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(548,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(570,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(575,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(597,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(598,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 17 с

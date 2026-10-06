@@ -42,7 +42,7 @@ describe('права ролей', () => {
   });
 
   it('управляющему — всё, кроме владельческого', () => {
-    expect(permissionsOf('MANAGER')).toEqual(all.filter((p) => p !== 'owner'));
+    expect(permissionsOf('MANAGER')).toEqual(all.filter((p) => p !== 'owner' && p !== 'journal'));
   });
 
   it('администратору — своё, работа с гостями, диалоги продавца и отчёты на просмотр', () => {

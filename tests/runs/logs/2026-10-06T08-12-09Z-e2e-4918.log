@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 06.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит a616d39 (codex/remaining-release-20261005)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/mobile-adaptation.spec.ts' '--grep' 'управление календаря' '--workers=1'
+[WebServer] (node:33030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33062) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33083) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33118) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:33122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (2.9s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана 
+
+    Error: сетка начинается на 647 px
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 422
+    Received:   646.6875
+
+      89 |   await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
+      90 |   const board = await page.locator('.board-wrap').boundingBox();
+    > 91 |   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThan(422);
+         |                                                                      ^
+      92 |   // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
+      93 |   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+      94 | });
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/mobile-adaptation.spec.ts:91:70
+
+    Error Context: test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--1a667-отнимает-у-сетки-пол-экрана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана 
+
+# код выхода 1 · 11 с

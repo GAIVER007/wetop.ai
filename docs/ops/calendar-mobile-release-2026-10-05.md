@@ -34,3 +34,7 @@
 Владелец отдельно разрешил все шесть миграций 51, 53–57 и выкладку после зелёного CI. Миграция 58 модуля питания, появившаяся в main параллельно, не входит в этот выпуск. Кандидат календаря строится от fddf28a9 с исправленной проверкой touch-жеста; исправление также публикуется в main без отката чужих изменений.
 
 Кандидат c98d516cf3e5aa50309fa5bc7114f18b94027f76 проверяется release-checks #80: https://github.com/GAIVER007/wetop.ai/actions/runs/37305214530. Native touch проверка включена в main коммитом 8adf0928; параллельные изменения main сохранены.
+
+## Completed production release
+
+2026-10-05: all six approved migrations applied and validated after backup wetop-20261005T122354Z.dump. Two production-only CI commits preserved by merge. Exact final SHA 7e273890d55b10ef08c9276d74b137632b8f61fb GREEN in release-checks #87, then fast-forwarded to release and deployed by official auto-deploy at13:04:50 UTC. Actual SHA/images/health/public routes and authenticated mobile geometry checked. Full evidence in reports/calendar-mobile-2026-10-05.md. Food58/59 excluded. No production booking or guest mutations.

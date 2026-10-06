@@ -36,7 +36,7 @@ test('операционные карточки убраны, а риски дн
   await page.goto('/today');
   for (const name of ['Загрузка на сегодня', 'Гости сегодня', 'Состояние номеров'])
     await expect(page.getByRole('article', { name })).toHaveCount(0);
-  await expect(page.getByTestId('owner-risks')).toContainText(tenge(d.debtMinor));
+  await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
   await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
 });
 
@@ -49,15 +49,14 @@ test('финансовые показатели совпадают с dashboard 
   ).json();
   await signIn(page);
   await page.goto('/today?period=today');
-  for (const [id, amount] of [
-    ['owner-charged', c.revenue.totalMinor],
-    ['owner-paid', c.payments.totalMinor],
-  ]) {
-    expect(digits(await page.getByTestId(id).locator('strong').innerText())).toBe(tenge(amount));
-  }
-  expect(digits(await page.getByTestId('owner-refunds').innerText())).toBe(tenge(c.refundsMinor));
-  // учёта расходов в модели нет — плитки с прочерком тоже нет (решение владельца 03.10)
-  await expect(page.getByTestId('owner-expenses')).toHaveCount(0);
+  expect(digits(await page.getByTestId('owner-paid').locator('strong').innerText())).toBe(
+    tenge(c.payments.totalMinor),
+  );
+  for (const id of ['owner-refunds', 'owner-net-cash', 'owner-charged'])
+    await expect(page.getByTestId(id)).toHaveCount(0);
+  // Неизвестный расход или остаток не подменяется возвратом либо нулём.
+  for (const id of ['owner-expenses', 'owner-cash', 'owner-total'])
+    await expect(page.getByTestId(id)).toContainText('Нет данных');
   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
 });
 test('финансы будущего периода не скрывают текущие риски', async ({ page }) => {

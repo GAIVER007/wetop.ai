@@ -15,8 +15,9 @@ export async function OnboardingGate() {
   const postponed = Boolean((await cookies()).get(ONBOARDING_LATER_COOKIE)?.value);
   // Путь, где гейт вообще работает; отложенный онбординг проверяется ниже — объекта может не быть вовсе
   if (!needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false })) return null;
-  const { vertical } = await deskShell();
-  if (vertical === 'BEAUTY') return null;
+  const { vertical, access } = await deskShell();
+  if(access.unknown)return null;
+  if (vertical !== 'HOSPITALITY') return null;
   // Берём те же настройки, что и шапка объекта (кэшируются на рендер) — отдельного рейса гейт не делает
   const settings = await hotelApi.settings().catch((e: unknown) => {
     if (e instanceof ApiError) return e;

@@ -59,10 +59,17 @@ test('строка вкладок в шапке: порядок, одна акт
   // бокового меню больше нет: все разделы в шапке
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
-  // вкладки стоят второй строкой, под поиском
+  // Утверждённая owner Главная скрывает поиск; вкладки остаются под верхней строкой.
+  await expect(header.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  const row = await header.locator('.workspace-header__row').boundingBox();
+  const homeTab = await menu.locator('.topmenu__tab').first().boundingBox();
+  expect(homeTab!.y).toBeGreaterThanOrEqual(row!.y + row!.height - 1);
+  // Прежняя проверка поиска сохраняется на Календаре, где поиск доступен.
+  await page.goto('/chessboard');
   const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
   const first = await menu.locator('.topmenu__tab').first().boundingBox();
   expect(first!.y).toBeGreaterThanOrEqual(search!.y + search!.height - 1);
+  await page.goto('/today');
   // в разметке каждый раздел ровно один раз, включая пункты закрытых списков
   const links = await menu
     .locator('a')

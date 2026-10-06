@@ -185,7 +185,7 @@ test('форма брони на телефоне: крупные поля, со
 });
 
 for (const width of [360, 390, 430]) {
-  test(`статистика ${width}: шесть показателей перед календарём и вертикальная прокрутка`, async ({
+  test(`статистика ${width}: виджеты дня перед календарём и вертикальная прокрутка`, async ({
     page,
     request,
   }) => {
@@ -196,7 +196,9 @@ for (const width of [360, 390, 430]) {
     for (const id of [
       'arrivals',
       'departures',
-      'tasks',
+      'inhouse',
+      'noshow',
+      'hot',
       'free',
       'units',
       'occupied',
@@ -208,8 +210,9 @@ for (const width of [360, 390, 430]) {
       await request.get(`${FIXTURE_API}/desk/today`, { headers: { 'x-wetop-test-client': '1' } })
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
-    await expect(stats.getByText('Проживания')).toHaveCount(0);
-    await expect(stats.getByText('Дни рождения')).toHaveCount(0);
+    await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(stats.getByTestId('day-birthdays')).toHaveCount(0);
+    await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
@@ -264,7 +267,16 @@ test('календарь возвращает обе позиции после �
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBe(0);
+  await expect
+    .poll(() =>
+      wrap.evaluate((el) => {
+        const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
+        const units = el.querySelector('thead th')!.getBoundingClientRect();
+        return Math.abs(today.left - units.right);
+      }),
+    )
+    .toBeLessThanOrEqual(2);
+  await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBe(0);
 });
 
 test('мобильная форма: ввод гостя на низком экране не перекрыт действиями', async ({

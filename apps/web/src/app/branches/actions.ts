@@ -1,4 +1,5 @@
 'use server';
+import { landingForVertical } from '../../lib/vertical-landing';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -23,7 +24,7 @@ export async function selectBranch(form: FormData) {
   );
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
-  if (branch.vertical === 'BEAUTY') redirect('/calendar');
+  if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))

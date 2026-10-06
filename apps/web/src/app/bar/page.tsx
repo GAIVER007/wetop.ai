@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../lib/api';
 import { hotelToday } from '../../lib/hotel-api';
@@ -18,6 +19,7 @@ import './bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 export default async function BarPage() {
+  await requireVertical(['HOSPITALITY']);
   const [categories, products, suppliers, receipts, stock, sales, folios, movements, report, today] = await Promise.all([
     settle(barApi.categories()), settle(barApi.products()), settle(barApi.suppliers()), settle(barApi.receipts()), settle(barApi.stock()), settle(barApi.sales()), settle(barApi.folios()), settle(barApi.movements()), settle(barApi.report()), hotelToday(),
   ]);

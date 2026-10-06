@@ -2,8 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * Страница `/guests/birthdays` использует уже хранимую дату рождения гостя. Календарь показывает
- * только количество, а подробности остаются на отдельной странице.
+ * Страница `/guests/birthdays` использует уже хранимую дату рождения гостя. Календарь не показывает
+ * этот показатель; подробности остаются на отдельной странице.
  */
 const API = FIXTURE_API;
 const H = { 'x-wetop-test-client': '1' };
@@ -12,7 +12,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`, { headers: H });
 });
 
-test('дни рождения доступны на отдельной странице, но не дублируются в календаре', async ({
+test('календарь исключает дни рождения, отдельная страница раскрывает детали', async ({
   page,
   request,
 }) => {
@@ -31,7 +31,9 @@ test('дни рождения доступны на отдельной стра�
   await expect(panel.getByText('Дни рождения')).toHaveCount(0);
   const panelBox = (await panel.boundingBox())!;
   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
-  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(navBox.x);
+  expect(panelBox.x + panelBox.width <= navBox.x || panelBox.y + panelBox.height <= navBox.y).toBe(
+    true,
+  );
   await page.goto('/guests/birthdays');
   await expect(page).toHaveURL(/\/guests\/birthdays$/);
   const todaySection = page.getByRole('region', { name: 'Сегодня' });
@@ -50,9 +52,9 @@ test('дни рождения доступны на отдельной стра�
 
 test('нет дат рождения: отдельная страница говорит, что в неделю пусто', async ({ page }) => {
   await page.goto('/chessboard');
-  await expect(
-    page.getByRole('group', { name: 'Сегодня на объекте' }).getByText('Дни рождения'),
-  ).toHaveCount(0);
+  const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
   await page.goto('/guests/birthdays');
   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
 });

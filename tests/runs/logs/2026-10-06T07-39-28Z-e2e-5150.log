@@ -1,0 +1,158 @@
+# Сквозные (e2e) · 06.10.2026 12:39 Алматы · MacBook-Air-Urij.local
+# коммит abe4500 (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/today-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:82082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to install `Date` class extension. When using `cacheComponents`, APIs that read the current time will not correctly trigger dynamic behavior.
+[WebServer] (node:82141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:82145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/today-ui/today.spec.ts:12:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation (3.5s)
+  ✓  2 tests/today-ui/today.spec.ts:31:1 › pagination and mandatory-source failure (1.5s)
+  ✘  3 tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility (4.3s)
+
+
+  1) tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility ─────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e7e8e9",
+    +               "contrastRatio": 4.18,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#5e6f85",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.18 (foreground color: #5e6f85, background color: #e7e8e9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"workspace-search\" data-tour=\"search\" aria-label=\"Найти бронирование\">",
+    +                 "target": Array [
+    +                   ".workspace-search",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.18 (foreground color: #5e6f85, background color: #e7e8e9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"workspace-search-short\" aria-hidden=\"true\">Поиск</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".workspace-search-short",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#d4e0ed",
+    +               "contrastRatio": 4.25,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#0e66c1",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.25 (foreground color: #0e66c1, background color: #d4e0ed, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"is-active\" aria-current=\"page\" href=\"/today\">",
+    +                 "target": Array [
+    +                   ".is-active",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.25 (foreground color: #0e66c1, background color: #d4e0ed, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span>Главная</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".is-active > span",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      43 |    await page.screenshot({path:`reports/mv8-vertical-today-20261006/screenshots/${vertical}-${theme}-${width}.png`,fullPage:true});
+      44 |    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    > 45 |    expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+         |                                                                ^
+      46 |   }
+      47 |  }
+      48 |  await request.post(`${api}/__test/cleanup`);
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:45:64
+
+    Error Context: test-results/today-12-real-API-screenshots-and-accessibility/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility ──────────────────
+  2 passed (14.8s)
+
+# код выхода 1 · 16 с

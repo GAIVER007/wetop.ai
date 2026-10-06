@@ -1,0 +1,17 @@
+# Модульные (unit) · 06.10.2026 12:46 Алматы · MacBook-Air-Urij.local
+# коммит abe4500 (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T07-46-36Z-unit-2b86.json' 'apps/web/src/lib/today-loaders.test.ts' 'apps/web/src/app/branches/switch.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 24ms
+ ✓ |unit| apps/web/src/lib/today-loaders.test.ts (7 tests) 31ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  11:46:37
+   Duration  556ms (transform 72%, import 16%, tests 10%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T07-46-36Z-unit-2b86.json
+
+# код выхода 0 · 2 с

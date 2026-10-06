@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
-import { hotelApi } from '../../lib/hotel-api';
 import { SCOPE_COOKIE } from '../../lib/scope-pointer';
 
 export async function selectBranch(form: FormData) {
@@ -24,11 +23,7 @@ export async function selectBranch(form: FormData) {
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
   if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
-  redirect(
-    branch._count.inventoryUnits
-      ? landingForVertical(branch.vertical)
-      : '/onboarding',
-  );
+  redirect(branch._count.inventoryUnits ? landingForVertical(branch.vertical) : '/onboarding');
 }
 export async function createBranch(
   _prev: { error?: string; message?: string } | null,
@@ -68,8 +63,7 @@ export async function branchChoices() {
         item.locationId === me.context?.locationId &&
         item.location.businessId === me.context?.businessId,
     );
-    const currentId =
-      selected?.id ?? (me.context?.businessId ? null : (await hotelApi.settings()).property.id);
+    const currentId = selected?.id ?? null;
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
       currentId,

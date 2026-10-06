@@ -1,6 +1,6 @@
 # MV8: Vertical Today
 
-Статус: утверждён владельцем, реализация разрешена 05.10.2026. STOP по обязательному Food /branches contract; reports/mv8-contract-impact-20261005.md.
+Статус: утверждён владельцем, реализация разрешена 05.10.2026. Возобновлён после merge unblock #248 (dd763f5c).
 Основание: полное ТЗ владельца MV8, 05.10.2026.
 
 ## Старт и AS-IS
@@ -32,7 +32,7 @@ Food получает verified selected Location timezone, фиксирует о
 
 ## Последовательность, acceptance и verification
 
-- [ ] 1. Подготовить изолированный fresh-main clone и PostgreSQL. Evidence: clean tree, base SHA, пустые locks, Node major, UTF8, только localhost URLs. Сверить scope и фактический API contract; отсутствие обязательного contract означает impact report до реализации.
+- [x] 1. Подготовить изолированный fresh-main clone и PostgreSQL. Evidence: clean tree, base SHA, пустые locks, Node major, UTF8, только localhost URLs. Сверить scope и фактический API contract; отсутствие обязательного contract означает impact report до реализации.
 - [x] 2. Создать pure Beauty metric builder и RED/GREEN tests. planned=BOOKED+CONFIRMED, confirmed=CONFIRMED, done=DONE, masters=columns.length. Attention BOOKED/NO_SHOW; upcoming сначала endMinutes>currentLocalMinute, затем уже прошедшие, максимум 5, startMinutes ASC внутри групп. CANCELLED не входит в planned. Scope: builder + focused test.
 - [x] 3. Создать pure Food metric builder и RED/GREEN tests. planned/completed/unassigned/BOOKED/NO_SHOW считаются только для начавшихся local today. SEATED list/count только для operational [startsAt,endsAt) текущего instant из объединённых дней. freeNow=active tables в active areas минус distinct занятые active table IDs. Terminal не занимает стол. Upcoming BOOKED/CONFIRMED, startsAt ASC, максимум 5. Scope: builder + focused test.
 - [ ] 4. Минимальные loaders. Проверить UTC date != local date, previous-day SEATED 23:30–01:30 при now 00:30, >100 reservations, duplicate IDs, повтор cursor/сломанный response/partial failure. RED/GREEN unit и реальные scoped API reads. Scope: loaders, tests, existing date/pagination reuse.

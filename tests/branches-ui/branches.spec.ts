@@ -52,14 +52,14 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
     ),
   ).toBe(`business=${f.business};location=${f.locations[1]}`);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+  await expect(page.getByTestId('food-today')).toBeVisible();
   await choose(page, 'Другой тестовый бизнес');
   await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
     'Другой тестовый бизнес',
   );
   await choose(page, 'Тестовый салон');
-  await expect(page).toHaveURL(/\/calendar$/);
-  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to Today.

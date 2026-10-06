@@ -39,3 +39,12 @@ describe('оболочка стойки: кто вошёл', () => {
     });
   });
 });
+
+it('MV8 invalid server context never becomes Hospitality shell', async () => {
+  me.mockResolvedValue({
+    user: { email: 'test@example.invalid', name: null, role: 'OWNER' },
+    context: { scope: 'ORGANIZATION', vertical: null, businessId: null, locationId: null },
+  });
+  const { deskShell } = await import('./desk-shell');
+  expect((await deskShell()).access.unknown).toBe(true);
+});

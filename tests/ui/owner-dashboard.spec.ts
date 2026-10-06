@@ -3,7 +3,8 @@ import { FIXTURE_API, expect, test } from './fixtures';
 /* Компактная Главная владельца: загрузка, деньги и события дня. */
 const fixture = FIXTURE_API;
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent('business=33333333-3333-4333-8333-333333333333;location=22222222-2222-4222-8222-222222222222'),domain:'127.0.0.1',path:'/'}]);
   await request.post(`${fixture}/__test/reset`);
 });
 test('owner dashboard: compact owner metrics and operational widgets', async ({ page }) => {

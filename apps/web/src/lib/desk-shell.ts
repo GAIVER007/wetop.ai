@@ -16,7 +16,16 @@ export const currentMe = cache(() => authApi.me());
  */
 export async function deskShell(): Promise<DeskShell> {
   try {
-    return deskShellOf(await currentMe());
+    const me = await currentMe();
+    if (
+      'context' in me &&
+      (!me.context?.vertical || !me.context.businessId || !me.context.locationId)
+    )
+      return UNKNOWN_SHELL;
+    return {
+      ...deskShellOf(me),
+      scopeKey: `${me.context?.businessId ?? ''}:${me.context?.locationId ?? ''}`,
+    };
   } catch (error) {
     unstable_rethrow(error);
     return UNKNOWN_SHELL;

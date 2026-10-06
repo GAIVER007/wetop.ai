@@ -50,6 +50,18 @@ export function TopNav({
   const beauty = shell?.vertical === 'BEAUTY';
   const food = shell?.vertical === 'FOOD_SERVICE';
   const hospitality = !beauty && !food && !shell?.access.unknown;
+  const [blockedScope, setBlockedScope] = useState<string | null>(null);
+  const scopePending = blockedScope !== null && blockedScope === (shell?.scopeKey ?? '');
+  useEffect(() => {
+    const begin = () => setBlockedScope(shell?.scopeKey ?? '');
+    const failed = () => setBlockedScope(null);
+    window.addEventListener('wetop-scope-switch', begin);
+    window.addEventListener('wetop-scope-switch-failed', failed);
+    return () => {
+      window.removeEventListener('wetop-scope-switch', begin);
+      window.removeEventListener('wetop-scope-switch-failed', failed);
+    };
+  }, [shell?.scopeKey]);
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
@@ -96,7 +108,7 @@ export function TopNav({
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   return (
     <DataFreshnessProvider enabled={hospitality}>
-      <div className="workspace">
+      <div className="workspace" data-scope-switching={scopePending || undefined}>
         <a className="skip-link" href="#main-content">
           К содержимому
         </a>
@@ -238,7 +250,14 @@ export function TopNav({
               <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
             </div>
           )}
-          {children}
+          {scopePending ? (
+            <main id="main-content" tabIndex={-1} className="page">
+              <h1>Главная</h1>
+              <p role="status">Переключаем филиал…</p>
+            </main>
+          ) : (
+            children
+          )}
         </div>
         {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">

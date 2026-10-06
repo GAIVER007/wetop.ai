@@ -1,0 +1,85 @@
+# Модульные (unit) · 06.10.2026 12:46 Алматы · MacBook-Air-Urij.local
+# коммит abe4500 (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T07-46-21Z-unit-217e.json' 'apps/web/src/lib/today-loaders.test.ts' 'apps/web/src/app/branches/switch.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ❯ |unit| apps/web/src/app/branches/switch.test.ts (11 tests | 1 failed) 32ms
+   ✓ переключение завершённого филиала ведёт на Главную из /chessboard 20ms
+   ✓ переключение завершённого филиала ведёт на Главную из /reservations/other-branch-booking 0ms
+   ✓ переключение завершённого филиала ведёт на Главную из /guests/other-guest 0ms
+   ✓ переключение завершённого филиала ведёт на Главную из /finance?folioId=old 0ms
+   ✓ переключение завершённого филиала ведёт на Главную из https://outside.test 0ms
+   ✓ переключение завершённого филиала ведёт на Главную из //outside.test 0ms
+   ✓ чужой филиал не меняет cookie 0ms
+   ✓ canonical landing for verified FOOD_SERVICE branch ignores old vertical route 0ms
+   ✓ canonical landing for verified BEAUTY branch ignores old vertical route 0ms
+   ✓ unfinished Hospitality still opens onboarding 0ms
+   × branch choices do not guess Hospitality when the server has no Location scope 8ms
+ ❯ |unit| apps/web/src/lib/today-loaders.test.ts (7 tests | 1 failed) 38ms
+   ✓ MV8 verified scope (1)
+     ✓ rejects absent/auth fallback/invalid scope before domain calls 2ms
+   ❯ MV8 minimal loaders (6)
+     ✓ uses server Beauty day without query date, local minutes and location check 24ms
+     ✓ bounded reread on midnight, fails closed if still inconsistent 1ms
+     ✓ does not turn invalid timezone/partial Beauty response into facts 1ms
+     × rejects malformed Beauty rows and master labels instead of displaying zero facts 7ms
+     ✓ fully paginates both local days and deduplicates IDs without catalogue reads 1ms
+     ✓ fails for broken pagination and any required source 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/today-loaders.test.ts > MV8 minimal loaders > rejects malformed Beauty rows and master labels instead of displaying zero facts
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "day": {
++     "appointments": [
++       {},
++     ],
++     "columns": [],
++     "date": "2026-10-05",
++     "location": {
++       "id": "l",
++       "timezone": "Asia/Dubai",
++     },
++   },
++   "minute": 30,
+  }
+
+ ❯ apps/web/src/lib/today-loaders.test.ts:17:242
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > branch choices do not guess Hospitality when the server has no Location scope
+AssertionError: expected { Object (items, currentId) } to match object { currentId: null }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "currentId": null,
++   "currentId": "legacy",
+  }
+
+ ❯ apps/web/src/app/branches/switch.test.ts:79:283
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 16 passed (18)
+   Start at  11:46:22
+   Duration  588ms (transform 71%, import 15%, tests 12%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T07-46-21Z-unit-217e.json
+
+# код выхода 1 · 2 с

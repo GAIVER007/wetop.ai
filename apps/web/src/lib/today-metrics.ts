@@ -12,7 +12,14 @@ export function beautyTodayMetrics(day: BeautyDay, minute: number) {
     masters: day.columns.length,
     confirmation: day.appointments.filter((r) => r.status === 'BOOKED'),
     noShow: day.appointments.filter((r) => r.status === 'NO_SHOW').length,
-    upcoming: active.sort((a, b) => Number(b.endMinutes > minute) - Number(a.endMinutes > minute) || a.startMinutes - b.startMinutes || a.id.localeCompare(b.id)).slice(0, 5),
+    upcoming: active
+      .sort(
+        (a, b) =>
+          Number(b.endMinutes > minute) - Number(a.endMinutes > minute) ||
+          a.startMinutes - b.startMinutes ||
+          a.id.localeCompare(b.id),
+      )
+      .slice(0, 5),
   };
 }
 
@@ -29,9 +36,17 @@ export function foodTodayMetrics(
   const today = all.filter((r) => clock.date(r.startsAt) === date);
   const active = today.filter((r) => r.status === 'BOOKED' || r.status === 'CONFIRMED');
   const activeAreas = new Set(areas.filter((a) => a.active).map((a) => a.id));
-  const activeTables = new Set(tables.filter((t) => t.active && activeAreas.has(t.areaId)).map((t) => t.id));
-  const occupied = new Set(all.filter((r) => occupiedAt(r, now.toISOString()) && r.table && activeTables.has(r.table.id)).map((r) => r.table!.id));
-  const seated = all.filter((r) => r.status === 'SEATED' && occupiedAt(r, now.toISOString())).sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt) || a.id.localeCompare(b.id));
+  const activeTables = new Set(
+    tables.filter((t) => t.active && activeAreas.has(t.areaId)).map((t) => t.id),
+  );
+  const occupied = new Set(
+    all
+      .filter((r) => occupiedAt(r, now.toISOString()) && r.table && activeTables.has(r.table.id))
+      .map((r) => r.table!.id),
+  );
+  const seated = all
+    .filter((r) => r.status === 'SEATED' && occupiedAt(r, now.toISOString()))
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt) || a.id.localeCompare(b.id));
   return {
     date,
     planned: active.length,
@@ -42,6 +57,8 @@ export function foodTodayMetrics(
     unassigned: active.filter((r) => !r.table),
     confirmation: today.filter((r) => r.status === 'BOOKED'),
     seated: seated.slice(0, 5),
-    upcoming: active.sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt) || a.id.localeCompare(b.id)).slice(0, 5),
+    upcoming: active
+      .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt) || a.id.localeCompare(b.id))
+      .slice(0, 5),
   };
 }

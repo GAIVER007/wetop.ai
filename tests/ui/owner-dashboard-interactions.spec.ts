@@ -1,7 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent('business=33333333-3333-4333-8333-333333333333;location=22222222-2222-4222-8222-222222222222'),domain:'127.0.0.1',path:'/'}]);
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 

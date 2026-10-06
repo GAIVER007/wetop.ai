@@ -6,16 +6,32 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { HospitalityToday } from './hospitality';
+import { TodayScopeContent } from './scope-content';
 import { BeautyToday, FoodToday } from './vertical-today';
 
 export default async function TodayPage(props: { searchParams: Promise<SearchParams> }) {
   try {
     const scope = verifiedTodayScope(await currentMe());
-    if (scope.vertical === 'BEAUTY') return <BeautyToday locationId={scope.locationId} />;
-    if (scope.vertical === 'FOOD_SERVICE') return <FoodToday />;
-    return <HospitalityToday {...props} />;
+    const scopeKey = `${scope.businessId}:${scope.locationId}`;
+    const content =
+      scope.vertical === 'BEAUTY' ? (
+        <BeautyToday locationId={scope.locationId} />
+      ) : scope.vertical === 'FOOD_SERVICE' ? (
+        <FoodToday />
+      ) : (
+        <HospitalityToday {...props} />
+      );
+    return (
+      <TodayScopeContent key={scopeKey} scopeKey={scopeKey}>
+        {content}
+      </TodayScopeContent>
+    );
   } catch (error) {
     unstable_rethrow(error);
-    return <Page title="Главная"><LoadError testId="today-scope-error" {...loadErrorProps(error)} /></Page>;
+    return (
+      <Page title="Главная">
+        <LoadError testId="today-scope-error" {...loadErrorProps(error)} />
+      </Page>
+    );
   }
 }

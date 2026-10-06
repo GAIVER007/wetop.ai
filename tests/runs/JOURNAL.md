@@ -6551,3 +6551,4 @@
 | 06.10.2026 13:37 | lint | ✅ без ошибок | 24 с | a8359c3 | [лог](logs/2026-10-06T08-37-03Z-lint-9eb8.log) | candidate release+search |
 | 06.10.2026 13:37 | unit | ✅ 3377 из 3380, пропущено 3 | 1 мин 43 с | a8359c3 | [лог](logs/2026-10-06T08-37-28Z-unit-77cb.log) | candidate release+search |
 | 06.10.2026 13:39 | integration | ✅ 734 из 734 | 1 мин 32 с | a8359c3 | [лог](logs/2026-10-06T08-39-27Z-integration-6c9b.log) | candidate release+search, local db |
+| 06.10.2026 13:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-channels.spec.ts tests/ui/availability-gate.spec.ts tests/ui/beauty-branch. | ✅ 465 из 465 | 30 мин 34 с | a8359c3 | [лог](logs/2026-10-06T08-41-09Z-e2e-aab7.log) | regression: release features + touched screens |

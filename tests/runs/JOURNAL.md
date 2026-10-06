@@ -6746,3 +6746,6 @@
 | 06.10.2026 18:29 | integration | ✅ 767 из 767 | 2 мин 6 с | 8526d50 +5 | [лог](logs/2026-10-06T13-29-17Z-integration-844b.log) | MKT1B review: full integration, fresh base, deterministic seed property in tables-role |
 | 06.10.2026 18:31 | typecheck | ✅ без ошибок | 40 с | 8526d50 +5 | [лог](logs/2026-10-06T13-31-31Z-typecheck-e0f4.log) | MKT1B review final |
 | 06.10.2026 18:32 | lint | ✅ без ошибок | 36 с | 8526d50 +5 | [лог](logs/2026-10-06T13-32-12Z-lint-47a2.log) | MKT1B review final |
+| 06.10.2026 18:54 | typecheck | ✅ без ошибок | 53 с | 6cb82c3 | [лог](logs/2026-10-06T13-54-24Z-typecheck-642b.log) | tree merged with main c020f9f9 (PR #211) |
+| 06.10.2026 18:55 | lint | ✅ без ошибок | 33 с | 6cb82c3 | [лог](logs/2026-10-06T13-55-17Z-lint-fe6f.log) | tree merged with main c020f9f9 (PR #211) |
+| 06.10.2026 18:55 | unit | ✅ 3424 из 3427, пропущено 3 | 1 мин 57 с | 6cb82c3 | [лог](logs/2026-10-06T13-55-51Z-unit-94b3.log) | tree merged with main c020f9f9 (PR #211) |

@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 06.10.2026 17:33 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-33-44Z-integration-f9f7.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (4 tests | 2 failed) 679ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (4)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 12ms
+     × BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 16ms
+     × BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний 15ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 73ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A
+NotFoundException: бронирование с сайта для этого объекта пока не подключено
+ ❯ WebBookingService.assertServingProperty apps/api/src/web-booking/web-booking.service.ts:609:47
+    607|     // Тот же объект видит и репозиторий брони в этом контексте: иначе…
+    608|     const serving = await asSite(verified, () => this.uow.read((repo) …
+    609|     if (serving.id !== site.propertyId) throw new NotFoundException(me…
+       |                                               ^
+    610|     return verified;
+    611|   }
+ ❯ WebBookingService.quote apps/api/src/web-booking/web-booking.service.ts:182:18
+ ❯ tests/integration/web-booking-exact-property.test.ts:219:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний
+NotFoundException: котировка для объекта этого агента пока не подключена
+ ❯ WebBookingService.assertServingProperty apps/api/src/web-booking/web-booking.service.ts:609:47
+    607|     // Тот же объект видит и репозиторий брони в этом контексте: иначе…
+    608|     const serving = await asSite(verified, () => this.uow.read((repo) …
+    609|     if (serving.id !== site.propertyId) throw new NotFoundException(me…
+       |                                               ^
+    610|     return verified;
+    611|   }
+ ❯ WebBookingService.quoteForAgent apps/api/src/web-booking/web-booking.service.ts:236:18
+ ❯ tests/integration/web-booking-exact-property.test.ts:232:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  12:33:45
+   Duration  5.25s (transform 56%, import 24%, tests 20%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-33-44Z-integration-f9f7.json
+
+# код выхода 1 · 6 с

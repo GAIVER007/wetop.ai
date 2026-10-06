@@ -3,6 +3,7 @@ import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -36,7 +37,7 @@ import { CollectService } from '../analytics/collect.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
-import { withOrganizationScope } from '../auth/request-context';
+import { withIntegrationPropertyScope, withOrganizationScope } from '../auth/request-context';
 import { TurnstileService, turnstileFailureError } from './turnstile';
 
 export interface RequestContext {
@@ -110,11 +111,27 @@ const newLimits = () => ({
 });
 
 /**
- * Расчёт и бронь сайта — от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4): без этого публичный
- * путь брал объект Luxx по имени, и сайт другой гостиницы продавал бы её номера. Ничей объект — служебный путь, как раньше.
+ * Расчёт и бронь сайта — от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4) и строго в объекте
+ * САЙТА (MKT1B BOOK-4): прежде контекст был только организацией, и репозитории брали её самый ранний объект, поэтому
+ * сайт второй гостиницы той же организации получал отказ, а без проверки продавал бы фонд первой. Объект берётся из
+ * найденной сервером строки сайта (никогда не из запроса) и проверяется `assertServingProperty` до вызова. Сайт без
+ * подтверждённой организации не работает вовсе: служебного пути «по имени объекта» у публичной брони больше нет.
  */
-const asSite = <T>(site: { organizationId?: string | null }, fn: () => Promise<T>): Promise<T> =>
-  site.organizationId ? withOrganizationScope(site.organizationId, fn) : fn();
+const asSite = <T>(
+  site: { organizationId?: string | null; propertyId: string },
+  fn: () => Promise<T>,
+): Promise<T> => {
+  if (!site.organizationId) throw new NotFoundException(SITE_NOT_SERVED);
+  const organizationId = site.organizationId;
+  return withOrganizationScope(organizationId, () =>
+    withIntegrationPropertyScope(site.propertyId, fn),
+  );
+};
+
+/** Публичный отказ, когда объект сайта не годится для брони: текст не раскрывает, что именно не так в цепочке */
+const ORGANIZATION_QUOTE_AMBIGUOUS =
+  'у организации несколько объектов с бронированием с сайта: укажите агента (agent)';
+const SITE_NOT_SERVED = 'бронирование с сайта для этого объекта пока не подключено';
 
 const addDays = (date: string, n: number): string => {
   const x = new Date(`${date}T00:00:00Z`);
@@ -181,12 +198,17 @@ export class WebBookingService {
     if ((await this.sites.salesAgentCount(organizationId)) > 1) {
       throw new BadRequestException('у организации несколько AI-продавцов: нужен agent');
     }
-    const site = await this.sites.bookingSiteForOrganization(organizationId);
-    if (!site) {
+    // MKT1B BOOK-4: у прежнего пути нет выбора филиала. Ровно один подходящий сайт — работаем строго в его объекте;
+    // больше одного — отказ, а не «самый ранний»: угаданный объект продал бы чужой фонд
+    const candidates = await this.sites.bookingSitesForOrganization(organizationId);
+    if (candidates.length === 0) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
     }
-    await this.assertServingProperty(
-      site,
+    if (candidates.length > 1) {
+      throw new ConflictException(ORGANIZATION_QUOTE_AMBIGUOUS);
+    }
+    const site = await this.assertServingProperty(
+      candidates[0]!,
       'котировка для объекта этой организации пока не подключена',
     );
     if (!this.limits.botQuotePerOrg.allow(organizationId, now.getTime())) {
@@ -207,11 +229,14 @@ export class WebBookingService {
    * Несуществующий, архивный и чужой агент отвечают одинаково.
    */
   async quoteForAgent(agentId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
-    const site = await this.sites.bookingSiteForAgent(agentId);
-    if (!site) {
+    const found = await this.sites.bookingSiteForAgent(agentId);
+    if (!found) {
       throw new NotFoundException('у агента нет сайта с включённым бронированием');
     }
-    await this.assertServingProperty(site, 'котировка для объекта этого агента пока не подключена');
+    const site = await this.assertServingProperty(
+      found,
+      'котировка для объекта этого агента пока не подключена',
+    );
     if (!this.limits.botQuotePerOrg.allow(`agent:${agentId}`, now.getTime())) {
       throw new HttpException(
         'слишком много котировок, попробуйте позже',
@@ -553,11 +578,7 @@ export class WebBookingService {
     if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
-    await this.assertServingProperty(
-      site,
-      'бронирование с сайта для этого объекта пока не подключено',
-    );
-    return site;
+    return this.assertServingProperty(site, SITE_NOT_SERVED);
   }
 
   /**
@@ -565,11 +586,28 @@ export class WebBookingService {
    * (служебный контекст). Сайт другого объекта показывал бы цены и места Luxx и заводил брони своих гостей в фонде
    * Luxx (аудит 26.09, В-4; Q-194, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
    */
-  private async assertServingProperty(site: SiteRecord, message: string): Promise<void> {
-    // От имени организации сайта (план tenant-isolation-2026-09-26 п. 4): без этого чтение шло служебным путём и
-    // сравнивало с Luxx по имени, а не с объектом организации сайта, — второй объект отваливался этой же проверкой.
-    const serving = await asSite(site, () => this.uow.read((repo) => repo.property()));
-    if (site.propertyId !== serving.id) throw new NotFoundException(message);
+  private async assertServingProperty(site: SiteRecord, message: string): Promise<SiteRecord> {
+    // MKT1B BOOK-4: объект сайта и его цепочка, а не «самый ранний объект организации». Цепочка читается без арендатора:
+    // чужую политика RLS спрятала бы, а отказ должен быть явным. Годится только действующая цепочка Hospitality одной
+    // организации; её организация и становится контекстом расчёта и брони.
+    const chain = await this.sites.servingChain(site.propertyId);
+    const organizationId = chain?.propertyOrganizationId ?? null;
+    if (
+      !chain ||
+      !organizationId ||
+      chain.locationStatus !== 'ACTIVE' ||
+      chain.businessStatus !== 'ACTIVE' ||
+      chain.vertical !== 'HOSPITALITY' ||
+      chain.businessOrganizationId !== organizationId ||
+      (site.organizationId != null && site.organizationId !== organizationId)
+    ) {
+      throw new NotFoundException(message);
+    }
+    const verified: SiteRecord = { ...site, organizationId };
+    // Тот же объект видит и репозиторий брони в этом контексте: иначе цены и бронь ушли бы в другой
+    const serving = await asSite(verified, () => this.uow.read((repo) => repo.property()));
+    if (serving.id !== site.propertyId) throw new NotFoundException(message);
+    return verified;
   }
 
   /**

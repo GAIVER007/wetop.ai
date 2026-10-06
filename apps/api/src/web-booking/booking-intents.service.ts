@@ -10,12 +10,16 @@ import {
 } from '@nestjs/common';
 import { guestForStorage } from '@pms/shared';
 import { ANALYTICS_REPOSITORY, type AnalyticsRepository } from '../analytics/analytics.repository';
-import { withOrganizationScope } from '../auth/request-context';
+import { withIntegrationPropertyScope, withOrganizationScope } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 import type { ReservationCard } from '../reservations/reservation-card';
 import { WebBookingService } from './web-booking.service';
+
+/** Организация и объект брони ИИ-продавца (MKT1B BOOK-4): объект — из строки агента или предложения, не из запроса */
+const withPropertyOf = <T>(organizationId: string, propertyId: string, fn: () => Promise<T>): Promise<T> =>
+  withOrganizationScope(organizationId, () => withIntegrationPropertyScope(propertyId, fn));
 
 /** Срок котировки из чата: решение владельца 01.10.2026 (Q-SELLER-QUOTE-TTL) */
 export const INTENT_TTL_MS = 30 * 60_000;
@@ -98,7 +102,8 @@ export class BookingIntentsService {
     if (cat.available <= 0) throw new ConflictException(`«${cat.name}»: мест на эти даты нет`);
     if (cat.totalMinor === null)
       throw new ConflictException(`«${cat.name}»: цена на эти даты не задана`);
-    const typeId = await withOrganizationScope(site.organizationId, () =>
+    // MKT1B BOOK-4: категория, бронь и сводка — строго в объекте филиала агента, не в самом раннем объекте организации
+    const typeId = await withPropertyOf(site.organizationId, site.propertyId, () =>
       this.uow.read(
         async (repo) => (await repo.activeCategories()).find((c) => c.code === cat.code)?.id,
       ),
@@ -179,7 +184,13 @@ export class BookingIntentsService {
     });
     if (!row) throw new NotFoundException(NOT_FOUND);
     if (row.state === 'CONFIRMED' && row.reservation)
-      return this.summary(row.organizationId, row.reservation.confirmationNumber, row.adults, true);
+      return this.summary(
+        row.organizationId,
+        row.propertyId,
+        row.reservation.confirmationNumber,
+        row.adults,
+        true,
+      );
     if (row.state === 'REJECTED') throw new ConflictException(STALE);
     if (row.expiresAt.getTime() <= now.getTime()) {
       await this.reject(row.id);
@@ -208,7 +219,7 @@ export class BookingIntentsService {
     const guest = guestForStorage({ firstName, lastName, phone, email }, `seller:${row.id}`);
     let card: ReservationCard;
     try {
-      card = (await withOrganizationScope(row.organizationId, () =>
+      card = (await withPropertyOf(row.organizationId, row.propertyId, () =>
         this.reservations.create(
           {
             source: CHANNEL_SOURCE[channel],
@@ -279,11 +290,12 @@ export class BookingIntentsService {
 
   private async summary(
     organizationId: string,
+    propertyId: string,
     confirmationNumber: string,
     adults: number,
     replay: boolean,
   ): Promise<IntentBooking> {
-    const card = await withOrganizationScope(organizationId, () =>
+    const card = await withPropertyOf(organizationId, propertyId, () =>
       this.uow.read((repo) => repo.card(confirmationNumber)),
     );
     if (!card) throw new NotFoundException(NOT_FOUND);

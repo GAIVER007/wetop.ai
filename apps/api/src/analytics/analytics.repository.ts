@@ -15,6 +15,15 @@ import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 /** Сайт со счётчиком (DATA_MODEL §11 TrackedSite) плюс пояс объекта — для границ периода. */
+/** Цепочка объекта публичного сайта (MKT1B BOOK-4): по ней сайт проверяется до любой работы с ценами и бронью */
+export interface ServingChain {
+  propertyOrganizationId: string | null;
+  locationStatus: 'ACTIVE' | 'ARCHIVED';
+  businessStatus: 'ACTIVE' | 'ARCHIVED';
+  vertical: string;
+  businessOrganizationId: string;
+}
+
 export interface SiteRecord {
   id: string;
   propertyId: string;
@@ -90,9 +99,18 @@ export interface AnalyticsRepository {
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
   /** Все сайты всех объектов — только для приёмника счётчика: ключ → сайт одним запросом, без поиска на каждый ключ */
   allSites(): Promise<SiteRecord[]>;
-  /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
-   * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
-  bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
+  /**
+   * Сайты бронирования организации для прежней котировки продавца без агента (Q-166, ADR-085): ACTIVE, бронь включена,
+   * тариф задан, цепочка объекта действует (филиал и Business ACTIVE, Business HOSPITALITY той же организации). Отдаёт
+   * не больше двух: вызывающему нужно знать только «ни одного, ровно один или неоднозначно» (MKT1B BOOK-4)
+   */
+  bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]>;
+  /**
+   * Цепочка объекта сайта: организация объекта, состояние филиала и Business, вертикаль, организация Business
+   * (MKT1B BOOK-4). Читается без арендатора: чужую цепочку политика RLS спрятала бы, а отказ должен быть явным.
+   * `null` — объекта нет
+   */
+  servingChain(propertyId: string): Promise<ServingChain | null>;
   /** Строка агента для области запроса (SA2.5); `null` — агента нет или он в архиве */
   agentScope(agentId: string): Promise<AgentScopeRow | null>;
   /** Сайт бронирования ФИЛИАЛА агента (не организации): первый ACTIVE с включённым бронированием и тарифом на его объекте */
@@ -246,18 +264,47 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const rows = await this.prisma.db.trackedSite.findMany({ select: SITE_SELECT });
     return rows.map(toRecord);
   }
-  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
-    const r = await this.prisma.db.trackedSite.findFirst({
+  async bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]> {
+    const rows = await this.prisma.db.trackedSite.findMany({
       where: {
-        property: { organizationId },
         status: 'ACTIVE',
         bookingEnabled: true,
         bookingRatePlanId: { not: null },
+        property: {
+          organizationId,
+          location: {
+            status: 'ACTIVE',
+            business: { status: 'ACTIVE', vertical: 'HOSPITALITY', organizationId },
+          },
+        },
       },
       orderBy: { createdAt: 'asc' },
+      take: 2,
       select: SITE_SELECT,
     });
-    return r ? toRecord(r) : null;
+    return rows.map(toRecord);
+  }
+  async servingChain(propertyId: string): Promise<ServingChain | null> {
+    const p = await this.prisma.db.property.findUnique({
+      where: { id: propertyId },
+      select: {
+        organizationId: true,
+        location: {
+          select: {
+            status: true,
+            business: { select: { status: true, vertical: true, organizationId: true } },
+          },
+        },
+      },
+    });
+    if (!p) return null;
+    return {
+      propertyOrganizationId: p.organizationId,
+      locationStatus: p.location.status,
+      businessStatus: p.location.business.status,
+      vertical: p.location.business.vertical,
+      businessOrganizationId: p.location.business.organizationId,
+    };
   }
   async agentScope(agentId: string): Promise<AgentScopeRow | null> {
     const a = await this.prisma.db.sellerAgent.findFirst({

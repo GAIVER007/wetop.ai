@@ -7,6 +7,7 @@ import type {
   AgentScopeRow,
   AnalyticsRepository,
   RatePlanOption,
+  ServingChain,
   SiteRecord,
   SiteReservationRow,
   SiteStatus,
@@ -127,7 +128,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async site(id: string): Promise<SiteRecord | null> {
     return this.sitesById.get(id) ?? null;
   }
-  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
+  async bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]> {
+    const found: SiteRecord[] = [];
     for (const [siteId, org] of this.siteOrganizations) {
       const site = this.sitesById.get(siteId);
       if (
@@ -137,7 +139,25 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
         site.bookingEnabled &&
         site.bookingRatePlan
       )
-        return site;
+        found.push(site);
+    }
+    return found.slice(0, 2);
+  }
+  /** Цепочки объектов, заданные тестом; без записи — действующая цепочка организации сайта этого объекта */
+  chains = new Map<string, ServingChain | null>();
+  async servingChain(propertyId: string): Promise<ServingChain | null> {
+    if (this.chains.has(propertyId)) return this.chains.get(propertyId) ?? null;
+    for (const site of this.sitesById.values()) {
+      if (site.propertyId !== propertyId) continue;
+      const org = site.organizationId ?? this.siteOrganizations.get(site.id) ?? null;
+      if (!org) return null;
+      return {
+        propertyOrganizationId: org,
+        locationStatus: 'ACTIVE',
+        businessStatus: 'ACTIVE',
+        vertical: 'HOSPITALITY',
+        businessOrganizationId: org,
+      };
     }
     return null;
   }

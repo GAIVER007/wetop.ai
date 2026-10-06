@@ -7,6 +7,7 @@ import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
 import { ClearAssistantOnPublicEntry } from '../components/shell/assistant-widget-script';
 import { OnboardingGate } from './onboarding-gate';
+import { ScopeGate } from './scope-gate';
 import { PropertyTimeProvider } from '../components/property-time';
 import { DeskAccessProvider } from '../components/desk-access';
 import { AccessGate } from '../components/access-gate';
@@ -106,6 +107,9 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <ScopeGate />
+        </Suspense>
         <Suspense fallback={null}>
           <OnboardingGate />
         </Suspense>

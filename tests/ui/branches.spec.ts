@@ -15,7 +15,9 @@ test('филиалы: создание, сохранение после reload �
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Все филиалы', exact: true })).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+  ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -54,7 +56,9 @@ test('организации: филиал создаётся прямо в ра
   await expect(
     main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
   ).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Все филиалы', exact: true })).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+  ).toBeVisible();
   await expect(main.getByTestId('platform-organizations')).not.toBeVisible();
   await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   await expect(main.getByTestId('platform-organizations')).toBeVisible();

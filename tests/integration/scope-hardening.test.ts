@@ -15,7 +15,7 @@ import { HotelModule } from '../../apps/api/src/hotel/hotel.module';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
-import { withSignedInUser, type RequestActor } from '../../apps/api/src/auth/request-context';
+import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
 import { NoopAriPublisher } from '../../apps/api/src/channels/ari-publisher';
 import { PrismaReservationsRepository } from '../../apps/api/src/reservations/reservations.repository';
@@ -31,12 +31,19 @@ import { isLocalDatabase } from '../tools/seed-local';
  * 2. `GET /branches/overview` в смешанной организации (две гостиницы, салон, ресторан) отвечает 200 и считает только
  *    гостиничные филиалы (решение владельца: вариант A, метрики Beauty и Food относятся к MV9).
  */
+type RequestActor = Exclude<Parameters<typeof withSignedInUser>[0], string | null>;
 const url = process.env.DATABASE_URL;
 const day = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 class Rollback extends Error {}
 
-/** Гостиница с одной категорией, одним номером, одним тарифом и ценами на окно дат; цена — своя у каждой. */
-async function seedHotel(tx: DbTx, organizationId: string, name: string, price: bigint, createdAt: Date) {
+/** Гостиница с одной категорией, одним номером, одним тарифом и ценами на окно дат; цена своя у каждой. */
+async function seedHotel(
+  tx: DbTx,
+  organizationId: string,
+  name: string,
+  price: bigint,
+  createdAt: Date,
+) {
   const property = await createPropertyInChain(tx, organizationId, {
     ...NEW_PROPERTY_DEFAULTS,
     name,
@@ -45,18 +52,42 @@ async function seedHotel(tx: DbTx, organizationId: string, name: string, price: 
   });
   await tx.location.update({ where: { id: property.locationId }, data: { createdAt } });
   const type = await tx.accommodationType.create({
-    data: { propertyId: property.id, code: 'SH-DBL', name: 'Двухместный', kind: 'PRIVATE_ROOM', capacityAdults: 2, capacityChildren: 0 },
+    data: {
+      propertyId: property.id,
+      code: 'SH-DBL',
+      name: 'Двухместный',
+      kind: 'PRIVATE_ROOM',
+      capacityAdults: 2,
+      capacityChildren: 0,
+    },
   });
   const building = await tx.building.create({ data: { propertyId: property.id, name: 'Корпус' } });
   const floor = await tx.floor.create({ data: { buildingId: building.id, name: '1' } });
-  const room = await tx.physicalRoom.create({ data: { floorId: floor.id, roomNumber: '1', capacity: 2 } });
+  const room = await tx.physicalRoom.create({
+    data: { floorId: floor.id, roomNumber: '1', capacity: 2 },
+  });
   await tx.inventoryUnit.create({
-    data: { propertyId: property.id, physicalRoomId: room.id, accommodationTypeId: type.id, code: 'SH1', kind: 'ROOM', active: true },
+    data: {
+      propertyId: property.id,
+      physicalRoomId: room.id,
+      accommodationTypeId: type.id,
+      code: 'SH1',
+      kind: 'ROOM',
+      active: true,
+    },
   });
   const plan = await tx.ratePlan.create({
-    data: { propertyId: property.id, code: 'SH-BASE', name: 'Базовый', currency: 'KZT', active: true },
+    data: {
+      propertyId: property.id,
+      code: 'SH-BASE',
+      name: 'Базовый',
+      currency: 'KZT',
+      active: true,
+    },
   });
-  await tx.ratePlanAccommodationType.create({ data: { ratePlanId: plan.id, accommodationTypeId: type.id } });
+  await tx.ratePlanAccommodationType.create({
+    data: { ratePlanId: plan.id, accommodationTypeId: type.id },
+  });
   const rows = [];
   for (let i = 0; i < 60; i++)
     for (const occupancy of [1, 2])
@@ -89,28 +120,71 @@ describe.skipIf(!url)('SCOPE-HARDENING: Hospitality property follows the selecte
           const org = randomUUID();
           const user = randomUUID();
           await tx.organization.create({ data: { id: org, name: `SH-${org}`, status: 'ACTIVE' } });
-          await tx.user.create({ data: { id: user, email: `sh-${user}@example.invalid`, name: 'Тестовый владелец' } });
-          await tx.membership.create({ data: { userId: user, organizationId: org, role: 'OWNER' } });
-          const a = await seedHotel(tx, org, 'SH Гостиница A', 1_000_000n, new Date(Date.now() - 2 * 86_400_000));
-          const b = await seedHotel(tx, org, 'SH Гостиница B', 2_000_000n, new Date(Date.now() - 86_400_000));
-          const salon = await tx.business.create({ data: { organizationId: org, name: 'SH Салон', vertical: 'BEAUTY' } });
+          await tx.user.create({
+            data: { id: user, email: `sh-${user}@example.invalid`, name: 'Тестовый владелец' },
+          });
+          await tx.membership.create({
+            data: { userId: user, organizationId: org, role: 'OWNER' },
+          });
+          const a = await seedHotel(
+            tx,
+            org,
+            'SH Гостиница A',
+            1_000_000n,
+            new Date(Date.now() - 2 * 86_400_000),
+          );
+          const b = await seedHotel(
+            tx,
+            org,
+            'SH Гостиница B',
+            2_000_000n,
+            new Date(Date.now() - 86_400_000),
+          );
+          const salon = await tx.business.create({
+            data: { organizationId: org, name: 'SH Салон', vertical: 'BEAUTY' },
+          });
           const salonLocation = await tx.location.create({
-            data: { businessId: salon.id, name: 'SH Салон 1', timezone: 'Asia/Almaty', currency: 'KZT' },
+            data: {
+              businessId: salon.id,
+              name: 'SH Салон 1',
+              timezone: 'Asia/Almaty',
+              currency: 'KZT',
+            },
           });
           const locationB = await tx.location.findUniqueOrThrow({ where: { id: b.locationId } });
 
           const repo = () => new PrismaReservationsRepository(tx);
-          const uow = { run: <T>(fn: (r: PrismaReservationsRepository) => Promise<T>) => fn(repo()), read: <T>(fn: (r: PrismaReservationsRepository) => Promise<T>) => fn(repo()) };
+          const uow = {
+            run: <T>(fn: (r: PrismaReservationsRepository) => Promise<T>) => fn(repo()),
+            read: <T>(fn: (r: PrismaReservationsRepository) => Promise<T>) => fn(repo()),
+          };
           const service = new ReservationsService(uow, new NoopAriPublisher());
           const offers = new StayOffersService(uow);
-          const actor = (extra: Partial<RequestActor>): RequestActor => ({ userId: user, organizationId: org, role: 'OWNER', ...extra });
-          const inB = actor({ scope: 'LOCATION', businessId: locationB.businessId, locationId: b.locationId, vertical: 'HOSPITALITY' });
+          const actor = (extra: Partial<RequestActor>): RequestActor => ({
+            userId: user,
+            organizationId: org,
+            role: 'OWNER',
+            ...extra,
+          });
+          const inB = actor({
+            scope: 'LOCATION',
+            businessId: locationB.businessId,
+            locationId: b.locationId,
+            vertical: 'HOSPITALITY',
+          });
           const dto = {
             source: 'WALK_IN' as const,
             arrivalDate: day(10),
             departureDate: day(12),
             guest: { firstName: 'Гость', lastName: 'Тест-SH' },
-            items: [{ accommodationTypeCode: 'SH-DBL', ratePlanCode: 'SH-BASE', adults: 1, unitCode: null }],
+            items: [
+              {
+                accommodationTypeCode: 'SH-DBL',
+                ratePlanCode: 'SH-BASE',
+                adults: 1,
+                unitCode: null,
+              },
+            ],
           };
 
           await withSignedInUser(inB, async () => {
@@ -129,27 +203,43 @@ describe.skipIf(!url)('SCOPE-HARDENING: Hospitality property follows the selecte
             });
             seen['itemProperties'] = [...new Set(items.map((i) => i.accommodationType.propertyId))];
             seen['number'] = card.confirmationNumber;
-            seen['lookup'] = (await uow.read((r) => r.card(card.confirmationNumber)))?.confirmationNumber ?? null;
+            seen['lookup'] =
+              (await uow.read((r) => r.card(card.confirmationNumber)))?.confirmationNumber ?? null;
             const found = await offers.offers(day(20), day(22), '1');
             seen['offer'] = found.byCategory['SH-DBL'];
           });
           // Тот же номер брони из соседнего гостиничного филиала не открывается: брони B живут только в B
-          const inA = actor({ scope: 'LOCATION', businessId: locationB.businessId, locationId: a.locationId, vertical: 'HOSPITALITY' });
-          seen['lookupFromA'] = await withSignedInUser(inA, async () =>
-            (await uow.read((r) => r.card(String(seen['number']))))?.confirmationNumber ?? null,
+          const inA = actor({
+            scope: 'LOCATION',
+            businessId: locationB.businessId,
+            locationId: a.locationId,
+            vertical: 'HOSPITALITY',
+          });
+          seen['lookupFromA'] = await withSignedInUser(
+            inA,
+            async () =>
+              (await uow.read((r) => r.card(String(seen['number']))))?.confirmationNumber ?? null,
           );
-          // Без выбора филиала (scope организации) объект — самый ранний, детерминированно
-          seen['organization'] = await withSignedInUser(actor({ scope: 'ORGANIZATION' }), async () =>
-            (await uow.read((r) => r.property())).id,
+          // Без выбора филиала (scope организации) объект самый ранний, детерминированно
+          seen['organization'] = await withSignedInUser(
+            actor({ scope: 'ORGANIZATION' }),
+            async () => (await uow.read((r) => r.property())).id,
           );
           // Филиал без объекта (Beauty) не получает объект гостиницы
           seen['beauty'] = await withSignedInUser(
-            actor({ scope: 'LOCATION', businessId: salon.id, locationId: salonLocation.id, vertical: 'BEAUTY' }),
+            actor({
+              scope: 'LOCATION',
+              businessId: salon.id,
+              locationId: salonLocation.id,
+              vertical: 'BEAUTY',
+            }),
             async () =>
-              uow.read((r) => r.property()).then(
-                (p) => `fallback:${p.id}`,
-                (e: unknown) => (e instanceof NotFoundException ? 'not-found' : String(e)),
-              ),
+              uow
+                .read((r) => r.property())
+                .then(
+                  (p) => `fallback:${p.id}`,
+                  (e: unknown) => (e instanceof NotFoundException ? 'not-found' : String(e)),
+                ),
           );
           seen['a'] = a.id;
           seen['b'] = b.id;
@@ -189,8 +279,12 @@ describe.skipIf(!url)('SCOPE-HARDENING: /branches/overview is a Hospitality-only
     };
     try {
       forgetPropertyRef();
-      await db.organization.create({ data: { id: org, name: `SH-overview-${org}`, status: 'ACTIVE' } });
-      await db.user.create({ data: { id: user, email: `sh-overview-${user}@example.invalid`, name: 'Тестовый владелец' } });
+      await db.organization.create({
+        data: { id: org, name: `SH-overview-${org}`, status: 'ACTIVE' },
+      });
+      await db.user.create({
+        data: { id: user, email: `sh-overview-${user}@example.invalid`, name: 'Тестовый владелец' },
+      });
       for (const [name, createdAt] of [
         ['SH Отель A', new Date(Date.now() - 2 * 86_400_000)],
         ['SH Отель B', new Date(Date.now() - 86_400_000)],
@@ -202,10 +296,17 @@ describe.skipIf(!url)('SCOPE-HARDENING: /branches/overview is a Hospitality-only
         created.locations.push(property.locationId);
       }
       for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
-        const business = await db.business.create({ data: { organizationId: org, name: `SH ${vertical}`, vertical } });
+        const business = await db.business.create({
+          data: { organizationId: org, name: `SH ${vertical}`, vertical },
+        });
         created.businesses.push(business.id);
         const location = await db.location.create({
-          data: { businessId: business.id, name: `SH ${vertical} 1`, timezone: 'Asia/Almaty', currency: 'KZT' },
+          data: {
+            businessId: business.id,
+            name: `SH ${vertical} 1`,
+            timezone: 'Asia/Almaty',
+            currency: 'KZT',
+          },
         });
         created.locations.push(location.id);
       }
@@ -222,15 +323,24 @@ describe.skipIf(!url)('SCOPE-HARDENING: /branches/overview is a Hospitality-only
       app.useGlobalGuards(new RoleGuard(new Reflector()));
       app.useGlobalInterceptors(new AuthorInterceptor(prisma));
       await app.listen(0, '127.0.0.1');
-      const response = await fetch(`${await app.getUrl()}/branches/overview?from=${day(0)}&to=${day(6)}`);
+      const response = await fetch(
+        `${await app.getUrl()}/branches/overview?from=${day(0)}&to=${day(6)}`,
+      );
       expect(response.status, await response.clone().text()).toBe(200);
-      const body = (await response.json()) as { rows: Array<{ branch: { name: string; vertical?: string } }> };
+      const body = (await response.json()) as {
+        rows: Array<{ branch: { name: string; vertical?: string } }>;
+      };
       expect(body.rows.map((row) => row.branch.name)).toEqual(['SH Отель A', 'SH Отель B']);
-      expect(body.rows.every((row) => (row.branch.vertical ?? 'HOSPITALITY') === 'HOSPITALITY')).toBe(true);
+      expect(
+        body.rows.every((row) => (row.branch.vertical ?? 'HOSPITALITY') === 'HOSPITALITY'),
+      ).toBe(true);
     } finally {
       await app?.close();
       forgetPropertyRef();
-      const hospitality = await db.business.findMany({ where: { organizationId: org }, select: { id: true } });
+      const hospitality = await db.business.findMany({
+        where: { organizationId: org },
+        select: { id: true },
+      });
       await db.property.deleteMany({ where: { id: { in: created.properties } } });
       await db.location.deleteMany({ where: { id: { in: created.locations } } });
       await db.business.deleteMany({ where: { id: { in: hospitality.map((b) => b.id) } } });

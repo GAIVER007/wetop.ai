@@ -9,6 +9,7 @@ import { ApiError, authApi } from '../../../lib/api';
 import { publicAuthUrl, safeReturnPath } from '../../../lib/auth-entry';
 import { readBoundedText } from '../../../lib/bounded-body';
 import { sessionCookieHeader } from '../../../lib/site-auth';
+import { clearScopeCookieHeader, scopeResolvePath } from '../../../lib/scope-pointer';
 
 /** Полный HTML-ответ: резервный вход не зависит от JS и потоковой гидратации React. */
 const escape = (value: string) =>
@@ -120,15 +121,11 @@ export async function POST(request: Request): Promise<Response> {
     if (!email || !form.get('password'))
       return formPage(mode, next, email, 'Введите почту и пароль', 400);
     const result = await authApi.login({ email, password: form.get('password')! }, info);
-    const context = await authApi.registrationContext(result.token);
-    return new Response(null, {
-      status: 303,
-      headers: {
-        'cache-control': 'no-store',
-        location: context && context.vertical !== 'HOSPITALITY' ? '/register/complete' : next,
-        'set-cookie': sessionCookieHeader(result, process.env),
-      },
-    });
+    // Сессия новая, указатель прошлого входа снимается; филиал выберет сервер по `GET /branches` (SCOPE-HARDENING)
+    const headers = new Headers({ 'cache-control': 'no-store', location: scopeResolvePath(next) });
+    headers.append('set-cookie', sessionCookieHeader(result, process.env));
+    headers.append('set-cookie', clearScopeCookieHeader(process.env));
+    return new Response(null, { status: 303, headers });
   } catch (error) {
     return formPage(
       mode,

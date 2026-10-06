@@ -1,0 +1,55 @@
+# Сквозные (e2e) · 06.10.2026 15:59 Алматы · vm
+# коммит 84670ec (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (7.7s)
+  ✓  2 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (2.4s)
+  ✓  3 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (2.4s)
+  ✓  4 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (3.1s)
+  ✘  5 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (4.4s)
+  ✓  6 tests/branches-ui/branches.spec.ts:131:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (5.0s)
+
+
+  1) tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+
+    Error: locator.click: Error: strict mode violation: getByRole('region', { name: 'Выбор филиала' }).getByRole('button').filter({ hasText: 'Тестовый отель' }) resolved to 2 elements:
+        1) <button type="button" aria-pressed="false">…</button> aka getByRole('button', { name: 'Тестовый отель Адрес не указан' })
+        2) <button type="button" aria-pressed="false">…</button> aka getByRole('button', { name: 'Тестовый отель Б Адрес не указан' })
+
+    Call log:
+      - waiting for getByRole('region', { name: 'Выбор филиала' }).getByRole('button').filter({ hasText: 'Тестовый отель' })
+
+
+      31 |     .getByRole('button')
+      32 |     .filter({ hasText: name })
+    > 33 |     .click();
+         |      ^
+      34 | }
+      35 | test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
+      36 |   test('несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается', async ({
+        at choose (/home/user/wetop.ai/tests/branches-ui/branches.spec.ts:33:6)
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:120:5
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+  5 passed (32.3s)
+
+# код выхода 1 · 34 с

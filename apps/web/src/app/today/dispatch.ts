@@ -12,16 +12,23 @@ export type TodayScreen = WebVertical | 'UNRESOLVED';
  * `UNRESOLVED`, и человек идёт через выбор филиала. Ключ по Business и филиалу не даёт React переиспользовать
  * экран прежнего выбора.
  */
-export function todayScreen(me: {
-  context?: {
-    vertical?: string | null;
-    businessId?: string | null;
-    locationId?: string | null;
-  } | null;
-}): { screen: TodayScreen; key: string } {
+export function todayScreen(
+  me: {
+    user?: unknown;
+    context?: {
+      vertical?: string | null;
+      businessId?: string | null;
+      locationId?: string | null;
+    } | null;
+  },
+  lock: { authRequired: boolean } = { authRequired: true },
+): { screen: TodayScreen; key: string } {
   const c = me.context;
   const key = `${c?.businessId ?? ''}:${c?.locationId ?? ''}`;
   if (c?.vertical === 'HOSPITALITY') return { screen: 'HOSPITALITY', key };
+  // Открытый стенд разработки: замок входа выключен (в production-образе он включён всегда), сессии нет, филиалов
+  // и выбора нет вовсе, стойка обслуживает одну гостиницу стенда, как до MV8. Вошедший сюда не попадает.
+  if (!me.user && !lock.authRequired) return { screen: 'HOSPITALITY', key };
   if ((c?.vertical === 'BEAUTY' || c?.vertical === 'FOOD_SERVICE') && c.businessId && c.locationId)
     return { screen: c.vertical, key };
   return { screen: 'UNRESOLVED', key };

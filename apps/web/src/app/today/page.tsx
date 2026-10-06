@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { requireVertical } from '../../lib/vertical-guard';
 import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
+import { authRequired } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { BeautyToday } from './beauty-today';
 import { TODAY_VERTICALS, todayScreen, unresolvedTarget } from './dispatch';
@@ -14,7 +15,7 @@ import { HospitalityToday } from './hospitality-today';
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireVertical(TODAY_VERTICALS);
-  const { screen, key } = todayScreen(me);
+  const { screen, key } = todayScreen(me, { authRequired: authRequired() });
   if (screen === 'UNRESOLVED') {
     const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
     redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));

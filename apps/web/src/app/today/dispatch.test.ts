@@ -6,6 +6,7 @@ const me = (
   businessId: string | null = 'b1',
   locationId: string | null = 'l1',
 ) => ({
+  user: { id: 'u' },
   context: vertical === null ? null : { vertical, businessId, locationId },
 });
 
@@ -29,7 +30,10 @@ describe('/today: один адрес, экран только по подтве
   it('направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING)', () => {
     expect(todayScreen(me(null)).screen).toBe('UNRESOLVED');
     expect(
-      todayScreen({ context: { vertical: null, businessId: null, locationId: null } }).screen,
+      todayScreen({
+        user: { id: 'u' },
+        context: { vertical: null, businessId: null, locationId: null },
+      }).screen,
     ).toBe('UNRESOLVED');
     expect(todayScreen(me('SOMETHING_NEW')).screen).toBe('UNRESOLVED');
   });
@@ -38,6 +42,20 @@ describe('/today: один адрес, экран только по подтве
     expect(todayScreen(me('BEAUTY', 'b1', null)).screen).toBe('UNRESOLVED');
     expect(todayScreen(me('FOOD_SERVICE', 'b1', null)).screen).toBe('UNRESOLVED');
     expect(todayScreen(me('BEAUTY', null, 'l1')).screen).toBe('UNRESOLVED');
+  });
+
+  it('аноним при включённом замке входа (production): тоже не гостиница', () => {
+    expect(todayScreen({ user: null, context: null }, { authRequired: true }).screen).toBe(
+      'UNRESOLVED',
+    );
+  });
+
+  it('открытый стенд разработки (замок входа выключен, сессии нет): одна гостиница стенда, как до MV8', () => {
+    expect(todayScreen({ user: null, context: null }, { authRequired: false }).screen).toBe(
+      'HOSPITALITY',
+    );
+    // вошедший на открытом стенде подчиняется тому же строгому правилу
+    expect(todayScreen(me(null), { authRequired: false }).screen).toBe('UNRESOLVED');
   });
 
   it('куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору', () => {

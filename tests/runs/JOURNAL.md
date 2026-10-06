@@ -6923,3 +6923,8 @@
 | 07.10.2026 00:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 53 мин 41 с | 32f879e | [лог](logs/2026-10-06T19-18-39Z-e2e-882e.log) |  |
 | 07.10.2026 01:12 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 1 мин 29 с | 1614e9c | [лог](logs/2026-10-06T20-12-52Z-e2e-d65f.log) |  |
 | 07.10.2026 01:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 1614e9c | [лог](logs/2026-10-06T20-14-22Z-e2e-a393.log) | (ошибка вне тестов) |
+| 07.10.2026 01:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 5 из 976 | 1 ч 22 мин | 1614e9c | [лог](logs/2026-10-06T20-14-48Z-e2e-c0c7.log) | редизайн: доступность и снимки главной и компонентов, dark, 390 |
+| 07.10.2026 02:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/design-refresh.spec.ts tests/ui/workspace.spec.ts) | ✅ 74 из 74 | 5 мин 37 с | fee83a7 +1 | [лог](logs/2026-10-06T21-38-24Z-e2e-6b4e.log) |  |
+| 07.10.2026 02:44 | unit | ✅ 3505 из 3508, пропущено 3 | 1 мин 39 с | fee83a7 | [лог](logs/2026-10-06T21-44-12Z-unit-9a62.log) |  |
+| 07.10.2026 02:45 | typecheck | ✅ без ошибок | 33 с | fee83a7 +1 | [лог](logs/2026-10-06T21-45-51Z-typecheck-ed4f.log) |  |
+| 07.10.2026 02:46 | lint | ✅ без ошибок | 29 с | fee83a7 +1 | [лог](logs/2026-10-06T21-46-26Z-lint-fbd4.log) |  |

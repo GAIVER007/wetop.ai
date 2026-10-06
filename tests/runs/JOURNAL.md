@@ -6786,3 +6786,6 @@
 | 06.10.2026 20:03 | typecheck | ✅ без ошибок | 59 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-03-51Z-typecheck-03f1.log) |  |
 | 06.10.2026 20:04 | lint | ✅ без ошибок | 38 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-04-51Z-lint-addd.log) |  |
 | 06.10.2026 20:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts) | ✅ 15 из 15 | 1 мин 56 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-05-30Z-e2e-635f.log) |  |
+| 06.10.2026 20:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/webs | ❌ упало 1 из 196 | 24 мин 53 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-07-47Z-e2e-ee60.log) | одна точка входа в меню и четыре вкладки со своим адресом |
+| 06.10.2026 20:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/marketing.spec.ts) | ✅ 25 из 25 | 2 мин 19 с | d713259 +1 | [лог](logs/2026-10-06T15-32-46Z-e2e-4b40.log) |  |
+| 06.10.2026 20:35 | unit | ✅ 3414 из 3417, пропущено 3 | 1 мин 53 с | d713259 | [лог](logs/2026-10-06T15-35-09Z-unit-3d43.log) |  |

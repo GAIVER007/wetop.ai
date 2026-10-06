@@ -6492,3 +6492,4 @@
 | 05.10.2026 20:42 | typecheck | ✅ без ошибок | 26 с | 7c1f678 | [лог](logs/2026-10-05T15-42-10Z-typecheck-edb4.log) |  |
 | 05.10.2026 20:41 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/owner-journal.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/owner-dashboard-interactions. | ✅ 18 из 18 | 45 с | 7c1f678 | [лог](logs/2026-10-05T15-41-58Z-e2e-8703.log) |  |
 | 05.10.2026 20:42 | lint | ✅ без ошибок | 21 с | 7c1f678 | [лог](logs/2026-10-05T15-42-37Z-lint-cc65.log) |  |
+| 06.10.2026 13:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-mobile.spec.ts --grep возвращает обе позиции --workers=1) | ✅ 1 из 1 | 11 с | 2a396a9 | [лог](logs/2026-10-06T08-12-25Z-e2e-ec2e.log) | Release regression: Today aligns actual day, isolated fixture ports |

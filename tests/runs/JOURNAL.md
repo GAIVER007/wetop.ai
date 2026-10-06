@@ -6874,3 +6874,26 @@
 | 06.10.2026 21:14 | integration | ✅ 770 из 770 | 2 мин 3 с | f9c8fd9 | [лог](logs/2026-10-06T16-14-25Z-integration-71b3.log) |  |
 | 06.10.2026 21:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 28 из 968 | 1 ч 34 мин | f9c8fd9 | [лог](logs/2026-10-06T16-22-00Z-e2e-c035.log) | услуга каталога добавляется и видна в списке |
 | 06.10.2026 22:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts tests/ui/beauty-journal.spec.ts tests/ui/beauty-schedule.spec. | ✅ 49 из 49 | 5 мин 46 с | 55ffa00 | [лог](logs/2026-10-06T17-56-35Z-e2e-240e.log) |  |
+| 06.10.2026 19:58 | unit (частично: apps/web/src/lib/website-navigation.test.ts apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/s | ❌ упало 7 из 33 | 4 с | e3fadd0 +4 | [лог](logs/2026-10-06T14-58-48Z-unit-a476.log) | меню по ролям «Маркетинг» — право settings: владелец и управляющий видят группу, администратор нет (MKT2) |
+| 06.10.2026 19:59 | unit (частично: apps/web/src/lib/website-navigation.test.ts apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/s | ✅ 39 из 39 | 3 с | e3fadd0 +5 | [лог](logs/2026-10-06T14-59-06Z-unit-bf58.log) |  |
+| 06.10.2026 20:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ❌ упало 4 из 6 | 1 мин 57 с | e3fadd0 +6 | [лог](logs/2026-10-06T15-00-23Z-e2e-70de.log) | /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» |
+| 06.10.2026 20:03 | typecheck | ✅ без ошибок | 59 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-03-51Z-typecheck-03f1.log) |  |
+| 06.10.2026 20:04 | lint | ✅ без ошибок | 38 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-04-51Z-lint-addd.log) |  |
+| 06.10.2026 20:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts) | ✅ 15 из 15 | 1 мин 56 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-05-30Z-e2e-635f.log) |  |
+| 06.10.2026 20:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/webs | ❌ упало 1 из 196 | 24 мин 53 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-07-47Z-e2e-ee60.log) | одна точка входа в меню и четыре вкладки со своим адресом |
+| 06.10.2026 20:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/marketing.spec.ts) | ✅ 25 из 25 | 2 мин 19 с | d713259 +1 | [лог](logs/2026-10-06T15-32-46Z-e2e-4b40.log) |  |
+| 06.10.2026 20:35 | unit | ✅ 3414 из 3417, пропущено 3 | 1 мин 53 с | d713259 | [лог](logs/2026-10-06T15-35-09Z-unit-3d43.log) |  |
+| 06.10.2026 20:43 | typecheck | ✅ без ошибок | 55 с | c9d0ca4 | [лог](logs/2026-10-06T15-43-12Z-typecheck-9c72.log) |  |
+| 06.10.2026 20:44 | lint | ✅ без ошибок | 34 с | c9d0ca4 | [лог](logs/2026-10-06T15-44-07Z-lint-a0f9.log) |  |
+| 06.10.2026 20:44 | unit | ✅ 3427 из 3430, пропущено 3 | 1 мин 44 с | c9d0ca4 | [лог](logs/2026-10-06T15-44-42Z-unit-e409.log) |  |
+| 06.10.2026 20:46 | unit (частично: apps/web/src/lib/website-navigation.test.ts) | ✅ 9 из 9 | 2 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-46-46Z-unit-2ae7.log) |  |
+| 06.10.2026 20:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/website.spec.ts tests/ui/navigat | ✅ 152 из 152 | 11 мин 55 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-46-55Z-e2e-3788.log) |  |
+| 06.10.2026 20:58 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 3 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-58-50Z-e2e-607b.log) | (ошибка вне тестов) |
+| 06.10.2026 20:59 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ❌ упало 6 из 6 | 16 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-59-35Z-e2e-53e4.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 06.10.2026 21:00 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 6 из 6 | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-06Z-e2e-7990.log) |  |
+| 06.10.2026 21:00 | lint | ✅ без ошибок | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-50Z-lint-7cf2.log) |  |
+| 06.10.2026 23:04 | unit | ✅ 3452 из 3455, пропущено 3 | 1 мин 36 с | c562f69 | [лог](logs/2026-10-06T18-04-22Z-unit-cddd.log) |  |
+| 06.10.2026 23:06 | typecheck | ✅ без ошибок | 49 с | c562f69 | [лог](logs/2026-10-06T18-06-08Z-typecheck-93e0.log) |  |
+| 06.10.2026 23:06 | lint | ✅ без ошибок | 29 с | c562f69 | [лог](logs/2026-10-06T18-06-58Z-lint-3717.log) |  |
+| 06.10.2026 23:07 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 24 из 24 | 1 мин 19 с | c562f69 | [лог](logs/2026-10-06T18-07-28Z-e2e-f601.log) |  |
+| 06.10.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/marketing.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 165 из 165 | 17 мин 55 с | c562f69 | [лог](logs/2026-10-06T18-08-55Z-e2e-ebf3.log) |  |

@@ -6772,3 +6772,11 @@
 | 06.10.2026 19:27 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ❌ упало 4 из 7 | 1 мин 31 с | 4ce9e90 | [лог](logs/2026-10-06T14-27-44Z-e2e-0b20.log) | защищённая /today: главная → реальная cookie → исходный экран |
 | 06.10.2026 19:29 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ❌ упало 4 из 7 | 1 мин 35 с | 4ce9e90 +28 | [лог](logs/2026-10-06T14-29-21Z-e2e-0449.log) | защищённая /today: главная → реальная cookie → исходный экран |
 | 06.10.2026 19:31 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-widget.config.ts --workers=1) | ✅ 8 из 8 | 10 с | 4ce9e90 | [лог](logs/2026-10-06T14-31-11Z-e2e-6958.log) |  |
+| 06.10.2026 19:32 | typecheck | ✅ без ошибок | 49 с | 6e36202 | [лог](logs/2026-10-06T14-32-14Z-typecheck-2cce.log) |  |
+| 06.10.2026 19:33 | lint | ✅ без ошибок | 29 с | 6e36202 | [лог](logs/2026-10-06T14-33-03Z-lint-e374.log) |  |
+| 06.10.2026 19:33 | unit | ✅ 3424 из 3427, пропущено 3 | 1 мин 40 с | 6e36202 | [лог](logs/2026-10-06T14-33-33Z-unit-f67a.log) |  |
+| 06.10.2026 19:35 | integration | ✅ 770 из 770 | 2 мин 3 с | 6e36202 | [лог](logs/2026-10-06T14-35-18Z-integration-d03d.log) |  |
+| 06.10.2026 19:37 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 6 из 6 | 32 с | 6e36202 | [лог](logs/2026-10-06T14-37-21Z-e2e-c4aa.log) |  |
+| 06.10.2026 19:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/login-access.spec.ts tests/ui/sessions.spec.ts tests/ui/rol | ✅ 184 из 184 | 12 мин 52 с | 6e36202 | [лог](logs/2026-10-06T14-38-01Z-e2e-ad61.log) |  |
+| 06.10.2026 19:51 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ❌ упало 4 из 7 | 1 мин 34 с | 6e36202 | [лог](logs/2026-10-06T14-51-03Z-e2e-639f.log) | защищённая /today: главная → реальная cookie → исходный экран |
+| 06.10.2026 19:52 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ❌ упало 4 из 7 | 1 мин 34 с | 6e36202 +28 | [лог](logs/2026-10-06T14-52-38Z-e2e-cde1.log) | защищённая /today: главная → реальная cookie → исходный экран |

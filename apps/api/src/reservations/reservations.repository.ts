@@ -23,7 +23,11 @@ import type {
   StayRestriction,
 } from '@pms/domain';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
-import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
+import {
+  actsForOrganization,
+  currentIntegrationPropertyId,
+  currentOrganizationId,
+} from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { maskAuditFreeText, withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
@@ -476,7 +480,20 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
-      if (actsForOrganization()) {
+      const exact = currentIntegrationPropertyId();
+      if (exact && actsForOrganization()) {
+        // MKT1B BOOK-4: публичный путь сайта и ИИ-продавца назвал объект сайта (проверенный сервером), и цены, фонд,
+        // ключ идемпотентности и бронь идут строго в него, а не в первый объект организации. Объект чужой
+        // организации: тот же отказ, что у вошедшего. Стойка этот путь не берёт: объект в её контексте не задан.
+        const organizationId = currentOrganizationId();
+        const found = await this.db.property.findUnique({
+          where: { id: exact },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
+        });
+        if (!found || organizationId === null || found.organizationId !== organizationId)
+          throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+        this.propertyCache = found;
+      } else if (actsForOrganization()) {
         const organizationId = currentOrganizationId();
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({

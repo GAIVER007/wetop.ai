@@ -1,0 +1,110 @@
+# Модульные (unit) · 06.10.2026 17:41 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-41-45Z-unit-02c3.json' 'packages/domain/src/web-booking' 'apps/api/src/web-booking' 'apps/api/src/reservations'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/web-booking/request.test.ts (37 tests | 1 failed) 45ms
+   ✓ запрос цен с сайта (quote) (10)
+     ✓ принимает даты в окне и гостей 6ms
+     ✓ отклоняет: заезд вчера 1ms
+     ✓ отклоняет: выезд не позже заезда 0ms
+     ✓ отклоняет: дальше окна 0ms
+     ✓ отклоняет: слишком долго 0ms
+     ✓ отклоняет: кривая дата 0ms
+     ✓ отклоняет: гостей 0 0ms
+     ✓ отклоняет: гостей 9 0ms
+     ✓ отклоняет: ключ не по форме 1ms
+     ✓ заезд сегодня допустим; окно — 365 дней и 30 ночей 1ms
+   ❯ запрос брони с сайта (book) (11)
+     × нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр 17ms
+     ✓ телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500 3ms
+     ✓ отклоняет: honeypot заполнен (бот) 0ms
+     ✓ отклоняет: нет имени 0ms
+     ✓ отклоняет: нет фамилии 0ms
+     ✓ отклоняет: телефон короткий 0ms
+     ✓ отклоняет: телефон с буквами 0ms
+     ✓ отклоняет: почта кривая 0ms
+     ✓ отклоняет: нет категории 0ms
+     ✓ отклоняет: имя длиннее 80 0ms
+     ✓ ключи счётчика необязательны и должны быть по форме 0ms
+   ✓ промокод в запросе виджета (DATA_MODEL §20) (3)
+     ✓ приводит к верхнему регистру и обрезает пробелы 0ms
+     ✓ пустой и отсутствующий — без промокода 0ms
+     ✓ введённый неверно — отказ словами, а не «без скидки» 0ms
+   ✓ язык гостя в запросе брони (ADR-144, срез «подтверждение брони») (7)
+     ✓ без языка — русский 0ms
+     ✓ принимает ru 0ms
+     ✓ принимает kk 0ms
+     ✓ принимает en 0ms
+     ✓ принимает zh 0ms
+     ✓ регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk 1ms
+     ✓ незнакомый язык — русский, а не отказ: бронь важнее языка письма 0ms
+   ✓ ключ создания брони с сайта (MKT1B BOOK-2) (6)
+     ✓ UUID v4 обязателен и приводится к нижнему регистру 0ms
+     ✓ нет ключа — отказ 0ms
+     ✓ пустой — отказ 0ms
+     ✓ не UUID — отказ 0ms
+     ✓ UUID не версии 4 — отказ 0ms
+     ✓ число — отказ 0ms
+[Nest] 6130  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (53 tests) 743ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 579ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 318ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 777ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 93ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 218ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 215ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 8ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 5ms
+ ✓ |unit| apps/api/src/reservations/early-checkout-availability.test.ts (1 test) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > запрос брони с сайта (book) > нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр
+AssertionError: expected { siteKey: 'pms_5f3c9a1b2d4e', …(11) } to deeply equal { siteKey: 'pms_5f3c9a1b2d4e', …(10) }
+
+- Expected
++ Received
+
+@@ -1,10 +1,11 @@
+  {
+    "adults": 1,
+    "arrivalDate": "2026-09-13",
+    "categoryCode": "category-single",
+    "comment": "Приеду поздно",
++   "creationKey": "b6f2c1e4-0a3d-4f1b-9c2e-7d8a9b0c1d2e",
+    "departureDate": "2026-09-15",
+    "guest": {
+      "email": "<email>",
+      "firstName": "Айгерим",
+      "lastName": "Тестова",
+
+ ❯ packages/domain/src/web-booking/request.test.ts:71:21
+     69|     expect(r.ok).toBe(true);
+     70|     if (!r.ok) return;
+     71|     expect(r.value).toEqual({
+       |                     ^
+     72|       siteKey: good.k,
+     73|       arrivalDate: '2026-09-13',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 11 passed (12)
+      Tests  1 failed | 202 passed (203)
+   Start at  12:41:47
+   Duration  6.11s (transform 41%, import 41%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-41-45Z-unit-02c3.json
+
+# код выхода 1 · 7 с

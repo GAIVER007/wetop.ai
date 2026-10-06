@@ -66,7 +66,10 @@ export class WidgetCorsMiddleware implements NestMiddleware {
   private async hosts(): Promise<string[]> {
     const now = Date.now();
     if (this.cache && now - this.cache.at < HOSTS_CACHE_MS) return this.cache.hosts;
-    const sites = await this.sites.sites().catch(() => []);
+    // MKT1B BOOK-1: сайты ВСЕХ организаций. Публичный путь не знает вошедшего, и `sites()` (объект вошедшего или объект
+    // установки) отдавал браузеру второй гостиницы ответ без Access-Control-Allow-Origin. Это только допуск браузера:
+    // ключ сайта и точный домен по-прежнему проверяет `bookingSite`.
+    const sites = await this.sites.allSites().catch(() => []);
     const hosts = sites
       .filter((s) => s.status === 'ACTIVE' && s.bookingEnabled)
       .flatMap((s) => s.hosts);

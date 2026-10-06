@@ -18,3 +18,5 @@ Full unit initially had one unrelated 5000ms timeout in auto-deploy.test.ts unde
 Migration chain/authoritative schema drift/all downs: RESULT: OK (65 migrations). No schema or migration diff. Root/API/web typecheck and lint GREEN. git diff --check GREEN.
 
 Final full unit: 3400 passed, 4 existing conditional skips, default timeouts. Final log 2026-10-06T07-21-43Z-unit-512d.log. Full integration 748 passed/9 existing skips, log 2026-10-06T07-16-17Z-integration-2016.log. No new skips or weaker assertions.
+
+PR #248 synced fresh main 34038a8d031cb76cc0685cc46e41ca0dcd04f9ec. Upstream contains only regression/evidence, no apps/packages change. Affected checks repeated: 24 branch unit, 8 real HTTP/Beauty branch integration, 1 real branch browser smoke GREEN. Review/comments inspected: no unresolved feedback.

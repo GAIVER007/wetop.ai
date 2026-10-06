@@ -577,6 +577,8 @@ export class ChannexClient {
       email: string;
       facilities: string[];
       content: { description?: string };
+      /** Property Settings (hotels-collection.md → Fields): частичный объект, Channex меняет только переданные ключи */
+      settings: Record<string, unknown>;
     }>,
   ): Promise<ChannexResource<ChannexPropertyAttributes>> {
     const res = await this.request<OneResponse<ChannexPropertyAttributes>>(

@@ -1,0 +1,14 @@
+# Линтер (lint) · 01.10.2026 20:04 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 19
+# npx eslint .
+
+/home/user/wetop.ai/scripts/reconciliation/src/cli-channex-property-settings.ts
+  21:1  error  './channex-property-settings' import is restricted from being used by a pattern. Channex SDK разрешён только внутри packages/integrations (ADR-004)  no-restricted-imports
+
+/home/user/wetop.ai/tests/unit/channex-property-settings.test.ts
+  2:1  error  '../../scripts/reconciliation/src/channex-property-settings' import is restricted from being used by a pattern. Channex SDK разрешён только внутри packages/integrations (ADR-004)  no-restricted-imports
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 24 с

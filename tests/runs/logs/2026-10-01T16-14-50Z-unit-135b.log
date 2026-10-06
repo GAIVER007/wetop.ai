@@ -1,0 +1,42 @@
+# Модульные (unit) · 01.10.2026 21:14 Алматы · vm
+# коммит 1ef224b (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T16-14-50Z-unit-135b.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (9 tests | 1 failed) 27ms
+   ✓ свой раннер CI (4)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 3ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 10ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ❯ проверки GitHub после разбора 01.10.2026 (5)
+     ✓ тесты бота идут отдельной задачей на своём раннере 1ms
+     ✓ задача db повторяет локальный стенд: миграции в public и вход без пароля 1ms
+     ✓ очередь на уровне задач: db на раннере GitHub не ждёт очереди своего раннера 2ms
+     × перед сквозными тестами pms_test пересоздаётся и засевается заново 6ms
+     ✓ код из форка на свой раннер не попадает 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > проверки GitHub после разбора 01.10.2026 > перед сквозными тестами pms_test пересоздаётся и засевается заново
+AssertionError: expected -1 to be greater than 2074
+ ❯ tests/unit/ci-runner.test.ts:107:19
+    105|     const db = withoutComments(job('db'));
+    106|     const fresh = db.indexOf('DROP SCHEMA IF EXISTS pms_test CASCADE');
+    107|     expect(fresh).toBeGreaterThan(db.indexOf('--project integration'));
+       |                   ^
+    108|     expect(fresh).toBeLessThan(db.indexOf('playwright test'));
+    109|     expect(db.slice(fresh, db.indexOf('playwright test'))).toMatch(/TE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  16:14:53
+   Duration  576ms (transform 51%, tests 25%, import 18%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-01T16-14-50Z-unit-135b.json
+
+# код выхода 1 · 3 с

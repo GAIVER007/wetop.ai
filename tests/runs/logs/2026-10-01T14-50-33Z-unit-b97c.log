@@ -1,0 +1,16 @@
+# Модульные (unit) · 01.10.2026 19:50 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T14-50-33Z-unit-b97c.json' 'apps/api/src/channels/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/channels/channels.test.ts (10 tests) 10ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  14:50:34
+   Duration  919ms (transform 87%, import 11%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T14-50-33Z-unit-b97c.json
+
+# код выхода 0 · 2 с

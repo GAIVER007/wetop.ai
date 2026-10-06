@@ -1,0 +1,100 @@
+# Модульные (unit) · 01.10.2026 20:25 Алматы · vm
+# коммит c674598 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-25-52Z-unit-ef8e.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (7 tests | 1 failed) 11ms
+   ✓ свой раннер CI (4)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 2ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 0ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ❯ проверки GitHub после разбора 01.10.2026 (3)
+     ✓ тесты бота идут отдельной задачей на своём раннере 0ms
+     × задача db повторяет локальный стенд: миграции в public и вход без пароля 5ms
+     ✓ код из форка на свой раннер не попадает 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > проверки GitHub после разбора 01.10.2026 > задача db повторяет локальный стенд: миграции в public и вход без пароля
+AssertionError: expected '  db:\n    name: миграции · integrati…' to match /POSTGRES_HOST_AUTH_METHOD: trust/
+
+- Expected:
+/POSTGRES_HOST_AUTH_METHOD: trust/
+
++ Received:
+"  db:
+    name: миграции · integration · e2e на чистом PostgreSQL 16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd \"pg_isready -U pms\"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql --version && pg_dump --version
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: Применение и откат каждой миграции, schema.prisma против базы из миграций
+        env:
+          MIGRATION_CHECK_URL: postgresql://pms:***@127.0.0.1:5432/postgres
+        run: scripts/ops/check-migrations.sh
+      - run: psql postgresql://pms:***@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Интеграционные тесты
+        env:
+          DATABASE_URL: postgresql://pms:***@127.0.0.1:5432/pms_dev
+        run: npx vitest run --project integration
+      - name: Сборка стойки и Chromium
+        run: |
+          npm run build -w apps/web
+          npx playwright install --with-deps chromium
+      - name: Сквозные тесты
+        env:
+          DATABASE_URL: postgresql://pms:***@127.0.0.1:5432/pms_dev
+        run: npx playwright test --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+          if-no-files-found: ignore
+"
+
+ ❯ tests/unit/ci-runner.test.ts:84:16
+     82|   it('задача db повторяет локальный стенд: миграции в public и вход бе…
+     83|     const db = withoutComments(job('db'));
+     84|     expect(db).toMatch(/POSTGRES_HOST_AUTH_METHOD: trust/);
+       |                ^
+     85|     expect(db).toMatch(/migrate:deploy -w @pms\/database/);
+     86|     expect(db.indexOf('migrate:deploy')).toBeLessThan(db.indexOf('--pr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  15:25:53
+   Duration  207ms (transform 58%, import 20%, tests 16%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-25-52Z-unit-ef8e.json
+
+# код выхода 1 · 1 с

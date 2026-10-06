@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 01.10.2026 20:26 Алматы · vm
+# коммит c674598 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-26-48Z-integration-6d94.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/integration-tables-role.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 418ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 73ms
+[Nest] 10707  - 10/01/2026, 3:26:53 PM    WARN [InboundBookingsService] ревизия role-q225-mupotboo (BDC-role-q225-mupotboo) отклонена: Комната 1 брони BDC-role-q225-mupotboo: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 10707  - 10/01/2026, 3:26:53 PM    WARN [InboundBookingsService] ревизия role-q225-mupotboo (BDC-role-q225-mupotboo) отклонена: Комната 1 брони BDC-role-q225-mupotboo: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 478ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  15:26:49
+   Duration  4.28s (transform 43%, tests 34%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-26-48Z-integration-6d94.json
+
+# код выхода 0 · 5 с

@@ -1,0 +1,299 @@
+# Интеграционные (integration) · 01.10.2026 20:25 Алматы · vm
+# коммит c674598 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-25-54Z-integration-c6ec.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/integration-tables-role.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 42; данные на месте
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 5 failed) 250ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 15ms
+     × чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 4ms
+     × гость чужой организации не виден своей; без переменной не видно ничего 3ms
+     × записать бронь в объект чужой организации нельзя — отказ базы 3ms
+     × служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 2ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 194ms
+[Nest] 10190  - 10/01/2026, 3:26:01 PM    WARN [InboundBookingsService] ревизия role-q225-mupos7p0 (BDC-role-q225-mupos7p0) отклонена: Комната 1 брони BDC-role-q225-mupos7p0: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 10190  - 10/01/2026, 3:26:01 PM    WARN [InboundBookingsService] ревизия role-q225-mupos7p0 (BDC-role-q225-mupos7p0) отклонена: Комната 1 брони BDC-role-q225-mupos7p0: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 493ms
+ ❯ |integration| tests/integration/rls-credential-grants.test.ts (8 tests | 8 failed) 46ms
+   ❯ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (8)
+     × password_resets: wetop_app не может ни читать, ни писать 10ms
+     × email_verifications: wetop_app не может ни читать, ни писать 2ms
+     × wizard_sessions: wetop_app не может ни читать, ни писать 2ms
+     × wizard_events: wetop_app не может ни читать, ни писать 1ms
+     × wizard_surveys: wetop_app не может ни читать, ни писать 2ms
+     × users: только id, email, name, status, email_verified_at и только чтение 2ms
+     × platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем 8ms
+     × внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > password_resets: wetop_app не может ни читать, ни писать
+error: relation "password_resets" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:74:28
+     72|       await inRollback(async () => {
+     73|         for (const privilege of ['SELECT', 'INSERT', 'UPDATE', 'DELETE…
+     74|           const { rows } = await client.query<{ ok: boolean }>(
+       |                            ^
+     75|             `SELECT has_table_privilege('wetop_app', $1, $2) AS ok`,
+     76|             [table, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:72:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > email_verifications: wetop_app не может ни читать, ни писать
+error: relation "email_verifications" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:74:28
+     72|       await inRollback(async () => {
+     73|         for (const privilege of ['SELECT', 'INSERT', 'UPDATE', 'DELETE…
+     74|           const { rows } = await client.query<{ ok: boolean }>(
+       |                            ^
+     75|             `SELECT has_table_privilege('wetop_app', $1, $2) AS ok`,
+     76|             [table, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:72:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_sessions: wetop_app не может ни читать, ни писать
+error: relation "wizard_sessions" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:74:28
+     72|       await inRollback(async () => {
+     73|         for (const privilege of ['SELECT', 'INSERT', 'UPDATE', 'DELETE…
+     74|           const { rows } = await client.query<{ ok: boolean }>(
+       |                            ^
+     75|             `SELECT has_table_privilege('wetop_app', $1, $2) AS ok`,
+     76|             [table, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:72:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_events: wetop_app не может ни читать, ни писать
+error: relation "wizard_events" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:74:28
+     72|       await inRollback(async () => {
+     73|         for (const privilege of ['SELECT', 'INSERT', 'UPDATE', 'DELETE…
+     74|           const { rows } = await client.query<{ ok: boolean }>(
+       |                            ^
+     75|             `SELECT has_table_privilege('wetop_app', $1, $2) AS ok`,
+     76|             [table, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:72:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_surveys: wetop_app не может ни читать, ни писать
+error: relation "wizard_surveys" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:74:28
+     72|       await inRollback(async () => {
+     73|         for (const privilege of ['SELECT', 'INSERT', 'UPDATE', 'DELETE…
+     74|           const { rows } = await client.query<{ ok: boolean }>(
+       |                            ^
+     75|             `SELECT has_table_privilege('wetop_app', $1, $2) AS ok`,
+     76|             [table, privilege],
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:72:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > users: только id, email, name, status, email_verified_at и только чтение
+error: relation "users" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:89:9
+     87|       await inRollback(async () => {
+     88|         const id = randomUUID();
+     89|         await client.query(`INSERT INTO users (id, email, name) VALUES…
+       |         ^
+     90|           id,
+     91|           `sec1b-${id}@example.invalid`,
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:87:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем
+AssertionError: expected { ok: false, …(1) } to match object { ok: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
++   "ok": false,
+  }
+
+ ❯ tests/integration/rls-credential-grants.test.ts:128:22
+    126|       await inRollback(async () => {
+    127|         const read = await asApp(`SELECT user_id, revoked_at FROM plat…
+    128|         expect(read).toMatchObject({ ok: true });
+       |                      ^
+    129|         for (const sql of [
+    130|           `SELECT * FROM platform_admins`,
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:126:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит
+error: relation "users" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-credential-grants.test.ts:145:9
+    143|       await inRollback(async () => {
+    144|         const userId = randomUUID();
+    145|         await client.query(`INSERT INTO users (id, email, name) VALUES…
+       |         ^
+    146|           userId,
+    147|           `sec1b-fk-${userId}@example.invalid`,
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:143:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [] to deeply equal [ 'accommodation_types', …(43) ]
+
+- Expected
++ Received
+
+- [
+-   "accommodation_types",
+-   "allocations",
+-   "audit_logs",
+-   "buildings",
+-   "businesses",
+-   "channel_mappings",
+-   "charges",
+-   "daily_rates",
+-   "floors",
+-   "folios",
+-   "guest_documents",
+-   "guests",
+-   "housekeeping_events",
+-   "inventory_blocks",
+-   "inventory_units",
+-   "invites",
+-   "locations",
+-   "memberships",
+-   "organization_extensions",
+-   "organizations",
+-   "payment_allocations",
+-   "payments",
+-   "physical_rooms",
+-   "promo_codes",
+-   "properties",
+-   "rate_plan_accommodation_types",
+-   "rate_plans",
+-   "refunds",
+-   "reservation_items",
+-   "reservations",
+-   "restrictions",
+-   "seller_agents",
+-   "seller_profiles",
+-   "services",
+-   "sessions",
+-   "stay_guests",
+-   "tracked_sites",
+-   "user_errors",
+-   "web_events",
+-   "web_pageviews",
+-   "web_sessions",
+-   "wizard_drafts",
+-   "wizard_jobs",
+-   "wizard_messages",
+- ]
++ []
+
+ ❯ tests/integration/rls-isolation.test.ts:112:51
+    110|         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.r…
+    111|     );
+    112|     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...RLS_TENA…
+       |                                                   ^
+    113|   });
+    114|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои
+error: relation "properties" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:23
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                       ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:117:30
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:116:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > гость чужой организации не виден своей; без переменной не видно ничего
+error: relation "properties" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:23
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                       ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:137:35
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:136:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > записать бронь в объект чужой организации нельзя — отказ базы
+error: relation "properties" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:23
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                       ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:152:35
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:151:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше
+error: relation "properties" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:23
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                       ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:170:7
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:169:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  13 failed | 7 passed (20)
+   Start at  15:25:55
+   Duration  6.63s (transform 49%, tests 28%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-25-54Z-integration-c6ec.json
+
+# код выхода 1 · 8 с

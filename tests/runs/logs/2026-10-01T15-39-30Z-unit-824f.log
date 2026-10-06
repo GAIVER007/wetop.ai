@@ -1,0 +1,58 @@
+# Модульные (unit) · 01.10.2026 20:39 Алматы · vm
+# коммит d5fc2f6 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-39-30Z-unit-824f.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (8 tests | 1 failed) 21ms
+   ✓ свой раннер CI (4)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 3ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 1ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 1ms
+   ❯ проверки GitHub после разбора 01.10.2026 (4)
+     ✓ тесты бота идут отдельной задачей на своём раннере 1ms
+     ✓ задача db повторяет локальный стенд: миграции в public и вход без пароля 1ms
+     × очередь на уровне задач: db на раннере GitHub не ждёт очереди своего раннера 10ms
+     ✓ код из форка на свой раннер не попадает 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > проверки GitHub после разбора 01.10.2026 > очередь на уровне задач: db на раннере GitHub не ждёт очереди своего раннера
+AssertionError: expected 'name: checks\n\non:\n  push:\n    bra…' not to match /^concurrency:/m
+
+- Expected:
+/^concurrency:/m
+
++ Received:
+"name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+"
+
+ ❯ tests/unit/ci-runner.test.ts:96:21
+     94|   it('очередь на уровне задач: db на раннере GitHub не ждёт очереди св…
+     95|     const top = withoutComments(WORKFLOW.split('\njobs:\n')[0]!);
+     96|     expect(top).not.toMatch(/^concurrency:/m);
+       |                     ^
+     97|     for (const name of ['fast', 'db', 'ui-shard', 'ui', 'bot'])
+     98|       expect(withoutComments(job(name)), name).toMatch(/concurrency:\s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  15:39:36
+   Duration  473ms (transform 52%, tests 20%, import 20%, worker 7%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-39-30Z-unit-824f.json
+
+# код выхода 1 · 6 с

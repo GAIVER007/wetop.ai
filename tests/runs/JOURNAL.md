@@ -5183,6 +5183,17 @@
 | 01.10.2026 19:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/booking-dates.spec.ts --workers=1 -g occupied selection) | ❌ упало 1 из 1 | 54 с | df6723c +50 | [лог](logs/2026-10-01T14-13-36Z-e2e-52c4.log) | Unavailable unit test uses accessible combobox locator |
 | 01.10.2026 19:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/booking-dates.spec.ts --workers=1 -g occupied selection) | ✅ 1 из 1 | 29 с | df6723c +50 | [лог](logs/2026-10-01T14-15-22Z-e2e-ae86.log) | Seed unavailable test via authenticated UI |
 | 01.10.2026 19:16 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts apps/api/src/channels/inbound.controller.test.ts apps/api/src/auth/route-access.test.t | ✅ 83 из 83 | 4 с | df6723c +50 | [лог](logs/2026-10-01T14-16-11Z-unit-5939.log) | Final API booking rules quote access and exact calendar regression |
+| 01.10.2026 19:50 | unit (частично: apps/api/src/channels/channels.test.ts) | ❌ упало 1 из 10 | 2 с | e8b3914 +1 | [лог](logs/2026-10-01T14-50-22Z-unit-5c3a.log) | red: настройки объекта Channex, пункт 3 |
+| 01.10.2026 19:50 | unit (частично: apps/api/src/channels/channels.test.ts) | ✅ 10 из 10 | 2 с | e8b3914 +2 | [лог](logs/2026-10-01T14-50-33Z-unit-b97c.log) | green: настройки объекта Channex, пункт 3 |
+| 01.10.2026 19:57 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/guard-agent-run.test.ts tests/unit/ci-runner.test.ts tests/unit/channex-property-settings.test | ✅ 79 из 79 | 4 с | e8b3914 +17 | [лог](logs/2026-10-01T14-57-43Z-unit-9c1d.log) | green: пункты 3, 4, 6, 8, 9 разбора 01.10 |
+| 01.10.2026 20:03 | unit (частично: tests/unit/db-backup-offsite.test.ts tests/unit/db-backup.test.ts) | ✅ 18 из 18 | 5 с | e8b3914 +19 | [лог](logs/2026-10-01T15-03-32Z-unit-7a21.log) | внешняя зашифрованная копия, пункт 2 |
+| 01.10.2026 20:03 | typecheck | ❌ ошибок: 1 | 42 с | e8b3914 +19 | [лог](logs/2026-10-01T15-03-38Z-typecheck-8c9d.log) | разбор 01.10 |
+| 01.10.2026 20:04 | lint | ❌ ошибок: 2 | 24 с | e8b3914 +19 | [лог](logs/2026-10-01T15-04-21Z-lint-cc31.log) | разбор 01.10 |
+| 01.10.2026 20:04 | unit | ❌ упало 12 из 2816, пропущено 3 | 1 мин 42 с | e8b3914 +19 | [лог](logs/2026-10-01T15-04-45Z-unit-3bce.log) | полный unit после разбора 01.10 |
+| 01.10.2026 20:07 | typecheck | ✅ без ошибок | 27 с | e8b3914 +19 | [лог](logs/2026-10-01T15-07-03Z-typecheck-5246.log) | разбор 01.10, после правок |
+| 01.10.2026 20:07 | lint | ✅ без ошибок | 22 с | e8b3914 +19 | [лог](logs/2026-10-01T15-07-30Z-lint-b4d4.log) | разбор 01.10, после правок |
+| 01.10.2026 20:10 | unit | ❌ упало 12 из 2816, пропущено 3 | 1 мин 29 с | e8b3914 +21 | [лог](logs/2026-10-01T15-10-12Z-unit-b3f7.log) | полный unit на итоговом дереве разбора 01.10 |
+| 01.10.2026 20:13 | unit (частично: tests/unit/guard-agent-run.test.ts tests/unit/promote-release.test.ts tests/unit/migrations-rollback.test.ts tests/unit/ci-runner.test.ts apps/a | ✅ 83 из 83 | 4 с | e8b3914 +21 | [лог](logs/2026-10-01T15-13-01Z-unit-44ca.log) | после снятия длинного тире в новых строках |
 | 01.10.2026 19:32 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ❌ упало 2 из 51 | 4 с | e8b3914 +50 | [лог](logs/2026-10-01T14-32-19Z-unit-0286.log) | RED same-day checkout and reservation departure |
 | 01.10.2026 19:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --grep sync never) | ❌ упало 1 из 1 | 46 с | e8b3914 +50 | [лог](logs/2026-10-01T14-32-51Z-e2e-0207.log) | RED disconnected sync status |
 | 01.10.2026 19:34 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts packages/domain/src/accounts/trial.test.ts apps/web/src/lib/stay-date.test.ts) | ✅ 79 из 79 | 4 с | e8b3914 +50 | [лог](logs/2026-10-01T14-34-30Z-unit-7599.log) | GREEN checkout release and approved trial duration |
@@ -5193,6 +5204,39 @@
 | 01.10.2026 19:38 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts tests/ui/booking-dates.spec.ts) | ✅ 10 из 10 | 1 мин 43 с | e8b3914 +50 | [лог](logs/2026-10-01T14-38-05Z-e2e-3a7c.log) | GREEN disconnected sync and all date regressions |
 | 01.10.2026 19:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --grep sync never) | ❌ упало 1 из 1 | 1 мин 11 с | 8a65868 +50 | [лог](logs/2026-10-01T14-47-22Z-e2e-899d.log) | RED nested sync badges also imply connectivity |
 | 01.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --grep sync never) | ✅ 1 из 1 | 41 с | 8a65868 +50 | [лог](logs/2026-10-01T14-49-33Z-e2e-8822.log) | GREEN no false successful status anywhere in sync |
+| 01.10.2026 20:15 | typecheck | ✅ без ошибок | 30 с | de7fea6 | [лог](logs/2026-10-01T15-15-47Z-typecheck-700b.log) | после слияния main 9f2ee55 |
+| 01.10.2026 20:16 | lint | ✅ без ошибок | 28 с | de7fea6 | [лог](logs/2026-10-01T15-16-18Z-lint-7de7.log) | после слияния main 9f2ee55 |
+| 01.10.2026 20:16 | unit (частично: tests/unit/guard-agent-run.test.ts tests/unit/promote-release.test.ts tests/unit/migrations-rollback.test.ts tests/unit/ci-runner.test.ts apps/a | ✅ 134 из 134 | 5 с | de7fea6 | [лог](logs/2026-10-01T15-16-46Z-unit-1484.log) | после слияния main 9f2ee55 |
+| 01.10.2026 20:22 | unit (частично: tests/unit/promote-release.test.ts tests/unit/guard-agent-run.test.ts) | ✅ 11 из 11 | 5 с | c674598 +2 | [лог](logs/2026-10-01T15-22-24Z-unit-86fe.log) | парсер check-runs устойчив к многострочным объектам |
+| 01.10.2026 20:25 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 7 | 1 с | c674598 +3 | [лог](logs/2026-10-01T15-25-52Z-unit-ef8e.log) | red: задача db без миграций в public и без trust |
+| 01.10.2026 20:25 | integration (частично: tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/integration/integration-tables-role.test.ts | ❌ упало 13 из 20 | 8 с | c674598 +2 | [лог](logs/2026-10-01T15-25-54Z-integration-c6ec.log) | red: как в CI, public пустая |
+| 01.10.2026 20:26 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 7 из 7 | 1 с | c674598 +3 | [лог](logs/2026-10-01T15-26-24Z-unit-aa00.log) | green: задача db как локальный стенд |
+| 01.10.2026 20:26 | integration (частично: tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/integration/integration-tables-role.test.ts | ❌ упало 5 из 20 | 5 с | c674598 +2 | [лог](logs/2026-10-01T15-26-28Z-integration-c399.log) | green: public заполнена migrate:deploy, как на локальном стенде |
+| 01.10.2026 20:26 | integration (частично: tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/integration/integration-tables-role.test.ts | ✅ 20 из 20 | 5 с | c674598 +2 | [лог](logs/2026-10-01T15-26-48Z-integration-6d94.log) | green: public с миграциями и сидом, как на локальном стенде |
+| 01.10.2026 20:27 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 7 из 7 | 1 с | c674598 +3 | [лог](logs/2026-10-01T15-27-34Z-unit-563b.log) | green: задача db с миграциями и сидом в public |
+| 01.10.2026 20:27 | typecheck | ✅ без ошибок | 28 с | c674598 +3 | [лог](logs/2026-10-01T15-27-46Z-typecheck-0341.log) | перед пушем правки db-задачи CI |
+| 01.10.2026 20:28 | lint | ✅ без ошибок | 24 с | c674598 +3 | [лог](logs/2026-10-01T15-28-15Z-lint-d8c0.log) | перед пушем правки db-задачи CI |
+| 01.10.2026 20:39 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 8 | 6 с | d5fc2f6 +1 | [лог](logs/2026-10-01T15-39-30Z-unit-824f.log) | red: очередь ещё на уровне workflow |
+| 01.10.2026 20:39 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 8 из 8 | 1 с | d5fc2f6 +1 | [лог](logs/2026-10-01T15-39-37Z-unit-a541.log) | green: очередь на уровне задач |
+| 01.10.2026 20:39 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 14 | 13 с | d5fc2f6 +2 | [лог](logs/2026-10-01T15-39-40Z-unit-7b6f.log) | red: снятая миграция читается как новая |
+| 01.10.2026 20:39 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 14 из 14 | 13 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-39-54Z-unit-db6d.log) | green: снятая миграция отличается от новой |
+| 01.10.2026 20:40 | typecheck | ✅ без ошибок | 37 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-40-33Z-typecheck-5f85.log) | очередь задач CI, отложенные миграции в auto-deploy |
+| 01.10.2026 20:41 | lint | ✅ без ошибок | 25 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-41-10Z-lint-aaa4.log) | очередь задач CI, отложенные миграции в auto-deploy |
+| 01.10.2026 21:14 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 9 | 3 с | 1ef224b +1 | [лог](logs/2026-10-01T16-14-50Z-unit-135b.log) | red: сквозные в CI на грязной pms_test |
+| 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-12Z-unit-57fe.log) | green: свежая pms_test перед сквозными |
+| 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 9 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-29Z-unit-2d19.log) | green: свежая pms_test перед сквозными |
+| 01.10.2026 21:14 | integration | ✅ 225 из 230, пропущено 5 | 1 мин 4 с | 1ef224b | [лог](logs/2026-10-01T16-14-50Z-integration-8095.log) | полный integration на локальном PostgreSQL 16, как задача db в CI |
+| 01.10.2026 21:16 | e2e (частично: tests/e2e/inventory.spec.ts tests/e2e/chessboard.spec.ts tests/e2e/manual-reservation.spec.ts) | ❌ упало 4 из 6 | 45 с | ec86aed | [лог](logs/2026-10-01T16-16-21Z-e2e-c94e.log) | red: сквозные на pms_test после полного integration, как run 838 в CI |
+| 01.10.2026 21:17 | e2e | ❌ упало 13 из 25 | 18 мин 14 с | ec86aed | [лог](logs/2026-10-01T16-17-17Z-e2e-b9fb.log) | green: свежая pms_test с сидом перед сквозными, как новый шаг задачи db |
+| 01.10.2026 23:32 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 10 | 7 с | c6cbf32 +1 | [лог](logs/2026-10-01T18-32-42Z-unit-f251.log) | red: регистрация раннера не проверяет ASCII |
+| 01.10.2026 23:32 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 10 из 10 | 2 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-32-51Z-unit-fa9c.log) | green: регистрация раннера отказывает на не-ASCII |
+| 01.10.2026 23:33 | typecheck | ✅ без ошибок | 39 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-33-11Z-typecheck-1718.log) | вход раннера, чеклист |
+| 01.10.2026 23:33 | lint | ✅ без ошибок | 27 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-33-51Z-lint-14eb.log) | вход раннера, чеклист |
+| 01.10.2026 23:40 | integration (частично: tests/integration/integrity-guards.test.ts) | ✅ 5 из 5 | 8 с | b1f64f8 +1 | [лог](logs/2026-10-01T18-40-12Z-integration-39be.log) | замок категории: ожидание по факту, прогон 1 из 3 |
+| 01.10.2026 23:40 | integration (частично: tests/integration/integrity-guards.test.ts) | ✅ 5 из 5 | 5 с | b1f64f8 +1 | [лог](logs/2026-10-01T18-40-20Z-integration-6581.log) | замок категории: ожидание по факту, прогон 2 из 3 |
+| 01.10.2026 23:40 | integration (частично: tests/integration/integrity-guards.test.ts) | ✅ 5 из 5 | 4 с | b1f64f8 +1 | [лог](logs/2026-10-01T18-40-26Z-integration-fa0b.log) | замок категории: ожидание по факту, прогон 3 из 3 |
+| 01.10.2026 23:40 | typecheck | ✅ без ошибок | 33 с | b1f64f8 +1 | [лог](logs/2026-10-01T18-40-42Z-typecheck-9cde.log) | замок категории: ожидание по факту |
+| 01.10.2026 23:41 | lint | ✅ без ошибок | 31 с | b1f64f8 +1 | [лог](logs/2026-10-01T18-41-15Z-lint-8e1f.log) | замок категории: ожидание по факту |
 | 01.10.2026 23:46 | typecheck | ❌ ошибок: 2 | 29 с | 2bc2380 +50 | [лог](logs/2026-10-01T18-46-06Z-typecheck-c6b3.log) | TS1005 |
 | 01.10.2026 23:47 | typecheck | ✅ без ошибок | 29 с | 2bc2380 +50 | [лог](logs/2026-10-01T18-47-08Z-typecheck-1d16.log) |  |
 | 01.10.2026 23:47 | lint | ✅ без ошибок | 22 с | 2bc2380 +50 | [лог](logs/2026-10-01T18-47-37Z-lint-51f3.log) |  |
@@ -6590,6 +6634,11 @@
 | 06.10.2026 12:27 | unit (частично: apps/api/src/hotel/branches.test.ts apps/api/src/hotel/branch-context.test.ts apps/web/src/app/branches/switch.test.ts --maxWorkers=2) | ✅ 24 из 24 | 3 с | 086206d | [лог](logs/2026-10-06T07-27-14Z-unit-be25.log) | PR248 synced main branch focused regression |
 | 06.10.2026 12:27 | integration (частично: tests/integration/mv8-branches-contract.test.ts tests/integration/beauty-branch.test.ts) | ✅ 8 из 8 | 5 с | 086206d | [лог](logs/2026-10-06T07-27-13Z-integration-1bf9.log) | PR248 synced main 34038a8d real branches acceptance |
 | 06.10.2026 12:27 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 1 из 1 | 13 с | 086206d | [лог](logs/2026-10-06T07-27-28Z-e2e-328b.log) | PR248 synced main real branch switch smoke |
+| 06.10.2026 12:45 | typecheck | ✅ без ошибок | 1 мин 21 с | f23fc3b +50 | [лог](logs/2026-10-06T07-45-27Z-typecheck-b519.log) | merge origin/main dd763f5c into PR #211: parallel ADR-137/139 taken from main |
+| 06.10.2026 12:46 | lint | ✅ без ошибок | 49 с | f23fc3b +50 | [лог](logs/2026-10-06T07-46-49Z-lint-7bff.log) | merge origin/main dd763f5c into PR #211: parallel ADR-137/139 taken from main |
+| 06.10.2026 12:47 | unit | ✅ 3413 из 3416, пропущено 3 | 2 мин 16 с | f23fc3b +50 | [лог](logs/2026-10-06T07-47-39Z-unit-1fec.log) | merge origin/main dd763f5c into PR #211: parallel ADR-137/139 taken from main |
+| 06.10.2026 12:50 | integration | ✅ 752 из 757, пропущено 5 | 2 мин 31 с | f23fc3b +50 | [лог](logs/2026-10-06T07-50-07Z-integration-50b5.log) | merge origin/main dd763f5c into PR #211: parallel ADR-137/139 taken from main |
+| 06.10.2026 12:52 | unit | ✅ 3413 из 3416, пропущено 3 | 2 мин 7 с | f23fc3b +50 | [лог](logs/2026-10-06T07-52-56Z-unit-96b2.log) | merge origin/main dd763f5c into PR #211, rerun without edits during the run |
 | 06.10.2026 12:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/analytics-occupancy.spec.ts tests/ui/chessboard-compact-screen.spec.ts --workers=1) | ❌ упало 3 из 10 | 1 мин 43 с | a70cff8 | [лог](logs/2026-10-06T07-15-17Z-e2e-141e.log) | Reproduce final CI calendar navigation and compact viewport failures |
 | 06.10.2026 12:17 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/analytics-occupancy.spec.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-st | ❌ упало 2 из 20 | 5 мин 2 с | a70cff8 +1 | [лог](logs/2026-10-06T07-17-33Z-e2e-b4b3.log) | Verify paginated synthetic directory and compact accessible calendar header |
 | 06.10.2026 12:23 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/analytics-occupancy.spec.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-st | ❌ упало 1 из 20 | 3 мин 22 с | a70cff8 +2 | [лог](logs/2026-10-06T07-23-18Z-e2e-0cfe.log) | Verify all three CI failures after bounded fixture and desktop spacing repairs |
@@ -6601,6 +6650,9 @@
 | 06.10.2026 12:30 | lint | ✅ без ошибок | 13 с | a70cff8 +2 | [лог](logs/2026-10-06T07-30-58Z-lint-cb7d.log) | Calendar CI repair final lint |
 | 06.10.2026 12:38 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 2 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-13Z-unit-156f.log) | Calendar summary spacing follows design token scale |
 | 06.10.2026 12:38 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-statistics.spec.ts --workers=1) | ✅ 11 из 11 | 24 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-15Z-e2e-b87b.log) | Verify token-compliant desktop summary and unchanged mobile widgets |
+| 06.10.2026 12:58 | typecheck | ✅ без ошибок | 50 с | a49e7b9 | [лог](logs/2026-10-06T07-58-02Z-typecheck-5c39.log) | tree merged with main a616d393 (PR #211) |
+| 06.10.2026 12:58 | lint | ✅ без ошибок | 44 с | a49e7b9 | [лог](logs/2026-10-06T07-58-53Z-lint-7674.log) | tree merged with main a616d393 (PR #211) |
+| 06.10.2026 12:59 | unit | ✅ 3414 из 3417, пропущено 3 | 2 мин 15 с | a49e7b9 | [лог](logs/2026-10-06T07-59-38Z-unit-5f33.log) | tree merged with main a616d393 (PR #211) |
 | 06.10.2026 12:45 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | a616d39 | [лог](logs/2026-10-06T07-45-09Z-unit-3a5f.log) | Verify published calendar standard spacing before remaining release |
 | 06.10.2026 12:41 | unit (частично: tests/unit/design-slop.test.ts) | ❌ упало 1 из 11 | 1 с | d52065e | [лог](logs/2026-10-06T07-41-55Z-unit-eabe.log) | Verify published compact calendar spacing before deployment |
 | 06.10.2026 13:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/mobile-adaptation.spec.ts --grep управление календаря --workers=1) | ❌ упало 1 из 1 | 11 с | a616d39 | [лог](logs/2026-10-06T08-12-09Z-e2e-4918.log) | Reproduce legacy half-screen expectation after approved daily summary |
@@ -6641,6 +6693,10 @@
 | 06.10.2026 16:22 | typecheck | ✅ без ошибок | 56 с | b3bcd2c | [лог](logs/2026-10-06T11-22-11Z-typecheck-81c2.log) |  |
 | 06.10.2026 16:23 | lint | ✅ без ошибок | 52 с | b3bcd2c | [лог](logs/2026-10-06T11-23-08Z-lint-2343.log) |  |
 | 06.10.2026 16:24 | unit | ✅ 3402 из 3405, пропущено 3 | 2 мин 13 с | b3bcd2c | [лог](logs/2026-10-06T11-24-04Z-unit-5be0.log) |  |
+| 06.10.2026 17:54 | typecheck | ✅ без ошибок | 1 мин 2 с | 98ae1e0 | [лог](logs/2026-10-06T12-54-13Z-typecheck-1729.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:55 | lint | ✅ без ошибок | 34 с | 98ae1e0 | [лог](logs/2026-10-06T12-55-16Z-lint-6cf3.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:55 | unit | ❌ упало 1 из 3417, пропущено 3 | 2 мин 22 с | 98ae1e0 | [лог](logs/2026-10-06T12-55-51Z-unit-9f65.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:58 | unit | ✅ 3414 из 3417, пропущено 3 | 1 мин 57 с | 98ae1e0 | [лог](logs/2026-10-06T12-58-58Z-unit-05e6.log) | tree merged with main 64f2442f (PR #211), rerun after afterEach hook timeout in auto-deploy.test.ts |
 | 06.10.2026 17:25 | unit (частично: tests/unit/deploy-server.test.ts -t виджет брони наружу) | ❌ упало 1 из 40, пропущено 39 | 2 с | 64f2442 +1 | [лог](logs/2026-10-06T12-25-58Z-unit-d513.log) | MKT1B BOOK-3 red |
 | 06.10.2026 17:26 | unit (частично: tests/unit/deploy-server.test.ts tests/unit/launchd-domain-guard.test.ts) | ✅ 44 из 44 | 2 с | 64f2442 +2 | [лог](logs/2026-10-06T12-26-20Z-unit-2514.log) | MKT1B BOOK-3 green |
 | 06.10.2026 17:27 | unit (частично: apps/api/src/web-booking/widget-cors.test.ts) | ❌ упало 2 из 2 | 6 с | 117bce9 +1 | [лог](logs/2026-10-06T12-27-54Z-unit-e425.log) | MKT1B BOOK-1 red |
@@ -6690,3 +6746,6 @@
 | 06.10.2026 18:29 | integration | ✅ 767 из 767 | 2 мин 6 с | 8526d50 +5 | [лог](logs/2026-10-06T13-29-17Z-integration-844b.log) | MKT1B review: full integration, fresh base, deterministic seed property in tables-role |
 | 06.10.2026 18:31 | typecheck | ✅ без ошибок | 40 с | 8526d50 +5 | [лог](logs/2026-10-06T13-31-31Z-typecheck-e0f4.log) | MKT1B review final |
 | 06.10.2026 18:32 | lint | ✅ без ошибок | 36 с | 8526d50 +5 | [лог](logs/2026-10-06T13-32-12Z-lint-47a2.log) | MKT1B review final |
+| 06.10.2026 18:54 | typecheck | ✅ без ошибок | 53 с | 6cb82c3 | [лог](logs/2026-10-06T13-54-24Z-typecheck-642b.log) | tree merged with main c020f9f9 (PR #211) |
+| 06.10.2026 18:55 | lint | ✅ без ошибок | 33 с | 6cb82c3 | [лог](logs/2026-10-06T13-55-17Z-lint-fe6f.log) | tree merged with main c020f9f9 (PR #211) |
+| 06.10.2026 18:55 | unit | ✅ 3424 из 3427, пропущено 3 | 1 мин 57 с | 6cb82c3 | [лог](logs/2026-10-06T13-55-51Z-unit-94b3.log) | tree merged with main c020f9f9 (PR #211) |

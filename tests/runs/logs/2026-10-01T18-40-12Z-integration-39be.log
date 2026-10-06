@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 01.10.2026 23:40 Алматы · vm
+# коммит b1f64f8 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T18-40-12Z-integration-39be.json' 'tests/integration/integrity-guards.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 2055ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ дубль (property_id, external_id) отвергает база, а не только код; NULL у ручных броней различны 1027ms
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 579ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:40:14
+   Duration  5.90s (tests 52%, transform 27%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-01T18-40-12Z-integration-39be.json
+
+# код выхода 0 · 8 с

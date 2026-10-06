@@ -1,0 +1,67 @@
+# Модульные (unit) · 01.10.2026 23:32 Алматы · vm
+# коммит c6cbf32 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T18-32-42Z-unit-f251.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (10 tests | 1 failed) 27ms
+   ✓ свой раннер CI (4)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 3ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 1ms
+     ✓ тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ❯ регистрация своего раннера (1)
+     × entrypoint отказывает словами, если в RUNNER_TOKEN или RUNNER_REPO_URL есть не-ASCII символ 10ms
+   ✓ проверки GitHub после разбора 01.10.2026 (5)
+     ✓ тесты бота идут отдельной задачей на своём раннере 1ms
+     ✓ задача db повторяет локальный стенд: миграции в public и вход без пароля 1ms
+     ✓ очередь на уровне задач: db на раннере GitHub не ждёт очереди своего раннера 2ms
+     ✓ перед сквозными тестами pms_test пересоздаётся и засевается заново 2ms
+     ✓ код из форка на свой раннер не попадает 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > регистрация своего раннера > entrypoint отказывает словами, если в RUNNER_TOKEN или RUNNER_REPO_URL есть не-ASCII символ
+AssertionError: expected 'set -eu\n\n: "${RUNNER_REPO_URL:?нуже…' to match /ASCII/
+
+- Expected:
+/ASCII/
+
++ Received:
+"set -eu
+
+: \"${RUNNER_REPO_URL:?нужен адрес репозитория, например https://github.com/GAIVER007/wetop.ai}\"
+cd /home/runner/actions-runner
+
+if [ ! -f .runner ]; then
+  : \"${RUNNER_TOKEN:<скрыто> токен регистрации: Settings → Actions → Runners → New self-hosted runner}\"
+  ./config.sh --unattended --replace \\
+    --url \"$RUNNER_REPO_URL\" \\
+    --token \"$RUNNER_TOKEN\" \\
+    --name \"${RUNNER_NAME:-wetop}-$(hostname)\" \\
+    --labels \"${RUNNER_LABELS:-wetop}\" \\
+    --work _work
+fi
+
+exec ./run.sh
+"
+
+ ❯ tests/unit/ci-runner.test.ts:73:19
+     71|   it('entrypoint отказывает словами, если в RUNNER_TOKEN или RUNNER_RE…
+     72|     const entry = withoutComments(read('scripts/ops/ci-runner/entrypoi…
+     73|     expect(entry).toMatch(/ASCII/);
+       |                   ^
+     74|     expect(entry.indexOf('ASCII')).toBeLessThan(entry.indexOf('./confi…
+     75|     expect(entry).toMatch(/RUNNER_TOKEN RUNNER_REPO_URL|RUNNER_REPO_UR…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  18:32:49
+   Duration  543ms (transform 56%, import 20%, tests 19%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-01T18-32-42Z-unit-f251.json
+
+# код выхода 1 · 7 с

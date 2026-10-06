@@ -1,0 +1,728 @@
+# Модульные (unit) · 01.10.2026 20:04 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-04-45Z-unit-3bce.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 5055  - 10/01/2026, 3:04:49 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (21 tests) 387ms
+[Nest] 5052  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (49 tests) 754ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (68 tests) 668ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (17 tests) 495ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+[Nest] 5099  - 10/01/2026, 3:04:51 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 5099  - 10/01/2026, 3:04:51 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 5099  - 10/01/2026, 3:04:51 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (32 tests) 50ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (36 tests) 676ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (10 tests) 366ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (19 tests) 411ms
+ ✓ |unit| tests/unit/deploy-server.test.ts (37 tests) 79ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (18 tests) 90ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (15 tests) 381ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (25 tests) 77ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (50 tests) 5975ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 318ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 378ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 30ms
+ ✓ |unit| tests/unit/test-journal.test.ts (22 tests) 20ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 416ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 14ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 484ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 33ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 29ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (22 tests) 311ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 35ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 82ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 89ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 242ms
+ ✓ |unit| packages/domain/src/dashboard/metrics.test.ts (16 tests) 17ms
+[Nest] 10016  - 10/01/2026, 3:05:02 PM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (12 tests) 304ms
+ ✓ |unit| tests/unit/repo-sync.test.ts (25 tests) 10831ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 329ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 342ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 653ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 405ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 606ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 696ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 547ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 756ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 373ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 303ms
+   ✓ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     ✓ находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 485ms
+     ✓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 467ms
+     ✓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 467ms
+     ✓ чужой репозиторий внутри папки назван, но не переносится 507ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 420ms
+     ✓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 823ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 576ms
+[Nest] 10743  - 10/01/2026, 3:05:02 PM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 22ms
+[Nest] 10944  - 10/01/2026, 3:05:03 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 262ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (30 tests) 23ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (6 tests) 249ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 166ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (15 tests) 13ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (10 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (9 tests) 24ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 3382ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 822ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 679ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 360ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 350ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1170ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 10ms
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (15 tests) 301ms
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (18 tests) 26ms
+ ✓ |unit| packages/domain/src/ai-seller/profile.test.ts (15 tests) 12ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (13 tests | 2 failed) 158ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 29ms
+     ✓ шрифта мельче 12 px нет 12ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 14ms
+     × литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 13ms
+     × стрелок в конце текста ссылок нет — ссылка названа словом (§14) 13ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 13ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 16ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 5ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 9ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 16ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 1ms
+     ✓ на шахматке инлайн-фон клетки — backgroundColor, не сокращение background 1ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 13ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 41ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 2ms
+     ✓ design/contrast.md совпадает с расчётом 2ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 27ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 24ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 13ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests) 280ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (8 tests) 269ms
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 12492  - 10/01/2026, 3:05:08 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 12492  - 10/01/2026, 3:05:08 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 12492  - 10/01/2026, 3:05:08 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 12492  - 10/01/2026, 3:05:08 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 12492  - 10/01/2026, 3:05:08 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 12492  - 10/01/2026, 3:05:08 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (10 tests) 17ms
+ ✓ |unit| apps/api/src/database/integration-tables.guard.test.ts (5 tests) 56ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (19 tests) 15ms
+ ✓ |unit| packages/domain/src/ai-seller/facts.test.ts (13 tests) 41ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (11 tests) 14ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 15ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (15 tests) 76ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 407ms
+ ✓ |unit| tests/unit/ari-switch-server.test.ts (8 tests) 333ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (5 tests) 10ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 13ms
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 7 failed) 16ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     × color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 8ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 2ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 1ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 1ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 1ms
+     × trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 1ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 1ms
+     ✓ снимок покрывает все правила 0ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 11ms
+ ✓ |unit| packages/domain/src/assistant/diagnostics.test.ts (12 tests) 10ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 75ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 216ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (13 tests) 11306ms
+   ✓ scripts/ops/auto-deploy.sh (13)
+     ✓ checked-out source stays readable by the container user under a private caller umask 687ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 398ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 698ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 623ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 884ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 798ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 594ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 729ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 613ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 974ms
+     ✓ локальные правки в клоне — не затирает их 591ms
+     ✓ историю ветки переписали — не выкладывает поверх 929ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2785ms
+ ✓ |unit| packages/domain/src/assistant/user-errors.test.ts (38 tests) 25ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 8ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 186ms
+ ✓ |unit| packages/domain/src/accounts/accounts.test.ts (24 tests) 810ms
+ ✓ |unit| packages/domain/src/ai-agents/create.test.ts (15 tests) 7ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 17ms
+ ✓ |unit| apps/api/src/channels/integration-property.test.ts (11 tests) 15ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 7ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 68ms
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (4 tests) 16ms
+ ✓ |unit| packages/domain/src/rates/discounts.test.ts (16 tests) 15ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 15ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (11 tests) 16ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (4 tests) 3322ms
+   ✓ scripts/ops/db-backup-offsite.sh (4)
+     ✓ шифрует последнюю копию, грузит с подписью v4, сверяет размер и пишет статус без ключей 1572ms
+     ✓ размер в хранилище не сошёлся: отказ, статус не пишется 746ms
+     ✓ копии нет: отказ словами; регион подписи берётся из настроек 902ms
+ ✓ |unit| tests/unit/db-backup.test.ts (14 tests) 776ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (13 tests) 200ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (9 tests) 241ms
+ ✓ |unit| tests/unit/promote-release.test.ts (7 tests) 3201ms
+   ✓ scripts/ops/promote-release.sh (7)
+     ✓ обязательные проверки зелёные и владелец сказал «да» — release перематывается на коммит 517ms
+     ✓ обязательная задача красная — отказ, release не тронута 416ms
+     ✓ проверка ещё идёт или не запускалась — отказ 515ms
+     ✓ необязательная задача красная — тоже отказ: красный db не прячется за «необязательно» 417ms
+     ✓ коммит не из main — отказ: ветка выкладки не обходит main 402ms
+     ✓ перемотка назад — отказ: откат делается руками 417ms
+     ✓ без «да» владельца release не трогается, --dry-run только показывает 514ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 14ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 264ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 274ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 137ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 28ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests) 1203ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 14ms
+ ✓ |unit| tests/unit/launchd-install.test.ts (6 tests | 3 skipped) 122ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 12ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 15ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (9 tests) 12ms
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (11 tests | 1 failed) 12ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 3ms
+     × продавец виден для знакомства, а раздел «Платформа» без прав скрыт 5ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 0ms
+   ✓ строка пробного периода в меню (4)
+     ✓ пробный — сколько дней осталось; кончился — так и сказано 0ms
+     ✓ у оплаченной организации, без срока и без организации строки нет 0ms
+     ✓ оболочка несёт строку вошедшего; без вошедшего — пусто 0ms
+     ✓ обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет 0ms
+   ✓ deskShellOf — только чтение (4)
+     ✓ пробный срок вышел — полоса есть 0ms
+     ✓ переведена в «только чтение» руками — полоса есть 0ms
+     ✓ в срок, после оплаты и без организации в ответе — полосы нет 0ms
+     ✓ сбой ответа о вошедшем — полосы нет 0ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 281ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 14ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 203ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 22ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 86ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 18ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 166ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3247ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1738ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1489ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 62ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 11ms
+ ✓ |unit| packages/domain/src/accounts/permissions.test.ts (13 tests) 10ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (4 tests) 183ms
+ ✓ |unit| scripts/ops/accounts-args.test.ts (13 tests) 11ms
+ ✓ |unit| tests/unit/launchd-domain-guard.test.ts (4 tests) 299ms
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 9ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (24 tests) 11ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (10 tests) 10ms
+ ✓ |unit| apps/api/src/channels/integration-command.test.ts (6 tests) 11ms
+ ✓ |unit| apps/api/src/channels/integration-owner.test.ts (7 tests) 13ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (12 tests) 12ms
+ ✓ |unit| packages/domain/src/guests/directory.test.ts (7 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/extensions.test.ts (10 tests) 17ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (10 tests) 9ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 17ms
+ ✓ |unit| packages/domain/src/onboarding/plan.test.ts (15 tests) 17ms
+ ✓ |unit| packages/domain/src/accounts/roles.test.ts (9 tests) 7ms
+ ✓ |unit| apps/api/src/channels/operator-access.test.ts (5 tests) 11ms
+ ✓ |unit| scripts/reconciliation/src/day-selfcheck.test.ts (8 tests) 10ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 206ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 10ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 14ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (48 tests) 13ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (4 tests) 9ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (17 tests) 9ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 142ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 11ms
+ ✓ |unit| packages/database/src/rls-startup.test.ts (10 tests) 16ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1938ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 319ms
+     ✓ настройка undefined: регистрация и повторный вход доступны 408ms
+     ✓ настройка : регистрация и повторный вход доступны 363ms
+ ✓ |unit| tests/unit/launchd-status.test.ts (4 tests) 242ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (7 tests) 8ms
+ ✓ |unit| scripts/ops/slow-report.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 11ms
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 115ms
+ ✓ |unit| tests/unit/channex-booking-receiving.test.ts (6 tests) 122ms
+ ✓ |unit| packages/domain/src/accounts/requester-context.test.ts (11 tests) 14ms
+ ❯ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests | 1 failed) 35ms
+   ❯ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 14ms
+     × стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 18ms
+ ✓ |unit| packages/domain/src/property/services.test.ts (9 tests) 12ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 12ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 9ms
+ ✓ |unit| apps/api/src/health/health.test.ts (5 tests) 265ms
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 147ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (14 tests) 13ms
+ ✓ |unit| apps/api/src/guard/incidents-exposure.test.ts (3 tests) 28ms
+ ✓ |unit| packages/database/src/rls.test.ts (5 tests) 9ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (6 tests) 10ms
+ ✓ |unit| tests/unit/e2e-auth-config.test.ts (3 tests) 521ms
+   ✓ конфиг e2e и замок API (3)
+     ✓ изолированный API проверяет сессии без рабочего SESSION_SECRET 512ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 12ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 6ms
+ ✓ |unit| packages/domain/src/availability/stay-offer.test.ts (7 tests) 11ms
+ ✓ |unit| tests/unit/test-data-source.test.ts (9 tests) 23ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 20ms
+ ✓ |unit| tests/unit/ari-server.test.ts (5 tests) 193ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 10ms
+ ✓ |unit| packages/domain/src/availability/nearest.test.ts (5 tests) 10ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 11ms
+ ✓ |unit| tests/unit/run-lock.test.ts (8 tests) 15ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 9ms
+ ✓ |unit| apps/api/src/database/integration-tables.test.ts (4 tests) 6ms
+ ✓ |unit| tests/unit/seed-local.test.ts (6 tests) 9ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 6ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (6 tests) 6ms
+ ✓ |unit| scripts/lib/desk-page.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (5 tests) 10ms
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 10ms
+ ✓ |unit| scripts/lib/service-api.test.ts (8 tests) 68ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 10ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 149ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (5 tests) 21ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 210ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (10 tests) 12ms
+ ✓ |unit| scripts/preview/real-config.test.ts (24 tests) 63ms
+ ✓ |unit| apps/api/src/channels/integration-scope.test.ts (4 tests) 10ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 68ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 8ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 8ms
+ ✓ |unit| packages/domain/src/ai-agents/catalog.test.ts (7 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 7ms
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 53ms
+[Nest] 16895  - 10/01/2026, 3:06:00 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 16895  - 10/01/2026, 3:06:00 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/channels/outbox-enqueue.test.ts (2 tests) 7ms
+ ✓ |unit| packages/domain/src/property/property.test.ts (3 tests) 76ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 9ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 8ms
+ ✓ |unit| packages/domain/src/property/settings.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.service.test.ts (1 test) 5ms
+ ✓ |unit| packages/domain/src/dashboard/period.test.ts (4 tests) 7ms
+ ✓ |unit| tests/unit/local-db-migrate-target.test.ts (1 test) 55ms
+ ✓ |unit| packages/domain/src/accounts/registration-contact.test.ts (10 tests) 11ms
+ ✓ |unit| packages/domain/src/accounts/reset.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/app/rates/range-summary.test.ts (8 tests) 7ms
+ ✓ |unit| tests/unit/no-vendor-name.test.ts (1 test) 102ms
+ ✓ |unit| tests/unit/site-calculator.test.ts (6 tests) 5ms
+ ✓ |unit| packages/shared/src/auth-hash.test.ts (11 tests) 12ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 7ms
+stdout | tests/unit/desk-health.test.ts > стенд стойки перед e2e > пятисотка не от сборки прогон не останавливает, но называется
+[стенд] 500 на страницах: /finance — причина в журнале стойки
+
+ ✓ |unit| tests/unit/desk-health.test.ts (5 tests) 9ms
+[Nest] 17077  - 10/01/2026, 3:06:04 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 17077  - 10/01/2026, 3:06:04 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 17077  - 10/01/2026, 3:06:04 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓ |unit| apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 9ms
+ ✓ |unit| apps/api/src/channels/gateway-failure.test.ts (4 tests) 8ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (3 tests) 8ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 61ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 12ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (3 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 9ms
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 9ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 17ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 6ms
+ ✓ |unit| packages/domain/src/housekeeping/flow.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 15ms
+ ✓ |unit| tests/unit/channex-property-settings.test.ts (4 tests) 6ms
+ ✓ |unit| tests/unit/guard-agent-run.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 7ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 15ms
+[Nest] 17296  - 10/01/2026, 3:06:10 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 9ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 49ms
+ ✓ |unit| tests/unit/nest-http-adapter.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 8ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 59ms
+ ✓ |unit| tests/unit/launchd-web-start.test.ts (1 test) 3969ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 3967ms
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 49ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 48ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 164ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 77ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 32ms
+ ✓ |unit| tests/unit/site-headers.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 9ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 11ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 8ms
+ ✓ |unit| scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 6ms
+ ✓ |unit| tests/unit/desk-auth.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 3ms
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 5ms
+ ✓ |unit| packages/domain/src/incidents/kinds-doc.test.ts (1 test) 7ms
+[Nest] 17715  - 10/01/2026, 3:06:21 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 21ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 6ms
+ ✓ |unit| tests/unit/test-database-guard.test.ts (3 tests) 5ms
+ ✓ |unit| tests/unit/channex-tunnel-guard.test.ts (7 tests) 70715ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (7)
+     ✓ в Channex записан одноразовый туннель — работаем как прежде 20186ms
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 20181ms
+     ✓ без постоянного адреса работает как прежде 20150ms
+     ✓ API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным 5033ms
+     ✓ API отвечает ошибкой на статус (Channex молчит) — тоже отказ 5054ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (7 tests) 67ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 66ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 35ms
+ ✓ |unit| tests/unit/fixture-incident-kinds.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 5ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 7ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (3 tests) 9ms
+ ✓ |unit| packages/domain/src/accounts/session-renew.test.ts (4 tests) 17ms
+ ✓ |unit| apps/api/src/listen-address.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 10ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/security-headers.test.ts (2 tests) 5ms
+ ✓ |unit| tests/unit/server-bootstrap.test.ts (3 tests) 57140ms
+   ✓ deploy/server-bootstrap.sh (root, Linux) (3)
+     ✓ репозиторий недоступен: печатает публичный ключ, просит добавить его в GitHub и выходит с кодом 3 24943ms
+     ✓ репозиторий доступен: клонирует нужную ветку, заводит папку туннеля и говорит, что дальше 11057ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 49ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 11ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 7ms
+ ✓ |unit| tests/unit/guard-drill-staging.test.ts (1 test) 763ms
+   ✓ guard-drill outbox refuses a production Channex address before touching the API 762ms
+ ✓ |unit| tests/unit/fixture-demo.test.ts (1 test) 814ms
+   ✓ local demo preview (1)
+     ✓ starts its synthetic API without a database or providers 812ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 91ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/chessboard/stay-facts.test.ts (2 tests) 4ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/inventory/inventory-input.test.ts (2 tests) 6ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 10ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 9ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 6ms
+ ✓ |unit| packages/domain/src/web-analytics/retention.test.ts (3 tests) 4ms
+ ✓ |unit| packages/database/src/client-errors.test.ts (1 test) 61ms
+ ✓ |unit| apps/site/src/lib/phone-countries.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 46ms
+ ✓ |unit| scripts/ops/reset-to-onboarding.test.ts (2 tests) 4ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| tests/unit/local-app-login.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 9ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/inventory/empty-category.test.ts (1 test) 8ms
+ ✓ |unit| tests/unit/auth-deploy-health.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--accent', '--text-base' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--accent",
++   "--text-base",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/shell/sidebar.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/login/role-access.css: 0 → 2",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 19",
++   "apps/web/src/components/shell/sidebar.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(8) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx: 0 → 2",
++   "apps/web/src/app/ai-seller/forms.tsx: 0 → 1",
++   "apps/web/src/app/branches/overview.tsx: 0 → 4",
++   "apps/web/src/app/branches/workspace.tsx: 0 → 2",
++   "apps/web/src/app/login/team-section.tsx: 0 → 2",
++   "apps/web/src/app/platform/page.tsx: 0 → 1",
++   "apps/web/src/app/reservations/new/form.tsx: 0 → 1",
++   "apps/web/src/app/staff/page.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-seller/[[...section]]/page.tsx: 0 → 3",
++   "apps/web/src/app/ai-seller/setup-wizard.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5
+AssertionError: часы объекта — lib/property-time.ts: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/branches/form.tsx:41:          defaultValue=\"Asia/Almaty\"",
++   "apps/web/src/app/branches/form.tsx:42:          placeholder=\"Asia/Almaty\"",
++ ]
+
+ ❯ tests/unit/no-hardcoded-utc5.test.ts:68:86
+     66|
+     67|   it('стойка: даты и моменты — по поясу объекта из /hotel/settings, а …
+     68|     expect(hardcodedTimezone('apps/web/src'), 'часы объекта — lib/prop…
+       |                                                                                      ^
+     69|   });
+     70| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт)
+AssertionError: expected [ 'components/shell/sidebar.css' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "components/shell/sidebar.css",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:90:7
+     88|         )
+     89|         .map((f) => relative(SRC, f)),
+     90|     ).toEqual([]);
+       |       ^
+     91|   });
+     92|   it('стрелок в конце текста ссылок нет — ссылка названа словом (§14)'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > стрелок в конце текста ссылок нет — ссылка названа словом (§14)
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/ai-seller/[[...section]]/page.tsx",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:96:20
+     94|       .filter((f) => /(→|›)\s*<\/(?:Link|a)>/.test(readFileSync(f, 'ut…
+     95|       .map((f) => relative(SRC, f));
+     96|     expect(guilty).toEqual([]);
+       |                    ^
+     97|   });
+     98|   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > продавец виден для знакомства, а раздел «Платформа» без прав скрыт
+AssertionError: expected [ '/today', '/chessboard', …(15) ] to not include '/platform/support'
+ ❯ apps/web/src/lib/desk-person.test.ts:49:60
+     47|     // «Техподдержка» переехала под «ИИ-продавец» (переключатель агент…
+     48|     // пункта меню у неё больше нет, маршрут /platform/support остаётс…
+     49|     expect(hrefs({ aiSeller: false, platform: true })).not.toContain('…
+       |                                                            ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+
+ Test Files  5 failed | 307 passed (312)
+      Tests  12 failed | 2801 passed | 3 skipped (2816)
+   Start at  15:04:46
+   Duration  100.73s (tests 77%, import 18%, transform 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-04-45Z-unit-3bce.json
+
+# код выхода 1 · 1 мин 42 с

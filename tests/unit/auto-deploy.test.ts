@@ -161,6 +161,30 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(again.out).toBe('');
   });
 
+  // Отложенные миграции (packages/database/prisma/migrations-hold/README.md, 01.10.2026): папка уходит из цепочки в migrations-hold. Это не новая
+  // миграция, применять нечего; но и молча выкладывать нельзя: если её уже применили на рабочей базе, место ей в цепочке.
+  // Отказ один раз, с правильным текстом, и выкладка тем же флагом после проверки _prisma_migrations.
+  it('миграция снята из цепочки (отложена): отказ один раз с проверкой _prisma_migrations, флаг выкладывает', () => {
+    const before = head();
+    mkdirSync(join(dev, 'packages/database/prisma/migrations-hold/0001_init'), { recursive: true });
+    git(dev, 'mv', 'packages/database/prisma/migrations/0001_init/migration.sql', 'packages/database/prisma/migrations-hold/0001_init/migration.sql');
+    git(dev, 'commit', '-qm', 'hold migration');
+    git(dev, 'push', '-q', 'origin', 'HEAD:release');
+    const target = git(dev, 'rev-parse', 'HEAD');
+    const r = run();
+    expect(r.code).toBe(1);
+    expect(r.out).toContain('0001_init');
+    expect(r.out).toContain('_prisma_migrations');
+    expect(r.out).not.toContain('их применяет владелец');
+    expect(r.out).toContain(`--migrations-applied ${target.slice(0, 8)}`);
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+    expect(run().out).toBe('');
+    const ok = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    expect(ok.code, ok.out).toBe(0);
+    expect(head()).toBe(target);
+  });
+
   it('владелец применил миграции и назвал вершину — выкладывает ровно её', () => {
     const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
     const refusal = run();

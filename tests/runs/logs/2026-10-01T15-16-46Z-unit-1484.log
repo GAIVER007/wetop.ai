@@ -1,0 +1,36 @@
+# Модульные (unit) · 01.10.2026 20:16 Алматы · vm
+# коммит de7fea6 (claude/eloquent-hypatia-7fm68p)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-16-46Z-unit-1484.json' 'tests/unit/guard-agent-run.test.ts' 'tests/unit/promote-release.test.ts' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/ci-runner.test.ts' 'apps/api/src/channels/channels.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/channel-property-settings.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 2194  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (51 tests) 749ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (48 tests) 16ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (4 tests) 3337ms
+   ✓ scripts/ops/db-backup-offsite.sh (4)
+     ✓ шифрует последнюю копию, грузит с подписью v4, сверяет размер и пишет статус без ключей 1490ms
+     ✓ размер в хранилище не сошёлся: отказ, статус не пишется 921ms
+     ✓ копии нет: отказ словами; регион подписи берётся из настроек 808ms
+ ✓ |unit| tests/unit/promote-release.test.ts (7 tests) 3346ms
+   ✓ scripts/ops/promote-release.sh (7)
+     ✓ обязательные проверки зелёные и владелец сказал «да»: release перематывается на коммит 548ms
+     ✓ обязательная задача красная: отказ, release не тронута 463ms
+     ✓ проверка ещё идёт или не запускалась: отказ 545ms
+     ✓ необязательная задача красная: тоже отказ: красный db не прячется за «необязательно» 431ms
+     ✓ коммит не из main: отказ: ветка выкладки не обходит main 420ms
+     ✓ перемотка назад: отказ: откат делается руками 423ms
+     ✓ без «да» владельца release не трогается, --dry-run только показывает 514ms
+ ✓ |unit| tests/unit/guard-agent-run.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (10 tests) 14ms
+ ✓ |unit| tests/unit/channel-property-settings.test.ts (4 tests) 6ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (6 tests) 6ms
+
+ Test Files  8 passed (8)
+      Tests  134 passed (134)
+   Start at  15:16:47
+   Duration  3.96s (tests 72%, transform 19%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-16-46Z-unit-1484.json
+
+# код выхода 0 · 5 с

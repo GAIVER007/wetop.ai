@@ -79,6 +79,15 @@ export function BulkEditor(props: {
         ? { closedToDeparture: tri('closedToDeparture') }
         : {}),
     };
+    // Occupancy selects a price, it is not a change by itself. Zero nights and false flags count.
+    if (
+      !['price', 'minStay', 'maxStay', 'stopSell', 'closedToArrival', 'closedToDeparture'].some(
+        (k) => s(k) !== '',
+      )
+    ) {
+      setError('Укажите хотя бы одно изменение: цену или ограничение');
+      return;
+    }
     setRows((r) => [...r, row]);
     setDone(null);
     setError(null);

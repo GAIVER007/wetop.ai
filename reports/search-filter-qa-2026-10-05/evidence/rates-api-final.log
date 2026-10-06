@@ -1,0 +1,57 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts integration tests/integration/rates-empty-batch-api.test.ts --note Real authenticated API, seeded prices unchanged on empty batch
+
+▶ Интеграционные (integration) — нужно: dev-БД через пулер Supabase (DATABASE_URL в .env)
+  npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-40-19Z-integration-f0d4.json' 'tests/integration/rates-empty-batch-api.test.ts'
+
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-channex-recovery-20261004
+
+ ❯ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test | 1 failed) 176ms
+   × real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox 175ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rates-empty-batch-api.test.ts > real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox
+PrismaClientValidationError: 
+Invalid `prisma.dailyRate.create()` invocation:
+
+{
+  data: {
+    accommodationTypeId: "80b797b7-51c9-4da5-837b-5cce7b291d26",
+    ratePlanId: "e114e140-ce5f-4870-8dea-ec09bf9efefe",
+    date: new Date("2029-11-01T00:00:00.000Z"),
+    occupancy: 1,
+    priceMinor: 999000n,
++   price: BigInt
+  }
+}
+
+Argument `price` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/rates-empty-batch-api.test.ts:60:3
+     58|     data: { accommodationTypeId: category.id, ratePlanId: plan.id },
+     59|   });
+     60|   await db.dailyRate.create({
+       |   ^
+     61|     data: {
+     62|       accommodationTypeId: category.id,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  19:40:20
+   Duration  2.11s (transform 53%, import 36%, tests 11%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-40-19Z-integration-f0d4.json
+
+■ integration: ❌ упало 1 из 1 · 3 с
+  лог: tests/runs/logs/2026-10-05T15-40-19Z-integration-f0d4.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

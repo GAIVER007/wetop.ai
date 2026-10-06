@@ -1,0 +1,580 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/search-filter-recovery.spec.ts --note RED on installed 6d9b470, approved search/filter QA
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts'
+
+[WebServer] (node:83645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:83731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:83738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (17.6s)
+(node:83857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83874) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (16.8s)
+(node:83921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (15.9s)
+(node:83973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (16.5s)
+(node:83999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (17.3s)
+(node:84056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (16.6s)
+(node:84112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (3.3s)
+(node:84132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (16.1s)
+(node:84193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (16.3s)
+(node:84243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (15.9s)
+(node:84319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (45.1s)
+(node:84543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (17.4s)
+(node:84660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (16.6s)
+(node:84716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (1.5s)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-06"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-06" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      27 |         await link.click();
+      28 |         await expect(page).toHaveURL(target.href);
+    > 29 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      30 |           target.searchParams.get('arrival')!,
+      31 |         );
+      32 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:29:65
+
+    Error Context: test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-09"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-09" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      27 |         await link.click();
+      28 |         await expect(page).toHaveURL(target.href);
+    > 29 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      30 |           target.searchParams.get('arrival')!,
+      31 |         );
+      32 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:29:65
+
+    Error Context: test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-be7b5--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+      43 |       await page.goto(`${search}&category=MALE`);
+      44 |       const category = page.getByRole('combobox', { name: 'Категория', exact: true });
+    > 45 |       await expect(category).toHaveValue('MALE');
+         |                              ^
+      46 |       await page.getByLabel('Заезд', { exact: true }).fill('2026-10-13');
+      47 |       await page.getByLabel('Выезд', { exact: true }).fill('2026-10-16');
+      48 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:45:30
+
+    Error Context: test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-10"
+    Received: "2026-10-05"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        - locator resolved to <input required="" type="date" name="arrival" value="2026-10-05" class="inp date-field__input"/>
+        31 × unexpected value "2026-10-05"
+           - locator resolved to <input required="" type="date" name="arrival" value="2026-10-05" aria-label="Заезд" class="inp date-field__input"/>
+        - unexpected value "2026-10-05"
+
+
+      68 |       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
+      69 |       await page.getByRole('link', { name: 'Поиск свободных номеров', exact: true }).click();
+    > 70 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+         |                                                               ^
+      71 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      72 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+      73 |         'MALE',
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:70:63
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Способ оплаты', exact: true })
+    Expected: "CASH"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Способ оплаты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Способ оплаты', exact: true })
+        33 × locator resolved to <select class="inp" name="method" aria-label="Способ оплаты">…</select>
+           - unexpected value ""
+
+
+       96 |       expect(q.get('to')).toBe('2026-10-05');
+       97 |       await page.goBack();
+    >  98 |       await expect(method).toHaveValue('CASH');
+          |                            ^
+       99 |       await page.goForward();
+      100 |       await expect(method).toHaveValue('');
+      101 |     });
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:98:28
+
+    Error Context: test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-424aa--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('bulk-editor').getByRole('alert')
+    Expected substring: "Укажите хотя бы одно изменение"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('bulk-editor').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('bulk-editor').getByRole('alert')
+
+
+      109 |       const add = editor.getByRole('button', { name: '+ Добавить в список', exact: true });
+      110 |       await add.click();
+    > 111 |       await expect(editor.getByRole('alert')).toContainText('Укажите хотя бы одно изменение');
+          |                                               ^
+      112 |       await expect(editor.getByTestId('pending-changes')).toHaveCount(0);
+      113 |       await expect(editor.getByTestId('apply-changes')).toBeDisabled();
+      114 |       await editor.getByLabel('Мин. ночей', { exact: true }).fill('0');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:111:47
+
+    Error Context: test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b0b09-restrictions-remain-changes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kz"
+    Received: null
+
+      128 |       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
+      129 |       await settleStreaming(page);
+    > 130 |       expect(new URL(page.url()).searchParams.get('lang')).toBe('kz');
+          |                                                            ^
+      131 |       expect(new URL(page.url()).searchParams.get('date')).toBe('2026-10-05');
+      132 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      133 |         'Тұрып жатқан қонақтар тізімі',
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:130:60
+
+    Error Context: test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-b654f--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-06"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-06" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      27 |         await link.click();
+      28 |         await expect(page).toHaveURL(target.href);
+    > 29 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      30 |           target.searchParams.get('arrival')!,
+      31 |         );
+      32 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:29:65
+
+    Error Context: test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-5cd33--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-09"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        34 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-09" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      27 |         await link.click();
+      28 |         await expect(page).toHaveURL(target.href);
+    > 29 |         await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(
+         |                                                                 ^
+      30 |           target.searchParams.get('arrival')!,
+      31 |         );
+      32 |         await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue(
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:29:65
+
+    Error Context: test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-04905--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Категория', exact: true })
+    Expected: "MALE"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Категория', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Категория', exact: true })
+        33 × locator resolved to <select class="inp" aria-label="Категория">…</select>
+           - unexpected value ""
+
+
+      43 |       await page.goto(`${search}&category=MALE`);
+      44 |       const category = page.getByRole('combobox', { name: 'Категория', exact: true });
+    > 45 |       await expect(category).toHaveValue('MALE');
+         |                              ^
+      46 |       await page.getByLabel('Заезд', { exact: true }).fill('2026-10-13');
+      47 |       await page.getByLabel('Выезд', { exact: true }).fill('2026-10-16');
+      48 |       await page.getByLabel('Гостей', { exact: true }).fill('3');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:45:30
+
+    Error Context: test-results/search-filter-recovery-sea-def90-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Поиск свободных номеров', exact: true })
+
+
+      67 |     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
+      68 |       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
+    > 69 |       await page.getByRole('link', { name: 'Поиск свободных номеров', exact: true }).click();
+         |                                                                                      ^
+      70 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      71 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      72 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:69:86
+
+    Error Context: test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('combobox', { name: 'Способ оплаты', exact: true })
+    Expected: "CASH"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Способ оплаты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Способ оплаты', exact: true })
+        33 × locator resolved to <select class="inp" name="method" aria-label="Способ оплаты">…</select>
+           - unexpected value ""
+
+
+       96 |       expect(q.get('to')).toBe('2026-10-05');
+       97 |       await page.goBack();
+    >  98 |       await expect(method).toHaveValue('CASH');
+          |                            ^
+       99 |       await page.goForward();
+      100 |       await expect(method).toHaveValue('');
+      101 |     });
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:98:28
+
+    Error Context: test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-e309c--it-preserves-other-filters/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('bulk-editor').getByRole('alert')
+    Expected substring: "Укажите хотя бы одно изменение"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('bulk-editor').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('bulk-editor').getByRole('alert')
+
+
+      109 |       const add = editor.getByRole('button', { name: '+ Добавить в список', exact: true });
+      110 |       await add.click();
+    > 111 |       await expect(editor.getByRole('alert')).toContainText('Укажите хотя бы одно изменение');
+          |                                               ^
+      112 |       await expect(editor.getByTestId('pending-changes')).toHaveCount(0);
+      113 |       await expect(editor.getByTestId('apply-changes')).toBeDisabled();
+      114 |       await editor.getByLabel('Мин. ночей', { exact: true }).fill('0');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:111:47
+
+    Error Context: test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-76512-restrictions-remain-changes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "kz"
+    Received: null
+
+      128 |       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
+      129 |       await settleStreaming(page);
+    > 130 |       expect(new URL(page.url()).searchParams.get('lang')).toBe('kz');
+          |                                                            ^
+      131 |       expect(new URL(page.url()).searchParams.get('date')).toBe('2026-10-05');
+      132 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      133 |         'Тұрып жатқан қонақтар тізімі',
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:130:60
+
+    Error Context: test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-53c92--changes-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14 failed
+    tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+    tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters 
+    tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+    tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history 
+    tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search 
+    tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+    tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:77:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters 
+    tests/ui/search-filter-recovery.spec.ts:103:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes 
+    tests/ui/search-filter-recovery.spec.ts:123:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history 
+
+■ e2e: ❌ упало 14 из 14 · 4 мин 15 с
+  лог: tests/runs/logs/2026-10-05T15-22-51Z-e2e-8ee5.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

@@ -29,7 +29,9 @@ async function openSalon(page: Page, request: APIRequestContext) {
     .filter({ hasText: 'Студия Айна' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/calendar');
+  // MV8: открытый салон начинает с общего рабочего экрана дня
+  await page.waitForURL('**/today');
+  await page.goto('/calendar');
 }
 
 async function addService(page: Page, name: string, minutes: string, priceMinor: string) {

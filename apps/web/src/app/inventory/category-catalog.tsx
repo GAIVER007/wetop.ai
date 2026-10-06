@@ -1,15 +1,16 @@
 'use client';
-import { useState, type MouseEvent } from 'react';
+import { useState, useTransition, type MouseEvent } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { InventoryCategory, InventoryUnit } from '../../lib/api';
-import { Badge, EmptyState, Input, Table } from '../../components/ui';
+import { formatMoney } from '../../lib/money';
+import { Alert, Badge, Button, EmptyState, Input, Notice, Table } from '../../components/ui';
 import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
+import { useConfirm } from '../../components/use-confirm';
 import { FundEditor, FundEditorDialog } from './fund-editor';
 import { CategoryPreview } from './category-preview';
-import { CategoryRatePlanDialog } from './rate-plan-choice';
-import { pluralRu } from '../../lib/plural';
+import { removeCategory } from './actions';
 import { KIND_WORD, addWord, capacityShort, compositionHref, unitWord } from './category-words';
 
 const KIND_FILTERS: [InventoryCategory['kind'], string][] = [
@@ -43,7 +44,10 @@ export function CategoryCatalog({
   const [preview, setPreview] = useState<InventoryCategory | null>(null);
   const [editing, setEditing] = useState<InventoryCategory | null>(null);
   const [adding, setAdding] = useState<InventoryCategory | null>(null);
-  const [rating, setRating] = useState<InventoryCategory | null>(null);
+  const [removing, start] = useTransition();
+  const [outcome, setOutcome] = useState<{ tone: 'error' | 'done'; text: string } | null>(null);
+  const { ask, dialog } = useConfirm();
+  const router = useRouter();
   const query = q.trim().toLocaleLowerCase('ru');
   const filtered = categories.filter(
     (c) => (!kind || c.kind === kind) && c.name.toLocaleLowerCase('ru').includes(query),
@@ -60,12 +64,77 @@ export function CategoryCatalog({
     { label: 'Открыть', onSelect: () => setPreview(c) },
     { label: 'Редактировать', onSelect: () => setEditing(c) },
     { label: addWord(c), onSelect: () => setAdding(c) },
-    c.ratePlans
-      ? { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` }
-      : { label: 'Настроить тариф', onSelect: () => setRating(c) },
     { label: 'Показать в календаре', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
     { label: 'Свободные места', href: `/rooms/availability?category=${encodeURIComponent(c.code)}` },
   ];
+  /**
+   * «Удалить» (решение владельца 06.10.2026): вопрос заранее говорит, что будет — пустая категория исчезнет,
+   * с местами или историей уйдёт в архив; с бронями впереди сервер откажет словами
+   */
+  async function remove(c: InventoryCategory) {
+    const used = memberCount(c) > 0 || c.reservations > 0 || c.channexMapped;
+    if (c.upcomingReservations) {
+      setOutcome({
+        tone: 'error',
+        text: `«${c.name}» нельзя удалить: впереди ${c.upcomingReservations} ${c.upcomingReservations === 1 ? 'бронь' : 'броней'}. Дождитесь выезда или переселите гостей.`,
+      });
+      return;
+    }
+    const ok = await ask({
+      title: used ? `Убрать «${c.name}» в архив?` : `Удалить «${c.name}»?`,
+      body: used
+        ? 'У категории есть места или история броней, поэтому она уйдёт в архив: перестанет продаваться вместе со своими местами, брони и отчёты сохранятся.'
+        : 'Категорию ничего не использует: она удалится насовсем вместе со своей ценой.',
+      confirmLabel: used ? 'Убрать в архив' : 'Удалить категорию',
+      tone: 'danger',
+    });
+    if (!ok) return;
+    setOutcome(null);
+    start(async () => {
+      const result = await removeCategory(c.code);
+      if (result.error) {
+        setOutcome({ tone: 'error', text: result.error });
+        return;
+      }
+      setOutcome({
+        tone: 'done',
+        text:
+          result.result === 'archived'
+            ? `«${c.name}» в архиве и больше не продаётся.`
+            : `«${c.name}» удалена.`,
+      });
+      router.refresh();
+    });
+  }
+  const price = (c: InventoryCategory) =>
+    c.priceMinor ? (
+      <span className="fund-cat-price">{formatMoney(c.priceMinor, c.currency ?? 'KZT')}</span>
+    ) : (
+      <Badge tone="warn">цена не задана</Badge>
+    );
+  const operations = (c: InventoryCategory) => (
+    <div className="fund-cat-ops">
+      <Button
+        size="sm"
+        tone="secondary"
+        disabled={!c.active}
+        onClick={() => setEditing(c)}
+        aria-label={`Изменить категорию ${c.name}`}
+      >
+        Изменить
+      </Button>
+      <Button
+        size="sm"
+        tone="ghost"
+        disabled={removing || !c.active}
+        onClick={() => void remove(c)}
+        aria-label={`Удалить категорию ${c.name}`}
+      >
+        Удалить
+      </Button>
+      <ActionMenu size="sm" label={`Действия с категорией ${c.name}`} items={menu(c)} />
+    </div>
+  );
   const fund = (c: InventoryCategory) => {
     const count = memberCount(c);
     return count ? (
@@ -76,20 +145,12 @@ export function CategoryCatalog({
       <Badge tone="warn">не добавлен</Badge>
     );
   };
-  const rates = (c: InventoryCategory) =>
-    c.ratePlans ? (
-      <Link href={`/rates?category=${encodeURIComponent(c.code)}`} prefetch={false}>
-        {pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}
-      </Link>
-    ) : (
-      <Badge tone="warn">тариф не настроен</Badge>
-    );
-  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-119).
+  /** Без мест или без цены категорию не продать — так и говорим.
       Обычное состояние — текстом, бейджи только у исключений (упрощение 02.10, как в фонде) */
   const status = (c: InventoryCategory) =>
     !c.active ? (
       <Badge tone="neutral">В архиве</Badge>
-    ) : memberCount(c) && c.ratePlans ? (
+    ) : memberCount(c) && c.priceMinor ? (
       <span className="muted">активна</span>
     ) : (
       <Badge tone="warn">Не готова к продаже</Badge>
@@ -162,6 +223,12 @@ export function CategoryCatalog({
           </button>
         </div>
       </div>
+      {outcome &&
+        (outcome.tone === 'error' ? (
+          <Alert>{outcome.text}</Alert>
+        ) : (
+          <Notice role="status">{outcome.text}</Notice>
+        ))}
       {!filtered.length ? (
         <EmptyState icon={<Icon name="inventory" />} title="Категории не найдены">
           Измените поиск или сбросьте фильтр типа.
@@ -175,19 +242,17 @@ export function CategoryCatalog({
               data-testid="fund-category-card"
               onClick={(e) => onSurface(e, () => setPreview(c))}
             >
-              <div className="fund-cat-card-top">
-                {open(c)}
-                <ActionMenu size="sm" label={`Действия с категорией ${c.name}`} items={menu(c)} />
-              </div>
+              <div className="fund-cat-card-top">{open(c)}</div>
               <span className="fund-cat-kind">{kindCell(c)}</span>
               <div className="fund-cat-card-facts">
                 {fund(c)}
                 <span>{capacityShort(c)}</span>
               </div>
               <div className="fund-cat-card-facts">
-                <span>Тарифы: {rates(c)}</span>
+                {price(c)}
                 {status(c)}
               </div>
+              {operations(c)}
             </li>
           ))}
         </ul>
@@ -195,40 +260,34 @@ export function CategoryCatalog({
         <Table className="fund-cat-table" aria-label="Категории размещения">
           <thead>
             <tr>
-              <th>Категория</th>
+              <th className="fund-cat-index">№</th>
+              <th>Название</th>
+              <th>Мест</th>
+              <th>Цена</th>
               <th>Фонд</th>
-              <th>Вместимость</th>
-              <th>Тарифы</th>
               <th>Статус</th>
-              <th>
-                <span className="sr-only">Действия</span>
-              </th>
+              <th>Операции</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => (
+            {filtered.map((c, i) => (
               <tr
                 key={c.code}
                 data-testid="fund-category-row"
                 onClick={(e) => onSurface(e, () => setPreview(c))}
               >
+                <td className="fund-cat-index">{i + 1}</td>
                 {/* Тип продажи — значком у названия и словом фонда («36 коек»), не отдельной колонкой */}
                 <td className="fund-cat-name">
                   <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
                   <span className="sr-only">{KIND_WORD[c.kind]}</span>
                   {open(c)}
                 </td>
-                <td className="fund-cat-units">{fund(c)}</td>
                 <td className="fund-cat-capacity">{capacityShort(c)}</td>
-                <td className="fund-cat-rates">{rates(c)}</td>
+                <td className="fund-cat-rates">{price(c)}</td>
+                <td className="fund-cat-units">{fund(c)}</td>
                 <td className="fund-cat-status">{status(c)}</td>
-                <td className="fund-cat-actions">
-                  <ActionMenu
-                    size="sm"
-                    label={`Действия с категорией ${c.name}`}
-                    items={menu(c)}
-                  />
-                </td>
+                <td className="fund-cat-actions">{operations(c)}</td>
               </tr>
             ))}
           </tbody>
@@ -247,10 +306,6 @@ export function CategoryCatalog({
           onAdd={() => {
             setPreview(null);
             setAdding(preview);
-          }}
-          onSetRate={() => {
-            setPreview(null);
-            setRating(preview);
           }}
         />
       )}
@@ -274,13 +329,7 @@ export function CategoryCatalog({
           onClose={() => setAdding(null)}
         />
       )}
-      {rating && (
-        <CategoryRatePlanDialog
-          key={`rate-${rating.code}`}
-          category={rating}
-          onClose={() => setRating(null)}
-        />
-      )}
+      {dialog}
     </>
   );
 }

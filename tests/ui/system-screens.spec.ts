@@ -259,11 +259,9 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-115, SET4): старый адрес — «Тарифные планы», правило словами, без кода тарифа
+  // правила отмены ушли к тарифам (SET4), а «Тарифы и цены» сняты 06.10.2026: старый адрес ведёт в настройки
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
-  await expect(main.getByTestId('rate-plans-table')).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/hotel-settings$/);
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');

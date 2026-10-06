@@ -3,7 +3,7 @@ test('flat shared surfaces across application routes in both themes', async ({ p
   test.setTimeout(120_000);
   for (const colorScheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
-    for (const route of ['/today', '/hotel-settings', '/hotel-settings/stay', '/hotel-settings/services', '/reservations', '/rates', '/finance', '/channels', '/ai-seller']) {
+    for (const route of ['/today', '/hotel-settings', '/hotel-settings/stay', '/hotel-settings/services', '/reservations', '/rooms/categories', '/finance', '/channels', '/ai-seller']) {
       await page.goto(route);
       await expect(page.getByRole('main')).toBeVisible();
       const decor = await page.evaluate(() => ({

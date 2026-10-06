@@ -69,7 +69,6 @@ test('администратор: закрытые разделы по адре�
   await asRole(request, 'STAFF');
   const main = page.getByRole('main');
   for (const [route, title, text] of [
-    ['/rates', 'Тарифы', '«Тарифы и цены»: доступ есть у владельца и управляющего.'],
     ['/journal', 'Журнал', '«Журнал операций»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
@@ -89,7 +88,7 @@ test('администратор: закрытые разделы по адре�
     await expect(refusal).toContainText('Ваша роль — администратор');
     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
-    if (route === '/rates') await shot(page, 'no-access-administrator');
+    if (route === '/journal') await shot(page, 'no-access-administrator');
   }
 
   // из карточки брони в журнал администратору не ведёт
@@ -213,7 +212,7 @@ test('управляющий: журнал и платформа закрыты;
   await signIn(page);
   await asRole(request, 'MANAGER');
   await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).toContain('/rates');
+  await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
   for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
@@ -221,7 +220,7 @@ test('управляющий: журнал и платформа закрыты;
   expect(links).not.toContain('/journal');
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Управляющий');
 
-  await page.goto('/rates');
+  await page.goto('/rooms/categories');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);
 
   // команда — на странице «Сотрудники» (TEAM1); приглашение — панелью из шапки
@@ -316,7 +315,7 @@ for (const width of [1440, 390]) {
       for (const [role, route] of [
         ['OWNER', '/profile/access'],
         ['MANAGER', '/profile/access'],
-        ['STAFF', '/rates'],
+        ['STAFF', '/journal'],
       ] as const) {
         await asRole(request, role);
         await page.goto(route);

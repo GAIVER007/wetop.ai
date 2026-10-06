@@ -34,7 +34,6 @@ test('ноутбук 1440×900: рабочие экраны помещаются
     '/finance',
     '/finance?tab=cash',
     '/management/analytics',
-    '/rates',
     '/inventory',
     '/rooms/categories',
     '/rooms/availability',

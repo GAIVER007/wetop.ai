@@ -283,7 +283,7 @@ export function NewReservationForm(props: {
         <Alert tone="warning">Сначала добавьте категории и номера в разделе «Номерной фонд».</Alert>
       )}
       {props.ratePlans.length === 0 && (
-        <Alert tone="warning">Сначала добавьте тариф в разделе «Тарифы и цены».</Alert>
+        <Alert tone="warning">Сначала задайте цену категории в «Категориях номеров».</Alert>
       )}
       {unavailable.length > 0 && (
         <Alert tone="warning">

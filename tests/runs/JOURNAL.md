@@ -6565,3 +6565,4 @@
 | 06.10.2026 00:27 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/accessibility.spec.ts --grep доступность всех разделов: (light\|dark), 1440px --workers=1) | ✅ 2 из 2 | 3 мин 20 с | 77a9e9c +2 | [лог](logs/2026-10-05T19-27-59Z-e2e-035f.log) | Desktop accessibility across all routes after calendar target-size fix |
 | 06.10.2026 00:31 | typecheck | ✅ без ошибок | 16 с | 77a9e9c +2 | [лог](logs/2026-10-05T19-31-55Z-typecheck-3496.log) | Calendar accessible desktop summary types |
 | 06.10.2026 00:32 | lint | ✅ без ошибок | 12 с | 77a9e9c +2 | [лог](logs/2026-10-05T19-32-12Z-lint-c406.log) | Calendar accessible desktop summary lint |
+| 06.10.2026 12:19 | e2e (частично: tests/ui/real-data.spec.ts:82 --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 1 из 1 | 2 мин 1 с | 53d355d +1 | [лог](logs/2026-10-06T07-19-13Z-e2e-aa01.log) | release main: поздняя загрузка объекта сохраняет форму и меню |

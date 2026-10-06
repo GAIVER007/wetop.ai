@@ -97,7 +97,7 @@ test('поздняя загрузка гостиницы сохраняет вв
       await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
     }).toPass({ timeout: 15_000 });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
-      'Филиал недоступен',
+      'Объект не загружен',
     );
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(

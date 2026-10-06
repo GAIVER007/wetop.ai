@@ -92,6 +92,9 @@ export function useBoardPosition(
       restoring = false;
       wrap.scrollLeft = 0;
       wrap.scrollTop = 0;
+      const today = wrap.querySelector<HTMLElement>('thead .is-today');
+      const first = wrap.querySelector<HTMLElement>('thead [data-testid="date-col"]');
+      if (today && first) wrap.scrollLeft = Math.max(0, today.offsetLeft - first.offsetLeft);
       save();
     };
     saveRef.current = onScroll;

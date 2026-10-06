@@ -28,10 +28,14 @@ test('календарь: заголовок, сводка дня и быстр�
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toHaveCount(0);
-  // быстрые действия ведут в существующие потоки
+  // Search preserves the visible inclusive calendar period as exclusive stay dates.
+  const dateColumns = page.getByTestId('date-col');
+  const arrival = (await dateColumns.first().getAttribute('data-date'))!;
+  const last = (await dateColumns.last().getAttribute('data-date'))!;
+  const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
     'href',
-    '/rooms/availability',
+    `/rooms/availability?arrival=${arrival}&departure=${departure}`,
   );
   await expect(page.getByRole('link', { name: 'Неоплаченные' })).toHaveAttribute(
     'href',

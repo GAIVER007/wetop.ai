@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import Link from 'next/link';
 import type {
@@ -43,9 +44,64 @@ export function AvailabilityFinder({
   summary: InventorySummary;
   units: InventoryUnit[];
 }) {
-  const [category, setCategory] = useState(''),
-    [kind, setKind] = useState(''),
+  const search = useSearchParams();
+  const category = search.get('category') ?? '';
+  const [draftArrival, setArrival] = useState(arrival);
+  const [draftDeparture, setDeparture] = useState(departure);
+  const [draftGuests, setGuests] = useState(String(guests));
+  const [ready, setReady] = useState(false);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const [kind, setKind] = useState(''),
     [showAll, setShowAll] = useState(false);
+  // Applied URL and results stay separate from manual input until Find.
+  useLayoutEffect(() => {
+    setReady(true);
+    setArrival(arrival);
+    setDeparture(departure);
+    setGuests(String(guests));
+  }, [arrival, departure, guests]);
+  useLayoutEffect(() => {
+    const restore = () => {
+      const q = new URLSearchParams(window.location.search);
+      setArrival(q.get('arrival') ?? arrival);
+      setDeparture(q.get('departure') ?? departure);
+      setGuests(q.get('guests') ?? String(guests));
+      // Native history may restore edited input values after React has restored props.
+      setHistoryRevision((v) => v + 1);
+    };
+    let frame = 0;
+    const afterRestore = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(restore);
+    };
+    // A restored document may dispatch pageshow before hydration attaches this listener.
+    const navigation = performance.getEntriesByType('navigation')[0] as
+      PerformanceNavigationTiming | undefined;
+    if (navigation?.type === 'back_forward') restore();
+    window.addEventListener('popstate', afterRestore);
+    window.addEventListener('pageshow', afterRestore);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('popstate', afterRestore);
+      window.removeEventListener('pageshow', afterRestore);
+    };
+  }, [arrival, departure, guests]);
+  const chooseCategory = (value: string) => {
+    const q = new URLSearchParams(search.toString());
+    if (value) q.set('category', value);
+    else q.delete('category');
+    window.history.replaceState(null, '', `?${q}`);
+  };
+  const periodHref = (a: string, d: string, selectedCategory = category) =>
+    `/rooms/availability?${new URLSearchParams({
+      arrival: a,
+      departure: d,
+      guests:
+        /^\d+$/.test(draftGuests) && Number(draftGuests) >= 1 && Number(draftGuests) <= 99
+          ? draftGuests
+          : String(guests),
+      ...(selectedCategory ? { category: selectedCategory } : {}),
+    })}`;
 
   const weekday = new Date(`${today}T12:00:00Z`).getUTCDay();
   const friday = plusDays(today, (5 - weekday + 7) % 7);
@@ -77,38 +133,55 @@ export function AvailabilityFinder({
   const soldOut = matching.filter((c) => c.soldOut);
   return (
     <>
-      <form className="fund-search" method="get">
+      <form key={historyRevision} className="fund-search" method="get">
         <Field label="Заезд">
-          <DateInput name="arrival" defaultValue={arrival} required />
+          <DateInput
+            name="arrival"
+            disabled={!ready}
+            value={draftArrival}
+            onChange={(e) => setArrival(e.target.value)}
+            required
+          />
         </Field>
         <Field label="Выезд">
           <DateInput
             name="departure"
+            disabled={!ready}
             rangeFromName="arrival"
-            defaultValue={departure}
+            value={draftDeparture}
+            onChange={(e) => setDeparture(e.target.value)}
             max={
-              /^\d{4}-\d{2}-\d{2}$/.test(arrival) && Number.isFinite(Date.parse(arrival))
-                ? plusDays(arrival, MAX_CHESSBOARD_DAYS)
+              /^\d{4}-\d{2}-\d{2}$/.test(draftArrival) && Number.isFinite(Date.parse(draftArrival))
+                ? plusDays(draftArrival, MAX_CHESSBOARD_DAYS)
                 : undefined
             }
             required
           />
         </Field>
         <Field label="Гостей">
-          <Input type="number" name="guests" min={1} max={99} defaultValue={guests} required />
+          <Input
+            type="number"
+            name="guests"
+            disabled={!ready}
+            min={1}
+            max={99}
+            value={draftGuests}
+            onChange={(e) => setGuests(e.target.value)}
+            required
+          />
         </Field>
         <Button type="submit">Найти</Button>
+        {category && <input type="hidden" name="category" value={category} />}
         <div className="fund-presets">
-          {[
-            ['Сегодня', today, plusDays(today, 1)],
-            ['Завтра', plusDays(today, 1), plusDays(today, 2)],
-            ['Выходные', friday, plusDays(friday, 2)],
-            ['7 дней', today, plusDays(today, 7)],
-          ].map(([label, a, d]) => (
-            <Link
-              key={label}
-              href={`/rooms/availability?arrival=${a}&departure=${d}&guests=${guests}`}
-            >
+          {(
+            [
+              ['Сегодня', today, plusDays(today, 1)],
+              ['Завтра', plusDays(today, 1), plusDays(today, 2)],
+              ['Выходные', friday, plusDays(friday, 2)],
+              ['7 дней', today, plusDays(today, 7)],
+            ] as const
+          ).map(([label, a, d]) => (
+            <Link key={label} href={periodHref(a, d)}>
               {label}
             </Link>
           ))}
@@ -149,8 +222,9 @@ export function AvailabilityFinder({
             <div className="fund-toolbar">
               <Select
                 aria-label="Категория"
+                disabled={!ready}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => chooseCategory(e.target.value)}
               >
                 <option value="">Все категории</option>
                 {summary.byCategory.map((c) => (
@@ -197,7 +271,7 @@ export function AvailabilityFinder({
                 <Button
                   tone="secondary"
                   onClick={() => {
-                    setCategory('');
+                    chooseCategory('');
                     setKind('');
                     setShowAll(true);
                   }}
@@ -347,6 +421,7 @@ function SoldOutCategories({
                         arrival: next.arrivalDate,
                         departure: next.departureDate,
                         guests: String(guests),
+                        category: c.code,
                       })}`}
                       aria-label={`Посмотреть варианты: ${c.name} с ${displayDate(next.arrivalDate)}`}
                     >

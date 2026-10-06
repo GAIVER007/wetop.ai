@@ -6789,3 +6789,12 @@
 | 06.10.2026 20:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/webs | ❌ упало 1 из 196 | 24 мин 53 с | e3fadd0 +22 | [лог](logs/2026-10-06T15-07-47Z-e2e-ee60.log) | одна точка входа в меню и четыре вкладки со своим адресом |
 | 06.10.2026 20:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/marketing.spec.ts) | ✅ 25 из 25 | 2 мин 19 с | d713259 +1 | [лог](logs/2026-10-06T15-32-46Z-e2e-4b40.log) |  |
 | 06.10.2026 20:35 | unit | ✅ 3414 из 3417, пропущено 3 | 1 мин 53 с | d713259 | [лог](logs/2026-10-06T15-35-09Z-unit-3d43.log) |  |
+| 06.10.2026 20:43 | typecheck | ✅ без ошибок | 55 с | c9d0ca4 | [лог](logs/2026-10-06T15-43-12Z-typecheck-9c72.log) |  |
+| 06.10.2026 20:44 | lint | ✅ без ошибок | 34 с | c9d0ca4 | [лог](logs/2026-10-06T15-44-07Z-lint-a0f9.log) |  |
+| 06.10.2026 20:44 | unit | ✅ 3427 из 3430, пропущено 3 | 1 мин 44 с | c9d0ca4 | [лог](logs/2026-10-06T15-44-42Z-unit-e409.log) |  |
+| 06.10.2026 20:46 | unit (частично: apps/web/src/lib/website-navigation.test.ts) | ✅ 9 из 9 | 2 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-46-46Z-unit-2ae7.log) |  |
+| 06.10.2026 20:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/top-menu.spec.ts tests/ui/website.spec.ts tests/ui/navigat | ✅ 152 из 152 | 11 мин 55 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-46-55Z-e2e-3788.log) |  |
+| 06.10.2026 20:58 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 3 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-58-50Z-e2e-607b.log) | (ошибка вне тестов) |
+| 06.10.2026 20:59 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ❌ упало 6 из 6 | 16 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-59-35Z-e2e-53e4.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 06.10.2026 21:00 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 6 из 6 | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-06Z-e2e-7990.log) |  |
+| 06.10.2026 21:00 | lint | ✅ без ошибок | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-50Z-lint-7cf2.log) |  |

@@ -8,6 +8,7 @@ import {
   navigationItems,
   routeRule,
 } from './navigation';
+import { decideScope } from './scope-resolve';
 
 describe('сайт в меню — одно место (ADR-117)', () => {
   const sections = menuSectionsFor(CLOSED_ACCESS);
@@ -69,5 +70,29 @@ describe('старые адреса ведут в модуль', () => {
         { source: '/analytics/setup', destination: '/website/settings', permanent: false },
       ]),
     );
+  });
+});
+
+// SCOPE-HARDENING (PR #256) поверх MKT2: хаб и сайт не заводят своего выбора филиала, возврат после выбора общий
+describe('хаб «Маркетинг» и выбор филиала', () => {
+  const branch = (vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE') => ({
+    vertical,
+    locationId: 'loc-1',
+    location: { businessId: 'biz-1' },
+  });
+
+  it('один гостиничный филиал: после выбора человек возвращается на /marketing и /website/*', () => {
+    for (const next of ['/marketing', '/website', '/website/settings'])
+      expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ kind: 'select', target: next });
+  });
+
+  it('салон и ресторан на гостиничный хаб не возвращаются; филиалов несколько: выбор, нет: настройка', () => {
+    for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const)
+      expect(decideScope([branch(vertical)], '/marketing').target).not.toBe('/marketing');
+    expect(decideScope([branch('HOSPITALITY'), branch('HOSPITALITY')], '/marketing')).toEqual({
+      kind: 'choose',
+      target: '/branches',
+    });
+    expect(decideScope([], '/marketing')).toEqual({ kind: 'empty', target: '/onboarding' });
   });
 });

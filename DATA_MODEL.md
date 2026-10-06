@@ -2835,14 +2835,20 @@ Assignment requires active same-Location table/area, capacity >= partySize, no i
 
 All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.
 
-## 29. Маркетинг: управляемый сайт (v2.11, ПРЕДЛОЖЕНИЕ 06.10.2026, НЕ УТВЕРЖДЕНО; MKT1A, ADR-149)
+## 29. Маркетинг: управляемый сайт (v2.11, УТВЕРЖДЕНО владельцем 06.10.2026 как целевая архитектура, поэтапное внедрение; ADR-149, Q-272)
 
-> **Статус.** Утверждено ADR-149: владелец сайта `Location`; `TrackedSite` остаётся идентичностью аналитики и брони
-> и не становится CMS; содержимое версионируется, публичный рантайм читает только опубликованную неизменяемую
-> версию; Option B (`SiteSpec`). **Не утверждено:** таблицы, поля, типы, ограничения и RLS ниже. Это кандидаты для
-> среза MKT3. Prisma, миграции и код по этому разделу начинаются только после отдельного «да» владельца
-> (AGENTS.md §2). Формат содержимого версии: `docs/marketing/sitespec-v0.md`. Архитектура и жизненные циклы:
-> `docs/marketing/README.md`.
+> **Статус (Q-272 закрыт владельцем 06.10.2026).** §29 утверждён как целевая архитектура и вводится по срезам.
+> Владелец сайта `Location`, не более одного неархивного сайта на Location; `TrackedSite` остаётся идентичностью
+> аналитики и брони и не становится CMS; версии неизменяемы; `latest_version_id` это голова черновика,
+> `published_version_id` это опубликованная версия; журнал публикаций отдельной таблицей только на дописывание (MKT7);
+> v0 только `HOSPITALITY`. Хранение: опубликованные версии навсегда, неопубликованные черновые можно удалять старше
+> 90 дней, сохраняя не меньше 50 последних версий сайта; очистка не реализована и появится отдельным срезом.
+>
+> **Что уже в базе (MKT3, миграции `20261006000060_marketing_site_core` и `20261006000061_marketing_site_grants`):** только `marketing_sites` (§29.2) и
+> `marketing_site_versions` (§29.3, без `generation_run_id`). Остальные таблицы приходят своими срезами:
+> `marketing_site_publications` и `site_domains` в MKT7, `generation_runs` и колонка `generation_run_id` в MKT6,
+> `site_assets` в MKT8. Временных заменителей нет. Формат содержимого версии: `docs/marketing/sitespec-v0.md`.
+> Архитектура и жизненные циклы: `docs/marketing/README.md`.
 
 ### 29.1 Что уже есть и не дублируется
 
@@ -2856,7 +2862,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 `MarketingSite` не хранит копий `public_key`, `booking_enabled`, `booking_rate_plan_id`, хостов аналитики, сессий и
 событий. Публичный ключ рантайм получает через связь `tracked_site_id` в момент разрешения хоста.
 
-### 29.2 `MarketingSite` (кандидат)
+### 29.2 `MarketingSite` (утверждено, в базе с MKT3)
 
 Управляемый сайт WETOP одного филиала.
 
@@ -2882,7 +2888,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
   (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных;
 - `published_version_id` NOT NULL при `state IN ('PUBLISHED','PAUSED')`.
 
-### 29.3 `MarketingSiteVersion` (кандидат)
+### 29.3 `MarketingSiteVersion` (утверждено, в базе с MKT3)
 
 Неизменяемый снимок `SiteSpec`.
 
@@ -2893,10 +2899,10 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `revision` | INT NOT NULL | 1, 2, 3… внутри сайта; UNIQUE (`site_id`, `revision`) |
 | `parent_version_id` | UUID NULL FK → эта же таблица | от какой версии сделана правка |
 | `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0` |
-| `spec` | JSONB NOT NULL | документ `SiteSpec`; предел 256 КБ (CHECK по `octet_length(spec::text)`) |
+| `spec` | JSONB NOT NULL | документ `SiteSpec`, объект; предел 256 КБ канонической записи проверяет приложение, CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ: `jsonb::text` добавляет пробелы и выходит до полутора раз длиннее канонической записи) |
 | `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
 | `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы) |
-| `generation_run_id` | UUID NULL FK → `generation_runs` | обязателен при `source = 'AI'` |
+| `generation_run_id` | UUID NULL FK → `generation_runs` | **появляется в MKT6** вместе с таблицей; обязателен при `source = 'AI'`. В MKT3 колонки нет, сохранение пишет только `MANUAL` |
 | `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
 | `created_at` | timestamptz | |
 
@@ -2915,8 +2921,18 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 только на версию того же сайта, которая раньше была опубликована (есть в журнале), и только после повторной проверки
 схемы и ссылок; рантайм видит её лишь после перестановки указателя.
 
-Хранение: версии, которые хоть раз были опубликованы, хранятся всегда; остальные черновые можно чистить по сроку
-(кандидат: старше 90 дней и не последние 50). Решение о сроке: вместе с MKT3.
+Хранение (Q-272, решение владельца 06.10.2026): версии, которые хоть раз были опубликованы, хранятся всегда;
+неопубликованные черновые можно удалять старше 90 дней, сохраняя не меньше 50 последних версий сайта. Очистки в
+MKT3 нет, и сторож неизменяемости исключения для неё не делает: способ удаления решается срезом очистки.
+
+**Как это держит база (MKT3).** Триггер `marketing_site_version_immutable` отклоняет `UPDATE` и `DELETE` версии
+(пропускает только обнуление `created_by_id` по `ON DELETE SET NULL`), у ролей `wetop_app` и `wetop_service` на версиях
+отозваны `UPDATE` и `DELETE`, на сайтах `DELETE` (отдельной миграцией прав 061, как Food 059: восстановление копии
+повторяет только миграции без DDL). Триггер `marketing_site_version_guard`: версия без родителя только
+с `revision = 1`, родитель того же сайта, `revision` ровно на 1 больше родителя. Триггер `marketing_site_guard`:
+`latest_version_id` и `published_version_id` указывают только на версии этого сайта, `location_id` не меняется.
+CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED` и `PAUSED`, `archived_at` задан ровно при
+`ARCHIVED`. Частичные UNIQUE: один неархивный сайт на `location_id`, неархивный `slug` глобально.
 
 ### 29.4 `MarketingSitePublication` (кандидат, добавлен к списку ADR-149 с обоснованием)
 
@@ -3034,7 +3050,7 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 `PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
 `ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
 
-### 29.9 Изоляция (кандидат)
+### 29.9 Изоляция (для двух таблиц MKT3 сделано, для остальных кандидат)
 
 Все шесть таблиц в `RLS_TENANT_TABLES`. Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
 `EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;

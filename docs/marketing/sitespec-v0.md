@@ -1,8 +1,11 @@
 # SiteSpec v0: контракт содержимого управляемого сайта
 
-Статус: **предложение MKT1A, 06.10.2026** (ADR-149). Принцип Option B утверждён владельцем; точные поля, пределы и
-реестр секций ниже ждут подтверждения вместе с моделью `DATA_MODEL.md` §29. Кода, схемы валидатора и компонентов
-нет: они появятся в MKT3 и MKT4.
+Статус: **контракт v0, проверка в коде с MKT3 (06.10.2026)** (ADR-149; Q-272 решён владельцем). Проверка документа:
+`packages/domain/src/marketing/site-spec.ts`; компонентов рантайма пока нет (MKT4).
+
+Что MKT3 проверяет не полностью: §11 п. 6 только форма `AssetId` (UUID), наличие ассета `READY` того же Location с
+MKT8, когда появится `SiteAsset`; §11 п. 8 (`categoryCode` объекта) при публикации, MKT7. Размер 256 КБ считается по
+канонической записи документа в байтах UTF-8 (ключи по возрастанию кодовых единиц UTF-16, как RFC 8785, без пробелов).
 
 Полный валидный пример: [`sitespec-v0.example.json`](sitespec-v0.example.json). Архитектура, рантайм и безопасность:
 [`README.md`](README.md).
@@ -86,7 +89,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | `contacts.email` | `Email` | нет | |
 | `contacts.address` | `LocalizedText<200>` | нет | |
 | `contacts.geo` | `{ lat: -90..90, lng: -180..180 }` | нет | до 6 знаков после точки |
-| `contacts.social` | `{ network, url }[]` | нет | до 6; `network`: `INSTAGRAM`, `FACEBOOK`, `TELEGRAM`, `TIKTOK`, `YOUTUBE`, `VK`; хост `url` обязан совпасть со списком сети (например `instagram.com`, `www.instagram.com`) |
+| `contacts.social` | `{ network, url }[]` | нет | до 6; `network`: `INSTAGRAM`, `FACEBOOK`, `TELEGRAM`, `TIKTOK`, `YOUTUBE`, `VK`; хост `url` обязан совпасть со списком сети (MKT3): `INSTAGRAM` `instagram.com`, `FACEBOOK` `facebook.com`, `TELEGRAM` `t.me`, `telegram.me`, `TIKTOK` `tiktok.com`, `YOUTUBE` `youtube.com`, `youtu.be`, `VK` `vk.com`; к каждому допустим префикс `www.` |
 | `legal.operatorName` | `LocalizedText<200>` | нет | строка в подвале; БИН и ИИН сюда не попадают |
 | `legal.privacyPageId` | `Id` | нет | страница с политикой; ссылка в подвале |
 | `seo.robots` | `"INDEX"` или `"NOINDEX"` | да | `NOINDEX` закрывает весь сайт; превью закрыто всегда, независимо от поля |

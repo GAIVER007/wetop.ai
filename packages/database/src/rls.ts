@@ -91,6 +91,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'service_periods',
   'restaurant_reservations',
   'table_assignments',
+  // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
+  'marketing_sites',
+  'marketing_site_versions',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

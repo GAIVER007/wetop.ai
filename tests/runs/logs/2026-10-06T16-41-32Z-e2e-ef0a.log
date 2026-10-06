@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 06.10.2026 21:41 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/marketing.spec.ts' '-g' 'MKT3' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+Error: http://127.0.0.1:4318/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 1 с

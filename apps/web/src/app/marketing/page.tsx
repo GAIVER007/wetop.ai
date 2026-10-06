@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requireVertical } from '../../lib/vertical-guard';
 import './marketing.css';
 import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
@@ -7,8 +8,9 @@ import { Badge, Grid, SectionTitle, Stack } from '../../components/ui';
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149, plans/mkt2-marketing-hub-2026-10-06.md): первая точка входа в маркетинг WETOP.
  * Рабочий продукт пока один, «Сайт и SEO», и он открывает существующий раздел `/website` (адреса не менялись).
- * Будущие продукты показаны статично: без ссылок, статусов «подключено» и чисел. Страница ничего не спрашивает у API:
- * рисовать нечего, кроме структуры, а проверка права (`settings`) общая, `AccessGate` по реестру меню.
+ * Будущие продукты показаны статично: без ссылок, статусов «подключено» и чисел. Своих запросов к API у страницы нет:
+ * проверка права (`settings`) общая, `AccessGate` по реестру меню, а направление (с MKT3 только Hospitality) берётся
+ * из общего `/auth/me` оболочки через `requireVertical`.
  */
 const SITE_CAPABILITIES = ['Сайт объекта', 'Онлайн-бронирование', 'Аналитика посещений', 'SEO'];
 
@@ -18,7 +20,8 @@ const SOON: Array<{ title: string; text: string; icon: IconName }> = [
   { title: 'Репутация', text: 'Отзывы и присутствие компании в интернете.', icon: 'chat' },
 ];
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  await requireVertical(['HOSPITALITY']);
   return (
     <Page
       title="Маркетинг"

@@ -1,7 +1,8 @@
 # MKT: Маркетинг → Сайт и SEO. Архитектура и контракты (MKT1A)
 
 Статус: **06.10.2026, срез MKT1A** (документы, без кода). Решения владельца записаны в ADR-149 (`DECISIONS.md`).
-Модель: `DATA_MODEL.md` §29 (предложение, не утверждено). Формат содержимого: [`sitespec-v0.md`](sitespec-v0.md) и
+Модель: `DATA_MODEL.md` §29 (утверждена владельцем 06.10.2026 как целевая архитектура, Q-272; с MKT3 в базе
+`marketing_sites` и `marketing_site_versions`, план `plans/mkt3-marketing-site-core-2026-10-06.md`). Формат содержимого: [`sitespec-v0.md`](sitespec-v0.md) и
 [`sitespec-v0.example.json`](sitespec-v0.example.json). Исправления публичной брони: `plans/mkt1b-booking-hardening-2026-10-06.md`.
 Порядок этапов: `plans/mkt-roadmap-2026-10-06.md`. Основание: аудит MKT0 на `origin/main` `901eb08e`, проверено
 повторно на `dcf3145c`.
@@ -148,6 +149,13 @@ publicFacts: {
 `businessId`, `locationId` из тела запроса не принимаются; сайт, версия, ассет и домен ищутся только внутри
 проверенного Location.
 
+**Сделано в MKT3 (API `/marketing/site`, `apps/api/src/marketing-site/scope.ts`).** Ответы строгого scope:
+указатель прислан, но сервер его не подтвердил (устаревший, чужой, архивный филиал или бизнес) → 403; указателя нет
+или выбрана организация либо только бизнес → 409 «Выберите филиал»; бизнес не гостиница → 403 «Сайт и SEO пока доступны
+только гостиницам». Тело принимает только свои поля, любое лишнее (в том числе `organizationId`, `businessId`,
+`locationId`) → 400. Метка направления `@RequiresBusinessCapability` у маршрутов намеренно не стоит: без указателя она
+проверяла бы гостиничный путь по умолчанию вместо ответа 409.
+
 Права: кандидат прежнее `settings` (`packages/domain/src/accounts/permissions.ts:18`, OWNER и MANAGER), как у `/website`
 сейчас. Нужна ли администратору (STAFF) хотя бы аналитика сайта, отдельный вопрос (Q-273), MKT1B и MKT2 от него не
 зависят.
@@ -186,6 +194,11 @@ publicFacts: {
    (`tests/ui/website.spec.ts`, `workspace.spec.ts`, `navigation.spec.ts`, `top-menu.spec.ts`, `requests.spec.ts`,
    `reports-hub.spec.ts`, `tests/e2e/web-analytics.spec.ts`, `tests/e2e/web-booking.spec.ts` и другие из отчёта MKT0 §4.1).
 4. Редиректы держатся не меньше одного релиза после переезда; тест сверяет каждую пару.
+
+**Решение о совместимости (MKT3, 06.10.2026).** Хаб `/marketing` открывается только в гостиничном филиале
+(`requireVertical(['HOSPITALITY'])`; салон уводится в свой календарь, ресторан в план зала). Страницы `/website/*`
+по направлению **не меняются**: они работают с `TrackedSite` объекта и живут по прежним правилам, пока вкладки не
+переедут в `/marketing/site/*` (п. 2). Сайт в MKT3 не заводит `TrackedSite`: связь появится при первой публикации (MKT7).
 
 Зарезервированные слаги платформенного поддомена (кандидат): `www`, `app`, `api`, `assistant`, `seller`, `admin`,
 `mail`, `status`, `preview`, `static`, `assets`, `cdn`, `help`, `support`, `wetop`, `docs`, `blog`, слова из 1–2 букв.

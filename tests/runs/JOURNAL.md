@@ -6798,3 +6798,27 @@
 | 06.10.2026 20:59 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ❌ упало 6 из 6 | 16 с | c9d0ca4 +1 | [лог](logs/2026-10-06T15-59-35Z-e2e-53e4.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
 | 06.10.2026 21:00 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 6 из 6 | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-06Z-e2e-7990.log) |  |
 | 06.10.2026 21:00 | lint | ✅ без ошибок | 33 с | c9d0ca4 +1 | [лог](logs/2026-10-06T16-00-50Z-lint-7cf2.log) |  |
+| 06.10.2026 21:20 | unit (частично: packages/domain/src/marketing) | ❌ упало 29 из 37 | 4 с | 971d4c1 +5 | [лог](logs/2026-10-06T16-20-52Z-unit-2cf0.log) | SiteSpec v0: отказы неизвестная версия схемы |
+| 06.10.2026 21:22 | unit (частично: packages/domain/src/marketing) | ✅ 37 из 37 | 2 с | 971d4c1 +5 | [лог](logs/2026-10-06T16-22-44Z-unit-35b7.log) |  |
+| 06.10.2026 21:33 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ код выхода 1 | 6 с | 971d4c1 +11 | [лог](logs/2026-10-06T16-33-22Z-integration-2c76.log) | (файл не выполнился) |
+| 06.10.2026 21:34 | integration (частично: tests/integration/marketing-site.test.ts) | ❌ упало 15 из 27 | 7 с | 971d4c1 +15 | [лог](logs/2026-10-06T16-34-25Z-integration-26fe.log) | MKT3 marketing site core создание сайта сайта нет: пустой ответ, черновика нет |
+| 06.10.2026 21:34 | integration (частично: tests/integration/marketing-site.test.ts) | ✅ 28 из 28 | 6 с | 971d4c1 +15 | [лог](logs/2026-10-06T16-34-47Z-integration-5d8f.log) |  |
+| 06.10.2026 21:35 | integration (частично: tests/integration/marketing-site.test.ts) | ✅ 28 из 28 | 5 с | 971d4c1 +15 | [лог](logs/2026-10-06T16-35-42Z-integration-52f2.log) |  |
+| 06.10.2026 21:37 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 6 с | 971d4c1 +15 | [лог](logs/2026-10-06T16-37-42Z-unit-2216.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 06.10.2026 21:37 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 5 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-37-49Z-unit-b0cd.log) |  |
+| 06.10.2026 21:38 | e2e (частично: tests/ui/marketing.spec.ts -g MKT3) | ❌ код выхода 1 | 4 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-38-19Z-e2e-cc20.log) | (ошибка вне тестов) |
+| 06.10.2026 21:38 | e2e (частично: tests/ui/marketing.spec.ts -g MKT3 --config tests/ui/playwright.alt.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 4 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-38-33Z-e2e-d62f.log) | (ошибка вне тестов) |
+| 06.10.2026 21:41 | e2e (частично: tests/ui/marketing.spec.ts -g MKT3 --config tests/ui/playwright.alt.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-41-32Z-e2e-ef0a.log) | (ошибка вне тестов) |
+| 06.10.2026 21:41 | e2e (частично: tests/ui/marketing.spec.ts -g MKT3 --config tests/ui/playwright.alt.config.ts --workers=1) | ❌ упало 1 из 1 | 58 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-41-40Z-e2e-e0e5.log) | MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь |
+| 06.10.2026 21:42 | e2e (частично: tests/ui/marketing.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 7 из 7 | 38 с | 971d4c1 +17 | [лог](logs/2026-10-06T16-42-43Z-e2e-c052.log) |  |
+| 06.10.2026 21:43 | e2e (частично: tests/ui/marketing.spec.ts -g MKT3 --config tests/ui/playwright.alt.config.ts --workers=1) | ❌ упало 1 из 1 | 30 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-43-27Z-e2e-df99.log) | MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь |
+| 06.10.2026 21:44 | typecheck | ✅ без ошибок | 54 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-44-49Z-typecheck-3ad8.log) |  |
+| 06.10.2026 21:45 | lint | ❌ ошибок: 8 | 35 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-45-43Z-lint-44ab.log) | @typescript-eslint/no-explicit-any |
+| 06.10.2026 21:47 | typecheck | ✅ без ошибок | 36 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-47-25Z-typecheck-fb9a.log) |  |
+| 06.10.2026 21:48 | lint | ✅ без ошибок | 34 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-48-03Z-lint-13e7.log) |  |
+| 06.10.2026 21:48 | unit | ✅ 3467 из 3470, пропущено 3 | 1 мин 49 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-48-37Z-unit-34b9.log) |  |
+| 06.10.2026 21:50 | integration | ❌ упало 2 из 798 | 2 мин 8 с | 971d4c1 +16 | [лог](logs/2026-10-06T16-50-30Z-integration-e745.log) | db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с пр |
+| 06.10.2026 21:59 | unit (частично: tests/unit/migrations-rollback.test.ts tests/unit/db-restore-prod.test.ts tests/unit/migrations-hold.test.ts) | ✅ 81 из 81 | 4 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-59-23Z-unit-354d.log) |  |
+| 06.10.2026 21:59 | integration | ✅ 798 из 798 | 2 мин 12 с | 971d4c1 +18 | [лог](logs/2026-10-06T16-59-32Z-integration-b31b.log) |  |
+| 06.10.2026 22:02 | e2e (частично: tests/ui/marketing.spec.ts tests/ui/requests.spec.ts tests/ui/website.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ❌ упало 1 из 58 | 3 мин 18 с | 971d4c1 +19 | [лог](logs/2026-10-06T17-02-00Z-e2e-dbf2.log) | экран /reservations/new?unit=M03: данные берутся одним запросом на путь |
+| 06.10.2026 22:05 | e2e (частично: tests/ui/requests.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 32 из 32 | 1 мин 7 с | 971d4c1 +19 | [лог](logs/2026-10-06T17-05-27Z-e2e-f19c.log) |  |

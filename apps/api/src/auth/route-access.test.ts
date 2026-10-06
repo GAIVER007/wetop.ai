@@ -93,6 +93,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/receipts/:id/payments': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
   // MV6 Food Service: explicit Business and Location on every route.
+  // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
+  'GET /marketing/site': 'settings',
+  'POST /marketing/site': 'settings',
+  'GET /marketing/site/draft': 'settings',
+  'POST /marketing/site/versions': 'settings',
   'GET /food-service/areas': 'desk',
   'POST /food-service/areas': 'property',
   'PATCH /food-service/areas/:id': 'property',

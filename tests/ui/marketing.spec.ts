@@ -191,3 +191,27 @@ for (const theme of ['light', 'dark'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь', async ({ page }) => {
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+  await page.goto('/branches');
+  const body = main(page);
+  await body.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+  await body.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await body.getByLabel('Название филиала').fill('Студия MKT3');
+  await body.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+  await expect(body.getByRole('status')).toContainText('Салон создан');
+  await page.reload();
+  await main(page)
+    .locator('.branches-grid section')
+    .filter({ hasText: 'Студия MKT3' })
+    .getByRole('button', { name: 'Открыть салон', exact: true })
+    .click();
+  await page.waitForURL('**/calendar');
+  await page.goto('/marketing');
+  await expect(page).toHaveURL(/\/calendar$/);
+});

@@ -1,0 +1,500 @@
+# Модульные (unit) · 06.10.2026 21:20 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-20-52Z-unit-2cf0.json' 'packages/domain/src/marketing'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/site-spec.test.ts (37 tests | 29 failed) 114ms
+   ✓ SiteSpec v0: корректный документ (1)
+     ✓ пример из контракта принимается целиком 5ms
+   ❯ SiteSpec v0: отказы (16)
+     × неизвестная версия схемы 20ms
+     × не объект 3ms
+     × неизвестный тип и вариант секции 3ms
+     × лишние поля отклоняются на любом уровне, включая поля с кодом и идентификаторы владельца 3ms
+     × словари темы не принимают произвольных значений 4ms
+     × текст на языках: нет языка по умолчанию, чужой язык, пусто, длина, разметка, шаблон 8ms
+     × повтор идентификаторов страниц и секций 2ms
+     × внутренние ссылки: страница, секция, контакт для действия 3ms
+     × страницы: ровно одна главная с пустым адресом, адреса уникальны и не зарезервированы 2ms
+     × документ больше 256 КБ 9ms
+     × адреса: только https без логина, порта, IP и localhost; javascript: и data: не проходят 3ms
+     × бронь: секция требует виджет WETOP, одна на странице, заголовок обязателен 3ms
+     × первая секция героя: только одна и только первой 3ms
+     × SEO: шаблон заголовка с одним %s, карта сайта без индекса запрещена, robots и canonical из словаря 2ms
+     × направление v0 только Hospitality 2ms
+     × ассет: только форма UUID (наличие ассета проверит MKT8) 2ms
+   ❯ каноническая запись и хэш (5)
+     × порядок ключей не влияет, в том числе во вложенных объектах 2ms
+     × порядок массивов влияет 1ms
+     × Юникод записывается детерминированно 1ms
+     × ключи упорядочены по кодовым точкам, не по языку 1ms
+     × хэш: 64 символа нижнего регистра, меняется вместе со значением 5ms
+   ❯ адрес сайта (slug) (15)
+     × нормальный адрес принимается в нижнем регистре и без пробелов по краям 5ms
+     ✓ ab отклоняется (короче трёх знаков) 0ms
+     ✓ -abc отклоняется (начинается с дефиса) 0ms
+     ✓ abc- отклоняется (кончается дефисом) 0ms
+     ✓ ab c отклоняется (пробел) 0ms
+     ✓ ветер отклоняется (не латиница) 0ms
+     ✓ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa отклоняется (длиннее 40) 0ms
+     × зарезервированный www отклоняется 4ms
+     × зарезервированный app отклоняется 2ms
+     × зарезервированный api отклоняется 1ms
+     × зарезервированный admin отклоняется 1ms
+     × зарезервированный wetop отклоняется 1ms
+     × зарезервированный preview отклоняется 1ms
+     × зарезервированный support отклоняется 1ms
+     ✓ не строка отклоняется 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 29 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > неизвестная версия схемы
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > не объект
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/domain/src/marketing/site-spec.test.ts:50:39
+     48|
+     49|   it('не объект', () => {
+     50|     expect(validateSiteSpec(null).ok).toBe(false);
+       |                                       ^
+     51|     expect(validateSiteSpec([]).ok).toBe(false);
+     52|     expect(validateSiteSpec('site').ok).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > неизвестный тип и вариант секции
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:58:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > лишние поля отклоняются на любом уровне, включая поля с кодом и идентификаторы владельца
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:65:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > словари темы не принимают произвольных значений
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:83:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > текст на языках: нет языка по умолчанию, чужой язык, пусто, длина, разметка, шаблон
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:89:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > повтор идентификаторов страниц и секций
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:119:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > внутренние ссылки: страница, секция, контакт для действия
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:131:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > страницы: ровно одна главная с пустым адресом, адреса уникальны и не зарезервированы
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:147:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > документ больше 256 КБ
+Error: not implemented
+ ❯ canonicalJson packages/domain/src/marketing/canonical.ts:2:9
+      1| export function canonicalJson(_value: unknown): string {
+      2|   throw new Error('not implemented');
+       |         ^
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+ ❯ packages/domain/src/marketing/site-spec.test.ts:174:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > адреса: только https без логина, порта, IP и localhost; javascript: и data: не проходят
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:190:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > бронь: секция требует виджет WETOP, одна на странице, заголовок обязателен
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:200:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > первая секция героя: только одна и только первой
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:217:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > SEO: шаблон заголовка с одним %s, карта сайта без индекса запрещена, robots и canonical из словаря
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:223:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > направление v0 только Hospitality
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:245:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: отказы > ассет: только форма UUID (наличие ассета проверит MKT8)
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:26:54
+     24| function errorsOf(input: unknown) {
+     25|   const result = validateSiteSpec(input);
+     26|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     27|   return result.ok ? [] : result.errors;
+     28| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:30:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:251:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > каноническая запись и хэш > порядок ключей не влияет, в том числе во вложенных объектах
+Error: not implemented
+ ❯ canonicalJson packages/domain/src/marketing/canonical.ts:2:9
+      1| export function canonicalJson(_value: unknown): string {
+      2|   throw new Error('not implemented');
+       |         ^
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+ ❯ packages/domain/src/marketing/site-spec.test.ts:259:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > каноническая запись и хэш > порядок массивов влияет
+Error: not implemented
+ ❯ siteSpecHash packages/domain/src/marketing/canonical.ts:5:9
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+      5|   throw new Error('not implemented');
+       |         ^
+      6| }
+      7|
+ ❯ packages/domain/src/marketing/site-spec.test.ts:265:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > каноническая запись и хэш > Юникод записывается детерминированно
+Error: not implemented
+ ❯ canonicalJson packages/domain/src/marketing/canonical.ts:2:9
+      1| export function canonicalJson(_value: unknown): string {
+      2|   throw new Error('not implemented');
+       |         ^
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+ ❯ packages/domain/src/marketing/site-spec.test.ts:269:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > каноническая запись и хэш > ключи упорядочены по кодовым точкам, не по языку
+Error: not implemented
+ ❯ canonicalJson packages/domain/src/marketing/canonical.ts:2:9
+      1| export function canonicalJson(_value: unknown): string {
+      2|   throw new Error('not implemented');
+       |         ^
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+ ❯ packages/domain/src/marketing/site-spec.test.ts:274:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > каноническая запись и хэш > хэш: 64 символа нижнего регистра, меняется вместе со значением
+Error: not implemented
+ ❯ siteSpecHash packages/domain/src/marketing/canonical.ts:5:9
+      3| }
+      4| export function siteSpecHash(_value: unknown): string {
+      5|   throw new Error('not implemented');
+       |         ^
+      6| }
+      7|
+ ❯ packages/domain/src/marketing/site-spec.test.ts:278:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > нормальный адрес принимается в нижнем регистре и без пробелов по краям
+AssertionError: expected { ok: false, …(2) } to deeply equal { ok: true, slug: 'stepnoy-veter' }
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "slug": "stepnoy-veter",
++   "code": "not_implemented",
++   "message": "",
++   "ok": false,
+  }
+
+ ❯ packages/domain/src/marketing/site-spec.test.ts:289:52
+    287| describe('адрес сайта (slug)', () => {
+    288|   it('нормальный адрес принимается в нижнем регистре и без пробелов по…
+    289|     expect(parseMarketingSlug('  Stepnoy-Veter ')).toEqual({ ok: true,…
+       |                                                    ^
+    290|     expect(parseMarketingSlug('abc')).toEqual({ ok: true, slug: 'abc' …
+    291|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/29]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный www отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный app отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный api отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный admin отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный wetop отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный preview отклоняется
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > адрес сайта (slug) > зарезервированный support отклоняется
+AssertionError: expected { ok: false, …(2) } to match object { ok: false, code: 'reserved_slug' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": "reserved_slug",
++   "code": "not_implemented",
+    "ok": false,
+  }
+
+ ❯ packages/domain/src/marketing/site-spec.test.ts:305:39
+    303|     'зарезервированный %s отклоняется',
+    304|     (raw) => {
+    305|       expect(parseMarketingSlug(raw)).toMatchObject({ ok: false, code:…
+       |                                       ^
+    306|     },
+    307|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/29]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  29 failed | 8 passed (37)
+   Start at  16:20:54
+   Duration  1.01s (transform 62%, tests 27%, import 10%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-20-52Z-unit-2cf0.json
+
+# код выхода 1 · 4 с

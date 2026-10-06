@@ -18,6 +18,7 @@ import { integrationBindingNotice } from './channels/integration-property';
 import { turnstileConfigNotice } from './web-booking/turnstile';
 import { listenHost, listenPort } from './listen-address';
 import { apiSecurityHeaders } from './security-headers';
+import { useApiBodyParsers } from './body-parsers';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
@@ -45,7 +46,10 @@ if (turnstile?.level === 'error') {
 }
 if (turnstile) console.warn(turnstile.message);
 
-const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+// Разбор тела ставим сами (body-parsers.ts): встроенный JSON-парсер режет тело на 100 КБ до контроллера, а сохранению
+// версии сайта нужно до 300 КБ. Остальные маршруты живут с прежними 100 КБ
+const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'], bodyParser: false });
+useApiBodyParsers(app);
 // Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
 app.getHttpAdapter().getInstance().disable('x-powered-by');
 app.use(apiSecurityHeaders);

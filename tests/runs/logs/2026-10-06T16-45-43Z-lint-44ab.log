@@ -1,0 +1,20 @@
+# Линтер (lint) · 06.10.2026 21:45 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 18
+# npx eslint .
+
+/home/user/wetop.ai/packages/domain/src/marketing/site-spec.test.ts
+  18:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/user/wetop.ai/tests/integration/marketing-site.test.ts
+  27:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 8 problems (8 errors, 0 warnings)
+
+
+# код выхода 1 · 35 с

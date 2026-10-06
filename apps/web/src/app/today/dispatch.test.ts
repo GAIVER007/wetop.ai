@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TODAY_VERTICALS, todayScreen } from './dispatch';
+import { TODAY_VERTICALS, todayScreen, unresolvedTarget } from './dispatch';
 
 const me = (
   vertical: string | null,
@@ -9,12 +9,16 @@ const me = (
   context: vertical === null ? null : { vertical, businessId, locationId },
 });
 
-describe('/today: один адрес, экран по направлению выбранного филиала', () => {
+describe('/today: один адрес, экран только по подтверждённому направлению', () => {
   it('пускает все три направления: ни одно не уводится на другой адрес', () => {
     expect(TODAY_VERTICALS).toEqual(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   });
 
-  it('салон и ресторан: свой экран, ключ по Business и филиалу', () => {
+  it('гостиница: прежняя Главная', () => {
+    expect(todayScreen(me('HOSPITALITY'))).toEqual({ screen: 'HOSPITALITY', key: 'b1:l1' });
+  });
+
+  it('салон и ресторан с подтверждёнными Business и филиалом: свой экран, ключ по ним', () => {
     expect(todayScreen(me('BEAUTY'))).toEqual({ screen: 'BEAUTY', key: 'b1:l1' });
     expect(todayScreen(me('FOOD_SERVICE', 'b2', 'l2'))).toEqual({
       screen: 'FOOD_SERVICE',
@@ -22,13 +26,23 @@ describe('/today: один адрес, экран по направлению в
     });
   });
 
-  it('гостиница, вход без выбранного филиала и незнакомое направление: прежняя Главная', () => {
-    expect(todayScreen(me('HOSPITALITY')).screen).toBe('HOSPITALITY');
-    expect(todayScreen(me(null)).screen).toBe('HOSPITALITY');
-    expect(todayScreen(me('SOMETHING_NEW')).screen).toBe('HOSPITALITY');
+  it('направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING)', () => {
+    expect(todayScreen(me(null)).screen).toBe('UNRESOLVED');
+    expect(
+      todayScreen({ context: { vertical: null, businessId: null, locationId: null } }).screen,
+    ).toBe('UNRESOLVED');
+    expect(todayScreen(me('SOMETHING_NEW')).screen).toBe('UNRESOLVED');
   });
 
-  it('салон без подтверждённого филиала: экран салона без ключа, данные не берутся из другого выбора', () => {
-    expect(todayScreen(me('BEAUTY', 'b1', null))).toEqual({ screen: 'BEAUTY', key: 'b1:' });
+  it('салон и ресторан без филиала или без Business: не свой экран, а выбор', () => {
+    expect(todayScreen(me('BEAUTY', 'b1', null)).screen).toBe('UNRESOLVED');
+    expect(todayScreen(me('FOOD_SERVICE', 'b1', null)).screen).toBe('UNRESOLVED');
+    expect(todayScreen(me('BEAUTY', null, 'l1')).screen).toBe('UNRESOLVED');
+  });
+
+  it('куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору', () => {
+    expect(unresolvedTarget(false)).toBe('/scope/resolve?next=%2Ftoday');
+    // указатель уже стоит, а направление не подтверждено: повторный автоматический выбор дал бы то же самое
+    expect(unresolvedTarget(true)).toBe('/branches');
   });
 });

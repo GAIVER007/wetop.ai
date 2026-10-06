@@ -25,19 +25,19 @@ export async function BeautyToday() {
     );
   const { day, metrics: m } = loaded.value;
   const attention: DayAttention[] = [];
-  if (m.unconfirmed > 0)
+  if (m.awaitingConfirmation > 0)
     attention.push({
-      text: `Не подтверждены записи: ${m.unconfirmed}`,
+      text: `Ждут подтверждения: ${m.awaitingConfirmation}`,
       href: '/calendar',
       action: 'Открыть календарь',
       testId: 'today-attention-unconfirmed',
     });
-  if (m.unavailableMaster > 0)
+  if (m.noShow > 0)
     attention.push({
-      text: `Записи к мастеру, которого нет в графике дня: ${m.unavailableMaster}`,
+      text: `Не пришли: ${m.noShow}`,
       href: '/calendar',
       action: 'Открыть календарь',
-      testId: 'today-attention-master',
+      testId: 'today-attention-no-show',
     });
   return (
     <VerticalDay
@@ -45,12 +45,10 @@ export async function BeautyToday() {
       subtitle={`${day.location.name ?? 'Салон'}, ${displayDate(day.date, 'full')}`}
       action={{ href: '/calendar', label: 'Открыть календарь' }}
       stats={[
-        { label: 'Записей', value: m.appointments, testId: 'today-appointments' },
-        { label: 'Впереди', value: m.remaining, testId: 'today-remaining' },
-        { label: 'Мастеров', value: m.masters, testId: 'today-masters' },
+        { label: 'Запланировано', value: m.planned, testId: 'today-planned' },
+        { label: 'Подтверждено', value: m.confirmed, testId: 'today-confirmed' },
         { label: 'Завершено', value: m.done, testId: 'today-done' },
-        { label: 'Не пришли', value: m.noShow, testId: 'today-no-show', tone: 'warn' },
-        { label: 'Отменено', value: m.cancelled, testId: 'today-cancelled' },
+        { label: 'Мастеров', value: m.masters, testId: 'today-masters' },
       ]}
       attention={attention}
       upcomingTitle="Ближайшие записи"

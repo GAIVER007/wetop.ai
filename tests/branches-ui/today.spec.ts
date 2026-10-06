@@ -7,6 +7,7 @@ import {
   UNAVAILABLE_MASTER,
 } from '../../apps/web/src/app/today/vertical-metrics';
 import { previousDate } from '../../apps/web/src/lib/food-data';
+import { instantOf } from '../../apps/web/src/app/beauty/time';
 
 /**
  * MV8 Vertical Today на настоящем API: BranchesController, RoleGuard, AuthorInterceptor, Beauty и Food модули,
@@ -76,7 +77,12 @@ async function all<T>(request: APIRequestContext, scope: string, path: string): 
   } while (cursor);
   return items;
 }
-async function expectedFood(request: APIRequestContext, scope: string, localDay: string) {
+async function expectedFood(
+  request: APIRequestContext,
+  scope: string,
+  localDay: string,
+  timezone: string,
+) {
   const [areas, tables, today, previous] = await Promise.all([
     all(request, scope, '/food-service/areas'),
     all(request, scope, '/food-service/tables'),
@@ -88,6 +94,7 @@ async function expectedFood(request: APIRequestContext, scope: string, localDay:
     tables,
     today,
     previous,
+    dayStart: instantOf(`${localDay}T00:00`, timezone),
     capturedNow: new Date().toISOString(),
   } as Parameters<typeof foodToday>[0]);
 }
@@ -99,10 +106,22 @@ async function expectedBeauty(request: APIRequestContext, scope: string) {
   const day = await res.json();
   return {
     day,
-    m: beautyToday(day, localMinute(new Date().toISOString(), day.location.timezone, day.date)),
+    m: beautyToday(day, localMinute(new Date().toISOString(), day.location.timezone)),
   };
 }
 const value = (page: Page, id: string) => page.getByTestId(id);
+
+/** Окно гостиничного обучения поверх Главной перехватило бы щелчки: пройденным оно не считается только в своём тесте */
+test.beforeEach(async ({ page }, info) => {
+  if (info.title.includes('обучение само открывается')) return;
+  await page.addInitScript(() => {
+    const get = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      const v = get.call(this, key);
+      return v === null && key.startsWith('wetop.tour.v1:') ? 'done' : v;
+    };
+  });
+});
 
 test.afterAll(async ({ request }) => {
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
@@ -122,14 +141,18 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const { m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
     for (const [id, n] of [
-      ['today-appointments', m.appointments],
-      ['today-remaining', m.remaining],
-      ['today-masters', m.masters],
+      ['today-planned', m.planned],
+      ['today-confirmed', m.confirmed],
       ['today-done', m.done],
-      ['today-no-show', m.noShow],
-      ['today-cancelled', m.cancelled],
+      ['today-masters', m.masters],
     ] as const)
       await expect(value(page, id), id).toHaveText(String(n));
+    if (m.awaitingConfirmation > 0)
+      await expect(page.getByTestId('today-attention-unconfirmed')).toContainText(
+        String(m.awaitingConfirmation),
+      );
+    if (m.noShow > 0)
+      await expect(page.getByTestId('today-attention-no-show')).toContainText(String(m.noShow));
     await expect(page.getByText('Мастеров', { exact: true })).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
@@ -158,19 +181,22 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const from = await callCount(request);
     await page.goto('/today');
     await expect(page.getByTestId('food-today')).toBeVisible();
-    const m = await expectedFood(request, f.food, f.localDay);
-    expect(m.reservations).toBeGreaterThan(100);
+    const m = await expectedFood(request, f.food, f.localDay, f.timezone);
+    expect(m.planned).toBeGreaterThan(100);
     expect(m.seatedNow).toBeGreaterThanOrEqual(2);
     expect(m.activeTables).toBe(3);
     for (const [id, n] of [
-      ['today-reservations', m.reservations],
-      ['today-guests', m.guests],
+      ['today-planned', m.planned],
       ['today-seated', m.seatedNow],
+      ['today-completed', m.completed],
       ['today-free', m.freeNow],
-      ['today-no-show', m.noShow],
-      ['today-cancelled', m.cancelled],
     ] as const)
       await expect(value(page, id), id).toHaveText(String(n));
+    for (const [id, n] of [
+      ['today-attention-unconfirmed', m.awaitingConfirmation],
+      ['today-attention-no-show', m.noShow],
+    ] as const)
+      await expect(page.getByTestId(id), id).toContainText(String(n));
     await expect(page.getByText(`из ${m.activeTables}`, { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
@@ -199,9 +225,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       new Date(),
     );
     expect(f.localDay).toBe(local);
-    const m = await expectedFood(request, f.food, f.localDay);
-    expect(m.reservations).toBeGreaterThan(100);
-    await expect(value(page, 'today-reservations')).toHaveText(String(m.reservations));
+    const m = await expectedFood(request, f.food, f.localDay, f.timezone);
+    expect(m.planned).toBeGreaterThan(100);
+    await expect(value(page, 'today-planned')).toHaveText(String(m.planned));
   });
 
   test('переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы', async ({
@@ -275,6 +301,47 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     expect(calls.some((c) => /^\/(beauty|food-service)\b/.test(c))).toBe(false);
   });
 
+  test('без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches', async ({
+    page,
+    request,
+  }) => {
+    const f = await prepare(request);
+    // указателя нет: тот же выбор, что после входа; филиалов несколько, поэтому человек выбирает сам
+    await page.goto('/today');
+    await expect(page).toHaveURL(/\/branches$/);
+    await expect(page.getByTestId('owner-dashboard')).toHaveCount(0);
+    expect(await scopeCookie(page)).toBe('');
+    // указатель без филиала у салона: направление не подтверждено до Location, свой экран не рисуется
+    await setScope(page, `business=${f.beauty}`);
+    await page.goto('/today');
+    await expect(page).toHaveURL(/\/branches$/);
+    await expect(page.getByTestId('beauty-today')).toHaveCount(0);
+    await expect(page.getByTestId('owner-dashboard')).toHaveCount(0);
+  });
+
+  test('гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет', async ({
+    page,
+    request,
+  }) => {
+    const f = await prepare(request);
+    await setScope(page, f.hotelScope);
+    await page.goto('/today');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    for (const [scope, testId] of [
+      [f.salon, 'beauty-today'],
+      [f.food, 'food-today'],
+    ] as const) {
+      await page.context().clearCookies();
+      await page.evaluate(() => localStorage.clear());
+      await setScope(page, scope);
+      await page.goto('/today');
+      await expect(page.getByTestId(testId)).toBeVisible();
+      // обучение стартует через 600 мс после отрисовки: ждём с запасом и проверяем, что окна нет
+      await page.waitForTimeout(1500);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    }
+  });
+
   for (const [vertical, testId] of [
     ['beauty', 'beauty-today'],
     ['food', 'food-today'],
@@ -295,6 +362,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
           await page.emulateMedia({ colorScheme: theme });
           await page.goto('/today');
           await expect(page.getByTestId(testId)).toBeVisible();
+          await expect(page.getByRole('dialog')).toHaveCount(0);
           await page.evaluate(async () => {
             await Promise.all(
               document

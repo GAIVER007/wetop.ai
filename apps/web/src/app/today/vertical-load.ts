@@ -3,8 +3,8 @@ import { foodApi } from '../../lib/food-api';
 import { completeFoodList, previousDate, validFoodReservation } from '../../lib/food-data';
 import type { DiningArea, DiningTable, RestaurantReservation } from '../../lib/food-types';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
-import { localInput } from '../beauty/time';
-import { beautyToday, foodToday, localMinute } from './vertical-metrics';
+import { instantOf, localInput } from '../beauty/time';
+import { assertSameLocalDay, beautyToday, foodToday, localMinute } from './vertical-metrics';
 
 /**
  * Данные экрана «Сегодня» салона и ресторана (MV8). Момент `nowIso` снимается один раз на запрос, все счёты
@@ -15,7 +15,9 @@ import { beautyToday, foodToday, localMinute } from './vertical-metrics';
 /** Салон: один запрос дня журнала. Дату и пояс решает API (`/beauty/appointments` без даты это сегодня филиала) */
 export async function loadBeautyToday(nowIso: string) {
   const day = await beautyApi.day();
-  const currentMinute = localMinute(nowIso, day.location.timezone, day.date);
+  // полночь филиала между запросом и счётом: «обновите», числа разных суток не смешиваются
+  assertSameLocalDay(nowIso, day.location.timezone, day.date);
+  const currentMinute = localMinute(nowIso, day.location.timezone);
   return { day, currentMinute, metrics: beautyToday(day, currentMinute) };
 }
 
@@ -39,6 +41,13 @@ export async function loadFoodToday(nowIso: string) {
     date,
     timezone: branch.timezone,
     branchName: branch.name,
-    metrics: foodToday({ areas, tables, today, previous, capturedNow: nowIso }),
+    metrics: foodToday({
+      areas,
+      tables,
+      today,
+      previous,
+      dayStart: instantOf(`${date}T00:00`, branch.timezone),
+      capturedNow: nowIso,
+    }),
   };
 }

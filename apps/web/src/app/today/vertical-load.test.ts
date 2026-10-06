@@ -93,6 +93,13 @@ describe('загрузка «Сегодня» салона', () => {
     // 23:30 UTC это 04:30 8 октября в Алматы: текущая минута по поясу филиала, а не по UTC
     expect(loaded.currentMinute).toBe(270);
   });
+
+  it('день ответа не совпал с сутками филиала (полночь между запросом и счётом): ошибка, а не числа', async () => {
+    state.day = { ...(state.day as object), date: '2026-10-07' };
+    await expect(loadBeautyToday('2026-10-07T23:30:00.000Z')).rejects.toThrow(
+      'Сутки филиала сменились',
+    );
+  });
 });
 
 describe('загрузка «Сегодня» ресторана', () => {
@@ -125,11 +132,11 @@ describe('загрузка «Сегодня» ресторана', () => {
       { items: many.slice(100), nextCursor: null },
     ];
     const loaded = await loadFoodToday('2026-10-08T05:00:00.000Z');
-    expect(loaded.metrics.reservations).toBe(150);
+    expect(loaded.metrics.planned).toBe(150);
     expect(calls).toContain('food.reservations:2026-10-08@1');
   });
 
-  it('бронь вчерашнего дня через полночь сидит сейчас, но в брони дня не входит', async () => {
+  it('бронь вчерашнего дня через полночь сидит сейчас, но в запланированные дня не входит', async () => {
     state.pages['food.reservations:2026-10-07'] = [
       {
         items: [
@@ -139,7 +146,7 @@ describe('загрузка «Сегодня» ресторана', () => {
       },
     ];
     const loaded = await loadFoodToday('2026-10-07T19:30:00.000Z');
-    expect(loaded.metrics).toMatchObject({ seatedNow: 1, reservations: 0 });
+    expect(loaded.metrics).toMatchObject({ seatedNow: 1, planned: 0 });
   });
 
   it('филиал не выбран или недоступен: ошибка, а не чужие числа', async () => {

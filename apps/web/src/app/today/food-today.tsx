@@ -25,34 +25,44 @@ export async function FoodToday() {
       </Page>
     );
   const { date, timezone, branchName, metrics: m } = loaded.value;
-  const attention: DayAttention[] =
-    m.withoutTable > 0
-      ? [
-          {
-            text: `Брони без стола: ${m.withoutTable}`,
-            href: `/table-reservations?date=${date}`,
-            action: 'Открыть бронирования',
-            testId: 'today-attention-no-table',
-          },
-        ]
-      : [];
+  const reservations = `/table-reservations?date=${date}`;
+  const attention: DayAttention[] = [];
+  if (m.withoutTable > 0)
+    attention.push({
+      text: `Без стола: ${m.withoutTable}`,
+      href: reservations,
+      action: 'Открыть бронирования',
+      testId: 'today-attention-no-table',
+    });
+  if (m.awaitingConfirmation > 0)
+    attention.push({
+      text: `Ждут подтверждения: ${m.awaitingConfirmation}`,
+      href: reservations,
+      action: 'Открыть бронирования',
+      testId: 'today-attention-unconfirmed',
+    });
+  if (m.noShow > 0)
+    attention.push({
+      text: `Не пришли: ${m.noShow}`,
+      href: reservations,
+      action: 'Открыть бронирования',
+      testId: 'today-attention-no-show',
+    });
   return (
     <VerticalDay
       testId="food-today"
       subtitle={`${branchName}, ${displayDate(date, 'full')}`}
       action={{ href: '/floor-plan', label: 'Открыть план зала' }}
       stats={[
-        { label: 'Бронирований', value: m.reservations, testId: 'today-reservations' },
-        { label: 'Гостей в бронях', value: m.guests, testId: 'today-guests' },
+        { label: 'Запланировано', value: m.planned, testId: 'today-planned' },
         { label: 'Сидят сейчас', value: m.seatedNow, testId: 'today-seated' },
+        { label: 'Завершено', value: m.completed, testId: 'today-completed' },
         {
           label: 'Свободно столов сейчас',
           value: m.freeNow,
           testId: 'today-free',
           hint: `из ${m.activeTables}`,
         },
-        { label: 'Не пришли', value: m.noShow, testId: 'today-no-show', tone: 'warn' },
-        { label: 'Отменено', value: m.cancelled, testId: 'today-cancelled' },
       ]}
       attention={attention}
       upcomingTitle="Ближайшие брони"

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { Access } from '../auth/access.decorator';
 import { BarService } from './bar.service';
 
 @Access('desk')
 @Controller('bar')
 export class BarController {
-  constructor(private readonly service: BarService) {}
+  constructor(@Inject(BarService) private readonly service: BarService) {}
   @Get('categories') categories() { return this.service.categories(); }
   @Access('settings')
   @Post('categories') createCategory(@Body() body: unknown) { return this.service.createCategory(body); }

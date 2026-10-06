@@ -4993,7 +4993,10 @@ createServer(async (req, res) => {
             return a.arrivalDate < b.arrivalDate ? 1 : -1;
           return 0;
         });
-      const rows = ordered.map((r) => {
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
+      // Enrich only the requested page, matching the production directory query.
+      const rows = ordered.slice((page - 1) * pageSize, page * pageSize).map((r) => {
         const { money } = moneyOf(r);
         return {
           confirmationNumber: r.confirmationNumber,
@@ -5012,20 +5015,21 @@ createServer(async (req, res) => {
           unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
           itemsCount: r.items.length,
           primaryGuest: r.primaryGuest
-            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+            ? {
+                ...r.primaryGuest,
+                email: (r.primaryGuest.id === guest.id ? guest : extraGuests.get(r.primaryGuest.id))?.email ?? null,
+              }
             : null,
         };
       });
-      const pageSize = Number(url.searchParams.get('pageSize') || 25);
-      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
-        total: emptyFixture ? 0 : rows.length,
+        total: emptyFixture ? 0 : ordered.length,
         page,
         pageSize,
         counts,
-        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
+        rows: emptyFixture ? [] : rows,
       });
     }
     // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.

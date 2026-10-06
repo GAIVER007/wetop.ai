@@ -6921,3 +6921,5 @@
 | 07.10.2026 01:11 | unit (частично: apps/web/src/app/today/dispatch.test.ts) | ❌ упало 1 из 8 | 1 с | 65a1342 +2 | [лог](logs/2026-10-06T20-11-41Z-unit-ae43.log) | /today: один адрес, экран только по подтверждённому направлению открытый стенд разработки (замок входа выключен, сессии нет): одна гостиница стенда, как до MV8 |
 | 07.10.2026 01:11 | unit (частично: apps/web/src/app/today) | ✅ 32 из 32 | 2 с | 65a1342 +4 | [лог](logs/2026-10-06T20-11-51Z-unit-661f.log) |  |
 | 07.10.2026 00:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 53 мин 41 с | 32f879e | [лог](logs/2026-10-06T19-18-39Z-e2e-882e.log) |  |
+| 07.10.2026 01:12 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 1 мин 29 с | 1614e9c | [лог](logs/2026-10-06T20-12-52Z-e2e-d65f.log) |  |
+| 07.10.2026 01:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 1614e9c | [лог](logs/2026-10-06T20-14-22Z-e2e-a393.log) | (ошибка вне тестов) |

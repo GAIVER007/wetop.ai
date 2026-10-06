@@ -120,8 +120,9 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await choose(page, 'Тестовый отель');
     await expect(page).toHaveURL(/\/today$/);
     await choose(page, 'Гостиница Б');
-    // у второго отеля ещё нет номеров: выбор ведёт в его настройку, как и раньше
-    await expect(page).toHaveURL(/\/onboarding$/);
+    // у второго отеля ещё нет номеров: выбор ведёт в его настройку (MV3: владелец с выбранным филиалом попадает в общий
+    // экран настройки)
+    await expect(page).toHaveURL(/\/register\/setup$/);
     expect(await scopeCookie(page)).toBe(`business=${hotelB.business};location=${hotelB.location}`);
     await page.reload();
     expect(await scopeCookie(page)).toBe(`business=${hotelB.business};location=${hotelB.location}`);

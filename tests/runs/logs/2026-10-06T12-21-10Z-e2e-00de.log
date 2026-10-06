@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 06.10.2026 17:21 Алматы · vm
+# коммит 0ab33b3 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-beauty-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete (13.5s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (6.1s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication (3.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   4 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (11.6s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (10.8s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow (10.1s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (9.5s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments (3.6s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted (5.9s)
+  ✘  10 tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens calendar and resumes there (1.5m)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens calendar and resumes there 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Название бизнеса')
+
+
+      394 |   await page.goto('/register/setup');
+      395 |   const main = page.getByRole('main');
+    > 396 |   await main.getByLabel('Название бизнеса').fill('Тестовый салон');
+          |                                             ^
+      397 |   await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
+      398 |   await main.getByLabel('Название филиала').fill('Тестовый филиал');
+      399 |   await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:396:45
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-3985f--calendar-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-3985f--calendar-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-3985f--calendar-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-3985f--calendar-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:392:1 › Beauty onboarding completion opens calendar and resumes there 
+  9 passed (2.8m)
+
+# код выхода 1 · 2 мин 51 с

@@ -42,7 +42,6 @@ test('все разделы, карточки и печать открывают
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
     ['/finance', 'Касса'],
-    ['/rates', 'Тарифы и цены'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
@@ -62,7 +61,7 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings', 'Настройки объекта'],
     ['/hotel-settings/check-in', 'Настройки объекта'],
     ['/hotel-settings/stay', 'Настройки объекта'],
-    ['/hotel-settings/penalties', 'Тарифы и цены'],
+    ['/hotel-settings/penalties', 'Настройки объекта'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
     ['/hotel-settings/photos', 'Подключения'],
@@ -78,7 +77,7 @@ test('все разделы, карточки и печать открывают
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
-    '/hotel-settings/penalties': /\/rates\/plans$/,
+    '/hotel-settings/penalties': /\/hotel-settings$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
     '/channels/connections': /\/connections\/channex$/,
@@ -125,13 +124,13 @@ test('вложенные разделы: раскрытие, один актив
     await sales.click();
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).not.toBeVisible();
+  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -797,25 +796,6 @@ test('групповая бронь: три места показывают тр
   await expect(page.getByTestId('booking-summary')).toContainText('2 гостя');
 });
 
-test('тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы»', async ({
-  page,
-  request,
-}) => {
-  await page.goto('/rates?month=2026-10&category=MALE');
-  await page.getByTestId('rates-edit-open').click();
-  const editor = page.getByTestId('bulk-editor');
-  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
-  await editor.locator('select[name="accommodationTypeCode"]').selectOption('ROOM');
-  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '2');
-  await request.post(`${fixture}/__test/control`, { data: { ratesUnmapped: true } });
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await page.getByTestId('apply-changes').click();
-  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
-  await expect(page.getByTestId('bulk-done')).toContainText('В каналы не ушло');
-  await expect(page.getByTestId('bulk-done')).not.toContainText('Ушло в очередь');
-});
-
 test('неисправности: когда история обрезана, это написано', async ({ page, request }) => {
   await page.goto('/incidents');
   await expect(page.getByTestId('incidents-truncated')).toHaveCount(0);
@@ -834,32 +814,6 @@ test('настройки: подсказка про услуги ведёт во
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByTestId('stored-property')).toContainText('Основная информация');
   await expect(page.getByTestId('content-description')).toHaveCount(0);
-});
-
-test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({
-  page,
-  request,
-}) => {
-  await page.goto('/rates?month=2026-10');
-  await page.getByTestId('rates-edit-open').click();
-  const editor = page.getByTestId('bulk-editor');
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await editor.getByRole('button', { name: 'Убрать строку 1', exact: true }).click();
-  await expect(page.getByTestId('apply-changes')).toBeDisabled();
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rates/bulk' } });
-  await page.getByTestId('apply-changes').click();
-  await expect(editor.getByRole('alert')).toBeVisible();
-  await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await request.post(`${fixture}/__test/control`, { data: {} });
-  await page.getByTestId('apply-changes').click();
-  // Отправку в каналы экран обещает по ответу API, а не «всегда» (§7.3)
-  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
-  await expect(page.getByTestId('bulk-done')).toContainText('В очередь каналов ушло 1');
-  await expect(page.getByTestId('price-2026-10-01-1')).toContainText('9 100');
 });
 
 test('сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные', async ({
@@ -1382,20 +1336,6 @@ test('каналы: входящая бронь ведёт на карточку
   const number = (await link.textContent())!.trim();
   await link.click();
   await expect(page).toHaveURL(new RegExp(`/reservations/${encodeURIComponent(number)}$`));
-});
-
-test('цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь', async ({
-  page,
-}) => {
-  await page.goto('/rates');
-  const cell = page.getByTestId('rates-calendar').getByTestId('price-cell-edit').first();
-  await cell.click();
-  const input = page.getByTestId('price-cell-input');
-  await input.fill('15000');
-  await page.getByRole('button', { name: 'Сохранить цену' }).click();
-  const said = page.getByTestId('price-cell-result');
-  await expect(said).toContainText('Цена сохранена');
-  await expect(said).toContainText('в очередь каналов');
 });
 
 /**

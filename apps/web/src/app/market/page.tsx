@@ -289,7 +289,7 @@ function Insights({ view }: { view: MarketView }) {
                 <p>{t.text}</p>
               </div>
               {i.kind !== 'missing' && (
-                <Link href={`/rates?month=${i.from.slice(0, 7)}`} className="market-insight__link">
+                <Link href="/rooms/categories" className="market-insight__link">
                   Открыть цены
                   <Icon name="chevron" />
                 </Link>

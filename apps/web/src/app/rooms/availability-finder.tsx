@@ -583,7 +583,7 @@ function OfferPrice({
     return (
       <div className="fund-price">
         <span className="muted">Нет цены на эти даты</span>
-        <Link href="/rates">Тарифы</Link>
+        <Link href="/rooms/categories">Задать цену</Link>
       </div>
     );
   const money = (minor: string) => formatMoney(minor, currency);

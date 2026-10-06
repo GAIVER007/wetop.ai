@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import type { InventoryCategory, InventoryUnit } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { Overlay } from '../../components/overlay';
 import { Badge, Button } from '../../components/ui';
 import {
@@ -16,7 +17,7 @@ import {
 const LIST_LIMIT = 12;
 
 /**
- * Панель категории (ТЗ «Категории v2» C2, §9 и §40): что продаём, сколько мест, какие тарифы и куда
+ * Панель категории (ТЗ «Категории v2» C2, §9 и §40): что продаём, сколько мест, по какой цене и куда
  * идти дальше. Состав и цены здесь не редактируются — только переход в свои модули (ТЗ §41–§42).
  */
 export function CategoryPreview({
@@ -25,14 +26,12 @@ export function CategoryPreview({
   onClose,
   onEdit,
   onAdd,
-  onSetRate,
 }: {
   category: InventoryCategory;
   units: InventoryUnit[];
   onClose: () => void;
   onEdit: () => void;
   onAdd: () => void;
-  onSetRate: () => void;
 }) {
   const members = units
     .filter((u) => u.accommodationTypeCode === c.code)
@@ -44,7 +43,7 @@ export function CategoryPreview({
       <div className="fund-preview">
         {!c.active ? (
           <Badge tone="neutral">В архиве</Badge>
-        ) : members.length && c.ratePlans ? (
+        ) : members.length && c.priceMinor ? (
           <Badge tone="ok">Активна</Badge>
         ) : (
           <Badge tone="warn">Не готова к продаже</Badge>
@@ -94,31 +93,18 @@ export function CategoryPreview({
             </Button>
           </div>
         </section>
-        <section aria-label="Тарифы">
-          <h3>Тарифы</h3>
-          {c.ratePlanNames.length ? (
-            <ul className="fund-preview-rates">
-              {c.ratePlanNames.map((name) => (
-                <li key={name}>{name}</li>
-              ))}
-            </ul>
+        <section aria-label="Цена">
+          <h3>Цена</h3>
+          {c.priceMinor ? (
+            <p>
+              {formatMoney(c.priceMinor, c.currency ?? 'KZT')} {bed ? 'за койку' : 'за номер'} в ночь
+            </p>
           ) : (
             <p>
-              <Badge tone="warn">Тариф не настроен</Badge> Без тарифа и цен категория не продаётся.
+              <Badge tone="warn">Цена не задана</Badge> Без цены категория не продаётся.
             </p>
           )}
-          {c.ratePlans > 0 && <p className="muted">Цены — по датам в календаре тарифов.</p>}
-          <div className="fund-preview-actions">
-            {c.ratePlans > 0 ? (
-              <Link className="btn btn--secondary" href={`/rates?category=${code}`} prefetch={false}>
-                Настроить тарифы
-              </Link>
-            ) : (
-              <Button tone="secondary" onClick={onSetRate}>
-                Настроить тариф
-              </Button>
-            )}
-          </div>
+          <p className="muted">Одна цена на все дни; меняется кнопкой «Редактировать».</p>
         </section>
         <section aria-label="Брони и каналы">
           <h3>Брони и каналы</h3>

@@ -209,13 +209,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
               'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
           {
-            href: '/rates',
-            requires: 'rates',
-            label: 'Тарифы',
-            icon: 'rates',
-            description: 'Календарь цен, ограничения и массовое редактирование.',
-          },
-          {
             // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
             href: '/market',
             requires: 'reports',
@@ -441,7 +434,7 @@ export const menuSections: MenuSection[] = [
     label: 'Продажи',
     icon: 'rates',
     items: [
-      menuItem('/rates', 'Тарифы и цены'),
+      // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
       menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),

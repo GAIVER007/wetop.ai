@@ -20,7 +20,6 @@ const routes = [
   '/rooms/availability',
   '/inventory',
   '/units/R01',
-  '/rates',
   '/finance',
   '/hotel-settings',
   '/hotel-settings/stay',

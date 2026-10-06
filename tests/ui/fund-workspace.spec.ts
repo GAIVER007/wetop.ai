@@ -3,11 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API } from './fixtures';
 test('category creation, rename, room creation and reload', async ({ page }) => {
   await page.goto('/rooms/categories');
-  await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Добавить категорию', exact: true }).first().click();
   await page.getByLabel('Название категории').fill('Тестовая новая категория');
-  // тариф — явным «Настроить сейчас» (ADR-119: по умолчанию «позже»)
-  await page.getByRole('radio', { name: 'Настроить сейчас' }).check();
-  await expect(page.getByRole('combobox', { name: /^Тариф/ })).toBeEnabled();
+  // цена — одна на все дни (план categories-price-2026-10-06), тариф больше не выбирают
+  await page.getByLabel('Цена за номер в ночь, ₸').fill('9000');
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
   await page
     .getByRole('dialog', { name: 'Категория создана' })
@@ -17,9 +16,9 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
     .getByTestId('fund-category-row')
     .filter({ hasText: 'Тестовая новая категория' });
   await expect(category).toBeVisible();
-  // новая категория без единиц и с тарифом из формы (ТЗ «Категории v2» §20, §35)
+  // новая категория без единиц и с ценой из формы (ТЗ «Категории v2» §20, §35)
   await expect(category.getByText('не добавлен', { exact: true })).toBeVisible();
-  await expect(category.getByRole('link', { name: '1 тариф', exact: true })).toBeVisible();
+  await expect(category.getByText('9 000 ₸', { exact: true })).toBeVisible();
   await category
     .getByRole('button', { name: 'Действия с категорией Тестовая новая категория' })
     .click();
@@ -295,7 +294,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   await request.post(`${FIXTURE_API}/__test/control`, { data: { empty: true } });
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();
-  await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Добавить категорию', exact: true }).first().click();
   await expect(page.getByRole('dialog', { name: 'Создать категорию' })).toBeVisible();
   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();

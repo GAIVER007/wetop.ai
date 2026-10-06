@@ -225,6 +225,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',
   'GET /rates/options': 'rates',

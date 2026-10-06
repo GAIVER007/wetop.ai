@@ -76,12 +76,8 @@ test('старые адреса: часы — на «Проживание», п�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  // переход потоковый (redirect() после начала ответа): `goto` возвращается раньше, а холодная сборка
-  // `/rates/plans` в `next dev` на двухъядерном раннере GitHub дольше 15 с (release-checks 03.10.2026)
-  await expect(page).toHaveURL(/\/rates\/plans$/, { timeout: 40_000 });
-  const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
-  await expect(row).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  // «Тарифы и цены» сняты 06.10.2026: старый адрес правил отмены ведёт в настройки объекта
+  await expect(page).toHaveURL(/\/hotel-settings$/, { timeout: 40_000 });
 });
 
 test('владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку', async ({

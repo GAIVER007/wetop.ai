@@ -45,7 +45,6 @@ for (const screen of [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
-  '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
   // «По номерам» (REP3): один запрос /desk/dashboard/units

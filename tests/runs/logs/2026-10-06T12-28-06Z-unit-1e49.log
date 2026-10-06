@@ -1,0 +1,29 @@
+# Модульные (unit) · 06.10.2026 17:28 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-28-06Z-unit-1e49.json' 'apps/api/src/web-booking/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 84ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 217ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 635ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 323ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 762ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 5ms
+
+ Test Files  6 passed (6)
+      Tests  102 passed (102)
+   Start at  12:28:07
+   Duration  5.76s (transform 54%, import 34%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-28-06Z-unit-1e49.json
+
+# код выхода 0 · 7 с

@@ -1,0 +1,51 @@
+# Интеграционные (integration) · 06.10.2026 18:14 Алматы · vm
+# коммит 8526d50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-14-42Z-integration-8eee.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1690) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 1141ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (9)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 17ms
+     ✓ BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 158ms
+     ✓ BOOK-4: котировка агента B: объект B; по организации с двумя сайтами: отказ, а не самый ранний 61ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 55ms
+     ✓ BOOK-2: K+A дважды: та же бронь, одна запись, одно письмо, проверка Turnstile один раз 92ms
+     ✓ BOOK-2: K+A, затем K+B: 409 без данных первой брони 62ms
+     ✓ BOOK-2: два одновременных K+A: ровно одна бронь 128ms
+     ✓ BOOK-2: новый ключ требует действующего токена; ключ не UUID v4: 400 53ms
+     ✓ BOOK-2: тело старого виджета без creationKey бронирует, Turnstile для него действует 57ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `audit_logs_organization_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/web-booking-exact-property.test.ts:214:7
+    212|       await db.user.deleteMany({ where: { id: user } });
+    213|       // MUTATION: purge removed
+    214|       await db.organization.deleteMany({ where: { id: { in: orgs } } }…
+       |       ^
+    215|       // уборка не глотает ошибок: сбой здесь роняет набор, а не остав…
+    216|       const left = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 passed (9)
+   Start at  13:14:42
+   Duration  5.19s (transform 49%, tests 32%, import 19%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-14-42Z-integration-8eee.json
+
+# код выхода 1 · 6 с

@@ -5844,3 +5844,12 @@ Consequences: production applies migrations 58 and 59 together after backup and 
 Уточнение выпуска сотрудников 05.10.2026: в кандидат включён уже подготовленный отдельной сессией выпуск Главной 6342e9ad. Это сохраняет fast-forward историю при любом порядке выкладок и исключает откат главной. Полный release-checks проверяет объединённый SHA. Миграций по сравнению с работающим 6d9b4705 нет.
 
 Уточнение календаря 05.10.2026: владелец одобрил продолжение компактного варианта после предпросмотра. Мобильная сводка единая, показатели в две колонки. Выпуск поверх актуального release сохраняет уже выпущенные Главную и журнал, не включает миграции Food 58/59 из main. Полный release-checks запускается на отдельной ветке календаря; код также объединяется в main.
+
+
+## ADR-MV8-UNBLOCK (2026-10-05): canonical branch read projection
+
+Проблема: GET /branches пропускает Food Locations, поэтому selectedWorkspaceBranch и переключатель не могут получить актуальный филиал ресторана.
+Варианты: новый endpoint; расширить write contract; минимально дополнить существующую read projection.
+Решение владельца: GET /branches является canonical read projection selectable Location всех поддерживаемых vertical. Hospitality адаптируется через Property, Beauty/Food через Location. Только ACTIVE Location и Business текущей Organization, без Property для Beauty/Food.
+Причина: BranchItem уже поддерживает FOOD_SERVICE, модель и write contract менять не требуется.
+Последствия: Food получает текущие name/address/timezone/currency и canonical IDs; inventory counts равны нулю. BranchVertical и POST /branches остаются HOSPITALITY | BEAUTY. Scope/RLS/permissions и Food reservation/financial logic не меняются. Real HTTP RED/GREEN и isolation matrix обязательны. Разрешён merge unblock PR в main после GREEN; production/release запрещены.

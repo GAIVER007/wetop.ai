@@ -18,7 +18,6 @@ describe('меню салона', () => {
   it('у филиала салона нет гостиничных разделов', () => {
     const items = hrefs('BEAUTY');
     for (const href of [
-      '/today',
       '/chessboard',
       '/reservations',
       '/inventory',
@@ -36,6 +35,7 @@ describe('меню салона', () => {
   it('у филиала салона есть только то, что в нём работает', () => {
     // MV5 exposes only accepted operational screens.
     expect(hrefs('BEAUTY')).toEqual([
+      '/today',
       '/calendar',
       '/appointments',
       '/customers',
@@ -57,10 +57,10 @@ describe('меню салона', () => {
   it('нижняя панель телефона тоже идёт по вертикали', () => {
     // четыре вкладки это работа смены: сотрудники и журнал уходят под «Ещё»
     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
+      '/today',
       '/calendar',
       '/appointments',
       '/customers',
-      '/employees',
     ]);
     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessboard');
   });

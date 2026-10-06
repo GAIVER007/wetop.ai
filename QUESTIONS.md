@@ -1249,3 +1249,11 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 ## 2026-10-05: источники показателей Главной владельца
 
 Открыто: определить подтверждённый источник расходов, остатков кассы и общего остатка, а также смысл Касса / Всего (остаток или оборот, перечень счетов). Владелец разрешил самостоятельно настроить интерфейс, но финансовая модель для этих значений пока не определена. До решения карточки показывают Нет данных. Возвраты не считаются расходами, поступления не подменяют остаток.
+
+
+## Q-MV8-CONTRACT (2026-10-05): Food branches read projection
+
+Статус: открыто, MV8 STOP по прямому исключению владельца.
+Реальный GET /branches на base 04e532b656fd96f1a526f01d3257e75caf595745 не возвращает FOOD_SERVICE Location без Property. HTTP proof: tests/integration/mv8-branches-contract.test.ts, RED log 2026-10-05T18-44-28Z-integration-db22.log.
+Нужное решение: отдельное разрешение на backend read projection Food в существующем /branches либо upstream fix с real API evidence. Текущий MV8 запрещает backend changes. Полный impact: reports/mv8-contract-impact-20261005.md.
+Без этого нельзя получить verified timezone выбранного Food Location и выполнить Hotel/Beauty/Food scope switching. Не заменять current timezone onboarding draft или fallback.

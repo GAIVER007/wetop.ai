@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
-import { branchDestination } from '../../lib/branch-destination';
 import { hotelApi } from '../../lib/hotel-api';
 import { SCOPE_COOKIE } from '../../lib/scope-pointer';
 
@@ -27,7 +26,7 @@ export async function selectBranch(form: FormData) {
   if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
   redirect(
     branch._count.inventoryUnits
-      ? branchDestination(String(form.get('returnTo') ?? ''))
+      ? landingForVertical(branch.vertical)
       : '/onboarding',
   );
 }

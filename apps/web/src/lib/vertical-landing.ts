@@ -1,6 +1,6 @@
 export type WebVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
-export function landingForVertical(vertical: WebVertical): string {
-  return { HOSPITALITY: '/today', BEAUTY: '/calendar', FOOD_SERVICE: '/floor-plan' }[vertical];
+export function landingForVertical(_vertical: WebVertical): string {
+  return '/today';
 }
 const routes: Record<WebVertical, string[]> = {
   HOSPITALITY: [
@@ -20,6 +20,7 @@ const routes: Record<WebVertical, string[]> = {
   FOOD_SERVICE: ['/floor-plan', '/table-reservations', '/dining-areas'],
 };
 export function routeVertical(path: string): WebVertical | null {
+  if (path === '/today') return null;
   for (const vertical of Object.keys(routes) as WebVertical[]) {
     if (routes[vertical].some((root) => path === root || path.startsWith(`${root}/`)))
       return vertical;

@@ -8,6 +8,7 @@ describe('Food workspace isolation', () => {
     expect(
       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href)),
     ).toEqual([
+      '/today',
       '/floor-plan',
       '/table-reservations',
       '/customers',
@@ -18,10 +19,10 @@ describe('Food workspace isolation', () => {
       '/profile',
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => i.href)).toEqual([
+      '/today',
       '/floor-plan',
       '/table-reservations',
       '/customers',
-      '/dining-areas',
     ]);
   });
   it('does not expose Food to existing verticals', () => {
@@ -32,8 +33,8 @@ describe('Food workspace isolation', () => {
     }
   });
   it('uses canonical landings and verified scope', () => {
-    expect(landingForVertical('FOOD_SERVICE')).toBe('/floor-plan');
-    expect(landingForVertical('BEAUTY')).toBe('/calendar');
+    expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
+    expect(landingForVertical('BEAUTY')).toBe('/today');
     expect(landingForVertical('HOSPITALITY')).toBe('/today');
     expect(
       deskShellOf({
@@ -48,5 +49,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/calendar')).toBe('BEAUTY');
     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
     expect(routeVertical('/customers')).toBeNull();
+    expect(routeVertical('/today')).toBeNull();
+    expect(routeVertical('/today/desk')).toBe('HOSPITALITY');
   });
 });

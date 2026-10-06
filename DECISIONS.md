@@ -5833,3 +5833,12 @@ Consequences: production applies migrations 58 and 59 together after backup and 
 Решение: отдельная ветка codex/staff-owner-journal-release от release, только сотрудники, аудит и соответствующие проверки. Запустить полный release-checks через workflow_dispatch на этой ветке, не менять общий release-candidate и не отменять чужой прогон. После GREEN точного SHA продвинуть release fast-forward и проверить deployed marker, образы, health и публичные маршруты. Реализацию сохранить также в main.
 Причина: код сотрудников не требует миграций, общий кандидат не должен блокировать или отменять независимый выпуск.
 Последствия: проверяемый SHA этого выпуска отличается от main; исключение относится только к этому изолированному выпуску. Production schema, Food и внешние интеграции не изменяются. Если release уйдёт вперёд, повторно согласовать историю и проверки до продвижения.
+
+
+## ADR-MV8: Vertical Today (2026-10-05)
+
+Проблема: завершённые вертикали имеют разные стартовые маршруты, /today обращается к Hospitality даже при другом контексте.
+Варианты: общий booking domain; отдельные страницы; shared route с независимыми адаптерами.
+Решение владельца: shared /today, verified server scope до domain calls, отдельные Beauty/Food builders и loaders. Hospitality composition извлекается с сохранением semantics. Общие только presentation primitives.
+Причина: существующие API полностью покрывают утверждённые факты, модели и финансовые правила менять не нужно.
+Последствия: canonical landing /today для всех завершённых вертикалей; Beauty использует server-local day; Food полностью читает areas/tables/reservations сегодня и вчера. Любой обязательный сбой даёт LoadError вместо нулей. Нет backend/schema/migrations, чужих API, Beauty/Food finance. Реальный Nest pipeline проверяется на отдельной UTF8 PostgreSQL. Финал PR, без merge/deploy/MV9.

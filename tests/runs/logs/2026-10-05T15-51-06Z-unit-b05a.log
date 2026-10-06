@@ -1,0 +1,156 @@
+# Модульные (unit) · 05.10.2026 20:51 Алматы · MacBook-Air-Urij.local
+# коммит 04e532b (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-51-06Z-unit-b05a.json' 'apps/web/src/lib/today-loaders.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ❯ |unit| apps/web/src/lib/today-loaders.test.ts (0 test)
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests | 2 failed) 8ms
+   ❯ меню салона (6)
+     ✓ у филиала салона нет гостиничных разделов 2ms
+     × у филиала салона есть только то, что в нём работает 4ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 0ms
+     × нижняя панель телефона тоже идёт по вертикали 1ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 0ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 0ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 3 failed) 7ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 4ms
+     ✓ does not expose Food to existing verticals 0ms
+     × uses canonical landings and verified scope 1ms
+     × identifies isolated routes before API access 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/today-loaders.test.ts [ apps/web/src/lib/today-loaders.test.ts ]
+Error: Cannot find module './today-loaders' imported from /Users/urijzapojnov/wetop-mv8-20261005/apps/web/src/lib/today-loaders.test.ts
+ ❯ apps/web/src/lib/today-loaders.test.ts:2:1
+      1| import { describe, expect, it, vi } from 'vitest';
+      2| import { loadBeautyToday, loadFoodToday, verifiedTodayScope } from './…
+       | ^
+      3| import type { BeautyDay } from './api';
+      4| import type { foodApi } from './food-api';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/calendar', '/appointments', …(7) ] to deeply equal [ '/today', '/calendar', …(8) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,6 @@
+  [
+-   "/today",
+    "/calendar",
+    "/appointments",
+    "/customers",
+    "/employees",
+    "/services",
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:37:29
+     35|   it('у филиала салона есть только то, что в нём работает', () => {
+     36|     // MV5 exposes only accepted operational screens.
+     37|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     38|       '/today',
+     39|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > нижняя панель телефона тоже идёт по вертикали
+AssertionError: expected [ '/calendar', '/appointments', …(2) ] to deeply equal [ '/today', '/calendar', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "/today",
+    "/calendar",
+    "/appointments",
+    "/customers",
++   "/employees",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:59:61
+     57|   it('нижняя панель телефона тоже идёт по вертикали', () => {
+     58|     // четыре вкладки это работа смены: сотрудники и журнал уходят под…
+     59|     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
+       |                                                             ^
+     60|       '/today',
+     61|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/floor-plan', …(7) ] to deeply equal [ '/today', '/floor-plan', …(7) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,6 @@
+  [
+-   "/today",
+    "/floor-plan",
+    "/table-reservations",
+    "/customers",
+    "/dining-areas",
+    "/staff",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > uses canonical landings and verified scope
+AssertionError: expected '/floor-plan' to be '/today' // Object.is equality
+
+Expected: "/today"
+Received: "/floor-plan"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:36:48
+     34|   });
+     35|   it('uses canonical landings and verified scope', () => {
+     36|     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
+       |                                                ^
+     37|     expect(landingForVertical('BEAUTY')).toBe('/today');
+     38|     expect(landingForVertical('HOSPITALITY')).toBe('/today');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected 'HOSPITALITY' to be null
+
+- Expected:
+null
+
++ Received:
+"HOSPITALITY"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:52:37
+     50|     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
+     51|     expect(routeVertical('/customers')).toBeNull();
+     52|     expect(routeVertical('/today')).toBeNull();
+       |                                     ^
+     53|     expect(routeVertical('/today/desk')).toBe('HOSPITALITY');
+     54|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 5 passed (10)
+   Start at  19:51:07
+   Duration  420ms (transform 78%, import 18%, tests 3%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-51-06Z-unit-b05a.json
+
+# код выхода 1 · 2 с

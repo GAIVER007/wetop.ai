@@ -6867,3 +6867,5 @@
 | 06.10.2026 21:05 | typecheck | ✅ без ошибок | 59 с | e454eea +3 | [лог](logs/2026-10-06T16-05-14Z-typecheck-d4ba.log) |  |
 | 06.10.2026 21:04 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-beauty-ui.config.ts --workers=1) | ❌ упало 1 из 10 | 1 мин 46 с | e454eea | [лог](logs/2026-10-06T16-04-32Z-e2e-ce87.log) | Beauty onboarding completion opens calendar and resumes there |
 | 06.10.2026 21:06 | lint | ✅ без ошибок | 34 с | e454eea +3 | [лог](logs/2026-10-06T16-06-14Z-lint-163a.log) |  |
+| 06.10.2026 21:06 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts --workers=1) | ❌ упало 3 из 13 | 3 мин 28 с | e454eea | [лог](logs/2026-10-06T16-06-19Z-e2e-c0e5.log) | stale token refreshes drawer without automatic mutation retry |
+| 06.10.2026 21:09 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-onboarding.config.ts --workers=1) | ✅ 4 из 4 | 26 с | c9227d3 | [лог](logs/2026-10-06T16-09-48Z-e2e-a573.log) |  |

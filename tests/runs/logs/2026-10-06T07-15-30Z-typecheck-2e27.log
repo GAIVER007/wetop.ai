@@ -1,0 +1,17 @@
+# Типы (typecheck) · 06.10.2026 12:15 Алматы · MacBook-Air-Urij.local
+# коммит 53d355d (codex/mv8-food-branch-contract-20261005), незакоммиченных файлов набора: 6
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 0 · 35 с

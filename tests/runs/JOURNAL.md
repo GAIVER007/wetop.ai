@@ -6596,3 +6596,5 @@
 | 06.10.2026 12:29 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-statistics.spec.ts --workers=1) | ✅ 11 из 11 | 28 с | a70cff8 +2 | [лог](logs/2026-10-06T07-29-50Z-e2e-d82b.log) | Verify desktop padding repair and unchanged mobile summary accessibility |
 | 06.10.2026 12:30 | typecheck | ✅ без ошибок | 17 с | a70cff8 +2 | [лог](logs/2026-10-06T07-30-41Z-typecheck-1c74.log) | Calendar CI repair final types |
 | 06.10.2026 12:30 | lint | ✅ без ошибок | 13 с | a70cff8 +2 | [лог](logs/2026-10-06T07-30-58Z-lint-cb7d.log) | Calendar CI repair final lint |
+| 06.10.2026 12:38 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 2 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-13Z-unit-156f.log) | Calendar summary spacing follows design token scale |
+| 06.10.2026 12:38 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-statistics.spec.ts --workers=1) | ✅ 11 из 11 | 24 с | 000b14f +1 | [лог](logs/2026-10-06T07-38-15Z-e2e-b87b.log) | Verify token-compliant desktop summary and unchanged mobile widgets |

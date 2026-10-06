@@ -1,0 +1,16 @@
+# Модульные (unit) · 06.10.2026 12:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 000b14f (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-38-13Z-unit-156f.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  00:38:15
+   Duration  133ms (import 71%, transform 22%, tests 4%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-38-13Z-unit-156f.json
+
+# код выхода 0 · 2 с

@@ -6693,3 +6693,7 @@
 | 06.10.2026 16:22 | typecheck | ✅ без ошибок | 56 с | b3bcd2c | [лог](logs/2026-10-06T11-22-11Z-typecheck-81c2.log) |  |
 | 06.10.2026 16:23 | lint | ✅ без ошибок | 52 с | b3bcd2c | [лог](logs/2026-10-06T11-23-08Z-lint-2343.log) |  |
 | 06.10.2026 16:24 | unit | ✅ 3402 из 3405, пропущено 3 | 2 мин 13 с | b3bcd2c | [лог](logs/2026-10-06T11-24-04Z-unit-5be0.log) |  |
+| 06.10.2026 17:54 | typecheck | ✅ без ошибок | 1 мин 2 с | 98ae1e0 | [лог](logs/2026-10-06T12-54-13Z-typecheck-1729.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:55 | lint | ✅ без ошибок | 34 с | 98ae1e0 | [лог](logs/2026-10-06T12-55-16Z-lint-6cf3.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:55 | unit | ❌ упало 1 из 3417, пропущено 3 | 2 мин 22 с | 98ae1e0 | [лог](logs/2026-10-06T12-55-51Z-unit-9f65.log) | tree merged with main 64f2442f (PR #211) |
+| 06.10.2026 17:58 | unit | ✅ 3414 из 3417, пропущено 3 | 1 мин 57 с | 98ae1e0 | [лог](logs/2026-10-06T12-58-58Z-unit-05e6.log) | tree merged with main 64f2442f (PR #211), rerun after afterEach hook timeout in auto-deploy.test.ts |

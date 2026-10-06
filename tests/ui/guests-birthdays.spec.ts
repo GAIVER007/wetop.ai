@@ -27,8 +27,12 @@ test('календарь исключает дни рождения, отдел�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
-  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+  // строка «Дни рождения» в сводке календаря вернулась по образцу Lite PMS (владелец 06.10)
+  await expect(panel.getByTestId('day-birthdays')).toHaveText('1');
+  await expect(panel.getByRole('link', { name: 'Дни рождения' })).toHaveAttribute(
+    'href',
+    '/guests/birthdays',
+  );
   const panelBox = (await panel.boundingBox())!;
   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
   expect(panelBox.x + panelBox.width <= navBox.x || panelBox.y + panelBox.height <= navBox.y).toBe(
@@ -53,8 +57,7 @@ test('календарь исключает дни рождения, отдел�
 test('нет дат рождения: отдельная страница говорит, что в неделю пусто', async ({ page }) => {
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
-  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
+  await expect(panel.getByTestId('day-birthdays')).toHaveText('0');
   await page.goto('/guests/birthdays');
   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
 });

@@ -480,109 +480,110 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
-/* Строка показателей дня над управлением (06.10.2026, замечание владельца: панель двумя
-   столбиками рядом со стрелками дат читалась плохо, «Свободные номера 16» не говорило, что койки
-   не считаются; вторая версия с рамками и подписями слева отнимала слишком много места).
-   Одна строка без рамок: подпись мелко, число крупно, оговорка рядом с числом; на телефоне та же
-   строка прокручивается вбок. */
+/* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
+   расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
+   гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
+   занято, заблокировано, загрузка), значения жирно столбцом. Карточка слева, управление календарём
+   справа; на телефоне карточка на всю ширину, управление под ней. */
 .board-top {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.board-top > .board-controls {
+  align-items: flex-start;
+  gap: var(--space-4);
   margin-bottom: 0;
 }
+.board-top > .board-controls {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+  margin-bottom: 0;
+}
+.board-top > .board-controls .board-bar {
+  margin-left: 0;
+}
 .board-day-panel {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
+  flex: 0 1 720px;
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: var(--space-1) 0;
-  border-bottom: 1px solid var(--border-soft);
-}
-.board-day-panel::-webkit-scrollbar {
-  display: none;
-}
-.board-stat {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0;
-  flex: 0 0 auto;
-  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  /* сетка должна начинаться до 384 px на 1440 (контракт C1), а цели ссылок — от 24 px (axe):
+     строки 24 px, заголовок без отступа, рамка вплотную */
   padding: 0 var(--space-4);
-  border-left: 1px solid var(--border-soft);
-  color: var(--text);
-  text-decoration: none;
-  line-height: 1.25;
-  white-space: nowrap;
 }
-.board-stat:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-a.board-stat:hover .board-stat__label,
-a.board-stat:focus-visible .board-stat__label {
-  text-decoration: underline;
-}
-.board-stat__label {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.board-stat__value {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-1);
-}
-.board-stat__value > b {
-  font-size: var(--text-lg);
+.board-day-panel__title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
-.board-stat__value > small {
-  font-size: var(--text-xs);
-  color: var(--muted);
+.board-day-panel__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 0 var(--space-4);
 }
-.board-stat--occupancy .board-stat__value > b {
+.board-day-panel__col + .board-day-panel__col {
+  border-left: 1px solid var(--border-soft);
+  padding-left: var(--space-4);
+}
+.board-day-panel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 24px;
+  font-size: var(--text-sm);
+}
+.board-day-panel__row > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.board-day-panel__row > a:hover {
   color: var(--primary);
 }
-.board-stat__meter {
-  display: block;
-  width: 64px;
-  height: 3px;
-  margin-top: var(--space-1);
-  border-radius: var(--radius-control);
-  background: var(--primary-soft);
-  overflow: hidden;
+.board-day-panel__row > span {
+  color: var(--text-2);
 }
-.board-stat__meter > span {
-  display: block;
-  height: 100%;
-  background: var(--primary);
+.board-day-panel__row > b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-/* Сегмент 7/14/30 с «Датами» и «Помощью» прижат вправо, стрелки дат слева */
-.board-controls .board-period > .seg {
-  margin-left: auto;
+.board-day-panel__row--occupancy > b {
+  color: var(--primary);
+}
+@media (max-width: 1199px) {
+  .board-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .board-day-panel {
+    flex: none;
+  }
 }
 @media (max-width: 600px) {
-  /* Одна прокручиваемая строка: загрузка, заезды, выезды, свободно, дальше по свайпу */
-  .board-stat {
-    padding: 0 var(--space-2);
+  .board-day-panel {
+    padding: var(--space-2);
   }
-  .board-stat:first-child {
-    padding-left: 0;
+  .board-day-panel__title {
+    font-size: var(--text-sm);
   }
-  /* На экран телефона входят загрузка, заезды, выезды и свободно; проживают и незаезды — по свайпу */
-  .board-stat--free,
-  .board-stat--free-beds {
-    order: 1;
+  .board-day-panel__columns {
+    gap: 0 var(--space-2);
   }
-  .board-stat--inhouse,
-  .board-stat--noshow {
-    order: 2;
+  .board-day-panel__col + .board-day-panel__col {
+    padding-left: var(--space-2);
+  }
+  .board-day-panel__row {
+    font-size: var(--text-xs);
+    min-height: 24px;
+  }
+  /* «81 (13 + 68 коек)» на 360 px не влезает в колонку — разбивка переносится, страница вбок не едет */
+  .board-day-panel__row > b {
+    white-space: normal;
+    text-align: right;
   }
 }
 .board-stay-caption {

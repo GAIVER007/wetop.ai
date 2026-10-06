@@ -12,21 +12,34 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // В сводке остаются только рабочие показатели без задач и дней рождения.
+  // Сводка по образцу Lite PMS (владелец 06.10): слева движение гостей, справа фонд.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  await expect(stats.getByTestId('day-arrivals')).toBeVisible();
-  await expect(stats.getByTestId('day-departures')).toBeVisible();
-  await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
-  await expect(stats.getByTestId('day-noshow')).toBeVisible();
-  await expect(stats.getByTestId('day-hot')).toBeVisible();
-  await expect(stats.getByTestId('day-free')).toBeVisible();
-  await expect(stats.getByTestId('day-occupied')).toBeVisible();
-  await expect(stats.getByTestId('day-occupancy')).toBeVisible();
-  await expect(stats.getByText('Проживают')).toBeVisible();
-  // свободно — отдельно номера и отдельно койки (06.10): одно число «16» читалось как ошибка
+  await expect(
+    stats.getByRole('heading', { name: /^Сегодня, \d+ \S+, \d\d:\d\d:\d\d$/ }),
+  ).toBeVisible();
+  for (const id of [
+    'arrivals',
+    'departures',
+    'inhouse',
+    'birthdays',
+    'tasks',
+    'units',
+    'free',
+    'occupied',
+    'blocked',
+    'occupancy',
+  ])
+    await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+  await expect(stats.getByRole('link', { name: 'Проживания' })).toBeVisible();
+  await expect(stats.getByRole('link', { name: 'Дни рождения' })).toHaveAttribute(
+    'href',
+    '/guests/birthdays',
+  );
+  await expect(stats.getByRole('link', { name: 'Задачи' })).toHaveAttribute('href', '/tasks');
+  // свободно — с разбивкой на номера и койки (06.10): одно число «16» читалось как ошибка
+  await expect(stats.getByTestId('day-free-rooms')).toBeVisible();
   await expect(stats.getByTestId('day-free-beds')).toBeVisible();
-  await expect(stats.getByText('Дни рождения')).toBeHidden();
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toHaveCount(0);

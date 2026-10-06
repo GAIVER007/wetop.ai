@@ -1,9 +1,8 @@
 import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import type React from 'react';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
+import { channelsApi, chessboardApi, deskApi, guardApi, guestsApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
@@ -14,7 +13,8 @@ import { BoardTodayLink } from './board-today-link';
 import { BoardHelp } from './board-help';
 import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
-import { hotelToday, validDate, reservationDirectory } from '../../lib/hotel-api';
+import { hotelClock, validDate } from '../../lib/hotel-api';
+import { BoardClock } from './board-clock';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -32,7 +32,8 @@ export default async function ChessboardPage({
 }) {
   await requireVertical(['HOSPITALITY']);
   const query = normalizeSearchParams(await searchParams);
-  const today = await hotelToday();
+  const clock = await hotelClock();
+  const today = clock.today();
   const currentWeek = weekPeriod(today);
   const from = query.from || currentWeek.from;
   const to =
@@ -74,27 +75,18 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, todayBoard, noShows, hotBookings] =
-    await Promise.all([
-      chessboardApi.board(from, to),
-      guardApi.incidents('open').catch(() => null),
-      channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
-      // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
-      deskShell().catch(() => null),
-      // Полоса дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
-      deskApi.today().catch(() => null),
-      from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
-      reservationDirectory({
-        from: today,
-        to: today,
-        date: 'arrival',
-        status: 'NO_SHOW',
-        pageSize: '1',
-      })
-        .then((result) => result.total)
-        .catch(() => null),
-      hotBookingsToday(today).catch(() => null),
-    ]);
+  const [board, incidents, events, shell, day, todayBoard, birthdays] = await Promise.all([
+    chessboardApi.board(from, to),
+    guardApi.incidents('open').catch(() => null),
+    channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
+    // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
+    deskShell().catch(() => null),
+    // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
+    deskApi.today().catch(() => null),
+    from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
+    // «Дни рождения» в сводке (образец Lite PMS, владелец 06.10); отказ гасит только эту строку
+    guestsApi.birthdays(today, 1).catch(() => null),
+  ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
   const month = monthPeriod(from);
@@ -171,8 +163,8 @@ export default async function ChessboardPage({
             day={day}
             board={from <= today && today <= to ? board : todayBoard}
             today={today}
-            noShows={noShows}
-            hotBookings={hotBookings}
+            timeZone={clock.timezone}
+            birthdays={birthdays?.length ?? null}
           />
         )}
         <div className="board-controls">
@@ -314,36 +306,18 @@ function categoriesOf(
   return [...seen].map(([code, name]) => ({ code, name }));
 }
 
-/** Read-only projection: bookings created on the property day with arrival on that day. */
-async function hotBookingsToday(today: string) {
-  let count = 0;
-  for (let page = 1; ; page++) {
-    const result = await reservationDirectory({
-      from: today,
-      to: today,
-      date: 'created',
-      page: String(page),
-      pageSize: '200',
-    });
-    count += result.rows.filter(
-      (r) => r.arrivalDate === today && ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'].includes(r.status),
-    ).length;
-    if (page * result.pageSize >= result.total) return count;
-  }
-}
-
 function DayPanel({
   day,
   board,
   today,
-  noShows,
-  hotBookings,
+  timeZone,
+  birthdays,
 }: {
   day: import('../../lib/api').DeskDay;
   board: import('../../lib/api').Chessboard | null;
   today: string;
-  noShows: number | null;
-  hotBookings: number | null;
+  timeZone: string;
+  birthdays: number | null;
 }) {
   const s = board?.summary[today];
   const units = s ? s.occupied + s.free + s.blocked : null;
@@ -359,112 +333,64 @@ function DayPanel({
   const beds = count('BED', false);
   const freeRooms = board ? count('ROOM', true) : null;
   const freeBeds = board ? count('BED', true) : null;
-  // Фонд из одних коек (хостел без отдельных номеров): главное число — свободные койки
-  const onlyBeds = rooms === 0;
   const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  const dayHref = (date: string, status?: string) =>
-    `/reservations?from=${today}&to=${today}&date=${date}${status ? `&status=${status}` : ''}`;
+  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
   const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const title = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    timeZone,
+  }).format(new Date(`${today}T12:00:00Z`));
+  const initialTime = new Intl.DateTimeFormat('ru-RU', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date());
   const c = day.counts;
-  const availability = `/rooms/availability?arrival=${today}&departure=${tomorrow}`;
-  return (
-    <div className="board-day-panel" role="group" aria-label="Сегодня на объекте">
-      <div className="board-stat board-stat--occupancy">
-        <span className="board-stat__label">Загрузка</span>
-        <span className="board-stat__value">
-          <b data-testid="day-occupancy">{occupancy === null ? 'н/д' : `${occupancy}%`}</b>
-          <small>
-            <span data-testid="day-occupied">{n(s?.occupied)}</span> из{' '}
-            <span data-testid="day-units">{n(units)}</span>
-            {s && s.blocked > 0 && <>, блок {s.blocked}</>}
-          </small>
-        </span>
-        {occupancy !== null && (
-          <span
-            className="board-stat__meter"
-            role="meter"
-            aria-label="Загрузка на сегодня"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={occupancy}
-            aria-valuetext={`${occupancy}%`}
-          >
-            <span style={{ width: `${occupancy}%` }} />
-          </span>
-        )}
-      </div>
-      <Tile
-        id="arrivals"
-        label="Заезды"
-        value={n(c.arrivals)}
-        href={dayHref('arrival')}
-        note={
-          <>
-            {c.toCheckIn > 0 && <>ждут {c.toCheckIn}, </>}
-            <span title="Созданы сегодня с заездом сегодня">
-              новых <span data-testid="day-hot">{n(hotBookings)}</span>
-            </span>
-          </>
-        }
-      />
-      <Tile
-        id="departures"
-        label="Выезды"
-        value={n(c.departures)}
-        href={dayHref('departure')}
-        note={c.toCheckOut > 0 ? `ждут ${c.toCheckOut}` : undefined}
-      />
-      <Tile id="inhouse" label="Проживают" value={n(c.inHouse)} href="/reservations?view=inhouse" />
-      <Tile
-        id="noshow"
-        label="Незаезды"
-        value={n(noShows)}
-        href={dayHref('arrival', 'NO_SHOW')}
-        note={c.overdueArrivals > 0 ? `не заехали ${c.overdueArrivals}` : undefined}
-      />
-      {/* Отдельно номера и отдельно койки: одно число «16» без слова «из каких 88» читалось
-          как ошибка (замечание владельца 06.10); фонд из одних коек — одна плитка */}
-      <Tile
-        id="free"
-        label={onlyBeds ? 'Свободно коек' : 'Свободно номеров'}
-        value={n(onlyBeds ? freeBeds : freeRooms)}
-        href={availability}
-        note={`из ${onlyBeds ? beds : rooms}`}
-      />
-      {!onlyBeds && beds > 0 && (
-        <Tile
-          id="free-beds"
-          label="Свободно коек"
-          value={n(freeBeds)}
-          href={availability}
-          note={`из ${beds}`}
-        />
-      )}
+  /* Образец Lite PMS (владелец 06.10): «88 (92)» — в скобках уточнение; у нас в скобках
+     разбивка на номера и койки, иначе «16» без слова о койках читалось как ошибка */
+  const split = (all: number | null, r: number | null, b: number | null) =>
+    all == null ? 'н/д' : beds > 0 && rooms > 0 ? `${all} (${n(r)} + ${n(b)} коек)` : String(all);
+  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
+    <div className={`board-day-panel__row board-day-panel__row--${id}`}>
+      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
+      <b data-testid={`day-${id}`}>{value}</b>
     </div>
   );
-}
-
-/** Показатель дня: подпись, число и короткая оговорка одной строкой; весь блок — ссылка в список */
-function Tile({
-  id,
-  label,
-  value,
-  href,
-  note,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  href: string;
-  note?: React.ReactNode | undefined;
-}) {
   return (
-    <Link className={`board-stat board-stat--${id}`} href={href}>
-      <span className="board-stat__label">{label}</span>
-      <span className="board-stat__value">
-        <b data-testid={`day-${id}`}>{value}</b>
-        {note && <small>{note}</small>}
-      </span>
-    </Link>
+    <section className="board-day-panel" role="group" aria-label="Сегодня на объекте">
+      <h2 className="board-day-panel__title">
+        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
+      </h2>
+      <div className="board-day-panel__columns">
+        <div className="board-day-panel__col">
+          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
+          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
+          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
+          {row('birthdays', 'Дни рождения', n(birthdays), '/guests/birthdays')}
+          {row('tasks', 'Задачи', c.tasksOpen, '/tasks')}
+        </div>
+        <div className="board-day-panel__col">
+          {row('units', 'Всего номеров', split(units, rooms, beds))}
+          {row(
+            'free',
+            'Свободно номеров',
+            s ? (
+              <>
+                {s.free} (<span data-testid="day-free-rooms">{n(freeRooms)}</span> +{' '}
+                <span data-testid="day-free-beds">{n(freeBeds)}</span> коек)
+              </>
+            ) : (
+              'н/д'
+            ),
+            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
+          )}
+          {row('occupied', 'Занято номеров', n(s?.occupied))}
+          {row('blocked', 'Заблокировано', n(s?.blocked))}
+          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
+        </div>
+      </div>
+    </section>
   );
 }

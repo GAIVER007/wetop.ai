@@ -25,19 +25,16 @@ test('форма брони: детализация цены по дням, су
   await expect(form.getByTestId('price-by-night-sum')).toContainText('средняя стоимость ночи');
 });
 
-test('календарь: полоса дня одной строкой, управление сразу под ней', async ({
-  page,
-}) => {
+test('календарь: сводка дня карточкой слева, управление справа', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // полоса дня над управлением (06.10): одна строка плиток, выше 80 px не растёт
-  expect(p.height).toBeLessThanOrEqual(80);
-  // управление стоит сразу под полосой, пустоты между ними нет
-  expect(c.y - (p.y + p.height)).toBeLessThanOrEqual(12);
+  // сводка по образцу Lite PMS (06.10): карточка слева, управление справа от неё, не под ней
+  expect(p.height).toBeLessThanOrEqual(190);
+  expect(c.x).toBeGreaterThanOrEqual(p.x + p.width);
   await expect(panel.getByTestId('day-free')).toBeVisible();
   await expect(panel.getByTestId('day-units')).toBeVisible();
   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });

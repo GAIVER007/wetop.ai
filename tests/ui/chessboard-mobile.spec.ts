@@ -197,10 +197,7 @@ for (const width of [360, 390, 430]) {
       'arrivals',
       'departures',
       'inhouse',
-      'birthdays',
-      'tasks',
       'free',
-      'blocked',
       'units',
       'occupied',
       'occupancy',
@@ -212,7 +209,7 @@ for (const width of [360, 390, 430]) {
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
     await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
-    await expect(stats.getByTestId('day-tasks')).toHaveText(String(day.counts.tasksOpen));
+    await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

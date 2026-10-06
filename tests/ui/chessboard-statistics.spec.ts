@@ -15,28 +15,20 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    // сводка по образцу Lite PMS (06.10): две колонки, дни рождения и задачи ссылками
-    await expect(panel.getByRole('link', { name: 'Дни рождения' })).toBeVisible();
-    await expect(panel.getByRole('link', { name: 'Задачи' })).toBeVisible();
+    // сводка по образцу Lite PMS (06.10): две колонки, без дней рождения, задач и скобок
+    await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+    await expect(panel.getByText('Задачи')).toHaveCount(0);
     const panelBox = await panel.boundingBox();
     expect(panelBox!.height).toBeLessThanOrEqual(280);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
-    await expect(panel.getByTestId('day-tasks')).toHaveText(String(day.counts.tasksOpen));
     const board = await (
       await get(`${FIXTURE_API}/chessboard?from=${day.date}&to=${day.date}`)
     ).json();
-    const freeRooms = board.rows.filter(
-      (r: { unit: { kind: string }; cells: { state: string }[] }) =>
-        r.unit.kind === 'ROOM' && r.cells[0]?.state === 'FREE',
+    const free = board.rows.filter(
+      (r: { cells: { state: string }[] }) => r.cells[0]?.state === 'FREE',
     ).length;
-    await expect(panel.getByTestId('day-free-rooms')).toHaveText(String(freeRooms));
-    // койки считаются отдельно, а не прячутся в «свободных номерах» (06.10)
-    const freeBeds = board.rows.filter(
-      (r: { unit: { kind: string }; cells: { state: string }[] }) =>
-        r.unit.kind === 'BED' && r.cells[0]?.state === 'FREE',
-    ).length;
-    await expect(panel.getByTestId('day-free-beds')).toHaveText(String(freeBeds));
+    await expect(panel.getByTestId('day-free')).toHaveText(String(free));
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);

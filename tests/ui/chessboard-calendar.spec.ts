@@ -18,28 +18,14 @@ test('календарь: заголовок, сводка дня и быстр�
   await expect(
     stats.getByRole('heading', { name: /^Сегодня, \d+ \S+, \d\d:\d\d:\d\d$/ }),
   ).toBeVisible();
-  for (const id of [
-    'arrivals',
-    'departures',
-    'inhouse',
-    'birthdays',
-    'tasks',
-    'units',
-    'free',
-    'occupied',
-    'blocked',
-    'occupancy',
-  ])
+  for (const id of ['arrivals', 'departures', 'inhouse', 'units', 'free', 'occupied', 'occupancy'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
   await expect(stats.getByRole('link', { name: 'Проживания' })).toBeVisible();
-  await expect(stats.getByRole('link', { name: 'Дни рождения' })).toHaveAttribute(
-    'href',
-    '/guests/birthdays',
-  );
-  await expect(stats.getByRole('link', { name: 'Задачи' })).toHaveAttribute('href', '/tasks');
-  // свободно — с разбивкой на номера и койки (06.10): одно число «16» читалось как ошибка
-  await expect(stats.getByTestId('day-free-rooms')).toBeVisible();
-  await expect(stats.getByTestId('day-free-beds')).toBeVisible();
+  // владелец 06.10: «лишнее убери, в скобках убери» — дней рождения, задач, блокировок и разбивки нет
+  await expect(stats.getByText('Дни рождения')).toHaveCount(0);
+  await expect(stats.getByText('Задачи')).toHaveCount(0);
+  await expect(stats.getByText('Заблокировано')).toHaveCount(0);
+  await expect(stats.getByText('(')).toHaveCount(0);
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toHaveCount(0);

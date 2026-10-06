@@ -2,7 +2,7 @@ import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, deskApi, guardApi, guestsApi } from '../../lib/api';
+import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
@@ -75,7 +75,7 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, todayBoard, birthdays] = await Promise.all([
+  const [board, incidents, events, shell, day, todayBoard] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -84,8 +84,6 @@ export default async function ChessboardPage({
     // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
     from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
-    // «Дни рождения» в сводке (образец Lite PMS, владелец 06.10); отказ гасит только эту строку
-    guestsApi.birthdays(today, 1).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -164,7 +162,6 @@ export default async function ChessboardPage({
             board={from <= today && today <= to ? board : todayBoard}
             today={today}
             timeZone={clock.timezone}
-            birthdays={birthdays?.length ?? null}
           />
         )}
         <div className="board-controls">
@@ -311,28 +308,15 @@ function DayPanel({
   board,
   today,
   timeZone,
-  birthdays,
 }: {
   day: import('../../lib/api').DeskDay;
   board: import('../../lib/api').Chessboard | null;
   today: string;
   timeZone: string;
-  birthdays: number | null;
 }) {
   const s = board?.summary[today];
   const units = s ? s.occupied + s.free + s.blocked : null;
   const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
-  const rows = board?.rows ?? [];
-  const count = (kind: 'ROOM' | 'BED', freeOnly: boolean) =>
-    rows.filter(
-      (r) =>
-        r.unit.kind === kind &&
-        (!freeOnly || r.cells.some((c) => c.date === today && c.state === 'FREE')),
-    ).length;
-  const rooms = count('ROOM', false);
-  const beds = count('BED', false);
-  const freeRooms = board ? count('ROOM', true) : null;
-  const freeBeds = board ? count('BED', true) : null;
   const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
   const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
@@ -348,10 +332,6 @@ function DayPanel({
     second: '2-digit',
   }).format(new Date());
   const c = day.counts;
-  /* Образец Lite PMS (владелец 06.10): «88 (92)» — в скобках уточнение; у нас в скобках
-     разбивка на номера и койки, иначе «16» без слова о койках читалось как ошибка */
-  const split = (all: number | null, r: number | null, b: number | null) =>
-    all == null ? 'н/д' : beds > 0 && rooms > 0 ? `${all} (${n(r)} + ${n(b)} коек)` : String(all);
   const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
     <div className={`board-day-panel__row board-day-panel__row--${id}`}>
       {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
@@ -368,26 +348,18 @@ function DayPanel({
           {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
           {row('departures', 'Выезды', c.departures, dayHref('departure'))}
           {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
-          {row('birthdays', 'Дни рождения', n(birthdays), '/guests/birthdays')}
-          {row('tasks', 'Задачи', c.tasksOpen, '/tasks')}
         </div>
         <div className="board-day-panel__col">
-          {row('units', 'Всего номеров', split(units, rooms, beds))}
+          {/* Без разбивки на номера и койки и без дней рождения, задач и блокировок: владелец 06.10
+              «лишнее убери, в скобках убери» */}
+          {row('units', 'Всего номеров', n(units))}
           {row(
             'free',
             'Свободно номеров',
-            s ? (
-              <>
-                {s.free} (<span data-testid="day-free-rooms">{n(freeRooms)}</span> +{' '}
-                <span data-testid="day-free-beds">{n(freeBeds)}</span> коек)
-              </>
-            ) : (
-              'н/д'
-            ),
+            n(s?.free),
             `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
           )}
           {row('occupied', 'Занято номеров', n(s?.occupied))}
-          {row('blocked', 'Заблокировано', n(s?.blocked))}
           {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
         </div>
       </div>

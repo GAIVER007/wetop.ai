@@ -1,0 +1,23 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts integration tests/integration/rates-empty-batch-api.test.ts --note Real Nest API session and unchanged rate restriction audit outbox on empty batches
+
+▶ Интеграционные (integration) — нужно: dev-БД через пулер Supabase (DATABASE_URL в .env)
+  npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-53-34Z-integration-7b52.json' 'tests/integration/rates-empty-batch-api.test.ts'
+
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-channex-recovery-20261004
+
+ ✓ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test) 452ms
+   ✓ real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox 452ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:53:34
+   Duration  2.42s (transform 46%, import 30%, tests 23%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-53-34Z-integration-7b52.json
+
+■ integration: ✅ 1 из 1 · 3 с
+  лог: tests/runs/logs/2026-10-05T15-53-34Z-integration-7b52.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

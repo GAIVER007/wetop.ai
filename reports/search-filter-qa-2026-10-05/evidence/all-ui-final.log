@@ -1,0 +1,197 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/search-filter-recovery.spec.ts tests/ui/fund-workspace.spec.ts tests/ui/finance-f2.spec.ts tests/ui/rates-design.spec.ts tests/ui/rates-range.spec.ts tests/ui/reports-print.spec.ts --note Final all 51 focused and related UI checks without changing timeouts
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/reports-print.spec.ts'
+
+[WebServer] (node:96498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:96579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 51 tests using 1 worker
+
+(node:96583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (4.2s)
+  ✓   2 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (3.8s)
+  ✓   3 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.8s)
+  ✓   4 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (1.4s)
+  ✓   5 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (1.7s)
+  ✓   6 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (3.9s)
+  ✓   7 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (4.5s)
+[WebServer] (node:96749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (4.4s)
+[WebServer] (node:96764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/fund-workspace.spec.ts:50:1 › availability preserves exact unit and dates; responsive category design (6.4s)
+[WebServer] (node:96797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/fund-workspace.spec.ts:91:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.7s)
+[WebServer] (node:96805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/fund-workspace.spec.ts:124:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.5s)
+[WebServer] (node:96811) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/fund-workspace.spec.ts:145:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (4.6s)
+[WebServer] (node:96835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/fund-workspace.spec.ts:226:1 › AV4: a category without places stays on screen with the nearest availability (3.2s)
+[WebServer] (node:96850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96859) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/fund-workspace.spec.ts:271:1 › dark categories and availability; invalid dates and empty onboarding (4.9s)
+  ✓  15 tests/ui/rates-design.spec.ts:19:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.5s)
+  ✓  16 tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.7s)
+  ✓  17 tests/ui/rates-design.spec.ts:95:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (1.8s)
+  ✓  18 tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (2.4s)
+  ✓  19 tests/ui/rates-design.spec.ts:132:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (2.8s)
+  ✓  20 tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (2.0s)
+  ✓  21 tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу (1.6s)
+  ✓  22 tests/ui/rates-range.spec.ts:36:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (2.1s)
+  ✓  23 tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (2.5s)
+  ✓  24 tests/ui/rates-range.spec.ts:146:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (2.1s)
+  ✓  25 tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (1.9s)
+  ✓  26 tests/ui/rates-range.spec.ts:211:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.2s)
+[WebServer] (node:96981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (3.1s)
+  ✓  28 tests/ui/reports-print.spec.ts:23:1 › хаб ведёт на лист; «Сводка дня» — числа дня и таблицы, как в /desk/today (3.1s)
+  ✓  29 tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет (1.4s)
+  ✓  30 tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты (1.9s)
+  ✓  31 tests/ui/reports-print.spec.ts:75:3 › снимки листов, light (2.4s)
+[WebServer] (node:97212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (2.1s)
+[WebServer] (node:97230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97235) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (2.2s)
+[WebServer] (node:97239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (2.0s)
+[WebServer] (node:97249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (1.9s)
+[WebServer] (node:97261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (1.8s)
+[WebServer] (node:97267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  37 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (3.7s)
+  ✓  38 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (1.9s)
+[WebServer] (node:97279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (4.2s)
+  ✓  40 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (9.4s)
+  ✓  41 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (3.5s)
+[WebServer] (node:97361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (2.6s)
+[WebServer] (node:97468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  43 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (2.4s)
+[WebServer] (node:97476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (2.4s)
+[WebServer] (node:97486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  45 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (2.2s)
+[WebServer] (node:97543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  46 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (1.7s)
+[WebServer] (node:97552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  47 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (3.4s)
+[WebServer] (node:97563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  48 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (2.1s)
+  ✓  49 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (3.5s)
+  ✓  50 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.5s)
+  ✓  51 tests/ui/search-filter-recovery.spec.ts:194:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (3.1s)
+
+  51 passed (2.6m)
+
+■ e2e: ✅ 51 из 51 · 2 мин 36 с
+  лог: tests/runs/logs/2026-10-05T18-42-16Z-e2e-c3ea.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

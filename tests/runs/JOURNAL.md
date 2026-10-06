@@ -6890,3 +6890,8 @@
 | 06.10.2026 23:16 | unit | ✅ 3473 из 3476, пропущено 3 | 1 мин 52 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-16-06Z-unit-4d08.log) |  |
 | 06.10.2026 23:18 | integration | ✅ 807 из 807 | 2 мин 8 с | 3d7a1b2 +6 | [лог](logs/2026-10-06T18-18-01Z-integration-08b7.log) |  |
 | 06.10.2026 23:20 | e2e (частично: tests/ui/marketing.spec.ts tests/ui/website.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 46 с | 3d7a1b2 +5 | [лог](logs/2026-10-06T18-20-14Z-e2e-f5b2.log) |  |
+| 07.10.2026 04:32 | typecheck | ✅ без ошибок | 1 мин 9 с | 5b838d7 | [лог](logs/2026-10-06T23-32-28Z-typecheck-5e17.log) |  |
+| 07.10.2026 04:33 | lint | ✅ без ошибок | 43 с | 5b838d7 | [лог](logs/2026-10-06T23-33-38Z-lint-37b8.log) |  |
+| 07.10.2026 04:34 | unit (частично: tests/unit/design-slop.test.ts scripts/design/build-tokens.test.ts tests/unit/design-rules.test.ts) | ✅ 26 из 26 | 2 с | 5b838d7 | [лог](logs/2026-10-06T23-34-22Z-unit-6617.log) | сторожа на дереве, слитом с main 6a6a46bd |
+| 07.10.2026 04:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ❌ упало 1 из 91 | 9 мин 45 с | 5b838d7 | [лог](logs/2026-10-06T23-34-33Z-e2e-ef40.log) | календарь: сводка Lite на дереве, слитом с main 6a6a46bd |
+| 07.10.2026 04:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts -g reservations/new --repeat-each 3) | ✅ 3 из 3 | 21 с | 5b838d7 | [лог](logs/2026-10-06T23-44-26Z-e2e-0d13.log) | бюджет /reservations/new на дереве с main 6a6a46bd, 3 повтора |

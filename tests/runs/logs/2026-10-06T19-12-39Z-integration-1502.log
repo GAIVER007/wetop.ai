@@ -1,0 +1,754 @@
+# Интеграционные (integration) · 07.10.2026 00:12 Алматы · vm
+# коммит 32f879e (claude/blissful-newton-6pa4ky)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-12-39Z-integration-1502.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:80
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.current (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:18)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:107:24
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.create (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:106:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:107:24
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.create (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:106:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:80
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.current (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:18)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:80
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.current (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:18)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:140:34
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.saveVersion (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:139:14)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:80
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.current (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:18)
+[Nest] 23068  - 10/06/2026, 7:12:46 PM   ERROR [ExceptionsHandler] TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at MarketingSiteService.activeSite (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:67:29)
+    at /home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:80
+    at /home/user/wetop.ai/apps/api/src/marketing-site/scope.ts:84:12
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at MarketingSiteService.current (/home/user/wetop.ai/apps/api/src/marketing-site/marketing-site.service.ts:75:18)
+ ❯ |integration| tests/integration/marketing-site.test.ts (37 tests | 23 failed) 964ms
+   ❯ MKT3 marketing site core (37)
+     ✓ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       ✓ указателя нет: 409 «Выберите филиал» 57ms
+       ✓ выбран только бизнес: 409 «Выберите филиал» 34ms
+       ✓ чужой филиал: 403, без отката в организацию 15ms
+       ✓ архивный филиал: 403, без отката в организацию 11ms
+       ✓ архивный бизнес: 403, без отката в организацию 7ms
+       ✓ филиал из другого бизнеса: 403, без отката в организацию 17ms
+       ✓ несуществующий филиал: 403, без отката в организацию 14ms
+       ✓ салон и ресторан: 403 6ms
+       ✓ без права settings (администратор): 403 2ms
+     ❯ создание сайта (6)
+       × сайта нет: пустой ответ, черновика нет 30ms
+       × тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400 33ms
+       ✓ неверный и зарезервированный адрес: 400 24ms
+       × создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 17ms
+       × адрес занят сайтом другого филиала: 409, без молчаливой замены 21ms
+       × чужой филиал той же организации видит только свой сайт 15ms
+     ❯ версии (6)
+       × первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 20ms
+       × устаревшая ревизия: 409, новой версии нет 17ms
+       × неверный документ: 400 со списком ошибок, версия не пишется 17ms
+       × следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 16ms
+       × два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 57ms
+       × у сайта без версий годится только baseRevision 0: иначе 409 19ms
+     ❯ база: изоляция, неизменяемость, принадлежность (7)
+       × чужая организация не видит ни сайтов, ни версий; своя видит свои 17ms
+       × API чужой организации не видит сайт и не может писать в него 12ms
+       × роль приложения не меняет и не удаляет версии 2ms
+       × даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 2ms
+       × указатели сайта и родитель версии не ведут на другой сайт 1ms
+       × организация только для чтения не пишет: 403, читать может 38ms
+       × филиал сайта не меняется после создания 1ms
+     ❯ база: инварианты MKT3 без API (поручение владельца по ревью) (5)
+       × tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL 1ms
+       ✓ зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит 14ms
+       ✓ версия мимо API (3)
+         ✓ schema_version совпадает с schemaVersion документа 12ms
+         ✓ до MKT6 источник только MANUAL: AI и IMPORT отклонены 9ms
+         ✓ страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит 24ms
+     ❯ размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) (4)
+       × документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется 1ms
+       × SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413 0ms
+       × тело больше транспортного предела 300 КБ: 413, версия не пишется 0ms
+       × другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413 0ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 10465ms
+ ✓ |integration| tests/integration/db-restore-prod.test.ts (2 tests) 8321ms
+   ✓ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     ✓ после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 2389ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 1560ms
+(node:23844) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 4964ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ unassigned booking, assignment, move, confirm, seat, complete and persisted list 486ms
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 1035ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 2777ms
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 2367ms
+(node:24069) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (5 tests) 1968ms
+   ✓ manual booking concurrency on isolated local PostgreSQL (5)
+     ✓ same-day checkout restores availability counters, extended and moved: false 627ms
+     ✓ same-day checkout restores availability counters, extended and moved: true 549ms
+(node:24148) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 1440ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 995ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 20 открытий сессии с одного адреса — отказ, другой адрес открывает как прежде 365ms
+     ✓ после 60 сохранений в одной сессии — отказ 628ms
+ ✓ |integration| tests/integration/category-price.test.ts (1 test) 1053ms
+   ✓ category price and removal (1)
+     ✓ sets one price for a year and every occupancy, shows it, deletes empty and archives used 1051ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 847ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 600ms
+(node:24483) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 1078ms
+   ✓ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     ✓ two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 560ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 474ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 991ms
+(node:24605) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 882ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 418ms
+(node:24660) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 1016ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 955ms
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 756ms
+   ✓ MV8 requires real branches contract to expose selected Food Location and current timezone 478ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 1162ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 699ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 815ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 498ms
+ ✓ |integration| tests/integration/mv2-registration.test.ts (5 tests) 779ms
+   ✓ MV2 real registration persistence (5)
+     ✓ HOSPITALITY persists through resend and confirmation 375ms
+ ✓ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test) 724ms
+   ✓ real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox 722ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 759ms
+ ✓ |integration| tests/integration/seller-scope-precheck.test.ts (9 tests) 741ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 736ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 733ms
+ ✓ |integration| tests/integration/inventory-room-ari.test.ts (1 test) 673ms
+   ✓ новые места уходят в Channex (1)
+     ✓ комната в сопоставленной категории ставит в очередь остаток, в несопоставленной — нет 671ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 642ms
+   ✓ derived rate plans and promo codes API (1)
+     ✓ creates and edits a derived plan and a promo code with validation and audit 640ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 526ms
+(node:25359) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 610ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 449ms
+(node:25406) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/derived-rates-booking.test.ts (1 test) 597ms
+   ✓ derived rate plans and promo codes in a booking (integration, rolled back) (1)
+     ✓ prices by parent rates with the larger of plan and promo discount, enforces rules, keeps promo on extend 553ms
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (13 tests) 545ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 577ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 412ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 612ms
+   ✓ category without a rate plan, rate plan linked later (1)
+     ✓ requires an explicit choice, creates without a link on «later», links existing and new plans once 610ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 541ms
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 579ms
+   ✓ category usage for safe editing (1)
+     ✓ counts distinct reservations in history and ahead, and the Channex mapping, per category 575ms
+ ✓ |integration| tests/integration/mv3-onboarding.test.ts (6 tests) 557ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 571ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 569ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 442ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 515ms
+   ✓ онбординг без объекта: два одновременных сохранения (1)
+     ✓ объект один, одно сохранение проходит, второе — «отель уже настроен» 513ms
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 450ms
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (7 tests) 527ms
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 475ms
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 475ms
+[Nest] 25994  - 10/06/2026, 7:14:06 PM    WARN [InboundBookingsService] ревизия role-q225-mux24sbq (BDC-role-q225-mux24sbq) отклонена: Комната 1 брони BDC-role-q225-mux24sbq: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 25994  - 10/06/2026, 7:14:06 PM    WARN [InboundBookingsService] ревизия role-q225-mux24sbq (BDC-role-q225-mux24sbq) отклонена: Комната 1 брони BDC-role-q225-mux24sbq: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 511ms
+ ✓ |integration| tests/integration/market-occupancy.test.ts (4 tests) 455ms
+ ✓ |integration| tests/integration/seller-agent-profiles.test.ts (7 tests) 487ms
+ ✓ |integration| tests/integration/owner-journal.test.ts (5 tests) 444ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 500ms
+ ✓ |integration| tests/integration/rate-plan-penalty.test.ts (1 test) 462ms
+   ✓ rate plan cancellation rule (1)
+     ✓ counts reservations the rule can still affect and saves the rule with an audit row 460ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 560ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 448ms
+ ✓ |integration| tests/integration/guest-directory.test.ts (1 test) 431ms
+   ✓ справочник гостей: отборы визита, число визитов, порядок (integration) (1)
+     ✓ раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами 387ms
+ ✓ |integration| tests/integration/assistant-diagnostics.test.ts (4 tests) 435ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 399ms
+ ✓ |integration| tests/integration/derived-rate-plans.test.ts (1 test) 477ms
+   ✓ derived rate plans and promo codes: database guards (1)
+     ✓ accepts a valid derived plan and rejects every broken shape 475ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 338ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (6 tests) 369ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 358ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 430ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 452ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 449ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 347ms
+(node:26700) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/booking-existing-guest.test.ts (1 test) 375ms
+   ✓ бронь существующему гостю (integration, rolled back) (1)
+     ✓ вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404 328ms
+ ✓ |integration| tests/integration/desk-tasks.test.ts (3 tests) 385ms
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 402ms
+ ✓ |integration| tests/integration/seller-booking-intents.test.ts (7 tests) 385ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 409ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 293ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 290ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 343ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 287ms
+ ✓ |integration| tests/integration/requester-context.test.ts (6 tests) 303ms
+ ✓ |integration| tests/integration/fiscal-receipts.test.ts (3 tests) 355ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 297ms
+(node:27116) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 234ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 237ms
+ ✓ |integration| tests/integration/website-reservations.test.ts (1 test) 250ms
+ ✓ |integration| tests/integration/channex-multi-property.test.ts (1 test) 267ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 298ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 262ms
+ ✓ |integration| tests/integration/property-chain.test.ts (3 tests) 290ms
+ ✓ |integration| tests/integration/request-scope.test.ts (1 test) 256ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 250ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 296ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 272ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 220ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 219ms
+ ✓ |integration| tests/integration/seller-agents-migrated.test.ts (3 tests) 256ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 207ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 253ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 255ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 237ms
+[Nest] 27645  - 10/06/2026, 7:14:43 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 243ms
+ ✓ |integration| tests/integration/integration-scope.test.ts (4 tests) 247ms
+ ✓ |integration| tests/integration/chessboard-unassigned.test.ts (1 test) 244ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 210ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 215ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 248ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 204ms
+ ✓ |integration| tests/integration/outbox-enqueue.test.ts (2 tests) 230ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 234ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 162ms
+ ✓ |integration| tests/integration/integration-tables-privileges.test.ts (17 tests) 104ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 111ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 64ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 23 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > сайта нет: пустой ответ, черновика нет
+AssertionError: expected { status: 500, body: { …(2) } } to deeply equal { status: 200, body: { site: null } }
+
+- Expected
++ Received
+
+  {
+    "body": {
+-     "site": null,
++     "message": "Internal server error",
++     "statusCode": 500,
+    },
+-   "status": 200,
++   "status": 500,
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:229:52
+    227|   describe('создание сайта', () => {
+    228|     it('сайта нет: пустой ответ, черновика нет', async () => {
+    229|       expect(await call('GET', '/marketing/site')).toEqual({ status: 2…
+       |                                                    ^
+    230|       expect((await call('GET', '/marketing/site/draft')).status).toBe…
+    231|       const save = await call('POST', '/marketing/site/versions', { bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400
+TypeError: Cannot read properties of undefined (reading 'count')
+ ❯ tests/integration/marketing-site.test.ts:240:37
+    238|         expect(r.status, JSON.stringify(extra)).toBe(400);
+    239|       }
+    240|       expect(await db.marketingSite.count({ where: { slug: 'spoof-site…
+       |                                     ^
+    241|     });
+    242|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:251:24
+    249|     it('создаёт сайт филиала из scope в состоянии DRAFT; второй сайт ф…
+    250|       const r = await call('POST', '/marketing/site', { body: { name: …
+    251|       expect(r.status).toBe(201);
+       |                        ^
+    252|       expect(r.body.site).toMatchObject({ name: 'Степной ветер', slug:…
+    253|       const row = await db.marketingSite.findUniqueOrThrow({ where: { …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > адрес занят сайтом другого филиала: 409, без молчаливой замены
+AssertionError: expected 500 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:264:24
+    262|     it('адрес занят сайтом другого филиала: 409, без молчаливой замены…
+    263|       const r = await call('POST', '/marketing/site', { scope: A2, bod…
+    264|       expect(r.status).toBe(409);
+       |                        ^
+    265|       expect(r.body.message).toMatch(/адрес/i);
+    266|       const ok = await call('POST', '/marketing/site', { scope: A2, bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > чужой филиал той же организации видит только свой сайт
+TypeError: Cannot read properties of undefined (reading 'slug')
+ ❯ tests/integration/marketing-site.test.ts:273:28
+    271|       const own = await call('GET', '/marketing/site');
+    272|       const other = await call('GET', '/marketing/site', { scope: A2 }…
+    273|       expect(own.body.site.slug).toBe('stepnoy-veter');
+       |                            ^
+    274|       expect(other.body.site.slug).toBe('second-site');
+    275|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:281:24
+    279|     it('первая версия: baseRevision 0 → ревизия 1, хэш канонической за…
+    280|       const r = await call('POST', '/marketing/site/versions', { body:…
+    281|       expect(r.status).toBe(201);
+       |                        ^
+    282|       expect(r.body.version).toMatchObject({
+    283|         revision: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > устаревшая ревизия: 409, новой версии нет
+AssertionError: expected 500 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:299:24
+    297|     it('устаревшая ревизия: 409, новой версии нет', async () => {
+    298|       const r = await call('POST', '/marketing/site/versions', { body:…
+    299|       expect(r.status).toBe(409);
+       |                        ^
+    300|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+    301|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > неверный документ: 400 со списком ошибок, версия не пишется
+TypeError: Cannot read properties of undefined (reading 'count')
+ ❯ tests/integration/marketing-site.test.ts:313:44
+    311|       const negative = await call('POST', '/marketing/site/versions', …
+    312|       expect(negative.status).toBe(400);
+    313|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+       |                                            ^
+    314|     });
+    315|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:320:24
+    318|       next.site.displayName.ru = 'Степной ветер, обновлено';
+    319|       const r = await call('POST', '/marketing/site/versions', { body:…
+    320|       expect(r.status).toBe(201);
+       |                        ^
+    321|       expect(r.body.version.revision).toBe(2);
+    322|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна
+AssertionError: expected [ 500, 500, 500 ] to deeply equal [ 201, 409, 409 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   409,
+-   409,
++   500,
++   500,
++   500,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:337:51
+    335|       };
+    336|       const results = await Promise.all([1, 2, 3].map((n) => call('POS…
+    337|       expect(results.map((r) => r.status).sort()).toEqual([201, 409, 4…
+       |                                                   ^
+    338|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+    339|       expect(rows.map((r) => r.revision).sort()).toEqual([1, 2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > у сайта без версий годится только baseRevision 0: иначе 409
+AssertionError: expected 500 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:346:24
+    344|     it('у сайта без версий годится только baseRevision 0: иначе 409', …
+    345|       const r = await call('POST', '/marketing/site/versions', { scope…
+    346|       expect(r.status).toBe(409);
+       |                        ^
+    347|     });
+    348|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > чужая организация не видит ни сайтов, ни версий; своя видит свои
+AssertionError: expected [ +0, +0 ] to deeply equal [ 2, 3 ]
+
+- Expected
++ Received
+
+  [
+-   2,
+-   3,
++   0,
++   0,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:367:32
+    365|         });
+    366|       expect(await seen(orgB)).toEqual([0, 0]);
+    367|       expect(await seen(orgA)).toEqual([2, 3]);
+       |                                ^
+    368|       expect(await seen('')).toEqual([0, 0]);
+    369|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > API чужой организации не видит сайт и не может писать в него
+AssertionError: expected { statusCode: 500, …(1) } to deeply equal { site: null }
+
+- Expected
++ Received
+
+  {
+-   "site": null,
++   "message": "Internal server error",
++   "statusCode": 500,
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:373:22
+    371|     it('API чужой организации не видит сайт и не может писать в него',…
+    372|       const r = await call('GET', '/marketing/site', { user: 'B', scop…
+    373|       expect(r.body).toEqual({ site: null });
+       |                      ^
+    374|       const spoof = await call('GET', '/marketing/site', { user: 'B', …
+    375|       expect(spoof.status).toBe(403);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > роль приложения не меняет и не удаляет версии
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:387:121
+    385|       await asApp(orgA, async () => {
+    386|         await sql.query('SAVEPOINT probe');
+    387|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                         ^
+    388|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    389|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+ ❯ asApp tests/integration/marketing-site.test.ts:83:14
+ ❯ tests/integration/marketing-site.test.ts:385:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > даже владелец таблицы не меняет и не удаляет версию: сторож без исключений
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:403:112
+    401|       try {
+    402|         await sql.query('SAVEPOINT probe');
+    403|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                ^
+    404|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    405|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > указатели сайта и родитель версии не ведут на другой сайт
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ tests/integration/marketing-site.test.ts:412:45
+    410|
+    411|     it('указатели сайта и родитель версии не ведут на другой сайт', as…
+    412|       const siteA1 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                                             ^
+    413|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+    414|       const foreign = await db.marketingSiteVersion.findFirstOrThrow({…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > организация только для чтения не пишет: 403, читать может
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ tests/integration/marketing-site.test.ts:450:63
+    448|         expect(r.status).toBe(403);
+    449|         expect(r.body.message).toMatch(/только для чтения/);
+    450|         expect((await call('GET', '/marketing/site')).status).toBe(200…
+       |                                                               ^
+    451|       } finally {
+    452|         await db.organization.update({ where: { id: orgA }, data: { st…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > филиал сайта не меняется после создания
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ tests/integration/marketing-site.test.ts:457:45
+    455|
+    456|     it('филиал сайта не меняется после создания', async () => {
+    457|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                                             ^
+    458|       await expect(
+    459|         sql.query(`UPDATE marketing_sites SET location_id = $1 WHERE i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ tests/integration/marketing-site.test.ts:497:45
+    495|
+    496|     it('tracked_site_id только объекта того же филиала: чужой филиал о…
+    497|       const siteA1 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                                             ^
+    498|       const [ownSite, otherSite] = await Promise.all([
+    499|         property(randomUUID(), a1).then((p) => trackedSite(p.id)),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ head tests/integration/marketing-site.test.ts:596:43
+    594|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    595|     async function head(): Promise<{ siteId: string; revision: number …
+    596|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                                           ^
+    597|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    598|     }
+ ❯ tests/integration/marketing-site.test.ts:601:42
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ head tests/integration/marketing-site.test.ts:596:43
+    594|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    595|     async function head(): Promise<{ siteId: string; revision: number …
+    596|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                                           ^
+    597|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    598|     }
+ ❯ tests/integration/marketing-site.test.ts:618:42
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > тело больше транспортного предела 300 КБ: 413, версия не пишется
+TypeError: Cannot read properties of undefined (reading 'findFirstOrThrow')
+ ❯ head tests/integration/marketing-site.test.ts:596:43
+    594|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    595|     async function head(): Promise<{ siteId: string; revision: number …
+    596|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                                           ^
+    597|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    598|     }
+ ❯ tests/integration/marketing-site.test.ts:630:42
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/23]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413
+TypeError: Cannot read properties of undefined (reading 'count')
+ ❯ tests/integration/marketing-site.test.ts:639:45
+    637|
+    638|     it('другой маршрут JSON по-прежнему режется на 100 КБ: создание са…
+    639|       const before = await db.marketingSite.count({ where: { location:…
+       |                                             ^
+    640|       const body = { name: 'x'.repeat(150 * 1024), slug: `big-${random…
+    641|       expect(bytes(body)).toBeGreaterThan(100 * 1024);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/23]⎯
+
+
+ Test Files  1 failed | 102 passed (103)
+      Tests  23 failed | 784 passed (807)
+   Start at  19:12:40
+   Duration  129.77s (tests 68%, import 27%, transform 5%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-12-39Z-integration-1502.json
+
+# код выхода 1 · 2 мин 11 с

@@ -6908,3 +6908,13 @@
 | 07.10.2026 00:02 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 1 мин 38 с | 6ee3ce8 +13 | [лог](logs/2026-10-06T19-02-52Z-e2e-33bc.log) |  |
 | 07.10.2026 00:04 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1 today.spec -g не  | ❌ упало 1 из 2 | 25 с | 6ee3ce8 +9 | [лог](logs/2026-10-06T19-04-40Z-e2e-4f03.log) | MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches |
 | 07.10.2026 00:05 | unit (частично: apps/web/src/app/today) | ✅ 30 из 30 | 1 с | 2cfdcae +1 | [лог](logs/2026-10-06T19-05-55Z-unit-4eb6.log) |  |
+| 07.10.2026 00:06 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-beauty-ui.config.ts --workers=1) | ✅ 10 из 10 | 1 мин 26 с | 32f879e | [лог](logs/2026-10-06T19-06-14Z-e2e-7d5e.log) |  |
+| 07.10.2026 00:07 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts --workers=1) | ✅ 13 из 13 | 2 мин 5 с | 32f879e | [лог](logs/2026-10-06T19-07-41Z-e2e-e973.log) |  |
+| 07.10.2026 00:09 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-onboarding.config.ts --workers=1) | ✅ 4 из 4 | 25 с | 32f879e | [лог](logs/2026-10-06T19-09-46Z-e2e-5b4b.log) |  |
+| 07.10.2026 00:10 | unit | ✅ 3503 из 3506, пропущено 3 | 1 мин 37 с | 32f879e | [лог](logs/2026-10-06T19-10-12Z-unit-f47a.log) |  |
+| 07.10.2026 00:11 | integration | ❌ код выхода 1 | 2 с | 32f879e | [лог](logs/2026-10-06T19-11-50Z-integration-4cb3.log) |  |
+| 07.10.2026 00:11 | typecheck | ❌ ошибок: 35 | 48 с | 32f879e | [лог](logs/2026-10-06T19-11-52Z-typecheck-4fd0.log) | TS2724 |
+| 07.10.2026 00:12 | lint | ✅ без ошибок | 30 с | 32f879e | [лог](logs/2026-10-06T19-12-41Z-lint-fd38.log) |  |
+| 07.10.2026 00:12 | integration | ❌ упало 23 из 807 | 2 мин 11 с | 32f879e | [лог](logs/2026-10-06T19-12-39Z-integration-1502.log) | MKT3 marketing site core создание сайта сайта нет: пустой ответ, черновика нет |
+| 07.10.2026 00:15 | integration | ✅ 807 из 807 | 2 мин 6 с | 32f879e | [лог](logs/2026-10-06T19-15-22Z-integration-64fb.log) |  |
+| 07.10.2026 00:17 | typecheck | ✅ без ошибок | 35 с | 32f879e | [лог](logs/2026-10-06T19-17-40Z-typecheck-ca7b.log) |  |

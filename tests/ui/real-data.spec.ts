@@ -30,6 +30,7 @@ test('источник и агрегаты проекта видны главн�
   await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
   await signIn(page);
   await page.goto('/platform');
+  await page.locator('summary').filter({ hasText: 'Состояние системы' }).click();
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('Данные проекта');
   await expect(panel).toContainText('Тестовые данные');
@@ -46,6 +47,7 @@ test('ошибка базы не превращается в нулевые по
   });
   await signIn(page);
   await page.goto('/platform');
+  await page.locator('summary').filter({ hasText: 'Состояние системы' }).click();
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('База данных недоступна');
   await expect(panel.getByTestId('database-units')).toHaveCount(0);
@@ -97,7 +99,7 @@ test('поздняя загрузка гостиницы сохраняет вв
       await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
     }).toPass({ timeout: 15_000 });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
-      'Филиал недоступен',
+      'Объект не загружен',
     );
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(

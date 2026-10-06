@@ -54,17 +54,15 @@ export function beautyToday(day: BeautyDay, currentLocalMinute: number) {
     masters: day.columns.length,
     awaitingConfirmation: count('BOOKED'),
     noShow: count('NO_SHOW'),
-    upcoming: ahead.slice(0, UPCOMING_LIMIT).map(
-      (r): BeautyUpcoming => ({
-        id: r.id,
-        startMinutes: r.startMinutes,
-        endMinutes: r.endMinutes,
-        customer: r.customer.name,
-        service: r.serviceName,
-        master: masters.get(r.employeeId) ?? UNAVAILABLE_MASTER,
-        status: r.status,
-      }),
-    ),
+    upcoming: ahead.slice(0, UPCOMING_LIMIT).map((r): BeautyUpcoming => ({
+      id: r.id,
+      startMinutes: r.startMinutes,
+      endMinutes: r.endMinutes,
+      customer: r.customer.name,
+      service: r.serviceName,
+      master: masters.get(r.employeeId) ?? UNAVAILABLE_MASTER,
+      status: r.status,
+    })),
   };
 }
 
@@ -124,15 +122,13 @@ export function foodToday(input: {
     withoutTable: day.filter((r) => ACTIVE_FOOD.has(r.status) && !r.table).length,
     awaitingConfirmation: count('BOOKED'),
     noShow: count('NO_SHOW'),
-    upcoming: ahead.slice(0, UPCOMING_LIMIT).map(
-      (r): FoodUpcoming => ({
-        id: r.id,
-        startsAt: r.startsAt,
-        guest: [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' '),
-        partySize: r.partySize,
-        table: r.table?.name ?? null,
-        status: r.status,
-      }),
-    ),
+    upcoming: ahead.slice(0, UPCOMING_LIMIT).map((r): FoodUpcoming => ({
+      id: r.id,
+      startsAt: r.startsAt,
+      guest: [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' '),
+      partySize: r.partySize,
+      table: r.table?.name ?? null,
+      status: r.status,
+    })),
   };
 }

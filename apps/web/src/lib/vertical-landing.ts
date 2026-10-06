@@ -1,5 +1,6 @@
 export type WebVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
-export function landingForVertical(_vertical: WebVertical): string {
+export function landingForVertical(vertical: WebVertical): string {
+  void vertical;
   return '/today';
 }
 const routes: Record<WebVertical, string[]> = {

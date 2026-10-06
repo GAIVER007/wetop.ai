@@ -1,0 +1,14 @@
+# Линтер (lint) · 06.10.2026 12:54 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 4
+# npx eslint .
+
+/Users/urijzapojnov/wetop-mv8-20261005/apps/web/src/lib/vertical-landing.ts
+  2:36  error  '_vertical' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/clock.cjs
+  5:1  error  'global' is not defined  no-undef
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 21 с

@@ -42,6 +42,8 @@ export function verifiedTodayScope(me: unknown): {
 }
 
 function strictClock(timezone: string) {
+  if (typeof timezone !== 'string' || !timezone)
+    throw new Error('Не удалось определить часовой пояс филиала');
   new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format();
   return propertyClock(timezone);
 }

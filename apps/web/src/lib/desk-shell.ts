@@ -1,7 +1,8 @@
 import { cache } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { authApi } from './api';
-import { UNKNOWN_SHELL, deskShellOf, type DeskShell } from './desk-person';
+import { verifiedTodayScope } from './today-loaders';
+import { CLOSED_SHELL, UNKNOWN_SHELL, deskShellOf, type DeskShell } from './desk-person';
 
 /**
  * Один `/auth/me` на отрисовку: меню, подпись и «Выйти» спрашивают одно и то же (бюджет рейсов —
@@ -17,14 +18,16 @@ export const currentMe = cache(() => authApi.me());
 export async function deskShell(): Promise<DeskShell> {
   try {
     const me = await currentMe();
-    if (
-      'context' in me &&
-      (!me.context?.vertical || !me.context.businessId || !me.context.locationId)
-    )
-      return UNKNOWN_SHELL;
+    if (!me?.user) return { ...CLOSED_SHELL, access: { ...CLOSED_SHELL.access, unknown: true } };
+    let scope: ReturnType<typeof verifiedTodayScope>;
+    try {
+      scope = verifiedTodayScope(me);
+    } catch {
+      return { ...UNKNOWN_SHELL, person: deskShellOf(me).person };
+    }
     return {
       ...deskShellOf(me),
-      scopeKey: `${me.context?.businessId ?? ''}:${me.context?.locationId ?? ''}`,
+      scopeKey: `${scope.businessId}:${scope.locationId}`,
     };
   } catch (error) {
     unstable_rethrow(error);

@@ -1,0 +1,42 @@
+# Модульные (unit) · 06.10.2026 13:01 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-01-41Z-unit-cd67.json' 'apps/web/src/lib/desk-shell.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ❯ |unit| apps/web/src/lib/desk-shell.test.ts (8 tests | 1 failed) 425ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 418ms
+     ✓ вошедший управляющий — его роль 1ms
+     ✓ `/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной 1ms
+   ✓ MV8 invalid server context never becomes Hospitality shell 0ms
+   ✓ MV8 unknown vertical cannot start Hospitality shell calls 0ms
+   ✓ MV8 absent server scope cannot start domain reads: {"user":null} 0ms
+   ✓ MV8 absent server scope cannot start domain reads: {"user":{"email":"<email>","name":null,"role":"OWNER"}} 0ms
+   × authenticated identity without a selected Location retains branch selection while domain access is unknown 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > authenticated identity without a selected Location retains branch selection while domain access is unknown
+AssertionError: expected undefined to be 'Тестовый владелец' // Object.is equality
+
+- Expected:
+"Тестовый владелец"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/desk-shell.test.ts:73:381
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  12:01:42
+   Duration  590ms (tests 90%, transform 7%, import 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-01-41Z-unit-cd67.json
+
+# код выхода 1 · 2 с

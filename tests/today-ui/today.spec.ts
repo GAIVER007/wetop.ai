@@ -18,16 +18,14 @@ async function setup(page: Page, request: APIRequestContext, options = {}) {
   return f;
 }
 async function scope(page: Page, business: string, location: string) {
-  await page
-    .context()
-    .addCookies([
-      {
-        name: 'wetop_scope',
-        value: encodeURIComponent(`business=${business};location=${location}`),
-        domain: '127.0.0.1',
-        path: '/',
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: 'wetop_scope',
+      value: encodeURIComponent(`business=${business};location=${location}`),
+      domain: '127.0.0.1',
+      path: '/',
+    },
+  ]);
 }
 async function choose(page: Page, name: string) {
   await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
@@ -54,7 +52,16 @@ test('real vertical Today: statuses, overnight, scope switching and foreign API 
   await expect(page.getByText('Без стола: 1', { exact: true })).toBeVisible();
   await expect(page.getByText('До 01:30', { exact: true })).toBeVisible();
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
-  expect(calls.filter((c) => /beauty|\/desk|\/finance|\/chessboard/.test(c))).toEqual([]);
+  expect(
+    calls.filter((c) =>
+      /^\/(beauty|desk|finance|chessboard|hotel|inventory|reservations|guests|rates|channels|bar)(?:\/|\?|\||$)/.test(
+        c,
+      ),
+    ),
+  ).toEqual([]);
+  expect(calls.filter((c) => c.startsWith('/food-service/areas'))).toHaveLength(1);
+  expect(calls.filter((c) => c.startsWith('/food-service/tables'))).toHaveLength(1);
+  expect(calls.filter((c) => c.startsWith('/food-service/reservations'))).toHaveLength(2);
   expect(calls.some((c) => c.includes('date=2026-10-04'))).toBe(true);
   expect(calls.some((c) => c.includes('date=2026-10-05'))).toBe(true);
   await request.post(`${api}/__test/control`, { data: { delayReads: true } });
@@ -79,9 +86,17 @@ test('real vertical Today: statuses, overnight, scope switching and foreign API 
     await expect(page.getByTestId(`today-${label}`)).toHaveText(String(n));
   await expect(page.getByTestId('beauty-today')).toContainText('Тестовый маникюр');
   const beautyCalls: string[] = await (await request.get(`${api}/__test/calls`)).json();
-  expect(beautyCalls.filter((c) => /\/food-service|\/desk|\/finance|\/chessboard/.test(c))).toEqual(
+  expect(beautyCalls.filter((c) => c.startsWith('/beauty/appointments'))).toHaveLength(1);
+  expect(beautyCalls.filter((c) => /^\/beauty\/(customers|employees|services)/.test(c))).toEqual(
     [],
   );
+  expect(
+    beautyCalls.filter((c) =>
+      /^\/(food-service|desk|finance|chessboard|hotel|inventory|reservations|guests|rates|channels|bar)(?:\/|\?|\||$)/.test(
+        c,
+      ),
+    ),
+  ).toEqual([]);
   await page.reload();
   await expect(page.getByTestId('beauty-today')).toBeVisible();
   await page.goto('/');
@@ -135,8 +150,32 @@ test('empty, STAFF, READ_ONLY and failed verified scope', async ({ page, request
   await expect(page.getByTestId('today-scope-error')).toBeVisible();
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(
-    calls.filter((c) => /\/food-service|\/beauty|\/desk|\/finance|\/chessboard/.test(c)),
+    calls.filter((c) =>
+      /\/food-service|\/^\/(beauty|desk|finance|chessboard|hotel|inventory|reservations|guests|rates|channels|bar)(?:\/|\?|\||$)/.test(
+        c,
+      ),
+    ),
   ).toEqual([]);
+});
+test('absent Location can recover by branch selection and signed-out Today has no domain reads', async ({
+  page,
+  request,
+}) => {
+  await setup(page, request);
+  await page.context().clearCookies();
+  await request.post(`${api}/__test/clear-calls`);
+  await page.goto('/today');
+  await expect(page.getByTestId('today-scope-error')).toBeVisible();
+  const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+  expect(calls.filter((c) => /^\/(food-service|beauty|hotel|desk|chessboard)/.test(c))).toEqual([]);
+  await choose(page, 'Тестовый филиал Центр');
+  await expect(page.getByTestId('food-today')).toBeVisible();
+  await request.post(`${api}/__test/control`, { data: { signedOut: true } });
+  await request.post(`${api}/__test/clear-calls`);
+  await page.reload();
+  await expect(page.getByTestId('today-scope-error')).toBeVisible();
+  const out: string[] = await (await request.get(`${api}/__test/calls`)).json();
+  expect(out.filter((c) => /^\/(food-service|beauty|hotel|desk|chessboard)/.test(c))).toEqual([]);
 });
 test('12 real API screenshots and accessibility', async ({ page, request }) => {
   const f = await setup(page, request);

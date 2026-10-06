@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 06.10.2026 13:03 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/today-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:89336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to install `Date` class extension. When using `cacheComponents`, APIs that read the current time will not correctly trigger dynamic behavior.
+[WebServer] (node:89394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:89398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/today-ui/today.spec.ts:38:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation (7.2s)
+  ✓  2 tests/today-ui/today.spec.ts:122:1 › pagination and mandatory-source failure (1.4s)
+  ✓  3 tests/today-ui/today.spec.ts:132:1 › empty, STAFF, READ_ONLY and failed verified scope (1.5s)
+  ✓  4 tests/today-ui/today.spec.ts:160:1 › absent Location can recover by branch selection and signed-out Today has no domain reads (1.4s)
+  ✓  5 tests/today-ui/today.spec.ts:180:1 › 12 real API screenshots and accessibility (16.8s)
+
+  5 passed (35.1s)
+
+# код выхода 0 · 36 с

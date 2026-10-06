@@ -38,6 +38,7 @@ let unavailable = false;
 let failCreate = false;
 let failAuth = false;
 let delayReads = 0;
+let signedOut = false;
 await db.organization.create({
   data: { id: org, name: `MV8-today-browser-${org}`, status: 'ACTIVE' },
 });
@@ -47,6 +48,7 @@ await db.user.create({
 
 class FixtureController {
   async me() {
+    if (signedOut) return { user: null };
     return {
       user: {
         id: user,
@@ -124,6 +126,7 @@ app.use(
               role = 'OWNER';
               failAuth = false;
               delayReads = 0;
+              signedOut = false;
               calls.length = 0;
               creationKeys.length = 0;
               unavailable = false;
@@ -219,6 +222,7 @@ app.use(
             }
             if (req.path === '/__test/control') {
               failAuth = body.failAuth === true;
+              signedOut = body.signedOut === true;
               delayReads = body.delayReads === true ? 500 : 0;
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
               unavailable = body.unavailable === true;

@@ -28,6 +28,20 @@ describe('MV8 verified scope', () => {
   });
 });
 describe('MV8 minimal loaders', () => {
+  it('missing timezone never falls back to server timezone', async () => {
+    await expect(
+      loadBeautyToday(
+        async () =>
+          ({
+            ...day,
+            date: '2026-10-04',
+            location: { ...day.location, timezone: undefined },
+          }) as unknown as BeautyDay,
+        'l',
+        () => now,
+      ),
+    ).rejects.toThrow();
+  });
   it('uses server Beauty day without query date, local minutes and location check', async () => {
     const read = vi.fn().mockResolvedValue(day);
     expect(await loadBeautyToday(read, 'l', () => now)).toMatchObject({

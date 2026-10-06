@@ -4731,6 +4731,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if (body['signedIn'] === true) uiSessions.set('ui-session-1', uiUser);
       if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
@@ -5167,7 +5168,12 @@ createServer(async (req, res) => {
       const { organization, ...user } = signedInView(who);
       // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
       const pointer = String(req.headers['x-wetop-scope'] ?? '');
-      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`)) ?? (pointer === 'business=33333333-3333-4333-8333-333333333333;location=22222222-2222-4222-8222-222222222222' ? { locationId:'22222222-2222-4222-8222-222222222222', location:{businessId:'33333333-3333-4333-8333-333333333333'},vertical:'HOSPITALITY' } : undefined);
+      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`)) ??
+        (pointer === 'business=33333333-3333-4333-8333-333333333333;location=22222222-2222-4222-8222-222222222222'
+          ? { locationId: '22222222-2222-4222-8222-222222222222',
+              location: { businessId: '33333333-3333-4333-8333-333333333333' },
+              vertical: 'HOSPITALITY' }
+          : undefined);
       return send(200, {
         user,
         organization,

@@ -23,7 +23,10 @@ describe('оболочка стойки: кто вошёл', () => {
   });
 
   it('вошедший управляющий — его роль', async () => {
-    me.mockResolvedValue({ user: { email: 'm@example.invalid', name: null, role: 'MANAGER' } });
+    me.mockResolvedValue({
+      user: { email: 'm@example.invalid', name: null, role: 'MANAGER' },
+      context: { vertical: 'HOSPITALITY', businessId: 'b', locationId: 'l' },
+    });
     const { deskShell } = await import('./desk-shell');
     expect((await deskShell()).access.role).toBe('MANAGER');
   });
@@ -47,4 +50,33 @@ it('MV8 invalid server context never becomes Hospitality shell', async () => {
   });
   const { deskShell } = await import('./desk-shell');
   expect((await deskShell()).access.unknown).toBe(true);
+});
+
+it('MV8 unknown vertical cannot start Hospitality shell calls', async () => {
+  me.mockResolvedValue({
+    user: { email: 'test@example.invalid', name: null, role: 'OWNER' },
+    context: { vertical: 'UNKNOWN', businessId: 'b', locationId: 'l' },
+  });
+  const { deskShell } = await import('./desk-shell');
+  expect((await deskShell()).access.unknown).toBe(true);
+});
+
+it.each([{ user: null }, { user: { email: 'test@example.invalid', name: null, role: 'OWNER' } }])(
+  'MV8 absent server scope cannot start domain reads: %j',
+  async (response) => {
+    me.mockResolvedValue(response);
+    const { deskShell } = await import('./desk-shell');
+    expect((await deskShell()).access.unknown).toBe(true);
+  },
+);
+
+it('authenticated identity without a selected Location retains branch selection while domain access is unknown', async () => {
+  me.mockResolvedValue({
+    user: { email: 'test@example.invalid', name: 'Тестовый владелец', role: 'OWNER' },
+    context: { vertical: null, businessId: null, locationId: null },
+  });
+  const { deskShell } = await import('./desk-shell');
+  const shell = await deskShell();
+  expect(shell.person?.name).toBe('Тестовый владелец');
+  expect(shell.access.unknown).toBe(true);
 });

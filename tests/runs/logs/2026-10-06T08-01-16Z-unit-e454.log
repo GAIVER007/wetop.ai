@@ -1,0 +1,23 @@
+# Модульные (unit) · 06.10.2026 13:01 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-01-16Z-unit-e454.json' 'apps/web/src/lib/desk-shell.test.ts' 'apps/web/src/lib/today-loaders.test.ts' 'apps/web/src/lib/today-metrics.test.ts' 'apps/web/src/app/branches/switch.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (7 tests) 413ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 409ms
+ ✓ |unit| apps/web/src/lib/today-loaders.test.ts (8 tests) 33ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 24ms
+ ✓ |unit| apps/web/src/lib/today-metrics.test.ts (5 tests) 28ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests) 5ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 5ms
+
+ Test Files  6 passed (6)
+      Tests  41 passed (41)
+   Start at  12:01:17
+   Duration  977ms (tests 40%, transform 38%, import 21%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-01-16Z-unit-e454.json
+
+# код выхода 0 · 2 с

@@ -82,14 +82,18 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
 
-test('телефон: управление календаря не отнимает у сетки пол-экрана', async ({ page }) => {
-  // Компактная сводка дня на телефоне видима, но не выталкивает сетку ниже половины экрана.
+test('телефон: сводка и управление оставляют сетку на первом экране', async ({ page }) => {
+  // Согласованная сводка занимает до 280 px, сетка начинается не ниже 700 px.
   await page.goto('/chessboard');
-  await expect(page.locator('.board-wrap')).toBeVisible();
-  await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
-  const board = await page.locator('.board-wrap').boundingBox();
-  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThan(422);
-  // и всё управление осталось с целями 44 px (цели ниже ловит отдельный тест ниже)
+  const grid = page.locator('.board-wrap');
+  const summary = page.getByRole('group', { name: 'Сегодня на объекте' });
+  await expect(grid).toBeVisible();
+  await expect(summary).toBeVisible();
+  expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(280);
+  const board = await grid.boundingBox();
+  expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
+  const navigation = await page.locator('.bottom-navigation').boundingBox();
+  expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
 });
 

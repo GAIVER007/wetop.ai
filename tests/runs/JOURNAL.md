@@ -6990,3 +6990,25 @@
 | 07.10.2026 11:14 | lint | ✅ без ошибок | 52 с | 028e29a | [лог](logs/2026-10-07T06-14-17Z-lint-80fe.log) |  |
 | 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/today-attention.sp | ✅ 46 из 46 | 5 мин | 028e29a | [лог](logs/2026-10-07T06-15-16Z-e2e-be9b.log) |  |
 | 07.10.2026 11:20 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 21 с | 028e29a | [лог](logs/2026-10-07T06-20-18Z-e2e-807c.log) |  |
+| 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing/runtime.test.ts) | ❌ упало 20 из 20 | 3 с | 6a6a46b +1 | [лог](logs/2026-10-06T18-53-14Z-unit-cb4b.log) | MKT4 red: runtime helpers absent |
+| 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing) | ✅ 57 из 57 | 2 с | 6a6a46b +4 | [лог](logs/2026-10-06T18-53-33Z-unit-ec6f.log) | MKT4 green: runtime helpers |
+| 06.10.2026 23:54 | unit (частично: apps/api/src/sites-runtime) | ❌ код выхода 1 | 5 с | 6a6a46b +5 | [лог](logs/2026-10-06T18-54-46Z-unit-2515.log) | MKT4 red: sites-runtime module absent |
+| 06.10.2026 23:55 | unit (частично: apps/api/src/sites-runtime) | ✅ 17 из 17 | 5 с | 6a6a46b +11 | [лог](logs/2026-10-06T18-55-45Z-unit-4bca.log) | MKT4 green: sites-runtime module |
+| 06.10.2026 23:56 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 6 с | 6a6a46b +13 | [лог](logs/2026-10-06T18-56-14Z-unit-d359.log) | MKT4: route table and runtime routes |
+| 06.10.2026 23:56 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 7 с | 6a6a46b +13 | [лог](logs/2026-10-06T18-56-26Z-unit-da5b.log) | MKT4 red: route table without sites-runtime row |
+| 06.10.2026 23:57 | integration (частично: tests/integration/sites-runtime.test.ts) | ❌ код выхода 1 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-57-48Z-integration-2b61.log) | MKT4 red: mutation reads latest_version_id without state |
+| 06.10.2026 23:58 | integration (частично: tests/integration/sites-runtime.test.ts) | ❌ упало 6 из 13 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-58-07Z-integration-1cbc.log) | MKT4 red: mutation reads latest_version_id without state |
+| 06.10.2026 23:58 | integration (частично: tests/integration/sites-runtime.test.ts) | ✅ 13 из 13 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-58-18Z-integration-536e.log) | MKT4 green: only published pointer |
+| 07.10.2026 00:07 | unit (частично: apps/sites) | ❌ упало 10 из 133 | 3 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-07-51Z-unit-80d9.log) | MKT4 red: five mutations (escape, CSP, registry, canonical, 404 cache) |
+| 07.10.2026 00:07 | unit (частично: apps/sites packages/domain/src/marketing apps/api/src/sites-runtime apps/api/src/auth) | ✅ 425 из 425 | 14 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-07-58Z-unit-e82d.log) | MKT4 green: sites runtime worker, domain helpers, API, auth |
+| 07.10.2026 00:09 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ код выхода 1 | 1 мин 2 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-09-34Z-e2e-e9c9.log) | MKT4 runtime UI 390/1440 axe |
+| 07.10.2026 00:10 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 9 из 9 | 15 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-10-43Z-e2e-8737.log) | MKT4 runtime UI 390/1440 axe |
+| 07.10.2026 00:11 | typecheck | ✅ без ошибок | 57 с | 6a6a46b +40 | [лог](logs/2026-10-06T19-11-51Z-typecheck-ae25.log) | MKT4 |
+| 07.10.2026 00:13 | lint | ✅ без ошибок | 36 с | 6a6a46b +40 | [лог](logs/2026-10-06T19-13-02Z-lint-36e5.log) | MKT4 |
+| 07.10.2026 00:13 | unit | ❌ упало 1 из 3647, пропущено 3 | 1 мин 56 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-13-42Z-unit-18a1.log) | MKT4 full unit |
+| 07.10.2026 00:15 | integration | ❌ код выхода 1 | 2 с | 6a6a46b +15 | [лог](logs/2026-10-06T19-15-39Z-integration-802c.log) | MKT4 full integration |
+| 07.10.2026 00:16 | unit (частично: tests/unit/test-schema-plan.test.ts) | ❌ упало 3 из 8 | 1 с | 6a6a46b +38 | [лог](logs/2026-10-06T19-16-43Z-unit-29b7.log) | red: copyPlan for nullable FK cycle (MKT3 site<->version) absent |
+| 07.10.2026 00:16 | unit (частично: tests/unit/test-schema-plan.test.ts) | ✅ 8 из 8 | 2 с | 6a6a46b +39 | [лог](logs/2026-10-06T19-16-56Z-unit-7b2f.log) | green: copyPlan relaxes nullable FK cycle |
+| 07.10.2026 00:17 | integration | ✅ 820 из 820 | 2 мин 8 с | 6a6a46b +15 | [лог](logs/2026-10-06T19-17-32Z-integration-f1df.log) | MKT4 full integration after copyPlan fix |
+| 07.10.2026 00:20 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 40 из 40 | 1 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-04Z-unit-61f4.log) | MKT4: Dockerfile copies apps/sites manifest |
+| 07.10.2026 00:20 | unit | ✅ 3647 из 3650, пропущено 3 | 1 мин 47 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-09Z-unit-2d0a.log) | MKT4 full unit after Dockerfile and copyPlan |

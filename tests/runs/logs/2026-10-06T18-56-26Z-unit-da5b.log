@@ -1,0 +1,52 @@
+# Модульные (unit) · 06.10.2026 23:56 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-56-26Z-unit-da5b.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 224ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 171ms
+     ✓ MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 50ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(324) } to deeply equal { 'GET /onboarding': 'self', …(323) }
+
+- Expected
++ Received
+
+@@ -140,10 +140,11 @@
+    "GET /reservations/:number/items/:itemId/extend-preview": "desk",
+    "GET /reservations/:number/items/:itemId/move-preview": "desk",
+    "GET /reservations/:number/items/:itemId/preview": "desk",
+    "GET /seller-agents": "seller",
+    "GET /seller-agents/:id": "seller",
++   "GET /sites-runtime/current": "service",
+    "GET /status/public": "public",
+    "GET /system/connection": "settings",
+    "GET /system/freshness": "desk",
+    "GET /system/pii-storage": "desk",
+    "GET /tasks": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:430:20
+    428|       .map(([key]) => key);
+    429|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    430|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    431|   });
+    432|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  18:56:27
+   Duration  5.97s (transform 70%, import 26%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-56-26Z-unit-da5b.json
+
+# код выхода 1 · 7 с

@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 06.10.2026 23:57 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-57-48Z-integration-2b61.json' 'tests/integration/sites-runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/sites-runtime.test.ts (13 tests | 13 skipped) 756ms
+   ❯ MKT4 sites runtime: only the published pointer (13)
+     ↓ опубликованная версия, а не более новый черновик latest_version_id
+     ↓ ответ: ключ связанного сайта счётчика, бронь выключена, основного хоста нет до MKT7
+     ↓ knownSpecHash совпал: документ не отдаётся
+     ↓ knownSpecHash черновика ничего не открывает: в ответе всё равно опубликованная версия
+     ↓ publicFacts только из объекта филиала сайта и только белый список
+     ↓ черновой сайт: 404 без имени сайта и без документа
+     ↓ пауза: 404 без имени сайта и без документа
+     ↓ архивный сайт: 404 без имени сайта и без документа
+     ↓ архивный филиал: 404 без имени сайта и без документа
+     ↓ архивный Business: 404 без имени сайта и без документа
+     ↓ неизвестный хост: 404 без имени сайта и без документа
+     ↓ документ не проходит валидатор: 503, документа в ответе нет
+     ↓ без ключа рантайма: 401
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer
+error: null value in column "updated_at" of relation "marketing_sites" violates not-null constraint
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/sites-runtime.test.ts:158:5
+    156|
+    157|     // live: опубликована v1, а более новый черновик v2 лежит в latest…
+    158|     await sql.query(`INSERT INTO marketing_sites (id, location_id, nam…
+       |     ^
+    159|       site.live, loc.live, `mkt4-live-${site.live.slice(0, 6)}`, track…
+    160|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 skipped (13)
+   Start at  18:57:49
+   Duration  4.80s (transform 50%, tests 25%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-57-48Z-integration-2b61.json
+
+# код выхода 1 · 6 с

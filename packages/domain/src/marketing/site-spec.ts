@@ -674,6 +674,14 @@ const SECTIONS: Record<string, SectionShape> = {
   },
 };
 
+/**
+ * Реестр секций v0 наружу: тип и его варианты (MKT4). Рантайм `apps/sites` держит свой явный реестр рендереров, и тест
+ * сверяет оба: у каждой секции и варианта валидатора есть рендерер, лишних нет.
+ */
+export const SITE_SPEC_SECTIONS: Readonly<Record<string, readonly string[]>> = Object.freeze(
+  Object.fromEntries(Object.entries(SECTIONS).map(([type, shape]) => [type, Object.freeze([...shape.variants])])),
+);
+
 /** Секция по реестру §8; возвращает её идентификатор для проверки ссылок */
 function checkSection(c: Checker, value: unknown, path: string, booking: unknown): string | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {

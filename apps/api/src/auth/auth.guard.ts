@@ -103,6 +103,12 @@ const ASSISTANT_ACT_ALLOWED = [
 const MARKET_COLLECT_LIST = '/market/collector/competitors';
 const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupancy$/;
 
+/**
+ * Ключ публичного рантайма сайтов (`SITES_RUNTIME_KEY`, MKT4, ADR-149): только `GET /sites-runtime/current`. Управление
+ * сайтом, черновики, версии по id и все прочие пути этим ключом не открываются.
+ */
+const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current'];
+
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);
   if (path === null) return false;
@@ -136,6 +142,7 @@ export type ServiceKeyKind =
   | 'seller-quote'
   | 'seller-book'
   | 'market-collect'
+  | 'sites-runtime'
   | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
@@ -155,6 +162,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (bookKey && sameKey(presented, bookKey)) return 'seller-book';
   const collectKey = process.env.MARKET_COLLECT_KEY?.trim();
   if (collectKey && sameKey(presented, collectKey)) return 'market-collect';
+  const runtimeKey = process.env.SITES_RUNTIME_KEY?.trim();
+  if (runtimeKey && sameKey(presented, runtimeKey)) return 'sites-runtime';
   return 'unknown';
 }
 
@@ -259,6 +268,13 @@ export class SessionGuard implements CanActivate {
         return true;
       }
       throw new ForbiddenException('Ключ сборщика пишет только загрузку конкурентов');
+    }
+    if (key === 'sites-runtime') {
+      if (readAllowed(SITES_RUNTIME_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ рантайма сайтов читает только текущую опубликованную версию');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

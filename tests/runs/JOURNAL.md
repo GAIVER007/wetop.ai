@@ -6872,3 +6872,5 @@
 | 06.10.2026 21:10 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-beauty-ui.config.ts --workers=1) | ✅ 10 из 10 | 1 мин 30 с | c9227d3 | [лог](logs/2026-10-06T16-10-23Z-e2e-f101.log) |  |
 | 06.10.2026 21:11 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-food-ui.config.ts --workers=1) | ✅ 13 из 13 | 2 мин 10 с | d7df604 | [лог](logs/2026-10-06T16-11-54Z-e2e-3ccd.log) |  |
 | 06.10.2026 21:14 | integration | ✅ 770 из 770 | 2 мин 3 с | f9c8fd9 | [лог](logs/2026-10-06T16-14-25Z-integration-71b3.log) |  |
+| 06.10.2026 21:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 28 из 968 | 1 ч 34 мин | f9c8fd9 | [лог](logs/2026-10-06T16-22-00Z-e2e-c035.log) | услуга каталога добавляется и видна в списке |
+| 06.10.2026 22:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts tests/ui/beauty-journal.spec.ts tests/ui/beauty-schedule.spec. | ✅ 49 из 49 | 5 мин 46 с | 55ffa00 | [лог](logs/2026-10-06T17-56-35Z-e2e-240e.log) |  |

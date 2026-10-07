@@ -2,7 +2,13 @@
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { GroupPayment } from './group-payment';
-import { type FinanceFolio, type ReservationFinance, type ServiceOption } from '../../../lib/api';
+import {
+  type FinanceCharge,
+  type FinanceFolio,
+  type FinancePaymentLine,
+  type ReservationFinance,
+  type ServiceOption,
+} from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import {
   Alert,
@@ -18,13 +24,17 @@ import {
   Table,
 } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
+import { Overlay } from '../../../components/overlay';
 import {
   addChargeAction,
   closeFolioAction,
   payAction,
   receiptAction,
   refundAction,
+  replacePaymentAction,
+  stayPriceAction,
   voidChargeAction,
+  voidPaymentAction,
   type FinanceActionResult,
   stayExtraAction,
 } from './finance-actions';
@@ -67,8 +77,14 @@ const toDecimal = (minor: string) => {
   const d = minor.replace('-', '').padStart(3, '0');
   return `${neg ? '-' : ''}${d.slice(0, -2)}.${d.slice(-2)}`;
 };
+/** Остаток платежа на этом счёте, который ещё можно вернуть */
+const refundable = (p: FinancePaymentLine) => BigInt(p.allocatedMinor) - BigInt(p.refundedMinor);
 
-/** Раздел «Счета» карточки брони: по счёту на проживание — начисления, платежи, возвраты, формы. */
+/**
+ * Раздел «Счета» карточки брони (план `plans/finance-payments-direct-2026-10-07.md`): по счёту на проживание
+ * сначала «Принять оплату» одним шагом, затем «Проживание и услуги» с ценой проживания и скидкой, затем
+ * «Оплаты» с возвратом, правкой и аннулированием. Запросы оплаты живут ниже, свёрнутыми (У8).
+ */
 export function FinancePanel({
   number,
   finance,
@@ -126,7 +142,7 @@ function FolioPanel({
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
-  // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-107, Q-024); API откажет и так
+  // возврат, сторно, скидка, аннулирование и правка платежа — владелец и управляющий (ADR-107, Q-024); API откажет и так
   const reverse = useMay('refunds');
   // чек по запросу гостя отмечает смена (DATA_MODEL §26); касса пробивает чек сама, WETOP хранит номер
   const desk = useMay('desk');
@@ -147,13 +163,17 @@ function FolioPanel({
   const { ask, dialog } = useConfirm();
   const busy = chargePending || payPending || commandPending;
   const [kind, setKind] = useState('SERVICE');
+  const [editing, setEditing] = useState<FinancePaymentLine | null>(null);
+  const [refunding, setRefunding] = useState<string | null>(null);
+  const [pricing, setPricing] = useState(false);
   const open = folio.status === 'OPEN';
   const balance = BigInt(folio.balanceMinor);
   const error = chargeState.error ?? payState.error ?? other.error;
   // Подтверждение последнего успеха: без него после оплаты экран просто очищал форму (§7.3)
   const done = payState.message ?? chargeState.message ?? other.message;
+  const stayCharge = folio.charges.find((c) => c.kind === 'ACCOMMODATION' && !c.voidedAt) ?? null;
   return (
-    <Panel data-testid="folio-panel" style={{ gap: 10 }}>
+    <Panel className="folio-panel" data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
         <b className="panel__title panel__title--lg">
           Счёт — {folio.stay.accommodationTypeName},{' '}
@@ -178,14 +198,32 @@ function FolioPanel({
         </span>
       </Row>
 
-      <Table plain>
+      {open && (
+        // Оплата первой (поручение владельца 07.10.2026): один шаг, без запроса и без прокрутки
+        <PaymentForm
+          key={`p${payState.ok}-${payState.attempt ?? 0}`}
+          number={number}
+          folio={folio}
+          action={payFormAction}
+          values={payState.values}
+          busy={busy}
+        />
+      )}
+
+      <b className="folio-form__title" data-testid="folio-charges-title">
+        Проживание и услуги
+      </b>
+      <Table plain aria-label="Проживание и услуги">
         <thead>
           <tr>
-            {['Начисление', 'Дата', 'Кол-во × цена', 'Сумма', ''].map((h) => (
+            {['Начисление', 'Дата', 'Кол-во × цена', 'Сумма'].map((h) => (
               <th key={h} className={h === 'Сумма' ? 'num' : undefined}>
                 {h}
               </th>
             ))}
+            <th>
+              <span className="sr-only">Действия</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -224,75 +262,300 @@ function FolioPanel({
                     сторно
                   </Button>
                 )}
+                {open && !c.voidedAt && c.kind === 'ACCOMMODATION' && !pricing && (
+                  <Button
+                    type="button"
+                    tone="secondary"
+                    size="xs"
+                    data-testid="stay-price-btn"
+                    disabled={busy}
+                    onClick={() => setPricing(true)}
+                  >
+                    Изменить цену
+                  </Button>
+                )}
                 {c.voidedAt && <span className="small">сторнировано</span>}
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      {open && pricing && stayCharge && (
+        <StayPriceForm
+          number={number}
+          itemId={folio.reservationItemId}
+          charge={stayCharge}
+          currency={folio.currency}
+          onResult={(r) => {
+            setOther(r);
+            if (!r.error) setPricing(false);
+          }}
+          onCancel={() => setPricing(false)}
+        />
+      )}
+
+      {open && (
+        <form
+          key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
+          action={chargeAction}
+          data-testid="charge-form"
+          className="folio-form"
+        >
+          <b className="folio-form__title">Добавить</b>
+          <div className="row">
+            <Field inline label="Вид">
+              <Select
+                name="kind"
+                aria-label="Вид начисления"
+                value={kind}
+                onChange={(e) => setKind(e.target.value)}
+              >
+                <option value="SERVICE">услуга</option>
+                {/* скидка уменьшает счёт: владелец и управляющий (ADR-107); администратору не предлагаем */}
+                {reverse && <option value="DISCOUNT">скидка</option>}
+                <option value="PENALTY">штраф</option>
+                <option value="ADJUSTMENT">корректировка</option>
+              </Select>
+            </Field>
+            {kind === 'SERVICE' && (
+              <Field inline label="Услуга">
+                <Select
+                  name="serviceCode"
+                  aria-label="Услуга"
+                  defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
+                >
+                  {services.map((s) => (
+                    <option key={s.code} value={s.code}>
+                      {s.group ? `${s.group}: ` : ''}
+                      {s.nameRu} — {formatMoney(s.priceMinor, folio.currency)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            )}
+            {kind === 'DISCOUNT' && (
+              <>
+                <input type="hidden" name="baseMinor" value={stayCharge?.amountMinor ?? '0'} />
+                <Field inline label="Процент">
+                  <Input
+                    name="percent"
+                    aria-label="Процент скидки"
+                    type="number"
+                    min={1}
+                    max={100}
+                    step={1}
+                    defaultValue={chargeState.values?.percent ?? ''}
+                    placeholder="10"
+                    className="inp--w64"
+                  />
+                </Field>
+                <Field inline label="или сумма">
+                  <Input
+                    name="amount"
+                    aria-label="Сумма скидки"
+                    inputMode="decimal"
+                    defaultValue={chargeState.values?.amount ?? ''}
+                    placeholder="сумма"
+                    className="inp--w120"
+                  />
+                </Field>
+                <Field inline label="Причина">
+                  <Input
+                    name="description"
+                    aria-label="Причина скидки"
+                    defaultValue={chargeState.values?.description ?? ''}
+                    placeholder="необязательно"
+                    className="inp--w180"
+                  />
+                </Field>
+              </>
+            )}
+            {(kind === 'PENALTY' || kind === 'ADJUSTMENT') && (
+              <Field inline label="За что">
+                <Input
+                  name="description"
+                  aria-label="Описание начисления"
+                  defaultValue={chargeState.values?.description ?? ''}
+                  placeholder="за что"
+                  required
+                  className="inp--w180"
+                />
+              </Field>
+            )}
+            {kind !== 'DISCOUNT' && (
+              <Field inline label="Кол-во">
+                <Input
+                  name="quantity"
+                  aria-label="Количество"
+                  type="number"
+                  min={1}
+                  step={1}
+                  defaultValue={chargeState.values?.quantity ?? 1}
+                  className="inp--w64"
+                />
+              </Field>
+            )}
+            {(kind === 'PENALTY' || kind === 'ADJUSTMENT') && (
+              <Field inline label="Цена">
+                <Input
+                  name="unitPrice"
+                  aria-label="Цена за единицу"
+                  defaultValue={chargeState.values?.unitPrice ?? ''}
+                  // на уменьшение — владелец и управляющий (ADR-107): администратору минус не подсказываем
+                  placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
+                  required
+                  className="inp--w120"
+                />
+              </Field>
+            )}
+            <Field inline label="Дата">
+              <DateInput
+                name="serviceDate"
+                aria-label="Дата услуги"
+                defaultValue={chargeState.values?.serviceDate ?? today}
+              />
+            </Field>
+            <Button type="submit" disabled={busy}>
+              {kind === 'DISCOUNT' ? 'Применить скидку' : 'Начислить'}
+            </Button>
+          </div>
+          {kind === 'DISCOUNT' && stayCharge && (
+            <span className="hint" data-testid="discount-hint">
+              Процент считается от проживания {formatMoney(stayCharge.amountMinor, folio.currency)}
+              ; скидка ляжет в счёт отдельной строкой со знаком минус
+            </span>
+          )}
+        </form>
+      )}
 
       {folio.payments.length > 0 && (
-        <Table plain>
-          <thead>
-            <tr>
-              {[
-                'Платёж',
-                'Когда',
-                'На этот счёт',
-                'Возвращено',
-                'Чек',
-                ...(reverse ? ['Возврат'] : []),
-              ].map((h) => (
-                <th
-                  key={h}
-                  className={h === 'На этот счёт' || h === 'Возвращено' ? 'num' : undefined}
+        <>
+          <b className="folio-form__title" data-testid="folio-payments-title">
+            Оплаты
+          </b>
+          <Table plain aria-label="Оплаты">
+            <thead>
+              <tr>
+                {[
+                  'Платёж',
+                  'Когда',
+                  'На этот счёт',
+                  'Возвращено',
+                  'Чек',
+                  ...(reverse ? ['Действия'] : []),
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className={h === 'На этот счёт' || h === 'Возвращено' ? 'num' : undefined}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {folio.payments.map((p) => (
+                <tr
+                  key={p.paymentId}
+                  data-testid="payment-row"
+                  data-status={p.status}
+                  className={p.status === 'VOIDED' ? 'is-void' : undefined}
                 >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {folio.payments.map((p) => (
-              <tr key={p.paymentId} data-testid="payment-row">
-                <td>
-                  {methodRu(p.method)}
-                  {p.note ? `, ${p.note}` : ''}
-                  {p.externalReference ? `, ${p.externalReference}` : ''}
-                  {p.status === 'VOIDED' ? ' — аннулирован' : ''}
-                </td>
-                <td>{clock.date(p.paidAt)}</td>
-                <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
-                <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
-                <td data-testid="payment-receipt">
-                  {p.receipt ? (
-                    <span title={`отмечен ${clock.date(p.receipt.issuedAt)}`}>
-                      № {p.receipt.number}
-                    </span>
-                  ) : p.status === 'COMPLETED' && desk ? (
-                    <ReceiptForm number={number} paymentId={p.paymentId} onResult={setOther} />
-                  ) : (
-                    <span className="muted">нет</span>
-                  )}
-                </td>
-                {reverse && (
                   <td>
-                    {open &&
-                      p.status === 'COMPLETED' &&
-                      BigInt(p.allocatedMinor) > BigInt(p.refundedMinor) && (
+                    {methodRu(p.method)}
+                    {p.note ? `, ${p.note}` : ''}
+                    {p.externalReference ? `, ${p.externalReference}` : ''}
+                    {p.status === 'VOIDED' ? ' — аннулирован' : ''}
+                  </td>
+                  <td>{clock.date(p.paidAt)}</td>
+                  <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
+                  <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
+                  <td data-testid="payment-receipt">
+                    {p.receipt ? (
+                      <span title={`отмечен ${clock.date(p.receipt.issuedAt)}`}>
+                        № {p.receipt.number}
+                      </span>
+                    ) : p.status === 'COMPLETED' && desk ? (
+                      <ReceiptForm number={number} paymentId={p.paymentId} onResult={setOther} />
+                    ) : (
+                      <span className="muted">нет</span>
+                    )}
+                  </td>
+                  {reverse && (
+                    <td>
+                      {open && p.status === 'COMPLETED' && (
+                        <Row className="row--xs">
+                          {refundable(p) > 0n && refunding !== p.paymentId && (
+                            <Button
+                              type="button"
+                              tone="secondary"
+                              size="xs"
+                              data-testid="refund-btn"
+                              disabled={busy}
+                              onClick={() => setRefunding(p.paymentId)}
+                            >
+                              Вернуть
+                            </Button>
+                          )}
+                          {/* возврата ещё не было: иначе API откажет словами, кнопки не нужны */}
+                          {BigInt(p.refundedMinor) === 0n && !p.receipt && (
+                            <>
+                              <Button
+                                type="button"
+                                tone="secondary"
+                                size="xs"
+                                data-testid="payment-edit"
+                                disabled={busy}
+                                onClick={() => setEditing(p)}
+                              >
+                                Изменить
+                              </Button>
+                              <Button
+                                type="button"
+                                tone="ghost"
+                                size="xs"
+                                className="is-danger"
+                                data-testid="payment-void"
+                                disabled={busy}
+                                onClick={async () => {
+                                  const ok = await ask({
+                                    title: `Аннулировать платёж ${formatMoney(p.paymentAmountMinor, folio.currency)}?`,
+                                    body: 'Платёж останется в списке со статусом «аннулирован», а сумма вернётся в остаток к оплате. Если деньги на самом деле получены, примите оплату заново или нажмите «Изменить».',
+                                    confirmLabel: 'Аннулировать',
+                                    tone: 'danger',
+                                  });
+                                  if (ok)
+                                    await command(() =>
+                                      voidPaymentAction(number, p.paymentId, null),
+                                    );
+                                }}
+                              >
+                                Аннулировать
+                              </Button>
+                            </>
+                          )}
+                        </Row>
+                      )}
+                      {open && p.status === 'COMPLETED' && refunding === p.paymentId && (
                         <RefundForm
                           number={number}
                           paymentId={p.paymentId}
                           folioId={folio.id}
-                          onResult={setOther}
+                          suggested={toDecimal(refundable(p).toString())}
+                          onCancel={() => setRefunding(null)}
+                          onResult={(r) => {
+                            setOther(r);
+                            if (!r.error) setRefunding(null);
+                          }}
                         />
                       )}
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </>
       )}
       {folio.refunds.length > 0 && (
         <div className="hint--lg">
@@ -308,100 +571,6 @@ function FolioPanel({
 
       {open && (
         <Stack gap="sm">
-          <div className="folio-forms">
-            {/* D3: у каждого поля подпись, начисление и оплата — две подписанные группы, не один ряд полей */}
-            <form
-              key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
-              action={chargeAction}
-              data-testid="charge-form"
-              className="folio-form"
-            >
-              <b className="folio-form__title">Начислить на счёт</b>
-              <div className="row">
-                <Field inline label="Вид">
-                  <Select
-                    name="kind"
-                    aria-label="Вид начисления"
-                    value={kind}
-                    onChange={(e) => setKind(e.target.value)}
-                  >
-                    <option value="SERVICE">услуга</option>
-                    <option value="PENALTY">штраф</option>
-                    <option value="ADJUSTMENT">корректировка</option>
-                  </Select>
-                </Field>
-                {kind === 'SERVICE' ? (
-                  <Field inline label="Услуга">
-                    <Select
-                      name="serviceCode"
-                      aria-label="Услуга"
-                      defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
-                    >
-                      {services.map((s) => (
-                        <option key={s.code} value={s.code}>
-                          {s.group ? `${s.group}: ` : ''}
-                          {s.nameRu} — {formatMoney(s.priceMinor, folio.currency)}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
-                ) : (
-                  <Field inline label="За что">
-                    <Input
-                      name="description"
-                      aria-label="Описание начисления"
-                      defaultValue={chargeState.values?.description ?? ''}
-                      placeholder="за что"
-                      required
-                      className="inp--w180"
-                    />
-                  </Field>
-                )}
-                <Field inline label="Кол-во">
-                  <Input
-                    name="quantity"
-                    aria-label="Количество"
-                    type="number"
-                    min={1}
-                    step={1}
-                    defaultValue={chargeState.values?.quantity ?? 1}
-                    className="inp--w64"
-                  />
-                </Field>
-                {kind !== 'SERVICE' && (
-                  <Field inline label="Цена">
-                    <Input
-                      name="unitPrice"
-                      aria-label="Цена за единицу"
-                      defaultValue={chargeState.values?.unitPrice ?? ''}
-                      // на уменьшение — владелец и управляющий (ADR-107): администратору минус не подсказываем
-                      placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
-                      required
-                      className="inp--w120"
-                    />
-                  </Field>
-                )}
-                <Field inline label="Дата">
-                  <DateInput
-                    name="serviceDate"
-                    aria-label="Дата услуги"
-                    defaultValue={chargeState.values?.serviceDate ?? today}
-                  />
-                </Field>
-                <Button type="submit" disabled={busy}>
-                  Начислить
-                </Button>
-              </div>
-            </form>
-            <PaymentForm
-              key={`p${payState.ok}-${payState.attempt ?? 0}`}
-              number={number}
-              folio={folio}
-              action={payFormAction}
-              values={payState.values}
-              busy={busy}
-            />
-          </div>
           {/* ADR-021: ранний заезд и поздний выезд — услуга одной кнопкой, половина ночи по умолчанию */}
           <Row>
             {(
@@ -470,6 +639,18 @@ function FolioPanel({
         </Notice>
       )}
       {dialog}
+      {editing && (
+        <EditPaymentDrawer
+          number={number}
+          folio={folio}
+          payment={editing}
+          onClose={() => setEditing(null)}
+          onResult={(r) => {
+            setOther(r);
+            if (!r.error) setEditing(null);
+          }}
+        />
+      )}
     </Panel>
   );
 }
@@ -555,6 +736,67 @@ function PaymentForm({
   );
 }
 
+/**
+ * Цена проживания целиком (У6): пишется в проживание, начисление переписывает система. При смене дат
+ * или категории цена снова считается по тарифу, об этом сказано рядом с полем.
+ */
+function StayPriceForm({
+  number,
+  itemId,
+  charge,
+  currency,
+  onResult,
+  onCancel,
+}: {
+  number: string;
+  itemId: string;
+  charge: FinanceCharge;
+  currency: string;
+  onResult: (r: FinanceActionResult) => void;
+  onCancel: () => void;
+}) {
+  const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
+    async (prev, fd) => {
+      const r = await stayPriceAction(number, itemId, prev, fd);
+      onResult(r);
+      return r;
+    },
+    INIT,
+  );
+  return (
+    <form
+      key={`${state.ok}-${state.attempt ?? 0}`}
+      action={action}
+      data-testid="stay-price-form"
+      className="folio-form"
+    >
+      <b className="folio-form__title">Цена проживания</b>
+      <div className="row">
+        <Field inline label="Новая цена">
+          <Input
+            name="price"
+            aria-label="Цена проживания"
+            inputMode="decimal"
+            required
+            defaultValue={state.values?.price ?? toDecimal(charge.amountMinor)}
+            className="inp--w120"
+          />
+        </Field>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
+          Сохранить цену
+        </Button>
+        <Button type="button" tone="secondary" onClick={onCancel} disabled={pending}>
+          Отмена
+        </Button>
+      </div>
+      <span className="hint">
+        Сейчас {formatMoney(charge.amountMinor, currency)}. Начисление за проживание перепишется на
+        новую цену; при смене дат или категории цена снова посчитается по тарифу
+      </span>
+    </form>
+  );
+}
+
 /** DATA_MODEL §26: гость попросил чек, касса его пробила; номер из кассы ложится к платежу, второй чек не пробьётся */
 function ReceiptForm({
   number,
@@ -595,15 +837,20 @@ function ReceiptForm({
   );
 }
 
+/** Возврат из платежа: раскрывается кнопкой «Вернуть», сумма по умолчанию — всё, что ещё не возвращено */
 function RefundForm({
   number,
   paymentId,
   folioId,
+  suggested,
+  onCancel,
   onResult,
 }: {
   number: string;
   paymentId: string;
   folioId: string;
+  suggested: string;
+  onCancel: () => void;
   onResult: (r: FinanceActionResult) => void;
 }) {
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
@@ -623,8 +870,8 @@ function RefundForm({
     >
       <Input
         name="amount"
-        aria-label="Сумма"
-        defaultValue={state.values?.amount ?? ''}
+        aria-label="Сумма возврата"
+        defaultValue={state.values?.amount ?? suggested}
         placeholder="сумма"
         required
         className="inp--w90 inp--sm"
@@ -639,6 +886,100 @@ function RefundForm({
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
         вернуть
       </Button>
+      <Button type="button" tone="ghost" size="sm" onClick={onCancel} disabled={pending}>
+        Отмена
+      </Button>
     </form>
+  );
+}
+
+/**
+ * Правка платежа (У1, У5): панель справа, как у кассы. Способ, сумма и примечание; дата платежа остаётся.
+ * Групповой платёж (на несколько счетов) здесь не правится: только аннулировать и принять заново.
+ */
+function EditPaymentDrawer({
+  number,
+  folio,
+  payment,
+  onClose,
+  onResult,
+}: {
+  number: string;
+  folio: FinanceFolio;
+  payment: FinancePaymentLine;
+  onClose: () => void;
+  onResult: (r: FinanceActionResult) => void;
+}) {
+  const grouped = payment.paymentAmountMinor !== payment.allocatedMinor;
+  const clock = usePropertyClock();
+  const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
+    async (prev, fd) => {
+      const r = await replacePaymentAction(number, payment.paymentId, prev, fd);
+      onResult(r);
+      return r;
+    },
+    INIT,
+  );
+  return (
+    <Overlay open onClose={onClose} title="Изменить платёж" drawer trapFocus>
+      {grouped ? (
+        <Stack gap="sm" data-testid="payment-edit-grouped">
+          <p>
+            Платёж {formatMoney(payment.paymentAmountMinor, folio.currency)} разложен на несколько
+            счетов, на этот счёт легло {formatMoney(payment.allocatedMinor, folio.currency)}.
+          </p>
+          <p className="hint">
+            Такой платёж не правится по частям: аннулируйте его и примите заново общим платежом на
+            нужные счета.
+          </p>
+          <Row>
+            <Button type="button" tone="secondary" onClick={onClose}>
+              Закрыть
+            </Button>
+          </Row>
+        </Stack>
+      ) : (
+        <form
+          key={`${state.ok}-${state.attempt ?? 0}`}
+          action={action}
+          className="stack"
+          data-testid="payment-edit-form"
+        >
+          <p className="hint">
+            Прежний платёж останется в списке аннулированным, новый проведётся той же датой (
+            {clock.date(payment.paidAt)}).
+          </p>
+          {state.error && <Alert boxed>{state.error}</Alert>}
+          <Field label="Способ оплаты">
+            <Select name="method" defaultValue={state.values?.method ?? payment.method}>
+              {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
+                <option key={k} value={k}>
+                  {t}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={`Сумма, ${folio.currency}`}>
+            <Input
+              name="amount"
+              inputMode="decimal"
+              required
+              defaultValue={state.values?.amount ?? toDecimal(payment.paymentAmountMinor)}
+            />
+          </Field>
+          <Field label="Примечание">
+            <Input name="note" defaultValue={state.values?.note ?? payment.note ?? ''} />
+          </Field>
+          <div className="settings-service-actions">
+            <Button type="button" tone="secondary" onClick={onClose} disabled={pending}>
+              Отмена
+            </Button>
+            <Button type="submit" disabled={pending} aria-busy={pending}>
+              {pending ? 'Сохраняю…' : 'Сохранить платёж'}
+            </Button>
+          </div>
+        </form>
+      )}
+    </Overlay>
   );
 }

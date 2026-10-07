@@ -94,7 +94,8 @@ test('счёт на проживание: начисления, оплата, в
   expect(await balance()).toBe(0n);
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('оплачено');
 
-  // возврат 500 ₸ из этого платежа
+  // возврат 500 ₸ из этого платежа: форма раскрывается кнопкой «Вернуть» (07.10.2026)
+  await panel.getByTestId('refund-btn').click();
   const rf = panel.getByTestId('refund-form');
   await rf.locator('input[name="amount"]').fill('500');
   await rf.locator('input[name="reason"]').fill('ранний выезд');

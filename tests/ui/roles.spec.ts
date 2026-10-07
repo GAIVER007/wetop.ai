@@ -135,11 +135,15 @@ test('администратор принимает оплату, но возв�
   // finance.controller.test.ts («роли в деньгах»)
   await asRole(request, 'STAFF');
   await pay('оплата администратора');
-  await expect(main.getByTestId('refund-form')).toHaveCount(0);
-  await expect(main.getByRole('columnheader', { name: 'Возврат', exact: true })).toHaveCount(0);
+  // с 07.10.2026 возврат раскрывается кнопкой «Вернуть» (план finance-payments-direct): у администратора нет ни её,
+  // ни «Изменить» с «Аннулировать»
+  await expect(main.getByTestId('refund-btn')).toHaveCount(0);
+  await expect(main.getByTestId('payment-void')).toHaveCount(0);
+  await expect(main.getByRole('columnheader', { name: 'Действия', exact: true })).toHaveCount(0);
 
   await asRole(request, 'MANAGER');
   await pay('оплата управляющего');
+  await main.getByTestId('refund-btn').first().click();
   await expect(main.getByTestId('refund-form').first()).toBeVisible();
 });
 

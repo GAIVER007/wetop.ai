@@ -1730,6 +1730,20 @@ export const financeApi = {
       `/finance/payments/${encodeURIComponent(paymentId)}/refunds`,
       body,
     ),
+  /** Аннулировать платёж (план finance-payments-direct 07.10.2026): без возвратов и чека, право `refunds` */
+  voidPayment: (paymentId: string, reason: string | null) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/void`,
+      { reason },
+    ),
+  /** Заменить платёж: старый аннулируется, новый проводится той же транзакцией */
+  replacePayment: (paymentId: string, body: unknown) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/replace`,
+      body,
+    ),
 };
 
 // ── Рабочий день стойки ──

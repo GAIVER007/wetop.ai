@@ -35,6 +35,9 @@ import {
   assertDerivedRuleAllows,
   assertPromoAllows,
   normalizePromoCode,
+  parseMoney,
+  FinanceRuleError,
+  ADJUSTMENT_DOWN_MESSAGE,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
@@ -163,9 +166,30 @@ function channelBooking(
   return out;
 }
 /** Гостей на проживании (Q-102). Цена не пересчитывается: перецена — через «Изменить даты». */
+/** Цена проживания из запроса: строка денег больше нуля, иначе 400 словами (деньги целыми тиынами, ADR-008) */
+function parsePrice(value: unknown): bigint {
+  if (typeof value !== 'string' && typeof value !== 'number')
+    throw new BadRequestException('price — сумма, например 25000 или 25000.50');
+  let minor: bigint;
+  try {
+    minor = parseMoney(String(value));
+  } catch (e) {
+    if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
+    throw e;
+  }
+  if (minor <= 0n) throw new BadRequestException('price — цена проживания больше нуля');
+  return minor;
+}
+
 export interface UpdateItemDto {
   adults?: number;
   children?: number;
+  /**
+   * Цена проживания целиком, строка денег («25000», «25000.50»; план finance-payments-direct 07.10.2026, У6):
+   * пишется в `ReservationItem.price`, начисление за проживание переписывает система. Вниз — только с правом
+   * `refunds` (ADR-107). При смене дат или категории цена снова считается по тарифу.
+   */
+  price?: string | number;
 }
 export interface ChangeDatesDto {
   arrivalDate?: string;
@@ -1226,8 +1250,9 @@ export class ReservationsService {
       throw new BadRequestException('adults — целое ≥ 1');
     if (dto.children !== undefined && (!Number.isInteger(dto.children) || dto.children < 0))
       throw new BadRequestException('children — целое ≥ 0');
-    if (dto.adults === undefined && dto.children === undefined)
-      throw new BadRequestException('Нечего менять: укажите adults и/или children');
+    const priceMinor = dto.price === undefined ? null : parsePrice(dto.price);
+    if (dto.adults === undefined && dto.children === undefined && priceMinor === null)
+      throw new BadRequestException('Нечего менять: укажите adults, children или price');
     return this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
@@ -1235,26 +1260,45 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
           throw new UnprocessableEntityException(
-            `Проживание в статусе ${item.status}: гостей не изменить`,
+            `Проживание в статусе ${item.status}: ${priceMinor === null ? 'гостей' : 'цену'} не изменить`,
           );
+        if (priceMinor !== null && item.status === 'CHECKED_OUT')
+          throw new UnprocessableEntityException(
+            'Гость выехал: цену проживания не изменить, при необходимости начислите корректировку',
+          );
+        // уменьшить цену — то же, что уменьшить счёт: владелец и управляющий (ADR-107, Q-024)
+        if (priceMinor !== null && priceMinor < item.priceMinor && !actorMay('refunds'))
+          throw new ForbiddenException(ADJUSTMENT_DOWN_MESSAGE);
         const type = await repo.categoryById(item.accommodationTypeId);
         if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
         const adults = dto.adults ?? item.adults;
         const children = dto.children ?? item.children;
         assertFits(type, adults, children);
         const before = await repo.card(number);
-        await repo.updateItem(item.id, { adults, children });
-        // Шапка брони производна от проживаний: гостей — сумма по неотменённым
+        await repo.updateItem(item.id, {
+          adults,
+          children,
+          ...(priceMinor !== null ? { priceMinor } : {}),
+        });
+        // Шапка брони производна от проживаний: гостей и сумма — по неотменённым
         const active = state.items.filter((i) => i.status !== 'CANCELLED');
         await repo.updateReservation(state.id, {
           adults: active.reduce((s, i) => s + (i.id === item.id ? adults : i.adults), 0),
           children: active.reduce((s, i) => s + (i.id === item.id ? children : i.children), 0),
+          ...(priceMinor !== null
+            ? {
+                totalAmountMinor: active.reduce(
+                  (s, i) => s + (i.id === item.id ? priceMinor : i.priceMinor),
+                  0n,
+                ),
+              }
+            : {}),
         });
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
           entityId: state.id,
-          action: 'reservation.updateItem',
+          action: priceMinor !== null ? 'reservation.item.price' : 'reservation.updateItem',
           before,
           after,
         });

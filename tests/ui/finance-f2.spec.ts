@@ -181,3 +181,31 @@ for (const theme of ['light', 'dark'] as const) {
     });
   });
 }
+
+/** План finance-payments-direct 07.10.2026: платёж гостя аннулируется из ленты, строка остаётся аннулированной */
+test('F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено»', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${url}&op=payment#operations`);
+  const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+  // строка по индексу, а не «первая с кнопкой»: после аннулирования кнопка уходит, и такой отбор указал бы на соседа
+  const rows = main.getByTestId('op-row');
+  await expect(rows.first()).toBeVisible();
+  const index = await rows.evaluateAll((xs) =>
+    xs.findIndex((x) => x.querySelector('[data-testid="payment-void"]')),
+  );
+  expect(index).toBeGreaterThanOrEqual(0);
+  const row = rows.nth(index);
+  await expect(row).toHaveAttribute('data-kind', 'PAYMENT');
+  const amount = (await row.getByTestId('op-amount').innerText()).trim();
+  await row.getByTestId('payment-void').click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Аннулировать платёж?');
+  await expect(dialog).toContainText(amount);
+  await dialog.getByRole('button', { name: 'Аннулировать', exact: true }).click();
+  await expect(row).toHaveClass(/is-void/);
+  await expect(row).toContainText('аннулирована');
+  await expect(row.getByTestId('payment-void')).toHaveCount(0);
+});

@@ -7465,3 +7465,11 @@
 | 07.10.2026 23:32 | integration | ❌ упало 1 из 922 | 3 мин 39 с | 2677a24 +1 | [лог](logs/2026-10-07T18-32-50Z-integration-2ba1.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
 | 07.10.2026 23:36 | integration | ❌ упало 1 из 923 | 3 мин 38 с | 2677a24 +8 | [лог](logs/2026-10-07T18-36-45Z-integration-a1cf.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
 | 07.10.2026 23:40 | integration | ✅ 923 из 923 | 3 мин 29 с | da95b99 | [лог](logs/2026-10-07T18-40-55Z-integration-d37a.log) |  |
+| 07.10.2026 23:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ✅ 21 из 21 | 2 мин 10 с | da95b99 | [лог](logs/2026-10-07T18-45-16Z-e2e-5623.log) | MKT9: редактор и окно «Создать сайт» |
+| 07.10.2026 23:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-publication.spec.ts tests/ui/site-assets.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 48 с | 108174b | [лог](logs/2026-10-07T18-47-37Z-e2e-96a0.log) | MKT9: регрессия MKT7, MKT8, хаба |
+| 07.10.2026 23:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 39 из 39 | 2 мин 26 с | 108174b | [лог](logs/2026-10-07T18-49-29Z-e2e-3c94.log) | MKT9: регрессия публикации MKT7 и бюджета запросов |
+| 07.10.2026 23:52 | e2e (частично: --config tests/sites/playwright.config.ts --workers=1) | ✅ 11 из 11 | 18 с | 108174b | [лог](logs/2026-10-07T18-52-07Z-e2e-5ee9.log) | MKT9: регрессия рантайма сайтов |
+| 07.10.2026 23:52 | typecheck | ✅ без ошибок | 1 мин 3 с | 108174b | [лог](logs/2026-10-07T18-52-32Z-typecheck-17b3.log) |  |
+| 07.10.2026 23:53 | lint | ❌ ошибок: 1 | 58 с | 108174b | [лог](logs/2026-10-07T18-53-35Z-lint-6403.log) | @typescript-eslint/no-unused-vars |
+| 07.10.2026 23:54 | unit | ✅ 4031 из 4034, пропущено 3 | 2 мин 27 с | 108174b | [лог](logs/2026-10-07T18-54-34Z-unit-449d.log) |  |
+| 07.10.2026 23:57 | lint | ✅ без ошибок | 58 с | 108174b +1 | [лог](logs/2026-10-07T18-57-14Z-lint-ce5f.log) |  |

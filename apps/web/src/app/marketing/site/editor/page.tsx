@@ -4,7 +4,6 @@ import { requireVertical } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { loadErrorProps } from '../../../../lib/load-error';
-import { EmptyState } from '../../../../components/ui';
 import { suggestMarketingSlug } from '@pms/domain';
 import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';

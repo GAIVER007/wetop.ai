@@ -254,7 +254,8 @@ test('§38: вид «Компактный / Обычный / Подробный�
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
   const view = main.getByLabel('Вид строк календаря');
-  await expect(view).toHaveValue('normal');
+  await expect(view).toHaveValue('compact');
+  await view.selectOption('normal');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
   const normal = await height();

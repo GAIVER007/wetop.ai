@@ -8,7 +8,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
  */
 const fixture = FIXTURE_API;
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  // These cases verify the two-line booking caption in the normal view.
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await request.post(`${fixture}/__test/reset`);
 });
 
@@ -28,9 +30,9 @@ test('одинарный клик — предпросмотр без ухода
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
   await expect(preview).not.toContainText(number!);
-  await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
     'href',
-    `/reservations/${number}`,
+    `/reservations/${number}#booking-actions`,
   );
   await page.keyboard.press('Escape');
   await expect(preview).toBeHidden();
@@ -54,15 +56,17 @@ test('действия по статусу: подтверждённой — з�
     'href',
     /#booking-finance$/,
   );
-  await expect(preview.getByRole('link', { name: 'Переселить', exact: true })).toHaveAttribute(
+  await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
     'href',
     /#booking-actions$/,
   );
+  await expect(preview.locator('.stay-preview__actions > *')).toHaveCount(3);
   await page.keyboard.press('Escape');
 
   await page.locator('td[data-status="CHECKED_IN"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+  await expect(preview.locator('.stay-preview__actions > *')).toHaveCount(3);
 });
 
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
@@ -183,8 +187,8 @@ test('служебный код скрыт на плашке, источник �
   await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
   await stay.click();
   await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
-  await expect(page.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
     'href',
-    `/reservations/${number}`,
+    `/reservations/${number}#booking-actions`,
   );
 });

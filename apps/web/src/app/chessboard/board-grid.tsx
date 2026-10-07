@@ -193,13 +193,13 @@ export function ChessboardGrid({
     if (restoreFocus) filtersButton.current?.focus({ preventScroll: true });
   }, []);
   const activeFilters = activeFilterCount(filters);
-  const [view, setView] = useState<BoardView>('normal');
+  const [view, setView] = useState<BoardView>('compact');
   useEffect(() => {
     try {
       const saved = localStorage.getItem(VIEW_KEY);
-      if (saved === 'compact' || saved === 'detailed') setView(saved);
+      if (saved === 'compact' || saved === 'normal' || saved === 'detailed') setView(saved);
     } catch {
-      // хранилище закрыто — остаётся «Обычный»
+      // хранилище закрыто, остаётся «Компактный»
     }
   }, []);
   const pickView = (value: BoardView) => {

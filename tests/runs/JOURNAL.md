@@ -7204,3 +7204,19 @@
 | 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 2 из 15 | 3 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-17Z-unit-1922.log) | MKT6 мутация: кэш в расходе |
 | 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 15 | 2 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-21Z-unit-31f1.log) | MKT6 мутация: картинки не проверяются |
 | 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 15 | 3 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-24Z-unit-6f90.log) | MKT6 мутация: телефон не сверяется |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 2 из 3 | 10 с | 086ce66 +12 | [лог](logs/2026-10-07T10-59-07Z-unit-4bb5.log) | MKT6 red: маршрутов генерации нет в таблице прав |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 10 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-19Z-unit-a758.log) | MKT6 green: таблица прав |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 9 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-43Z-unit-438c.log) | MKT6 green: таблица прав |
+| 07.10.2026 15:59 | typecheck | ❌ ошибок: 3 | 1 мин 29 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-57Z-typecheck-6ccb.log) | MKT6: API и воркер |
+| 07.10.2026 16:05 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 16 из 16 | 13 с | 0745160 +9 | [лог](logs/2026-10-07T11-05-50Z-integration-e9bc.log) | MKT6: API и воркер генерации |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ✅ 16 из 16 | 14 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-12Z-integration-9f79.log) | MKT6: API и воркер генерации |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 13 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-39Z-integration-3b41.log) | MKT6 мутация: бюджет не проверяется перед вызовом |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 12 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-53Z-integration-c057.log) | MKT6 мутация: хэш брифа не перепроверяется |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 10 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-05Z-integration-a570.log) | MKT6 мутация: организация не сериализуется |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-16Z-integration-6576.log) | MKT6 мутация: восстановление не смотрит на отправку |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 2 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-29Z-integration-5bd9.log) | MKT6 мутация: неизвестный расход дня не блокирует |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 12 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-41Z-integration-c902.log) | MKT6 мутация: успех без проверки базы |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 2 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-54Z-integration-3287.log) | MKT6 мутация: постановка без сверки брифа |
+| 07.10.2026 16:08 | typecheck | ✅ без ошибок | 1 мин 3 с | 0745160 +9 | [лог](logs/2026-10-07T11-08-12Z-typecheck-60fc.log) | MKT6: после API и воркера |
+| 07.10.2026 16:09 | lint | ❌ ошибок: 2 | 52 с | 0745160 +9 | [лог](logs/2026-10-07T11-09-16Z-lint-92ed.log) | MKT6 |
+| 07.10.2026 16:10 | lint | ✅ без ошибок | 51 с | 0745160 +10 | [лог](logs/2026-10-07T11-10-18Z-lint-3724.log) | MKT6 |

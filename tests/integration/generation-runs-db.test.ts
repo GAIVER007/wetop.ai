@@ -89,12 +89,12 @@ describe.skipIf(!url)('MKT6 generation_runs: инварианты базы', () 
       `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, 'Hotel A', 'HOSPITALITY', now()), ($3, $4, 'Hotel B', 'HOSPITALITY', now())`,
       [hotelA, orgA, hotelB, orgB],
     );
-    for (const [id, business] of [[locA1, hotelA], [locA2, hotelA], [locB, hotelB]])
+    for (const [id, business] of [[locA1, hotelA], [locA2, hotelA], [locB, hotelB]] as const)
       await sql.query(
         `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at) VALUES ($1, $2, 'Loc', 'Asia/Almaty', 'KZT', now())`,
         [id, business],
       );
-    for (const [id, location] of [[siteA1, locA1], [siteA2, locA2], [siteB, locB]])
+    for (const [id, location] of [[siteA1, locA1], [siteA2, locA2], [siteB, locB]] as const)
       await sql.query(
         `INSERT INTO marketing_sites (id, location_id, name, slug, updated_at) VALUES ($1, $2, 'Site', $3, now())`,
         [id, location, `mkt6-${id.slice(0, 8)}`],

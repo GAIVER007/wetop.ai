@@ -50,6 +50,8 @@ const INPUT: SiteBriefInput = {
 const t = (ru: string, kk = ru) => ({ ru, kk });
 
 /** Документ, какой ждём от модели для INPUT: два языка, без картинок, коды из брифа, контакты как в брифе */
+// документ из ответа модели: произвольный JSON, тесты правят в нём вложенные поля
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function goodSpec(): Record<string, any> {
   return {
     schemaVersion: 'site-spec/0',

@@ -1,0 +1,105 @@
+# Модульные (unit) · 07.10.2026 12:32 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-32-04Z-unit-a613.json' 'apps/web/src/app/management/analytics/vertical/load.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ❯ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (0 test)
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (7 tests | 1 failed) 19ms
+   ❯ меню салона (7)
+     ✓ у филиала салона нет гостиничных разделов 5ms
+     × у филиала салона есть только то, что в нём работает 9ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 1ms
+     ✓ нижняя панель телефона тоже идёт по вертикали 1ms
+     ✓ первый пункт салона «Сегодня» на общем адресе /today (MV8) 1ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 0ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 0ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 1 failed) 16ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 11ms
+     ✓ does not expose Food to existing verticals 2ms
+     ✓ uses canonical landings and verified scope 1ms
+     ✓ identifies isolated routes before API access 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/vertical/load.test.ts [ apps/web/src/app/management/analytics/vertical/load.test.ts ]
+Error: Cannot find module '/apps/web/src/app/management/analytics/vertical/load' imported from /Users/urijzapojnov/wetop-mv8-20261007/apps/web/src/app/management/analytics/vertical/load.test.ts
+ ❯ apps/web/src/app/management/analytics/vertical/load.test.ts:4:1
+      2| const read = vi.hoisted(() => vi.fn());
+      3| vi.mock('../../../../lib/api', () => ({ branchReportDay: read }));
+      4| import { loadBranchPeriod } from './load';
+       | ^
+      5| const branch = { id: 'l', locationId: 'l', vertical: 'BEAUTY' as const…
+      6| const row = { id: 'a', startsAt: '2026-10-06T11:00:00Z', status: 'DONE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/today', '/calendar', …(8) ] to deeply equal [ '/today', '/calendar', …(9) ]
+
+- Expected
++ Received
+
+@@ -4,10 +4,9 @@
+    "/appointments",
+    "/customers",
+    "/employees",
+    "/services",
+    "/staff",
+-   "/management/analytics",
+    "/journal",
+    "/help",
+    "/profile",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:38:29
+     36|   it('у филиала салона есть только то, что в нём работает', () => {
+     37|     // MV5 exposes only accepted operational screens.
+     38|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     39|       '/today',
+     40|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/floor-plan', …(7) ] to deeply equal [ '/today', '/floor-plan', …(8) ]
+
+- Expected
++ Received
+
+@@ -3,10 +3,9 @@
+    "/floor-plan",
+    "/table-reservations",
+    "/customers",
+    "/dining-areas",
+    "/staff",
+-   "/management/analytics",
+    "/journal",
+    "/help",
+    "/profile",
+  ]
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  2 failed | 9 passed (11)
+   Start at  11:32:12
+   Duration  2.49s (transform 83%, import 15%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-32-04Z-unit-a613.json
+
+# код выхода 1 · 10 с

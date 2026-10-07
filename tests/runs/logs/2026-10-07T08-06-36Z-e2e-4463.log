@@ -1,0 +1,186 @@
+# Сквозные (e2e) · 07.10.2026 13:06 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:52485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 37 tests using 1 worker
+
+(node:52554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/analytics.spec.ts:27:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (14.7s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:68:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (12.0s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:129:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (19.0s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:171:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (8.2s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:171:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (5.3s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:171:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (6.9s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:171:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (6.4s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:171:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (5.3s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:171:7 › MV9 food 390 light: accessibility, keyboard and screenshot (4.2s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:171:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (5.2s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:171:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (4.5s)
+  ✓  12 tests/branches-ui/branches.spec.ts:46:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (3.2s)
+  ✓  13 tests/branches-ui/branches.spec.ts:62:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (2.8s)
+  ✓  14 tests/branches-ui/branches.spec.ts:74:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (2.8s)
+  ✓  15 tests/branches-ui/branches.spec.ts:86:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (5.1s)
+[WebServer] [Nest] 52512  - 10/07/2026, 12:26:15 PM   ERROR [ExceptionsHandler] Error: Database did not answer for 30000 ms; connection closed
+[WebServer]     at /Users/urijzapojnov/wetop-mv8-20261007/node_modules/pg-pool/index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async PrismaPgAdapter.performIO (file:///Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+[WebServer]     at async PrismaPgAdapter.queryRaw (file:///Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]     at async <anonymous> (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]     at async e.run (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+[WebServer]     at async e.execute (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]     at async yr.request (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22)
+[WebServer]     at async Object.singleLoader (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:113:26)
+[WebServer]     at async vn.request (/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:150:14) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✘  16 tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (17.6m)
+(node:53202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (3ms)
+(node:53219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (16.8m)
+(node:53266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (15.6m)
+(node:53298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (3.6s)
+  ✓  21 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (37.8s)
+  ✓  22 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (21.4s)
+  ✓  23 tests/branches-ui/today.spec.ts:292:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (11.8s)
+  ✓  24 tests/branches-ui/today.spec.ts:304:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (13.8s)
+  ✓  25 tests/branches-ui/today.spec.ts:322:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (10.8s)
+  ✓  26 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (3.2s)
+  ✓  27 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (4.4s)
+  ✓  28 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (2.9s)
+  ✓  29 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (4.7s)
+  ✓  30 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (5.4s)
+  ✓  31 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (5.6s)
+  ✓  32 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (3.8s)
+  ✓  33 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (4.3s)
+  ✓  34 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (6.3s)
+  ✓  35 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (5.1s)
+  ✓  36 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (4.6s)
+  ✓  37 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (5.2s)
+
+
+  1) tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+
+    Test timeout of 90000ms exceeded.
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Выбор филиала' }).getByRole('button').filter({ hasText: 'Тестовый отель' })
+
+
+      31 |     .getByRole('button')
+      32 |     .filter({ hasText: name })
+    > 33 |     .click();
+         |      ^
+      34 | }
+      35 | // Match the accepted MV8 setup: switching is tested independently of the Hospitality training modal.
+      36 | test.beforeEach(async ({ page }) => {
+        at choose (/Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/branches.spec.ts:33:6)
+        at /Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/branches.spec.ts:134:5
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/playwright_chromiumdev_profile-YSlhcV --remote-debugging-pipe --no-startup-window
+      - <launched> pid=53203
+      - [pid=53203][err] [1007/124211.671799:WARNING:net/dns/dns_config_service_posix.cc:197] Failed to read DnsConfig.
+
+
+    Error Context: test-results/branches-real-branches---s-b3967--and-Hospitality-regression/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: apiRequestContext.get: Target page, context or browser has been closed
+
+      100 | }
+      101 | async function expectedBeauty(request: APIRequestContext, scope: string) {
+    > 102 |   const res = await request.get(`${api}/beauty/appointments`, {
+          |                             ^
+      103 |     headers: { 'x-wetop-scope': scope },
+      104 |   });
+      105 |   expect(res.ok()).toBe(true);
+        at expectedBeauty (/Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/today.spec.ts:102:29)
+        at /Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/today.spec.ts:141:25
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+    tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression 
+    tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+    tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+  33 passed (1.2h)
+
+# код выхода 1 · 1 ч 10 мин

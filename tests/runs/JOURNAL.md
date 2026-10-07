@@ -7065,3 +7065,4 @@
 | 07.10.2026 13:14 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-scale.test.ts tests/unit/ci-runner.test.ts scripts/design/dead-css.test.ts tests/unit/design- | ✅ 60 из 60 | 3 с | 012c06d +9 | [лог](logs/2026-10-07T08-14-12Z-unit-950a.log) | DS0a GREEN: сторожа, шкала, ui-vertical, опись CSS, храповик со снимком |
 | 07.10.2026 13:14 | typecheck | ✅ без ошибок | 1 мин 25 с | 012c06d +9 | [лог](logs/2026-10-07T08-14-43Z-typecheck-8175.log) | DS0a |
 | 07.10.2026 13:16 | lint | ✅ без ошибок | 55 с | 012c06d +9 | [лог](logs/2026-10-07T08-16-10Z-lint-b1b4.log) | DS0a |
+| 07.10.2026 13:17 | unit | ✅ 3749 из 3752, пропущено 3 | 2 мин 42 с | 366c143 | [лог](logs/2026-10-07T08-17-37Z-unit-c33e.log) | DS0a полный unit |

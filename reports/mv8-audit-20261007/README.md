@@ -115,7 +115,17 @@ Final Hospitality rerun initially aborted with ENOSPC/Turbopack cache writes (`2
 | Full integration | 828 passed, 5 existing hard-coded Wizard-port skips |
 | Root/API/Web typecheck, lint | GREEN |
 | Migration apply / drift / all downs | 67, GREEN; chain unchanged after sync |
-| Fresh-main sync | ddb5da41d21611eb1d827e873bfbb0269303f7d6 |
+| Fresh-main sync | 1a9b2810a (MKT5 #266); impacted rechecks below |
 | Source stability | final recorded runs codeChangedDuringRun=false |
 
 No outstanding MV8 API contract gap. Stop at review PR. Do not merge, release, deploy or begin MV9.
+
+## Last fresh-main update at PR creation
+
+GitHub main advanced to 1a9b2810a (MKT5 #266) while #272 was being created. Merged without source conflicts; changed Marketing/Sites brief and Channex content code, no MV8 web files, schema or migrations. Earlier full unit/integration and UI evidence are explicitly for ddb5da41; last synchronization rechecked impacted upstream modules plus focused MV8: unit **81/81** (`2026-10-07T10-17-01Z-unit-e5d8.log`), integration **63/63** (`2026-10-07T10-17-36Z-integration-7126.log`), full root/API/Web typecheck **GREEN** (`2026-10-07T10-17-09Z-typecheck-2c8b.log`). No repeat of unaffected complete UI matrix or unchanged migration chain.
+
+The first impacted integration attempt (`2026-10-07T10-17-11Z-integration-7948.log`) could not connect because I restarted own PG without its explicit custom port, so it did not start. Correct restart with port55983 followed; impacted integration passed. No default-port database or foreign process changed.
+
+Review PR: https://github.com/GAIVER007/wetop.ai/pull/272. No merge or deploy performed.
+
+Final full lint after last synchronization **GREEN**, `2026-10-07T10-17-49Z-lint-f6fe.log`. All successful final rechecks have codeChangedDuringRun=false.

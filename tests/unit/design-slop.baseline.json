@@ -2,10 +2,10 @@
   "color-literal": {},
   "space-off-scale": {
     "apps/web/src/app/chessboard/board.css": 16,
-    "apps/web/src/app/components.css": 60,
+    "apps/web/src/app/components.css": 63,
     "apps/web/src/app/directory.css": 10,
     "apps/web/src/app/management/analytics/analytics.css": 15,
-    "apps/web/src/app/premium.css": 95,
+    "apps/web/src/app/premium.css": 92,
     "apps/web/src/app/workspace.css": 49
   },
   "uppercase": {
@@ -30,10 +30,10 @@
   "font-under-12": {},
   "radius-literal": {
     "apps/web/src/app/chessboard/board.css": 3,
-    "apps/web/src/app/components.css": 8,
+    "apps/web/src/app/components.css": 9,
     "apps/web/src/app/directory.css": 1,
     "apps/web/src/app/management/analytics/analytics.css": 3,
-    "apps/web/src/app/premium.css": 18,
+    "apps/web/src/app/premium.css": 17,
     "apps/web/src/app/workspace.css": 12
   },
   "z-index-literal": {
@@ -61,7 +61,7 @@
     "apps/web/src/app/beauty/beauty.css": 42,
     "apps/web/src/app/channels/channels.css": 61,
     "apps/web/src/app/chessboard/board.css": 30,
-    "apps/web/src/app/components.css": 127,
+    "apps/web/src/app/components.css": 132,
     "apps/web/src/app/connections/integrations.css": 15,
     "apps/web/src/app/directory.css": 87,
     "apps/web/src/app/finance/finance.css": 36,
@@ -70,7 +70,7 @@
     "apps/web/src/app/journal/journal.css": 4,
     "apps/web/src/app/login/role-access.css": 4,
     "apps/web/src/app/management/analytics/analytics.css": 44,
-    "apps/web/src/app/premium.css": 184,
+    "apps/web/src/app/premium.css": 179,
     "apps/web/src/app/register/setup/setup.css": 4,
     "apps/web/src/app/reservations/new/booking-compact.css": 28,
     "apps/web/src/app/status/status.css": 8,

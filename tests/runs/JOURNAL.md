@@ -7297,3 +7297,7 @@
 | 08.10.2026 02:06 | lint | ✅ без ошибок | 52 с | 4ec005e | [лог](logs/2026-10-07T21-06-09Z-lint-5bb7.log) |  |
 | 08.10.2026 02:07 | unit | ❌ упало 3 из 3828, пропущено 3 | 2 мин 29 с | 4ec005e | [лог](logs/2026-10-07T21-07-01Z-unit-d1b2.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 08.10.2026 02:09 | unit | ✅ 3825 из 3828, пропущено 3 | 2 мин 26 с | 4ec005e +1 | [лог](logs/2026-10-07T21-09-44Z-unit-8d83.log) |  |
+| 08.10.2026 02:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --shard=1/3) | ✅ 334 из 334 | 49 мин 12 с | b0adde9 | [лог](logs/2026-10-07T21-12-29Z-e2e-e7ac.log) |  |
+| 08.10.2026 03:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --shard=2/3) | ❌ упало 2 из 331, пропущено 8 | 34 мин 11 с | b0adde9 | [лог](logs/2026-10-07T22-02-18Z-e2e-3aa6.log) | axe и эталонные снимки секций: light |
+| 08.10.2026 03:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --shard=3/3) | ❌ упало 1 из 332 | 34 мин 20 с | b0adde9 | [лог](logs/2026-10-07T22-37-06Z-e2e-d643.log) | экран /reservations/new?unit=M03: данные берутся одним запросом на путь |
+| 08.10.2026 04:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts:81 --repeat-each=3) | ✅ 96 из 96 | 3 мин 46 с | b0adde9 | [лог](logs/2026-10-07T23-11-59Z-e2e-395f.log) |  |

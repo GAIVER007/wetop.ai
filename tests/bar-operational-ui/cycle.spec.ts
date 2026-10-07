@@ -1,3 +1,4 @@
+import { submitServerAction } from './action';
 import { test, expect } from '@playwright/test';
 test('real BAR cycle persists across browser reloads and reconciles API totals', async ({ page, context, request }, testInfo) => {
   const data = await (await request.get('http://127.0.0.1:55994/__test/data')).json();
@@ -16,40 +17,40 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
   await expect(page.locator('.bar-sale-form select[name="method"]')).toBeEnabled();
   for (const id of [data.r1.id, data.r2.id]) {
     const form = page.locator('form').filter({ has: page.locator(`input[name="id"][value="${id}"]`) });
-    await form.getByRole('button', { name: 'Провести', exact: true }).click();
+    await submitServerAction(page, form.getByRole('button', { name: 'Провести', exact: true }));
     await expect(page.locator(`input[name="id"][value="${id}"]`)).toHaveCount(0);
   }
   await capture('receipts-posted', '280000');
   const payment = page.locator('.bar-payment-form').filter({ has: page.locator(`input[value="${data.r1.id}"]`) });
   await payment.locator('[name="amount"]').fill('600');
   await payment.locator('[name="method"]').selectOption('CASH');
-  await payment.getByRole('button', { name: 'Оплатить', exact: true }).click();
+  await submitServerAction(page, payment.getByRole('button', { name: 'Оплатить', exact: true }));
   await expect(payment.getByRole('status')).toContainText('Оплата поставщику');
   await capture('supplier-payment', '280000');
   const retail = page.locator('form').filter({ has: page.getByRole('button', { name: 'Продать', exact: true }) });
   await retail.locator('[name="productId"]').selectOption(data.a.id);
   await retail.locator('[name="quantityUnits"]').fill('12');
-  await retail.getByRole('button', { name: 'Продать', exact: true }).click();
+  await submitServerAction(page, retail.getByRole('button', { name: 'Продать', exact: true }));
   await expect(retail.getByRole('status')).toContainText('Продажа записана');
   await capture('retail-fifo', '148000');
   const folio = page.locator('.bar-folio-form');
   await folio.locator('[name="folioId"]').selectOption(data.side.folio);
   await folio.locator('[name="productId"]').selectOption(data.a.id);
   await folio.locator('[name="quantityUnits"]').fill('3');
-  await folio.getByRole('button', { name: 'Добавить в счет', exact: true }).click();
+  await submitServerAction(page, folio.getByRole('button', { name: 'Добавить в счет', exact: true }));
   await expect(folio.getByRole('status')).toContainText('Товар добавлен');
   await capture('folio-sale', '100000');
   const writeOff = page.locator('form').filter({ has: page.getByRole('button', { name: 'Списать', exact: true }) });
   await writeOff.locator('[name="productId"]').selectOption(data.a.id);
   await writeOff.locator('[name="quantityUnits"]').fill('1');
   await writeOff.locator('[name="reason"]').selectOption({ label: 'Порча' });
-  await writeOff.getByRole('button', { name: 'Списать', exact: true }).click();
+  await submitServerAction(page, writeOff.getByRole('button', { name: 'Списать', exact: true }));
   await expect(writeOff.getByRole('status')).toContainText('Товар списан');
   await capture('write-off', '84000');
   const inventory = page.locator('form').filter({ has: page.getByRole('button', { name: 'Зафиксировать', exact: true }) });
   await inventory.locator('[name="productId"]').selectOption(data.a.id);
   await inventory.locator('[name="actualUnits"]').fill('3');
-  await inventory.getByRole('button', { name: 'Зафиксировать', exact: true }).click();
+  await submitServerAction(page, inventory.getByRole('button', { name: 'Зафиксировать', exact: true }));
   await expect(inventory.getByRole('status')).toContainText('Недостача 1');
   await capture('inventory-final', '68000');
   expect(await api('report')).toMatchObject({ purchasesMinor: '280000', supplierDebtMinor: '220000', revenueMinor: '480000', costMinor: '180000', grossProfitMinor: '300000', writeOffMinor: '16000' });

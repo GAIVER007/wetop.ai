@@ -8,7 +8,7 @@ it('migration 64 reconstructs validated legacy identities/loss/debt and rejects 
   const f = await barOperationalFixture();
   const db = new pg.Client({ connectionString: process.env.DATABASE_URL, options: '-c search_path=pms_test,public' });
   await db.connect();
-  const directory = 'packages/database/prisma/migrations/20261007000064_bar_financial_replay';
+  const directory = 'packages/database/prisma/migrations/20261007000066_bar_financial_replay';
   const down = readFileSync(`${directory}/down.sql`, 'utf8');
   const up = readFileSync(`${directory}/migration.sql`, 'utf8');
   try {

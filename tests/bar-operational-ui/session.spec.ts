@@ -1,3 +1,4 @@
+import { submitServerAction } from './action';
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 
@@ -20,6 +21,7 @@ test('T09 real API 503 and expired SessionGuard retain intent across login', asy
     await form.locator('[name="quantityUnits"]').fill('1');
     await db.query('BEGIN');
     await db.query('SELECT id FROM bar_stock_lots WHERE product_id=$1 FOR UPDATE', [data.b.id]);
+    const failedAction = page.waitForResponse(response => response.request().method() === 'POST' && !!response.request().headers()['next-action']);
     await form.locator('button[type="submit"]').click();
     await expect.poll(async () => {
       await db.query('SELECT pg_stat_clear_snapshot()');
@@ -28,6 +30,9 @@ test('T09 real API 503 and expired SessionGuard retain intent across login', asy
     // Existing transaction expiry is 5 seconds. Release after expiry, without changing it.
     await new Promise(resolve => setTimeout(resolve, 5500));
     await db.query('COMMIT');
+    const completedFailure = await failedAction;
+    expect(completedFailure.status()).toBe(200);
+    expect(await completedFailure.finished()).toBeNull();
     await expect(form.getByRole('alert')).toContainText('Результат операции пока неизвестен');
     const storageKey = `wetop.bar.intent.v1:${data.userId}:${data.side.business}:${data.side.location}:RETAIL:`;
     const persisted = await page.evaluate(key => localStorage.getItem(key), storageKey);
@@ -44,7 +49,7 @@ test('T09 real API 503 and expired SessionGuard retain intent across login', asy
     expect((await context.request.post('http://127.0.0.1:55994/__test/login')).ok()).toBe(true);
     await page.goto('/bar');
     expect(await page.evaluate(key => localStorage.getItem(key), storageKey)).toBe(persisted);
-    await form.getByRole('button', { name: 'Проверить результат', exact: true }).click();
+    await submitServerAction(page, form.getByRole('button', { name: 'Проверить результат', exact: true }));
     await expect.poll(() => page.evaluate(key => localStorage.getItem(key), storageKey)).toBeNull();
     expect((await db.query('SELECT count(*)::int AS n FROM bar_operation_intents WHERE key=$1', [intent.key])).rows[0].n).toBe(1);
     await page.screenshot({ path: testInfo.outputPath('relogin-original-intent-confirmed.png'), fullPage: true });

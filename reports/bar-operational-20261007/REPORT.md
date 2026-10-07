@@ -1,10 +1,10 @@
 # BAR financial acceptance candidate
 
-Status: implementation and targeted acceptance complete; final synced-head regression and exact-SHA GitHub CI are still being verified. This report does not authorize merge, release, migration or production deployment.
+Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
 ## Scope and baseline
 
-Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. Main has 69 migration directories through canonical 63; the candidate adds `20261007000064_bar_financial_replay`, making 70. Existing BAR 55-57 are preserved.
+Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. Main has 69 migration directories through canonical 63; the candidate adds `20261007000066_bar_financial_replay`, making 70. Existing BAR 55-57 are preserved.
 
 ## Approved behavior
 
@@ -52,7 +52,7 @@ The earlier full unit attempt had three host-resource timeouts (3791 passed, fou
 
 Synthetic PostgreSQL snapshots and real API browser screenshots are in this directory. Cleanup deletes task-owned operational fixtures and sessions; append-only audit and its required synthetic identity parents are retained. No real guest data or session credentials are included. Traces are disabled because they can contain authentication cookies. Public-site redirect acceptance uses a local site server.
 
-See `MIGRATION-64.md` for backup, guarded backfill, validation and rollback. Old ENOSPC/stale generated-client notes describe earlier failed attempts only; disk was recovered and Prisma regenerated. No production, release, MV8 or unrelated financial feature was changed. Final exact SHA, complete job outcomes and readiness will be recorded in the PR manifest after CI, without changing the tested candidate SHA.
+See `MIGRATION-66.md` for backup, guarded backfill, validation and rollback. Old ENOSPC/stale generated-client notes describe earlier failed attempts only; disk was recovered and Prisma regenerated. No production, release, MV8 or unrelated financial feature was changed. Final exact SHA, complete job outcomes and readiness will be recorded in the PR manifest after CI, without changing the tested candidate SHA.
 
 ## Final fresh-main impact, 2026-10-07
 
@@ -63,3 +63,9 @@ The complete fresh-database run passed 915 with two unchanged 5-second timeouts 
 Additional acceptance: the frozen negative control `2026-10-07T15-19-38Z-integration-d835` failed all three expected cases. Removing the shared Finance receipt lock left zero/one observed waiters instead of one/two; omitting the no-restock loss produced zero instead of 132000 alongside a real 16000 write-off. The preceding attempt `15-16-13Z-integration-b77c` changed its source fingerprint and is explicitly not evidence. Final code was restored before the GREEN run.
 
 The restored-code run `2026-10-07T15-21-14Z-integration-e5d4` passed all 37 BAR cases, including both deterministic pay/void orders and mixed FIFO loss. One of two unchanged MV8 contract tests timed out; the combined run is 38 PASS / 1 FAIL, not full GREEN. Source fingerprints remained unchanged.
+
+Final browser gating: the exact-SHA release-checks workflow now includes all nine real SessionGuard/API BAR browser cases on its own disposable PostgreSQL 16 service. Local runs exposed premature assertions while the RSC response remained pending; successful actions now await full response completion, and injected-loss cases await the actual abort. Original UI/ledger assertions and the 90-second test cap remain. The local host reached that cap for the full cycle during concurrent system activity, so local partial runs are not declared a full GREEN. The final GitHub BAR job and its screenshots are mandatory evidence alongside all existing jobs.
+
+With causal response synchronization, the final local browser run passed all four replay kinds, actual 503/session recovery, both role cases and catalog/cash-void acceptance: 8 PASS. Only the full cycle reached its unchanged 90-second deadline. CI job contract RED `2026-10-07T15-45-48Z-unit-534b` then full CI guards GREEN `2026-10-07T15-47-19Z-unit-cf3b` passed all 23 tests. Selected RED filtered 22 unrelated tests; no skip declarations were added. Full 70-migration/drift/all-down rehearsal ended RESULT OK.
+
+Final local strict checks: root/API/web types PASS (`2026-10-07T15-49-56Z-typecheck-6236`), lint PASS (`15-49-56Z-lint-fcfe`). Full unit (`15-49-56Z-unit-72c6`) completed 3841 cases: 3825 PASS, 12 FAIL, four unchanged baseline skips. Eleven failures are existing shell cases reaching their 5-second bound; the local-db subprocess has a separate unchanged 10-second bound and returned null status. No BAR logic assertion failed. This does not constitute full local GREEN; the complete exact-SHA GitHub workflow, including the new BAR browser job, must pass before draft is removed. No assertion or timeout was changed to mask these results.

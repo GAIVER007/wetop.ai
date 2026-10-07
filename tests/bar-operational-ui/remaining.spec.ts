@@ -1,3 +1,4 @@
+import { submitServerAction } from './action';
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
@@ -20,7 +21,7 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     const catalog = page.locator('.bar-catalogs section').filter({ has: page.getByRole('heading', { name: 'Категории', exact: true }) });
     await catalog.locator('[name="name"]').fill(name);
     await catalog.locator('[name="markup"]').fill('25');
-    await catalog.getByRole('button', { name: 'Добавить', exact: true }).click();
+    await submitServerAction(page, catalog.getByRole('button', { name: 'Добавить', exact: true }));
     await expect(catalog.getByText(`${name}, 25%`, { exact: true })).toBeVisible();
     await page.reload();
     expect((await api('categories')).filter((row: { name: string }) => row.name === name)).toHaveLength(1);
@@ -45,7 +46,7 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     const row = page.getByTestId('op-row').filter({ has: page.getByTestId('op-amount').filter({ hasText: '12,34' }) });
     await expect(row).toHaveCount(1);
     await row.getByTestId('cash-void').click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Аннулировать', exact: true }).click();
+    await submitServerAction(page, page.getByRole('dialog').getByRole('button', { name: 'Аннулировать', exact: true }));
     await expect(row).toContainText('Аннулир');
     await page.reload();
     expect((await db.query('SELECT status FROM cash_operations WHERE id=$1', [cashId])).rows[0].status).toBe('VOIDED');

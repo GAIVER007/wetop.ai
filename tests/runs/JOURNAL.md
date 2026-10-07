@@ -7408,3 +7408,8 @@
 | 07.10.2026 19:23 | typecheck | ✅ без ошибок | 31 с | 0c33362 | [лог](logs/2026-10-07T14-23-54Z-typecheck-90a2.log) |  |
 | 07.10.2026 19:25 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1 --grep stale token refreshes drawer) | ✅ 1 из 1 | 10 с | 0c33362 | [лог](logs/2026-10-07T14-25-16Z-e2e-6ae2.log) |  |
 | 07.10.2026 19:26 | unit | ✅ 3830 из 3834, пропущено 4 | 4 мин 32 с | 0c33362 | [лог](logs/2026-10-07T14-26-00Z-unit-38b3.log) |  |
+| 07.10.2026 20:45 | unit (частично: tests/unit/ci-runner.test.ts -t BAR real HTTP browser acceptance) | ❌ упало 1 из 23, пропущено 22 | 24 с | ebbaae6 +1 | [лог](logs/2026-10-07T15-45-48Z-unit-534b.log) | RED missing BAR real-session browser job in the full release gate |
+| 07.10.2026 20:47 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 23 из 23 | 15 с | ebbaae6 +1 | [лог](logs/2026-10-07T15-47-19Z-unit-cf3b.log) | GREEN all CI contract guards including isolated real-session BAR browser gate |
+| 07.10.2026 20:49 | lint | ✅ без ошибок | 6 мин 22 с | ebbaae6 +6 | [лог](logs/2026-10-07T15-49-56Z-lint-fcfe.log) | Final synced main source and BAR release job lint |
+| 07.10.2026 20:49 | typecheck | ✅ без ошибок | 11 мин 40 с | ebbaae6 +6 | [лог](logs/2026-10-07T15-49-56Z-typecheck-6236.log) | Final synced main root API web and BAR acceptance strict types |
+| 07.10.2026 20:49 | unit | ❌ упало 12 из 3841, пропущено 4 | 12 мин 41 с | ebbaae6 +1 | [лог](logs/2026-10-07T15-49-56Z-unit-72c6.log) | Final synced main full unit including BAR and complete release gate |

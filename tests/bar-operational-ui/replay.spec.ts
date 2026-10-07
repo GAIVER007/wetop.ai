@@ -1,3 +1,4 @@
+import { submitServerAction } from './action';
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 
@@ -29,15 +30,20 @@ test.describe('BAR persistent browser intents with real SessionGuard', () => {
     await db.connect();
     try {
       let lost = false;
+      let responseLost!: () => void;
+      const lostResponse = new Promise<void>(resolve => { responseLost = resolve; });
       await page.route('**/bar', async route => {
         if (!lost && route.request().method() === 'POST' && route.request().headers()['next-action']) {
           lost = true;
           await route.fetch(); // Wait for the real server commit, then lose only the client response.
           await route.abort('failed');
+          responseLost();
         } else await route.continue();
       });
       await form.locator('button[type="submit"]').click();
       await expect.poll(async () => (await db.query('SELECT count(*)::int AS n FROM bar_operation_intents WHERE property_id=$1 AND kind=$2', [data.side.property,kind])).rows[0].n).toBeGreaterThan(0);
+      // Commit precedes completion of the RSC response; wait for the actual injected loss.
+      await lostResponse;
       await expect(form.getByRole('alert')).toBeVisible();
       const storageKey = `wetop.bar.intent.v1:${data.userId}:${data.side.business}:${data.side.location}:${kind}:${kind === 'SUPPLIER_PAYMENT' ? data.r1.id : ''}`;
       const persisted = await page.evaluate(key => localStorage.getItem(key), storageKey);
@@ -57,8 +63,9 @@ test.describe('BAR persistent browser intents with real SessionGuard', () => {
       expect((await context.request.post('http://127.0.0.1:55994/__test/login')).ok()).toBe(true);
       await page.reload();
       expect(await page.evaluate(key => localStorage.getItem(key), storageKey)).toBe(persisted);
+      await expect(form.getByRole('button', { name: 'Проверить результат', exact: true })).toBeEnabled();
       await page.screenshot({ path: testInfo.outputPath(`${kind}-recovered-before-replay.png`), fullPage: true });
-      await form.getByRole('button', { name: 'Проверить результат', exact: true }).click();
+      await submitServerAction(page, form.getByRole('button', { name: 'Проверить результат', exact: true }));
       await expect.poll(() => page.evaluate(key => localStorage.getItem(key), storageKey)).toBeNull();
       expect(await effects()).toEqual(before);
       expect((await db.query('SELECT operation_id FROM bar_operation_intents WHERE property_id=$1 AND kind=$2 AND key=$3', [data.side.property,kind,intent.key])).rows).toEqual(original);

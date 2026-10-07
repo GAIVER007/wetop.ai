@@ -164,6 +164,50 @@ jobs:
           path: test-results
           if-no-files-found: ignore
 
+  bar-acceptance:
+    name: BAR · real sessions · financial browser acceptance
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_DB: pms_dev
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms -d pms_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://pms@127.0.0.1:5432/pms_dev
+      DATABASE_POOL_MAX: '2'
+      TEST_DATA: seed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: Isolated synthetic PostgreSQL schema
+        run: |
+          psql "$DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+          npm run test:schema
+      - run: npx playwright install --with-deps chromium
+      - name: Real API replay, debt, roles, session recovery and reconciliation
+        run: npx playwright test --config tests/bar-operational-ui/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bar-financial-browser-evidence
+          path: test-results
+          if-no-files-found: ignore
+
   ui-shard:
     name: UI · часть ${{ matrix.shard }}/3
     needs: fast

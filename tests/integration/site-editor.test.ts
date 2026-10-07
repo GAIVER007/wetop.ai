@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
+import { assistant } from '@pms/integrations';
 import { siteSpecHash } from '@pms/domain';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
@@ -34,13 +35,14 @@ type Spec = Record<string, any>;
 type Reply = unknown | Error | ((request: EditBotRequest) => unknown | Promise<unknown>);
 
 function fakeBot() {
-  const state = { edits: [] as EditBotRequest[], generations: 0, replies: [] as Reply[] };
+  const state = { edits: [] as EditBotRequest[], generations: 0, initial: [] as Array<Record<string, unknown>>, replies: [] as Reply[] };
   return {
     state,
     bot: {
-      async generate() {
+      async generate(request: Record<string, unknown>) {
         state.generations += 1;
-        throw new Error('fake bot: INITIAL не ожидается в этом наборе');
+        state.initial.push(structuredClone(request));
+        throw new assistant.BotRejectedError(422, 'fake bot: INITIAL только запоминается');
       },
       async edit(request: EditBotRequest) {
         state.edits.push(structuredClone(request));
@@ -115,7 +117,8 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     await db.organization.create({ data: { id: org, name: 'MKT9 (synthetic)', status: 'ACTIVE' } });
     await db.user.create({ data: { id: user, email: `mkt9-${user}@example.invalid`, passwordHash: 'x' } });
     await db.business.create({ data: { id: business, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
-    await db.location.create({ data: { id: location, businessId: business, name: 'Филиал', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    // имя филиала равно имени объекта: соседний набор Platform P1 сверяет их у всех объектов базы
+    await db.location.create({ data: { id: location, businessId: business, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT' } });
     await db.property.create({ data: { id: property, organizationId: org, locationId: location, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', checkInTime: '14:00', checkOutTime: '12:00' } });
     const cat = await db.accommodationType.create({ data: { propertyId: property, code: 'cat-a', name: 'Номер', kind: 'PRIVATE_ROOM', capacityAdults: 2 } });
     const building = await db.building.create({ data: { propertyId: property, name: 'К' } });
@@ -183,6 +186,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     fake.state.edits.length = 0;
     fake.state.replies.length = 0;
     fake.state.generations = 0;
+    fake.state.initial.length = 0;
     if (budgetBefore === undefined) delete process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET;
     else process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET = budgetBefore;
   });
@@ -507,5 +511,28 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     expect([404, 409]).toContain((await patch(w, v1.id)).status);
     expect((await call(w, 'POST', `/marketing/site/versions/${v1.id}/restore`, { baseRevision: 1 })).status).toBe(404);
     expect((await call(w, 'POST', '/marketing/site/versions', { baseRevision: 1, spec: doc('x') })).status).toBe(404);
+  });
+
+  it('окно «Создать сайт»: пожелания к первой версии хранятся в задаче, уходят боту отдельным полем, наружу и в журнал не попадают', async () => {
+    const w = await world();
+    const brief = (await call(w, 'GET', '/marketing/site/brief')).body;
+    const wish = 'ПОЖЕЛАНИЕ_ВЛАДЕЛЬЦА: тон дружелюбный, акцент на тишину';
+    expect((await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), expectedBriefHash: brief.briefHash, instruction: 'x'.repeat(1801) })).status).toBe(400);
+    const r = await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), expectedBriefHash: brief.briefHash, instruction: `  ${wish}  ` });
+    expect(r.status, r.text).toBe(202);
+    expect(r.body.run.type).toBe('INITIAL');
+    expect(r.text).not.toContain('ПОЖЕЛАНИЕ_ВЛАДЕЛЬЦА');
+    expect((await run(r.body.run.id)).instruction).toBe(wish);
+    await worker.tick();
+    expect(fake.state.initial[0]).toMatchObject({ schemaVersion: 'site-generation/0', instruction: wish });
+    const logs = await db.auditLog.findMany({ where: { entityId: w.site } });
+    expect(JSON.stringify(logs.map((l) => l.after))).not.toContain('ПОЖЕЛАНИЕ_ВЛАДЕЛЬЦА');
+    // без пожеланий поле не уходит вовсе: контракт MKT6 прежний
+    const w2 = await world();
+    const b2 = (await call(w2, 'GET', '/marketing/site/brief')).body;
+    const r2 = await call(w2, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), expectedBriefHash: b2.briefHash });
+    expect((await run(r2.body.run.id)).instruction).toBeNull();
+    await worker.tick();
+    expect(fake.state.initial[1]).not.toHaveProperty('instruction');
   });
 });

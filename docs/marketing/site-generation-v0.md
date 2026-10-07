@@ -26,7 +26,9 @@ GET /marketing/site/generations/:id  статус без документа
 очереди нет: строка в `QUEUED` с наступившим `next_attempt_at` и есть задание. В MKT6 API ставит только `INITIAL`;
 `SECTION` и `PATCH` открыл MKT9 (тот же `POST /marketing/site/generations`, бот `POST /internal/site-edit`, контракт
 [`site-editor-v0.md`](site-editor-v0.md) §6–§8), `SEO` MKT11. Тело без `type` по-прежнему ставит `INITIAL`, воркер один
-и ветвится по виду задачи, бюджет и учёт расхода общие для всех видов.
+и ветвится по виду задачи, бюджет и учёт расхода общие для всех видов. С MKT9 `INITIAL` принимает необязательное
+`instruction` (пожелания из окна «Какой сайт сделать?»), бот получает его отдельным полем и блоком данных
+(`site-editor-v0.md` §6а).
 
 - `next_attempt_at`: в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут).
 - `dispatched_at`: запрос к ИИ ушёл, расход ещё не записан. Падение процесса в это время даёт `USAGE_UNAVAILABLE`.

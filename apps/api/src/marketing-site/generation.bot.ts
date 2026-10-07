@@ -16,6 +16,8 @@ export interface GenerationBotRequest {
   targetLocales: string[];
   budgetRemainingTokens: number;
   validationErrors: Array<{ path: string; code: string }>;
+  /** MKT9: пожелания владельца к первой версии; нет пожеланий, нет и поля */
+  instruction?: string;
 }
 
 /** MKT9: правка готовой версии; бот возвращает документ целиком, границы правки проверяет платформа */

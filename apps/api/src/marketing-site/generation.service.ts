@@ -101,7 +101,7 @@ export class SiteGenerationService {
     const input = strictBody(
       body,
       type === 'INITIAL'
-        ? ['requestKey', 'expectedBriefHash', 'type']
+        ? ['requestKey', 'expectedBriefHash', 'type', 'instruction']
         : type === 'PATCH'
           ? ['requestKey', 'type', 'baseVersionId', 'instruction']
           : ['requestKey', 'type', 'baseVersionId', 'pageId', 'sectionId', 'instruction'],
@@ -116,6 +116,10 @@ export class SiteGenerationService {
       if (typeof input['expectedBriefHash'] !== 'string' || !HASH_RE.test(input['expectedBriefHash']))
         throw new BadRequestException('expectedBriefHash: sha256 в нижнем регистре');
       expected = input['expectedBriefHash'];
+      // MKT9, окно «Создать сайт»: пожелания к первой версии необязательны; это данные, факты берутся из брифа
+      const wishes = parseEditInstruction(input['instruction'], PATCH_INSTRUCTION_MAX, true);
+      if (!wishes.ok) throw new BadRequestException(wishes.message);
+      instruction = wishes.text;
     } else {
       if (typeof input['baseVersionId'] !== 'string' || !UUID_RE.test(input['baseVersionId']))
         throw new BadRequestException('baseVersionId: id версии');

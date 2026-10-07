@@ -201,6 +201,28 @@ export function marketingSiteFixture(
   }
   if (!path.startsWith('/marketing/site')) return null;
   if (path === '/marketing/site' && method === 'GET') return { status: 200, data: { site: exists ? view() : null } };
+  // MKT9, окно «Создать сайт»: сайт без версий; занятый адрес отказом у поля, молча не меняется
+  if (path === '/marketing/site' && method === 'POST') {
+    if (exists) return conflict('SITE_EXISTS', 'У филиала уже есть сайт');
+    const slug = String(body['slug'] ?? '');
+    if (!/^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/.test(slug))
+      return { status: 400, data: { message: 'Адрес сайта: от 3 до 40 знаков, латинские буквы, цифры и дефис, без дефиса в начале и в конце' } };
+    if (slug === 'busy-hotel') return conflict('SLUG_TAKEN', `Адрес «${slug}» уже занят: выберите другой`);
+    exists = true;
+    noVersions = true;
+    return { status: 201, data: { site: view() } };
+  }
+  if (path === '/marketing/site/brief' && method === 'GET')
+    return {
+      status: 200,
+      data: {
+        briefHash: 'b'.repeat(64),
+        input: {
+          identity: { displayNameCandidate: 'Luxx Aparts' },
+          accommodations: [{ categoryCode: 'std', name: 'Стандарт' }, { categoryCode: 'bed', name: 'Койка в общем номере' }],
+        },
+      },
+    };
   if (!exists) return { status: 404, data: { message: 'Сайт филиала ещё не создан' } };
   if (path === '/marketing/site/publications' && method === 'GET')
     return { status: 200, data: { publications: [...publications].reverse() } };
@@ -320,14 +342,6 @@ const runView = (run: Run) => {
 };
 
 function editorRoute(path: string, method: string, body: Record<string, unknown>, query: URLSearchParams): { status: number; data: unknown } | null {
-  if (path === '/marketing/site/brief' && method === 'GET')
-    return {
-      status: 200,
-      data: {
-        briefHash: 'b'.repeat(64),
-        input: { accommodations: [{ categoryCode: 'std', name: 'Стандарт' }, { categoryCode: 'bed', name: 'Койка в общем номере' }] },
-      },
-    };
   if (path === '/marketing/site/draft' && method === 'GET') {
     const head = latest();
     return {

@@ -543,3 +543,93 @@
 .ed-history {
   padding: var(--space-4);
 }
+
+/* Окно «Какой сайт сделать?» (MKT9): одна крупная строка ввода по центру, примеры чипами, шаги создания */
+.create-site {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 760px;
+  margin: var(--space-8) auto;
+  text-align: center;
+}
+.create-site__title {
+  margin: 0;
+  font-size: var(--text-3xl);
+}
+.create-site__lead {
+  margin: 0;
+  color: var(--text-2);
+}
+.create-site__box {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-align: left;
+}
+.create-site__box:focus-within {
+  border-color: var(--primary);
+}
+.create-site__text {
+  width: 100%;
+  min-height: 120px;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-lg);
+  resize: vertical;
+}
+.create-site__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+.create-site__examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.create-site__chip {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.create-site__chip:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+.create-site__slug {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: left;
+}
+.create-site__steps {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 420px;
+  margin: 0 auto;
+  padding-left: var(--space-6);
+  text-align: left;
+  color: var(--text-2);
+}
+.create-site__step.is-active {
+  color: var(--text);
+  font-weight: 600;
+}
+.create-site__step.is-done {
+  color: var(--text);
+}

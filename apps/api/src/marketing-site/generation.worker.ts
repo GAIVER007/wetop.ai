@@ -322,6 +322,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
             targetLocales,
             budgetRemainingTokens: remaining,
             validationErrors,
+            ...(run.instruction ? { instruction: run.instruction } : {}),
           });
     } catch (error) {
       if (error instanceof assistant.BotRejectedError) {

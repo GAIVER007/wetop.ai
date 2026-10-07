@@ -5,11 +5,12 @@ import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { EmptyState } from '../../../../components/ui';
+import { suggestMarketingSlug } from '@pms/domain';
 import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
 import { MarketingCrumb } from '../../../website/parts';
 import { SiteEditor } from './editor';
-import { FirstVersion } from './first-version';
+import { CreateSite } from './create-site';
 import '../../marketing.css';
 
 /**
@@ -22,17 +23,19 @@ export default async function SiteEditorPage() {
   await requireVertical(['HOSPITALITY']);
   const shell = await deskShell();
   const title = 'Редактор сайта';
+  const brief = () =>
+    siteEditorApi.brief().catch((e: unknown) => {
+      unstable_rethrow(e);
+      return null;
+    });
   const loaded = await marketingSiteApi
     .current()
     .then(async (current) => {
-      if (!current.site) return { ok: true as const, current, draft: null, versions: [], brief: null, assets: [] as SiteAssetView[] };
-      const [draft, versions, brief, assets] = await Promise.all([
+      if (!current.site) return { ok: true as const, current, draft: null, versions: [], brief: await brief(), assets: [] as SiteAssetView[] };
+      const [draft, versions, briefView, assets] = await Promise.all([
         siteEditorApi.draft(),
         siteEditorApi.versions().then((r) => r.versions),
-        siteEditorApi.brief().catch((e: unknown) => {
-          unstable_rethrow(e);
-          return null;
-        }),
+        brief(),
         siteAssetsApi
           .list()
           .then((l) => l.assets)
@@ -41,7 +44,7 @@ export default async function SiteEditorPage() {
             return [] as SiteAssetView[];
           }),
       ]);
-      return { ok: true as const, current, draft, versions, brief, assets };
+      return { ok: true as const, current, draft, versions, brief: briefView, assets };
     })
     .catch((error: unknown) => {
       unstable_rethrow(error);
@@ -64,18 +67,17 @@ export default async function SiteEditorPage() {
     </>
   );
   const site = loaded.current.site;
-  if (!site)
+  const name = loaded.brief?.input.identity.displayNameCandidate ?? '';
+  if (!site || !loaded.draft?.version || !site.latest)
     return (
-      <Page crumbs={<MarketingCrumb />} title={title}>
-        <EmptyState title="Сайт филиала ещё не создан" data-testid="site-editor-no-site">
-          Когда у филиала появится сайт, здесь можно будет править его страницы и секции.
-        </EmptyState>
-      </Page>
-    );
-  if (!loaded.draft?.version || !site.latest)
-    return (
-      <Page crumbs={<MarketingCrumb />} title={title} actions={links}>
-        <FirstVersion briefHash={loaded.brief?.briefHash ?? null} readOnly={shell.readOnly} />
+      <Page crumbs={<MarketingCrumb />} title={title} actions={site ? links : undefined}>
+        <CreateSite
+          hasSite={!!site}
+          name={name || 'Сайт гостиницы'}
+          suggestedSlug={suggestMarketingSlug(name)}
+          briefHash={loaded.brief?.briefHash ?? null}
+          readOnly={shell.readOnly}
+        />
       </Page>
     );
   return (

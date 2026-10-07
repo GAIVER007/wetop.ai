@@ -7457,3 +7457,9 @@
 | 07.10.2026 23:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 9 из 18 | 2 мин 44 с | cdf986e +16 | [лог](logs/2026-10-07T18-11-53Z-e2e-b5a4.log) | MKT9: UI редактора |
 | 07.10.2026 23:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 18 | 2 мин 6 с | cdf986e +19 | [лог](logs/2026-10-07T18-15-44Z-e2e-6f13.log) | MKT9: UI редактора |
 | 07.10.2026 23:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 18 | 2 мин 20 с | cdf986e +19 | [лог](logs/2026-10-07T18-18-02Z-e2e-f5ca.log) | MKT9: UI редактора |
+| 07.10.2026 23:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ✅ 18 из 18 | 1 мин 52 с | cdf986e +21 | [лог](logs/2026-10-07T18-21-21Z-e2e-d111.log) | MKT9: UI редактора |
+| 07.10.2026 23:24 | typecheck | ✅ без ошибок | 1 мин 18 с | 2677a24 | [лог](logs/2026-10-07T18-24-27Z-typecheck-dde5.log) |  |
+| 07.10.2026 23:25 | lint | ✅ без ошибок | 51 с | 2677a24 | [лог](logs/2026-10-07T18-25-47Z-lint-3bdc.log) |  |
+| 07.10.2026 23:26 | unit | ✅ 4030 из 4033, пропущено 3 | 2 мин 24 с | 2677a24 | [лог](logs/2026-10-07T18-26-39Z-unit-6823.log) |  |
+| 07.10.2026 23:29 | integration | ❌ упало 1 из 922 | 3 мин 22 с | 2677a24 | [лог](logs/2026-10-07T18-29-06Z-integration-1402.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 07.10.2026 23:32 | integration | ❌ упало 1 из 922 | 3 мин 39 с | 2677a24 +1 | [лог](logs/2026-10-07T18-32-50Z-integration-2ba1.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |

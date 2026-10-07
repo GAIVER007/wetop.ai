@@ -1949,6 +1949,7 @@ export interface BookingSourceView {
 /** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
 export const marketingSiteApi = {
   current: () => getJson<{ site: MarketingSiteSummary | null }>('/marketing/site'),
+  create: (name: string, slug: string) => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site', { name, slug }),
   publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
   bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
   preview: (versionId: string) =>
@@ -2104,7 +2105,11 @@ async function editorCall<T>(method: 'GET' | 'POST', path: string, body?: unknow
 export const siteEditorApi = {
   draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
   versions: () => getJson<{ versions: SiteVersionMeta[] }>('/marketing/site/versions'),
-  brief: () => getJson<{ briefHash: string; input: { accommodations: Array<{ categoryCode: string; name: string }> } }>('/marketing/site/brief'),
+  brief: () =>
+    getJson<{
+      briefHash: string;
+      input: { identity: { displayNameCandidate: string }; accommodations: Array<{ categoryCode: string; name: string }> };
+    }>('/marketing/site/brief'),
   version: (id: string) =>
     editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>('GET', `/marketing/site/versions/${encodeURIComponent(id)}`),
   diff: (id: string, against: string) =>

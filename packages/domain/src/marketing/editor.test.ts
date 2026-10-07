@@ -132,3 +132,16 @@ describe('языки и пути ошибок', () => {
     expect(errorLocation('site.contacts.phone')).toEqual({ area: 'site', rest: 'site.contacts.phone' });
   });
 });
+
+describe('подсказка адреса сайта', () => {
+  it('транслит, только допустимые знаки, служебные слова и короткие имена обходятся', async () => {
+    const { suggestMarketingSlug, parseMarketingSlug } = await import('./index');
+    expect(suggestMarketingSlug('Гостиница «Степной ветер»')).toBe('gostinitsa-stepnoy-veter');
+    expect(suggestMarketingSlug('Luxx Aparts')).toBe('luxx-aparts');
+    expect(suggestMarketingSlug('Қонақ үй Ақ')).toBe('konak-uy-ak');
+    expect(suggestMarketingSlug('Я')).toBe('site-ya');
+    expect(suggestMarketingSlug('App')).toBe('app-site');
+    for (const name of ['', '!!!', 'x'.repeat(80), 'Отель №1 — центр'])
+      expect(parseMarketingSlug(suggestMarketingSlug(name)).ok, name).toBe(true);
+  });
+});

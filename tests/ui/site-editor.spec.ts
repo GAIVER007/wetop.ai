@@ -221,15 +221,58 @@ test('ИИ с несохранёнными правками недоступен
   await expect(ai.getByLabel('Что изменить с помощью ИИ?')).toHaveValue('Ярче');
 });
 
-test('сайт без версий: первая версия ИИ существующим потоком', async ({ page, request }) => {
-  await control(request, { noVersions: true });
+test('окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор', async ({ page, request }) => {
+  await control(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const m = main(page);
-  await expect(m.getByTestId('site-editor-empty')).toContainText('Сайт создан, но страниц ещё нет');
-  await m.getByTestId('first-version-start').click();
+  const win = m.getByTestId('create-site');
+  await expect(win.getByRole('heading', { name: 'Какой сайт сделать?' })).toBeVisible();
+  await expect(win.getByLabel('Адрес сайта')).toHaveValue('luxx-aparts');
+  await win.getByRole('button', { name: 'Сделай упор на расположение рядом с вокзалом и быстрый заезд' }).click();
+  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Сделай упор на расположение рядом с вокзалом и быстрый заезд');
+  await win.getByLabel('Опишите сайт').fill('Спокойный сайт у вокзала');
+  await win.getByLabel('Адрес сайта').fill('busy-hotel');
+  await win.getByTestId('create-site-start').click();
+  await expect(win.getByText('Адрес «busy-hotel» уже занят: выберите другой')).toBeVisible();
+  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Спокойный сайт у вокзала');
+  await win.getByLabel('Адрес сайта').fill('luxx-center');
+  await win.getByTestId('create-site-start').click();
+  await expect(win.getByTestId('create-site-steps')).toContainText('ИИ пишет сайт');
   await expect(m.getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await expect(heroHeading(page)).toHaveValue('Первая версия от ИИ');
 });
+
+test('окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
+  await control(request, { noVersions: true, aiFail: 'TIMEOUT' });
+  await page.goto('/marketing/site/editor');
+  const win = main(page).getByTestId('create-site');
+  await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
+  await win.getByLabel('Опишите сайт').fill('Коротко и по делу');
+  await win.getByLabel('Опишите сайт').press('Control+Enter');
+  await expect(win.getByTestId('create-site-error')).toHaveText('ИИ не ответил вовремя');
+  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Коротко и по делу');
+  await expect(win.getByTestId('create-site-start')).toBeEnabled();
+});
+
+for (const theme of ['light', 'dark'] as const)
+  test(`окно «Создать сайт»: снимки и доступность, ${theme}`, async ({ page, request }) => {
+    test.setTimeout(90_000);
+    mkdirSync(SHOTS, { recursive: true });
+    await control(request, { noSite: true });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto('/marketing/site/editor');
+      await expect(main(page).getByTestId('create-site')).toBeVisible();
+      const wide = await page.evaluate(() =>
+        [...document.querySelectorAll('main *')].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).length,
+      );
+      expect(wide).toBe(0);
+      const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      expect(audit.violations).toEqual([]);
+      await page.screenshot({ path: `${SHOTS}/create-${theme}-${width}.png`, fullPage: true });
+    }
+  });
 
 for (const theme of ['light', 'dark'] as const) {
   test(`редактор на компьютере, доступность и снимки: ${theme}`, async ({ page }) => {

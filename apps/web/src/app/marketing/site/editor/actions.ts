@@ -74,9 +74,29 @@ export async function sectionAction(baseVersionId: string, pageId: string, secti
   );
 }
 
-/** Первая версия ИИ (существующий поток MKT6): хэш брифа, который видел человек на этой странице */
-export async function initialAction(briefHash: string) {
-  return safe(() => siteEditorApi.generate({ requestKey: randomUUID(), expectedBriefHash: briefHash }));
+/**
+ * Окно «Создать сайт»: при надобности заводит сайт (название филиала, адрес из поля), затем ставит первую версию ИИ
+ * (поток MKT6) с текстом человека как пожеланием. Хэш брифа тот, что видел человек на этой странице
+ */
+export async function createSiteAction(input: { createSite: boolean; name: string; slug: string; briefHash: string; instruction: string }) {
+  let siteCreated = false;
+  if (input.createSite) {
+    try {
+      await marketingSiteApi.create(input.name, input.slug.trim());
+      siteCreated = true;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Не удалось завести сайт';
+      const field = e instanceof ApiError && (e.status === 400 || e.status === 409) && /Адрес/.test(message) ? ('slug' as const) : null;
+      return { ok: false as const, siteCreated, field, message };
+    }
+  }
+  const text = input.instruction.trim();
+  const reply = await safe(() =>
+    siteEditorApi.generate({ requestKey: randomUUID(), expectedBriefHash: input.briefHash, ...(text ? { instruction: text } : {}) }),
+  );
+  revalidatePath('/marketing/site');
+  if (!reply.ok) return { ok: false as const, siteCreated: input.createSite ? siteCreated : true, field: null, message: reply.message };
+  return { ok: true as const, siteCreated: true, run: reply.data.run };
 }
 
 export async function runAction(id: string) {

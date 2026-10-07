@@ -132,7 +132,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     await db.user.create({ data: { id: user, email: `mkt6-${user}@example.invalid`, passwordHash: 'x' } });
     await db.business.create({ data: { id: business, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
     await db.location.create({
-      data: { id: location, businessId: business, name: 'Филиал', timezone: 'Asia/Almaty', currency: 'KZT', address: 'ул. Тестовая 1', phone: '+7 701 111 11 11', email: 'a@example.invalid' },
+      data: { id: location, businessId: business, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', address: 'ул. Тестовая 1', phone: '+7 701 111 11 11', email: 'a@example.invalid' },
     });
     if (options.property !== false) {
       const property = randomUUID();

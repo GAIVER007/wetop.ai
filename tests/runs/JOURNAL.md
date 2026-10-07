@@ -7169,3 +7169,7 @@
 | 07.10.2026 15:31 | e2e | ✅ 26 из 26 | 1 мин 42 с | bb10783 +1 | [лог](logs/2026-10-07T10-31-22Z-e2e-af4a.log) | #268: повтор после выбора филиала |
 | 07.10.2026 15:33 | typecheck | ✅ без ошибок | 1 мин 20 с | bb10783 +1 | [лог](logs/2026-10-07T10-33-05Z-typecheck-1d8d.log) | #268 выбор филиала |
 | 07.10.2026 15:34 | lint | ✅ без ошибок | 54 с | bb10783 +1 | [лог](logs/2026-10-07T10-34-27Z-lint-af5b.log) | #268 выбор филиала |
+| 07.10.2026 15:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-compact-screen.spec.ts --workers=1) | ❌ упало 2 из 3 | 45 с | 1331740 +1 | [лог](logs/2026-10-07T10-57-06Z-e2e-3a41.log) | RED baseline B: новый контракт 1366x768 на main 13317405 |
+| 07.10.2026 15:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-compact-screen.spec.ts --workers=1) | ❌ упало 2 из 3 | 43 с | 1331740 +1 | [лог](logs/2026-10-07T10-58-01Z-e2e-e3d8.log) | RED baseline B (все нарушения разом): main 13317405 |
+| 07.10.2026 16:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-compact-screen.spec.ts --workers=1) | ❌ упало 1 из 3 | 36 с | 1331740 +3 | [лог](logs/2026-10-07T11-03-15Z-e2e-55da.log) | GREEN baseline B: 10 строк, зазор 27, компактный по умолчанию |
+| 07.10.2026 16:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-compact-screen.spec.ts --workers=1) | ✅ 3 из 3 | 35 с | 1331740 +3 | [лог](logs/2026-10-07T11-04-00Z-e2e-f572.log) | GREEN baseline B: контракт 1366x768 и память вида |

@@ -1,7 +1,7 @@
 import { PRICES_PATH } from '../assets';
 import { renderHead, type SeoSettings } from '../seo';
 import type { Cta } from '../types';
-import { localHref, pagePath, sectionVisible, targetHref, type RenderContext } from './context';
+import { localHref, pagePath, resolvedImages, sectionVisible, targetHref, type RenderContext } from './context';
 import { INTL_LOCALE, PRICE_LABEL } from './price-format';
 import { ctaLink, renderSections } from './sections';
 import { themeClasses } from './theme';
@@ -59,7 +59,9 @@ function documentHtml(ctx: RenderContext, seo: SeoSettings, cssHref: string, mai
   const operator = tx(spec.site.legal?.operatorName, locale);
   const tagline = tx(spec.site.brand?.tagline, locale);
   const footer = `<footer class="site-footer"><div class="wrap">${footerLinks || privacy ? `<nav aria-label="${esc(strings.footerNav)}">${footerLinks}${privacy}</nav>` : ''}<p><strong>${name}</strong>${tagline ? `. ${esc(tagline)}` : ''}</p>${operator ? `<p>${esc(operator)}</p>` : ''}<p>${esc(strings.madeWith)}</p></div></footer>`;
-  const header = `<header class="site-header"><div class="wrap"><a class="brand" href="${esc(localHref('/', ctx))}">${name}</a>${nav ? `<nav class="nav" aria-label="${esc(strings.menu)}">${nav}</nav>` : ''}${headerCta}</div></header>`;
+  const [logo] = resolvedImages(spec.site.brand?.logo ? [spec.site.brand.logo] : [], ctx.assets);
+  const logoImg = logo ? `<img class="brand__logo" src="${esc(logo.src)}" alt="" decoding="async">` : '';
+  const header = `<header class="site-header"><div class="wrap"><a class="brand" href="${esc(localHref('/', ctx))}">${logoImg}${name}</a>${nav ? `<nav class="nav" aria-label="${esc(strings.menu)}">${nav}</nav>` : ''}${headerCta}</div></header>`;
   return `<!doctype html><html lang="${esc(locale)}"><head>${renderHead(ctx, seo, cssHref)}</head><body class="${themeClasses(spec.theme as unknown as Record<string, unknown>)}"><a class="skip" href="#main">${esc(strings.skip)}</a>${header}<main id="main">${main}</main>${footer}${scripts(ctx)}</body></html>`;
 }
 

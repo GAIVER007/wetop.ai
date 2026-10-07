@@ -98,6 +98,9 @@ export function renderHead(ctx: RenderContext, seo: SeoSettings, cssHref: string
   const url = seo.canonicalOrigin ? `${seo.canonicalOrigin}${pagePath(page)}` : null;
   const ogTitle = tx(page.seo.og?.title, locale) || title;
   const ogDescription = tx(page.seo.og?.description, locale) || description;
+  const assetUrl = (id: unknown) => (typeof id === 'string' ? ctx.assets[id.toLowerCase()] ?? ctx.assets[id] : undefined);
+  const ogImage = assetUrl(page.seo.og?.imageAssetId);
+  const favicon = assetUrl(spec.site.brand?.faviconAssetId);
   const meta = [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -111,6 +114,9 @@ export function renderHead(ctx: RenderContext, seo: SeoSettings, cssHref: string
     `<meta property="og:site_name" content="${esc(tx(spec.site.displayName, locale))}">`,
     `<meta property="og:locale" content="${OG_LOCALE[locale] ?? 'ru_RU'}">`,
     url ? `<meta property="og:url" content="${esc(url)}">` : '',
+    // MKT8: картинка соцсетей страницы и фавиконка из карты подписанных адресов; нет адреса, нет и тега
+    ogImage ? `<meta property="og:image" content="${esc(ogImage)}">` : '',
+    favicon ? `<link rel="icon" href="${esc(favicon)}">` : '',
     `<link rel="stylesheet" href="${esc(cssHref)}">`,
     ...structuredData(ctx, seo).map((d) => `<script type="application/ld+json">${jsonForScript(d)}</script>`),
   ];

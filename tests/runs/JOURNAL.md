@@ -7434,3 +7434,5 @@
 | 07.10.2026 21:31 | integration (частично: tests/integration/site-assets.test.ts) | ❌ упало 1 из 11 | 10 с | ba1d114 +5 | [лог](logs/2026-10-07T16-31-41Z-integration-42f7.log) | MKT8 мутация: откат без исторической версии |
 | 07.10.2026 21:32 | integration (частично: tests/integration/site-assets.test.ts) | ❌ упало 1 из 11 | 10 с | ba1d114 +5 | [лог](logs/2026-10-07T16-32-01Z-integration-4d51.log) | MKT8 мутация: фото Channex не точного объекта |
 | 07.10.2026 21:32 | integration (частично: tests/integration/site-assets.test.ts) | ✅ 11 из 11 | 10 с | ba1d114 +4 | [лог](logs/2026-10-07T16-32-12Z-integration-0270.log) | MKT8: API библиотеки после мутаций |
+| 07.10.2026 21:33 | unit (частично: apps/sites/src/worker.test.ts) | ❌ упало 3 из 36 | 2 с | 6fb0a3e +1 | [лог](logs/2026-10-07T16-33-05Z-unit-cbe4.log) | MKT8 red: картинки в Worker |
+| 07.10.2026 21:33 | unit (частично: apps/sites/) | ✅ 181 из 181 | 4 с | 6fb0a3e +8 | [лог](logs/2026-10-07T16-33-38Z-unit-c600.log) | MKT8 green: картинки в Worker |

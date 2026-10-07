@@ -12,12 +12,6 @@ import { runErrorText, useGenerationRun } from './run';
  * видно и можно поменять, занятый молча не меняется); затем первая версия ИИ существующим потоком MKT6, текст
  * человека уходит пожеланием. Факты (название, адрес, номера, контакты) ИИ берёт только из данных филиала.
  */
-const EXAMPLES = [
-  'Спокойный сайт, акцент на тишину и чистоту, дружелюбный тон',
-  'Сделай упор на расположение рядом с вокзалом и быстрый заезд',
-  'Коротко и по делу: номера, удобства, вопросы гостей и бронирование',
-];
-
 type Phase = 'idle' | 'creating' | 'running' | 'done' | 'failed';
 
 export function CreateSite({
@@ -120,23 +114,6 @@ export function CreateSite({
           </Button>
         </div>
       </form>
-      <ul className="create-site__examples" aria-label="Примеры описаний">
-        {EXAMPLES.map((example) => (
-          <li key={example}>
-            <button
-              type="button"
-              className="create-site__chip"
-              disabled={busy || readOnly}
-              onClick={() => {
-                setText(example);
-                box.current?.focus();
-              }}
-            >
-              {example}
-            </button>
-          </li>
-        ))}
-      </ul>
       {!siteMade && (
         <Field
           label="Адрес сайта"

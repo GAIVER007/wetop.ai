@@ -160,7 +160,7 @@ test('пилоты обозначены явно, ведут на configured ema
   const cards = page.locator('.verticals__card');
   await expect(cards).toHaveCount(3);
   for (const card of [cards.nth(1), cards.nth(2)]) {
-    await expect(card).toContainText('Пилот');
+    await expect(card).not.toContainText(/пилот/i);
     await expect(card.locator('a[href^="mailto:"]')).toHaveCount(1);
     await expect(card.locator('[data-auth="register"]')).toHaveCount(1);
     await expect(card.locator('.verticals__capabilities li')).toHaveCount(6);

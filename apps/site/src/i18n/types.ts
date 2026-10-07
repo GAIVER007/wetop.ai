@@ -68,10 +68,7 @@ export type Dictionary = {
     attention: Array<{ title: string; detail: string }>;
     verticalTitle: string;
     verticalLead: string;
-    available: string;
-    pilot: string;
-    pilotConditions: string;
-    invitation: string;
+    contactAction: string;
     cards: Array<{
       id: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
       icon: IconName;

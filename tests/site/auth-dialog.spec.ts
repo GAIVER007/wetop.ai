@@ -239,7 +239,7 @@ test('на телефоне окно открывается из меню и н�
 /** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
 test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
-  const report = 'reports/public-homepage-v2-slice1-2026-10-07/test-screenshots';
+  const report = 'reports/public-homepage-v2-business-copy-2026-10-07/test-screenshots';
   mkdirSync(report, { recursive: true });
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });

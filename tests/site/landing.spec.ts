@@ -142,12 +142,12 @@ test('первый экран объясняет платформу, напра�
     'Управляйте бизнесом из одного окна',
   );
   await expect(hero).toContainText('Клиенты, бронирования и записи');
-  await expect(hero.locator('.verticals__status')).toHaveText(['Доступно', 'Пилот', 'Пилот']);
+  await expect(hero).not.toContainText(/пилот/i);
   const audience = page.locator('#audience');
   await expect(audience.getByRole('heading', { level: 2 })).toHaveText(
     'Разный бизнес. Свои инструменты',
   );
   await expect(audience).toContainText('Хостелы');
-  await expect(audience).toContainText('Салоны и студии');
-  await expect(audience).toContainText('Кафе и рестораны');
+  await expect(audience).toContainText('Салоны красоты');
+  await expect(audience).toContainText('Ресторанный бизнес');
 });

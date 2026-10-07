@@ -3190,3 +3190,38 @@ button {
 .public-header .brand__mark {
   box-shadow: none;
 }
+
+/* Owner-approved business positioning, without public maturity badges. */
+.public-intro__availability li {
+  padding: 8px 12px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  color: var(--public-text);
+}
+.verticals__top {
+  justify-content: flex-start;
+}
+@media (max-width: 39.99rem) {
+  .verticals__heading,
+  .verticals__card,
+  .today-preview__heading,
+  .today-preview h3 {
+    text-align: center;
+  }
+  .verticals__top,
+  .verticals__segments {
+    justify-content: center;
+  }
+  .verticals__capabilities {
+    align-self: center;
+  }
+  .verticals__capabilities li {
+    justify-content: center;
+  }
+  .today-preview__heading {
+    justify-content: center;
+  }
+  .public-intro__availability {
+    gap: 8px;
+  }
+}

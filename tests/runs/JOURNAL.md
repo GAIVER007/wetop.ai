@@ -7254,3 +7254,6 @@
 | 07.10.2026 17:50 | e2e (частично: --config tests/ui/playwright.auth.config.ts --grep защищённая /today) | ❌ упало 1 из 1 | 24 с | 867a391 +1 | [лог](logs/2026-10-07T12-50-01Z-e2e-68ef.log) | защищённая /today: главная → реальная cookie → исходный экран |
 | 07.10.2026 17:51 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 63 из 63 | 24 с | 867a391 +10 | [лог](logs/2026-10-07T12-51-42Z-e2e-6e4f.log) |  |
 | 07.10.2026 17:52 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 2 с | 867a391 +10 | [лог](logs/2026-10-07T12-52-59Z-unit-51c5.log) |  |
+| 07.10.2026 18:02 | e2e (частично: --config tests/site/playwright.config.ts --grep business positioning) | ❌ упало 1 из 1 | 31 с | dcb9e53 | [лог](logs/2026-10-07T13-02-27Z-e2e-a0a0.log) | business positioning and centered mobile cards without maturity labels |
+| 07.10.2026 18:04 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 64 из 64 | 1 мин 22 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-04-10Z-e2e-cad0.log) |  |
+| 07.10.2026 18:06 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 5 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-06-11Z-unit-7f41.log) |  |

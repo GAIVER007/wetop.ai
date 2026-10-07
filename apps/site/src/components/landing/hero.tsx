@@ -1,7 +1,6 @@
 import { getDictionary } from '../../i18n';
 import { registerLink } from '../../lib/site';
 import { Icon } from '../icon';
-import { VerticalStatus } from './vertical-status';
 
 export function Hero() {
   const t = getDictionary();
@@ -28,8 +27,8 @@ export function Hero() {
           <ul className="public-intro__availability" aria-label={t.intro.availability}>
             {t.intro.cards.map((card) => (
               <li key={card.id}>
-                <span>{card.name}</span>
-                <VerticalStatus id={card.id} />
+                <Icon name={card.icon} size={16} />
+                <span>{card.title}</span>
               </li>
             ))}
           </ul>

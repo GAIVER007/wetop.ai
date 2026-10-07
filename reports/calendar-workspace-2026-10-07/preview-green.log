@@ -1,0 +1,32 @@
+[WebServer] (node:57921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:58752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (7.5s)
+  ✓  2 tests/ui/chessboard-card.spec.ts:48:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (5.3s)
+  ✓  3 tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (6.5s)
+  ✓  4 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (6.9s)
+  ✓  5 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (6.5s)
+  ✓  6 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон light: длинное имя и бронь на 28 ночей (5.0s)
+  ✓  7 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон dark: длинное имя и бронь на 28 ночей (5.2s)
+
+  7 passed (56.4s)

@@ -7473,3 +7473,8 @@
 | 07.10.2026 23:53 | lint | ❌ ошибок: 1 | 58 с | 108174b | [лог](logs/2026-10-07T18-53-35Z-lint-6403.log) | @typescript-eslint/no-unused-vars |
 | 07.10.2026 23:54 | unit | ✅ 4031 из 4034, пропущено 3 | 2 мин 27 с | 108174b | [лог](logs/2026-10-07T18-54-34Z-unit-449d.log) |  |
 | 07.10.2026 23:57 | lint | ✅ без ошибок | 58 с | 108174b +1 | [лог](logs/2026-10-07T18-57-14Z-lint-ce5f.log) |  |
+| 08.10.2026 00:09 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts -g окно «Создать сайт» --workers=1) | ❌ упало 1 из 4 | 1 мин 32 с | 9346cc7 +2 | [лог](logs/2026-10-07T19-09-45Z-e2e-b3ff.log) | окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор |
+| 08.10.2026 00:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ✅ 21 из 21 | 2 мин 12 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-11-22Z-e2e-7072.log) |  |
+| 08.10.2026 00:13 | typecheck | ✅ без ошибок | 1 мин 6 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-13-39Z-typecheck-eb8c.log) |  |
+| 08.10.2026 00:14 | lint | ✅ без ошибок | 59 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-14-46Z-lint-8059.log) |  |
+| 08.10.2026 00:15 | unit (частично: tests/unit/design-slop.test.ts tests/unit/build-tokens.test.ts) | ✅ 17 из 17 | 4 с | 9346cc7 +2 | [лог](logs/2026-10-07T19-15-46Z-unit-b1d5.log) |  |

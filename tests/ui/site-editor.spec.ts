@@ -228,8 +228,9 @@ test('окно «Создать сайт»: нет сайта, занятый а
   const win = m.getByTestId('create-site');
   await expect(win.getByRole('heading', { name: 'Какой сайт сделать?' })).toBeVisible();
   await expect(win.getByLabel('Адрес сайта')).toHaveValue('luxx-aparts');
-  await win.getByRole('button', { name: 'Сделай упор на расположение рядом с вокзалом и быстрый заезд' }).click();
-  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Сделай упор на расположение рядом с вокзалом и быстрый заезд');
+  // Готовых примеров под полем нет (слово владельца 07.10): только строка ввода и «Создать сайт».
+  await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
+  await expect(win.getByRole('button')).toHaveText(['Создать сайт']);
   await win.getByLabel('Опишите сайт').fill('Спокойный сайт у вокзала');
   await win.getByLabel('Адрес сайта').fill('busy-hotel');
   await win.getByTestId('create-site-start').click();

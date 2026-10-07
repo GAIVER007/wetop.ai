@@ -1,0 +1,257 @@
+# Модульные (unit) · 07.10.2026 13:13 Алматы · vm
+# коммит 012c06d (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-13-45Z-unit-6f91.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-slop.test.ts (17 tests | 6 failed) 32ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (17)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 3ms
+     ✓ space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 1ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 1ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 1ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     × font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 11ms
+     × space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 2ms
+     × inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 2ms
+     × breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 2ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     × orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 1ms
+     × снимок покрывает все правила 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(13) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 6",
++   "apps/web/src/app/ai-seller/agents/agents.css: 0 → 2",
++   "apps/web/src/app/channels/channels.css: 0 → 22",
++   "apps/web/src/app/chessboard/board.css: 0 → 3",
++   "apps/web/src/app/connections/integrations.css: 0 → 7",
++   "apps/web/src/app/finance/finance.css: 0 → 14",
++   "apps/web/src/app/food/food.css: 0 → 10",
++   "apps/web/src/app/globals.css: 0 → 4",
++   "apps/web/src/app/journal/journal.css: 0 → 1",
++   "apps/web/src/app/premium.css: 0 → 7",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 8",
++   "apps/web/src/app/today/owner-dashboard.css: 0 → 2",
++   "apps/web/src/app/workspace.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(24) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 12",
++   "apps/web/src/app/ai-seller/agents/agents.css: 0 → 14",
++   "apps/web/src/app/beauty/beauty.css: 0 → 50",
++   "apps/web/src/app/channels/channels.css: 0 → 61",
++   "apps/web/src/app/chessboard/board.css: 0 → 23",
++   "apps/web/src/app/connections/integrations.css: 0 → 15",
++   "apps/web/src/app/directory.css: 0 → 92",
++   "apps/web/src/app/finance/finance.css: 0 → 36",
++   "apps/web/src/app/food/food.css: 0 → 33",
++   "apps/web/src/app/globals.css: 0 → 143",
++   "apps/web/src/app/inventory/fund.css: 0 → 27",
++   "apps/web/src/app/journal/journal.css: 0 → 4",
++   "apps/web/src/app/login/login.css: 0 → 36",
++   "apps/web/src/app/login/role-access.css: 0 → 5",
++   "apps/web/src/app/management/analytics/analytics.css: 0 → 14",
++   "apps/web/src/app/management/hotel.css: 0 → 32",
++   "apps/web/src/app/premium.css: 0 → 212",
++   "apps/web/src/app/register/setup/setup.css: 0 → 4",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 28",
++   "apps/web/src/app/status/status.css: 0 → 8",
++   "apps/web/src/app/today/dashboard.css: 0 → 53",
++   "apps/web/src/app/today/owner-dashboard.css: 0 → 104",
++   "apps/web/src/app/today/vertical-today.css: 0 → 8",
++   "apps/web/src/app/workspace.css: 0 → 124",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(20) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx: 0 → 4",
++   "apps/web/src/app/ai-seller/agents/editor.tsx: 0 → 1",
++   "apps/web/src/app/beauty/date-bar.tsx: 0 → 1",
++   "apps/web/src/app/beauty/journal.tsx: 0 → 6",
++   "apps/web/src/app/branches/workspace.tsx: 0 → 2",
++   "apps/web/src/app/chessboard/board-grid.tsx: 0 → 9",
++   "apps/web/src/app/chessboard/stay-resize.tsx: 0 → 1",
++   "apps/web/src/app/management/analytics/occupancy/occupancy.tsx: 0 → 2",
++   "apps/web/src/app/management/analytics/overview.tsx: 0 → 2",
++   "apps/web/src/app/onboarding/onboarding-form.tsx: 0 → 1",
++   "apps/web/src/app/reservations/[number]/finance-panel.tsx: 0 → 1",
++   "apps/web/src/app/reservations/new/form.tsx: 0 → 2",
++   "apps/web/src/app/today/owner-dashboard.tsx: 0 → 1",
++   "apps/web/src/app/website/analytics/daily-chart.tsx: 0 → 1",
++   "apps/web/src/app/website/analytics/page.tsx: 0 → 1",
++   "apps/web/src/components/action-menu.tsx: 0 → 1",
++   "apps/web/src/components/date-field.tsx: 0 → 1",
++   "apps/web/src/components/day-bars.tsx: 0 → 1",
++   "apps/web/src/components/shell/product-tour.tsx: 0 → 2",
++   "apps/web/src/components/ui.tsx: 0 → 3",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(26) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 1",
++   "apps/web/src/app/ai-seller/agents/agents.css: 0 → 1",
++   "apps/web/src/app/ai-seller/ai-seller.css: 0 → 4",
++   "apps/web/src/app/bar/bar.css: 0 → 4",
++   "apps/web/src/app/channels/channels.css: 0 → 3",
++   "apps/web/src/app/chessboard/board.css: 0 → 4",
++   "apps/web/src/app/connections/integrations.css: 0 → 1",
++   "apps/web/src/app/control.css: 0 → 1",
++   "apps/web/src/app/create/wizard.css: 0 → 2",
++   "apps/web/src/app/finance/finance.css: 0 → 7",
++   "apps/web/src/app/globals.css: 0 → 5",
++   "apps/web/src/app/hotel-settings/settings.css: 0 → 1",
++   "apps/web/src/app/inventory/fund.css: 0 → 1",
++   "apps/web/src/app/inventory/inventory.css: 0 → 5",
++   "apps/web/src/app/login/role-access.css: 0 → 1",
++   "apps/web/src/app/management/analytics/analytics.css: 0 → 3",
++   "apps/web/src/app/onboarding/onboarding.css: 0 → 1",
++   "apps/web/src/app/platform/support/support.css: 0 → 1",
++   "apps/web/src/app/premium.css: 0 → 5",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 6",
++   "apps/web/src/app/reservations/reservations.css: 0 → 4",
++   "apps/web/src/app/staff/staff.css: 0 → 1",
++   "apps/web/src/app/today/dashboard.css: 0 → 2",
++   "apps/web/src/app/today/desk.css: 0 → 1",
++   "apps/web/src/app/today/owner-dashboard.css: 0 → 3",
++   "apps/web/src/app/workspace.css: 0 → 4",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/login/role-access.tsx: 0 → 1",
++   "apps/web/src/components/section-cards.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > снимок покрывает все правила
+AssertionError: expected [ 'color-literal', …(9) ] to deeply equal [ 'breakpoint-literal', …(15) ]
+
+- Expected
++ Received
+
+@@ -1,17 +1,11 @@
+  [
+-   "breakpoint-literal",
+    "color-literal",
+    "dot-separator",
+-   "font-literal",
+    "font-under-12",
+-   "inline-style",
+-   "layer-name",
+-   "orphan-module",
+    "radius-literal",
+    "shadow-on-page",
+-   "space-literal-not-var",
+    "space-off-scale",
+    "trailing-arrow",
+    "uppercase",
+    "window-confirm",
+    "z-index-literal",
+
+ ❯ tests/unit/design-slop.test.ts:36:42
+     34|
+     35|   it('снимок покрывает все правила', () => {
+     36|     expect(Object.keys(baseline).sort()).toEqual(RULES.map((r) => r.id…
+       |                                          ^
+     37|   });
+     38| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 11 passed (17)
+   Start at  08:13:48
+   Duration  1.29s (import 64%, transform 31%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-13-45Z-unit-6f91.json
+
+# код выхода 1 · 4 с

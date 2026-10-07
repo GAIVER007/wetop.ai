@@ -1,0 +1,101 @@
+# Сквозные (e2e) · 07.10.2026 13:26 Алматы · vm
+# коммит 762bb77 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+[WebServer] (node:22281) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (13.4s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (5.3s)
+  ✓   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (53.2s)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (4.4s)
+  ✘   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (17.7s)
+  ✓   6 tests/food-ui/food.spec.ts:297:1 › READ_ONLY and STAFF permissions on real API (3.0s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   7 tests/food-ui/food.spec.ts:324:1 › server branch switch isolates Food businesses and locations and other verticals (19.4s)
+  ✓   8 tests/food-ui/food.spec.ts:375:1 › pagination beyond 100 and previous local day keep table occupied after reload (7.6s)
+  ✓   9 tests/food-ui/food.spec.ts:443:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (14.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  10 tests/food-ui/food.spec.ts:541:1 › API unavailable renders LoadError instead of free tables (1.9s)
+  ✓  11 tests/food-ui/food.spec.ts:549:1 › creation 503 keeps the draft and retry key; invalid period stays inline (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  12 tests/food-ui/food.spec.ts:579:1 › Food excludes every registered foreign workspace route before API requests (38.2s)
+  ✓  13 tests/food-ui/food.spec.ts:617:1 › marker guarded cleanup (96ms)
+
+
+  1) tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true })
+        - locator resolved to <button class="btn">Подтвердить</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+      - element was detached from the DOM, retrying
+
+
+      290 |     ).ok(),
+      291 |   ).toBe(true);
+    > 292 |   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+          |                                                                     ^
+      293 |   await expect(d.getByRole('alert')).toHaveText('Бронирование уже изменилось. Данные обновлены.');
+      294 |   await expect(d.getByRole('button', { name: 'Подтвердить', exact: true })).toHaveCount(0);
+      295 |   await expect(d).toContainText('Подтверждено');
+        at /home/user/wetop.ai/tests/food-ui/food.spec.ts:292:69
+
+    Error Context: test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry 
+  12 passed (3.2m)
+
+# код выхода 1 · 3 мин 14 с

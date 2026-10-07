@@ -7098,3 +7098,4 @@
 | 07.10.2026 16:07 | lint | ✅ без ошибок | 32 с | 6247113 | [лог](logs/2026-10-07T11-07-16Z-lint-c99e.log) | срез справочников объекта (ADR-152) |
 | 07.10.2026 16:07 | unit | ✅ 3752 из 3755, пропущено 3 | 1 мин 52 с | 6247113 | [лог](logs/2026-10-07T11-07-50Z-unit-1998.log) | срез справочников объекта (ADR-152): полный набор |
 | 07.10.2026 16:09 | integration (частично: tests/integration/payment-method-settings.test.ts tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts | ✅ 28 из 28 | 9 с | 6247113 | [лог](logs/2026-10-07T11-09-51Z-integration-0bab.log) | настройки способов оплаты (миграция 062): пустая таблица, порядок, CHECK EXTERNAL, уникальность; RLS и соседи кассы |
+| 07.10.2026 16:24 | typecheck | ✅ без ошибок | 40 с | a5da084 +1 | [лог](logs/2026-10-07T11-24-09Z-typecheck-35ab.log) | срез справочников: @default(now()) у updated_at настроек способов оплаты, как в миграции 062 |

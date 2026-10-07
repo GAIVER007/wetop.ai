@@ -2600,7 +2600,7 @@ model PaymentMethodSetting {
   method     PaymentMethod
   enabled    Boolean       @default(true)
   sortOrder  Int           @map("sort_order")
-  updatedAt  DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property Property @relation(fields: [propertyId], references: [id])
 

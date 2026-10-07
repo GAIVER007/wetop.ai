@@ -1,11 +1,11 @@
 # MV8.5 DS0b: CSS foundation
 
-Status: implementation and regression in progress. This is not a deployment or final acceptance report.
+Status: implementation and targeted repairs complete; final full regression pending. This is not a deployment or final acceptance report.
 Base: main `50f04c5ce104bc366d4854e5bf831b81ddfe665f`, after PR #267 and full green CI 37631054628.
 Branch: `codex/mv85-ds0b-css-foundation`.
 Current integration base: main `b6db018699fa806060d3e74f8d257ec57a9ff8c2` (MV9 vertical analytics merged during verification). Its new vertical.css follows the same sections layer contract.
 Draft PR: https://github.com/GAIVER007/wetop.ai/pull/284
-Full CI candidate: `d1461ddc`, run https://github.com/GAIVER007/wetop.ai/actions/runs/37646528370 (failed: six UI failures; repairs and a new full run pending).
+Previous failed CI candidate: `d1461ddc`, run https://github.com/GAIVER007/wetop.ai/actions/runs/37646528370 (failed: six UI failures; repairs and a new full run pending).
 Previous run 37644060999 passed fast/unit/types/lint/site, bot, Beauty, Food and Branches, then was cancelled by this task after visual review found narrow ghost arrows. Its partial green jobs do not replace final-candidate CI.
 
 ## Scope
@@ -113,3 +113,5 @@ Canonical Linux references: ui-snapshots run 37651993122 passed, commit 8be62da1
 Final CSS/token guards after mobile repairs: 44/44, 2026-10-07T16-30-12Z-unit-7e79. Debt is now 249 off-scale and 953 literal-spacing occurrences.
 
 Mobile bottom allowance GREEN across all 12 checked routes: 2026-10-07T16-30-28Z-e2e-6cb4, canonical limits, 1/1. The previous 18 passing mobile/focus/category checks remain unchanged; final full CI must validate the combined candidate.
+
+Final runtime candidate: 131b235e (following canonical snapshot commit 55083b97). All local source changes are committed and pushed. CI result will be recorded in PR #284 to avoid changing the candidate merely to record its own run result.

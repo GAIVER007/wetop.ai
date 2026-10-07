@@ -8,7 +8,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
  */
 const fixture = FIXTURE_API;
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  // These cases verify the two-line booking caption in the normal view.
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await request.post(`${fixture}/__test/reset`);
 });
 

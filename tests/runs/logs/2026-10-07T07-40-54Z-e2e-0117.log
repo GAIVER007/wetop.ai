@@ -1,0 +1,94 @@
+# Сквозные (e2e) · 07.10.2026 12:40 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/calendar-workspace-20261007), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-filters.spec.ts' '--workers=1'
+[WebServer] (node:66360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+(node:66686) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen with a side summary and frozen headings (10.3s)
+  ✓   2 tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (10.9s)
+  ✓   3 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (7.5s)
+  ✓   4 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (7.3s)
+  ✓   5 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (4.6s)
+[WebServer] (node:67740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:67780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (13.3s)
+  ✓   7 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (4.5s)
+  ✘   8 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (18.8s)
+(node:68914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/chessboard-filters.spec.ts:273:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (6.0s)
+  ✓  10 tests/ui/chessboard-filters.spec.ts:291:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (7.1s)
+  ✓  11 tests/ui/chessboard-filters.spec.ts:318:1 › доступность: окошко «Фильтры» открыто (9.2s)
+  ✓  12 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (5.7s)
+  ✓  13 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (9.3s)
+  ✓  14 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (6.2s)
+  ✓  15 tests/ui/chessboard-statistics.spec.ts:54:1 › today statistics stay available when the calendar shows another month (10.3s)
+  ✓  16 tests/ui/chessboard-statistics.spec.ts:68:1 › empty booking base shows zero occupancy and no urgent bookings (3.4s)
+  ✓  17 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets light: accessible labels and contrasts (4.3s)
+  ✓  18 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets dark: accessible labels and contrasts (6.3s)
+  ✓  19 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets light: accessible pointer targets (5.2s)
+  ✓  20 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets dark: accessible pointer targets (4.6s)
+
+
+  1) tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('main').getByLabel('Вид строк календаря')
+    Expected: "normal"
+    Received: "compact"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByLabel('Вид строк календаря') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Вид строк календаря')
+        33 × locator resolved to <select class="inp" aria-label="Вид строк календаря">…</select>
+           - unexpected value "compact"
+
+
+      255 |   const main = page.getByRole('main');
+      256 |   const view = main.getByLabel('Вид строк календаря');
+    > 257 |   await expect(view).toHaveValue('normal');
+          |                      ^
+      258 |   const height = async () =>
+      259 |     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
+      260 |   const normal = await height();
+        at /private/tmp/wetop-calendar-workspace-20261007/tests/ui/chessboard-filters.spec.ts:257:22
+
+    Error Context: test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+  19 passed (3.1m)
+
+# код выхода 1 · 3 мин 11 с

@@ -2015,22 +2015,62 @@
   }
 }
 
-/* Компьютер с карточкой дня справа (≥1200): карточка на 44 px выше строки управления, и на ноутбуке
-   1366×768 сетке оставалось 375 px (контракт `chessboard-compact-screen`: больше 400). Подписи полей
-   поиска и отборов встают в строку с полем, у поиска подпись несёт placeholder и aria-label,
-   отступы полосы вдвое меньше: полоса 77 → 44 px, сетка снова выше 400 (07.10.2026) */
-@media (min-width: 1200px) {
+/*
+ * Рабочий экран на компьютере (baseline B, решение владельца 07.10.2026): на ноутбуке 1366×768 внутри сетки
+ * целиком видно не меньше восьми строк мест. Текст не мельчает: место дают подписи фильтров слева от полей,
+ * шапка дат без переноса подписи «Свернуть категории», «Компактный» вид без лишних полей у клеток и подвал
+ * в одну строку. На телефоне и планшете правила прежние, цели нажатия там 44 px.
+ */
+@media (min-width: 961px) {
   .board-toolbar {
     align-items: center;
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
+    padding-block: var(--space-1);
   }
   .board-toolbar .field--inline {
     flex-direction: row;
     align-items: center;
     gap: var(--space-2);
   }
-  .board-search-label {
-    display: none;
+  .board-toolbar .field--inline > span {
+    white-space: nowrap;
+  }
+  /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
+  .board-toolbar .board-category,
+  .board-toolbar .board-state,
+  .board-toolbar .board-view {
+    flex: 0 0 auto;
+  }
+  .board th.board__unit-head {
+    padding: var(--space-1) var(--space-2);
+  }
+  .board th.board__unit-head .board-overview-controls .btn {
+    height: var(--space-6);
+    min-height: var(--space-6);
+    white-space: nowrap;
+  }
+  .board-wrap[data-density='compact'] .board td.board__cell,
+  .board-wrap[data-density='compact'] .board td.board__unit,
+  .board-wrap[data-density='compact'] .board .board__group td {
+    padding-block: 0;
+  }
+  .board-wrap[data-density='compact'] .board .board-unit-link {
+    padding-block: 0;
+  }
+  .board-wrap[data-density='compact'] .board .board-hk__menu .action-menu__button {
+    width: var(--space-6);
+    height: var(--space-6);
+    min-height: var(--space-6);
+  }
+  .board-footer {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  /* «Обозначения» строкой в 24 px: цель нажатия на компьютере (DESIGN.md §1 п. 3) */
+  .board-legend-details > summary {
+    padding-block: 0;
+    line-height: var(--space-6);
+  }
+  .page:has(> .board-wrap) {
+    padding-bottom: var(--space-1);
   }
 }

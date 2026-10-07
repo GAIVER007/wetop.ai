@@ -7196,3 +7196,5 @@
 | 07.10.2026 17:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-desig | ✅ 34 из 34 | 3 мин 35 с | ef46db3 +5 | [лог](logs/2026-10-07T12-00-00Z-e2e-809f.log) |  |
 | 07.10.2026 17:03 | typecheck | ✅ без ошибок | 41 с | ef46db3 +5 | [лог](logs/2026-10-07T12-03-44Z-typecheck-0fdc.log) |  |
 | 07.10.2026 17:04 | lint | ✅ без ошибок | 31 с | ef46db3 +5 | [лог](logs/2026-10-07T12-04-26Z-lint-9f62.log) |  |
+| 07.10.2026 17:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1247 tests/ui/booking-widget-turnstile.spec.ts:244) | ❌ упало 1 из 2 | 40 с | 94a2ae3 | [лог](logs/2026-10-07T12-49-50Z-e2e-c185.log) | шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке |
+| 07.10.2026 17:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1247 tests/ui/booking-widget-turnstile.spec.ts) | ✅ 10 из 10 | 18 с | 94a2ae3 +2 | [лог](logs/2026-10-07T12-50-38Z-e2e-b520.log) |  |

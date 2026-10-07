@@ -1,9 +1,11 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Headers, HttpCode, Inject, Module, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Module, Post, Query } from '@nestjs/common';
 import { Access } from '../auth/access.decorator';
 import { SCOPE_HEADER } from '../auth/scope';
 import { PrismaService } from '../database/prisma.provider';
+import { contentReaderFromEnv } from '../channels/content';
 import { MarketingSiteService } from './marketing-site.service';
+import { BRIEF_CHANNEX_READER, SiteBriefService } from './brief.service';
 
 /**
  * «Маркетинг → Сайт и SEO», ядро (MKT3): сайт выбранного филиала и сохранение версий. Право `settings`, как у
@@ -13,7 +15,10 @@ import { MarketingSiteService } from './marketing-site.service';
 @Controller('marketing/site')
 @Access('settings')
 export class MarketingSiteController {
-  constructor(@Inject(MarketingSiteService) private readonly service: MarketingSiteService) {}
+  constructor(
+    @Inject(MarketingSiteService) private readonly service: MarketingSiteService,
+    @Inject(SiteBriefService) private readonly briefs: SiteBriefService,
+  ) {}
 
   @Get()
   current(@Headers(SCOPE_HEADER) pointer?: string) {
@@ -24,6 +29,12 @@ export class MarketingSiteController {
   @HttpCode(201)
   create(@Headers(SCOPE_HEADER) pointer: string | undefined, @Body() body: unknown) {
     return this.service.create(!!pointer, body);
+  }
+
+  /** Бриф сайта филиала (MKT5): только чтение; `?refresh=1` обходит кэш Channex и больше ничего не меняет */
+  @Get('brief')
+  brief(@Headers(SCOPE_HEADER) pointer?: string, @Query('refresh') refresh?: string) {
+    return this.briefs.brief(!!pointer, refresh === '1' || refresh === 'true');
   }
 
   @Get('draft')
@@ -40,6 +51,11 @@ export class MarketingSiteController {
 
 @Module({
   controllers: [MarketingSiteController],
-  providers: [PrismaService, MarketingSiteService],
+  providers: [
+    PrismaService,
+    MarketingSiteService,
+    SiteBriefService,
+    { provide: BRIEF_CHANNEX_READER, useFactory: contentReaderFromEnv },
+  ],
 })
 export class MarketingSiteModule {}

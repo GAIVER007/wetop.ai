@@ -7094,3 +7094,32 @@
 | 07.10.2026 15:15 | e2e (частично: tests/e2e/finance.spec.ts) | ❌ упало 1 из 2 | 47 с | 2642047 | [лог](logs/2026-10-07T10-15-28Z-e2e-e51f.log) | RED: старый finance.spec без входа на коде main ddb5da41 |
 | 07.10.2026 15:16 | typecheck | ✅ без ошибок | 1 мин 19 с | 2642047 +1 | [лог](logs/2026-10-07T10-16-30Z-typecheck-a99b.log) | #268 после слияния main |
 | 07.10.2026 15:17 | lint | ✅ без ошибок | 54 с | 2642047 +1 | [лог](logs/2026-10-07T10-17-50Z-lint-5c76.log) | #268 после слияния main |
+| 07.10.2026 13:09 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ код выхода 1 | 5 с | 012c06d +1 | [лог](logs/2026-10-07T08-09-37Z-unit-6ad7.log) | (файл не выполнился) |
+| 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ✅ 28 из 28 | 3 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-15Z-unit-5213.log) |  |
+| 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ упало 1 из 28 | 2 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-29Z-unit-b06e.log) | SiteBrief v0: старшинство телефона и почты у филиала нет: берётся Channex без расхождения; телефон объекта в бриф не идёт |
+| 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ упало 1 из 28 | 2 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-33Z-unit-afc0.log) | SiteBrief v0: найдено, нет, недоступно Channex недоступен: его факты не «нет», а источник в sourceUnavailable; ответ тот же по платформе |
+| 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ упало 1 из 28 | 2 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-36Z-unit-952e.log) | SiteBrief v0: briefHash другое collectedAt и checkedAt: тот же хэш |
+| 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ упало 2 из 28 | 2 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-40Z-unit-4f6f.log) | SiteBrief v0: предлагаемая структура полный набор данных: секции по порядку, у каждой причины и доказательства |
+| 07.10.2026 13:12 | unit (частично: apps/api/src/channels) | ✅ 212 из 212 | 11 с | 012c06d +4 | [лог](logs/2026-10-07T08-12-40Z-unit-8ea9.log) |  |
+| 07.10.2026 13:13 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 9 с | 012c06d +6 | [лог](logs/2026-10-07T08-13-45Z-unit-a316.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 07.10.2026 13:13 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 9 с | 012c06d +7 | [лог](logs/2026-10-07T08-13-55Z-unit-c98d.log) |  |
+| 07.10.2026 13:16 | integration (частично: tests/integration/site-brief.test.ts) | ❌ код выхода 1 | 8 с | 012c06d +8 | [лог](logs/2026-10-07T08-16-35Z-integration-1e6b.log) | (файл не выполнился) |
+| 07.10.2026 13:17 | integration (частично: tests/integration/site-brief.test.ts) | ✅ 11 из 11 | 9 с | 012c06d +8 | [лог](logs/2026-10-07T08-17-06Z-integration-a3a8.log) |  |
+| 07.10.2026 13:17 | integration (частично: tests/integration/site-brief.test.ts) | ❌ упало 3 из 11 | 8 с | 012c06d +8 | [лог](logs/2026-10-07T08-17-31Z-integration-3954.log) | MKT5 site brief точный филиал: объект, категории, продавец и Channex только филиала А |
+| 07.10.2026 13:17 | integration (частично: tests/integration/site-brief.test.ts) | ❌ упало 2 из 11 | 9 с | 012c06d +8 | [лог](logs/2026-10-07T08-17-40Z-integration-3769.log) | MKT5 site brief точный филиал: объект, категории, продавец и Channex только филиала А |
+| 07.10.2026 13:17 | integration (частично: tests/integration/site-brief.test.ts) | ❌ упало 2 из 11 | 9 с | 012c06d +8 | [лог](logs/2026-10-07T08-17-50Z-integration-7c72.log) | MKT5 site brief точный филиал: объект, категории, продавец и Channex только филиала А |
+| 07.10.2026 13:18 | integration (частично: tests/integration/site-brief.test.ts) | ❌ упало 2 из 11 | 8 с | 012c06d +8 | [лог](logs/2026-10-07T08-18-00Z-integration-a2b1.log) | MKT5 site brief отказы Channex: 200, источник недоступен, факты платформы остаются, текст ошибки провайдера не уходит |
+| 07.10.2026 13:19 | typecheck | ✅ без ошибок | 1 мин 20 с | 012c06d +8 | [лог](logs/2026-10-07T08-19-06Z-typecheck-7107.log) |  |
+| 07.10.2026 13:20 | lint | ❌ ошибок: 1 | 50 с | 012c06d +8 | [лог](logs/2026-10-07T08-20-27Z-lint-175b.log) | @typescript-eslint/no-unused-vars |
+| 07.10.2026 13:21 | lint | ✅ без ошибок | 52 с | 012c06d +8 | [лог](logs/2026-10-07T08-21-23Z-lint-e0d0.log) |  |
+| 07.10.2026 13:22 | typecheck | ✅ без ошибок | 1 мин | 012c06d +8 | [лог](logs/2026-10-07T08-22-40Z-typecheck-26ca.log) |  |
+| 07.10.2026 13:23 | unit | ✅ 3748 из 3751, пропущено 3 | 2 мин 26 с | 012c06d +7 | [лог](logs/2026-10-07T08-23-41Z-unit-feea.log) |  |
+| 07.10.2026 13:26 | integration | ✅ 840 из 840 | 3 мин 2 с | 012c06d +8 | [лог](logs/2026-10-07T08-26-11Z-integration-6c6d.log) |  |
+| 07.10.2026 13:29 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 16 с | 012c06d +7 | [лог](logs/2026-10-07T08-29-20Z-e2e-81ca.log) |  |
+| 07.10.2026 13:29 | unit (частично: apps/sites packages/domain/src/marketing packages/domain/src/web-booking apps/api/src/sites-runtime apps/api/src/web-booking) | ✅ 414 из 414 | 10 с | 012c06d +7 | [лог](logs/2026-10-07T08-29-37Z-unit-a2f6.log) |  |
+| 07.10.2026 13:30 | unit (частично: apps/api/src/channels) | ✅ 212 из 212 | 12 с | 012c06d +7 | [лог](logs/2026-10-07T08-30-22Z-unit-5a7f.log) |  |
+| 07.10.2026 14:29 | typecheck | ✅ без ошибок | 1 мин | a8deeb1 | [лог](logs/2026-10-07T09-29-52Z-typecheck-5338.log) |  |
+| 07.10.2026 14:30 | lint | ✅ без ошибок | 37 с | a8deeb1 | [лог](logs/2026-10-07T09-30-53Z-lint-6bfd.log) |  |
+| 07.10.2026 14:31 | unit | ✅ 3734 из 3737, пропущено 3 | 1 мин 59 с | a8deeb1 | [лог](logs/2026-10-07T09-31-31Z-unit-3ac9.log) |  |
+| 07.10.2026 15:07 | typecheck | ✅ без ошибок | 1 мин 27 с | 08c4e2a | [лог](logs/2026-10-07T10-07-08Z-typecheck-25b2.log) |  |
+| 07.10.2026 15:08 | unit (частично: -- apps/api/src/auth/route-access.test.ts packages/domain/src/marketing apps/api/src/finance) | ✅ 3762 из 3765, пропущено 3 | 2 мин 29 с | 08c4e2a | [лог](logs/2026-10-07T10-08-36Z-unit-77ba.log) |  |

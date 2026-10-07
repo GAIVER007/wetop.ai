@@ -1,0 +1,11 @@
+# Линтер (lint) · 07.10.2026 13:20 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/marketing-site/brief.service.ts
+  120:15  error  '_propertyId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 50 с

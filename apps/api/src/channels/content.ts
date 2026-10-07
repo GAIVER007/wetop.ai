@@ -147,105 +147,117 @@ export class ChannelContentService {
   }
 
   private async read(): Promise<HotelContent> {
-    const base: HotelContent = {
-      checkedAt: new Date().toISOString(),
-      source: 'channex',
-      environment: channexEnvironment(),
-      state: 'READY',
-      message: 'Контент объекта прочитан из менеджера каналов',
-      property: null,
-      policy: null,
-      facilities: [],
-      photos: [],
-    };
-    if (!this.reader)
-      return { ...base, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
+    if (!this.reader) return readChannexContent(null, null);
     const propertyId = (await this.repo.mappings(PROVIDER)).find(
       (m) => m.providerPropertyId,
     )?.providerPropertyId;
-    if (!propertyId)
-      return {
-        ...base,
-        state: 'NO_MAPPING',
-        message: 'Объект не сопоставлен с менеджером каналов',
-      };
-    try {
-      const filter = { 'filter[property_id]': propertyId };
-      const [property, dictionary, policies, photos] = await Promise.all([
-        this.reader.getProperty(propertyId),
-        this.reader.listPropertyFacilities(),
-        this.reader.listAll<Attrs>('/hotel_policies', filter),
-        this.reader.listAll<Attrs>('/photos', filter),
-      ]);
-      const a = property.attributes as Attrs;
-      const content = (a['content'] ?? {}) as Attrs;
-      const titles = new Map(
-        dictionary.map((f) => [
-          f.id,
-          { title: text(f.attributes['title']) ?? f.id, category: text(f.attributes['category']) },
-        ]),
-      );
-      const selected = Array.isArray(a['facilities']) ? (a['facilities'] as unknown[]) : [];
-      const p = (policies[0]?.attributes ?? null) as Attrs | null;
-      return {
-        ...base,
-        property: {
-          title: text(a['title']),
-          description: text(content['description']),
-          importantInformation: text(content['important_information']),
-          phone: text(a['phone']),
-          email: text(a['email']),
-          website: text(a['website']),
-          address: text(a['address']),
-          city: text(a['city']),
-          country: text(a['country']),
-        },
-        policy: p && {
-          // Правила на staging созданы полями checkin_from_time / checkout_to_time (cli-channex-content.ts,
-          // API их принял 10.09.2026); в примере hotel-policy-collection.md — checkin_time / checkout_time
-          checkInTime: text(p['checkin_from_time']) ?? text(p['checkin_time']),
-          checkOutTime: text(p['checkout_to_time']) ?? text(p['checkout_time']),
-          maxGuests: typeof p['max_count_of_guests'] === 'number' ? p['max_count_of_guests'] : null,
-          pets: text(p['pets_policy']),
-          smoking: text(p['smoking_policy']),
-          internet: text(p['internet_access_type']),
-          parking: text(p['parking_type']),
-        },
-        facilities: selected
-          .map((id) => (typeof id === 'string' ? titles.get(id) : undefined))
-          .filter((f): f is { title: string; category: string | null } => !!f)
-          .sort(
-            (x, y) =>
-              (x.category ?? '').localeCompare(y.category ?? '') || x.title.localeCompare(y.title),
-          ),
-        photos: photos
-          .map((ph) => ph.attributes)
-          .filter((ph) => typeof ph['url'] === 'string')
-          .sort((x, y) => Number(x['position'] ?? 0) - Number(y['position'] ?? 0))
-          .map((ph) => ({
-            url: ph['url'] as string,
-            description: text(ph['description']),
-            forRoomType: !!ph['room_type_id'],
-          })),
-      };
-    } catch (error) {
-      const status = error instanceof channex.ChannexApiError ? error.status : 0;
-      const state: ContentState =
-        status === 401 || status === 403
-          ? 'DENIED'
-          : status === 404
-            ? 'NOT_FOUND'
-            : status === 429
-              ? 'RATE_LIMITED'
-              : 'UNREACHABLE';
-      const messages: Record<string, string> = {
-        DENIED: 'Нет доступа к объекту в менеджере каналов',
-        NOT_FOUND: 'Объект не найден в менеджере каналов',
-        RATE_LIMITED: 'Лимит запросов менеджера каналов — повторите через минуту',
-        UNREACHABLE: 'Менеджер каналов не отвечает',
-      };
-      return { ...base, state, message: messages[state]! };
-    }
+    return readChannexContent(this.reader, propertyId ?? null);
+  }
+}
+
+/**
+ * Контент объекта Channex по явно заданному id объекта провайдера. Без выбора объекта по организации или контексту:
+ * кто вызывает, тот и отвечает за то, что id взят у нужного объекта (MKT5 берёт его у объекта филиала scope).
+ */
+export async function readChannexContent(
+  reader: ContentReader | null,
+  propertyId: string | null,
+): Promise<HotelContent> {
+  const base: HotelContent = {
+    checkedAt: new Date().toISOString(),
+    source: 'channex',
+    environment: channexEnvironment(),
+    state: 'READY',
+    message: 'Контент объекта прочитан из менеджера каналов',
+    property: null,
+    policy: null,
+    facilities: [],
+    photos: [],
+  };
+  if (!reader)
+    return { ...base, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
+  if (!propertyId)
+    return {
+      ...base,
+      state: 'NO_MAPPING',
+      message: 'Объект не сопоставлен с менеджером каналов',
+    };
+  try {
+    const filter = { 'filter[property_id]': propertyId };
+    const [property, dictionary, policies, photos] = await Promise.all([
+      reader.getProperty(propertyId),
+      reader.listPropertyFacilities(),
+      reader.listAll<Attrs>('/hotel_policies', filter),
+      reader.listAll<Attrs>('/photos', filter),
+    ]);
+    const a = property.attributes as Attrs;
+    const content = (a['content'] ?? {}) as Attrs;
+    const titles = new Map(
+      dictionary.map((f) => [
+        f.id,
+        { title: text(f.attributes['title']) ?? f.id, category: text(f.attributes['category']) },
+      ]),
+    );
+    const selected = Array.isArray(a['facilities']) ? (a['facilities'] as unknown[]) : [];
+    const p = (policies[0]?.attributes ?? null) as Attrs | null;
+    return {
+      ...base,
+      property: {
+        title: text(a['title']),
+        description: text(content['description']),
+        importantInformation: text(content['important_information']),
+        phone: text(a['phone']),
+        email: text(a['email']),
+        website: text(a['website']),
+        address: text(a['address']),
+        city: text(a['city']),
+        country: text(a['country']),
+      },
+      policy: p && {
+        // Правила на staging созданы полями checkin_from_time / checkout_to_time (cli-channex-content.ts,
+        // API их принял 10.09.2026); в примере hotel-policy-collection.md поля checkin_time / checkout_time
+        checkInTime: text(p['checkin_from_time']) ?? text(p['checkin_time']),
+        checkOutTime: text(p['checkout_to_time']) ?? text(p['checkout_time']),
+        maxGuests: typeof p['max_count_of_guests'] === 'number' ? p['max_count_of_guests'] : null,
+        pets: text(p['pets_policy']),
+        smoking: text(p['smoking_policy']),
+        internet: text(p['internet_access_type']),
+        parking: text(p['parking_type']),
+      },
+      facilities: selected
+        .map((id) => (typeof id === 'string' ? titles.get(id) : undefined))
+        .filter((f): f is { title: string; category: string | null } => !!f)
+        .sort(
+          (x, y) =>
+            (x.category ?? '').localeCompare(y.category ?? '') || x.title.localeCompare(y.title),
+        ),
+      photos: photos
+        .map((ph) => ph.attributes)
+        .filter((ph) => typeof ph['url'] === 'string')
+        .sort((x, y) => Number(x['position'] ?? 0) - Number(y['position'] ?? 0))
+        .map((ph) => ({
+          url: ph['url'] as string,
+          description: text(ph['description']),
+          forRoomType: !!ph['room_type_id'],
+        })),
+    };
+  } catch (error) {
+    const status = error instanceof channex.ChannexApiError ? error.status : 0;
+    const state: ContentState =
+      status === 401 || status === 403
+        ? 'DENIED'
+        : status === 404
+          ? 'NOT_FOUND'
+          : status === 429
+            ? 'RATE_LIMITED'
+            : 'UNREACHABLE';
+    const messages: Record<string, string> = {
+      DENIED: 'Нет доступа к объекту в менеджере каналов',
+      NOT_FOUND: 'Объект не найден в менеджере каналов',
+      RATE_LIMITED: 'Лимит запросов менеджера каналов, повторите через минуту',
+      UNREACHABLE: 'Менеджер каналов не отвечает',
+    };
+    return { ...base, state, message: messages[state]! };
   }
 }
 

@@ -97,6 +97,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/site': 'settings',
   'POST /marketing/site': 'settings',
   'GET /marketing/site/brief': 'settings',
+  'POST /marketing/site/generations': 'settings',
+  'GET /marketing/site/generations/:id': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
   'GET /food-service/areas': 'desk',
@@ -440,7 +442,10 @@ describe('права маршрутов API (ADR-107)', () => {
     const actual = await routes();
     const runtime = Object.keys(actual).filter((key) => /\/sites-runtime(\/|$)/.test(key));
     expect(runtime).toEqual(['GET /sites-runtime/current']);
-    const byId = Object.keys(actual).filter((key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key));
+    // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
+    const byId = Object.keys(actual).filter(
+      (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && key !== 'GET /marketing/site/generations/:id',
+    );
     expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
   });
 

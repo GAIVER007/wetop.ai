@@ -94,6 +94,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',
+  // MKT6: задачи генерации ИИ, через свой сайт (DATA_MODEL §29.7, миграция 20261007000062_generation_run_core)
+  'generation_runs',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

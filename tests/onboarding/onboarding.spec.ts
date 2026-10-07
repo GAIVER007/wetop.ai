@@ -44,7 +44,8 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
     await expect(main.getByText('Сохранённый филиал', { exact: true })).toBeVisible();
     await main.getByRole('button', { name: 'Завершить настройку' }).click();
-    const landing = vertical === 'BEAUTY' ? /\/calendar$/ : /\/floor-plan$/;
+    // MV8: рабочий экран дня один на все направления
+    const landing = /\/today$/;
     await expect(page).toHaveURL(landing);
     await page.reload();
     await expect(page).toHaveURL(landing);

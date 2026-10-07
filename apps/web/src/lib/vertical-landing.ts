@@ -1,10 +1,16 @@
 export type WebVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+/** Рабочий экран дня один на все направления (MV8): гостиница видит «Главную», салон и ресторан «Сегодня» */
+const LANDING: Record<WebVertical, string> = {
+  HOSPITALITY: '/today',
+  BEAUTY: '/today',
+  FOOD_SERVICE: '/today',
+};
 export function landingForVertical(vertical: WebVertical): string {
-  return { HOSPITALITY: '/today', BEAUTY: '/calendar', FOOD_SERVICE: '/floor-plan' }[vertical];
+  return LANDING[vertical];
 }
 const routes: Record<WebVertical, string[]> = {
+  // `/today` общий для всех направлений (MV8) и ни одному не принадлежит
   HOSPITALITY: [
-    '/today',
     '/chessboard',
     '/reservations',
     '/guests',

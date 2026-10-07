@@ -110,12 +110,16 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await setScope(page, `business=${f.hotel};location=${f.locations[4]}`);
     await page.goto('/today');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');
-    await expect(page).toHaveURL(/\/floor-plan$/);
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.getByTestId('food-today')).toBeVisible();
     await choose(page, 'Тестовый салон');
-    await expect(page).toHaveURL(/\/calendar$/);
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.getByTestId('beauty-today')).toBeVisible();
     await choose(page, 'Тестовый филиал Парк');
-    await expect(page).toHaveURL(/\/floor-plan$/);
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
     await expect(page).toHaveURL(/\/today$/);
@@ -165,13 +169,17 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
     ),
   ).toBe(`business=${f.business};location=${f.locations[1]}`);
   await page.reload();
+  await expect(page.getByTestId('food-today')).toBeVisible();
+  await page.goto('/floor-plan');
   await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
   await choose(page, 'Другой тестовый бизнес');
   await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
     'Другой тестовый бизнес',
   );
   await choose(page, 'Тестовый салон');
-  await expect(page).toHaveURL(/\/calendar$/);
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await page.goto('/calendar');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);

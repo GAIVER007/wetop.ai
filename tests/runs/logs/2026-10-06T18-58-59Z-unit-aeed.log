@@ -1,0 +1,221 @@
+# Модульные (unit) · 06.10.2026 23:58 Алматы · vm
+# коммит 6ee3ce8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-58-59Z-unit-aeed.json' 'apps/web/src/app/today/vertical-metrics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests | 7 failed) 76ms
+   ❯ Beauty Today: утверждённый набор показателей (6)
+     ✓ мастеров столько, сколько столбцов дня; справочник мастеров не нужен 2ms
+     × Запланировано = BOOKED + CONFIRMED, Подтверждено = CONFIRMED, Завершено = DONE 15ms
+     × внимание: BOOKED ждут подтверждения, NO_SHOW отдельно 3ms
+     ✓ впереди: BOOKED и CONFIRMED, ещё не закончились, по времени начала, не больше пяти 1ms
+     ✓ конец ровно в текущую минуту: запись уже не впереди 1ms
+     ✓ мастер записи не в столбцах дня: «Мастер недоступен» 1ms
+   ❯ сутки филиала (3)
+     ✓ Алматы UTC+5: 23:30 UTC это 04:30 следующего дня 32ms
+     × день ответа совпадает с сутками филиала: можно считать 2ms
+     ✓ полночь между запросом и счётом: ошибка «обновите», данные разных суток не смешиваются 1ms
+   ❯ Food Today: утверждённый набор показателей (7)
+     ✓ сидят сейчас: только SEATED и только внутри [начало, конец) 1ms
+     ✓ свободно сейчас: активные столы активных залов минус занятые, стол считается один раз 1ms
+     × Запланировано = BOOKED + CONFIRMED дня, Завершено = COMPLETED дня 4ms
+     × внимание: BOOKED/CONFIRMED без стола, BOOKED ждут подтверждения, NO_SHOW 6ms
+     × бронь прошлого дня через полночь занимает стол и сидит, но в показатели дня не входит 1ms
+     × одна бронь в обоих ответах: берётся строка с более новым updatedAt 2ms
+     ✓ впереди: BOOKED и CONFIRMED дня, окно ещё не закончилось, по времени начала, не больше пяти 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Beauty Today: утверждённый набор показателей > Запланировано = BOOKED + CONFIRMED, Подтверждено = CONFIRMED, Завершено = DONE
+AssertionError: expected { masters: 2, appointments: 5, …(7) } to match object { planned: 3, confirmed: 2, …(2) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "confirmed": 2,
+    "done": 1,
+    "masters": 2,
+-   "planned": 3,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:69:15
+     67|       620,
+     68|     );
+     69|     expect(m).toMatchObject({ planned: 3, confirmed: 2, done: 1, maste…
+       |               ^
+     70|   });
+     71|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Beauty Today: утверждённый набор показателей > внимание: BOOKED ждут подтверждения, NO_SHOW отдельно
+AssertionError: expected { masters: 2, appointments: 4, …(7) } to match object { awaitingConfirmation: 2, noShow: 1 }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "awaitingConfirmation": 2,
+    "noShow": 1,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:82:15
+     80|       620,
+     81|     );
+     82|     expect(m).toMatchObject({ awaitingConfirmation: 2, noShow: 1 });
+       |               ^
+     83|   });
+     84|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > сутки филиала > день ответа совпадает с сутками филиала: можно считать
+AssertionError: expected [Function] to not throw an error but 'TypeError: (0 , __vite_ssr_import_1__…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"TypeError: (0 , __vite_ssr_import_1__.assertSameLocalDay) is not a function"
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:129:11
+    127|     expect(() =>
+    128|       assertSameLocalDay('2026-10-07T23:30:00.000Z', 'Asia/Almaty', '2…
+    129|     ).not.toThrow();
+       |           ^
+    130|   });
+    131|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Food Today: утверждённый набор показателей > Запланировано = BOOKED + CONFIRMED дня, Завершено = COMPLETED дня
+AssertionError: expected { reservations: 4, guests: 6, …(7) } to match object { planned: 2, completed: 1 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "completed": 1,
+-   "planned": 2,
++   "activeTables": 2,
++   "cancelled": 1,
++   "freeNow": 2,
++   "guests": 6,
++   "noShow": 1,
++   "reservations": 4,
++   "seatedNow": 0,
++   "upcoming": [
++     {
++       "guest": "Гость a",
++       "id": "a",
++       "partySize": 2,
++       "startsAt": "2026-10-07T15:00:00.000Z",
++       "status": "BOOKED",
++       "table": null,
++     },
++     {
++       "guest": "Гость b",
++       "id": "b",
++       "partySize": 2,
++       "startsAt": "2026-10-07T15:00:00.000Z",
++       "status": "CONFIRMED",
++       "table": "t1",
++     },
++   ],
++   "withoutTable": 1,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:256:15
+    254|       ],
+    255|     });
+    256|     expect(m).toMatchObject({ planned: 2, completed: 1 });
+       |               ^
+    257|   });
+    258|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Food Today: утверждённый набор показателей > внимание: BOOKED/CONFIRMED без стола, BOOKED ждут подтверждения, NO_SHOW
+AssertionError: expected { reservations: 5, guests: 8, …(7) } to match object { withoutTable: 2, …(2) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "awaitingConfirmation": 2,
+    "noShow": 1,
+-   "withoutTable": 2,
++   "withoutTable": 1,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:271:15
+    269|       previous: [],
+    270|     });
+    271|     expect(m).toMatchObject({ withoutTable: 2, awaitingConfirmation: 2…
+       |               ^
+    272|   });
+    273|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Food Today: утверждённый набор показателей > бронь прошлого дня через полночь занимает стол и сидит, но в показатели дня не входит
+AssertionError: expected { reservations: 1, guests: 2, …(7) } to match object { Object (planned, seatedNow, ...) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "freeNow": 1,
+-   "planned": 1,
+    "seatedNow": 1,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:292:15
+    290|       ],
+    291|     });
+    292|     expect(m).toMatchObject({ planned: 1, seatedNow: 1, freeNow: 1 });
+       |               ^
+    293|   });
+    294|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| apps/web/src/app/today/vertical-metrics.test.ts > Food Today: утверждённый набор показателей > одна бронь в обоих ответах: берётся строка с более новым updatedAt
+AssertionError: expected { reservations: 1, guests: 2, …(7) } to match object { planned: +0, seatedNow: 1 }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "planned": 0,
+-   "seatedNow": 1,
++   "seatedNow": 0,
+  }
+
+ ❯ apps/web/src/app/today/vertical-metrics.test.ts:304:29
+    302|       previous: [moved('2026-10-07T11:00:00.000Z', '2026-10-06T18:00:0…
+    303|     });
+    304|     expect(fresherPrevious).toMatchObject({ planned: 0, seatedNow: 1 }…
+       |                             ^
+    305|     // свежее сегодняшнего ответа: побеждает сегодняшняя строка
+    306|     const fresherToday = foodToday({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 9 passed (16)
+   Start at  18:58:59
+   Duration  602ms (transform 60%, tests 29%, import 9%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-58-59Z-unit-aeed.json
+
+# код выхода 1 · 2 с

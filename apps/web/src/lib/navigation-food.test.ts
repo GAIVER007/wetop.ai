@@ -8,6 +8,7 @@ describe('Food workspace isolation', () => {
     expect(
       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href)),
     ).toEqual([
+      '/today',
       '/floor-plan',
       '/table-reservations',
       '/customers',
@@ -18,22 +19,28 @@ describe('Food workspace isolation', () => {
       '/profile',
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => i.href)).toEqual([
+      '/today',
       '/floor-plan',
       '/table-reservations',
       '/customers',
-      '/dining-areas',
     ]);
+    const labels = menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items);
+    expect(labels.find((i) => i.href === '/today')?.label).toBe('Сегодня');
+    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {
       expect(menuSectionsFor(owner, v).flatMap((s) => s.items.map((i) => i.href))).not.toContain(
         '/floor-plan',
       );
+      if (v === 'HOSPITALITY')
+        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({ href: '/today', label: 'Главная' });
     }
   });
   it('uses canonical landings and verified scope', () => {
-    expect(landingForVertical('FOOD_SERVICE')).toBe('/floor-plan');
-    expect(landingForVertical('BEAUTY')).toBe('/calendar');
+    // MV8: один рабочий экран дня на все направления
+    expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
+    expect(landingForVertical('BEAUTY')).toBe('/today');
     expect(landingForVertical('HOSPITALITY')).toBe('/today');
     expect(
       deskShellOf({
@@ -48,5 +55,6 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/calendar')).toBe('BEAUTY');
     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
     expect(routeVertical('/customers')).toBeNull();
+    expect(routeVertical('/today')).toBeNull();
   });
 });

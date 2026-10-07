@@ -1,90 +1,36 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { deskShell } from '../../lib/desk-shell';
-import { Suspense } from 'react';
-import Link from 'next/link';
-import { resolvePeriod } from '@pms/domain';
+import { requireVertical } from '../../lib/vertical-guard';
+import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
+import { authRequired } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { hotelToday } from '../../lib/hotel-api';
-import { displayDate } from '../../lib/display-date';
-import { Page } from '../../components/page';
-import { Alert } from '../../components/ui';
-import { OwnerFinance, OwnerOperations, OwnerLoad } from './owner-dashboard';
-import { DashboardRefresh } from './owner-controls';
-import './owner-dashboard.css';
-import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
+import { BeautyToday } from './beauty-today';
+import {
+  TODAY_VERTICALS,
+  anonymousHospitalityAllowed,
+  todayScreen,
+  unresolvedTarget,
+} from './dispatch';
+import { FoodToday } from './food-today';
+import { HospitalityToday } from './hospitality-today';
 
+/**
+ * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
+ * выбранного филиала; без него гостиница не угадывается, человек идёт через выбор филиала (SCOPE-HARDENING).
+ */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireVertical(['HOSPITALITY']);
-  if ((await deskShell()).vertical === 'BEAUTY') redirect('/calendar');
-  const sp = normalizeSearchParams(await searchParams);
-  const today = await hotelToday();
-  const period = resolvePeriod(
-    {
-      preset: sp.period ?? (sp.from || sp.to || sp.date ? undefined : 'month'),
-      from: sp.from,
-      to: sp.to,
-      date: sp.date,
-    },
-    today,
-  );
-  return (
-    <Page
-      title="Главная"
-      subtitle={displayDate(today, 'full')}
-      width="full"
-      actions={<DashboardRefresh />}
-    >
-      <div className="owner-dashboard" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <div className="owner-load owner-surface">
-              <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
-            </div>
-          }
-        >
-          <OwnerLoad date={today} />
-        </Suspense>
-        <section className="owner-finance owner-surface" aria-label="Финансы за выбранный период">
-          <header className="owner-section-head">
-            <h2>Деньги</h2>
-            <nav className="owner-period" aria-label="Период финансов">
-              {[
-                ['today', 'Сегодня'],
-                ['week', '7 дней'],
-                ['month', 'Месяц'],
-              ].map(([id, label]) => (
-                <Link
-                  key={id}
-                  href={`/today?period=${id}`}
-                  aria-current={period.preset === id ? 'page' : undefined}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </header>
-          {period.error && <Alert>{period.error}</Alert>}
-          <Suspense
-            key={`${period.from}|${period.to}`}
-            fallback={<OwnerPlaceholder variant="finance" label="Загружаем финансы…" />}
-          >
-            <OwnerFinance period={period} />
-          </Suspense>
-        </section>
-        <Suspense
-          fallback={
-            <>
-              <div className="owner-today owner-surface">
-                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
-              </div>
-              <AttentionPlaceholder />
-            </>
-          }
-        >
-          <OwnerOperations date={today} />
-        </Suspense>
-      </div>
-    </Page>
-  );
+  const me = await requireVertical(TODAY_VERTICALS);
+  const { screen, key } = todayScreen(me, {
+    allowAnonymousHospitality: anonymousHospitalityAllowed({
+      authRequired: authRequired(),
+      nodeEnv: process.env.NODE_ENV,
+    }),
+  });
+  if (screen === 'UNRESOLVED') {
+    const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
+    redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));
+  }
+  if (screen === 'BEAUTY') return <BeautyToday key={key} />;
+  if (screen === 'FOOD_SERVICE') return <FoodToday key={key} />;
+  return <HospitalityToday key={key} sp={normalizeSearchParams(await searchParams)} />;
 }

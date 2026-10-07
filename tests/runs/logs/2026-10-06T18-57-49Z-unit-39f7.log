@@ -1,0 +1,70 @@
+# Модульные (unit) · 06.10.2026 23:57 Алматы · vm
+# коммит 6ee3ce8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-57-49Z-unit-39f7.json' 'apps/web/src/app/today/dispatch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/dispatch.test.ts (6 tests | 3 failed) 27ms
+   ❯ /today: один адрес, экран только по подтверждённому направлению (6)
+     ✓ пускает все три направления: ни одно не уводится на другой адрес 4ms
+     ✓ гостиница: прежняя Главная 1ms
+     ✓ салон и ресторан с подтверждёнными Business и филиалом: свой экран, ключ по ним 1ms
+     × направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING) 13ms
+     × салон и ресторан без филиала или без Business: не свой экран, а выбор 3ms
+     × куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING)
+AssertionError: expected 'HOSPITALITY' to be 'UNRESOLVED' // Object.is equality
+
+Expected: "UNRESOLVED"
+Received: "HOSPITALITY"
+
+ ❯ apps/web/src/app/today/dispatch.test.ts:30:42
+     28|
+     29|   it('направление не подтверждено: гостиница не угадывается (SCOPE-HAR…
+     30|     expect(todayScreen(me(null)).screen).toBe('UNRESOLVED');
+       |                                          ^
+     31|     expect(todayScreen({ context: { vertical: null, businessId: null, …
+     32|       'UNRESOLVED',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > салон и ресторан без филиала или без Business: не свой экран, а выбор
+AssertionError: expected 'BEAUTY' to be 'UNRESOLVED' // Object.is equality
+
+Expected: "UNRESOLVED"
+Received: "BEAUTY"
+
+ ❯ apps/web/src/app/today/dispatch.test.ts:38:58
+     36|
+     37|   it('салон и ресторан без филиала или без Business: не свой экран, а …
+     38|     expect(todayScreen(me('BEAUTY', 'b1', null)).screen).toBe('UNRESOL…
+       |                                                          ^
+     39|     expect(todayScreen(me('FOOD_SERVICE', 'b1', null)).screen).toBe('U…
+     40|     expect(todayScreen(me('BEAUTY', null, 'l1')).screen).toBe('UNRESOL…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору
+TypeError: unresolvedTarget is not a function
+ ❯ apps/web/src/app/today/dispatch.test.ts:44:12
+     42|
+     43|   it('куда вести без выбора: без указателя тот же выбор, что после вхо…
+     44|     expect(unresolvedTarget(false)).toBe('/scope/resolve?next=%2Ftoday…
+       |            ^
+     45|     // указатель уже стоит, а направление не подтверждено: повторный а…
+     46|     expect(unresolvedTarget(true)).toBe('/branches');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  18:57:52
+   Duration  443ms (transform 50%, tests 26%, import 18%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-57-49Z-unit-39f7.json
+
+# код выхода 1 · 4 с

@@ -192,7 +192,7 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь', async ({ page }) => {
+test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня»', async ({ page }) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -211,7 +211,9 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .filter({ hasText: 'Студия MKT3' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/calendar');
+  // MV8: стартовая страница всех направлений `/today`
+  await page.waitForURL('**/today');
   await page.goto('/marketing');
-  await expect(page).toHaveURL(/\/calendar$/);
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
 });

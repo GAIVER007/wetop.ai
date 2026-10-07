@@ -330,14 +330,19 @@ test('server branch switch isolates Food businesses and locations and other vert
   await page.getByRole('dialog').getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
   await page.getByRole('button', { name: /Тестовый филиал Парк/ }).click();
-  await page.waitForURL('**/floor-plan');
+  // MV8: выбор филиала ведёт на общий рабочий экран дня
+  await page.waitForURL('**/today');
+  await expect(page.getByTestId('food-today')).toBeVisible();
+  await page.goto('/floor-plan');
   await expect(page.getByRole('main')).not.toContainText('Основной зал');
   await expect(page.getByRole('main')).not.toContainText('Анна Тестовая');
   await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
   await page.getByRole('button', { name: /Другой тестовый бизнес/ }).click();
+  await page.waitForURL('**/today');
+  await page.goto('/floor-plan');
   await expect(page.getByRole('main')).toContainText('Сначала добавьте зал');
   for (const [name, landing] of [
-    ['Тестовый салон', 'calendar'],
+    ['Тестовый салон', 'today'],
     ['Тестовый отель', 'register/setup'],
   ]) {
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
@@ -345,9 +350,9 @@ test('server branch switch isolates Food businesses and locations and other vert
     await page.waitForURL(`**/${landing}`);
   }
   await scope(page, f.business, f.locations[0]!);
-  for (const route of ['/calendar', '/appointments', '/chessboard', '/reservations', '/today']) {
+  for (const route of ['/calendar', '/appointments', '/chessboard', '/reservations']) {
     await page.goto(route);
-    await page.waitForURL('**/floor-plan');
+    await page.waitForURL('**/today');
   }
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(calls.filter((c) => c.startsWith('/bar') || c.startsWith('/channels'))).toEqual([]);
@@ -355,7 +360,7 @@ test('server branch switch isolates Food businesses and locations and other vert
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
   for (const route of ['/floor-plan', '/table-reservations', '/dining-areas']) {
     await page.goto(route);
-    await page.waitForURL('**/calendar');
+    await page.waitForURL('**/today');
   }
   const after: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(after.slice(before).filter((c) => c.startsWith('/food-service'))).toEqual([]);
@@ -588,7 +593,6 @@ test('Food excludes every registered foreign workspace route before API requests
     '/beauty',
     '/chessboard',
     '/reservations',
-    '/today',
     '/guests',
     '/inventory',
     '/rates',
@@ -597,7 +601,7 @@ test('Food excludes every registered foreign workspace route before API requests
     '/hotel-settings',
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL(/\/floor-plan$/);
+    await expect(page).toHaveURL(/\/today$/);
   }
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(

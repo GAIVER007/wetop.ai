@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 06.10.2026 22:56 Алматы · vm
+# коммит 55ffa00 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/search-filter-recovery.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 49 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (7.3s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (5.0s)
+  ✓   3 tests/ui/beauty-branch.spec.ts:84:1 › карточка объекта показывает имя салона, а не «объект не загружен» (4.6s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:96:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (5.1s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:110:3 › салон доступен и в светлой теме (5.9s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:110:3 › салон доступен и в тёмной теме (5.7s)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:49:1 › услуга каталога добавляется и видна в списке (6.6s)
+  ✓   8 tests/ui/beauty-catalog.spec.ts:62:1 › филиал включает услугу и ставит свою цену (7.4s)
+  ✓   9 tests/ui/beauty-catalog.spec.ts:85:1 › ошибки услуги словами, введённое не стирается (5.6s)
+  ✓  10 tests/ui/beauty-catalog.spec.ts:100:1 › мастер добавляется, умения ставятся и снимаются (10.9s)
+  ✓  11 tests/ui/beauty-catalog.spec.ts:131:1 › каталог салона на телефоне: без прокрутки вбок (6.5s)
+  ✓  12 tests/ui/beauty-catalog.spec.ts:150:3 › каталог салона доступен в светлой теме (8.1s)
+  ✓  13 tests/ui/beauty-catalog.spec.ts:150:3 › каталог салона доступен в тёмной теме (8.7s)
+  ✓  14 tests/ui/beauty-journal.spec.ts:99:1 › запись из пустой клетки появляется в сетке и в списке дня (12.8s)
+  ✓  15 tests/ui/beauty-journal.spec.ts:115:1 › занятое время мастера не предлагается и отказ приходит словами (11.5s)
+  ✓  16 tests/ui/beauty-journal.spec.ts:128:1 › вне графика мастера клетки нерабочие (10.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  17 tests/ui/beauty-journal.spec.ts:135:1 › состояния записи идут по жизни, из выполненной дороги нет (15.2s)
+  ✓  18 tests/ui/beauty-journal.spec.ts:159:1 › отмена спрашивает и освобождает время мастера (12.9s)
+  ✓  19 tests/ui/beauty-journal.spec.ts:181:1 › перенос меняет время записи (12.6s)
+  ✓  20 tests/ui/beauty-journal.spec.ts:197:1 › журнал на телефоне: день списком, без прокрутки вбок (11.9s)
+  ✓  21 tests/ui/beauty-journal.spec.ts:212:3 › журнал доступен в светлой теме (13.2s)
+  ✓  22 tests/ui/beauty-journal.spec.ts:212:3 › журнал доступен в тёмной теме (13.9s)
+  ✓  23 tests/ui/beauty-schedule.spec.ts:78:1 › неделя мастера ставится и читается словами (7.9s)
+  ✓  24 tests/ui/beauty-schedule.spec.ts:99:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (7.2s)
+  ✓  25 tests/ui/beauty-schedule.spec.ts:126:1 › два интервала через перерыв сохраняются (8.3s)
+  ✓  26 tests/ui/beauty-schedule.spec.ts:146:1 › отсутствие предупреждает о записях, снимается с вопросом (8.4s)
+  ✓  27 tests/ui/beauty-schedule.spec.ts:181:1 › отсутствие с концом раньше начала не уходит на сервер (6.5s)
+  ✓  28 tests/ui/beauty-schedule.spec.ts:196:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (12.2s)
+  ✓  29 tests/ui/beauty-schedule.spec.ts:234:1 › график на телефоне: без прокрутки вбок (6.0s)
+  ✓  30 tests/ui/beauty-schedule.spec.ts:250:3 › график доступен в светлой теме (8.2s)
+  ✓  31 tests/ui/beauty-schedule.spec.ts:250:3 › график доступен в тёмной теме (8.2s)
+  ✓  32 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (3.5s)
+  ✓  33 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (2.3s)
+  ✓  34 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (2.3s)
+  ✓  35 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (2.2s)
+  ✓  36 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (2.3s)
+  ✓  37 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (4.7s)
+  ✓  38 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (3.6s)
+  ✓  39 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (4.9s)
+  ✓  40 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (5.4s)
+  ✓  41 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (2.3s)
+  ✓  42 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (2.3s)
+  ✓  43 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (2.6s)
+  ✓  44 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (2.1s)
+  ✓  45 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (2.6s)
+  ✓  46 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (3.9s)
+  ✓  47 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (2.2s)
+  ✓  48 tests/ui/search-filter-recovery.spec.ts:148:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (4.1s)
+  ✓  49 tests/ui/search-filter-recovery.spec.ts:174:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (4.1s)
+
+  49 passed (5.7m)
+
+# код выхода 0 · 5 мин 46 с

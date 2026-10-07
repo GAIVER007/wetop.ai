@@ -5540,7 +5540,9 @@ createServer(async (req, res) => {
         return send(200, { items: [...customers.values()] });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')
-        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+        // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)
+        return send(200, dayView(url.searchParams.get('date') ||
+          new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date())));
       if (path === '/beauty/appointments' && req.method === 'POST') {
         const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
         if (!employee) return send(404, { message: 'Мастер не найден' });

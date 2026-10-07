@@ -494,6 +494,7 @@ export const menuSections: MenuSection[] = [
 
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
 export const beautyMenuSections: MenuSection[] = [
+  direct('today', '/today', 'today', 'Сегодня'),
   direct('calendar', '/calendar', 'board'),
   direct('appointments', '/appointments', 'booking'),
   direct('customers', '/customers', 'guests'),
@@ -506,6 +507,7 @@ export const beautyMenuSections: MenuSection[] = [
 ];
 
 export const foodMenuSections: MenuSection[] = [
+  direct('today', '/today', 'today', 'Сегодня'),
   direct('floor-plan', '/floor-plan', 'board'),
   direct('table-reservations', '/table-reservations', 'booking'),
   direct('customers', '/customers', 'guests', 'Гости'),

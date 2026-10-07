@@ -1,0 +1,16 @@
+# Модульные (unit) · 06.10.2026 20:46 Алматы · vm
+# коммит c6044ba (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T15-46-24Z-unit-ee60.json' 'apps/web/src/app/today/vertical-metrics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (12 tests) 26ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  15:46:25
+   Duration  298ms (transform 68%, tests 16%, import 13%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T15-46-24Z-unit-ee60.json
+
+# код выхода 0 · 1 с

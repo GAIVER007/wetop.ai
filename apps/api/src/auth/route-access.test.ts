@@ -199,6 +199,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/payment-requests/:id/cancel': 'desk',
   'POST /finance/charges/:id/void': 'refunds',
   'POST /finance/payments/:id/refunds': 'refunds',
+  'POST /finance/payments/:id/void': 'refunds',
+  'POST /finance/payments/:id/replace': 'refunds',
   'GET /finance/report': 'reports',
   'GET /finance/services-report': 'reports',
   'GET /desk/dashboard/units': 'reports',

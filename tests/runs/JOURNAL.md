@@ -6990,6 +6990,23 @@
 | 07.10.2026 11:14 | lint | ✅ без ошибок | 52 с | 028e29a | [лог](logs/2026-10-07T06-14-17Z-lint-80fe.log) |  |
 | 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/today-attention.sp | ✅ 46 из 46 | 5 мин | 028e29a | [лог](logs/2026-10-07T06-15-16Z-e2e-be9b.log) |  |
 | 07.10.2026 11:20 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 21 с | 028e29a | [лог](logs/2026-10-07T06-20-18Z-e2e-807c.log) |  |
+| 07.10.2026 12:49 | unit (частично: packages/domain/src/finance/finance.test.ts) | ❌ упало 7 из 26 | 1 с | 33f3014 +1 | [лог](logs/2026-10-07T07-49-53Z-unit-c5c4.log) | red: assertPaymentReversible и discountMinor ещё нет |
+| 07.10.2026 12:50 | unit (частично: packages/domain/src/finance/finance.test.ts) | ✅ 26 из 26 | 1 с | 33f3014 +2 | [лог](logs/2026-10-07T07-50-05Z-unit-2795.log) | green: правила аннулирования платежа и скидки |
+| 07.10.2026 12:52 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 5 из 34 | 5 с | 33f3014 +4 | [лог](logs/2026-10-07T07-52-40Z-unit-1b57.log) | red: маршрутов void и replace ещё нет |
+| 07.10.2026 12:53 | unit (частично: apps/api/src/finance/finance.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 3 из 36 | 6 с | 33f3014 +7 | [лог](logs/2026-10-07T07-53-15Z-unit-9704.log) | green: void и replace платежа |
+| 07.10.2026 12:53 | unit (частично: apps/api/src/finance/finance.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 36 из 36 | 5 с | 33f3014 +7 | [лог](logs/2026-10-07T07-53-40Z-unit-14ca.log) | green: void и replace платежа |
+| 07.10.2026 12:54 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ❌ упало 2 из 55 | 4 с | 33f3014 +8 | [лог](logs/2026-10-07T07-54-27Z-unit-5dc5.log) | red: PATCH price ещё не принимается |
+| 07.10.2026 12:55 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ✅ 55 из 55 | 4 с | 33f3014 +9 | [лог](logs/2026-10-07T07-55-00Z-unit-a621.log) | green: PATCH price проживания |
+| 07.10.2026 13:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/finance-card-actions.spec.ts) | ❌ упало 11 из 11 | 7 мин 47 с | 33f3014 +16 | [лог](logs/2026-10-07T08-09-13Z-e2e-7524.log) | red: прежний экран «Счетов» без возврата кнопкой, правки и аннулирования |
+| 07.10.2026 13:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/finance-card-actions.spec.ts tests/ui/roles.spec.ts tests/ui/payment-requests.spec.ts | ❌ упало 5 из 67 | 7 мин 2 с | 33f3014 +25 | [лог](logs/2026-10-07T08-17-19Z-e2e-5f9d.log) | green: счета брони, правка и аннулирование платежа, скидка, цена проживания |
+| 07.10.2026 13:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/finance-card-actions.spec.ts tests/ui/finance-f2.spec.ts) | ❌ упало 2 из 19 | 1 мин 21 с | cb1933c +2 | [лог](logs/2026-10-07T08-26-16Z-e2e-e9b9.log) | green: подписи таблиц счёта для axe, строка ленты по индексу |
+| 07.10.2026 13:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/finance-card-actions.spec.ts tests/ui/finance-f2.spec.ts) | ✅ 19 из 19 | 1 мин 18 с | cb1933c +3 | [лог](logs/2026-10-07T08-30-01Z-e2e-db51.log) | green: подписи таблиц счёта для axe, строка ленты по индексу |
+| 07.10.2026 13:31 | typecheck | ✅ без ошибок | 50 с | cb1933c +3 | [лог](logs/2026-10-07T08-31-46Z-typecheck-aa91.log) | срез finance-payments-direct |
+| 07.10.2026 13:32 | lint | ✅ без ошибок | 32 с | cb1933c +3 | [лог](logs/2026-10-07T08-32-37Z-lint-accb.log) | срез finance-payments-direct |
+| 07.10.2026 13:33 | unit | ✅ 3521 из 3524, пропущено 3 | 2 мин 1 с | 9644569 | [лог](logs/2026-10-07T08-33-10Z-unit-4c3e.log) | срез finance-payments-direct: полный набор |
+| 07.10.2026 13:35 | integration (частично: tests/integration/payment-void.test.ts tests/integration/finance-locks.test.ts tests/integration/refund-race.test.ts tests/integration/pa | ✅ 13 из 13 | 8 с | 9644569 | [лог](logs/2026-10-07T08-35-26Z-integration-285b.log) | аннулирование платежа под блокировкой, запрос оплаты |
+| 07.10.2026 13:36 | integration (частично: tests/integration/payment-void.test.ts) | ❌ упало 3 из 4 | 5 с | 9644569 +1 | [лог](logs/2026-10-07T08-36-09Z-integration-aa0f.log) | мутация A: без правила У3 в транзакции |
+| 07.10.2026 13:36 | integration (частично: tests/integration/payment-void.test.ts) | ❌ упало 1 из 4 | 5 с | 9644569 +1 | [лог](logs/2026-10-07T08-36-15Z-integration-3528.log) | мутация B: запрос оплаты не возвращается в ожидание |
 | 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing/runtime.test.ts) | ❌ упало 20 из 20 | 3 с | 6a6a46b +1 | [лог](logs/2026-10-06T18-53-14Z-unit-cb4b.log) | MKT4 red: runtime helpers absent |
 | 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing) | ✅ 57 из 57 | 2 с | 6a6a46b +4 | [лог](logs/2026-10-06T18-53-33Z-unit-ec6f.log) | MKT4 green: runtime helpers |
 | 06.10.2026 23:54 | unit (частично: apps/api/src/sites-runtime) | ❌ код выхода 1 | 5 с | 6a6a46b +5 | [лог](logs/2026-10-06T18-54-46Z-unit-2515.log) | MKT4 red: sites-runtime module absent |
@@ -7068,3 +7085,6 @@
 | 07.10.2026 14:33 | e2e | ✅ 26 из 26 | 1 мин 40 с | b21a83e +1 | [лог](logs/2026-10-07T09-33-27Z-e2e-8e57.log) | baseline A: повтор для устойчивости |
 | 07.10.2026 14:35 | typecheck | ✅ без ошибок | 1 мин 23 с | b21a83e +1 | [лог](logs/2026-10-07T09-35-08Z-typecheck-57f8.log) | baseline A |
 | 07.10.2026 14:36 | lint | ✅ без ошибок | 52 с | b21a83e +1 | [лог](logs/2026-10-07T09-36-32Z-lint-b397.log) | baseline A |
+| 07.10.2026 14:29 | typecheck | ✅ без ошибок | 1 мин | a8deeb1 | [лог](logs/2026-10-07T09-29-52Z-typecheck-5338.log) |  |
+| 07.10.2026 14:30 | lint | ✅ без ошибок | 37 с | a8deeb1 | [лог](logs/2026-10-07T09-30-53Z-lint-6bfd.log) |  |
+| 07.10.2026 14:31 | unit | ✅ 3734 из 3737, пропущено 3 | 1 мин 59 с | a8deeb1 | [лог](logs/2026-10-07T09-31-31Z-unit-3ac9.log) |  |

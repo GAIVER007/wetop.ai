@@ -15,6 +15,9 @@ async function paidBooking(page: import('@playwright/test').Page) {
   await page.goto(`/reservations/${NUMBER}`);
   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
   const panel = page.getByTestId('payment-requests');
+  // запросы свёрнуты под счетами с 07.10.2026: раскрываем, если закрыт
+  if (!(await panel.evaluate((d) => (d as HTMLDetailsElement).open)))
+    await panel.getByTestId('payment-requests-toggle').click();
   await panel.getByTestId('payment-request-amount').fill('12000');
   await panel.getByTestId('payment-request-create').click();
   await panel.getByTestId('payment-request-paid').click();

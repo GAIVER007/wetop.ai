@@ -39,6 +39,10 @@ import {
   RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
+  ADJUSTMENT_DOWN_MESSAGE,
+  assertPaymentReversible,
+  assertRefundWithin,
+  FinanceRuleError,
   canInvite,
   canEditMemberDetails,
   canManageStaff,
@@ -1288,6 +1292,29 @@ let paymentLines: Array<{
   note: string | null;
   id: string;
 }> = [];
+// ── аннулирование и замена платежа, возвраты, ручные начисления (план finance-payments-direct 07.10.2026) ──
+let voidedPayments = new Set<string>();
+let refundLines: Array<{
+  id: string;
+  folioId: string;
+  paymentId: string;
+  amountMinor: string;
+  reason: string | null;
+  createdAt: string;
+}> = [];
+let extraCharges: Array<{
+  id: string;
+  folioId: string;
+  kind: 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
+  serviceCode: string | null;
+  description: string;
+  quantity: number;
+  unitPriceMinor: string;
+  amountMinor: string;
+  serviceDate: string | null;
+  createdAt: string;
+  voidedAt: string | null;
+}> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 // ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
 let receipts = new Map<string, { number: string; issuedAt: string }>();
@@ -1780,35 +1807,52 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
             : /TEST[1357]$/.test(reservation.confirmationNumber)
               ? BigInt(it.priceMinor)
               : 800000n;
-    const refunded = showcase === 'RETD' ? BigInt(it.priceMinor) : 0n;
     const amount = BigInt(it.priceMinor);
+    const refundedOf = (paymentId: string) =>
+      refundLines
+        .filter((x) => x.folioId === id && x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const statusOf = (paymentId: string) =>
+      voidedPayments.has(paymentId) ? ('VOIDED' as const) : ('COMPLETED' as const);
     const payments = paymentLines
       .filter((p) => p.folioId === id)
       .map((p) => ({
         paymentId: p.id,
         method: p.method,
-        status: 'COMPLETED' as const,
+        status: statusOf(p.id),
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
         receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
-        refundedMinor: '0',
+        refundedMinor: refundedOf(p.id).toString(),
       }));
     if (prepaid)
       payments.unshift({
         paymentId: `prepaid-${id}`,
         method: 'CASH',
-        status: 'COMPLETED',
+        status: statusOf(`prepaid-${id}`),
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
         receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
-        refundedMinor: '0',
+        refundedMinor: refundedOf(`prepaid-${id}`).toString(),
       });
+    // возвраты витрины плюс сделанные тестом; оплачено — только проведённые платежи (как folioView API)
+    const liveRefunds = refundLines.filter((x) => x.folioId === id);
+    const refunded =
+      (showcase === 'RETD' ? BigInt(it.priceMinor) : 0n) +
+      liveRefunds.reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const paidLive = payments
+      .filter((p) => p.status === 'COMPLETED')
+      .reduce((acc, p) => acc + BigInt(p.allocatedMinor), 0n);
+    const manual = extraCharges.filter((c) => c.folioId === id);
+    const chargedLive =
+      (voided ? 0n : amount) +
+      manual.filter((c) => !c.voidedAt).reduce((acc, c) => acc + BigInt(c.amountMinor), 0n);
     return {
       id,
       reservationItemId: it.id,
@@ -1833,23 +1877,44 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
           createdAt: `${today}T07:00:00Z`,
           voidedAt: voided ? `${today}T09:00:00Z` : null,
         },
+        ...manual.map((c) => ({
+          id: c.id,
+          kind: c.kind,
+          serviceCode: c.serviceCode,
+          description: c.description,
+          quantity: c.quantity,
+          unitPriceMinor: c.unitPriceMinor,
+          amountMinor: c.amountMinor,
+          serviceDate: c.serviceDate,
+          createdAt: c.createdAt,
+          voidedAt: c.voidedAt,
+        })),
       ],
       payments,
-      refunds: refunded
-        ? [
-            {
-              id: `refund-${id}`,
-              paymentId: `prepaid-${id}`,
-              amountMinor: refunded.toString(),
-              reason: 'Отмена брони',
-              createdAt: `${today}T09:30:00Z`,
-            },
-          ]
-        : [],
-      chargedMinor: (voided ? 0n : amount).toString(),
-      paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
+      refunds: [
+        ...(showcase === 'RETD'
+          ? [
+              {
+                id: `refund-${id}`,
+                paymentId: `prepaid-${id}`,
+                amountMinor: it.priceMinor,
+                reason: 'Отмена брони',
+                createdAt: `${today}T09:30:00Z`,
+              },
+            ]
+          : []),
+        ...liveRefunds.map((x) => ({
+          id: x.id,
+          paymentId: x.paymentId,
+          amountMinor: x.amountMinor,
+          reason: x.reason,
+          createdAt: x.createdAt,
+        })),
+      ],
+      chargedMinor: chargedLive.toString(),
+      paidMinor: paidLive.toString(),
       refundedMinor: refunded.toString(),
-      balanceMinor: ((voided ? 0n : amount) - prepaid - (paid.get(id) ?? 0n) + refunded).toString(),
+      balanceMinor: (chargedLive - paidLive + refunded).toString(),
     };
   });
   if (groupFixture && reservation === card) {
@@ -4622,6 +4687,9 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      voidedPayments = new Set();
+      refundLines = [];
+      extraCharges = [];
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
@@ -7211,6 +7279,155 @@ createServer(async (req, res) => {
       receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
       return send(200, { paymentId, number: receiptNumber });
     }
+    // ── счёт брони: аннулирование и замена платежа, возврат, ручные начисления, цена проживания ──
+    const paymentVerb = /^\/finance\/payments\/([^/]+)\/(void|replace|refunds)$/.exec(path);
+    if (paymentVerb) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const paymentId = decodeURIComponent(paymentVerb[1]!);
+      const verb = paymentVerb[2]!;
+      // платёж ищем по всем счетам всех карточек: предоплата витрины и платежи тестов живут в разных местах
+      let line: { folioId: string; amountMinor: string; method: string } | null = null;
+      let number = '';
+      for (const r of allCards())
+        for (const f of finance(r).folios)
+          for (const p of f.payments)
+            if (p.paymentId === paymentId) {
+              line = { folioId: f.id, amountMinor: p.allocatedMinor, method: p.method };
+              number = r.confirmationNumber;
+            }
+      if (!line) return send(404, { message: `Платёж ${paymentId} не найден` });
+      const refundedMinor = refundLines
+        .filter((x) => x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+      const reservation = getCard(number)!;
+      if (verb === 'refunds') {
+        if (voidedPayments.has(paymentId)) return send(409, { message: 'Платёж аннулирован' });
+        if (String(body['folioId'] ?? '') !== line.folioId)
+          return send(400, { message: 'Этот платёж на указанный счёт не распределялся' });
+        try {
+          const refundMinor = parseMoney(String(body['amount'] ?? ''));
+          assertRefundWithin({
+            allocatedMinor: BigInt(line.amountMinor),
+            refundedMinor,
+            refundMinor,
+          });
+          refundLines.push({
+            id: `ui-refund-${commands.length}`,
+            folioId: line.folioId,
+            paymentId,
+            amountMinor: refundMinor.toString(),
+            reason: typeof body['reason'] === 'string' && body['reason'] ? body['reason'] : null,
+            createdAt: `${today}T12:00:00Z`,
+          });
+        } catch (e) {
+          return send(400, { message: (e as Error).message });
+        }
+        return send(201, finance(reservation));
+      }
+      try {
+        assertPaymentReversible({
+          status: voidedPayments.has(paymentId) ? 'VOIDED' : 'COMPLETED',
+          refundedMinor,
+          receiptNumber: receipts.get(paymentId)?.number ?? null,
+        });
+      } catch (e) {
+        return send(409, { message: (e as Error).message });
+      }
+      voidedPayments.add(paymentId);
+      // запрос оплаты, закрытый этим платежом: при аннулировании снова ждёт оплаты, при замене переходит на новый
+      const request = paymentRequests.find((x) => x.paymentId === paymentId) ?? null;
+      if (verb === 'void') {
+        if (request) {
+          request.status = 'PENDING';
+          request.paymentId = null;
+          request.closedAt = null;
+        }
+        return send(200, finance(reservation));
+      }
+      const methodCode = String(body['method'] ?? '');
+      if (!['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(methodCode)) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: 'method — один из способов оплаты' });
+      }
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? ''));
+        if (amountMinor <= 0n) throw new FinanceRuleError('amount — сумма больше нуля');
+      } catch (e) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: (e as Error).message });
+      }
+      const fresh = `ui-payment-${commands.length}`;
+      paymentLines.push({
+        folioId: line.folioId,
+        amountMinor: amountMinor.toString(),
+        method: methodCode,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+        id: fresh,
+      });
+      if (request) request.paymentId = fresh;
+      return send(200, finance(reservation));
+    }
+    const chargeFolio = /^\/finance\/folios\/([^/]+)\/charges$/.exec(path);
+    if (chargeFolio) {
+      const folioId = decodeURIComponent(chargeFolio[1]!);
+      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === folioId));
+      if (!reservation) return send(404, { message: `Счёт ${folioId} не найден` });
+      const kind = String(body['kind'] ?? '');
+      if (!['SERVICE', 'PENALTY', 'ADJUSTMENT'].includes(kind))
+        return send(400, { message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)' });
+      const quantity = body['quantity'] === undefined ? 1 : Number(body['quantity']);
+      if (!Number.isInteger(quantity) || quantity < 1)
+        return send(400, { message: 'quantity — целое число от 1' });
+      let description = typeof body['description'] === 'string' ? body['description'].trim() : '';
+      let serviceCode: string | null = null;
+      let unitPriceMinor: bigint;
+      try {
+        if (kind === 'SERVICE') {
+          const svc = serviceCatalog.find((x) => x.code === body['serviceCode'] && x.active);
+          if (!svc) return send(400, { message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике` });
+          serviceCode = svc.code;
+          if (!description) description = svc.name;
+          unitPriceMinor =
+            body['unitPrice'] === undefined ? BigInt(svc.priceMinor) : parseMoney(String(body['unitPrice']));
+        } else {
+          if (!description) return send(400, { message: 'description — за что начисление' });
+          unitPriceMinor = parseMoney(String(body['unitPrice'] ?? ''));
+        }
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      if (kind === 'ADJUSTMENT' ? unitPriceMinor === 0n : unitPriceMinor <= 0n)
+        return send(400, {
+          message: kind === 'ADJUSTMENT' ? 'Корректировка не может быть нулевой' : 'Цена должна быть больше нуля',
+        });
+      if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !can(uiRole, 'refunds'))
+        return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+      extraCharges.push({
+        id: `ui-charge-${commands.length}`,
+        folioId,
+        kind: kind as 'SERVICE' | 'PENALTY' | 'ADJUSTMENT',
+        serviceCode,
+        description,
+        quantity,
+        unitPriceMinor: unitPriceMinor.toString(),
+        amountMinor: (unitPriceMinor * BigInt(quantity)).toString(),
+        serviceDate: typeof body['serviceDate'] === 'string' ? body['serviceDate'] : today,
+        createdAt: `${today}T12:00:00Z`,
+        voidedAt: null,
+      });
+      return send(201, finance(reservation));
+    }
+    const chargeVoid = /^\/finance\/charges\/([^/]+)\/void$/.exec(path);
+    if (chargeVoid) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const charge = extraCharges.find((c) => c.id === decodeURIComponent(chargeVoid[1]!));
+      if (!charge) return send(404, { message: 'Начисление не найдено' });
+      if (charge.voidedAt) return send(409, { message: 'Начисление уже сторнировано' });
+      charge.voidedAt = `${today}T12:30:00Z`;
+      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === charge.folioId))!;
+      return send(200, finance(reservation));
+    }
     if (path === '/finance/payments') {
       try {
         const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;
@@ -7463,6 +7680,27 @@ createServer(async (req, res) => {
         return send(200, r);
       }
       if (item && req.method === 'PATCH') {
+        // цена проживания (план finance-payments-direct 07.10.2026, У6): как в API — строка денег больше нуля,
+        // вниз только с правом `refunds`, отменённое и незаезд не меняются
+        if (body['price'] !== undefined) {
+          let priceMinor: bigint;
+          try {
+            priceMinor = parseMoney(String(body['price']));
+          } catch (e) {
+            return send(400, { message: (e as Error).message });
+          }
+          if (priceMinor <= 0n) return send(400, { message: 'price — цена проживания больше нуля' });
+          if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
+            return send(422, { message: `Проживание в статусе ${item.status}: цену не изменить` });
+          if (priceMinor < BigInt(item.priceMinor) && !can(uiRole, 'refunds'))
+            return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+          item.priceMinor = priceMinor.toString();
+          retotal(r);
+          const rest: Record<string, unknown> = { ...body };
+          delete rest['price'];
+          Object.assign(item, rest);
+          return send(200, r);
+        }
         Object.assign(item, body);
         return send(200, r);
       }

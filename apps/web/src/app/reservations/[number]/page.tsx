@@ -372,17 +372,18 @@ export default async function ReservationPage({
                 <SectionTitle id="booking-finance">Счета</SectionTitle>
                 {finance && services ? (
                   <>
-                    <PaymentRequestsPanel
-                      number={r.confirmationNumber}
-                      propertyName={paymentRequests?.propertyName ?? ''}
-                      requests={paymentRequests?.requests ?? null}
-                      folios={finance.folios}
-                    />
+                    {/* оплата одним шагом первой; запросы оплаты (§24) ниже, свёрнутыми (план 07.10.2026, У8) */}
                     <FinancePanel
                       number={r.confirmationNumber}
                       finance={finance}
                       services={services}
                       today={today}
+                    />
+                    <PaymentRequestsPanel
+                      number={r.confirmationNumber}
+                      propertyName={paymentRequests?.propertyName ?? ''}
+                      requests={paymentRequests?.requests ?? null}
+                      folios={finance.folios}
                     />
                   </>
                 ) : (

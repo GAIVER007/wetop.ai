@@ -7407,3 +7407,7 @@
 | 07.10.2026 20:05 | unit | ✅ 3894 из 3897, пропущено 3 | 2 мин 22 с | 273d631 | [лог](logs/2026-10-07T15-05-11Z-unit-2bb6.log) |  |
 | 07.10.2026 20:07 | integration | ✅ 893 из 893 | 3 мин 14 с | 273d631 | [лог](logs/2026-10-07T15-07-39Z-integration-dfcf.log) |  |
 | 07.10.2026 20:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts tests/ui/website.spec.ts --workers=1) | ✅ 34 из 34 | 4 мин 24 с | 273d631 | [лог](logs/2026-10-07T15-17-44Z-e2e-d942.log) |  |
+| 07.10.2026 21:11 | integration (частично: tests/integration/site-assets-db.test.ts) | ❌ упало 5 из 5 | 8 с | b9744a4 +3 | [лог](logs/2026-10-07T16-11-27Z-integration-b88e.log) | MKT8 red: без миграции 066/067 |
+| 07.10.2026 21:11 | integration (частично: tests/integration/site-assets-db.test.ts) | ✅ 5 из 5 | 7 с | b9744a4 +7 | [лог](logs/2026-10-07T16-11-43Z-integration-22dc.log) | MKT8 green: миграции 066/067 |
+| 07.10.2026 21:11 | integration (частично: tests/integration/site-assets-db.test.ts) | ❌ упало 2 из 5 | 7 с | b9744a4 +7 | [лог](logs/2026-10-07T16-11-59Z-integration-7543.log) | MKT8 мутация: без индекса повтора и без триггера |
+| 07.10.2026 21:12 | integration (частично: tests/integration/site-assets-db.test.ts) | ✅ 5 из 5 | 6 с | b9744a4 +7 | [лог](logs/2026-10-07T16-12-06Z-integration-7f92.log) | MKT8 после мутации восстановлено |

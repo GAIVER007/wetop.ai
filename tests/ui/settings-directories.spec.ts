@@ -88,22 +88,14 @@ test('все способы выключены: сохранить нельзя,
   await signIn(page);
   await page.goto('/hotel-settings/directories');
   const main = page.getByRole('main');
-  for (const m of ALL) await main.getByLabel(`Принимаем: ${(await label(main, m)) ?? m}`).uncheck();
+  const toggles = main.getByTestId('payment-method-toggle');
+  await expect(toggles).toHaveCount(8);
+  for (let i = 0; i < 8; i += 1) await toggles.nth(i).uncheck();
   await expect(main.getByText('Хотя бы один способ оплаты должен быть включён')).toBeVisible();
   await main.getByRole('button', { name: 'Сохранить изменения' }).click();
   // форма не ушла: разбор домена остановил запрос, список по-прежнему весь выключен
   await expect(main.getByTestId('settings-save-state')).toHaveText('• Есть несохранённые изменения');
 });
-async function label(main: ReturnType<Page['getByRole']>, method: string) {
-  return main
-    .getByTestId('payment-method-row')
-    .filter({ has: main.page().locator(`[data-method="${method}"]`) })
-    .locator('td')
-    .first()
-    .innerText()
-    .catch(() => null);
-}
-
 test('выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами', async ({
   page,
   request,
@@ -161,7 +153,8 @@ test('статьи кассы: ссылка из «Кассы» ведёт в с
   const renamed = editor.getByRole('row', { name: /Реклама в соцсетях/ });
   await expect(renamed).toBeVisible();
   await renamed.getByRole('button', { name: 'Выключить' }).click();
-  await expect(renamed.getByText('выключена')).toBeVisible();
+  // точное слово: строка под названием на телефоне повторяет статус («Расход, выключена»)
+  await expect(renamed.getByText('выключена', { exact: true })).toBeVisible();
 
   await page.goto('/finance#cash');
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();

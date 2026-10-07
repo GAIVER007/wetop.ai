@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 07.10.2026 16:04 Алматы · vm
+# коммит e563f4c (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/settings-directories.spec.ts' 'tests/ui/roles.spec.ts:118'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.9s)
+  ✓   2 tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же (4.6s)
+  ✓   3 tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами (3.0s)
+  ✓   4 tests/ui/settings-directories.spec.ts:99:1 › выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами (3.7s)
+  ✘   5 tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода (4.8s)
+  ✓   6 tests/ui/settings-directories.spec.ts:166:1 › управляющий правит; «только чтение» видит факты без кнопок (3.1s)
+  ✓   7 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 1440px (4.0s)
+  ✓   8 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 390px (4.7s)
+  ✓   9 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 1440px (4.7s)
+  ✓  10 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 390px (4.6s)
+
+
+  1) tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('cash-categories-editor').getByRole('row', { name: /Реклама в соцсетях/ }).getByText('выключена')
+    Expected: visible
+    Error: strict mode violation: getByTestId('cash-categories-editor').getByRole('row', { name: /Реклама в соцсетях/ }).getByText('выключена') resolved to 2 elements:
+        1) <span class="settings-row-sub">Расход, выключена</span> aka getByText('Расход, выключена')
+        2) <span class="badge">выключена</span> aka getByText('выключена', { exact: true })
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('cash-categories-editor').getByRole('row', { name: /Реклама в соцсетях/ }).getByText('выключена') with timeout 15000ms
+      - waiting for getByTestId('cash-categories-editor').getByRole('row', { name: /Реклама в соцсетях/ }).getByText('выключена')
+
+
+      154 |   await expect(renamed).toBeVisible();
+      155 |   await renamed.getByRole('button', { name: 'Выключить' }).click();
+    > 156 |   await expect(renamed.getByText('выключена')).toBeVisible();
+          |                                                ^
+      157 |
+      158 |   await page.goto('/finance#cash');
+      159 |   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:156:48
+
+    Error Context: test-results/settings-directories-стать-42fa5-ключенная-уходит-из-расхода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-стать-42fa5-ключенная-уходит-из-расхода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-стать-42fa5-ключенная-уходит-из-расхода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода 
+  9 passed (55.4s)
+
+# код выхода 1 · 57 с

@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 07.10.2026 15:52 Алматы · vm
+# коммит e563f4c (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/settings-directories.spec.ts' 'tests/ui/requests.spec.ts:83' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/ui/requests.spec.ts:83:3 › экран /today: данные берутся одним запросом на путь (2.1s)
+  ✓   2 tests/ui/requests.spec.ts:83:3 › экран /chessboard: данные берутся одним запросом на путь (2.1s)
+  ✓   3 tests/ui/requests.spec.ts:83:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓   4 tests/ui/requests.spec.ts:83:3 › экран /guests: данные берутся одним запросом на путь (1.7s)
+  ✓   5 tests/ui/requests.spec.ts:83:3 › экран /inventory: данные берутся одним запросом на путь (1.9s)
+  ✓   6 tests/ui/requests.spec.ts:83:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.2s)
+  ✓   7 tests/ui/requests.spec.ts:83:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓   8 tests/ui/requests.spec.ts:83:3 › экран /management/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓   9 tests/ui/requests.spec.ts:83:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.8s)
+  ✓  10 tests/ui/requests.spec.ts:83:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.2s)
+  ✓  11 tests/ui/requests.spec.ts:83:3 › экран /finance: данные берутся одним запросом на путь (1.8s)
+  ✓  12 tests/ui/requests.spec.ts:83:3 › экран /reports: данные берутся одним запросом на путь (1.6s)
+  ✓  13 tests/ui/requests.spec.ts:83:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.4s)
+  ✓  14 tests/ui/requests.spec.ts:83:3 › экран /channels: данные берутся одним запросом на путь (2.6s)
+  ✓  15 tests/ui/requests.spec.ts:83:3 › экран /connections/channex: данные берутся одним запросом на путь (1.6s)
+  ✓  16 tests/ui/requests.spec.ts:83:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.7s)
+  ✓  17 tests/ui/requests.spec.ts:83:3 › экран /channels/sync: данные берутся одним запросом на путь (1.9s)
+  ✓  18 tests/ui/requests.spec.ts:83:3 › экран /channels/events: данные берутся одним запросом на путь (1.7s)
+  ✓  19 tests/ui/requests.spec.ts:83:3 › экран /marketing: данные берутся одним запросом на путь (1.6s)
+  ✓  20 tests/ui/requests.spec.ts:83:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  21 tests/ui/requests.spec.ts:83:3 › экран /website/booking: данные берутся одним запросом на путь (1.6s)
+  ✓  22 tests/ui/requests.spec.ts:83:3 › экран /website/analytics: данные берутся одним запросом на путь (1.9s)
+  ✓  23 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.2s)
+  ✓  24 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  25 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓  26 tests/ui/requests.spec.ts:83:3 › экран /hotel-settings/directories: данные берутся одним запросом на путь (1.6s)
+  ✓  27 tests/ui/requests.spec.ts:83:3 › экран /team: данные берутся одним запросом на путь (1.6s)
+  ✓  28 tests/ui/requests.spec.ts:83:3 › экран /connections: данные берутся одним запросом на путь (1.6s)
+  ✓  29 tests/ui/requests.spec.ts:83:3 › экран /ai-agents: данные берутся одним запросом на путь (1.6s)
+  ✓  30 tests/ui/requests.spec.ts:83:3 › экран /website/settings: данные берутся одним запросом на путь (1.6s)
+  ✓  31 tests/ui/requests.spec.ts:83:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  32 tests/ui/requests.spec.ts:83:3 › экран /journal: данные берутся одним запросом на путь (1.7s)
+  ✓  33 tests/ui/requests.spec.ts:83:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.7s)
+  ✓  34 tests/ui/settings-directories.spec.ts:50:1 › вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же (4.5s)
+  ✓  35 tests/ui/settings-directories.spec.ts:87:1 › все способы выключены: сохранить нельзя, причина словами (3.0s)
+  ✓  36 tests/ui/settings-directories.spec.ts:99:1 › выключенный Kaspi: нет в форме оплаты, запросах оплаты и кассе; API отказывает словами (4.2s)
+  ✓  37 tests/ui/settings-directories.spec.ts:135:1 › статьи кассы: ссылка из «Кассы» ведёт в справочники; добавить, переименовать, выключить; выключенная уходит из расхода (6.2s)
+  ✓  38 tests/ui/settings-directories.spec.ts:166:1 › управляющий правит; «только чтение» видит факты без кнопок (3.3s)
+  ✓  39 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 1440px (3.9s)
+  ✘  40 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 390px (4.3s)
+  ✓  41 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 1440px (5.1s)
+  ✘  42 tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 390px (4.7s)
+
+
+  1) tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 390px ────────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 390
+    Received:    752
+
+      201 |         document.documentElement.clientWidth,
+      202 |       ]);
+    > 203 |       expect(widths[0]).toBeLessThanOrEqual(widths[1]!);
+          |                         ^
+      204 |       await page.screenshot({
+      205 |         path: `${SHOTS}/directories-${scheme}-${width}.png`,
+      206 |         fullPage: width === 1440,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:203:25
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 390px ─────────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 390
+    Received:    752
+
+      201 |         document.documentElement.clientWidth,
+      202 |       ]);
+    > 203 |       expect(widths[0]).toBeLessThanOrEqual(widths[1]!);
+          |                         ^
+      204 |       await page.screenshot({
+      205 |         path: `${SHOTS}/directories-${scheme}-${width}.png`,
+      206 |         fullPage: width === 1440,
+        at /home/user/wetop.ai/tests/ui/settings-directories.spec.ts:203:25
+
+    Error Context: test-results/settings-directories-доступность-«Справочников»-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-directories-доступность-«Справочников»-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-directories-доступность-«Справочников»-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: light, 390px ─────────
+    tests/ui/settings-directories.spec.ts:184:5 › доступность «Справочников»: dark, 390px ──────────
+  40 passed (1.8m)
+
+# код выхода 1 · 1 мин 51 с

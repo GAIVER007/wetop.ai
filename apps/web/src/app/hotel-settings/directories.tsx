@@ -44,7 +44,7 @@ export function PaymentMethodsForm({
     setList((was) => was.map((m, k) => (k === i ? { ...m, enabled: !m.enabled } : m)));
   if (!editable)
     return (
-      <Table size="sm" data-testid="payment-methods-table" aria-label="Способы оплаты">
+      <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
         <thead>
           <tr>
             <th>Способ</th>
@@ -68,7 +68,7 @@ export function PaymentMethodsForm({
       <input type="hidden" name="methods" value={JSON.stringify(list)} />
       {state?.error && <Alert boxed>{state.error}</Alert>}
       {none && <Alert boxed>Хотя бы один способ оплаты должен быть включён</Alert>}
-      <Table size="sm" data-testid="payment-methods-table" aria-label="Способы оплаты">
+      <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
         <thead>
           <tr>
             <th>Способ</th>
@@ -135,6 +135,8 @@ export function PaymentMethodsForm({
 const IDLE: DirectoryActionResult | null = null;
 
 /** Статьи кассы: добавить, переименовать, выключить; удаления нет, прошлые операции хранят статью */
+const kindRu = (kind: string) => (kind === 'INCOME' ? 'Доход' : 'Расход');
+
 export function CashCategoriesEditor({
   categories,
   editable,
@@ -174,12 +176,12 @@ export function CashCategoriesEditor({
           </Button>
         </form>
       )}
-      <Table size="sm" data-testid="cash-categories-table" aria-label="Статьи кассы">
+      <Table size="sm" className="settings-directory-table" data-testid="cash-categories-table" aria-label="Список статей кассы">
         <thead>
           <tr>
             <th>Статья</th>
-            <th>Тип</th>
-            <th>Статус</th>
+            <th className="settings-col-wide">Тип</th>
+            <th className="settings-col-wide">Статус</th>
             {editable && (
               <th>
                 <span className="sr-only">Действия</span>
@@ -196,9 +198,13 @@ export function CashCategoriesEditor({
                 ) : (
                   c.name
                 )}
+                {/* на телефоне колонки типа и статуса скрыты, те же слова строкой под названием (как у «Сотрудников») */}
+                <span className="settings-row-sub">
+                  {kindRu(c.kind)}, {c.active ? 'действует' : 'выключена'}
+                </span>
               </td>
-              <td>{c.kind === 'INCOME' ? 'Доход' : 'Расход'}</td>
-              <td>
+              <td className="settings-col-wide">{kindRu(c.kind)}</td>
+              <td className="settings-col-wide">
                 <Badge tone={c.active ? 'ok' : 'neutral'}>
                   {c.active ? 'действует' : 'выключена'}
                 </Badge>

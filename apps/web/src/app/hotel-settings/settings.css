@@ -439,6 +439,40 @@
 .object-settings .settings-inline-form {
   display: inline-flex;
 }
+/* на телефоне .table-scroll не прокручивается (workspace.css), а общий минимум таблиц 520 px и автоматическая
+   раскладка по самой широкой ячейке (форма переименования, две кнопки действий) выталкивали страницу вбок до 752 px:
+   таблицы справочников ужимаются до экрана, колонки типа и статуса уходят в строку под названием (как у «Сотрудников»),
+   кнопки действий встают столбиком */
+.object-settings .table-scroll > .settings-directory-table {
+  min-width: 0;
+}
+.object-settings .settings-row-sub {
+  display: none;
+}
+@media (max-width: 600px) {
+  .object-settings .table-scroll > .settings-directory-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+  .object-settings .settings-directory-table th,
+  .object-settings .settings-directory-table td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .object-settings .settings-directory-table .settings-col-wide {
+    display: none;
+  }
+  .object-settings .settings-row-sub {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    margin-top: var(--space-1);
+  }
+  .object-settings .settings-directory-table .settings-order {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 /* скрытая подпись «Действия» ищет опору внутри прокрутки, а не вне её (те же грабли, что у долгов и счетов) */
 .object-settings .settings-directory .table-scroll,
 .object-settings .table-scroll {

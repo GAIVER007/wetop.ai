@@ -1,6 +1,6 @@
 # PUBLIC-1: аудит главной WETOP.AI
 
-Дата: 07.10.2026, Asia/Dubai. Статус: аудит и предложение для владельца, без реализации PUBLIC-2.
+Дата: 07.10.2026, Asia/Dubai. Статус: PUBLIC-1 принят владельцем 07.10.2026. Решения и visual gate зафиксированы в Homepage V2 plan. Аудит отражает исходное состояние, не результат PUBLIC-2.
 
 ## Основание и границы доказательств
 
@@ -460,3 +460,7 @@ Live title и description совпали с ru.meta. Canonical https://wetop.ai/
 - `title`: WETOP: управляйте отелем из одного окна
 - `description`: WETOP объединяет шахматку, брони, гостей, цены, оплаты, каналы продаж, команду, аналитику и ИИ-продавца в одном рабочем пространстве.
 - `siteName`: WETOP
+
+## Приёмка владельца, 07.10.2026
+
+PUBLIC-1 принят. Hero A, section order и статусы утверждены. SEO title уточнён: «WETOP.AI: платформа для управления сервисным бизнесом». Trial на homepage не рекламируется. ИИ только отдельное расширение Hospitality; draft agents и AI site generator не рекламируются. Карточки ограничены 4-6 ключевыми функциями. PUBLIC-2 начинается с header/Hero/verticals/base style, затем STOP с PR и screenshots обеих тем. Phone, contrast, mobile focus и keyboard tabs входят в обязательную итоговую приёмку. Deploy и production/release запрещены до отдельного подтверждения. Полные решения находятся в плане.

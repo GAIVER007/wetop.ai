@@ -1,6 +1,6 @@
 # PUBLIC-1: Homepage V2 для WETOP.AI
 
-Дата: 07.10.2026. Статус: предложение владельцу, PUBLIC-2 не начат.
+Дата: 07.10.2026. Статус: PUBLIC-1 принят владельцем 07.10.2026. Решения ниже утверждены; PUBLIC-2 разрешён по slices, первый visual slice требует отдельной визуальной приёмки.
 Основание: [аудит](../reports/public-homepage-audit-2026-10-07/README.md), источники проверены на `e0089a230d8bd0b03751721d6e219faa628b904e`; перед PR база обновлена на `94a2ae33416ece62d2bd18d8f3ef1896ed209702`, релевантные источники не изменились (GitHub compare).
 
 ## Контракт содержания и границы
@@ -101,7 +101,7 @@ Lead: «Выберите направление и посмотрите, что 
 Статус: «Доступно».
 Сегменты: «Отели, хостелы и апарт-отели».
 Текст: «Ведите брони и гостей, размещайте их на календаре номеров и коек, контролируйте оплаты и загрузку».
-Возможности: «Сегодня», «Календарь размещений», «Брони и гости», «Номерной фонд», «Категории и цены», «Оплаты и аналитика», «Каналы продаж», «Маркетинг».
+Возможности на карточке: «Сегодня», «Календарь размещений», «Брони и гости», «Категории и цены», «Оплаты и аналитика», «Каналы продаж». Номерной фонд и маркетинг раскрываются ниже.
 Уточнение: «Каналы продаж и сайт подключаются отдельно. Состав доступных инструментов зависит от настроек и прав сотрудника».
 Primary: «Регистрация» → /#register с Hospitality по умолчанию.
 Secondary: «Возможности для гостиниц» → #hospitality-capabilities (фрагмент в #features, без новой страницы).
@@ -112,7 +112,7 @@ Secondary: «Возможности для гостиниц» → #hospitality-c
 Статус: «Пилот».
 Сегменты: «Салоны красоты и студии».
 Текст: «Ведите записи и клиентов, выбирайте услуги и мастеров, планируйте рабочее время филиала».
-Возможности: «Сегодня», «Календарь», «Записи», «Клиенты», «Мастера», «Услуги», «График мастеров».
+Возможности на карточке: «Сегодня», «Календарь записей», «Клиенты», «Мастера», «Услуги», «График мастеров».
 Уточнение: «Подключение по приглашению. Самостоятельная регистрация доступна только согласованным участникам пилота».
 Primary: «Условия пилота» → #pilot-access (фрагмент в #start).
 Secondary: «У меня есть приглашение» → /?vertical=BEAUTY#register, data-auth=register, сохранить existing query handling.
@@ -348,11 +348,11 @@ Copyright: «© {year} WETOP». Не добавлять выдуманные ю�
 
 | Вариант | Title | Description |
 |---|---|---|
-| A, рекомендуемый | WETOP.AI: платформа для бизнеса и гостиниц | WETOP объединяет клиентов, бронирования, команду и работу филиалов. Гостиничный бизнес доступен; салоны, кафе и рестораны подключаются к пилоту по приглашению. |
+| A, рекомендуемый | WETOP.AI: платформа для управления сервисным бизнесом | WETOP объединяет клиентов, бронирования, команду и работу филиалов. Гостиничный бизнес доступен; салоны, кафе и рестораны подключаются к пилоту по приглашению. |
 | B | WETOP.AI: управление бизнесом из одного окна | Платформа для ежедневной работы гостиниц, салонов и ресторанов. Клиенты, команда и операции филиалов. Hospitality доступен, Beauty и Food Service в пилоте. |
 | C | WETOP.AI: гостиницы, салоны и рестораны | Единое рабочее пространство бизнеса и команды. Ведите гостиничные брони и гостей; записи салонов и бронирования столов доступны участникам закрытого пилота. |
 
-Title A выбран за платформенную семантику с сохранением самого зрелого Hospitality. Не наполнять meta повторениями ключей. Не обещать SEO-позиции. Canonical остаётся https://wetop.ai/, html lang=ru, OG image 1200×630 и description согласованы с вариантом A; проверить общий og.png на устаревшую копию. Публичная карточка ссылки: «WETOP.AI» / «Управляйте бизнесом из одного окна» / «Гостиницы: доступно. Салоны и рестораны: пилот». Sitemap и indexability не меняются ради pilots.
+Title выбран владельцем: «WETOP.AI: платформа для управления сервисным бизнесом». Description A сохраняет честное разделение доступности. Не наполнять meta повторениями ключей. Не обещать SEO-позиции. Canonical остаётся https://wetop.ai/, html lang=ru, OG image 1200×630 и description согласованы с вариантом A; проверить общий og.png на устаревшую копию. Публичная карточка ссылки: «WETOP.AI» / «Управляйте бизнесом из одного окна» / «Гостиницы: доступно. Салоны и рестораны: пилот». Sitemap и indexability не меняются ради pilots.
 
 ## Design rules
 
@@ -418,11 +418,36 @@ Actual OS keyboard: проверить на устройстве шириной 
 
 Screenshots PUBLIC-2: homepage top и full-page 1440 light/dark; 320/390/768 light/dark; три vertical cards/statuses; все showcase states; menu 320; login/register/pilot 320/390 и desktop; error/closed/email-sent; reduced motion; короткий viewport с доступной submit. Хранить рядом с новым QA report, подписывать viewport/theme/SHA. Сравнить с PUBLIC-1 [current screenshots](../reports/public-homepage-audit-2026-10-07/README.md#screenshots-текущего-состояния).
 
-## Решения владельца до PUBLIC-2
+## Решения владельца, утверждены 07.10.2026
 
-1. Утвердить Hero A, section order и SEO A либо выбрать B/C.
-2. Утвердить точное описание пилота и mailto contact flow. Новый waitlist/backend не предлагается этой реализацией.
-3. Оставить homepage без promotional trial (рекомендация) либо разрешить optional Hospitality copy с точным началом отсчёта.
-4. Утвердить публичное различие legacy ИИ-продавца и новых draft agents. Возможность расширить claims после новых релизов должна подтверждаться отдельно.
+- Hero A и H1 «Управляйте бизнесом из одного окна», section order целиком.
+- Hospitality «Доступно», Beauty/Food «Пилот», карточки 4-6 capabilities, подробности ниже.
+- Beauty/Food: «Условия пилота» и «У меня есть приглашение». Контакт из configured email; без waitlist/backend.
+- Promotional trial claim не использовать нигде на homepage. Доменный trial не менять; optional copy выше не выбран.
+- ИИ только подтверждённый продавец как отдельное расширение Hospitality. Draft agents и AI website generator не рекламировать как доступные.
+- Auth labels «Войти / Регистрация», tabs «Вход / Регистрация»; хэши, мост, HttpOnly-session и правила доступа сохраняются.
+- SEO title «WETOP.AI: платформа для управления сервисным бизнесом»; description A с доступностью и пилотами.
+- UI «Компания → направления → филиалы → команда → рабочее пространство», без технической архитектуры.
+- Исправления CTA contrast, phone 320, mobile focus return и keyboard tabs обязательны в PUBLIC-2 acceptance, а не необязательный polish.
 
-Это editorial decisions. Изменения signup, pricing, ролей и mature/pilot statuses не являются частью решения. Текущая draft PR не утверждает новую бизнес-архитектуру и не разрешает PUBLIC-2.
+## Утверждённое visual direction: WETOP Quiet Intelligence
+
+Спокойный premium SaaS: понятность, иерархия, продукт, эстетика. Референсы используются по описанию владельца: BetterStack discipline, uigraphic air, WETOP product UI; TapRefer только typography и очевидность CTA. Конкретные страницы/изображения референсов не приложены, визуального копирования нет.
+
+Light: почти белый page, сплошные белые surfaces, почти чёрный текст, читаемый secondary neutral. Dark: почти чёрный graphite-blue page, surfaces немного светлее, тонкие borders. Один технологичный blue token, только для CTA, links и active states. Primary solid, без gradient; no neon/glow/perspective, без blur на каждой surface.
+
+Шрифты существующие: Hero 64-72 desktop / 48-56 tablet / 36-42 mobile, weight 600-700, line-height 1.05-1.10. Lead 18-20 desktop / 16-18 mobile. Eyebrow 13-14, без широкого uppercase. Max width 1200, gutters 24; section spacing 88-112 desktop / 72 tablet / 56 mobile. Radii: controls 8-10, cards 14-18, modal 18-20, badges pill. Ordinary cards border 1px, без shadow. Hover только на интерактивных элементах. Targets 44×44, контраст 4.5:1 text / 3:1 large and controls.
+
+Header 64-72 desktop, чистая nav; mobile постоянно видимый Register. Hero представляет конкретную работу, максимум один основной product preview и два маленьких fragments, подпись «Пример интерфейса. Данные вымышленные». Никаких device/browser mockup frames, fake controls, настоящих данных и выдуманной общей выручки пилотов. Product preview на mobile перекомпоновать, не уменьшать desktop UI до нечитаемости. Vertical cards одинаковой геометрии, content/icon/status различают направления, без разноцветных gradients.
+
+На 1440×900 без scroll: header, весь H1/lead, обе CTA, статусы и значимая часть preview. На 390×844: header, H1, lead, register, статусы и начало preview. Mobile CTA stacked, primary full width. Light/dark одинаковая структура; системная тема и сохранённый выбор работают.
+
+Motion 120-180ms, только состояния; никаких parallax/scroll-jacking/infinite loops. Reduced motion отключает движение. Product showcase 60-70% product / 30-40% text; чередование rows вместо wall of cards. Timeline Start без пяти больших cards, но сохраняет реальный порядок выбора vertical до email. FAQ простой, thin separators. Footer максимум 4 колонки.
+
+## Delivery gate первого PUBLIC-2 slice
+
+После обновления документов проверить docs/screenshots-only diff, mark ready и merge #278. Затем fresh-check main и начать первый implementation slice: header, Hero, vertical statuses/cards, base visual tokens, mobile, light/dark. Создать два visual prototypes одного интерфейса: desktop 1440 / mobile 390 в dark и light плюс cards.
+
+После первого implementation PR STOP с screenshots. Не распространять стиль на оставшиеся секции до визуального approval владельца. First-slice QA не выдаётся за полную приёмку Homepage V2. Остальные slices и auth fixes остаются в очереди. Перед финальной приёмкой обязательны все проверки предыдущего раздела, включая axe, keyboard, reduced motion, auth login/register/pilot, short viewport, 200% zoom, SEO/OG, build/typecheck/lint и оба Playwright набора.
+
+PUBLIC-2 не меняет apps/web, apps/api, apps/sites, schema/migrations, vertical/trial/pricing rules, production/release. Deploy запрещён до отдельного подтверждения владельца, независимо от прежнего общего разрешения AGENTS §18. Implementation PR не merge без соответствующей приёмки.

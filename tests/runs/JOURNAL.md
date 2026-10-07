@@ -7266,3 +7266,9 @@
 | 07.10.2026 17:06 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 26 с | fe3b723 | [лог](logs/2026-10-07T12-06-54Z-unit-9647.log) | MKT6 доводка, вершина после main e0089a23 |
 | 07.10.2026 17:09 | typecheck | ✅ без ошибок | 56 с | d4e95a1 | [лог](logs/2026-10-07T12-09-54Z-typecheck-46db.log) | MKT6 доводка, вершина после main 94a2ae33 |
 | 07.10.2026 17:10 | lint | ✅ без ошибок | 55 с | d4e95a1 | [лог](logs/2026-10-07T12-10-52Z-lint-abea.log) | MKT6 доводка, вершина после main 94a2ae33 |
+| 07.10.2026 17:43 | typecheck | ✅ без ошибок | 1 мин 23 с | 4cb3746 | [лог](logs/2026-10-07T12-43-42Z-typecheck-04e6.log) |  |
+| 07.10.2026 17:45 | lint | ✅ без ошибок | 50 с | 4cb3746 | [лог](logs/2026-10-07T12-45-06Z-lint-e0ee.log) |  |
+| 07.10.2026 17:46 | unit | ✅ 3819 из 3822, пропущено 3 | 2 мин 33 с | 4cb3746 | [лог](logs/2026-10-07T12-46-00Z-unit-862c.log) |  |
+| 07.10.2026 17:49 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 5 с | 4cb3746 | [лог](logs/2026-10-07T12-49-21Z-e2e-17e8.log) | beauty-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 17:49 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 5 с | 4cb3746 | [лог](logs/2026-10-07T12-49-28Z-e2e-0e00.log) | food-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 17:49 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ⏹ прерван | 2 с | 4cb3746 | [лог](logs/2026-10-07T12-49-34Z-e2e-a120.log) | branches-ui on DS0a merged with main 867a3914 |

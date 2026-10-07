@@ -270,8 +270,7 @@ export default async function ChessboardPage({
           readOnly={shell?.readOnly ?? false}
         />
         <div className="board-footer">
-          <details className="board-legend-details">
-            <summary>Обозначения</summary>
+          <div className="board-legend-details" aria-label="Цвета и статусы календаря">
             <Legend
               data-testid="board-legend"
               items={[
@@ -286,7 +285,7 @@ export default async function ChessboardPage({
                 { label: 'без значка — проверена, доступна' },
               ]}
             />
-          </details>
+          </div>
           <span className="board-gesture-hint">
             Плашка: переселить. Правый край: продлить. Пустые клетки: выделить даты для брони.
           </span>

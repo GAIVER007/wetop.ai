@@ -168,11 +168,11 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   }
   async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
     const scope = await this.agentScope(agentId);
-    if (!scope?.propertyId) return null;
-    for (const site of this.sitesById.values()) {
-      if (site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
-        return { ...site, organizationId: scope.organizationId };
-    }
+    if (!scope?.propertyId || !scope.bookingTrackedSiteId) return null;
+    // Q-275: только канонический сайт брони филиала, без перебора соседних
+    const site = this.sitesById.get(scope.bookingTrackedSiteId);
+    if (site && site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
+      return { ...site, organizationId: scope.organizationId };
     return null;
   }
   async hostsForAgent(agentId: string): Promise<string[] | null> {

@@ -179,6 +179,9 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     await db.sellerAgent.create({
       data: { id: agentB, organizationId: orgM, createdBy: user, name: 'Продавец B', locationId: B.locationId },
     });
+    // Q-275 (MKT7): сайт брони агента это только канонический сайт филиала, «первого» по дате больше нет
+    const siteB = await db.trackedSite.findFirstOrThrow({ where: { publicKey: B.siteKey }, select: { id: true } });
+    await db.location.update({ where: { id: B.locationId }, data: { bookingTrackedSiteId: siteB.id } });
   }, 120_000);
 
   afterAll(async () => {

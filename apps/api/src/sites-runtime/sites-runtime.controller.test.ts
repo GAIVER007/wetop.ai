@@ -18,6 +18,7 @@ import {
   type SitesRuntimeRepository,
 } from './sites-runtime.repository';
 import { SitesRuntimeService } from './sites-runtime.service';
+import { signPreviewToken } from '../marketing-site/preview-token';
 
 /**
  * MKT4: служебный путь публичного рантайма. Ключ `SITES_RUNTIME_KEY` открывает только `GET /sites-runtime/current`;
@@ -33,6 +34,8 @@ const SPEC = JSON.parse(
   readFileSync(resolve(__dirname, '../../../../docs/marketing/sitespec-v0.example.json'), 'utf8'),
 ) as Record<string, unknown>;
 const HASH = siteSpecHash(SPEC);
+const PREVIEW_SECRET = 'mkt7-preview-secret-for-unit-tests-32b';
+const VERSION_2 = '6c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e';
 
 const row = (patch: Partial<PublishedSiteRow> = {}): PublishedSiteRow => ({
   siteId: SITE,
@@ -45,16 +48,28 @@ const row = (patch: Partial<PublishedSiteRow> = {}): PublishedSiteRow => ({
   checkOutTime: '12:00',
   publicKey: 'pms_0123456789ab',
   bookingEnabled: true,
+  primaryHost: null,
   ...patch,
 });
 
 const calls: Array<{ siteId: string; tenant: string | null }> = [];
 let published: Record<string, PublishedSiteRow> = {};
+/** MKT7: ACTIVE домены сайтов (хост → сайт) и версии, доступные превью (`siteId:versionId`) */
+let domains: Record<string, string> = {};
+let previews: Record<string, PublishedSiteRow> = {};
+const previewCalls: Array<{ siteId: string; versionId: string; tenant: string | null }> = [];
 let categoriesFail = false;
 const repo: SitesRuntimeRepository = {
   async publishedSite(siteId) {
     calls.push({ siteId, tenant: databaseTenant() });
     return published[siteId] ?? null;
+  },
+  async siteIdByHost(host) {
+    return domains[host] ?? null;
+  },
+  async previewSite(siteId, versionId) {
+    previewCalls.push({ siteId, versionId, tenant: databaseTenant() });
+    return previews[`${siteId}:${versionId}`] ?? null;
   },
   async categories(_propertyId, codes) {
     if (categoriesFail) throw new Error('db down');
@@ -114,7 +129,10 @@ afterAll(async () => {
 afterEach(() => {
   vi.unstubAllEnvs();
   calls.length = 0;
+  previewCalls.length = 0;
   published = {};
+  domains = {};
+  previews = {};
   categoriesFail = false;
 });
 
@@ -127,6 +145,7 @@ function server(key: string | null, env: Record<string, string> = {}) {
   vi.stubEnv('SITES_RUNTIME_DEV_RESOLVER', '1');
   vi.stubEnv('SITES_RUNTIME_DEV_HOSTS', `stepnoy.localhost=${SITE},other.localhost=${OTHER}`);
   vi.stubEnv('PUBLIC_API_URL', 'https://api.example.test/');
+  vi.stubEnv('SITE_PREVIEW_SECRET', PREVIEW_SECRET);
   for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
   const http = request(app.getHttpServer());
   const withKey = <T extends { set: (h: string, v: string) => T }>(r: T) =>
@@ -287,5 +306,72 @@ describe('неверный документ закрывает выдачу: 503
     expect(errors).toHaveBeenCalled();
     expect(JSON.stringify(errors.mock.calls)).toContain(SITE);
     errors.mockRestore();
+  });
+});
+
+describe('MKT7: боевое разрешение хоста через SiteDomain', () => {
+  it('production: ACTIVE домен даёт сайт; основной хост в ответе настоящий', async () => {
+    domains['luxx.sites.test'] = SITE;
+    published[SITE] = row({ primaryHost: 'luxx.sites.test' });
+    const res = await current('host=LUXX.sites.test.', RUNTIME_KEY, { NODE_ENV: 'production' }).expect(200);
+    expect(res.body.primaryHost).toBe('luxx.sites.test');
+    expect(calls).toEqual([{ siteId: SITE, tenant: null }]);
+  });
+
+  it('домена нет или сайт не опубликован: одинаковый 404', async () => {
+    domains['paused.sites.test'] = OTHER;
+    await current('host=unknown.sites.test', RUNTIME_KEY, { NODE_ENV: 'production' }).expect(404);
+    await current('host=paused.sites.test', RUNTIME_KEY, { NODE_ENV: 'production' }).expect(404);
+  });
+});
+
+describe('MKT7: превью по подписанному токену', () => {
+  const now = () => Math.floor(Date.now() / 1000);
+  const token = (patch: { siteId?: string; versionId?: string; exp?: number } = {}, secret = PREVIEW_SECRET) =>
+    signPreviewToken(
+      { siteId: patch.siteId ?? SITE, versionId: patch.versionId ?? VERSION_2, exp: patch.exp ?? now() + 600 },
+      Buffer.from(secret, 'utf8'),
+    );
+  const preview = (query: string, key: string | null = RUNTIME_KEY, env: Record<string, string> = {}) =>
+    server(key, env).get(`/sites-runtime/preview?${query}`);
+
+  it('действующий токен: ровно эта версия, без ключа сайта и брони, не кэшируется', async () => {
+    previews[`${SITE}:${VERSION_2}`] = row({ versionId: VERSION_2 });
+    const res = await preview(`token=${token()}`).expect(200);
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.body).toMatchObject({ siteId: SITE, state: 'PREVIEW', versionId: VERSION_2, publicKey: null, bookingEnabled: false });
+    expect(res.body.primaryHost).toBeNull();
+    expect(typeof res.body.expiresAt).toBe('string');
+    expect(previewCalls).toEqual([{ siteId: SITE, versionId: VERSION_2, tenant: null }]);
+  });
+
+  it('ключ рантайма без токена, испорченный и чужой секрет: 404 без чтения базы', async () => {
+    await preview('').expect(404);
+    await preview('token=').expect(404);
+    const t = token();
+    await preview(`token=${t.slice(0, -2)}AA`).expect(404);
+    await preview(`token=${token({}, 'another-secret-another-secret-0123456')}`).expect(404);
+    expect(previewCalls).toEqual([]);
+  });
+
+  it('истёкший токен: 410 без чтения базы', async () => {
+    const res = await preview(`token=${token({ exp: now() - 1 })}`).expect(410);
+    expect(res.body.code).toBe('preview_expired');
+    expect(previewCalls).toEqual([]);
+  });
+
+  it('версия не своего сайта или сайт в архиве (строки нет): 404', async () => {
+    await preview(`token=${token({ versionId: OTHER })}`).expect(404);
+  });
+
+  it('секрета нет: превью закрыто 503', async () => {
+    await preview(`token=${token()}`, RUNTIME_KEY, { SITE_PREVIEW_SECRET: '' }).expect(503);
+  });
+
+  it('общий служебный ключ и ключ сборщика превью не открывают', async () => {
+    previews[`${SITE}:${VERSION_2}`] = row({ versionId: VERSION_2 });
+    await preview(`token=${token()}`, SERVICE_KEY).expect(403);
+    await preview(`token=${token()}`, COLLECT_KEY).expect(403);
+    await preview(`token=${token()}`, null).expect(401);
   });
 });

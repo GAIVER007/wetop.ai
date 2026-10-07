@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 17:57 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T12-57-01Z-unit-7aa3.json' 'apps/api/src/sites-runtime/sites-runtime.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (25 tests) 447ms
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Start at  12:57:02
+   Duration  3.55s (transform 64%, import 23%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-10-07T12-57-01Z-unit-7aa3.json
+
+# код выхода 0 · 5 с

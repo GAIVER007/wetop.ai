@@ -104,10 +104,11 @@ const MARKET_COLLECT_LIST = '/market/collector/competitors';
 const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupancy$/;
 
 /**
- * Ключ публичного рантайма сайтов (`SITES_RUNTIME_KEY`, MKT4, ADR-149): только `GET /sites-runtime/current`. Управление
- * сайтом, черновики, версии по id и все прочие пути этим ключом не открываются.
+ * Ключ публичного рантайма сайтов (`SITES_RUNTIME_KEY`, MKT4, ADR-149): только `GET /sites-runtime/current` и, с MKT7,
+ * `GET /sites-runtime/preview` (а он без действующего токена превью ничего не читает). Управление сайтом, черновики,
+ * версии по id и все прочие пути этим ключом не открываются.
  */
-const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current'];
+const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current', '/sites-runtime/preview'];
 
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);

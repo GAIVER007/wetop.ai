@@ -53,6 +53,8 @@ export interface AgentScopeRow {
   locationId: string | null;
   /** Объект филиала (Property–Location 1:1); `null` — у агента нет филиала или у филиала нет объекта */
   propertyId: string | null;
+  /** Канонический сайт брони филиала агента (Q-275, `locations.booking_tracked_site_id`); `null` — не выбран */
+  bookingTrackedSiteId: string | null;
   lifecycle: 'draft' | 'active' | 'paused' | 'archived';
   scenario: string;
 }
@@ -113,7 +115,11 @@ export interface AnalyticsRepository {
   servingChain(propertyId: string): Promise<ServingChain | null>;
   /** Строка агента для области запроса (SA2.5); `null` — агента нет или он в архиве */
   agentScope(agentId: string): Promise<AgentScopeRow | null>;
-  /** Сайт бронирования ФИЛИАЛА агента (не организации): первый ACTIVE с включённым бронированием и тарифом на его объекте */
+  /**
+   * Сайт бронирования ФИЛИАЛА агента (Q-275 RESOLVED OWNER 07.10.2026, вариант B): ровно канонический сайт брони
+   * филиала, если он того же объекта, ACTIVE, с включённой бронью и тарифом; иначе `null`. «Первого», «самого раннего»
+   * и другого запасного сайта нет: неверный канонический не подменяется соседним
+   */
   bookingSiteForAgent(agentId: string): Promise<SiteRecord | null>;
   /** Домены действующих сайтов филиала агента — из них вычисляется allowlist виджета; `null` — агента нет */
   hostsForAgent(agentId: string): Promise<string[] | null>;
@@ -315,7 +321,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         locationId: true,
         lifecycle: true,
         scenario: true,
-        location: { select: { property: { select: { id: true } } } },
+        location: { select: { bookingTrackedSiteId: true, property: { select: { id: true } } } },
       },
     });
     return a
@@ -324,6 +330,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
           organizationId: a.organizationId,
           locationId: a.locationId,
           propertyId: a.location?.property?.id ?? null,
+          bookingTrackedSiteId: a.location?.bookingTrackedSiteId ?? null,
           lifecycle: a.lifecycle as AgentScopeRow['lifecycle'],
           scenario: a.scenario,
         }
@@ -331,15 +338,15 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
   async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
     const scope = await this.agentScope(agentId);
-    if (!scope?.propertyId) return null;
+    if (!scope?.propertyId || !scope.bookingTrackedSiteId) return null;
     const r = await this.prisma.db.trackedSite.findFirst({
       where: {
+        id: scope.bookingTrackedSiteId,
         propertyId: scope.propertyId,
         status: 'ACTIVE',
         bookingEnabled: true,
         bookingRatePlanId: { not: null },
       },
-      orderBy: { createdAt: 'asc' },
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;

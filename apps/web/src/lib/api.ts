@@ -2020,6 +2020,110 @@ export const siteAssetsApi = {
     ),
 };
 
+/** MKT9: метаданные версии сайта в истории; документ отдельно */
+export interface SiteVersionMeta {
+  id: string;
+  revision: number;
+  parentVersionId: string | null;
+  source: 'MANUAL' | 'AI' | 'IMPORT';
+  generationRunId: string | null;
+  createdById: string | null;
+  createdAt: string;
+  specHash: string;
+  isLatest: boolean;
+  isPublished: boolean;
+}
+
+export interface SiteSpecErrorView {
+  path: string;
+  code: string;
+  message: string;
+}
+
+/** Смысловое изменение версии (`diffSiteSpecs` домена): у стойки только слова, без JSON */
+export interface SiteChangeView {
+  area: 'site' | 'page' | 'section' | 'asset';
+  kind: 'added' | 'removed' | 'moved' | 'changed' | 'variant' | 'replaced';
+  field?: string;
+  pageId?: string;
+  sectionId?: string;
+  sectionType?: string;
+  label?: string;
+  from?: string;
+  to?: string;
+  slot?: string;
+}
+
+export interface GenerationRunView {
+  id: string;
+  type: 'INITIAL' | 'PATCH' | 'SECTION' | 'SEO';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  errorCode: string | null;
+  target?: { pageId: string; sectionId: string } | null;
+}
+
+export interface SiteDraftView {
+  site: MarketingSiteSummary;
+  version: { revision: number; specHash: string; source: string; createdAt: string; spec: Record<string, unknown> } | null;
+}
+
+/**
+ * Ответ API редактору как есть: при отказе нужен не только текст, но и код (`VERSION_CONFLICT`, `ASSET_UNAVAILABLE`,
+ * `BASE_VERSION_CHANGED`) и пути ошибок проверки, чтобы показать их у полей
+ */
+export type EditorReply<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number; code: string | null; message: string; errors: SiteSpecErrorView[]; paths: Array<{ path: string; code: string }> };
+
+async function editorCall<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<EditorReply<T>> {
+  const res = await backendFetch(path, {
+    method,
+    ...(body !== undefined ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
+  });
+  let json: Record<string, unknown> = {};
+  try {
+    json = (await res.json()) as Record<string, unknown>;
+  } catch {
+    /* тело не JSON */
+  }
+  if (res.ok) return { ok: true, data: json as T };
+  const message = Array.isArray(json['message']) ? (json['message'] as string[]).join('; ') : typeof json['message'] === 'string' ? json['message'] : `HTTP ${res.status}`;
+  return {
+    ok: false,
+    status: res.status,
+    code: typeof json['code'] === 'string' ? json['code'] : null,
+    message: res.status >= 500 && res.status !== 503 ? `Сервер ответил ошибкой ${res.status}: проверьте результат перед повтором` : message,
+    errors: Array.isArray(json['errors']) ? (json['errors'] as SiteSpecErrorView[]) : [],
+    paths: Array.isArray(json['paths']) ? (json['paths'] as Array<{ path: string; code: string }>) : [],
+  };
+}
+
+/** «Маркетинг → Редактор сайта» (MKT9): черновик, история, разница, восстановление и ИИ-правки в строгом scope */
+export const siteEditorApi = {
+  draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
+  versions: () => getJson<{ versions: SiteVersionMeta[] }>('/marketing/site/versions'),
+  brief: () => getJson<{ briefHash: string; input: { accommodations: Array<{ categoryCode: string; name: string }> } }>('/marketing/site/brief'),
+  version: (id: string) =>
+    editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>('GET', `/marketing/site/versions/${encodeURIComponent(id)}`),
+  diff: (id: string, against: string) =>
+    editorCall<{ from: SiteVersionMeta; to: SiteVersionMeta; changes: SiteChangeView[] }>(
+      'GET',
+      `/marketing/site/versions/${encodeURIComponent(id)}/diff?against=${encodeURIComponent(against)}`,
+    ),
+  save: (baseRevision: number, spec: unknown) =>
+    editorCall<{ version: { id: string; revision: number } }>('POST', '/marketing/site/versions', { baseRevision, spec }),
+  restore: (id: string, baseRevision: number) =>
+    editorCall<{ version: { id: string; revision: number }; restoredFrom: { id: string; revision: number } }>(
+      'POST',
+      `/marketing/site/versions/${encodeURIComponent(id)}/restore`,
+      { baseRevision },
+    ),
+  generate: (body: Record<string, unknown>) => editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
+  run: (id: string) => editorCall<{ run: GenerationRunView }>('GET', `/marketing/site/generations/${encodeURIComponent(id)}`),
+};
+
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
   card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),

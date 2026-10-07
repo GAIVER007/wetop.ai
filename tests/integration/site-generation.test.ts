@@ -40,6 +40,10 @@ function fakeBot() {
         if (next instanceof Error) throw next;
         return typeof next === 'function' ? (next as (r: GenerationBotRequest) => unknown)(request) : next;
       },
+      // MKT9: правка в этом наборе не ожидается, INITIAL правку не зовёт
+      async edit(): Promise<unknown> {
+        throw new Error('fake bot: edit не ожидается в MKT6');
+      },
     },
   };
 }

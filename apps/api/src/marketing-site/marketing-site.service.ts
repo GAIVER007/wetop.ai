@@ -256,7 +256,11 @@ export class MarketingSiteService {
     return siteTransaction(this.prisma, scope, false, async (tx) => {
       const to = await this.ownVersion(tx, scope, id);
       const from = await this.ownVersion(tx, scope, against);
-      const meta = ({ spec: _spec, ...rest }: typeof to.version) => rest;
+      const meta = (v: typeof to.version) => {
+        const rest: Partial<typeof v> = { ...v };
+        delete rest.spec;
+        return rest;
+      };
       return { from: meta(from.version), to: meta(to.version), changes: diffSiteSpecs(from.version.spec, to.version.spec) };
     });
   }

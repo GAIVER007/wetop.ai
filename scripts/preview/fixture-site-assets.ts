@@ -75,6 +75,11 @@ export function resetSiteAssetsFixture() {
 }
 resetSiteAssetsFixture();
 
+/** Готовые картинки библиотеки по id и виду: редактор MKT9 проверяет ссылки документа так же, как API */
+export function fixtureAssetKinds(): Map<string, Kind> {
+  return new Map(assets.map((a) => [a.id, a.kind]));
+}
+
 const field = (raw: string, name: string) => new RegExp(`name="${name}"\\r\\n\\r\\n([^\\r]*)`).exec(raw)?.[1];
 const view = () => ({ storage: storageOff ? 'OFF' : 'READY', limits: { maxUploadBytes: MAX }, assets: storageOff ? assets.map((a) => ({ ...a, previewUrl: null })) : assets });
 

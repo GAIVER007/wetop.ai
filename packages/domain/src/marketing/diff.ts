@@ -97,7 +97,10 @@ function content(section: Rec): string {
     for (const [k, x] of Object.entries(v)) if (!['assetId', 'imageAssetId', 'faviconAssetId'].includes(k)) out[k] = strip(x);
     return out;
   };
-  const { id: _id, type: _type, variant: _variant, ...rest } = section;
+  const rest: Rec = { ...section };
+  delete rest['id'];
+  delete rest['type'];
+  delete rest['variant'];
   return canonicalJson(strip(rest));
 }
 

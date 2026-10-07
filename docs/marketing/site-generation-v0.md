@@ -24,7 +24,9 @@ GET /marketing/site/generations/:id  статус без документа
 
 Таблица `generation_runs` (миграции `…062_generation_run_core`, права `…063_generation_run_grants`). Отдельной таблицы
 очереди нет: строка в `QUEUED` с наступившим `next_attempt_at` и есть задание. В MKT6 API ставит только `INITIAL`;
-`SECTION` и `PATCH` откроет MKT9, `SEO` MKT11, без них полуработающих маршрутов нет.
+`SECTION` и `PATCH` открыл MKT9 (тот же `POST /marketing/site/generations`, бот `POST /internal/site-edit`, контракт
+[`site-editor-v0.md`](site-editor-v0.md) §6–§8), `SEO` MKT11. Тело без `type` по-прежнему ставит `INITIAL`, воркер один
+и ветвится по виду задачи, бюджет и учёт расхода общие для всех видов.
 
 - `next_attempt_at`: в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут).
 - `dispatched_at`: запрос к ИИ ушёл, расход ещё не записан. Падение процесса в это время даёт `USAGE_UNAVAILABLE`.

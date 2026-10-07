@@ -7454,3 +7454,6 @@
 | 07.10.2026 22:53 | integration (частично: tests/integration/site-editor.test.ts) | ❌ упало 1 из 13 | 11 с | 0c2e0d8 +8 | [лог](logs/2026-10-07T17-53-55Z-integration-d73c.log) | MKT9 site editor бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота |
 | 07.10.2026 22:54 | integration (частично: tests/integration/site-editor.test.ts) | ❌ код выхода 1 | 11 с | 0c2e0d8 +8 | [лог](logs/2026-10-07T17-54-13Z-integration-0b3e.log) | (файл не выполнился) |
 | 07.10.2026 22:54 | integration (частично: tests/integration/site-editor.test.ts) | ✅ 13 из 13 | 11 с | 0c2e0d8 +8 | [лог](logs/2026-10-07T17-54-42Z-integration-2539.log) |  |
+| 07.10.2026 23:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 9 из 18 | 2 мин 44 с | cdf986e +16 | [лог](logs/2026-10-07T18-11-53Z-e2e-b5a4.log) | MKT9: UI редактора |
+| 07.10.2026 23:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 18 | 2 мин 6 с | cdf986e +19 | [лог](logs/2026-10-07T18-15-44Z-e2e-6f13.log) | MKT9: UI редактора |
+| 07.10.2026 23:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 18 | 2 мин 20 с | cdf986e +19 | [лог](logs/2026-10-07T18-18-02Z-e2e-f5ca.log) | MKT9: UI редактора |

@@ -1,0 +1,134 @@
+# Сквозные (e2e) · 07.10.2026 12:36 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv8-audit-20261007), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:51267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:51602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+(node:55189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (6.5s)
+  ✓   2 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (6.2s)
+  ✓   3 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (6.7s)
+  ✓   4 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (11.8s)
+  ✘   5 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (24.1s)
+(node:63716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/branches-ui/branches.spec.ts:138:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (24.3s)
+(node:64478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (14.4s)
+  ✓   8 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (17.4s)
+  ✓   9 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (6.2s)
+  ✓  10 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (14.3s)
+  ✓  11 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (6.7s)
+  ✓  12 tests/branches-ui/today.spec.ts:318:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (6.2s)
+  ✓  13 tests/branches-ui/today.spec.ts:367:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (3.3s)
+  ✓  14 tests/branches-ui/today.spec.ts:387:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (1.9s)
+  ✓  15 tests/branches-ui/today.spec.ts:399:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (5.2s)
+  ✓  16 tests/branches-ui/today.spec.ts:424:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (8.6s)
+  ✓  17 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (5.1s)
+  ✓  18 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (7.2s)
+  ✓  19 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (4.9s)
+  ✓  20 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (4.2s)
+  ✓  21 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (4.2s)
+  ✓  22 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (5.1s)
+  ✓  23 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (5.9s)
+  ✓  24 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (7.8s)
+  ✓  25 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (9.0s)
+  ✓  26 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (5.8s)
+  ✓  27 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (4.3s)
+  ✓  28 tests/branches-ui/today.spec.ts:454:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (4.1s)
+
+
+  1) tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/register\/setup$/
+    Received string:  "http://127.0.0.1:55863/today"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55863/today"
+
+
+      129 |     // у второго отеля ещё нет номеров: выбор ведёт в его настройку (MV3: владелец с выбранным филиалом попадает в общий
+      130 |     // экран настройки)
+    > 131 |     await expect(page).toHaveURL(/\/register\/setup$/);
+          |                        ^
+      132 |     expect(await scopeCookie(page)).toBe(`business=${hotelB.business};location=${hotelB.location}`);
+      133 |     await page.reload();
+      134 |     expect(await scopeCookie(page)).toBe(`business=${hotelB.business};location=${hotelB.location}`);
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/branches-ui/branches.spec.ts:131:24
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/branches.spec.ts:138:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('button', { name: 'Выбрать филиал', exact: true })
+    Expected substring: "Тестовый филиал Парк"
+    Received string:    "Тестовый филиал ЦентрРесторан"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('button', { name: 'Выбрать филиал', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Выбрать филиал', exact: true })
+        13 × locator resolved to <button disabled type="button" aria-expanded="false" class="workspace-property" aria-controls="_R_1l5elb_" aria-label="Выбрать филиал">…</button>
+           - unexpected value "Тестовый филиал ЦентрРесторан"
+
+
+      163 |   );
+      164 |   await choose(page, 'Тестовый филиал Парк');
+    > 165 |   await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
+          |                                                                                   ^
+      166 |     'Тестовый филиал Парк',
+      167 |   );
+      168 |   expect(
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/branches-ui/branches.spec.ts:165:83
+
+    Error Context: test-results/branches-real-branches---s-b3967--and-Hospitality-regression/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B
+    tests/branches-ui/branches.spec.ts:138:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression
+  26 passed (4.9m)
+
+# код выхода 1 · 4 мин 59 с

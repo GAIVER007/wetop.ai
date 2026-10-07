@@ -18,6 +18,8 @@ export interface DeskPerson {
 
 /** Что оболочка стойки знает о вошедшем: открытые пункты меню и подпись. Вошедшего нет — всё закрыто */
 export interface DeskShell {
+  /** Verified Business/Location identity for branch switching. */
+  scopeKey?: string;
   access: NavigationAccess;
   person: DeskPerson | null;
   /** «Пробный период: ещё N дн.» — только у организации на пробном сроке (ТЗ ux-retention п. 2.7) */

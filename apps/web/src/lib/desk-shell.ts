@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { authApi } from './api';
+import { authRequired } from './session';
 import { UNKNOWN_SHELL, deskShellOf, type DeskShell } from './desk-person';
 
 /**
@@ -16,7 +17,26 @@ export const currentMe = cache(() => authApi.me());
  */
 export async function deskShell(): Promise<DeskShell> {
   try {
-    return deskShellOf(await currentMe());
+    const me = await currentMe();
+    const shell = deskShellOf(me);
+    if (!me.user) {
+      // The documented open-stand exception applies only outside production.
+      return !authRequired() && process.env.NODE_ENV !== 'production'
+        ? shell
+        : { ...shell, access: UNKNOWN_SHELL.access };
+    }
+    const c = me.context;
+    if (
+      !c ||
+      typeof c.vertical !== 'string' ||
+      !['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].includes(c.vertical) ||
+      typeof c.businessId !== 'string' ||
+      !c.businessId ||
+      typeof c.locationId !== 'string' ||
+      !c.locationId
+    )
+      return { ...shell, access: UNKNOWN_SHELL.access };
+    return { ...shell, scopeKey: `${c.businessId}:${c.locationId}` };
   } catch (error) {
     unstable_rethrow(error);
     return UNKNOWN_SHELL;

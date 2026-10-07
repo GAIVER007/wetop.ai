@@ -147,7 +147,14 @@ export class SiteBriefService {
   ) {}
 
   async brief(pointerSent: boolean, refresh: boolean, now = Date.now()): Promise<SiteBrief> {
-    const scope = siteScope(pointerSent);
+    return this.briefFor(siteScope(pointerSent), refresh, now);
+  }
+
+  /**
+   * Бриф филиала по уже проверенному scope: запрос человека (`brief`) и воркер генерации (MKT6), который берёт филиал
+   * из строки сайта и пересобирает бриф перед вызовом модели.
+   */
+  async briefFor(scope: SiteScope, refresh: boolean, now = Date.now()): Promise<SiteBrief> {
     // транзакция закрывается до запроса в Channex: база не ждёт внешний API
     const snap = await siteTransaction(this.prisma, scope, false, (tx) => readBriefSnapshot(tx, scope));
     const channex = await this.channex(snap.channexPropertyId, refresh, now);

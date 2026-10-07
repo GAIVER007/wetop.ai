@@ -1,0 +1,44 @@
+# Модульные (unit) · 07.10.2026 15:59 Алматы · vm
+# коммит 086ce66 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-59-19Z-unit-a758.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 156ms
+   ❯ права маршрутов API (ADR-107) (3)
+     ✓ у каждого маршрута — право из таблицы, и в таблице нет лишних строк 91ms
+     × MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 62ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет
+AssertionError: версия сайта по id не читается ни рантаймом, ни управлением: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "GET /marketing/site/generations/:id",
++ ]
+
+ ❯ apps/api/src/auth/route-access.test.ts:446:81
+    444|     expect(runtime).toEqual(['GET /sites-runtime/current']);
+    445|     const byId = Object.keys(actual).filter((key) => /\/(marketing\/si…
+    446|     expect(byId, 'версия сайта по id не читается ни рантаймом, ни упра…
+       |                                                                                 ^
+    447|   });
+    448|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  10:59:20
+   Duration  8.14s (transform 72%, import 26%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-59-19Z-unit-a758.json
+
+# код выхода 1 · 10 с

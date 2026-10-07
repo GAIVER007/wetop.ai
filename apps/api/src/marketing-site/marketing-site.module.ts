@@ -1,11 +1,14 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Headers, HttpCode, Inject, Module, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Module, Param, Post, Query, Res } from '@nestjs/common';
 import { Access } from '../auth/access.decorator';
 import { SCOPE_HEADER } from '../auth/scope';
 import { PrismaService } from '../database/prisma.provider';
 import { contentReaderFromEnv } from '../channels/content';
 import { MarketingSiteService } from './marketing-site.service';
 import { BRIEF_CHANNEX_READER, SiteBriefService } from './brief.service';
+import { GENERATION_BOT, generationBotFromEnv } from './generation.bot';
+import { SiteGenerationService } from './generation.service';
+import { SiteGenerationWorker } from './generation.worker';
 
 /**
  * «Маркетинг → Сайт и SEO», ядро (MKT3): сайт выбранного филиала и сохранение версий. Право `settings`, как у
@@ -18,6 +21,7 @@ export class MarketingSiteController {
   constructor(
     @Inject(MarketingSiteService) private readonly service: MarketingSiteService,
     @Inject(SiteBriefService) private readonly briefs: SiteBriefService,
+    @Inject(SiteGenerationService) private readonly generations: SiteGenerationService,
   ) {}
 
   @Get()
@@ -35,6 +39,26 @@ export class MarketingSiteController {
   @Get('brief')
   brief(@Headers(SCOPE_HEADER) pointer?: string, @Query('refresh') refresh?: string) {
     return this.briefs.brief(!!pointer, refresh === '1' || refresh === 'true');
+  }
+
+  /**
+   * Генерация первой версии ИИ (MKT6): ставит задачу INITIAL в очередь. Новая задача 202, повтор того же `requestKey`
+   * 200 с той же задачей. Модель зовёт воркер, ответ не ждёт генерации.
+   */
+  @Post('generations')
+  async requestGeneration(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.generations.request(!!pointer, body);
+    res.status(result.created ? 202 : 200);
+    return { run: result.run };
+  }
+
+  @Get('generations/:id')
+  generation(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string) {
+    return this.generations.status(!!pointer, id);
   }
 
   @Get('draft')
@@ -55,7 +79,10 @@ export class MarketingSiteController {
     PrismaService,
     MarketingSiteService,
     SiteBriefService,
+    SiteGenerationService,
+    SiteGenerationWorker,
     { provide: BRIEF_CHANNEX_READER, useFactory: contentReaderFromEnv },
+    { provide: GENERATION_BOT, useFactory: generationBotFromEnv },
   ],
 })
 export class MarketingSiteModule {}

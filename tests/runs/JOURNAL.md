@@ -7098,6 +7098,24 @@
 | 07.10.2026 11:46 | e2e (частично: --config tests/beauty-ui/playwright.config.ts) | ✅ 10 из 10 | 2 мин 22 с | 658b651 | [лог](logs/2026-10-07T06-46-07Z-e2e-674c.log) |  |
 | 07.10.2026 11:48 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ✅ 13 из 13 | 3 мин 13 с | 658b651 | [лог](logs/2026-10-07T06-48-29Z-e2e-c03f.log) |  |
 | 07.10.2026 11:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ✅ 7 из 7 | 1 мин 7 с | 658b651 | [лог](logs/2026-10-07T06-51-51Z-e2e-3d31.log) |  |
+| 07.10.2026 14:24 | e2e | ❌ код выхода 1 | 13 с | 012c06d | [лог](logs/2026-10-07T09-24-17Z-e2e-f88d.log) | baseline A: E2E_AUTH=1 на чистом main 012c06d8 |
+| 07.10.2026 14:24 | e2e | ❌ упало 1 из 26 | 1 мин 54 с | 012c06d | [лог](logs/2026-10-07T09-24-57Z-e2e-934e.log) | baseline A: E2E_AUTH=1 на чистом main 012c06d8 (база поднята заново) |
+| 07.10.2026 14:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ❌ упало 2 из 25 | 3 с | 69af865 +2 | [лог](logs/2026-10-07T09-28-02Z-unit-96ee.log) | baseline A RED: вход по умолчанию и E2E_AUTH=1 в гейте до правки |
+| 07.10.2026 14:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 3 с | 69af865 +3 | [лог](logs/2026-10-07T09-28-38Z-unit-dedc.log) | baseline A GREEN: вход по умолчанию, E2E_AUTH=1 в гейте |
+| 07.10.2026 14:28 | e2e | ❌ упало 1 из 26 | 2 мин 15 с | 69af865 +1 | [лог](logs/2026-10-07T09-28-48Z-e2e-1cf4.log) | baseline A GREEN: сквозные без переменной, вход по умолчанию, incidents под главным администратором |
+| 07.10.2026 14:31 | e2e | ✅ 26 из 26 | 1 мин 41 с | b21a83e +1 | [лог](logs/2026-10-07T09-31-37Z-e2e-942a.log) | baseline A GREEN: вход по умолчанию, обучение отмечено пройденным в фикстуре |
+| 07.10.2026 14:33 | e2e | ✅ 26 из 26 | 1 мин 40 с | b21a83e +1 | [лог](logs/2026-10-07T09-33-27Z-e2e-8e57.log) | baseline A: повтор для устойчивости |
+| 07.10.2026 14:35 | typecheck | ✅ без ошибок | 1 мин 23 с | b21a83e +1 | [лог](logs/2026-10-07T09-35-08Z-typecheck-57f8.log) | baseline A |
+| 07.10.2026 14:36 | lint | ✅ без ошибок | 52 с | b21a83e +1 | [лог](logs/2026-10-07T09-36-32Z-lint-b397.log) | baseline A |
+| 07.10.2026 14:29 | typecheck | ✅ без ошибок | 1 мин | a8deeb1 | [лог](logs/2026-10-07T09-29-52Z-typecheck-5338.log) |  |
+| 07.10.2026 14:30 | lint | ✅ без ошибок | 37 с | a8deeb1 | [лог](logs/2026-10-07T09-30-53Z-lint-6bfd.log) |  |
+| 07.10.2026 14:31 | unit | ✅ 3734 из 3737, пропущено 3 | 1 мин 59 с | a8deeb1 | [лог](logs/2026-10-07T09-31-31Z-unit-3ac9.log) |  |
+| 07.10.2026 15:10 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 4 с | 2642047 | [лог](logs/2026-10-07T10-10-33Z-unit-e741.log) | #268 после слияния main ddb5da41 |
+| 07.10.2026 15:11 | e2e | ❌ упало 1 из 26 | 1 мин 55 с | 2642047 | [лог](logs/2026-10-07T10-11-23Z-e2e-ba4e.log) | #268 после слияния main ddb5da41, вход по умолчанию |
+| 07.10.2026 15:13 | e2e | ✅ 26 из 26 | 1 мин 38 с | 2642047 +1 | [лог](logs/2026-10-07T10-13-41Z-e2e-9f5a.log) | #268: finance.spec под кнопку цены ADR-151 (красный пришёл с #265) |
+| 07.10.2026 15:15 | e2e (частично: tests/e2e/finance.spec.ts) | ❌ упало 1 из 2 | 47 с | 2642047 | [лог](logs/2026-10-07T10-15-28Z-e2e-e51f.log) | RED: старый finance.spec без входа на коде main ddb5da41 |
+| 07.10.2026 15:16 | typecheck | ✅ без ошибок | 1 мин 19 с | 2642047 +1 | [лог](logs/2026-10-07T10-16-30Z-typecheck-a99b.log) | #268 после слияния main |
+| 07.10.2026 15:17 | lint | ✅ без ошибок | 54 с | 2642047 +1 | [лог](logs/2026-10-07T10-17-50Z-lint-5c76.log) | #268 после слияния main |
 | 07.10.2026 13:09 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ код выхода 1 | 5 с | 012c06d +1 | [лог](logs/2026-10-07T08-09-37Z-unit-6ad7.log) | (файл не выполнился) |
 | 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ✅ 28 из 28 | 3 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-15Z-unit-5213.log) |  |
 | 07.10.2026 13:11 | unit (частично: packages/domain/src/marketing/brief.test.ts) | ❌ упало 1 из 28 | 2 с | 012c06d +3 | [лог](logs/2026-10-07T08-11-29Z-unit-b06e.log) | SiteBrief v0: старшинство телефона и почты у филиала нет: берётся Channex без расхождения; телефон объекта в бриф не идёт |
@@ -7136,8 +7154,18 @@
 | 07.10.2026 15:14 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/owner-dashboard.spec.ts tests/ui/owner-dashboard-interactions.spec.ts --workers=1) | ✅ 15 из 15 | 49 с | 03dfec1 | [лог](logs/2026-10-07T10-14-20Z-e2e-e8c9.log) | MV8 audit final Hospitality rerun after clearing own generated ENOSPC caches |
 | 07.10.2026 15:07 | typecheck | ✅ без ошибок | 1 мин 27 с | 08c4e2a | [лог](logs/2026-10-07T10-07-08Z-typecheck-25b2.log) |  |
 | 07.10.2026 15:08 | unit (частично: -- apps/api/src/auth/route-access.test.ts packages/domain/src/marketing apps/api/src/finance) | ✅ 3762 из 3765, пропущено 3 | 2 мин 29 с | 08c4e2a | [лог](logs/2026-10-07T10-08-36Z-unit-77ba.log) |  |
+| 07.10.2026 15:20 | e2e | ✅ 26 из 26 | 1 мин 35 с | 83ef492 | [лог](logs/2026-10-07T10-20-17Z-e2e-a626.log) | #268 после слияния main 1a9b2810 |
+| 07.10.2026 15:21 | typecheck | ✅ без ошибок | 1 мин 20 с | 83ef492 | [лог](logs/2026-10-07T10-21-57Z-typecheck-5a6d.log) | #268 после слияния main 1a9b2810 |
+| 07.10.2026 15:23 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 3 с | 83ef492 | [лог](logs/2026-10-07T10-23-18Z-unit-e354.log) | #268 после слияния main 1a9b2810 |
 | 07.10.2026 15:17 | unit (частично: packages/domain/src/marketing/brief.test.ts apps/api/src/channels/content.test.ts apps/api/src/auth/route-access.test.ts apps/api/src/app.module | ✅ 81 из 81 | 7 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-01Z-unit-e5d8.log) | MV8 audit final main MKT5 sync impacted unit and focused Today |
 | 07.10.2026 15:17 | integration (частично: tests/integration/site-brief.test.ts tests/integration/marketing-site.test.ts tests/integration/sites-runtime.test.ts tests/integration/m | ❌ код выхода 1 | 4 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-11Z-integration-7948.log) | MV8 audit final main MKT5 sync impacted integration and Food read contract |
 | 07.10.2026 15:17 | integration (частично: tests/integration/site-brief.test.ts tests/integration/marketing-site.test.ts tests/integration/sites-runtime.test.ts tests/integration/m | ✅ 63 из 63 | 10 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-36Z-integration-7126.log) | MV8 audit impacted integration correct own PostgreSQL restart port55983 |
 | 07.10.2026 15:17 | typecheck | ✅ без ошибок | 39 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-09Z-typecheck-2c8b.log) | MV8 audit final main MKT5 sync typecheck |
 | 07.10.2026 15:17 | lint | ✅ без ошибок | 21 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-49Z-lint-f6fe.log) | MV8 audit final main MKT5 sync lint |
+| 07.10.2026 15:24 | e2e | ❌ упало 3 из 26 | 3 мин 33 с | bb10783 | [лог](logs/2026-10-07T10-24-14Z-e2e-89d1.log) | #268 после слияния main 63a52017 (#272) |
+| 07.10.2026 15:27 | typecheck | ✅ без ошибок | 1 мин 2 с | bb10783 | [лог](logs/2026-10-07T10-27-47Z-typecheck-9c79.log) | #268 после слияния main 63a52017 |
+| 07.10.2026 15:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | bb10783 | [лог](logs/2026-10-07T10-28-50Z-unit-ccce.log) | #268 после слияния main 63a52017 |
+| 07.10.2026 15:29 | e2e | ✅ 26 из 26 | 1 мин 39 с | bb10783 +1 | [лог](logs/2026-10-07T10-29-35Z-e2e-99f4.log) | #268: вход автотестов выбирает филиал через /scope/resolve (после #272) |
+| 07.10.2026 15:31 | e2e | ✅ 26 из 26 | 1 мин 42 с | bb10783 +1 | [лог](logs/2026-10-07T10-31-22Z-e2e-af4a.log) | #268: повтор после выбора филиала |
+| 07.10.2026 15:33 | typecheck | ✅ без ошибок | 1 мин 20 с | bb10783 +1 | [лог](logs/2026-10-07T10-33-05Z-typecheck-1d8d.log) | #268 выбор филиала |
+| 07.10.2026 15:34 | lint | ✅ без ошибок | 54 с | bb10783 +1 | [лог](logs/2026-10-07T10-34-27Z-lint-af5b.log) | #268 выбор филиала |

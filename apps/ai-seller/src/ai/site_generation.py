@@ -132,8 +132,13 @@ def _error(code: str, meter: _Meter, model: str | None = None) -> dict:
 
 async def generate_site(settings: Settings, cascade: CascadeClient, body: SiteGenerationIn) -> dict:
     """Один запрос генерации. Исключение наружу не выходит: каскад их не поднимает."""
+    return await run_site_model(settings, cascade, build_messages(body), body.budgetRemainingTokens, str(body.requestId), "генерация")
+
+
+async def run_site_model(settings: Settings, cascade: CascadeClient, messages: list[dict], budget: int, request_id: str, label: str) -> dict:
+    """Каскад моделей для документа сайта (генерация MKT6 и правка MKT9): ключ только платформы, бюджет перед
+    каждым вызовом, расход всех фактических вызовов, неизвестный расход останавливает каскад."""
     meter = _Meter()
-    budget = body.budgetRemainingTokens
     if budget <= 0:
         return _error("BUDGET_EXCEEDED", meter)
 
@@ -142,7 +147,7 @@ async def generate_site(settings: Settings, cascade: CascadeClient, body: SiteGe
         return meter.input + meter.output < budget
 
     result = await cascade.generate(
-        build_messages(body),
+        messages,
         use_tools=False,
         api_key=None,  # 🔴 только ключ платформы (Q-274)
         before_call=before_call,
@@ -152,8 +157,9 @@ async def generate_site(settings: Settings, cascade: CascadeClient, body: SiteGe
         mask=False,
     )
     logger.info(
-        "генерация сайта %s: ok=%s ошибка=%s вызовов=%d токенов=%d+%d",
-        body.requestId,
+        "%s сайта %s: ok=%s ошибка=%s вызовов=%d токенов=%d+%d",
+        label,
+        request_id,
         result.ok,
         result.error,
         meter.paid_calls,

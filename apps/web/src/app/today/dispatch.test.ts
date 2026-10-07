@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { TODAY_VERTICALS, todayScreen, unresolvedTarget } from './dispatch';
+import {
+  TODAY_VERTICALS,
+  anonymousHospitalityAllowed,
+  todayScreen,
+  unresolvedTarget,
+} from './dispatch';
 
 const me = (
   vertical: string | null,
@@ -44,18 +49,38 @@ describe('/today: один адрес, экран только по подтве
     expect(todayScreen(me('BEAUTY', null, 'l1')).screen).toBe('UNRESOLVED');
   });
 
-  it('аноним при включённом замке входа (production): тоже не гостиница', () => {
-    expect(todayScreen({ user: null, context: null }, { authRequired: true }).screen).toBe(
-      'UNRESOLVED',
-    );
+  it('аноним при включённом замке входа: не гостиница', () => {
+    expect(
+      todayScreen({ user: null, context: null }, { allowAnonymousHospitality: false }).screen,
+    ).toBe('UNRESOLVED');
   });
 
-  it('открытый стенд разработки (замок входа выключен, сессии нет): одна гостиница стенда, как до MV8', () => {
-    expect(todayScreen({ user: null, context: null }, { authRequired: false }).screen).toBe(
-      'HOSPITALITY',
-    );
-    // вошедший на открытом стенде подчиняется тому же строгому правилу
-    expect(todayScreen(me(null), { authRequired: false }).screen).toBe('UNRESOLVED');
+  it('аноним на открытом стенде разработки (не production, замок выключен): гостиница стенда, как до MV8', () => {
+    const allow = anonymousHospitalityAllowed({ authRequired: false, nodeEnv: 'development' });
+    expect(allow).toBe(true);
+    expect(anonymousHospitalityAllowed({ authRequired: false, nodeEnv: 'test' })).toBe(true);
+    expect(
+      todayScreen({ user: null, context: null }, { allowAnonymousHospitality: allow }).screen,
+    ).toBe('HOSPITALITY');
+  });
+
+  it('production с выключенным замком (APP_AUTH_REQUIRED=0): аноним не получает гостиницу', () => {
+    const allow = anonymousHospitalityAllowed({ authRequired: false, nodeEnv: 'production' });
+    expect(allow).toBe(false);
+    expect(
+      todayScreen({ user: null, context: null }, { allowAnonymousHospitality: allow }).screen,
+    ).toBe('UNRESOLVED');
+    // и при включённом замке исключения нет ни в одном окружении
+    expect(anonymousHospitalityAllowed({ authRequired: true, nodeEnv: 'development' })).toBe(false);
+  });
+
+  it('вошедший без подтверждённого направления: UNRESOLVED в любом окружении', () => {
+    for (const allowAnonymousHospitality of [true, false]) {
+      expect(todayScreen(me(null), { allowAnonymousHospitality }).screen).toBe('UNRESOLVED');
+      expect(todayScreen(me('SOMETHING_NEW'), { allowAnonymousHospitality }).screen).toBe(
+        'UNRESOLVED',
+      );
+    }
   });
 
   it('куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору', () => {

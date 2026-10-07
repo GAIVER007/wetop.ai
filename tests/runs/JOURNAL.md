@@ -6928,3 +6928,11 @@
 | 07.10.2026 02:44 | unit | ✅ 3505 из 3508, пропущено 3 | 1 мин 39 с | fee83a7 | [лог](logs/2026-10-06T21-44-12Z-unit-9a62.log) |  |
 | 07.10.2026 02:45 | typecheck | ✅ без ошибок | 33 с | fee83a7 +1 | [лог](logs/2026-10-06T21-45-51Z-typecheck-ed4f.log) |  |
 | 07.10.2026 02:46 | lint | ✅ без ошибок | 29 с | fee83a7 +1 | [лог](logs/2026-10-06T21-46-26Z-lint-fbd4.log) |  |
+| 07.10.2026 11:01 | unit (частично: apps/web/src/app/today/dispatch.test.ts) | ❌ упало 3 из 10 | 11 с | 7ee1d7b +1 | [лог](logs/2026-10-07T06-01-25Z-unit-97d9.log) | /today: один адрес, экран только по подтверждённому направлению аноним при включённом замке входа: не гостиница |
+| 07.10.2026 11:01 | unit (частично: apps/web/src/app/today) | ✅ 34 из 34 | 3 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-01-52Z-unit-db6d.log) |  |
+| 07.10.2026 11:02 | typecheck | ✅ без ошибок | 1 мин 9 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-02-25Z-typecheck-3a5d.log) |  |
+| 07.10.2026 11:03 | lint | ✅ без ошибок | 52 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-03-35Z-lint-4ff9.log) |  |
+| 07.10.2026 11:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/today-attention.sp | ✅ 32 из 32 | 3 мин 43 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-04-32Z-e2e-e99c.log) |  |
+| 07.10.2026 11:08 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ❌ код выхода 1 | 4 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-08-40Z-e2e-0bb2.log) | (ошибка вне тестов) |
+| 07.10.2026 11:09 | integration (частично: tests/integration/rls-isolation.test.ts) | ✅ 6 из 6 | 7 с | 7ee1d7b | [лог](logs/2026-10-07T06-09-03Z-integration-5c45.log) |  |
+| 07.10.2026 11:09 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 16 с | 7ee1d7b +3 | [лог](logs/2026-10-07T06-09-11Z-e2e-311d.log) |  |

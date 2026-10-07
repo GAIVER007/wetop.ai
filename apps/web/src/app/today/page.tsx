@@ -5,7 +5,12 @@ import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
 import { authRequired } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { BeautyToday } from './beauty-today';
-import { TODAY_VERTICALS, todayScreen, unresolvedTarget } from './dispatch';
+import {
+  TODAY_VERTICALS,
+  anonymousHospitalityAllowed,
+  todayScreen,
+  unresolvedTarget,
+} from './dispatch';
 import { FoodToday } from './food-today';
 import { HospitalityToday } from './hospitality-today';
 
@@ -15,7 +20,12 @@ import { HospitalityToday } from './hospitality-today';
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireVertical(TODAY_VERTICALS);
-  const { screen, key } = todayScreen(me, { authRequired: authRequired() });
+  const { screen, key } = todayScreen(me, {
+    allowAnonymousHospitality: anonymousHospitalityAllowed({
+      authRequired: authRequired(),
+      nodeEnv: process.env.NODE_ENV,
+    }),
+  });
   if (screen === 'UNRESOLVED') {
     const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
     redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));

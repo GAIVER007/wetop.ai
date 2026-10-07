@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 07.10.2026 16:07 Алматы · vm
+# коммит 0745160 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-07-16Z-integration-6576.json' 'tests/integration/site-generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-generation.test.ts (16 tests | 1 failed) 4379ms
+   ❯ MKT6 site generation (16)
+     ✓ счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 694ms
+     ✓ постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу 466ms
+     ✓ сайт с версией: 409, INITIAL не правка 221ms
+     ✓ лимит постановок: 10 за час на человека 99ms
+     ✓ BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается 131ms
+     ✓ BASE_VERSION_CHANGED: человек сохранил версию, пока шла генерация; ручная версия остаётся последней 197ms
+     ✓ неверный ответ модели: версия не создаётся, повтор только с путём и кодом, расход всех попыток суммируется 244ms
+     ✓ неверный вывод «проза вместо JSON у бота»: задача ждёт повтора, версии нет 177ms
+     ✓ неверный вывод «не тот язык»: задача ждёт повтора, версии нет 116ms
+     ✓ неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет 136ms
+     ✓ бюджет: расход дня считается по организации, исчерпан — модель не вызывается; соседняя организация не затронута 431ms
+     ✓ неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC 318ms
+     ✓ неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет 151ms
+     ✓ повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова 134ms
+     × падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен 272ms
+     ✓ очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно 233ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен
+AssertionError: expected { …(22) } to match object { status: 'FAILED', …(1) }
+(20 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "errorCode": "USAGE_UNAVAILABLE",
+-   "status": "FAILED",
++   "errorCode": null,
++   "status": "QUEUED",
+  }
+
+ ❯ tests/integration/site-generation.test.ts:518:32
+    516|     await sql.query(`UPDATE generation_runs SET dispatched_at = now() …
+    517|     await second.recover();
+    518|     expect(await run(sent.id)).toMatchObject({ status: 'FAILED', error…
+       |                                ^
+    519|   });
+    520|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  11:07:17
+   Duration  10.13s (tests 57%, transform 30%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-07-16Z-integration-6576.json
+
+# код выхода 1 · 11 с

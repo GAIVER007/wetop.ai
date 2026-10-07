@@ -37,6 +37,11 @@ MKT4: `apps/sites`, план `plans/mkt4-public-site-runtime-2026-10-06.md`, в�
 Бриф сайта (MKT5): `GET /marketing/site/brief`, детерминированная сводка фактов филиала для будущей генерации, без ИИ и
 без хранения. Контракт, белые списки, граница с ИИ и `briefHash`: `docs/marketing/site-brief-v0.md`.
 
+Генерация первой версии (MKT6): `POST /marketing/site/generations` ставит задачу `GenerationRun` (она же очередь в
+Postgres), воркер API зовёт узкий вход бота `POST /internal/site-generation` ключом модели платформы, проверяет ответ
+тем же валидатором SiteSpec и сохраняет версию `source = AI`; публикация не трогается. Бюджет Q-274, расход, повторы и
+граница с ИИ: `docs/marketing/site-generation-v0.md`.
+
 ## 3. Два режима сайта
 
 | Режим | Что есть у филиала | Что делает WETOP |

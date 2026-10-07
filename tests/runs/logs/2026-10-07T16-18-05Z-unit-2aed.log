@@ -1,0 +1,75 @@
+# Модульные (unit) · 07.10.2026 21:18 Алматы · vm
+# коммит 40003ac (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-18-05Z-unit-2aed.json' 'apps/api/src/marketing-site/asset-storage.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests | 2 failed) 60ms
+   ❯ MKT8: настройка хранилища из окружения (4)
+     ✓ по умолчанию и при off хранилища нет 4ms
+     ✓ s3 с полной настройкой: адаптер; без любого значения: хранилища нет (запасного нет) 14ms
+     × адрес только https (http лишь localhost), без пути, логина и запроса 11ms
+     ✓ срок подписи: 3600 по умолчанию, от 900 до 86 400 1ms
+   ❯ MKT8: адаптер S3 (3)
+     × put, delete, exists: только свой бакет и ключ; без ACL; 404 значит «нет» 3ms
+     ✓ exists: иная ошибка хранилища не превращается в «нет объекта» 2ms
+     ✓ подписанный GET: один объект, срок в адресе, секрета в адресе нет; сети не нужно 21ms
+   ✓ MKT8: хранилище в памяти (1)
+     ✓ подпись проверяется, срок выходит, чужая подпись не проходит 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-storage.test.ts > MKT8: настройка хранилища из окружения > адрес только https (http лишь localhost), без пути, логина и запроса
+AssertionError: expected { …(6) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "accessKeyId": "AKIATESTACCESSKEY",
+  "bucket": "wetop-site-assets",
+  "endpoint": "http://object.storage.example.kz",
+  "forcePathStyle": true,
+  "region": "kz-ala-1",
+  "secretAccessKey": "super-secret-value-never-in-url",
+}
+
+ ❯ apps/api/src/marketing-site/asset-storage.test.ts:43:109
+     41|
+     42|   it('адрес только https (http лишь localhost), без пути, логина и зап…
+     43|     expect(siteAssetStorageConfig({ ...FULL, SITE_ASSET_S3_ENDPOINT: '…
+       |                                                                                                             ^
+     44|     expect(siteAssetStorageConfig({ ...FULL, SITE_ASSET_S3_ENDPOINT: '…
+     45|     expect(siteAssetStorageConfig({ ...FULL, SITE_ASSET_S3_ENDPOINT: '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-storage.test.ts > MKT8: адаптер S3 > put, delete, exists: только свой бакет и ключ; без ACL; 404 значит «нет»
+AssertionError: expected { Bucket: 'wetop-site-assets', …(6) } to not have property "ACL"
+
+- Expected:
+undefined
+
++ Received:
+"public-read"
+
+ ❯ apps/api/src/marketing-site/asset-storage.test.ts:86:32
+     84|     expect(sent.map((s) => s.name)).toEqual(['PutObjectCommand', 'Dele…
+     85|     expect(sent[0]!.input).toMatchObject({ Bucket: 'wetop-site-assets'…
+     86|     expect(sent[0]!.input).not.toHaveProperty('ACL');
+       |                                ^
+     87|     for (const s of sent) expect(s.input['Bucket']).toBe('wetop-site-a…
+     88|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  16:18:06
+   Duration  558ms (transform 42%, import 41%, tests 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-18-05Z-unit-2aed.json
+
+# код выхода 1 · 2 с

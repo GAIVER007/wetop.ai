@@ -35,6 +35,17 @@ const CATEGORY_CODE_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const CONTROL_RE = /[\u0000-\u001f\u007f]/;
 const MARKUP_RE = /<[A-Za-z/!?]/;
 const TEMPLATE_RE = /\{\{|\$\{/;
+
+/**
+ * Правило обычного текста SiteSpec наружу (MKT8: подсказка ALT у ассета): управляющие символы, разметка HTML и шаблоны
+ * недопустимы. Возвращает текст ошибки или null; пустоту и длину проверяет вызывающий
+ */
+export function plainTextProblem(raw: string): string | null {
+  if (CONTROL_RE.test(raw)) return 'Управляющие символы недопустимы';
+  if (MARKUP_RE.test(raw)) return 'Разметка HTML недопустима, только обычный текст';
+  if (TEMPLATE_RE.test(raw)) return 'Шаблоны вида {{…}} и ${…} недопустимы';
+  return null;
+}
 const ICONS = [
   'CLOCK', 'PARKING', 'WIFI', 'BREAKFAST', 'LAUNDRY', 'LUGGAGE', 'KITCHEN', 'AIRCON',
   'TRANSFER', 'PETS', 'ACCESSIBLE', 'FAMILY', 'QUIET', 'CENTER', 'STATION', 'STAR',

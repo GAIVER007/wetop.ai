@@ -64,27 +64,3 @@ export function platformHost(slug: string, baseDomain: string): string {
 export function previewHost(baseDomain: string): string {
   return `preview.${baseDomain}`;
 }
-
-const MEDIA_KEYS = new Set(['assetId', 'imageAssetId', 'faviconAssetId', 'image', 'images', 'logo']);
-
-/**
- * Ссылки документа на медиа (MKT7): ключи ассетов, картинок и логотипа и секции `gallery`. Пока нет `SiteAsset`
- * (MKT8, Q-270), такую версию нельзя опубликовать: рантайму нечем показать картинку.
- */
-export function siteSpecMediaPaths(spec: unknown): string[] {
-  const paths: string[] = [];
-  const walk = (value: unknown, path: string) => {
-    if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`));
-    else if (value !== null && typeof value === 'object') {
-      const rec = value as Record<string, unknown>;
-      if (rec['type'] === 'gallery') paths.push(path);
-      for (const [key, v] of Object.entries(rec)) {
-        const next = path ? `${path}.${key}` : key;
-        if (MEDIA_KEYS.has(key)) paths.push(next);
-        else walk(v, next);
-      }
-    }
-  };
-  walk(spec, '');
-  return paths;
-}

@@ -111,6 +111,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/site/publications': 'settings',
   'GET /marketing/site/booking-source': 'settings',
   'PUT /marketing/site/booking-source': 'settings',
+  'GET /marketing/site/assets': 'settings',
+  'POST /marketing/site/assets': 'settings',
+  'PATCH /marketing/site/assets/:id': 'settings',
+  'DELETE /marketing/site/assets/:id': 'settings',
+  'GET /marketing/site/assets/channex': 'settings',
+  'POST /marketing/site/assets/channex/import': 'settings',
   'GET /food-service/areas': 'desk',
   'POST /food-service/areas': 'property',
   'PATCH /food-service/areas/:id': 'property',
@@ -454,10 +460,13 @@ describe('права маршрутов API (ADR-107)', () => {
     const runtime = Object.keys(actual).filter((key) => /\/sites-runtime(\/|$)/.test(key));
     expect(runtime.sort()).toEqual(['GET /sites-runtime/current', 'GET /sites-runtime/preview']);
     // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
+    // MKT8: ассет по id только правится (ALT) и удаляется; чтения ассета по id нет ни у управления, ни у рантайма
+    const allowed = ['GET /marketing/site/generations/:id', 'PATCH /marketing/site/assets/:id', 'DELETE /marketing/site/assets/:id'];
     const byId = Object.keys(actual).filter(
-      (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && key !== 'GET /marketing/site/generations/:id',
+      (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),
     );
     expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
+    expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.test(key))).toEqual([]);
   });
 
   it('замок ролей стоит сразу за замком входа: без сессии роль не узнать', () => {

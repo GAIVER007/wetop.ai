@@ -19,6 +19,8 @@ import {
 } from './sites-runtime.repository';
 import { SitesRuntimeService } from './sites-runtime.service';
 import { signPreviewToken } from '../marketing-site/preview-token';
+import { MemorySiteAssetStorage, SITE_ASSET_STORAGE } from '../marketing-site/asset-storage';
+import type { AssetRow } from '../marketing-site/asset-refs';
 
 /**
  * MKT4: служебный путь публичного рантайма. Ключ `SITES_RUNTIME_KEY` открывает только `GET /sites-runtime/current`;
@@ -39,6 +41,7 @@ const VERSION_2 = '6c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e';
 
 const row = (patch: Partial<PublishedSiteRow> = {}): PublishedSiteRow => ({
   siteId: SITE,
+  locationId: 'loc-a',
   versionId: '5b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d',
   schemaVersion: 'site-spec/0',
   specHash: HASH,
@@ -59,7 +62,19 @@ let domains: Record<string, string> = {};
 let previews: Record<string, PublishedSiteRow> = {};
 const previewCalls: Array<{ siteId: string; versionId: string; tenant: string | null }> = [];
 let categoriesFail = false;
+/** MKT8: библиотека (филиал → строки) и версии, которые уже публиковались (`siteId:versionId`) */
+let library: Record<string, AssetRow[]> = {};
+let publishedVersions = new Set<string>();
+const assetCalls: Array<{ locationId: string; ids: string[]; tenant: string | null }> = [];
+const storage = new MemorySiteAssetStorage();
 const repo: SitesRuntimeRepository = {
+  async assets(locationId, ids) {
+    assetCalls.push({ locationId, ids, tenant: databaseTenant() });
+    return (library[locationId] ?? []).filter((r) => ids.includes(r.id));
+  },
+  async versionPublished(siteId, versionId) {
+    return publishedVersions.has(`${siteId}:${versionId}`);
+  },
   async publishedSite(siteId) {
     calls.push({ siteId, tenant: databaseTenant() });
     return published[siteId] ?? null;
@@ -116,6 +131,7 @@ beforeAll(async () => {
     providers: [
       { provide: AuthService, useValue: { whoami: async () => null } },
       { provide: SITES_RUNTIME_REPOSITORY, useValue: repo },
+      { provide: SITE_ASSET_STORAGE, useValue: storage },
       SitesRuntimeService,
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
@@ -134,6 +150,9 @@ afterEach(() => {
   domains = {};
   previews = {};
   categoriesFail = false;
+  library = {};
+  publishedVersions = new Set();
+  assetCalls.length = 0;
 });
 
 function server(key: string | null, env: Record<string, string> = {}) {
@@ -373,5 +392,70 @@ describe('MKT7: превью по подписанному токену', () => 
     await preview(`token=${token()}`, SERVICE_KEY).expect(403);
     await preview(`token=${token()}`, COLLECT_KEY).expect(403);
     await preview(`token=${token()}`, null).expect(401);
+  });
+});
+
+describe('MKT8: подписанные адреса картинок версии', () => {
+  // ссылки примера SiteSpec: логотип, фавиконка, og и картинки секций
+  const LOGO = '6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b';
+  const FAVICON = '7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c';
+  const HERO = '8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d';
+  const ABOUT = '9c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e';
+  const UNREFERENCED = 'f0f0f0f0-0000-4000-8000-000000000000';
+  const asset = (id: string, kind: AssetRow['kind'], status = 'READY'): AssetRow => ({
+    id,
+    kind,
+    status,
+    storageRef: `site-assets/loc-a/${id}/${'a'.repeat(64)}.${kind === 'FAVICON' ? 'png' : 'webp'}`,
+  });
+
+  it('текущая версия: ровно ссылки документа нужного вида, подписанные; лишних из библиотеки нет', async () => {
+    published[SITE] = row();
+    library['loc-a'] = [asset(LOGO, 'LOGO'), asset(FAVICON, 'IMAGE'), asset(HERO, 'IMAGE'), asset(ABOUT, 'IMAGE', 'DELETED'), asset(UNREFERENCED, 'IMAGE')];
+    const res = await current('host=stepnoy.localhost').expect(200);
+    // фавиконка не того вида не подписывается; удалённый, но удержанный ради истории ассет опубликованной версии есть
+    expect(Object.keys(res.body.assets).sort()).toEqual([ABOUT, HERO, LOGO].sort());
+    for (const url of Object.values(res.body.assets) as string[]) expect(storage.verify(url)).not.toBeNull();
+    expect(res.body.assets[UNREFERENCED]).toBeUndefined();
+    // в базу ушли только id ссылок версии, служебной ролью
+    expect(assetCalls).toHaveLength(1);
+    expect(assetCalls[0]!.ids).not.toContain(UNREFERENCED);
+    expect(assetCalls[0]!.tenant).toBeNull();
+    expect(JSON.stringify(res.body)).not.toContain('"storageRef"');
+  });
+
+  it('ассет другого филиала с тем же id не подписывается: выборка только по филиалу сайта', async () => {
+    published[SITE] = row();
+    library['loc-b'] = [asset(HERO, 'IMAGE')];
+    const res = await current('host=stepnoy.localhost').expect(200);
+    expect(res.body.assets).toEqual({});
+    expect(assetCalls[0]!.locationId).toBe('loc-a');
+  });
+
+  it('превью новой версии: удалённый ассет не показывается; уже публиковавшейся: показывается', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const t = signPreviewToken({ siteId: SITE, versionId: VERSION_2, exp: now + 600 }, Buffer.from(PREVIEW_SECRET, 'utf8'));
+    previews[`${SITE}:${VERSION_2}`] = row({ versionId: VERSION_2 });
+    library['loc-a'] = [asset(HERO, 'IMAGE'), asset(ABOUT, 'IMAGE', 'DELETED')];
+    const fresh = await server(RUNTIME_KEY).get(`/sites-runtime/preview?token=${t}`).expect(200);
+    expect(Object.keys(fresh.body.assets)).toEqual([HERO]);
+    publishedVersions.add(`${SITE}:${VERSION_2}`);
+    const historical = await server(RUNTIME_KEY).get(`/sites-runtime/preview?token=${t}`).expect(200);
+    expect(Object.keys(historical.body.assets).sort()).toEqual([ABOUT, HERO].sort());
+  });
+
+  it('хранилище не настроено или выборка упала: картинок нет, сайт отвечает', async () => {
+    const service = new SitesRuntimeService(repo, null);
+    published[SITE] = row();
+    library['loc-a'] = [asset(HERO, 'IMAGE')];
+    vi.stubEnv('NODE_ENV', 'test');
+    vi.stubEnv('SITES_RUNTIME_DEV_RESOLVER', '1');
+    vi.stubEnv('SITES_RUNTIME_DEV_HOSTS', `stepnoy.localhost=${SITE}`);
+    expect((await service.current({ host: 'stepnoy.localhost' })).assets).toEqual({});
+    const broken = new SitesRuntimeService({ ...repo, assets: async () => { throw new Error('db down'); } }, storage);
+    const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect((await broken.current({ host: 'stepnoy.localhost' })).assets).toEqual({});
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
   });
 });

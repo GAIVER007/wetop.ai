@@ -1,6 +1,6 @@
 import { normalizeSiteHost, parseSitesBaseDomain, previewHost } from '../../../packages/domain/src/marketing/host';
 import { ContractClient, fetchPreview, type ContractResult } from './contract';
-import { apiOriginOf, BASE_SECURITY_HEADERS, CACHE, contentSecurityPolicy } from './headers';
+import { apiOriginOf, BASE_SECURITY_HEADERS, CACHE, contentSecurityPolicy, safeAssetUrl } from './headers';
 import { RenderError, type RenderContext } from './render/context';
 import { CSS_PATH, PRICES_PATH } from './assets';
 import { pageNeedsPrices, renderNotFound, renderPage } from './render/page';
@@ -112,6 +112,18 @@ export function createRuntime(
     }
     const page: Page | undefined = slug === '' ? home : spec.pages.find((p) => !p.isHome && p.slug === slug);
     const apiOrigin = apiOriginOf(current.publicApiUrl);
+    // MKT8: адреса картинок только из контракта и только безопасные; негодный выбрасывается и пишется в лог (без адреса)
+    const assets: Record<string, string> = {};
+    const imageOrigins = new Set<string>();
+    for (const [assetId, raw] of Object.entries(current.assets ?? {})) {
+      const safe = safeAssetUrl(raw);
+      if (!safe) {
+        log({ event: 'sites.asset_url_rejected', siteId: current.siteId, assetId });
+        continue;
+      }
+      assets[assetId] = safe.toString();
+      imageOrigins.add(safe.origin);
+    }
     const bookingLive =
       !preview && spec.integrations.booking.mode === 'WETOP_WIDGET' && current.bookingEnabled && !!current.publicKey && !!apiOrigin;
     const ctx: RenderContext = {
@@ -122,12 +134,18 @@ export function createRuntime(
       publicKey: preview ? null : current.publicKey,
       bookingLive,
       apiOrigin,
-      assets: current.assets ?? {},
+      assets,
       previewToken,
     };
     const analytics = !preview && spec.integrations.analytics.mode === 'WETOP_TRACKER' && !!current.publicKey;
     const bookingOnPage = bookingLive && !!page?.sections.some((s) => s.type === 'booking');
-    const csp = contentSecurityPolicy({ apiOrigin, analytics, booking: bookingOnPage, prices: !!page && pageNeedsPrices(ctx) });
+    const csp = contentSecurityPolicy({
+      apiOrigin,
+      analytics,
+      booking: bookingOnPage,
+      prices: !!page && pageNeedsPrices(ctx),
+      imageOrigins: [...imageOrigins].sort(),
+    });
     let html: string;
     try {
       html = page ? renderPage(ctx, seo, CSS_PATH) : renderNotFound(ctx, seo, CSS_PATH);

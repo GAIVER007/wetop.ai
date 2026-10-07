@@ -17,6 +17,7 @@ import { SitesRuntimeModule } from '../../apps/api/src/sites-runtime/sites-runti
 import { AnalyticsModule } from '../../apps/api/src/analytics/analytics.module';
 import { SitesRuntimeService } from '../../apps/api/src/sites-runtime/sites-runtime.service';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { seedSpecAssets } from '../tools/site-assets';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
@@ -264,6 +265,7 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     }
     if (db) {
       await purgeAuditRows(db, { organizationId: { in: orgs } });
+      await db.siteAsset.deleteMany({ where: { location: { business: { organizationId: { in: orgs } } } } });
       await db.sellerAgent.deleteMany({ where: { organizationId: { in: orgs } } });
       await db.trackedSite.deleteMany({ where: { property: { organizationId: { in: orgs } } } });
       await db.ratePlan.deleteMany({ where: { property: { organizationId: { in: orgs } } } });
@@ -542,20 +544,46 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     expect((await current(host)).body.versionId).toBe(vp);
   });
 
-  it('§44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория', async () => {
+  it('§44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория', async () => {
     await createSite('checks');
-    const withGallery = specFor('Галерея', ['std'], 'NONE');
-    withGallery.pages[0].sections.push({
-      id: 'sec-gallery', type: 'gallery', variant: 'GRID', heading: { ru: 'Фото' }, images: [1, 2, 3].map((n) => ({ assetId: randomUUID(), alt: { ru: `Фото ${n}` } })),
-    });
+    const withGallery = (ids: string[]) => {
+      const spec = specFor('Галерея', ['std'], 'NONE');
+      spec.pages[0].sections.push({
+        id: 'sec-gallery', type: 'gallery', variant: 'GRID', heading: { ru: 'Фото' }, images: ids.map((assetId, n) => ({ assetId, alt: { ru: `Фото ${n}` } })),
+      });
+      return spec;
+    };
     await save('checks', 0, specFor('Ок', ['std'], 'NONE'));
     const v1 = (await siteRow('checks')).latestVersionId!;
-    // ручная версия с галереей сохраняется (MKT3), но до MKT8 не публикуется
-    await save('checks', 1, withGallery);
+    // MKT8 (§81): ссылки на картинки проверяются по библиотеке филиала; общего отказа MEDIA_NOT_READY больше нет
+    const own = [randomUUID(), randomUUID(), randomUUID()];
+    await seedSpecAssets(db, L.checks, withGallery(own));
+    const [foreign] = await seedSpecAssets(db, L.rates, withGallery([randomUUID()]));
+    const logo = randomUUID();
+    const logoSpec = specFor('Лого', [], 'NONE');
+    logoSpec.site.brand = { logo: { assetId: logo, alt: { ru: 'Лого' } } };
+    await seedSpecAssets(db, L.checks, logoSpec);
+    for (const [label, ids, code] of [
+      ['нет в библиотеке', [own[0]!, own[1]!, randomUUID()], 'unavailable'],
+      ['ассет другого филиала', [own[0]!, own[1]!, foreign!], 'unavailable'],
+      ['логотип вместо картинки', [own[0]!, own[1]!, logo], 'wrong_kind'],
+    ] as const) {
+      const res = await call('POST', '/marketing/site/versions', { location: L.checks, body: { baseRevision: 1, spec: withGallery([...ids]) } });
+      expect(res.status, label).toBe(409);
+      expect(res.body.code, label).toBe('ASSET_UNAVAILABLE');
+      expect(res.body.paths, label).toEqual([{ path: 'pages[0].sections[3].images[2].assetId', code }]);
+      expect(JSON.stringify(res.body), label).not.toContain(L.rates);
+    }
+    expect((await siteRow('checks')).latestVersion!.revision).toBe(1);
+    // свои готовые картинки: версия сохраняется
+    await save('checks', 1, withGallery(own));
     const v2 = (await siteRow('checks')).latestVersionId!;
+    // картинку удалили из библиотеки до публикации: новая версия не публикуется
+    await db.siteAsset.update({ where: { id: own[2]! }, data: { status: 'DELETED', deletedAt: new Date() } });
     const media = await call('POST', '/marketing/site/publish', { location: L.checks, body: { expectedVersionId: v2 } });
     expect(media.status).toBe(409);
-    expect(media.body.code).toBe('MEDIA_NOT_READY');
+    expect(media.body.code).toBe('ASSET_UNAVAILABLE');
+    expect((await siteRow('checks')).state).toBe('DRAFT');
     // старую версию публикацией не протолкнуть: для неё есть откат
     const old = await call('POST', '/marketing/site/publish', { location: L.checks, body: { expectedVersionId: v1 } });
     expect(old.status).toBe(409);

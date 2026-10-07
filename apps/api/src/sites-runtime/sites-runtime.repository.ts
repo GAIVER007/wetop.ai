@@ -2,10 +2,13 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
+import type { AssetRow } from '../marketing-site/asset-refs';
 
 /** Опубликованная версия сайта с его цепочкой: ровно то, что видит рантайм */
 export interface PublishedSiteRow {
   siteId: string;
+  /** MKT8: филиал сайта, только для выборки его ассетов; наружу не отдаётся */
+  locationId: string;
   versionId: string;
   schemaVersion: string;
   specHash: string;
@@ -40,6 +43,13 @@ export interface SitesRuntimeRepository {
    * филиала, что у опубликованной). Без ключа сайта и брони: превью ничего не продаёт и не считает
    */
   previewSite(siteId: string, versionId: string): Promise<PublishedSiteRow | null>;
+  /**
+   * MKT8: ассеты филиала сайта ровно по id ссылок версии (не вся библиотека филиала); ключ объекта нужен только для
+   * подписи и наружу не уходит
+   */
+  assets(locationId: string, ids: string[]): Promise<AssetRow[]>;
+  /** MKT8: версия уже публиковалась (журнал PUBLISH, ROLLBACK, RESUME): превью может показать удержанные удалённые */
+  versionPublished(siteId: string, versionId: string): Promise<boolean>;
 }
 export const SITES_RUNTIME_REPOSITORY = Symbol('SITES_RUNTIME_REPOSITORY');
 
@@ -50,6 +60,7 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
   async publishedSite(siteId: string): Promise<PublishedSiteRow | null> {
     const rows = await this.prisma.db.$queryRaw<PublishedSiteRow[]>(Prisma.sql`
       SELECT s."id"::text AS "siteId",
+        s."location_id"::text AS "locationId",
         v."id"::text AS "versionId",
         v."schema_version" AS "schemaVersion",
         v."spec_hash" AS "specHash",
@@ -81,6 +92,7 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
   async previewSite(siteId: string, versionId: string): Promise<PublishedSiteRow | null> {
     const rows = await this.prisma.db.$queryRaw<PublishedSiteRow[]>(Prisma.sql`
       SELECT s."id"::text AS "siteId",
+        s."location_id"::text AS "locationId",
         v."id"::text AS "versionId",
         v."schema_version" AS "schemaVersion",
         v."spec_hash" AS "specHash",
@@ -98,6 +110,22 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
       JOIN "properties" p ON p."location_id" = l."id" AND p."organization_id" = b."organization_id"
       WHERE s."id" = ${siteId}::uuid AND s."state" <> 'ARCHIVED'`);
     return rows[0] ?? null;
+  }
+
+  async assets(locationId: string, ids: string[]): Promise<AssetRow[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.db.$queryRaw<AssetRow[]>(Prisma.sql`
+      SELECT "id"::text AS "id", "kind"::text AS "kind", "status"::text AS "status", "storage_ref" AS "storageRef"
+      FROM "site_assets"
+      WHERE "location_id" = ${locationId}::uuid AND "id" = ANY(${[...new Set(ids)]}::uuid[])`);
+  }
+
+  async versionPublished(siteId: string, versionId: string): Promise<boolean> {
+    const rows = await this.prisma.db.$queryRaw<Array<{ n: number }>>(Prisma.sql`
+      SELECT count(*)::int AS "n" FROM "marketing_site_publications"
+      WHERE "site_id" = ${siteId}::uuid AND "version_id" = ${versionId}::uuid
+        AND "action" IN ('PUBLISH', 'ROLLBACK', 'RESUME')`);
+    return (rows[0]?.n ?? 0) > 0;
   }
 
   async categories(propertyId: string, codes: string[]): Promise<CategoryFact[]> {

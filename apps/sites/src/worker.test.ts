@@ -355,3 +355,73 @@ describe('MKT7: индексация по окружению Worker', () => {
     expect(await res.text()).not.toContain('rel="canonical"');
   });
 });
+
+describe('MKT8: картинки из библиотеки', () => {
+  // ссылки примера SiteSpec: логотип, фавиконка, герой и картинка og главной, «о нас», карточки номеров, галерея
+  const LOGO = '6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b';
+  const FAVICON = '7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c';
+  const HERO = '8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d';
+  const GALLERY = ['c3d4e5f6-2031-4c4d-8e5f-6a7b8c9d0e1f', 'd4e5f607-3142-4d5e-9f60-7b8c9d0e1f20', 'e5f60718-4253-4e6f-8071-8c9d0e1f2031'];
+  const signed = (id: string, origin = 'https://object.storage.example.kz') =>
+    `${origin}/wetop-site-assets/site-assets/loc/${id}/${'a'.repeat(64)}.webp?X-Amz-Expires=3600&X-Amz-Signature=${'b'.repeat(64)}`;
+  const assets = Object.fromEntries([LOGO, FAVICON, HERO, ...GALLERY].map((id) => [id, signed(id)]));
+  const directive = (csp: string, name: string) => csp.split('; ').find((d) => d.startsWith(`${name} `)) ?? '';
+
+  it('§50, §55: подписанные адреса в разметке; img-src ровно с origin хранилища, без https: и *', async () => {
+    const { get } = runtime({ 'stepnoy.localhost': ok({ assets }) });
+    const res = await get('http://stepnoy.localhost/');
+    const html = await res.text();
+    expect(html).toContain(`<img src="${signed(HERO).replace(/&/g, '&amp;')}"`);
+    expect(html).toContain('class="brand__logo"');
+    expect(html).toContain(`<link rel="icon" href="${signed(FAVICON).replace(/&/g, '&amp;')}">`);
+    expect(html).toContain(`<meta property="og:image" content="${signed(HERO).replace(/&/g, '&amp;')}">`);
+    for (const id of GALLERY) expect(html).toContain(signed(id).replace(/&/g, '&amp;'));
+    const csp = res.headers.get('content-security-policy')!;
+    expect(directive(csp, 'img-src')).toBe("img-src 'self' data: https://object.storage.example.kz");
+    expect(csp).not.toMatch(/img-src[^;]*(https:(?!\/\/)|\*)/);
+    // origin картинок не попадает ни в скрипты, ни в соединения, ни во фреймы
+    for (const name of ['script-src', 'connect-src', 'frame-src', 'default-src']) expect(directive(csp, name)).not.toContain('object.storage');
+  });
+
+  it('§93: без картинок CSP прежний', async () => {
+    const before = (await runtime({ 'stepnoy.localhost': ok() }).get('http://stepnoy.localhost/')).headers.get('content-security-policy')!;
+    expect(directive(before, 'img-src')).toBe("img-src 'self' data:");
+    const html = await (await runtime({ 'stepnoy.localhost': ok() }).get('http://stepnoy.localhost/')).text();
+    expect(html).not.toContain('<img');
+    expect(html).not.toContain('og:image');
+  });
+
+  it('§54: адрес картинки не https, с логином, на localhost или IP, javascript и data: не выводится и в CSP не попадает', async () => {
+    const bad: Record<string, string> = {
+      [HERO]: 'http://object.storage.example.kz/x.webp',
+      [LOGO]: 'https://user:pass@object.storage.example.kz/x.webp',
+      [FAVICON]: 'javascript:alert(1)',
+      [GALLERY[0]!]: 'data:image/png;base64,AAAA',
+      [GALLERY[1]!]: 'https://127.0.0.1/x.webp',
+      [GALLERY[2]!]: 'https://localhost/x.webp',
+    };
+    const { get, logs } = runtime({ 'stepnoy.localhost': ok({ assets: bad }) });
+    const res = await get('http://stepnoy.localhost/');
+    const html = await res.text();
+    expect(html).not.toContain('<img');
+    expect(html).not.toMatch(/javascript:|data:image|127\.0\.0\.1|user:pass/);
+    expect(directive(res.headers.get('content-security-policy')!, 'img-src')).toBe("img-src 'self' data:");
+    expect(logs.filter((l) => l['event'] === 'sites.asset_url_rejected')).toHaveLength(6);
+    expect(JSON.stringify(logs)).not.toContain('user:pass');
+  });
+
+  it('§95: превью с картинкой: картинка есть, но ни брони, ни счётчика, noindex и no-store', async () => {
+    const fetchImpl = (async (input: RequestInfo | URL) =>
+      new URL(String(input)).pathname === '/sites-runtime/preview'
+        ? new Response(JSON.stringify({ ...current({ publicKey: null, bookingEnabled: false, assets }), state: 'PREVIEW', expiresAt: '2026-10-07T12:00:00.000Z' }), { status: 200 })
+        : new Response('', { status: 404 })) as typeof fetch;
+    const rt = createRuntime({ ...ENV, SITES_BASE_DOMAIN: 'sites.test' }, { fetchImpl, log: () => undefined });
+    const res = await rt.fetch(new Request('https://preview.sites.test/?token=abc.def'));
+    const html = await res.text();
+    expect(html).toContain(signed(HERO).replace(/&/g, '&amp;'));
+    expect(html).not.toMatch(/<script async|<script defer|pms-booking/);
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(directive(res.headers.get('content-security-policy')!, 'img-src')).toBe("img-src 'self' data: https://object.storage.example.kz");
+  });
+});

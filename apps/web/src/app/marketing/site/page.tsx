@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { Page } from '../../../components/page';
@@ -43,6 +44,11 @@ export default async function MarketingSitePage() {
       crumbs={<MarketingCrumb />}
       title={title}
       subtitle="Предпросмотр, публикация и откат управляемого сайта филиала."
+      actions={
+        <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="publication-assets-link">
+          Изображения сайта
+        </Link>
+      }
     >
       {site && loaded.journal && loaded.booking ? (
         <PublicationBoard

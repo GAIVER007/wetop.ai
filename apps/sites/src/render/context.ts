@@ -12,7 +12,10 @@ export interface RenderContext {
   /** Бронь реально работает: документ просит виджет, сайт счётчика её включил и тариф задан */
   bookingLive: boolean;
   apiOrigin: string | null;
-  /** Карта `assetId → адрес`; в MKT4 пуста (SiteAsset нет), картинки не выводятся */
+  /**
+   * Карта `assetId → подписанный адрес` (MKT8): только ссылки этой версии и только безопасные адреса (Worker уже отсеял
+   * негодные). Нет адреса, нет и картинки; секция без картинок прячется
+   */
   assets: Record<string, string>;
   /**
    * Превью (MKT7): токен разрешает одну версию целиком, со всеми её страницами, поэтому переход внутри превью несёт тот
@@ -79,7 +82,11 @@ export function sectionVisible(
 export function resolvedImages(images: unknown, assets: Record<string, string>): Array<{ src: string; alt: unknown }> {
   if (!Array.isArray(images)) return [];
   return images
-    .map((img) => ({ src: assets[(img as { assetId?: string })?.assetId ?? ''], alt: (img as { alt?: unknown })?.alt }))
+    .map((img) => {
+      // id в документе может быть в любом регистре, карта API в нижнем (UUID)
+      const id = String((img as { assetId?: string })?.assetId ?? '');
+      return { src: assets[id] ?? assets[id.toLowerCase()], alt: (img as { alt?: unknown })?.alt };
+    })
     .filter((img): img is { src: string; alt: unknown } => typeof img.src === 'string');
 }
 

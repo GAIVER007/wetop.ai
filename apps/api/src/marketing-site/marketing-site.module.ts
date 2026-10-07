@@ -1,5 +1,24 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Headers, HttpCode, Inject, Module, Param, Post, Put, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  HttpCode,
+  Inject,
+  Module,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SITE_ASSET_LIMITS } from '@pms/domain';
 import { Access } from '../auth/access.decorator';
 import { SCOPE_HEADER } from '../auth/scope';
 import { PrismaService } from '../database/prisma.provider';
@@ -10,6 +29,8 @@ import { GENERATION_BOT, generationBotFromEnv } from './generation.bot';
 import { SiteGenerationService } from './generation.service';
 import { SiteGenerationWorker } from './generation.worker';
 import { SitePublicationService } from './publication.service';
+import { ASSET_FETCH_DEPS, SiteAssetsService } from './site-assets.service';
+import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from './asset-storage';
 
 /**
  * «Маркетинг → Сайт и SEO», ядро (MKT3): сайт выбранного филиала и сохранение версий. Право `settings`, как у
@@ -24,6 +45,7 @@ export class MarketingSiteController {
     @Inject(SiteBriefService) private readonly briefs: SiteBriefService,
     @Inject(SiteGenerationService) private readonly generations: SiteGenerationService,
     @Inject(SitePublicationService) private readonly publication: SitePublicationService,
+    @Inject(SiteAssetsService) private readonly assets: SiteAssetsService,
   ) {}
 
   @Get()
@@ -128,6 +150,58 @@ export class MarketingSiteController {
   setBookingSource(@Headers(SCOPE_HEADER) pointer: string | undefined, @Body() body: unknown) {
     return this.publication.setBookingSource(!!pointer, body);
   }
+
+  // ---------- MKT8: библиотека изображений ----------
+
+  /** Библиотека филиала без удалённых; у каждой картинки подписанный адрес на срок, ключа объекта нет */
+  @Get('assets')
+  assetList(@Headers(SCOPE_HEADER) pointer?: string) {
+    return this.assets.list(!!pointer);
+  }
+
+  /**
+   * Загрузка: `multipart/form-data`, один файл до 10 МиБ в памяти процесса (на диск не пишется), поля `kind` и
+   * `defaultAlt`. Предел только этого маршрута, общий JSON-парсер не меняется. Новый 201, повтор той же картинки 200
+   */
+  @Post('assets')
+  @UseInterceptors(
+    // без `storage` и `dest` multer держит файл в памяти (MemoryStorage), на диск ничего не пишется
+    FileInterceptor('file', {
+      limits: { fileSize: SITE_ASSET_LIMITS.maxUploadBytes, files: 1, fields: 4, fieldSize: 4096, parts: 6 },
+    }),
+  )
+  async assetUpload(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @UploadedFile() file: { buffer?: Buffer } | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.assets.upload(!!pointer, file, body);
+    res.status(result.created ? 201 : 200);
+    return result;
+  }
+
+  @Patch('assets/:id')
+  assetUpdate(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string, @Body() body: unknown) {
+    return this.assets.updateAlt(!!pointer, id, body);
+  }
+
+  @Delete('assets/:id')
+  assetDelete(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string) {
+    return this.assets.remove(!!pointer, id);
+  }
+
+  /** Фото менеджера каналов объекта этого филиала: коды фото без адресов */
+  @Get('assets/channex')
+  assetChannex(@Headers(SCOPE_HEADER) pointer?: string) {
+    return this.assets.channexPhotos(!!pointer);
+  }
+
+  @Post('assets/channex/import')
+  @HttpCode(200)
+  assetChannexImport(@Headers(SCOPE_HEADER) pointer: string | undefined, @Body() body: unknown) {
+    return this.assets.importChannex(!!pointer, body);
+  }
 }
 
 @Module({
@@ -139,7 +213,11 @@ export class MarketingSiteController {
     SiteGenerationService,
     SiteGenerationWorker,
     SitePublicationService,
+    SiteAssetsService,
     { provide: BRIEF_CHANNEX_READER, useFactory: contentReaderFromEnv },
+    { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
+    // null: настоящий загрузчик с DNS и HTTPS (asset-fetch.ts); тесты подставляют свой
+    { provide: ASSET_FETCH_DEPS, useValue: null },
     { provide: GENERATION_BOT, useFactory: generationBotFromEnv },
   ],
 })

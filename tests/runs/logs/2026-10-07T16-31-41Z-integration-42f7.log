@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 07.10.2026 21:31 Алматы · vm
+# коммит ba1d114 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-31-41Z-integration-42f7.json' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"44da52cd-080f-4ff2-94cb-a8cad4a7dffe","kind":"IMAGE","byteSize":76}
+
+(node:7855) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-assets.test.ts (11 tests | 1 failed) 2876ms
+   ❯ MKT8 библиотека изображений сайта (10)
+     ✓ §17, §20, §33–§35: загрузка снимает EXIF и GPS, хранит только готовую копию, SHA от неё; ключа объекта наружу нет 192ms
+     ✓ §25–§27, §86: повтор той же картинки возвращает тот же ассет; другой вид и другой филиал отдельно; гонка даёт одного 255ms
+     ✓ §12–§15, §88: чужие и вредные файлы, предел 10 МиБ, лишние поля, вид: отказ без записи в хранилище и базу 223ms
+     ✓ §75: запись в хранилище не удалась: строки нет, 503; без права settings 403 35ms
+     ✓ §31, §32, §36: список без удалённых и без ключа объекта; ALT правится; чужой ассет 404 160ms
+     ✓ §39, §85: ассет только из черновиков после удаления уходит и из хранилища 86ms
+     × §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 449ms
+     ✓ §28, §29, гонка удаления и публикации: удержано, если версия успела опубликоваться; иначе публикация отказывает 119ms
+     ✓ §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор 126ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 602ms
+   ✓ MKT8 хранилище не настроено (1)
+     ✓ §6: метаданные читаются, загрузка и импорт 503 без запасного хранилища 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть
+AssertionError: {"code":"ASSET_UNAVAILABLE","message":"В версии есть изображения, которых нет в библиотеке филиала или они не подходят по назначению","paths":[{"path":"pages[0].seo.og.imageAssetId","code":"unavailable"},{"path":"pages[0].sections[0].image.assetId","code":"unavailable"}]}: expected 409 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 409
+
+ ❯ tests/integration/site-assets.test.ts:468:52
+    466|     // §42: откат на версию с удержанной удалённой картинкой работает
+    467|     const back = await call('POST', '/marketing/site/rollback', { loca…
+    468|     expect(back.status, JSON.stringify(back.body)).toBe(200);
+       |                                                    ^
+    469|     expect(Object.keys((await current(host)).body!.assets)).toContain(…
+    470|     // §43: возобновление версии с удержанной картинкой
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  16:31:43
+   Duration  9.02s (tests 44%, transform 37%, import 18%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-31-41Z-integration-42f7.json
+
+# код выхода 1 · 10 с

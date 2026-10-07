@@ -95,6 +95,7 @@ model Location {
   workingHours           WorkingHours[]
   appointments           Appointment[]
   marketingSites         MarketingSite[]
+  siteAssets             SiteAsset[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -1690,6 +1691,55 @@ model SiteDomain {
   @@map("site_domains")
 }
 
+enum SiteAssetKind {
+  IMAGE
+  LOGO
+  FAVICON
+}
+
+enum SiteAssetStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  REJECTED
+  DELETED
+}
+
+enum SiteAssetSource {
+  UPLOAD
+  CHANNEX_IMPORT
+}
+
+/// Изображение управляемого сайта (DATA_MODEL §29.5, MKT8; Q-270: приватный S3 в Казахстане). Владелец Location. В базе
+/// только непрозрачный ключ объекта `storage_ref` = `site-assets/<location_id>/<id>/<sha256>.webp|png` (CHECK), без
+/// поставщика, бакета и адреса. Хранится только обработанная копия: без EXIF, WebP (картинка, логотип) или PNG 512×512
+/// (фавиконка); `sha256` от неё. Неизменяемость после READY, переходы и запрет смены владельца держит триггер
+/// site_asset_guard; физического DELETE у ролей приложения нет, удаление это DELETED.
+model SiteAsset {
+  id          String          @id @default(uuid()) @db.Uuid
+  locationId  String          @map("location_id") @db.Uuid
+  kind        SiteAssetKind
+  status      SiteAssetStatus
+  source      SiteAssetSource
+  mimeType    String          @map("mime_type") @db.VarChar(40)
+  storageRef  String          @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int             @map("byte_size")
+  width       Int
+  height      Int
+  sha256      String          @db.Char(64)
+  defaultAlt  Json?           @map("default_alt")
+  createdById String?         @map("created_by_id") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz(6)
+
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([locationId, status])
+  @@map("site_assets")
+}
+
 /// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.
 model WebSession {
   id              String        @id @default(uuid()) @db.Uuid
@@ -1907,6 +1957,7 @@ model User {
   marketingSiteVersionsCreated MarketingSiteVersion[]
   generationRunsRequested      GenerationRun[]
   sitePublications             MarketingSitePublication[]
+  siteAssetsCreated            SiteAsset[]
 
   @@map("users")
 }

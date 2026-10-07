@@ -1,6 +1,6 @@
 # PUBLIC-2: первый визуальный этап, 7 октября 2026
 
-Статус: подготовлен для визуального согласования. STOP до следующих секций и до deploy. Это первый implementation PR, не финальная готовность главной.
+Статус: [draft PR #281](https://github.com/GAIVER007/wetop.ai/pull/281), подготовлен для визуального согласования. Implementation commit: `ed80ef40b05c55110928a64b3902a2c5dbae5957`. STOP до следующих секций и до deploy. Это первый implementation PR, не финальная готовность главной.
 
 PUBLIC-1 принят владельцем, решения записаны в плане и отчёте. PR #278 переведён в ready и merged: `867a3914ca065f1c452c8613adc8aa8a53c39032`. Свежий main с этим SHA стал базой ветки `codex/public-2-visual-slice-1`.
 

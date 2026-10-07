@@ -1,0 +1,323 @@
+# Сквозные (e2e) · 07.10.2026 20:33 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ai-agents-create.spec.ts' 'tests/ui/navigation.spec.ts'
+[WebServer] (node:92839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+(node:94113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96934) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (47.5s)
+(node:97432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] (node:98892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/ai-agents-create.spec.ts:97:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (17.7s)
+[WebServer] (node:99140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/ai-agents-create.spec.ts:123:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (24.6s)
+[WebServer] (node:1243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1629) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames
+  ✓   4 tests/ui/ai-agents-create.spec.ts:144:1 › двойной щелчок по «Создать черновик» даёт одного агента (19.3s)
+[WebServer] (node:2580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:155:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (23.3s)
+[WebServer] (node:3693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:171:1 › сотрудник смены: страница создания объясняет роль, формы нет (11.4s)
+[WebServer] (node:4798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:181:1 › управляющий может создать агента (15.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4054389304'
+[WebServer] }
+[WebServer] (node:5377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:190:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (13.4s)
+[WebServer] (node:6758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:204:1 › расширения нет: на странице создания причина про расширение (9.0s)
+[WebServer] (node:7282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:213:1 › несуществующий агент, страница «не найдено», а не пустая карточка (9.0s)
+[WebServer] (node:8107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:8613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  11 tests/ui/ai-agents-create.spec.ts:225:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (14.5s)
+[WebServer] (node:8886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 1440 (19.7s)
+[WebServer] (node:10844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, light, 1440 (13.8s)
+[WebServer] (node:12011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, light, 1440 (11.3s)
+[WebServer] (node:12718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, light, 390 (39.2s)
+[WebServer] (node:15259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, light, 390 (28.1s)
+[WebServer] (node:16510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, light, 390 (15.9s)
+[WebServer] (node:17978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, dark, 1440 (30.6s)
+[WebServer] (node:19342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, dark, 1440 (44.1s)
+[WebServer] (node:20303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, dark, 1440 (44.2s)
+[WebServer] (node:22709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, form, dark, 390 (26.5s)
+[WebServer] (node:26418) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, agent, dark, 390 (27.8s)
+[WebServer] (node:27922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:249:7 › оформление: axe и снимок, blocked, dark, 390 (8.2s)
+[WebServer] (node:28596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/ai-agents-create.spec.ts:285:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (12.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4054389304'
+[WebServer] }
+  ✘  25 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (29.1s)
+(node:31138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  26 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (56.3s)
+(node:32140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  27 tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы (56.9s)
+(node:32889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (11.7s)
+  ✓  29 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (6.0s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ai-agents\/[0-9a-f-]{36}$/
+    Received string:  "http://127.0.0.1:56104/ai-agents/new"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        12 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:56104/ai-agents/new"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      61 |   await page.getByTestId('agent-create-submit').click();
+      62 |
+    > 63 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+         |                      ^
+      64 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI-продавец Luxx 2');
+      65 |   await expect(page.getByText('Сеть Тест · Астана')).toBeVisible();
+      66 |   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/ui/ai-agents-create.spec.ts:63:22
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/chessboard$/
+    Received string:  "http://127.0.0.1:56104/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:56104/today"
+
+
+      69 |   await expect(board.locator('span')).toBeVisible();
+      70 |   await board.click();
+    > 71 |   await expect(page).toHaveURL(/\/chessboard$/);
+         |                      ^
+      72 |   await expect(menu).not.toBeVisible();
+      73 |   // группа: раскрывается с клавиатуры, открыт один раздел
+      74 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/ui/navigation.spec.ts:71:22
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд»
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:56104/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-mv10-20261007/tests/ui/fixtures.ts:111:30)
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/ui/navigation.spec.ts:98:14
+
+    Error Context: test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations$/
+    Received string:  "http://127.0.0.1:56104/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        29 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:56104/chessboard"
+
+
+      142 |       }
+      143 |       await link.click();
+    > 144 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      145 |       await expect(
+      146 |         page
+      147 |           .getByRole('main')
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/ui/navigation.spec.ts:144:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние
+    tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно
+    tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд»
+    tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы ────────────
+  25 passed (13.9m)
+
+# код выхода 1 · 14 мин 28 с

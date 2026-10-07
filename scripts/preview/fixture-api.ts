@@ -2714,7 +2714,7 @@ let sellerCatalogFails = false;
  * Business Agents (SA2): Business «Сеть Тест» с филиалом «Алматы» (его держит рабочий продавец) и, по команде теста
  * `sellerExtraLocation: true`, свободным «Астана». Созданные черновики живут здесь до сброса стенда.
  */
-const AGENT_BUSINESS = { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' };
+const AGENT_BUSINESS = { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест', vertical: 'HOSPITALITY' as const };
 const AGENT_LOCATION_LEGACY = { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' };
 const AGENT_LOCATION_EXTRA = { id: 'c0000000-0000-4000-8000-0000000000ab', name: 'Астана' };
 let sellerExtraLocation = false;

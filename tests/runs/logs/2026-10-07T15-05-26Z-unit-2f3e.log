@@ -1,0 +1,62 @@
+# Модульные (unit) · 07.10.2026 20:05 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-05-26Z-unit-2f3e.json' 'apps/api/src/ai-seller/vertical-tools.controller.test.ts' 'apps/api/src/ai-seller/vertical-tools.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 43ms
+ ❯ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests | 4 failed) 1229ms
+   × narrow authenticated GET contract with AUTH_REQUIRED=0 78ms
+   × narrow authenticated GET contract with AUTH_REQUIRED=1 9ms
+   × bad key and overridden scope denied before domain with AUTH_REQUIRED=0 7ms
+   × bad key and overridden scope denied before domain with AUTH_REQUIRED=1 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts > narrow authenticated GET contract with AUTH_REQUIRED=0
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts > narrow authenticated GET contract with AUTH_REQUIRED=1
+Error: expected 200 "OK", got 403 "Forbidden"
+ ❯ apps/api/src/ai-seller/vertical-tools.controller.test.ts:27:141
+     25|   vi.stubEnv('AUTH_REQUIRED', auth);
+     26|   for (const path of ['agent-context', 'beauty-services', 'food-servic…
+     27|     const r = await request(app.getHttpServer()).get(`/bot/${path}`).q…
+       |                                                                                                                                             ^
+     28|     expect(r.headers['cache-control']).toBe('no-store');
+     29|   }
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts > bad key and overridden scope denied before domain with AUTH_REQUIRED=0
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts > bad key and overridden scope denied before domain with AUTH_REQUIRED=1
+Error: expected 403 "Forbidden", got 500 "Internal Server Error"
+ ❯ apps/api/src/ai-seller/vertical-tools.controller.test.ts:33:85
+     31| it.each(['0', '1'])('bad key and overridden scope denied before domain…
+     32|   vi.stubEnv('AUTH_REQUIRED', auth);
+     33|   await request(app.getHttpServer()).get('/bot/agent-context').query({…
+       |                                                                                     ^
+     34|   await request(app.getHttpServer()).get('/bot/beauty-services').query…
+     35|   expect(service.context).not.toHaveBeenCalled(); expect(service.beaut…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 14 passed (18)
+   Start at  19:05:44
+   Duration  22.27s (transform 53%, import 41%, tests 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-05-26Z-unit-2f3e.json
+
+# код выхода 1 · 41 с

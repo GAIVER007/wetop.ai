@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 07.10.2026 20:27 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' 'tests/branches-ui/vertical-ai.spec.ts'
+[WebServer] (node:88311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:88954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 HOSPITALITY light 1440 server binding and accessible shared agent screen (36.2s)
+[WebServer] (node:89642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 HOSPITALITY light 390 server binding and accessible shared agent screen (22.2s)
+[WebServer] (node:89829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90025) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 HOSPITALITY dark 1440 server binding and accessible shared agent screen (21.8s)
+[WebServer] (node:90128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 HOSPITALITY dark 390 server binding and accessible shared agent screen (14.9s)
+[WebServer] (node:90269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY light 1440 server binding and accessible shared agent screen (7.9s)
+[WebServer] (node:90357) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY light 390 server binding and accessible shared agent screen (7.3s)
+[WebServer] (node:90462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY dark 1440 server binding and accessible shared agent screen (8.4s)
+[WebServer] (node:90512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90603) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY dark 390 server binding and accessible shared agent screen (13.5s)
+[WebServer] (node:90705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen (15.3s)
+[WebServer] (node:90871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 FOOD_SERVICE light 390 server binding and accessible shared agent screen (6.0s)
+[WebServer] (node:90936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91026) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 FOOD_SERVICE dark 1440 server binding and accessible shared agent screen (6.3s)
+[WebServer] (node:91076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 FOOD_SERVICE dark 390 server binding and accessible shared agent screen (7.0s)
+
+  12 passed (3.7m)
+
+# код выхода 0 · 3 мин 56 с

@@ -1,3 +1,4 @@
+import type { BusinessVertical } from '@pms/domain';
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
@@ -10,7 +11,7 @@ import { PrismaService } from '../database/prisma.provider';
 export const BUSINESS_AGENTS = Symbol('BUSINESS_AGENTS');
 
 export interface AgentPlacementRow {
-  business: { id: string; name: string };
+  business: { id: string; name: string; vertical?: BusinessVertical };
   location: { id: string; name: string };
 }
 
@@ -69,7 +70,7 @@ const agentSelect = {
   updatedAt: true,
   organizationId: true,
   createdBy: true,
-  location: { select: { id: true, name: true, business: { select: { id: true, name: true } } } },
+  location: { select: { id: true, name: true, business: { select: { id: true, name: true, vertical: true } } } },
 } as const;
 
 type AgentRow = {
@@ -78,7 +79,7 @@ type AgentRow = {
   lifecycle: string;
   createdAt: Date;
   updatedAt: Date;
-  location: { id: string; name: string; business: { id: string; name: string } } | null;
+  location: { id: string; name: string; business: { id: string; name: string; vertical?: BusinessVertical } } | null;
 };
 
 function record(row: AgentRow): BusinessAgentRecord | null {
@@ -89,7 +90,7 @@ function record(row: AgentRow): BusinessAgentRecord | null {
     lifecycle: row.lifecycle,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
-    business: { id: row.location.business.id, name: row.location.business.name },
+    business: { id: row.location.business.id, name: row.location.business.name, ...(row.location.business.vertical ? { vertical: row.location.business.vertical } : {}) },
     location: { id: row.location.id, name: row.location.name },
   };
 }
@@ -135,10 +136,10 @@ export class PrismaBusinessAgentsRepository implements BusinessAgentsRepository 
   async placement(organizationId: string, businessId: string, locationId: string): Promise<AgentPlacementRow | null> {
     const location = await this.prisma.db.location.findFirst({
       where: { id: locationId, businessId, status: 'ACTIVE', business: { id: businessId, organizationId, status: 'ACTIVE' } },
-      select: { id: true, name: true, business: { select: { id: true, name: true } } },
+      select: { id: true, name: true, business: { select: { id: true, name: true, vertical: true } } },
     });
     if (!location) return null;
-    return { business: { id: location.business.id, name: location.business.name }, location: { id: location.id, name: location.name } };
+    return { business: { id: location.business.id, name: location.business.name, vertical: location.business.vertical }, location: { id: location.id, name: location.name } };
   }
 
   async create(input: {

@@ -1,4 +1,5 @@
 'use client';
+import type { BusinessVertical } from '@pms/domain';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Alert, Button, Field, Notice, Panel, Row, Stack, Textarea } from '../../../components/ui';
 import type { AgentInstructionPreview, AgentInstructionView } from '../../../lib/api';
@@ -12,7 +13,9 @@ type Recognition = {
   onend: (() => void) | null;
 };
 
-export function InstructionEditor({id, initial, readOnly = false}: {id: string; initial: AgentInstructionView; readOnly?: boolean}) {
+export function InstructionEditor({id, initial, readOnly = false, vertical = null}: {id: string; initial: AgentInstructionView; readOnly?: boolean; vertical?: BusinessVertical | null}) {
+  const hospitality = vertical === 'HOSPITALITY';
+  const placeholder = hospitality ? 'Назови бота Ася. Отвечай дружелюбно и коротко. Рассказывай о правилах отеля и помогай выбрать размещение…' : vertical === 'BEAUTY' ? 'Назови бота Ася. Рассказывай об услугах салона, ценах каталога и длительности. Для записи приглашай администратора.' : vertical === 'FOOD_SERVICE' ? 'Назови бота Ася. Рассказывай о периодах обслуживания ресторана. Для бронирования приглашай администратора.' : 'Опишите стиль общения и когда приглашать сотрудника.';
   const [step, setStep] = useState(initial.saved ? 2 : 1);
   const [story, setStory] = useState('');
   const [text, setText] = useState(initial.text);
@@ -91,7 +94,7 @@ export function InstructionEditor({id, initial, readOnly = false}: {id: string; 
         {notice && <div role="status"><Notice>{notice}</Notice></div>}
         {step === 1 ? <Panel title="Расскажите, каким должен быть продавец">
           <p className="muted">Как представляться, что предлагать, как общаться и когда звать сотрудника. Можно написать своими словами.</p>
-          <Field label="Ваш рассказ"><Textarea rows={9} value={story} maxLength={4000} disabled={pending || readOnly || listening} onChange={e => setStory(e.target.value)} placeholder="Назови бота Ася. Отвечай дружелюбно и коротко. Рассказывай о правилах отеля и помогай выбрать размещение…" /></Field>
+          <Field label="Ваш рассказ"><Textarea rows={9} value={story} maxLength={4000} disabled={pending || readOnly || listening} onChange={e => setStory(e.target.value)} placeholder={placeholder} /></Field>
           <Row><Button type="button" tone="secondary" disabled={pending || readOnly} onClick={dictate} aria-pressed={listening}>{listening ? 'Остановить диктовку' : 'Надиктовать'}</Button><span className="muted" aria-live="polite">{listening ? 'Слушаю…' : `${story.length} / 4000`}</span></Row>
           <small className="muted">Диктовку обрабатывает сервис браузера. Проверьте расшифровку перед генерацией.</small>
           <Row><Button type="button" disabled={pending || readOnly || listening || story.trim().length < 10} onClick={generate}>{pending ? 'Готовлю инструкцию…' : 'Сгенерировать инструкцию'}</Button><Button type="button" tone="ghost" disabled={listening} onClick={() => changeStep(2)}>Написать вручную</Button></Row>
@@ -108,11 +111,11 @@ export function InstructionEditor({id, initial, readOnly = false}: {id: string; 
           </Panel>
         </>}
       </Stack>
-      <aside className="agent-wizard__rules" aria-label="Правила бронирования агента">
-        <Panel title="Правила бронирования">
+      <aside className="agent-wizard__rules" aria-label={hospitality ? 'Правила бронирования агента' : 'Границы инструментов агента'}>
+        <Panel title={hospitality ? 'Правила бронирования' : 'Границы инструментов'}>
           <p className="muted">Обязательная логика платформы. Пользовательская инструкция не должна её отменять.</p>
-          <ol><li>Уточнить даты и количество гостей.</li><li>Получить наличие и стоимость из системы.</li><li>Показать выбранный вариант и итоговую цену.</li><li>Получить явное подтверждение гостя.</li><li>Создать одну бронь и вернуть подтверждение из системы.</li></ol>
-          <Notice tone="muted">Запись брони через WhatsApp ещё проходит подключение и проверку. Сохранение инструкции само по себе не запускает бота.</Notice>
+          {hospitality ? <ol><li>Уточнить даты и количество гостей.</li><li>Получить наличие и стоимость из системы.</li><li>Показать выбранный вариант и итоговую цену.</li><li>Получить явное подтверждение гостя.</li><li>Создать одну бронь и вернуть подтверждение из системы.</li></ol> : <ul><li>Использовать только инструменты выбранного бизнеса.</li><li>{vertical === 'BEAUTY' ? 'Сообщать сохранённые цены каталога и длительность услуг.' : vertical === 'FOOD_SERVICE' ? 'Сообщать сохранённые периоды обслуживания.' : 'При недоступном направлении приглашать сотрудника.'}</li><li>Не обещать наличие, запись или оплату. Для оформления пригласить администратора.</li></ul>}
+          <Notice tone="muted">{hospitality ? 'Запись брони через WhatsApp ещё проходит подключение и проверку.' : 'Инструменты Beauty/Food доступны только для чтения.'} Сохранение инструкции само по себе не запускает бота.</Notice>
         </Panel>
       </aside>
     </div>

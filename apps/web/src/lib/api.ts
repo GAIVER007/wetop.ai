@@ -2425,7 +2425,7 @@ export interface BusinessAgentView {
   id: string;
   name: string;
   lifecycle: string;
-  business: { id: string; name: string };
+  business: { id: string; name: string; vertical?: import('@pms/domain').BusinessVertical };
   location: { id: string; name: string };
   /** Список настройки: готово только «Основное», остальное — статусы, а не шаги мастера */
   setup: Array<{ code: string; label: string; done: boolean }>;

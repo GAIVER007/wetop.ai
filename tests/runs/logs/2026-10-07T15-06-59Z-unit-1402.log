@@ -1,0 +1,17 @@
+# Модульные (unit) · 07.10.2026 20:06 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-06-59Z-unit-1402.json' 'apps/api/src/ai-seller/vertical-tools.controller.test.ts' 'apps/api/src/ai-seller/vertical-tools.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests) 418ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 24ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  19:07:14
+   Duration  10.90s (import 75%, transform 20%, tests 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-06-59Z-unit-1402.json
+
+# код выхода 0 · 27 с

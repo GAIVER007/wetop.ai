@@ -72,12 +72,10 @@ const ASSISTANT_READ_ALLOWED = [
 ];
 
 /**
- * Узкий ключ котировки ИИ-продавца (`SELLER_QUOTE_KEY`, Q-166 в объёме чтения — ADR-085): наличие и цена
- * тарифа сайта по организации, ровно один адрес, только GET — тот же образец. Брони этим ключом нет:
- * она остаётся заявкой администратору до базы в РК (Q-166б, ADR-086).
+ * SELLER_QUOTE_KEY: только GET для гостиничной котировки, origins и MV10 context/catalog.
+ * Agent → Location → Business проверяются сервером. Операторские данные и запись запрещены.
  */
-// SA2.5: домены виджета агента — тоже чтение узким ключом продавца (Agent → Location → сайты филиала)
-const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
+const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins', '/bot/agent-context', '/bot/beauty-services', '/bot/food-service-periods'];
 
 /**
  * Ключ записи продавца (`SELLER_BOOK_KEY`, DATA_MODEL §25, ADR-144): только POST и только намерение брони и его

@@ -29,6 +29,7 @@ from src.integrations.providers import (
     ProviderUnavailable,
     Quote,
 )
+from src.integrations.wetop_vertical import WetopVerticalMixin
 from src.integrations.wetop_support import WetopSupportMixin
 from src.integrations.wetop_parse import (
     NAME_KEYS, as_int, body_reason, categories, currency, free_units, has_error,
@@ -73,7 +74,7 @@ def _dates_problem(arrival: date, departure: date) -> str | None:
     return None
 
 
-class WetopProviders(WetopSupportMixin):
+class WetopProviders(WetopVerticalMixin, WetopSupportMixin):
     """Наличие, расчёт и бронь в WETOP. Реализует AvailabilityProvider
     и LeadSink; статусов заказов и базы клиентов у объекта нет."""
 

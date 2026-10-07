@@ -130,7 +130,7 @@ export interface SiteSpec {
 export interface Env {
   SITES_API_URL: string;
   SITES_RUNTIME_KEY: string;
-  /** `dev` или `staging`; окружения `production` в MKT4 нет, поэтому индексация везде закрыта */
+  /** `dev`, `staging` или `production` (MKT7); индексация только в `production` и только при основном хосте */
   SITES_ENV: string;
   /**
    * MKT7, Q-271: отдельный домен сайтов клиентов; хост превью `preview.<SITES_BASE_DOMAIN>`. Не задан: превью нет

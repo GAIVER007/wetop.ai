@@ -7398,3 +7398,7 @@
 | 07.10.2026 19:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1 -g MKT7) | ❌ упало 1 из 1 | 49 с | b2a7421 +8 | [лог](logs/2026-10-07T14-54-46Z-e2e-737c.log) | red: экран без отметки сайта WETOP |
 | 07.10.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1) | ❌ упало 1 из 20 | 2 мин 33 с | b2a7421 +11 | [лог](logs/2026-10-07T14-55-40Z-e2e-207d.log) | снимки WEB3 |
 | 07.10.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1 -g снимки) | ✅ 3 из 3 | 58 с | b2a7421 +11 | [лог](logs/2026-10-07T14-58-21Z-e2e-6351.log) |  |
+| 07.10.2026 20:02 | unit (частично: apps/sites) | ✅ 177 из 177 | 3 с | f7f121f +8 | [лог](logs/2026-10-07T15-02-18Z-unit-08ae.log) |  |
+| 07.10.2026 20:02 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 22 с | f7f121f +8 | [лог](logs/2026-10-07T15-02-22Z-e2e-0fd3.log) |  |
+| 07.10.2026 20:02 | unit (частично: apps/sites/src/worker.test.ts) | ❌ упало 4 из 32 | 2 с | f7f121f +5 | [лог](logs/2026-10-07T15-02-51Z-unit-ad5f.log) | red: превью без токена в ссылках, база сайтов без проверки Q-271 |
+| 07.10.2026 20:02 | unit (частично: apps/sites/src/worker.test.ts) | ✅ 32 из 32 | 3 с | f7f121f +8 | [лог](logs/2026-10-07T15-02-55Z-unit-1c9c.log) |  |

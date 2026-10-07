@@ -1,4 +1,4 @@
-import { normalizeSiteHost, previewHost } from '../../../packages/domain/src/marketing/host';
+import { normalizeSiteHost, parseSitesBaseDomain, previewHost } from '../../../packages/domain/src/marketing/host';
 import { ContractClient, fetchPreview, type ContractResult } from './contract';
 import { apiOriginOf, BASE_SECURITY_HEADERS, CACHE, contentSecurityPolicy } from './headers';
 import { RenderError, type RenderContext } from './render/context';
@@ -29,6 +29,9 @@ export function createRuntime(
   const log: Log = options.log ?? ((event) => console.error(JSON.stringify(event)));
   const contract = new ContractClient(env, options.fetchImpl, options.now, log);
   const envName = env.SITES_ENV || 'dev';
+  // Q-271: то же правило, что у API (не wetop.ai и не его поддомен, только имя хоста); неверное значение выключает превью
+  const base = parseSitesBaseDomain(env.SITES_BASE_DOMAIN);
+  const preview = base.ok ? previewHost(base.domain) : null;
   return {
     async fetch(request) {
       if (request.method !== 'GET' && request.method !== 'HEAD')
@@ -45,8 +48,7 @@ export function createRuntime(
       // один нормализатор хоста с API (packages/domain/src/marketing/host.ts): IP и имя из одной части не сайт
       const host = normalizeSiteHost(url.hostname);
       if (!host) return refusal(request, { kind: 'not_found' });
-      const base = normalizeSiteHost(env.SITES_BASE_DOMAIN ?? '');
-      if (base && host === previewHost(base)) return servePreview(request, url);
+      if (preview && host === preview) return servePreview(request, url);
       const result = await contract.get(host);
       if (result.kind !== 'ok') return refusal(request, result);
       const { current, spec } = result;
@@ -56,7 +58,7 @@ export function createRuntime(
           status: 301,
           headers: { Location: `https://${current.primaryHost}${url.pathname}${url.search}`, 'Cache-Control': CACHE.page, ...BASE_SECURITY_HEADERS },
         });
-      return renderSite(request, url, current, spec, seoSettings(envName, current.primaryHost, url.origin), false);
+      return renderSite(request, url, current, spec, seoSettings(envName, current.primaryHost, url.origin), null);
     },
   };
 
@@ -78,10 +80,12 @@ export function createRuntime(
     const { expiresAt: _exp, state: _state, ...rest } = result.preview;
     void _exp;
     void _state;
-    return renderSite(request, url, { ...rest, state: 'PUBLISHED' }, result.spec, seo, true);
+    return renderSite(request, url, { ...rest, state: 'PUBLISHED' }, result.spec, seo, token);
   }
 
-  function renderSite(request: Request, url: URL, current: RuntimeCurrent, spec: SiteSpec, seo: SeoSettings, preview: boolean): Response {
+  /** `previewToken`: токен превью (тогда это превью) или `null` для публичного сайта */
+  function renderSite(request: Request, url: URL, current: RuntimeCurrent, spec: SiteSpec, seo: SeoSettings, previewToken: string | null): Response {
+    const preview = previewToken !== null;
     const noindex = preview || !seo.indexable || spec.site.seo.robots !== 'INDEX';
     const extra: Record<string, string> = preview
       ? PREVIEW_HEADERS
@@ -119,6 +123,7 @@ export function createRuntime(
       bookingLive,
       apiOrigin,
       assets: current.assets ?? {},
+      previewToken,
     };
     const analytics = !preview && spec.integrations.analytics.mode === 'WETOP_TRACKER' && !!current.publicKey;
     const bookingOnPage = bookingLive && !!page?.sections.some((s) => s.type === 'booking');

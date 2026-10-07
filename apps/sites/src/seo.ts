@@ -3,8 +3,8 @@ import { esc, tx } from './render/text';
 import type { LocalizedText, Page, PublicFacts, SiteSpec } from './types';
 
 /**
- * SEO рантайма (план MKT4 §9). Индексация разрешена только в окружении `production` **и** при основном хосте; в MKT4
- * нет ни того, ни другого, поэтому везде `noindex`, а canonical не выдумывается (тега нет, пока `primaryHost` `null`).
+ * SEO рантайма (план MKT4 §9). Индексация разрешена только в окружении `production` **и** при основном хосте
+ * (с MKT7 его даёт строка `site_domains`); иначе `noindex`, а canonical не выдумывается (тега нет без `primaryHost`).
  */
 export interface SeoSettings {
   /** Окружение разрешает индексацию: только `production` с основным хостом */

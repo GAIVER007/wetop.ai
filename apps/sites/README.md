@@ -24,7 +24,7 @@ Cloudflare Worker, который сам является origin публичн�
 
 | Переменная | Где | Значение |
 |---|---|---|
-| `SITES_ENV` | `wrangler.toml` | `dev` или `staging`. Окружения `production` нет до MKT7, поэтому индексация закрыта везде |
+| `SITES_ENV` | `wrangler.toml` | `dev`, `staging` или `production`. Индексация только в `production` и только при основном хосте сайта (MKT7) |
 | `SITES_API_URL` | `wrangler.toml` или `--var` | адрес API; у staging пусто, пустой адрес даёт 503 |
 | `SITES_RUNTIME_KEY` | **только секрет** | `npx wrangler@4.148.0 secret put SITES_RUNTIME_KEY --env staging`; то же значение в `.env` API |
 | `SITES_BASE_DOMAIN` | `--var` при выкладке | MKT7, Q-271: отдельный домен сайтов клиентов, не `wetop.ai`; хост превью `preview.<домен>`; не задан: превью 404 |
@@ -52,11 +52,17 @@ npm run test:record -- e2e --config tests/sites/playwright.config.ts
 cd apps/sites && npx wrangler@4.148.0 deploy --env staging --dry-run --outdir /tmp/wetop-sites-dry
 ```
 
-## Выкладка (за владельцем, в MKT4 не делается)
+## Выкладка (за владельцем; ни MKT4, ни MKT7 ничего не выкладывали)
 
-Боевых доменов, маршрутов и DNS в MKT4 и MKT7 не заводилось. Q-271 закрыт 07.10.2026: зона отдельного домена, wildcard
-DNS и маршрут `*.<SITES_BASE_DOMAIN>/*` на этот Worker заводит владелец. Порядок, только по отдельному «да»:
-1. В API на сервере появляется `SITES_RUNTIME_KEY`. Путь `/sites-runtime/*` наружу пока не выводится (SECURITY.md,
-   правило Q-112). Выход наружу решается вместе с MKT7.
-2. Секрет Worker: `wrangler secret put SITES_RUNTIME_KEY --env staging`.
-3. `wrangler deploy --env staging --var SITES_API_URL:<адрес API>`. Сайт откроется только на workers.dev и с `noindex`.
+Боевых доменов, маршрутов и DNS не заводилось. Q-271 закрыт 07.10.2026: зону отдельного домена, wildcard DNS и маршрут
+`*.<SITES_BASE_DOMAIN>/*` на этот Worker заводит владелец. Порядок, только по отдельному «да»:
+1. База: миграции 064 и 065 на рабочей базе (копия перед ними), затем выкладка API (`docs/deploy.md`).
+2. API (`.env` сервера): `SITES_RUNTIME_KEY`, `SITES_BASE_DOMAIN` (тот же домен, что у Worker), `SITE_PREVIEW_SECRET`
+   (не короче 32 байт). Вывод `/sites-runtime/*` наружу (туннель, ingress) решает владелец (SECURITY.md, правило Q-112).
+3. Staging: `wrangler secret put SITES_RUNTIME_KEY --env staging`, затем
+   `wrangler deploy --env staging --var SITES_API_URL:<адрес API> --var SITES_BASE_DOMAIN:<домен>`. Только workers.dev, `noindex`.
+4. Production: зона Cloudflare отдельного домена, wildcard DNS `*.<домен>`, затем
+   `wrangler secret put SITES_RUNTIME_KEY --env production` и
+   `wrangler deploy --env production --var SITES_API_URL:<адрес API> --var SITES_BASE_DOMAIN:<домен>` с маршрутом
+   `*.<домен>/*`. Проверка: `https://preview.<домен>/robots.txt` отдаёт `Disallow: /`, опубликованный сайт открывается на
+   `<slug>.<домен>`.

@@ -162,6 +162,8 @@ export class MemorySiteAssetStorage implements SiteAssetStorage {
   failPut = false;
   failDelete = false;
   readonly deleted: string[] = [];
+  /** Сколько раз писали в хранилище: повтор той же картинки не должен писать вовсе */
+  puts = 0;
 
   constructor(
     private readonly origin = 'https://assets.storage.test',
@@ -171,6 +173,7 @@ export class MemorySiteAssetStorage implements SiteAssetStorage {
 
   async put(input: { key: string; body: Buffer; contentType: string }): Promise<void> {
     if (this.failPut) throw new Error('storage put failed');
+    this.puts += 1;
     this.objects.set(input.key, { body: Buffer.from(input.body), contentType: input.contentType });
   }
 

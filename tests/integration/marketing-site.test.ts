@@ -15,6 +15,7 @@ import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
 import { SITE_VERSION_BODY_LIMIT, useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { seedSpecAssets } from '../tools/site-assets';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
@@ -129,6 +130,8 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
         location(b1, otherHotel),
       ],
     });
+    // MKT8: картинки примера SiteSpec уже лежат в библиотеке филиала a1 (сохранение версии их проверяет)
+    await seedSpecAssets(db, a1, SPEC);
     const module = await Test.createTestingModule({ imports: [MarketingSiteModule] })
       .overrideProvider(PrismaService)
       .useValue({ db })
@@ -170,6 +173,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     }
     if (db) {
       await purgeAuditRows(db, { organizationId: { in: [orgA, orgB] } });
+      await db.siteAsset.deleteMany({ where: { location: { business: { organizationId: { in: [orgA, orgB] } } } } });
       await db.trackedSite.deleteMany({ where: { property: { organizationId: { in: [orgA, orgB] } } } });
       await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
       await db.location.deleteMany({ where: { business: { organizationId: { in: [orgA, orgB] } } } });

@@ -14,7 +14,7 @@ import {
   type PeriodOperations,
   type PeriodReport,
 } from '../../lib/api';
-import { CashPanel, VoidCashOperation } from './cash';
+import { CashPanel, VoidCashOperation, VoidPaymentOperation } from './cash';
 import { MANUAL_SERVICE_LABEL } from './services-csv';
 import { formatMoney } from '../../lib/money';
 import { deskShell } from '../../lib/desk-shell';
@@ -948,13 +948,19 @@ function DebtList({
   );
 }
 
-/** Строка кассовой операции для вопроса подтверждения и ленты: «Расход 5 000 ₸, Kaspi, Зарплата» */
+/** Строка операции для вопроса подтверждения: «Расход 5 000 ₸, Kaspi, Зарплата» или «Оплата 12 000 ₸, Kaspi, бронь …» */
 function cashSummary(o: PeriodOperations['rows'][number], cur: string): string {
   const where =
     o.kind === 'TRANSFER'
       ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo ?? ''] ?? o.methodTo}`
       : (METHOD_RU[o.method] ?? o.method);
-  return [operationKind(o.kind), formatMoney(o.amountMinor, cur), where, o.category]
+  return [
+    operationKind(o.kind),
+    formatMoney(o.amountMinor, cur),
+    where,
+    o.category,
+    o.confirmationNumber ? `бронь ${o.confirmationNumber}` : null,
+  ]
     .filter(Boolean)
     .join(', ');
 }
@@ -1070,6 +1076,10 @@ function Operations({
                     <Badge tone="neutral">{operationStatus(o.kind, o.status)}</Badge>
                     {isCash && !voided && mayVoidCash && (
                       <VoidCashOperation id={o.id} summary={cashSummary(o, cur)} />
+                    )}
+                    {/* платёж гостя: то же право, что у возврата (план finance-payments-direct 07.10.2026) */}
+                    {o.kind === 'PAYMENT' && !voided && mayVoidCash && (
+                      <VoidPaymentOperation id={o.id} summary={cashSummary(o, cur)} />
                     )}
                   </td>
                 </tr>

@@ -1,0 +1,102 @@
+# Модульные (unit) · 07.10.2026 21:24 Алматы · vm
+# коммит 40003ac (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-24-47Z-unit-0dc8.json' 'apps/api/src/sites-runtime/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ❯ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (29 tests | 2 failed) 490ms
+   ✓ ключ рантайма SITES_RUNTIME_KEY (3)
+     ✓ без ключа 401, неверный ключ 401, чужой узкий ключ 403, общий служебный ключ 403 71ms
+     ✓ ключ рантайма не открывает управление, черновик, версию по id, соседние служебные пути и запись 20ms
+     ✓ путь рантайма проверяет ключ и без замка входа (AUTH_REQUIRED выключен) 22ms
+   ✓ разрешение хоста: только dev и test, боевое выключено до MKT7 (5)
+     ✓ хост из карты разрешается, нормализуется, базу читает служебной ролью 7ms
+     ✓ неизвестный и неверный хост 404, базу не трогает 18ms
+     ✓ production: карта не действует, любой хост 404 5ms
+     ✓ без SITES_RUNTIME_DEV_RESOLVER=1 карта не действует 4ms
+     ✓ сайт не опубликован (нет строки из базы): 404 без имени сайта 4ms
+   ✓ ответ контракта (6)
+     ✓ опубликованная версия целиком: поля по контракту, без лишних 9ms
+     ✓ knownSpecHash совпал: документа в ответе нет, остальное есть 6ms
+     ✓ knownSpecHash не совпал: документ в ответе; неверный формат 400 12ms
+     ✓ publicFacts: только коды версии, только белый список полей, незнакомый код active:false 15ms
+     ✓ факты не загрузились: publicFacts null, сайт отвечает 7ms
+     ✓ связанного сайта счётчика нет: ключа нет, брони нет 8ms
+   ✓ неверный документ закрывает выдачу: 503 и запись в лог (3)
+     ✓ документ не проходит проверку 7ms
+     ✓ незнакомая версия схемы 5ms
+     ✓ хэш не совпал с документом 6ms
+   ✓ MKT7: боевое разрешение хоста через SiteDomain (2)
+     ✓ production: ACTIVE домен даёт сайт; основной хост в ответе настоящий 6ms
+     ✓ домена нет или сайт не опубликован: одинаковый 404 7ms
+   ✓ MKT7: превью по подписанному токену (6)
+     ✓ действующий токен: ровно эта версия, без ключа сайта и брони, не кэшируется 7ms
+     ✓ ключ рантайма без токена, испорченный и чужой секрет: 404 без чтения базы 11ms
+     ✓ истёкший токен: 410 без чтения базы 5ms
+     ✓ версия не своего сайта или сайт в архиве (строки нет): 404 3ms
+     ✓ секрета нет: превью закрыто 503 4ms
+     ✓ общий служебный ключ и ключ сборщика превью не открывают 8ms
+   ❯ MKT8: подписанные адреса картинок версии (4)
+     × текущая версия: ровно ссылки документа нужного вида, подписанные; лишних из библиотеки нет 15ms
+     ✓ ассет другого филиала с тем же id не подписывается: выборка только по филиалу сайта 10ms
+     × превью новой версии: удалённый ассет не показывается; уже публиковавшейся: показывается 7ms
+     ✓ хранилище не настроено или выборка упала: картинок нет, сайт отвечает 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts > MKT8: подписанные адреса картинок версии > текущая версия: ровно ссылки документа нужного вида, подписанные; лишних из библиотеки нет
+AssertionError: expected [ …(4) ] to deeply equal [ …(3) ]
+
+- Expected
++ Received
+
+  [
+    "6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
++   "7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c",
+    "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d",
+    "9c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e",
+  ]
+
+ ❯ apps/api/src/sites-runtime/sites-runtime.controller.test.ts:417:49
+    415|     const res = await current('host=stepnoy.localhost').expect(200);
+    416|     // фавиконка не того вида не подписывается; удалённый, но удержанн…
+    417|     expect(Object.keys(res.body.assets).sort()).toEqual([ABOUT, HERO, …
+       |                                                 ^
+    418|     for (const url of Object.values(res.body.assets) as string[]) expe…
+    419|     expect(res.body.assets[UNREFERENCED]).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts > MKT8: подписанные адреса картинок версии > превью новой версии: удалённый ассет не показывается; уже публиковавшейся: показывается
+AssertionError: expected [ …(2) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+    "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d",
++   "9c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e",
+  ]
+
+ ❯ apps/api/src/sites-runtime/sites-runtime.controller.test.ts:441:44
+    439|     library['loc-a'] = [asset(HERO, 'IMAGE'), asset(ABOUT, 'IMAGE', 'D…
+    440|     const fresh = await server(RUNTIME_KEY).get(`/sites-runtime/previe…
+    441|     expect(Object.keys(fresh.body.assets)).toEqual([HERO]);
+       |                                            ^
+    442|     publishedVersions.add(`${SITE}:${VERSION_2}`);
+    443|     const historical = await server(RUNTIME_KEY).get(`/sites-runtime/p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 27 passed (29)
+   Start at  16:24:49
+   Duration  3.85s (transform 61%, import 25%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-24-47Z-unit-0dc8.json
+
+# код выхода 1 · 5 с

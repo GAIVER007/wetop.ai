@@ -3,7 +3,7 @@ import { deltaPercent, deltaPoints, type Delta } from '../../../lib/dashboard-fo
 
 /**
  * Плитка и сравнение вкладок «Аналитики» (ADR-114): одни на «Обзоре» и «Загрузке». Классы — общие `.kpi*`
- * Главной (today/dashboard.css), `data-testid` плитки — `pa-kpi-<id>`.
+ * Главной (стили в management/analytics/analytics.css), `data-testid` плитки: `pa-kpi-<id>`.
  */
 export const NO_BASE: Delta = { direction: null, text: 'нет данных для сравнения' };
 

@@ -24,7 +24,11 @@ GET /marketing/site/generations/:id  статус без документа
 
 Таблица `generation_runs` (миграции `…062_generation_run_core`, права `…063_generation_run_grants`). Отдельной таблицы
 очереди нет: строка в `QUEUED` с наступившим `next_attempt_at` и есть задание. В MKT6 API ставит только `INITIAL`;
-`SECTION` и `PATCH` откроет MKT9, `SEO` MKT11, без них полуработающих маршрутов нет.
+`SECTION` и `PATCH` открыл MKT9 (тот же `POST /marketing/site/generations`, бот `POST /internal/site-edit`, контракт
+[`site-editor-v0.md`](site-editor-v0.md) §6–§8), `SEO` MKT11. Тело без `type` по-прежнему ставит `INITIAL`, воркер один
+и ветвится по виду задачи, бюджет и учёт расхода общие для всех видов. С MKT9 `INITIAL` принимает необязательное
+`instruction` (пожелания из окна «Какой сайт сделать?»), бот получает его отдельным полем и блоком данных
+(`site-editor-v0.md` §6а).
 
 - `next_attempt_at`: в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут).
 - `dispatched_at`: запрос к ИИ ушёл, расход ещё не записан. Падение процесса в это время даёт `USAGE_UNAVAILABLE`.
@@ -132,7 +136,7 @@ GET /marketing/site/generations/:id  статус без документа
 - `site.vertical = HOSPITALITY`; `site.locales` ровно `targetLocales` (подсказки языков продавца без повторов, иначе
   `ru`), `site.defaultLocale` первый;
 - `categoryCode` карточек и `pricing.categoryCodes` только из `briefInput.accommodations`;
-- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (до MKT8);
+- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (MKT8 это не меняет: модель картинки не выбирает, это MKT9);
 - телефон и почта только как в брифе; адрес (`site.contacts.address`) только если он есть в брифе и на каждом языке
   совпадает с ним без учёта пробелов по краям, повторов пробелов и регистра, иначе `invented_contact`; `whatsapp`,
   `geo`, `social`, `site.legal` нет; внешняя ссылка только на сайт гостиницы из брифа;

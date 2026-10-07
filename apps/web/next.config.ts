@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
     ];
   },
   experimental: {
+    // Synthetic-data acceptance runs keep the dev cache in memory on constrained hosts.
+    turbopackFileSystemCacheForDev: process.env.APP_ALLOW_TEST_DATA !== '1',
     serverActions: {
       // Next сверяет Origin серверного действия с Host. cloudflared передаёт Host как есть, так что совпадёт и без
       // этого; список — страховка, если прокси когда-нибудь подменит Host (docs: config serverActions.allowedOrigins)

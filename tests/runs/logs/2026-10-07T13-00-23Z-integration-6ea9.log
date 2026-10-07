@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 07.10.2026 18:00 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-00-23Z-integration-6ea9.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-publication.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts [ tests/integration/site-publication.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Unexpected token
+     ╭─[ tests/integration/site-publication.test.ts:543:1 ]
+     │
+ 543 │ });
+     │ ┬  
+     │ ╰── 
+─────╯
+
+  Plugin: vite:oxc
+  File: /home/user/wetop.ai/tests/integration/site-publication.test.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:4103:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:4174:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  13:00:24
+   Duration  2.88s (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-00-23Z-integration-6ea9.json
+
+# код выхода 1 · 4 с

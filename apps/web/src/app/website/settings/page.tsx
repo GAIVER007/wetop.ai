@@ -10,7 +10,7 @@ import {
   InstallCounterButton,
   SiteDangerZone,
 } from '../forms';
-import { MarketingCrumb, WebsiteTabs } from '../parts';
+import { ManagedSitesNotice, MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
 import '../website.css';
 
@@ -21,7 +21,10 @@ import '../website.css';
  */
 export default async function WebsiteSettingsPage() {
   const sites = await analyticsApi.sites();
-  const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
+  const all = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
+  // MKT7: сайт WETOP здесь не правится, его настраивает публикация
+  const cards = all.filter((c) => !c.site.managed);
+  const managed = all.filter((c) => c.site.managed);
   const scriptUrl = cards[0]?.snippet.scriptUrl ?? null;
   const localOnly = !scriptUrl || /127\.0\.0\.1|localhost/.test(scriptUrl);
   const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
@@ -46,6 +49,7 @@ export default async function WebsiteSettingsPage() {
             </Alert>
           )}
 
+          <ManagedSitesNotice cards={managed} />
           {cards.map((c) => (
             <SiteCard key={c.site.id} card={c} />
           ))}

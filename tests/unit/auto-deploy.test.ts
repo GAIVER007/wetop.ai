@@ -45,6 +45,7 @@ function run(env: Record<string, string> = {}, args: string[] = [], restrictiveM
       DEPLOY_STATE_DIR: state,
       DEPLOY_HEALTH_WAIT: '2',
       DEPLOY_HEALTH_STEP: '1',
+      BASH_ENV: join(bin, 'clock.sh'),
       FAKE_CALLS: calls,
       TELEGRAM_BOT_TOKEN: TOKEN,
       TELEGRAM_CHAT_ID: '-100',
@@ -103,6 +104,18 @@ exit 0
   // auto-deploy runs on Linux, where util-linux provides flock. The test suite also runs on macOS,
   // so keep the server dependency inside the fake PATH instead of silently skipping every scenario.
   writeFileSync(join(bin, 'flock'), '#!/usr/bin/env bash\nexit 0\n');
+  // Keep retry/deadline logic real, but advance a synthetic shell clock instead of waiting.
+  // Unsetting SECONDS removes Bash's wall-clock behavior; sleep advances this fixture's clock.
+  writeFileSync(
+    join(bin, 'clock.sh'),
+    `unset SECONDS
+SECONDS=0
+sleep() {
+  printf 'sleep %s\\n' "$1" >> "$FAKE_CALLS.clock"
+  SECONDS=$((SECONDS + $1))
+}
+`,
+  );
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
   chmodSync(join(bin, 'flock'), 0o755);
@@ -276,6 +289,8 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(head()).toBe(before);
     expect(dockerCalls()).toContain(`docker image tag pms-lux:rollback-${before.slice(0, 8)} pms-lux:latest`);
     expect(r.out).toContain(`возвращён ${before.slice(0, 8)}`);
+    expect(readFileSync(`${calls}.clock`, 'utf8').trim().split('\n')).toEqual(['sleep 1', 'sleep 1']);
+    expect(dockerCalls().split('\n').filter((line) => line.includes('http://127.0.0.1:3001/health'))).toHaveLength(3);
     // сломанный коммит не пробует снова каждые две минуты
     expect(run({ FAKE_BAD_SHA: target }).out).toBe('');
   });

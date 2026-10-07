@@ -40,6 +40,10 @@ function fakeBot() {
         if (next instanceof Error) throw next;
         return typeof next === 'function' ? (next as (r: GenerationBotRequest) => unknown)(request) : next;
       },
+      // MKT9: правка в этом наборе не ожидается, INITIAL правку не зовёт
+      async edit(): Promise<unknown> {
+        throw new Error('fake bot: edit не ожидается в MKT6');
+      },
     },
   };
 }
@@ -128,7 +132,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     await db.user.create({ data: { id: user, email: `mkt6-${user}@example.invalid`, passwordHash: 'x' } });
     await db.business.create({ data: { id: business, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
     await db.location.create({
-      data: { id: location, businessId: business, name: 'Филиал', timezone: 'Asia/Almaty', currency: 'KZT', address: 'ул. Тестовая 1', phone: '+7 701 111 11 11', email: 'a@example.invalid' },
+      data: { id: location, businessId: business, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', address: 'ул. Тестовая 1', phone: '+7 701 111 11 11', email: 'a@example.invalid' },
     });
     if (options.property !== false) {
       const property = randomUUID();

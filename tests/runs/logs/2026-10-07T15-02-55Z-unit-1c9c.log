@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 20:02 Алматы · vm
+# коммит f7f121f (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T15-02-55Z-unit-1c9c.json' 'apps/sites/src/worker.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/sites/src/worker.test.ts (32 tests) 139ms
+
+ Test Files  1 passed (1)
+      Tests  32 passed (32)
+   Start at  15:02:56
+   Duration  1.06s (transform 75%, tests 17%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T15-02-55Z-unit-1c9c.json
+
+# код выхода 0 · 3 с

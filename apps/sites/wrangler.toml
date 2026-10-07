@@ -3,6 +3,9 @@
 # workers.dev окружения staging или локально (`npm run dev -w apps/sites`). Ключ рантайма только секретом:
 #   npx wrangler@4.148.0 secret put SITES_RUNTIME_KEY --env staging
 # Выкладка и проверки: apps/sites/README.md.
+# MKT7 (Q-271 RESOLVED OWNER 07.10.2026): сайты клиентов на отдельном registrable domain `SITES_BASE_DOMAIN`, не под
+# wetop.ai. Значение задаёт инфраструктура при выкладке (`--var SITES_BASE_DOMAIN:<домен>` и маршрут
+# `*.<домен>/*` с wildcard DNS в зоне Cloudflare); конкретного домена в этом файле нет намеренно. Без него превью нет.
 name = "wetop-sites"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"

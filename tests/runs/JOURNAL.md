@@ -7162,3 +7162,10 @@
 | 07.10.2026 15:17 | integration (частично: tests/integration/site-brief.test.ts tests/integration/marketing-site.test.ts tests/integration/sites-runtime.test.ts tests/integration/m | ✅ 63 из 63 | 10 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-36Z-integration-7126.log) | MV8 audit impacted integration correct own PostgreSQL restart port55983 |
 | 07.10.2026 15:17 | typecheck | ✅ без ошибок | 39 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-09Z-typecheck-2c8b.log) | MV8 audit final main MKT5 sync typecheck |
 | 07.10.2026 15:17 | lint | ✅ без ошибок | 21 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-49Z-lint-f6fe.log) | MV8 audit final main MKT5 sync lint |
+| 07.10.2026 15:24 | e2e | ❌ упало 3 из 26 | 3 мин 33 с | bb10783 | [лог](logs/2026-10-07T10-24-14Z-e2e-89d1.log) | #268 после слияния main 63a52017 (#272) |
+| 07.10.2026 15:27 | typecheck | ✅ без ошибок | 1 мин 2 с | bb10783 | [лог](logs/2026-10-07T10-27-47Z-typecheck-9c79.log) | #268 после слияния main 63a52017 |
+| 07.10.2026 15:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | bb10783 | [лог](logs/2026-10-07T10-28-50Z-unit-ccce.log) | #268 после слияния main 63a52017 |
+| 07.10.2026 15:29 | e2e | ✅ 26 из 26 | 1 мин 39 с | bb10783 +1 | [лог](logs/2026-10-07T10-29-35Z-e2e-99f4.log) | #268: вход автотестов выбирает филиал через /scope/resolve (после #272) |
+| 07.10.2026 15:31 | e2e | ✅ 26 из 26 | 1 мин 42 с | bb10783 +1 | [лог](logs/2026-10-07T10-31-22Z-e2e-af4a.log) | #268: повтор после выбора филиала |
+| 07.10.2026 15:33 | typecheck | ✅ без ошибок | 1 мин 20 с | bb10783 +1 | [лог](logs/2026-10-07T10-33-05Z-typecheck-1d8d.log) | #268 выбор филиала |
+| 07.10.2026 15:34 | lint | ✅ без ошибок | 54 с | bb10783 +1 | [лог](logs/2026-10-07T10-34-27Z-lint-af5b.log) | #268 выбор филиала |

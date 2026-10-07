@@ -252,12 +252,6 @@ export function StayPreview({
             <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
               Принять оплату
             </Link>
-            <Button type="button" tone="info" onClick={() => onCommand('extend', target)}>
-              Продлить
-            </Button>
-            <Link className="btn btn--secondary" href={`${card}#booking-actions`}>
-              Переселить
-            </Link>
           </>
         )}
         {target.status === 'CHECKED_OUT' && (
@@ -265,18 +259,11 @@ export function StayPreview({
             Счёт
           </Link>
         )}
-        {!readOnly && live && (
-          <Link className="btn btn--secondary" href={`${card}#booking-actions`}>
-            Изменить даты
-          </Link>
-        )}
-        {data?.guestHref && (
-          <Link className="btn btn--secondary" href={data.guestHref}>
-            Открыть гостя
-          </Link>
-        )}
-        <Link className="btn btn--ghost" href={card}>
-          Открыть бронь
+        <Link
+          className="btn btn--secondary"
+          href={!readOnly && live ? `${card}#booking-actions` : card}
+        >
+          {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
         </Link>
       </div>
     </div>

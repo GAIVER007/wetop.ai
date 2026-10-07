@@ -7182,3 +7182,8 @@
 | 07.10.2026 15:52 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 400f5c1 +3 | [лог](logs/2026-10-07T10-52-09Z-unit-f1f8.log) |  |
 | 07.10.2026 15:52 | typecheck | ✅ без ошибок | 51 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-52-11Z-typecheck-f590.log) |  |
 | 07.10.2026 15:53 | lint | ✅ без ошибок | 29 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-53-03Z-lint-7f84.log) |  |
+| 07.10.2026 16:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-compact-screen.spec.ts tests/ui/branches.spec.ts tests/ui/booking-widget-t | ❌ упало 2 из 25 | 2 мин 16 с | a8a1f29 | [лог](logs/2026-10-07T11-37-25Z-e2e-8e1e.log) | переключатель филиалов сохраняет раздел и выбор после перезагрузки |
+| 07.10.2026 16:43 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts scripts/design/build-tokens.test.ts) | ✅ 26 из 26 | 2 с | a8a1f29 +1 | [лог](logs/2026-10-07T11-43-48Z-unit-dae4.log) |  |
+| 07.10.2026 16:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-compact-screen.spec.ts tests/ui/branches.spec.ts tests/ui/chessboard-desig | ✅ 75 из 75 | 12 мин 45 с | a8a1f29 +2 | [лог](logs/2026-10-07T11-43-56Z-e2e-396f.log) |  |
+| 07.10.2026 16:56 | typecheck | ✅ без ошибок | 39 с | a8a1f29 +2 | [лог](logs/2026-10-07T11-56-53Z-typecheck-2ec4.log) |  |
+| 07.10.2026 16:57 | lint | ✅ без ошибок | 31 с | a8a1f29 +2 | [лог](logs/2026-10-07T11-57-32Z-lint-f4ec.log) |  |

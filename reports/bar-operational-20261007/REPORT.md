@@ -77,3 +77,6 @@ Final upstream sync: MKT7 publication/preview/domain changes were reviewed; auth
 Post-MKT7 local verification on the synced source: 26 CI/auth route unit cases PASS; all 43 financial BAR integration cases PASS on new private database pmsbar_synced (72 migrations), including actual-session replay, roles, paid/closed Folio denial, payment/void race, immutable populated RLS and migration 66 historical backfill. Root/API/web typechecks PASS. Final complete CI remains required.
 
 Post-sync lint PASS; git diff --check PASS. Final exact-SHA CI dispatch and completion are tracked in the PR manifest, without rewriting the tested commit after CI.
+
+
+First full exact-SHA CI 37650842393 on 86efc591b passes 3897 unit cases, site checks and all nine BAR browser cases. Artifact visual review found reload screenshots could capture the loading skeleton after database assertions. T12 now additionally proves the reloaded catalog row, discarded draft controls and annulled cash row are visible before screenshots. This strengthens existing UI acceptance without weakening accounting assertions or changing timeouts. A new full exact-SHA CI is required for this final evidence correction.

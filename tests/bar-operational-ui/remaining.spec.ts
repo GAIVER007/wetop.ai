@@ -24,6 +24,7 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     await submitServerAction(page, catalog.getByRole('button', { name: 'Добавить', exact: true }));
     await expect(catalog.getByText(`${name}, 25%`, { exact: true })).toBeVisible();
     await page.reload();
+    await expect(catalog.getByText(`${name}, 25%`, { exact: true })).toBeVisible();
     expect((await api('categories')).filter((row: { name: string }) => row.name === name)).toHaveLength(1);
     await page.screenshot({ path: testInfo.outputPath('catalog-reloaded.png'), fullPage: true });
     const payment = await request.post(`http://127.0.0.1:55994/bar/receipts/${data.r1.id}/payments`, { headers, data: { amountMinor: '1234', method: 'CASH', idempotencyKey: randomUUID() } });
@@ -40,6 +41,8 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     await draft.getByRole('button', { name: 'Отмена', exact: true }).click();
     await expect(draft).toHaveCount(0);
     await page.reload();
+    await expect(page.getByTestId('cash-expense-btn')).toBeVisible();
+    await expect(page.getByTestId('cash-operation-form')).toHaveCount(0);
     expect(await cashCount()).toBe(count);
     await page.screenshot({ path: testInfo.outputPath('cash-draft-discarded.png'), fullPage: true });
     await page.goto('/finance?src=cash#operations');
@@ -49,6 +52,8 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     await submitServerAction(page, page.getByRole('dialog').getByRole('button', { name: 'Аннулировать', exact: true }));
     await expect(row).toContainText('Аннулир');
     await page.reload();
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText('Аннулир');
     expect((await db.query('SELECT status FROM cash_operations WHERE id=$1', [cashId])).rows[0].status).toBe('VOIDED');
     expect((await db.query('SELECT count(*)::int AS n FROM bar_supplier_payment_reversals WHERE payment_id=$1', [saved.id])).rows[0].n).toBe(1);
     const after = await api('report');

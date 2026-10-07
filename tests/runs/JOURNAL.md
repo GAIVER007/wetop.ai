@@ -7060,3 +7060,6 @@
 | 07.10.2026 11:48 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ✅ 13 из 13 | 3 мин 13 с | 658b651 | [лог](logs/2026-10-07T06-48-29Z-e2e-c03f.log) |  |
 | 07.10.2026 11:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ✅ 7 из 7 | 1 мин 7 с | 658b651 | [лог](logs/2026-10-07T06-51-51Z-e2e-3d31.log) |  |
 | 07.10.2026 14:24 | e2e | ❌ код выхода 1 | 13 с | 012c06d | [лог](logs/2026-10-07T09-24-17Z-e2e-f88d.log) | baseline A: E2E_AUTH=1 на чистом main 012c06d8 |
+| 07.10.2026 14:24 | e2e | ❌ упало 1 из 26 | 1 мин 54 с | 012c06d | [лог](logs/2026-10-07T09-24-57Z-e2e-934e.log) | baseline A: E2E_AUTH=1 на чистом main 012c06d8 (база поднята заново) |
+| 07.10.2026 14:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ❌ упало 2 из 25 | 3 с | 69af865 +2 | [лог](logs/2026-10-07T09-28-02Z-unit-96ee.log) | baseline A RED: вход по умолчанию и E2E_AUTH=1 в гейте до правки |
+| 07.10.2026 14:28 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 3 с | 69af865 +3 | [лог](logs/2026-10-07T09-28-38Z-unit-dedc.log) | baseline A GREEN: вход по умолчанию, E2E_AUTH=1 в гейте |

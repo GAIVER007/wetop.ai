@@ -7209,3 +7209,4 @@
 | 07.10.2026 16:53 | typecheck | ✅ без ошибок | 1 мин 1 с | b316664 | [лог](logs/2026-10-07T11-53-34Z-typecheck-a64c.log) | #267 после слияния main с A и B |
 | 07.10.2026 16:54 | lint | ✅ без ошибок | 55 с | b316664 | [лог](logs/2026-10-07T11-54-37Z-lint-6d3b.log) | #267 после слияния main с A и B |
 | 07.10.2026 16:55 | unit | ✅ 3799 из 3802, пропущено 3 | 2 мин 35 с | b316664 | [лог](logs/2026-10-07T11-55-33Z-unit-5d52.log) | #267 полный unit после слияния main с A и B |
+| 07.10.2026 17:19 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ✅ 13 из 13 | 2 мин 55 с | 4de2bfd | [лог](logs/2026-10-07T12-19-11Z-e2e-d35a.log) | food-ui: stale token waits for post-create refresh (race 2/8 red before fix) |

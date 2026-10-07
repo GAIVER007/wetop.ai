@@ -1245,6 +1245,9 @@ test('деньги за период: период длиннее года об�
  * никогда.
  */
 test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
+  // канал и долг живут во второй строке подписи, а её показывает «Обычный» вид; «Компактный» по умолчанию
+  // (решение владельца 07.10.2026) вторую строку прячет: без этого в CI бейдж не находился (прогон #148)
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   const plate = page.getByTestId('stay-cell').first();
   await expect(plate).toBeVisible();

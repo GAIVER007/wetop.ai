@@ -55,3 +55,15 @@ Shell harness determinism: retry health WAIT2/STEP1 used real sleep inside an ot
 Migration acceptance: **69 apply / schema.prisma drift / each69 down.sql GREEN**, RESULT: OK, migrations.log. No schema or migration authored by MV9. Includes latest upstream MKT6 migrations62/63.
 
 Synchronized main c22aeae9a0a06e76a666fce67d34cc79c5f88afd into acceptance merge817287df48a72aaf58ba4c8bba42b337b0eb6b27 after source/harness evidence commit6343df9c. No source conflict. Final full unit runs from this clean checkout with original thresholds and one thread worker. Production/release not touched.
+
+Fourth full unit: 3795 passed / 6 failed / 4 existing skips, 2026-10-07T14-09-19Z-unit-551b. All six failures were original5000ms timeouts in unchanged backup-offsite and guard-run shell harnesses. No timeout or assertions changed. This run is not GREEN.
+
+Synchronized fresh main50f04c5ce104bc366d4854e5bf831b81ddfe665f (DS0a) in merge0c33362f210eb2e06bdc3ec6b9b305d1d3d6b269. New design guards/scale/slop/dead-css/CI-runner focus: **61/61 GREEN**, 2026-10-07T14-17-50Z-unit-9810. No baseline weakened. Final full repeat uses the default Vitest pool and one worker with original thresholds.
+
+Default-pool full unit: 3828 passed / 2 failed / 4 existing skips, 2026-10-07T14-18-03Z-unit-43ba. Two local HTTP tests failed with socket hang up (inbound.controller and web-booking.controller); all shell harnesses and MV9 tests passed. Both unchanged HTTP files then **65/65 GREEN** in the thread pool, 2026-10-07T14-24-00Z-unit-4070. The failed full run is retained and not counted GREEN.
+
+Final root/API/Web typecheck **GREEN**, 2026-10-07T14-23-54Z-typecheck-90a2; lint **GREEN**, 2026-10-07T14-23-54Z-lint-450e. Local production Web build **GREEN**, web-build.log, loopback API only, no deploy. Latest upstream Food stale-token preparation assertion: **1/1 GREEN** against private PostgreSQL, 2026-10-07T14-25-16Z-e2e-6ae2. No product source or assertions changed for either repeat.
+
+## Final acceptance
+
+**Full unit GREEN: 3830 passed / 4 existing conditional skips / zero failures**, 408 passed files and 1 skipped file. Log2026-10-07T14-26-00Z-unit-38b3, original thresholds, one thread worker. No new skip or testTimeout override. Restored only own generated next-env.d.ts after all runners stopped; no product source changed. All required checks listed above completed. No API/packages/schema/migration delta relative to synchronized main50f04c5c. Delivery: update existing PR269, then STOP without merge or production.

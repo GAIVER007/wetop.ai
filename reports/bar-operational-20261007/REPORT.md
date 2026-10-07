@@ -74,7 +74,7 @@ No real guests, shared Supabase or production data are present in the fixture.
 At 12:22 UTC remote main became df0af4b0dd7c05df561ca18bc9cab484256bc4fb.
 Changes add Marketing generation-run migrations62/63 and its contracts, plus
 shared documentation/test journals. No BAR implementation/migrations changed.
-This report's base remains e0089a23 and its 64 migrations; results do not certify
+This report's base remains e0089a23 and its 67 migrations; results do not certify
 new remote main. No automatic rebase or merge has been performed.
 
 ## Regression evidence
@@ -89,8 +89,8 @@ new remote main. No automatic rebase or merge has been performed.
   so do not execute on our isolated55893 port; no skips were added.
 - final dedicated BAR browser cycle: 1/1 PASS,
   2026-10-07T12-24-59Z-e2e-20ee, with row snapshots and cleanup.
-- migration application / schema drift / all64 down rehearsals: RESULT: OK,
-  migrations.log. This validates the base64 migration set, not upstream66.
+- migration application / schema drift / all67 down rehearsals: RESULT: OK,
+  migrations.log. This validates the base67 migration set, not upstream69.
 - first full e2e: 24 PASS / 2 FAIL,
   2026-10-07T12-21-36Z-e2e-b167. Inventory expected88 but found89 after integration
   fixture writes. A separate fresh synthetic database pmsbar_e2e was created for

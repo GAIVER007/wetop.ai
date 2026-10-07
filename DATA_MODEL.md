@@ -3102,3 +3102,24 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 Страниц и секций отдельными таблицами (они внутри `SiteSpec`), пользовательского CSS и JavaScript, отзывов, блога,
 формы обратной связи, оплаты на сайте, изображений, созданных ИИ, сайтов Beauty и Food (возможны позже без смены
 владельца, `docs/marketing/README.md` §8).
+
+## BAR operational repair: proposed changes, 2026-10-07
+
+Status: ACCEPTED by owner, 2026-10-07: D1/D2, separate loss and refunds matrix. See plans/bar-operational-repair-next-2026-10-07.md.
+
+- New persistent BAR operation identity for supplier payments, write-offs, retail and Folio sales:
+  immutable propertyId, operation kind, client idempotency key, normalized request,
+  operation/result identity and creation author/time; unique(propertyId,kind,key).
+  Commit atomically with ledger effects, tenant RLS and service-role ownership guards.
+  No memory-only deduplication, key expiry or automatic historical duplicate deletion.
+- Proposed nullable BarSale.reversalRestocked: captured atomically on reversal.
+  POSTED has no reversal choice; REVERSED records true/false for newly processed
+  reversals. Legacy null requires migration evidence and explicit handling.
+- Proposed effective supplier paid/debt derives from linked cash COMPLETED status,
+  retaining historical payment and cash/audit records after VOIDED.
+- Proposed separate nonRestockedLossMinor report/UI metric based on persisted FIFO
+  cost of reversed sales without returned goods; no second warehouse decrement.
+
+Owner approved these model/migration and accounting contracts; document and rehearse rollback before delivery. Existing BAR55-57 ownership and FORCE RLS contracts remain mandatory.
+
+Accepted compensation records: BarSupplierPaymentReversal(unique paymentId, propertyId, amountMinor, author/time), BarCostLoss(unique saleId, propertyId, amountMinor, reason/author/time). Create in the same transaction as the corresponding void/reversal; preserve originals and audit. No second warehouse decrement. All cross-property links denied independently of RLS. Closed/paid Folio policy remains BLOCKED.

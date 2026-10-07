@@ -6086,3 +6086,22 @@ amounts and replay behavior without creating new financial effects.
 Consequences: no schema, migration, permission or accounting change. Stable UI
 intent keys, payment/write-off replay contracts and changed-payload handling remain
 separate questions requiring an approved contract.
+
+## ADR-BAR-OPERATIONAL-REPAIR-NEXT (2026-10-07)
+
+Status: ACCEPTED by owner on 2026-10-07 for D1/D2, separate FIFO loss and refunds matrix. Paid/closed Folio remains BLOCKED.
+Problem: payment/write-off retries duplicate effects, Finance void does not restore
+supplier debt, and no-restock reversal drops sold goods cost from the summary.
+
+Options: volatile deduplication or persistent transactional operation identity;
+remove supplier payment on void or retain history and derive effective paid from
+cash status; fold lost goods into WRITE_OFF or expose a distinct non-restocked loss.
+
+Recommendation: permanent Property-scoped operation identity with payload checks,
+retained payment/audit history and cash-status-based debt, distinct loss from saved
+FIFO cost, explicit persisted reversal restock choice. Proposed refunds requirement
+for BAR reversal and real organization READ_ONLY acceptance, without adding roles.
+
+Reason: one intent causes one transaction, preserved audit, no second inventory
+write-off and no hidden goods cost. Consequences: approved model/API/report changes,
+forward migration and rollback rehearsal are needed. Implement the confirmed choices in plans/bar-operational-repair-next-2026-10-07.md, including linked append-only compensation records for supplier void and cost loss.

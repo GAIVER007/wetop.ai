@@ -1301,3 +1301,15 @@ minimal status-response repair do not approve changing them:
 
 Operational readiness remains limited until these decisions and all required
 variants are accepted. Production, release, merge and deploy remain untouched.
+
+## BAR continuation decisions, 2026-10-07
+
+Concrete proposal: plans/bar-operational-repair-next-2026-10-07.md.
+Confirm D1 persistent operation registry and forward model/migration changes;
+D2 Finance void restores supplier debt without deleting payment/audit history;
+D3 distinct non-restocked loss metric versus changing WRITE_OFF semantics;
+D4 STAFF desk operations with reverse restricted to refunds, real READ_ONLY org.
+Paid/closed Folio C12 remains a separate unresolved acceptance requirement.
+No financial, permission, schema or migration code changed while awaiting decisions.
+
+Owner response received: D1/D2 approved, distinct FIFO cost loss selected, D4 refunds matrix approved. Compensation records required by the supplied next-stage specification are included in the accepted plan. C12 paid/closed Folio remains BLOCKED. Fresh-main selection867a3914 and prior localhost55893 QA contour recorded in execution block.

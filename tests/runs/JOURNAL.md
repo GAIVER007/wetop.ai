@@ -7286,3 +7286,6 @@
 | 07.10.2026 18:24 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 28 из 28 | 2 мин 20 с | fd63feb | [лог](logs/2026-10-07T13-24-06Z-e2e-d8f8.log) | branches-ui on DS0a synced with main c22aeae9 |
 | 07.10.2026 18:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-units.spec.ts tests/ui/branches.spec.ts --repeat-each=2) | ✅ 18 из 18 | 2 мин 33 с | fd63feb | [лог](logs/2026-10-07T13-41-19Z-e2e-b1e9.log) | CI 37620535836 UI 1/3 reds on adabb06e: branches fixed by main #277; analytics-units dark not reproduced |
 | 07.10.2026 19:46 | unit (частично: tests/unit/design-primitive-owner.test.ts) | ❌ упало 1 из 3 | 5 с | 50f04c5 +2 | [лог](logs/2026-10-07T14-46-53Z-unit-fd59.log) | DS0b guard RED on main 50f04c5c |
+| 07.10.2026 21:06 | typecheck | ✅ без ошибок | 59 с | ef4a96e | [лог](logs/2026-10-07T16-06-18Z-typecheck-f47e.log) |  |
+| 07.10.2026 21:07 | lint | ✅ без ошибок | 58 с | ef4a96e | [лог](logs/2026-10-07T16-07-18Z-lint-1e09.log) |  |
+| 07.10.2026 21:08 | unit | ✅ 3825 из 3828, пропущено 3 | 2 мин 41 с | ef4a96e | [лог](logs/2026-10-07T16-08-20Z-unit-2365.log) |  |

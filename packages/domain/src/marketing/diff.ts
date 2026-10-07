@@ -202,7 +202,7 @@ export function diffSiteSpecs(fromSpec: unknown, toSpec: unknown): SiteSpecChang
     const a = before.get(slot) ?? [];
     const b = after.get(slot) ?? [];
     if (SINGLE(slot) && a.length === 1 && b.length === 1) {
-      if (a[0] !== b[0]) out.push({ area: 'asset', kind: 'replaced', slot, from: a[0], to: b[0] });
+      if (a[0] !== b[0]) out.push({ area: 'asset', kind: 'replaced', slot, from: a[0]!, to: b[0]! });
       continue;
     }
     for (const id of [...b].sort()) if (!a.includes(id)) out.push({ area: 'asset', kind: 'added', slot, to: id });

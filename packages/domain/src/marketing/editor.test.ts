@@ -120,9 +120,9 @@ describe('языки и пути ошибок', () => {
     s.site.displayName.en = 'Steppe Wind';
     s.site.brand.tagline = { en: 'Only english' };
     const out = removeLocale(s, 'en');
-    expect(out['site'].locales).toEqual(['ru']);
-    expect(out['site'].displayName).toEqual({ ru: s.site.displayName.ru });
-    expect(out['site'].brand.tagline).toBeUndefined();
+    expect((out['site'] as any).locales).toEqual(['ru']);
+    expect((out['site'] as any).displayName).toEqual({ ru: s.site.displayName.ru });
+    expect((out['site'] as any).brand.tagline).toBeUndefined();
     expect(s.site.displayName.en).toBe('Steppe Wind');
   });
 

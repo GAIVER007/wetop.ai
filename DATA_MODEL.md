@@ -3056,7 +3056,7 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 | `brief_hash` | CHAR(64) NULL | хэш собранного брифа; сам бриф строится заново из данных |
 | `instruction` | VARCHAR(2000) NULL | текст команды человека (данные, не инструкция системе); срок хранения как у черновиков |
 | `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
-| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274) |
+| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274 закрыт 07.10): агрегат по всем фактическим вызовам модели в run, включая неудачные и повторы; расход `tokens_input + tokens_output`, `tokens_cached` входит в input |
 | `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
 | `next_attempt_at` | timestamptz NULL | |
 | `error_code` | VARCHAR(40) NULL | словарь: `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT` |

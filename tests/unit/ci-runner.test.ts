@@ -99,6 +99,19 @@ describe('свой раннер CI', () => {
     for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
   });
 
+  it('наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a)', () => {
+    const vertical = withoutComments(job('ui-vertical'));
+    expect(vertical).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(vertical).toMatch(/needs: fast/);
+    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui\]/);
+    expect(vertical).toMatch(/fail-fast: false/);
+    expect(vertical).toMatch(/timeout-minutes: \d+/);
+    // подставные API трёх наборов читают схему pms_test локальной базы
+    expect(vertical).toMatch(/image: postgres:16/);
+    expect(vertical).toContain('npm run test:schema');
+    expect(vertical).toContain('npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts');
+  });
+
   it('сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)', () => {
     const db = withoutComments(job('db'));
     const step = db.slice(db.indexOf('name: Сквозные тесты'));

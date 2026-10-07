@@ -50,10 +50,12 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     await expect(row).toHaveCount(1);
     await row.getByTestId('cash-void').click();
     await submitServerAction(page, page.getByRole('dialog').getByRole('button', { name: 'Аннулировать', exact: true }));
-    await expect(row).toContainText('Аннулир');
+    await expect(row.getByText('аннулирован', { exact: true })).toBeVisible();
+    await expect(row).toHaveClass(/is-void/);
     await page.reload();
     await expect(row).toHaveCount(1);
-    await expect(row).toContainText('Аннулир');
+    await expect(row.getByText('аннулирован', { exact: true })).toBeVisible();
+    await expect(row).toHaveClass(/is-void/);
     expect((await db.query('SELECT status FROM cash_operations WHERE id=$1', [cashId])).rows[0].status).toBe('VOIDED');
     expect((await db.query('SELECT count(*)::int AS n FROM bar_supplier_payment_reversals WHERE payment_id=$1', [saved.id])).rows[0].n).toBe(1);
     const after = await api('report');

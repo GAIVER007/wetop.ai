@@ -133,6 +133,8 @@ export async function barOperationalFixture(port = 0) {
         await tx.charge.deleteMany({ where: { folioId: selected.folio } });
         await tx.cashOperation.deleteMany({ where: { propertyId } });
         await tx.cashCategory.deleteMany({ where: { propertyId } });
+        await tx.paymentAllocation.deleteMany({ where: { folioId: selected.folio } });
+        await tx.payment.deleteMany({ where: { propertyId } });
         await tx.folio.deleteMany({ where: { id: selected.folio } });
         await tx.reservationItem.deleteMany({ where: { reservation: { propertyId } } });
         await tx.reservation.deleteMany({ where: { propertyId } });

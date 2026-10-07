@@ -1314,3 +1314,5 @@ Paid/closed Folio C12 remains a separate unresolved acceptance requirement.
 No financial, permission, schema or migration code changed while awaiting decisions.
 
 Owner response received: D1/D2 approved, distinct FIFO cost loss selected, D4 refunds matrix approved. Compensation records required by the supplied next-stage specification are included in the accepted plan. C12 paid/closed Folio remains BLOCKED. Fresh-main selection867a3914 and prior localhost55893 QA contour recorded in execution block.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.

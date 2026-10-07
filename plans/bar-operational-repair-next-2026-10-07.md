@@ -107,3 +107,5 @@ BarOperationIntent: propertyId/kind/key, normalized request, result JSON и auth
 BarSupplierPaymentReversal: unique paymentId, immutable propertyId, amountMinor, author/time, ссылка на исходную оплату; создаётся атомарно с Finance void.
 BarCostLoss: unique saleId, immutable propertyId, amountMinor, reason/author/time; только no-restock reversal, без warehouse movement.
 Все новые связи проверяются независимыми ownership guards для app и service; FORCE RLS и pinned функции. Legacy migration backfill проводится только для однозначных связей; сомнительные legacy записи блокируют приёмку.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.

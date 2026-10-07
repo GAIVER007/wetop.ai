@@ -3135,3 +3135,5 @@ Status: ACCEPTED by owner, 2026-10-07: D1/D2, separate loss and refunds matrix. 
 Owner approved these model/migration and accounting contracts; document and rehearse rollback before delivery. Existing BAR55-57 ownership and FORCE RLS contracts remain mandatory.
 
 Accepted compensation records: BarSupplierPaymentReversal(unique paymentId, propertyId, amountMinor, author/time), BarCostLoss(unique saleId, propertyId, amountMinor, reason/author/time). Create in the same transaction as the corresponding void/reversal; preserve originals and audit. No second warehouse decrement. All cross-property links denied independently of RLS. Closed/paid Folio policy remains BLOCKED.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.

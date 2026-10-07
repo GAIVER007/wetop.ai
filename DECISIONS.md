@@ -6105,3 +6105,5 @@ for BAR reversal and real organization READ_ONLY acceptance, without adding role
 Reason: one intent causes one transaction, preserved audit, no second inventory
 write-off and no hidden goods cost. Consequences: approved model/API/report changes,
 forward migration and rollback rehearsal are needed. Implement the confirmed choices in plans/bar-operational-repair-next-2026-10-07.md, including linked append-only compensation records for supplier void and cost loss.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.

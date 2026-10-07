@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { allocateFifo, LUXX_APARTS_PROPERTY, salePriceFromMarkup } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
@@ -257,10 +257,24 @@ export class PrismaBarRepository implements BarRepository {
   async reverseSale(id: string, restock: boolean, reason: string) {
     const propertyId = await this.propertyId();
     return this.prisma.db.$transaction(async (tx) => {
+      const candidate = await (tx as any).barSale.findFirst({ where: { id, propertyId }, select: { folioId: true } });
+      if (!candidate) return { kind: 'not_found' as const };
+      // Finance locks the Folio before changing payments or closing the account.
+      // Use the same order so the payment check stays valid until commit.
+      const folios = candidate.folioId ? await tx.$queryRaw<Array<{ status: string }>>`
+        SELECT status::text AS status FROM folios WHERE id = ${candidate.folioId}::uuid FOR UPDATE` : [];
       await tx.$queryRaw`SELECT id FROM bar_sales WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
       const sale = await (tx as any).barSale.findFirst({ where: { id, propertyId } });
       if (!sale) return { kind: 'not_found' as const };
       if (sale.status !== 'POSTED') return { kind: 'already_reversed' as const };
+      if (sale.folioId) {
+        if (sale.folioId !== candidate.folioId) throw new ConflictException('Счет продажи изменился, повторите проверку');
+        if (folios[0]?.status !== 'OPEN') throw new ConflictException('Нельзя отменить продажу по закрытому счету');
+        const paid = await tx.paymentAllocation.findFirst({ where: {
+          folioId: sale.folioId, amount: { gt: 0n }, payment: { status: 'COMPLETED' },
+        } });
+        if (paid) throw new ConflictException('Нельзя отменить продажу по оплаченному счету');
+      }
       const movements = await (tx as any).barStockMovement.findMany({ where: { propertyId, sourceType: 'BAR_SALE', sourceId: id, kind: 'SALE' } });
       if (restock) for (const movement of movements) {
         await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE id = ${movement.lotId}::uuid FOR UPDATE`;

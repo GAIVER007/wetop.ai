@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 07.10.2026 17:55 Алматы · MacBook-Air-Urij.local
+# коммит b80a15c (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-55-50Z-integration-4ca7.json' 'tests/integration/bar-replay-repair.test.ts' '-t' 'T11|T09'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-replay-repair.test.ts (9 tests | 6 skipped) 5868ms
+   ✓ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (9)
+     ✓ T09 STAFF cannot reverse a BAR sale 953ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 6 skipped (9)
+   Start at  16:56:14
+   Duration  30.01s (import 36%, transform 34%, tests 30%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-55-50Z-integration-4ca7.json
+
+# код выхода 0 · 57 с

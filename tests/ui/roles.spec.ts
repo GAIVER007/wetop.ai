@@ -139,7 +139,12 @@ test('администратор принимает оплату, но возв�
   // ни «Изменить» с «Аннулировать»
   await expect(main.getByTestId('refund-btn')).toHaveCount(0);
   await expect(main.getByTestId('payment-void')).toHaveCount(0);
-  await expect(main.getByRole('columnheader', { name: 'Действия', exact: true })).toHaveCount(0);
+  // колонка действий у оплат появляется только с правом возврата; у начислений она есть у всех ролей:
+  // «Изменить цену» проживания (ADR-151) доступна администратору, сторно (`void-…`) нет
+  await expect(
+    main.getByRole('table', { name: 'Оплаты' }).getByRole('columnheader', { name: 'Действия', exact: true }),
+  ).toHaveCount(0);
+  await expect(main.locator('[data-testid^="void-"]')).toHaveCount(0);
 
   await asRole(request, 'MANAGER');
   await pay('оплата управляющего');

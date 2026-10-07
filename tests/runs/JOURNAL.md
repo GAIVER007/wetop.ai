@@ -7141,3 +7141,12 @@
 | 07.10.2026 15:17 | integration (частично: tests/integration/site-brief.test.ts tests/integration/marketing-site.test.ts tests/integration/sites-runtime.test.ts tests/integration/m | ✅ 63 из 63 | 10 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-36Z-integration-7126.log) | MV8 audit impacted integration correct own PostgreSQL restart port55983 |
 | 07.10.2026 15:17 | typecheck | ✅ без ошибок | 39 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-09Z-typecheck-2c8b.log) | MV8 audit final main MKT5 sync typecheck |
 | 07.10.2026 15:17 | lint | ✅ без ошибок | 21 с | e7b1bf9 | [лог](logs/2026-10-07T10-17-49Z-lint-f6fe.log) | MV8 audit final main MKT5 sync lint |
+| 07.10.2026 15:33 | e2e (частично: tests/e2e/desk-day.spec.ts tests/e2e/finance.spec.ts) | ❌ упало 2 из 3 | 11 с | 8f215d8 | [лог](logs/2026-10-07T10-33-30Z-e2e-8cd7.log) | главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» |
+| 07.10.2026 15:33 | e2e (частично: tests/e2e/desk-day.spec.ts tests/e2e/finance.spec.ts) | ❌ упало 2 из 3 | 41 с | 8f215d8 | [лог](logs/2026-10-07T10-33-56Z-e2e-f53b.log) | главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» |
+| 07.10.2026 15:34 | e2e (частично: tests/e2e/desk-day.spec.ts tests/e2e/finance.spec.ts) | ❌ упало 1 из 4 | 2 мин 11 с | 8f215d8 +1 | [лог](logs/2026-10-07T10-34-56Z-e2e-fc3e.log) | счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс |
+| 07.10.2026 15:38 | e2e | ❌ упало 1 из 26, пропущено 24 | 10 с | 8f215d8 +2 | [лог](logs/2026-10-07T10-38-42Z-e2e-69ee.log) | вход сотрудника автотестов: замок включён, сессия в cookie стойки |
+| 07.10.2026 15:39 | e2e | ❌ упало 1 из 26 | 1 мин 14 с | 8f215d8 +2 | [лог](logs/2026-10-07T10-39-04Z-e2e-70fc.log) | неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную |
+| 07.10.2026 15:41 | e2e | ✅ 26 из 26 | 1 мин 2 с | 8f215d8 +2 | [лог](logs/2026-10-07T10-41-02Z-e2e-4a15.log) |  |
+| 07.10.2026 15:42 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 23 из 23 | 3 с | 8f215d8 | [лог](logs/2026-10-07T10-42-10Z-unit-9b21.log) |  |
+| 07.10.2026 15:42 | typecheck | ✅ без ошибок | 51 с | 8f215d8 +2 | [лог](logs/2026-10-07T10-42-14Z-typecheck-edb6.log) |  |
+| 07.10.2026 15:43 | lint | ✅ без ошибок | 31 с | 8f215d8 +2 | [лог](logs/2026-10-07T10-43-05Z-lint-8c56.log) |  |

@@ -65,7 +65,10 @@ test('счёт на проживание: начисления, оплата, в
     'data-kind',
     'ACCOMMODATION',
   );
-  await expect(panel.getByTestId('charge-row').first().locator('button')).toHaveCount(0); // сторно проживания нет
+  // сторно проживания нет; «Изменить цену» у строки проживания есть с 07.10.2026 (ADR-151)
+  await expect(
+    panel.getByTestId('charge-row').first().getByRole('button', { name: 'сторно' }),
+  ).toHaveCount(0);
 
   // штраф 1 000 ₸
   let cf = panel.getByTestId('charge-form');

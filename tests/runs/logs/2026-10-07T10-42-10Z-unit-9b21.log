@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 15:42 Алматы · vm
+# коммит 8f215d8 (claude/quirky-franklin-mo3gcn)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-42-10Z-unit-9b21.json' 'tests/unit/e2e-auth-config.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (20 tests) 161ms
+ ✓ |unit| tests/unit/e2e-auth-config.test.ts (3 tests) 595ms
+   ✓ конфиг e2e и замок API (3)
+     ✓ изолированный API проверяет сессии без рабочего SESSION_SECRET 587ms
+
+ Test Files  2 passed (2)
+      Tests  23 passed (23)
+   Start at  10:42:12
+   Duration  851ms (tests 77%, transform 18%, import 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-42-10Z-unit-9b21.json
+
+# код выхода 0 · 3 с

@@ -112,6 +112,13 @@ describe('свой раннер CI', () => {
     expect(vertical).toContain('npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts');
   });
 
+  it('сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)', () => {
+    const db = withoutComments(job('db'));
+    const step = db.slice(db.indexOf('name: Сквозные тесты'));
+    expect(step).toMatch(/E2E_AUTH: '1'/);
+    expect(step.indexOf("E2E_AUTH: '1'")).toBeLessThan(step.indexOf('npx playwright test'));
+  });
+
   it('тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота', () => {
     const bot = withoutComments(job('bot'));
     expect(bot).toContain('working-directory: apps/ai-seller');

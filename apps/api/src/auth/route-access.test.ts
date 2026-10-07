@@ -96,6 +96,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
   'GET /marketing/site': 'settings',
   'POST /marketing/site': 'settings',
+  'GET /marketing/site/brief': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
   'GET /food-service/areas': 'desk',
@@ -199,6 +200,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/payment-requests/:id/cancel': 'desk',
   'POST /finance/charges/:id/void': 'refunds',
   'POST /finance/payments/:id/refunds': 'refunds',
+  'POST /finance/payments/:id/void': 'refunds',
+  'POST /finance/payments/:id/replace': 'refunds',
   'GET /finance/report': 'reports',
   'GET /finance/services-report': 'reports',
   'GET /desk/dashboard/units': 'reports',

@@ -12,6 +12,7 @@ import {
   unresolvedTarget,
 } from './dispatch';
 import { FoodToday } from './food-today';
+import { TodayScopeContent } from './scope-content';
 import { HospitalityToday } from './hospitality-today';
 
 /**
@@ -30,7 +31,13 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
     redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));
   }
-  if (screen === 'BEAUTY') return <BeautyToday key={key} />;
-  if (screen === 'FOOD_SERVICE') return <FoodToday key={key} />;
-  return <HospitalityToday key={key} sp={normalizeSearchParams(await searchParams)} />;
+  const content =
+    screen === 'BEAUTY' ? (
+      <BeautyToday />
+    ) : screen === 'FOOD_SERVICE' ? (
+      <FoodToday />
+    ) : (
+      <HospitalityToday sp={normalizeSearchParams(await searchParams)} />
+    );
+  return <TodayScopeContent key={key}>{content}</TodayScopeContent>;
 }

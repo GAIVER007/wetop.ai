@@ -10,6 +10,7 @@ import { parseMarketingSlug, siteSpecHash, validateSiteSpec } from '@pms/domain'
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { publicationView } from './publication.service';
 import { siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
@@ -27,13 +28,23 @@ const SITE_SELECT = {
   latestVersion: {
     select: { id: true, revision: true, specHash: true, schemaVersion: true, source: true, createdAt: true },
   },
+  // MKT7: опубликованная ревизия и живой домен для страницы публикации (документа в ответе нет)
+  publishedVersion: { select: { id: true, revision: true } },
+  domains: { where: { status: { not: 'REMOVED' } }, select: { host: true, status: true, isPrimary: true } },
 } as const;
 
 type SiteRow = Prisma.MarketingSiteGetPayload<{ select: typeof SITE_SELECT }>;
 
 function siteView(site: SiteRow) {
-  const { latestVersion, ...rest } = site;
-  return { ...rest, latest: latestVersion ? versionMeta(latestVersion) : null };
+  const { latestVersion, publishedVersion, domains, ...rest } = site;
+  const publication = publicationView({ ...site, latestVersion: latestVersion ?? null, publishedVersion: publishedVersion ?? null, domains });
+  return {
+    ...rest,
+    latest: latestVersion ? { id: latestVersion.id, ...versionMeta(latestVersion) } : null,
+    published: publication.published,
+    url: publication.url,
+    proposedUrl: publication.proposedUrl,
+  };
 }
 
 function versionMeta(v: NonNullable<SiteRow['latestVersion']>) {

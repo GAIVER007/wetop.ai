@@ -1,0 +1,83 @@
+# Интеграционные (integration) · 07.10.2026 19:51 Алматы · vm
+# коммит b2a7421 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T14-51-43Z-integration-24d8.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1562) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (15 tests | 2 failed) 6477ms
+   ❯ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 1210ms
+     ✓ §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 106ms
+     × MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации 138ms
+     ✓ MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше 406ms
+     × §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 73ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 145ms
+     ✓ §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит 120ms
+     ✓ §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 98ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 426ms
+     ✓ §50, §59: публикация и откат на паузе меняют версию, но сайт не открывается до возобновления 219ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 334ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 134ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 69ms
+     ✓ §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 113ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации
+AssertionError: expected [ 'rogue.example.com', …(1) ] to deeply equal [ 'mkt7-main-be1a12.sites.test' ]
+
+- Expected
++ Received
+
+  [
++   "rogue.example.com",
+    "mkt7-main-be1a12.sites.test",
+  ]
+
+ ❯ tests/integration/site-publication.test.ts:388:56
+    386|     expect((await call('POST', '/marketing/site/pause')).status).toBe(…
+    387|     expect((await call('POST', '/marketing/site/resume')).status).toBe…
+    388|     expect((await siteRow('main')).trackedSite!.hosts).toEqual([real]);
+       |                                                        ^
+    389|   });
+    390|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается
+AssertionError: expected { …(10) } to match object { status: 'PAUSED', hosts: [] }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "hosts": [],
++   "hosts": [
++     "rogue.example.com",
++   ],
+    "status": "PAUSED",
+  }
+
+ ❯ tests/integration/site-publication.test.ts:439:31
+    437|     expect(after.state).toBe('ARCHIVED');
+    438|     expect(after.domains.map((d) => d.status)).toEqual(['REMOVED']);
+    439|     expect(after.trackedSite).toMatchObject({ status: 'PAUSED', hosts:…
+       |                               ^
+    440|     expect(await pointerOf('main')).toBeNull();
+    441|     expect(await agentSite('main')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 passed (15)
+   Start at  14:51:44
+   Duration  12.99s (tests 60%, transform 25%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-07T14-51-43Z-integration-24d8.json
+
+# код выхода 1 · 14 с

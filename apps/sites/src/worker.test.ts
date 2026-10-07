@@ -180,3 +180,178 @@ describe('отказы без имени сайта', () => {
     expect(calls).toEqual([]);
   });
 });
+
+describe('MKT7: основной хост и превью', () => {
+  const PREVIEW_ENV = { ...ENV, SITES_BASE_DOMAIN: 'sites.test' };
+  function previewRuntime(reply: { status: number; body?: unknown }) {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+      calls.push(`${url.pathname}?${url.searchParams.toString()}`);
+      if (url.pathname === '/sites-runtime/preview')
+        return new Response(reply.body === undefined ? '' : JSON.stringify(reply.body), { status: reply.status });
+      return new Response('', { status: 404 });
+    }) as typeof fetch;
+    const rt = createRuntime(PREVIEW_ENV, { fetchImpl, log: () => undefined });
+    return { get: (url: string) => rt.fetch(new Request(url)), calls };
+  }
+  const previewBody = () => ({
+    ...current({ publicKey: null, bookingEnabled: false }),
+    state: 'PREVIEW',
+    expiresAt: '2026-10-07T12:00:00.000Z',
+  });
+
+  it('не основной хост: 301 на основной с тем же путём и запросом', async () => {
+    const { get } = runtime({ 'old.sites.test': ok({ primaryHost: 'luxx.sites.test' }) });
+    const res = await get('https://old.sites.test/privacy?utm_source=x');
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://luxx.sites.test/privacy?utm_source=x');
+    const { get: same } = runtime({ 'luxx.sites.test': ok({ primaryHost: 'luxx.sites.test' }) });
+    expect((await same('https://LUXX.sites.test/')).status).toBe(200);
+  });
+
+  it('превью: только версия из токена, без скриптов WETOP, noindex, private no-store, без referrer', async () => {
+    const { get, calls } = previewRuntime({ status: 200, body: previewBody() });
+    const res = await get('https://preview.sites.test/?token=abc.def');
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(['/sites-runtime/preview?token=abc.def']);
+    const html = await res.text();
+    expect(html).not.toMatch(/<script async|<script defer/);
+    expect(html).not.toContain('pms_');
+    expect(html).not.toContain('rel="canonical"');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(res.headers.get('content-security-policy')).toContain("script-src 'none'");
+  });
+
+  it('превью: robots.txt запрещает всё, карты сайта нет, без токена API не спрашивается', async () => {
+    const { get, calls } = previewRuntime({ status: 200, body: previewBody() });
+    const robots = await get('https://preview.sites.test/robots.txt');
+    expect(robots.status).toBe(200);
+    expect(await robots.text()).toContain('Disallow: /');
+    expect((await get('https://preview.sites.test/sitemap.xml?token=abc.def')).status).toBe(404);
+    const none = await get('https://preview.sites.test/');
+    expect(none.status).toBe(404);
+    expect(none.headers.get('cache-control')).toBe('private, no-store');
+    expect(calls).toEqual([]);
+  });
+
+  it('превью: истёкшая ссылка 410, испорченная 404, нейтрально и без имени сайта', async () => {
+    const expired = await previewRuntime({ status: 410, body: { code: 'preview_expired' } }).get('https://preview.sites.test/?token=a.b');
+    expect(expired.status).toBe(410);
+    expect(expired.headers.get('cache-control')).toBe('private, no-store');
+    const bad = await previewRuntime({ status: 404 }).get('https://preview.sites.test/?token=a.b');
+    expect(bad.status).toBe(404);
+    expect(await bad.text()).not.toContain('Степной');
+  });
+
+  it('превью на всех страницах версии: внутренние ссылки несут тот же токен, внешние нет', async () => {
+    const { get, calls } = previewRuntime({ status: 200, body: previewBody() });
+    const home = await (await get('https://preview.sites.test/?token=abc.def')).text();
+    // страница политики из подвала и бренд ведут внутрь превью с токеном
+    expect(home).toContain('href="/privacy?token=abc.def"');
+    expect(home).toContain('class="brand" href="/?token=abc.def"');
+    // секция той же страницы: только фрагмент, адрес с токеном браузер сохраняет сам
+    expect(home).toContain('href="#sec-rooms"');
+    expect(home).not.toMatch(/href="\/(privacy)?(#[^"]*)?"/);
+    const res = await get('https://preview.sites.test/privacy?token=abc.def');
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(['/sites-runtime/preview?token=abc.def', '/sites-runtime/preview?token=abc.def']);
+    const privacy = await res.text();
+    // секция другой страницы: токен до фрагмента
+    expect(privacy).toContain('href="/?token=abc.def#sec-rooms"');
+    expect(privacy).toContain('class="brand" href="/?token=abc.def"');
+    expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    // внешний адрес токена не получает
+    expect(privacy).not.toMatch(/href="https:[^"]*token=/);
+    expect(home).not.toMatch(/href="https:[^"]*token=/);
+    // 404 превью: «На главную» тоже с токеном
+    const missing = await get('https://preview.sites.test/nope?token=abc.def');
+    expect(missing.status).toBe(404);
+    expect(await missing.text()).toContain('class="btn" href="/?token=abc.def"');
+  });
+
+  it('публичный сайт: внутренние ссылки без токена, как раньше', async () => {
+    const { get } = runtime({ 'stepnoy.example.test': ok() });
+    const html = await (await get('https://stepnoy.example.test/privacy')).text();
+    expect(html).toContain('href="/#sec-rooms"');
+    expect(html).toContain('class="brand" href="/"');
+    expect(html).not.toContain('token=');
+  });
+
+  it.each([
+    ['wetop.ai', 'wetop.ai'],
+    ['поддомен wetop.ai', 'sites.wetop.ai'],
+    ['со схемой', 'https://sites.example'],
+    ['с портом', 'sites.example:8443'],
+    ['с путём', 'sites.example/x'],
+  ])('Q-271 в Worker: SITES_BASE_DOMAIN %s, превью не включается и API не спрашивается', async (_l, base) => {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      calls.push(String(input));
+      return new Response('', { status: 404 });
+    }) as typeof fetch;
+    const rt = createRuntime({ ...ENV, SITES_BASE_DOMAIN: base }, { fetchImpl, log: () => undefined });
+    const bare = base.replace(/^https:\/\//, '').replace(/[:/].*$/, '');
+    const res = await rt.fetch(new Request(`https://preview.${bare}/?token=abc.def`));
+    expect(res.status).toBe(404);
+    expect(calls.some((c) => c.includes('/sites-runtime/preview'))).toBe(false);
+  });
+
+  it('Q-271 в Worker: правильный SITES_BASE_DOMAIN включает превью на preview.<домен>', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+      calls.push(url.pathname);
+      return new Response(JSON.stringify(previewBody()), { status: 200 });
+    }) as typeof fetch;
+    const rt = createRuntime({ ...ENV, SITES_BASE_DOMAIN: 'sites.example' }, { fetchImpl, log: () => undefined });
+    expect((await rt.fetch(new Request('https://preview.sites.example/?token=abc.def'))).status).toBe(200);
+    expect(calls).toEqual(['/sites-runtime/preview']);
+  });
+
+  it('хост не имя (IP, одна часть): 404 без запроса к API', async () => {
+    const { get, calls } = runtime({});
+    expect((await get('http://127.0.0.1/')).status).toBe(404);
+    expect((await get('http://localhost/')).status).toBe(404);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('MKT7: индексация по окружению Worker', () => {
+  function envRuntime(envName: string, primaryHost: string | null) {
+    const fetchImpl = (async () =>
+      new Response(JSON.stringify(current({ primaryHost })), { status: 200 })) as unknown as typeof fetch;
+    const rt = createRuntime({ ...ENV, SITES_ENV: envName }, { fetchImpl, log: () => undefined });
+    return (url: string) => rt.fetch(new Request(url));
+  }
+
+  it('production с основным хостом и robots=INDEX: index, canonical и карта сайта на основной хост', async () => {
+    const get = envRuntime('production', 'luxx.sites.example');
+    const res = await get('https://luxx.sites.example/');
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-robots-tag')).toBeNull();
+    const html = await res.text();
+    expect(html).toContain('<link rel="canonical" href="https://luxx.sites.example/">');
+    expect(html).not.toContain('noindex');
+    const sitemap = await (await get('https://luxx.sites.example/sitemap.xml')).text();
+    expect(sitemap).toContain('<loc>https://luxx.sites.example/</loc>');
+    const robots = await (await get('https://luxx.sites.example/robots.txt')).text();
+    expect(robots).toContain('Sitemap: https://luxx.sites.example/sitemap.xml');
+  });
+
+  it('staging даже с основным хостом: noindex, без боевого canonical', async () => {
+    const res = await envRuntime('staging', 'luxx.sites.example')('https://luxx.sites.example/');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(await res.text()).not.toContain('rel="canonical"');
+  });
+
+  it('production без основного хоста: noindex', async () => {
+    const res = await envRuntime('production', null)('https://luxx.sites.example/');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(await res.text()).not.toContain('rel="canonical"');
+  });
+});

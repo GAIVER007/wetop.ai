@@ -269,6 +269,105 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toBeVisible();
   });
 
+  test('во время переключения старые данные дня скрыты до ответа настоящего server action', async ({
+    page,
+    request,
+  }) => {
+    const f = await prepare(request);
+    await setScope(page, f.salon);
+    await page.goto('/today');
+    await expect(page.getByTestId('beauty-today')).toBeVisible();
+    await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();
+    let release!: () => void;
+    let started!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const held = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    await page.route('**/today', async (route) => {
+      if (route.request().method() === 'POST' && route.request().headers()['next-action']) {
+        started();
+        await gate;
+      }
+      await route.continue();
+    });
+    try {
+      await page
+        .getByRole('region', { name: 'Выбор филиала' })
+        .getByRole('button')
+        .filter({ hasText: 'Тестовый филиал Центр' })
+        .click();
+      await held;
+      await expect(page.getByTestId('beauty-today')).not.toBeVisible();
+      await expect(page.locator('#main-content')).toHaveCount(1);
+      await page.locator('.skip-link').focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('main')).toBeFocused();
+      await expect(
+        page.getByRole('button', { name: 'Выбрать филиал', exact: true }),
+      ).toBeDisabled();
+    } finally {
+      release();
+    }
+    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByTestId('beauty-today')).toHaveCount(0);
+    expect(await scopeCookie(page)).toBe(f.food);
+    await page.reload();
+    await expect(page.getByTestId('food-today')).toBeVisible();
+  });
+
+  test('pending Hospitality selection stops previous branch freshness polling', async ({
+    page,
+    request,
+  }) => {
+    const f = await prepare(request);
+    await setScope(page, f.hotelScope);
+    await page.clock.install();
+    await page.goto('/today');
+    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    await expect(page.getByTestId('data-freshness')).toBeVisible();
+    await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();
+    let release!: () => void;
+    let started!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const held = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    await page.route('**/today', async (route) => {
+      if (route.request().method() === 'POST' && route.request().headers()['next-action']) {
+        started();
+        await gate;
+      }
+      await route.continue();
+    });
+    const from = await callCount(request);
+    try {
+      await page
+        .getByRole('region', { name: 'Выбор филиала' })
+        .getByRole('button')
+        .filter({ hasText: 'Тестовый филиал Центр' })
+        .click();
+      await held;
+      await expect(page.getByTestId('owner-dashboard')).not.toBeVisible();
+      await page.clock.fastForward(60001);
+      // Allow the triggered HTTP poll to reach the real API call journal.
+      await page.waitForTimeout(1000);
+      expect((await callsSince(request, from)).filter((c) => c === '/system/freshness')).toEqual(
+        [],
+      );
+    } finally {
+      release();
+    }
+    await expect(page.getByTestId('food-today')).toBeVisible();
+    expect(await scopeCookie(page)).toBe(f.food);
+  });
+
   test('только чтение и администратор смены: экран дня открыт, числа те же', async ({
     page,
     request,
@@ -306,11 +405,25 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     request,
   }) => {
     const f = await prepare(request);
+    // Без scope разрешены только общие reads до выбора филиала.
+    const from = await callCount(request);
     // указателя нет: тот же выбор, что после входа; филиалов несколько, поэтому человек выбирает сам
     await page.goto('/today');
     await expect(page).toHaveURL(/\/branches$/);
     await expect(page.getByTestId('owner-dashboard')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe('');
+    await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    await expect(
+      page
+        .getByRole('region', { name: 'Выбор филиала' })
+        .getByRole('button')
+        .filter({ hasText: 'Тестовый филиал Центр' }),
+    ).toBeVisible();
+    expect(
+      (await callsSince(request, from)).filter((c) =>
+        /^\/(beauty|food-service|desk|hotel|chessboard|finance|system)\b/.test(c),
+      ),
+    ).toEqual([]);
     // указатель без филиала у салона: направление не подтверждено до Location, свой экран не рисуется
     await setScope(page, `business=${f.beauty}`);
     await page.goto('/today');

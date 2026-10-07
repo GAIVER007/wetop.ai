@@ -1075,3 +1075,12 @@ dialog::backdrop {
     max-height: 65dvh;
   }
 }
+
+/* Previous property metadata is hidden until the new verified scope arrives. */
+.workspace[data-scope-switching] .workspace-property > div {
+  visibility: hidden;
+}
+
+.workspace-content:not([hidden]) {
+  display: contents;
+}

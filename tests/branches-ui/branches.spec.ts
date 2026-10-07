@@ -110,6 +110,8 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await setScope(page, `business=${f.hotel};location=${f.locations[4]}`);
     await page.goto('/today');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    // Complete the unrelated introductory overlay before exercising branch selection.
+    await page.getByRole('dialog').getByRole('button', { name: 'Пропустить', exact: true }).click();
     // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');
     await expect(page).toHaveURL(/\/today$/);

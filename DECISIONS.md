@@ -6022,3 +6022,13 @@ WETOP из версионированной библиотеки компоне�
 Причина: один рабочий экран дня для всех направлений без чужих данных; числа совпадают с ответом API за один день в поясе филиала.
 
 Последствия: схема, миграции, API и права не менялись. `today-widgets.tsx` не удалялся. Сводные показатели салона и ресторана по филиалам остаются в MV9. Production и release не затрагиваются.
+
+## ADR-MV8-SHELL-ISOLATION (2026-10-07): close two remaining scope gaps after #259
+
+Problem: real API RED tests after merged MV8 proved /hotel/settings and /system/freshness reads before branch selection, and visible previous-branch Today while the real selection action was pending.
+
+Options: replace merged MV8 with the old parallel implementation, or apply minimal shell and composition fixes. Decision: retain merged MV8 and its current owner-approved formulas. Only a complete canonical server Business/Location context enables authenticated shell domain reads. Unresolved scope retains verified identity and existing branch selection recovery, with unknown access suppressing domain reads. Branch choices use currentId=null until /auth/me matches an accessible branch, without a Hotel settings fallback. The documented anonymous non-production open-stand exception remains; production never uses it.
+
+Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
+
+Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.

@@ -8,7 +8,15 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { siteGenerationBudget } from '@pms/domain';
+import {
+  PATCH_INSTRUCTION_MAX,
+  SECTION_INSTRUCTION_MAX,
+  decodeSectionInstruction,
+  encodeSectionInstruction,
+  findSection,
+  parseEditInstruction,
+  siteGenerationBudget,
+} from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -30,6 +38,8 @@ export const RUN_SELECT = {
   id: true,
   type: true,
   status: true,
+  baseVersionId: true,
+  instruction: true,
   briefHash: true,
   attempts: true,
   model: true,
@@ -46,9 +56,14 @@ export const RUN_SELECT = {
 
 type RunRow = Prisma.GenerationRunGetPayload<{ select: typeof RUN_SELECT }>;
 
-/** Статус задачи без документа, брифа и промпта. Текст ошибки SCHEMA_INVALID это пары «путь код», не ответ модели */
+/**
+ * Статус задачи без документа, брифа, промпта и текста команды человека (MKT9 §110). У SECTION наружу только цель
+ * (страница и секция). Текст ошибки SCHEMA_INVALID это пары «путь код», не ответ модели
+ */
 export function runView(run: RunRow) {
-  return { ...run };
+  const { instruction, ...rest } = run;
+  const target = run.type === 'SECTION' ? (decodeSectionInstruction(instruction)?.target ?? null) : null;
+  return { ...rest, ...(run.type === 'SECTION' ? { target } : {}) };
 }
 
 function strictBody(body: unknown, allowed: string[]): Record<string, unknown> {
@@ -73,14 +88,49 @@ export class SiteGenerationService {
     });
   }
 
+  /**
+   * Постановка задачи (MKT6 INITIAL, MKT9 PATCH и SECTION). Тело без `type` это INITIAL, как в MKT6. PATCH и SECTION
+   * правят ровно голову черновика (`baseVersionId` равен голове, иначе 409); бриф сервер собирает сам и пишет его хэш
+   * в задачу. Текст команды хранится в задаче (у SECTION конвертом с целью) и не попадает в журнал
+   */
   async request(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
-    const input = strictBody(body, ['requestKey', 'expectedBriefHash']);
+    const raw = body !== null && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : {};
+    const type = raw['type'] === undefined ? 'INITIAL' : raw['type'];
+    if (type !== 'INITIAL' && type !== 'PATCH' && type !== 'SECTION') throw new BadRequestException('type: INITIAL, PATCH или SECTION');
+    const input = strictBody(
+      body,
+      type === 'INITIAL'
+        ? ['requestKey', 'expectedBriefHash', 'type']
+        : type === 'PATCH'
+          ? ['requestKey', 'type', 'baseVersionId', 'instruction']
+          : ['requestKey', 'type', 'baseVersionId', 'pageId', 'sectionId', 'instruction'],
+    );
     const requestKey = input['requestKey'];
-    const expected = input['expectedBriefHash'];
     if (typeof requestKey !== 'string' || !UUID_RE.test(requestKey)) throw new BadRequestException('requestKey: UUID');
-    if (typeof expected !== 'string' || !HASH_RE.test(expected))
-      throw new BadRequestException('expectedBriefHash: sha256 в нижнем регистре');
+    let expected: string | null = null;
+    let baseVersionId: string | null = null;
+    let instruction: string | null = null;
+    let target: { pageId: string; sectionId: string } | null = null;
+    if (type === 'INITIAL') {
+      if (typeof input['expectedBriefHash'] !== 'string' || !HASH_RE.test(input['expectedBriefHash']))
+        throw new BadRequestException('expectedBriefHash: sha256 в нижнем регистре');
+      expected = input['expectedBriefHash'];
+    } else {
+      if (typeof input['baseVersionId'] !== 'string' || !UUID_RE.test(input['baseVersionId']))
+        throw new BadRequestException('baseVersionId: id версии');
+      baseVersionId = input['baseVersionId'].toLowerCase();
+      const parsed = parseEditInstruction(input['instruction'], type === 'PATCH' ? PATCH_INSTRUCTION_MAX : SECTION_INSTRUCTION_MAX, type === 'SECTION');
+      if (!parsed.ok) throw new BadRequestException(parsed.message);
+      if (type === 'SECTION') {
+        const pageId = input['pageId'];
+        const sectionId = input['sectionId'];
+        if (typeof pageId !== 'string' || typeof sectionId !== 'string' || !/^[a-z0-9][a-z0-9-]{0,47}$/.test(pageId) || !/^[a-z0-9][a-z0-9-]{0,47}$/.test(sectionId))
+          throw new BadRequestException('pageId и sectionId: идентификаторы документа');
+        target = { pageId, sectionId };
+        instruction = encodeSectionInstruction(target, parsed.text);
+      } else instruction = parsed.text;
+    }
 
     // Повтор того же ключа отдаёт ту же задачу в любом состоянии: ни второй строки, ни расхода лимита
     const existing = await siteTransaction(this.prisma, scope, false, async (tx) => {
@@ -94,21 +144,33 @@ export class SiteGenerationService {
     const budget = siteGenerationBudget(process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET);
     if (!budget.enabled) throw new ServiceUnavailableException('Генерация сайтов выключена: лимит не настроен');
 
-    // Бриф собирается заново: человек видел его раньше, и генерация по изменившимся данным не запускается
+    // Бриф собирается заново: генерация по изменившимся данным не запускается; правка пишет текущий хэш сама
     const brief = await this.briefs.briefFor(scope, false);
-    if (brief.briefHash !== expected)
+    if (expected !== null && brief.briefHash !== expected)
       throw new ConflictException('Данные филиала изменились: обновите бриф и запустите генерацию заново');
 
     return siteTransaction(this.prisma, scope, true, async (tx) => {
-      const site = await this.activeSite(tx, scope);
-      if (!site) throw new ConflictException('Сначала создайте сайт');
+      const found = await this.activeSite(tx, scope);
+      if (!found) throw new ConflictException('Сначала создайте сайт');
+      await tx.$queryRaw`SELECT id FROM marketing_sites WHERE id=${found.id}::uuid FOR UPDATE`;
+      const site = (await this.activeSite(tx, scope))!;
       const again = await tx.generationRun.findUnique({
         where: { siteId_requestKey: { siteId: site.id, requestKey } },
         select: RUN_SELECT,
       });
       if (again) return { created: false, run: runView(again) };
-      if (site.latestVersionId)
+      if (type === 'INITIAL' && site.latestVersionId)
         throw new ConflictException('У сайта уже есть версия: первая генерация не заменяет её');
+      if (type !== 'INITIAL') {
+        if (!site.latestVersionId) throw new ConflictException('У сайта ещё нет версии: сначала создайте первую');
+        if (site.latestVersionId !== baseVersionId)
+          throw new ConflictException({ code: 'BASE_VERSION_CHANGED', message: 'Сайт уже изменили: обновите черновик и повторите' });
+        const head = target
+          ? await tx.marketingSiteVersion.findUniqueOrThrow({ where: { id: site.latestVersionId }, select: { spec: true } })
+          : null;
+        if (target && !findSection(head?.spec, target))
+          throw new ConflictException({ code: 'UNKNOWN_SECTION', message: 'Такой секции на этой странице нет' });
+      }
       const active = await tx.generationRun.findFirst({
         where: { siteId: site.id, status: { in: ['QUEUED', 'RUNNING'] } },
         select: { id: true },
@@ -124,10 +186,12 @@ export class SiteGenerationService {
         data: {
           id: randomUUID(),
           siteId: site.id,
-          type: 'INITIAL',
+          type,
           requestKey,
           requestedById: userId,
           briefHash: brief.briefHash,
+          baseVersionId,
+          instruction,
         },
         select: RUN_SELECT,
       });
@@ -138,7 +202,15 @@ export class SiteGenerationService {
           entityType: 'marketing_site',
           entityId: site.id,
           action: 'marketing.site.generation.requested',
-          after: { runId: run.id, siteId: site.id, type: 'INITIAL', briefHash: brief.briefHash },
+          // текста команды в журнале нет (MKT9 §109): вид, база и у SECTION цель
+          after: {
+            runId: run.id,
+            siteId: site.id,
+            type,
+            briefHash: brief.briefHash,
+            ...(baseVersionId ? { baseVersionId } : {}),
+            ...(target ? { pageId: target.pageId, sectionId: target.sectionId } : {}),
+          },
         },
       });
       return { created: true, run: runView(run) };

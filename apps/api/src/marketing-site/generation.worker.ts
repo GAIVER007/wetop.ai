@@ -3,12 +3,18 @@ import { Inject, Injectable, Logger, type OnModuleDestroy, type OnModuleInit } f
 import { randomUUID } from 'node:crypto';
 import {
   GENERATION_ERROR_TEXT,
+  SECTION_DEFAULT_INSTRUCTION,
+  SITE_EDIT_SCHEMA_VERSION,
   SITE_GENERATION_LEASE_MS,
   SITE_GENERATION_MAX_ATTEMPTS,
   SITE_GENERATION_SCHEMA_VERSION,
   SITE_SPEC_SCHEMA_VERSION,
   addUsage,
+  checkEditedSpec,
   checkGeneratedSpec,
+  decodeSectionInstruction,
+  findSection,
+  validateSiteSpec,
   decodeValidationErrors,
   encodeValidationErrors,
   generationRetry,
@@ -19,6 +25,7 @@ import {
   siteSpecHash,
   utcDayStart,
   type GenerationErrorCode,
+  type EditMode,
   type SiteBrief,
   type TokenUsage,
 } from '@pms/domain';
@@ -27,6 +34,7 @@ import { assistant } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { SiteBriefService } from './brief.service';
 import { GENERATION_BOT, type GenerationBot } from './generation.bot';
+import { checkSpecAssets } from './asset-refs';
 
 /**
  * Воркер генерации сайта (MKT6, `docs/marketing/site-generation-v0.md`). `generation_runs` и есть очередь в Postgres,
@@ -38,6 +46,9 @@ const POLL_MS = 3_000;
 
 interface Claimed {
   id: string;
+  type: 'INITIAL' | 'SECTION' | 'PATCH' | 'SEO';
+  baseVersionId: string | null;
+  instruction: string | null;
   siteId: string;
   organizationId: string;
   businessId: string;
@@ -192,6 +203,9 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           },
           select: {
             id: true,
+            type: true,
+            baseVersionId: true,
+            instruction: true,
             siteId: true,
             attempts: true,
             startedAt: true,
@@ -204,6 +218,9 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
         });
         return {
           id: run.id,
+          type: run.type,
+          baseVersionId: run.baseVersionId,
+          instruction: run.instruction,
           siteId: run.siteId,
           organizationId: candidate.organization_id,
           businessId: run.site.location.businessId,
@@ -220,13 +237,38 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  /** Одна попытка захваченной задачи: всё, что можно решить без модели, решается до вызова */
+  /**
+   * Одна попытка захваченной задачи: всё, что можно решить без модели, решается до вызова. INITIAL как в MKT6;
+   * PATCH и SECTION (MKT9) правят ровно свою базу: голова сменилась (ручное сохранение, другая правка) это
+   * `BASE_VERSION_CHANGED` без модели, и так перед каждым повтором
+   */
   async process(run: Claimed): Promise<void> {
     const now = this.now();
     if (!sameUtcDay(run.startedAt, now)) return this.fail(run, 'BUDGET_DAY_CHANGED');
+    if (run.type !== 'INITIAL' && run.type !== 'PATCH' && run.type !== 'SECTION') return this.fail(run, 'MODEL_UNAVAILABLE');
+    const editing = run.type !== 'INITIAL';
 
     const site = await this.prisma.db.marketingSite.findUnique({ where: { id: run.siteId }, select: { state: true, latestVersionId: true } });
-    if (!site || site.state === 'ARCHIVED' || site.latestVersionId) return this.fail(run, 'BASE_VERSION_CHANGED');
+    if (!site || site.state === 'ARCHIVED') return this.fail(run, 'BASE_VERSION_CHANGED');
+    if (editing ? !run.baseVersionId || site.latestVersionId !== run.baseVersionId : site.latestVersionId)
+      return this.fail(run, 'BASE_VERSION_CHANGED');
+
+    let edit: { mode: EditMode; baseSpec: Record<string, unknown>; instruction: string } | null = null;
+    if (editing) {
+      const base = await this.prisma.db.marketingSiteVersion.findFirst({ where: { id: run.baseVersionId!, siteId: run.siteId }, select: { spec: true } });
+      if (!base) return this.fail(run, 'BASE_VERSION_CHANGED');
+      const valid = validateSiteSpec(base.spec);
+      // база не проходит текущую проверку: модель не зовём, повтор бессмыслен
+      if (!valid.ok) return this.fail(run, 'SCHEMA_INVALID', encodeValidationErrors(valid.errors));
+      if (run.type === 'SECTION') {
+        const decoded = decodeSectionInstruction(run.instruction);
+        if (!decoded || !findSection(valid.spec, decoded.target)) return this.fail(run, 'SCHEMA_INVALID');
+        edit = { mode: { mode: 'SECTION', target: decoded.target }, baseSpec: valid.spec, instruction: decoded.text ?? SECTION_DEFAULT_INSTRUCTION };
+      } else {
+        if (!run.instruction) return this.fail(run, 'SCHEMA_INVALID');
+        edit = { mode: { mode: 'PATCH' }, baseSpec: valid.spec, instruction: run.instruction };
+      }
+    }
 
     let brief: SiteBrief;
     try {
@@ -259,15 +301,28 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
 
     let raw: unknown;
     try {
-      raw = await this.bot.generate({
-        schemaVersion: SITE_GENERATION_SCHEMA_VERSION,
-        requestId: run.id,
-        siteSpecSchemaVersion: SITE_SPEC_SCHEMA_VERSION,
-        briefInput: brief.input,
-        targetLocales,
-        budgetRemainingTokens: remaining,
-        validationErrors,
-      });
+      raw = edit
+        ? await this.bot.edit({
+            schemaVersion: SITE_EDIT_SCHEMA_VERSION,
+            requestId: run.id,
+            mode: edit.mode.mode,
+            ...(edit.mode.mode === 'SECTION' ? { target: edit.mode.target } : {}),
+            siteSpecSchemaVersion: SITE_SPEC_SCHEMA_VERSION,
+            briefInput: brief.input,
+            baseSpec: edit.baseSpec,
+            instruction: edit.instruction,
+            budgetRemainingTokens: remaining,
+            validationErrors,
+          })
+        : await this.bot.generate({
+            schemaVersion: SITE_GENERATION_SCHEMA_VERSION,
+            requestId: run.id,
+            siteSpecSchemaVersion: SITE_SPEC_SCHEMA_VERSION,
+            briefInput: brief.input,
+            targetLocales,
+            budgetRemainingTokens: remaining,
+            validationErrors,
+          });
     } catch (error) {
       if (error instanceof assistant.BotRejectedError) {
         // бот отказал до модели (ключ, тело): платного вызова не было
@@ -290,7 +345,9 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           : 'MODEL_UNAVAILABLE';
       return this.retryOrFail(run, code);
     }
-    const checked = checkGeneratedSpec(reply.spec, brief.input, targetLocales);
+    const checked = edit
+      ? checkEditedSpec(reply.spec, edit.baseSpec, brief.input, edit.mode)
+      : checkGeneratedSpec(reply.spec, brief.input, targetLocales);
     if (!checked.ok) {
       this.logger.warn(`Генерация ${run.id}: документ не прошёл проверку (${checked.errors.length} ошибок)`);
       return this.retryOrFail(run, 'SCHEMA_INVALID', encodeValidationErrors(checked.errors));
@@ -373,8 +430,10 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Успех одной транзакцией под замком сайта: задача всё ещё RUNNING без версии, сайт не в архиве и всё ещё без версий
-   * (INITIAL не перекрывает ручную правку, сделанную за время генерации). Публикация не трогается.
+   * Успех одной транзакцией под замком сайта: задача всё ещё RUNNING без версии, сайт не в архиве, голова та же, что
+   * при постановке (INITIAL: версий ещё нет; PATCH и SECTION: голова равна базе). Ручная правка, сделанная за время
+   * работы ИИ, выигрывает: результат ИИ не применяется (`BASE_VERSION_CHANGED`). Картинки ещё раз по правилам черновика
+   * MKT8. Публикация не трогается.
    */
   private async succeed(run: Claimed, spec: Record<string, unknown>, schemaVersion: string, model: string | null): Promise<void> {
     const outcome = await this.prisma.db.$transaction(async (tx) => {
@@ -385,17 +444,27 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       });
       if (current.status !== 'RUNNING' || current.outputVersionId) return 'gone' as const;
       const site = await tx.marketingSite.findUniqueOrThrow({ where: { id: run.siteId }, select: { state: true, latestVersionId: true } });
-      if (site.state === 'ARCHIVED' || site.latestVersionId) {
+      const expected = run.type === 'INITIAL' ? null : run.baseVersionId;
+      if (site.state === 'ARCHIVED' || site.latestVersionId !== expected) {
         await this.failTx(tx, run.id, run.siteId, 'BASE_VERSION_CHANGED', this.now());
         return 'base' as const;
+      }
+      const base = expected
+        ? await tx.marketingSiteVersion.findFirstOrThrow({ where: { id: expected, siteId: run.siteId }, select: { id: true, revision: true } })
+        : null;
+      const assets = await checkSpecAssets(tx, run.locationId, spec, { historical: false, lock: true });
+      if (assets.problems.length) {
+        await this.failTx(tx, run.id, run.siteId, 'SCHEMA_INVALID', this.now(),
+          encodeValidationErrors(assets.problems.map((p) => ({ path: p.path, code: `asset_${p.code}`, message: '' }))));
+        return 'assets' as const;
       }
       const specHash = siteSpecHash(spec);
       const version = await tx.marketingSiteVersion.create({
         data: {
           id: randomUUID(),
           siteId: run.siteId,
-          revision: 1,
-          parentVersionId: null,
+          revision: (base?.revision ?? 0) + 1,
+          parentVersionId: base?.id ?? null,
           schemaVersion,
           spec: spec as Prisma.InputJsonObject,
           specHash,
@@ -420,7 +489,11 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           ...(model ? { model } : {}),
         },
       });
+      const target = run.type === 'SECTION' ? decodeSectionInstruction(run.instruction)?.target : undefined;
       await this.audit(tx, run.id, run.siteId, 'marketing.site.generation.succeeded', {
+        type: run.type,
+        ...(base ? { baseVersionId: base.id } : {}),
+        ...(target ? { pageId: target.pageId, sectionId: target.sectionId } : {}),
         versionId: version.id,
         revision: version.revision,
         specHash,

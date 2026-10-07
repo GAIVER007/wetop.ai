@@ -101,6 +101,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/site/generations/:id': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions/:id': 'settings',
+  'GET /marketing/site/versions/:id/diff': 'settings',
+  'POST /marketing/site/versions/:id/restore': 'settings',
   // MKT7: превью, публикация, журнал, откат, пауза, архив и сайт брони филиала (Q-275)
   'POST /marketing/site/preview': 'settings',
   'POST /marketing/site/publish': 'settings',
@@ -461,11 +465,20 @@ describe('права маршрутов API (ADR-107)', () => {
     expect(runtime.sort()).toEqual(['GET /sites-runtime/current', 'GET /sites-runtime/preview']);
     // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
     // MKT8: ассет по id только правится (ALT) и удаляется; чтения ассета по id нет ни у управления, ни у рантайма
-    const allowed = ['GET /marketing/site/generations/:id', 'PATCH /marketing/site/assets/:id', 'DELETE /marketing/site/assets/:id'];
+    // MKT9: версия по id читается, сравнивается и восстанавливается только управлением (вошедший, `settings`, строгий
+    // scope филиала); рантайм по-прежнему видит только текущую опубликованную версию и превью по токену
+    const allowed = [
+      'GET /marketing/site/generations/:id',
+      'PATCH /marketing/site/assets/:id',
+      'DELETE /marketing/site/assets/:id',
+      'GET /marketing/site/versions/:id',
+      'GET /marketing/site/versions/:id/diff',
+      'POST /marketing/site/versions/:id/restore',
+    ];
     const byId = Object.keys(actual).filter(
       (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),
     );
-    expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
+    expect(byId, 'по id только явно перечисленные маршруты управления').toEqual([]);
     expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.test(key))).toEqual([]);
   });
 

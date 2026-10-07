@@ -7059,3 +7059,4 @@
 | 07.10.2026 11:46 | e2e (частично: --config tests/beauty-ui/playwright.config.ts) | ✅ 10 из 10 | 2 мин 22 с | 658b651 | [лог](logs/2026-10-07T06-46-07Z-e2e-674c.log) |  |
 | 07.10.2026 11:48 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ✅ 13 из 13 | 3 мин 13 с | 658b651 | [лог](logs/2026-10-07T06-48-29Z-e2e-c03f.log) |  |
 | 07.10.2026 11:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ✅ 7 из 7 | 1 мин 7 с | 658b651 | [лог](logs/2026-10-07T06-51-51Z-e2e-3d31.log) |  |
+| 07.10.2026 14:24 | e2e | ❌ код выхода 1 | 13 с | 012c06d | [лог](logs/2026-10-07T09-24-17Z-e2e-f88d.log) | baseline A: E2E_AUTH=1 на чистом main 012c06d8 |

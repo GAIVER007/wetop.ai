@@ -1,0 +1,17 @@
+# Модульные (unit) · 07.10.2026 16:43 Алматы · vm
+# коммит a8a1f29 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-43-48Z-unit-dae4.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 11ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 48ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  11:43:49
+   Duration  481ms (transform 54%, import 33%, tests 12%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-43-48Z-unit-dae4.json
+
+# код выхода 0 · 2 с

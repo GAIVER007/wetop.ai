@@ -113,7 +113,11 @@ test('переключатель филиалов сохраняет разде�
   await choices.getByLabel('Найти филиал').fill('Нет такого филиала');
   await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
   await choices.getByLabel('Найти филиал').fill('');
-  await expect(choices.getByText('Текущий филиал')).toBeVisible();
+  // Указателя ещё нет, и стойка филиал не угадывает (MV8, `9023217b`): в списке оба филиала и ни одного
+  // текущего; отметка «Текущий филиал» появляется только после выбора (проверка ниже, после перезагрузки)
+  await expect(choices.getByRole('button', { name: /Тестовый центральный филиал/ })).toBeVisible();
+  await expect(choices.getByRole('button', { name: /Филиал Север/ })).toBeVisible();
+  await expect(choices.getByText('Текущий филиал')).toHaveCount(0);
   await choices.getByRole('button', { name: /Филиал Север/ }).click();
   await expect(trigger).toContainText('Филиал Север');
   await expect(page).toHaveURL(/\/chessboard$/);
@@ -127,6 +131,7 @@ test('переключатель филиалов сохраняет разде�
     'aria-pressed',
     'true',
   );
+  await expect(choices.getByText('Текущий филиал')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(choices).not.toBeVisible();
   await expect(trigger).toBeFocused();

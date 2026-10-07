@@ -1,6 +1,7 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
+import { marketingSiteFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -4592,6 +4593,8 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body);
+    if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
@@ -4620,6 +4623,7 @@ createServer(async (req, res) => {
       fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
+      resetMarketingSiteFixture();
       hits.clear();
       requestHits.clear();
       taskStore.clear();

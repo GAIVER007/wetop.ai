@@ -1,0 +1,176 @@
+# Сквозные (e2e) · 07.10.2026 18:16 Алматы · vm
+# коммит fc4c3de (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (5.5s)
+  ✘   2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (2.9s)
+  ✘   3 tests/ui/marketing-site.spec.ts:48:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (45.4s)
+  ✓   4 tests/ui/marketing-site.spec.ts:81:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (3.0s)
+  ✘   5 tests/ui/marketing-site.spec.ts:93:1 › источник брони выбирается явно; архив с вопросом (17.8s)
+  ✘   6 tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: light (8.6s)
+  ✘   7 tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: dark (7.4s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.5s)
+  ✓   9 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (10.4s)
+  ✓  10 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (2.6s)
+  ✓  11 tests/ui/marketing.spec.ts:134:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (9.4s)
+  ✓  12 tests/ui/marketing.spec.ts:156:3 › хаб на компьютере и телефоне, доступность: light (9.6s)
+  ✓  13 tests/ui/marketing.spec.ts:156:3 › хаб на компьютере и телефоне, доступность: dark (8.4s)
+  ✓  14 tests/ui/marketing.spec.ts:197:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (9.5s)
+
+
+  1) tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "preview.sites.test"
+    Received string:    "chrome-error://chromewebdata/"
+
+      41 |   await main(page).getByTestId('publication-preview').click();
+      42 |   const tab = await popup;
+    > 43 |   expect(tab.url()).toContain('preview.sites.test');
+         |                     ^
+      44 |   await tab.close().catch(() => undefined);
+      45 |   await expect(main(page)).not.toContainText('ui-preview-token');
+      46 | });
+        at /home/user/wetop.ai/tests/ui/marketing-site.spec.ts:43:21
+
+    Error Context: test-results/marketing-site-предпросмот-22653--токен-на-странице-не-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-site-предпросмот-22653--токен-на-странице-не-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-site-предпросмот-22653--токен-на-странице-не-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-site.spec.ts:48:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('publication-row').filter({ hasText: 'Публикация' }).filter({ hasText: /\b1$/ }).getByRole('button', { name: 'Откатить', exact: true })
+
+
+      70 |   // откат на ревизию 1 с вопросом; голова черновика остаётся ревизией 2
+      71 |   const row = m.getByTestId('publication-row').filter({ hasText: 'Публикация' }).filter({ hasText: /\b1$/ });
+    > 72 |   await row.getByRole('button', { name: 'Откатить', exact: true }).click();
+         |                                                                    ^
+      73 |   const dialog = page.getByRole('dialog');
+      74 |   await expect(dialog).toContainText('ревизию 1');
+      75 |   await dialog.getByRole('button', { name: 'Откатить', exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/marketing-site.spec.ts:72:68
+
+    Error Context: test-results/marketing-site-публикация--8258e--откат-журнал-без-документа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-site-публикация--8258e--откат-журнал-без-документа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-site-публикация--8258e--откат-журнал-без-документа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing-site.spec.ts:93:1 › источник брони выбирается явно; архив с вопросом ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').visible().getByTestId('marketing-site-empty')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').visible().getByTestId('marketing-site-empty') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('marketing-site-empty')
+
+
+      100 |   await m.getByTestId('publication-archive').click();
+      101 |   await page.getByRole('dialog').getByRole('button', { name: 'В архив', exact: true }).click();
+    > 102 |   await expect(m.getByTestId('marketing-site-empty')).toBeVisible();
+          |                                                       ^
+      103 | });
+      104 |
+      105 | for (const theme of ['light', 'dark'] as const) {
+        at /home/user/wetop.ai/tests/ui/marketing-site.spec.ts:102:55
+
+    Error Context: test-results/marketing-site-источник-бр-7e2cb-ается-явно-архив-с-вопросом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-site-источник-бр-7e2cb-ается-явно-архив-с-вопросом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-site-источник-бр-7e2cb-ается-явно-архив-с-вопросом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: light ─
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      120 |       await page.goto('/marketing/site');
+      121 |       await expect(main(page).getByTestId('publication-history')).toBeVisible();
+    > 122 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                 ^
+      123 |       const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      124 |       expect(audit.violations).toEqual([]);
+      125 |       await page.screenshot({ path: `${SHOTS}/publication-${theme}-${width}.png`, fullPage: true });
+        at /home/user/wetop.ai/tests/ui/marketing-site.spec.ts:122:97
+
+    Error Context: test-results/marketing-site-страница-на-3810f--телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-site-страница-на-3810f--телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-site-страница-на-3810f--телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: dark ──
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      120 |       await page.goto('/marketing/site');
+      121 |       await expect(main(page).getByTestId('publication-history')).toBeVisible();
+    > 122 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                 ^
+      123 |       const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      124 |       expect(audit.violations).toEqual([]);
+      125 |       await page.screenshot({ path: `${SHOTS}/publication-${theme}-${width}.png`, fullPage: true });
+        at /home/user/wetop.ai/tests/ui/marketing-site.spec.ts:122:97
+
+    Error Context: test-results/marketing-site-страница-на-aa5f5-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-site-страница-на-aa5f5-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-site-страница-на-aa5f5-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден 
+    tests/ui/marketing-site.spec.ts:48:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа 
+    tests/ui/marketing-site.spec.ts:93:1 › источник брони выбирается явно; архив с вопросом ────────
+    tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: light ──
+    tests/ui/marketing-site.spec.ts:106:3 › страница на компьютере и телефоне, доступность: dark ───
+  9 passed (3.0m)
+
+# код выхода 1 · 3 мин 3 с

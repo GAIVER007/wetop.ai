@@ -371,8 +371,17 @@ export class SitePublicationService {
           },
         })
       : [];
+    // действующие тарифы объекта: явный выбор тарифа при публикации (§29 п. 1); список, а не выбор за человека
+    const ratePlans = property
+      ? await tx.ratePlan.findMany({
+          where: { propertyId: property.id, active: true },
+          orderBy: { name: 'asc' },
+          select: { id: true, code: true, name: true },
+        })
+      : [];
     return {
       canonicalTrackedSiteId: location.bookingTrackedSiteId,
+      ratePlans,
       options: options.map((o) => ({
         id: o.id,
         name: o.name,

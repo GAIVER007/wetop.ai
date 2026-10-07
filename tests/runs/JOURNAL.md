@@ -7386,3 +7386,6 @@
 | 07.10.2026 18:56 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ упало 1 из 11 | 19 с | 60827ae | [лог](logs/2026-10-07T13-56-05Z-e2e-4784.log) | цена «от» (Q-276) › в исходном HTML числа нет: место под цену скрыто до ответа API |
 | 07.10.2026 18:56 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 16 с | 60827ae | [лог](logs/2026-10-07T13-56-41Z-e2e-b8e1.log) |  |
 | 07.10.2026 18:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts tests/ui/requests.spec.ts tests/ui/website.spec | ✅ 65 из 65 | 5 мин 27 с | 60827ae | [лог](logs/2026-10-07T13-57-04Z-e2e-9162.log) |  |
+| 07.10.2026 19:03 | unit | ✅ 3869 из 3872, пропущено 3 | 2 мин 26 с | 38fc39d | [лог](logs/2026-10-07T14-03-44Z-unit-a171.log) |  |
+| 07.10.2026 19:06 | typecheck | ✅ без ошибок | 57 с | 38fc39d | [лог](logs/2026-10-07T14-06-13Z-typecheck-16ac.log) |  |
+| 07.10.2026 19:07 | lint | ✅ без ошибок | 53 с | 38fc39d | [лог](logs/2026-10-07T14-07-11Z-lint-48b1.log) |  |

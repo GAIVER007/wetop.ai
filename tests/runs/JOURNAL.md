@@ -7272,3 +7272,6 @@
 | 07.10.2026 17:49 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 5 с | 4cb3746 | [лог](logs/2026-10-07T12-49-21Z-e2e-17e8.log) | beauty-ui on DS0a merged with main 867a3914 |
 | 07.10.2026 17:49 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 5 с | 4cb3746 | [лог](logs/2026-10-07T12-49-28Z-e2e-0e00.log) | food-ui on DS0a merged with main 867a3914 |
 | 07.10.2026 17:49 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ⏹ прерван | 2 с | 4cb3746 | [лог](logs/2026-10-07T12-49-34Z-e2e-a120.log) | branches-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 17:49 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ✅ 10 из 10 | 3 мин 30 с | 4cb3746 | [лог](logs/2026-10-07T12-49-57Z-e2e-d126.log) | beauty-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 17:53 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ❌ упало 1 из 13 | 3 мин 1 с | a530f50 | [лог](logs/2026-10-07T12-53-28Z-e2e-db4a.log) | food-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 17:56 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 28 из 28 | 2 мин 4 с | a530f50 | [лог](logs/2026-10-07T12-56-31Z-e2e-54ae.log) | branches-ui on DS0a merged with main 867a3914 |

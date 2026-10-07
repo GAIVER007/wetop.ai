@@ -1842,6 +1842,8 @@ export interface TrackedSite {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** MKT7: сайт счётчика управляемого сайта WETOP; настраивается только в «Маркетинг → Публикация сайта» */
+  managed?: boolean;
 }
 export interface TrackedSiteCard {
   site: TrackedSite;
@@ -1905,6 +1907,66 @@ export interface SiteReport {
     charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
+/** MKT7: состояние управляемого сайта для страницы публикации; документа здесь нет */
+export interface MarketingSiteSummary {
+  id: string;
+  name: string;
+  slug: string;
+  state: 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
+  latest: { id: string; revision: number } | null;
+  published: { id: string; revision: number } | null;
+  /** Действующий основной адрес; до публикации null */
+  url: string | null;
+  /** Адрес, который получит сайт при публикации; null, если адрес сайтов не настроен */
+  proposedUrl: string | null;
+}
+
+export interface SitePublicationRow {
+  id: string;
+  action: 'PUBLISH' | 'ROLLBACK' | 'PAUSE' | 'RESUME' | 'ARCHIVE';
+  versionId: string | null;
+  revision: number | null;
+  previousVersionId: string | null;
+  previousRevision: number | null;
+  actorId: string | null;
+  createdAt: string;
+}
+
+export interface BookingSourceView {
+  canonicalTrackedSiteId: string | null;
+  /** Действующие тарифы объекта для явного выбора тарифа брони при публикации */
+  ratePlans: Array<{ id: string; code: string; name: string }>;
+  options: Array<{
+    id: string;
+    name: string;
+    status: 'ACTIVE' | 'PAUSED';
+    bookingEnabled: boolean;
+    bookingRatePlan: { id: string; code: string; name: string } | null;
+    managed: boolean;
+  }>;
+}
+
+/** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
+export const marketingSiteApi = {
+  current: () => getJson<{ site: MarketingSiteSummary | null }>('/marketing/site'),
+  publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
+  bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
+  preview: (versionId: string) =>
+    sendJson<{ url: string; expiresAt: string }>('POST', '/marketing/site/preview', { versionId }),
+  publish: (expectedVersionId: string, bookingRatePlanId?: string) =>
+    sendJson<{ site: MarketingSiteSummary; changed: boolean }>('POST', '/marketing/site/publish', {
+      expectedVersionId,
+      ...(bookingRatePlanId ? { bookingRatePlanId } : {}),
+    }),
+  pause: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/pause', {}),
+  resume: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/resume', {}),
+  rollback: (versionId: string) =>
+    sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/rollback', { versionId }),
+  archive: () => sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
+  setBookingSource: (trackedSiteId: string | null) =>
+    sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
+};
+
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
   card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),

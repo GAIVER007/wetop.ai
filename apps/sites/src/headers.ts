@@ -56,6 +56,8 @@ export const CACHE = {
   notFound: 'public, max-age=30',
   /** 503: не кэшировать */
   none: 'no-store',
+  /** Превью (MKT7): только браузер просмотрщика, ни прокси, ни CDN */
+  preview: 'private, no-store',
 } as const;
 
 /** Origin адреса API или null: адрес только `https:`, а `http:` лишь на 127.0.0.1 и localhost для dev */

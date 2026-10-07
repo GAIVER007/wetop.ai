@@ -76,9 +76,13 @@ model Location {
   /// операционная валюта филиала (KZT, AED, …)
   currency   String         @db.VarChar(3)
   status     LocationStatus @default(ACTIVE)
+  /// Канонический сайт брони филиала (Q-275, MKT7): только его берёт ИИ-продавец; сайт только объекта этого филиала
+  /// (триггер location_booking_site_guard); NULL: котировки нет, запасного «первого сайта» нет
+  bookingTrackedSiteId String?   @map("booking_tracked_site_id") @db.Uuid
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  bookingTrackedSite     TrackedSite?            @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas            DiningArea[]
   servicePeriods         ServicePeriod[]
   restaurantReservations RestaurantReservation[]
@@ -93,6 +97,7 @@ model Location {
   marketingSites         MarketingSite[]
 
   @@index([businessId])
+  @@index([bookingTrackedSiteId])
   @@map("locations")
 }
 
@@ -1459,6 +1464,7 @@ model TrackedSite {
   bookingRatePlan RatePlan?      @relation(fields: [bookingRatePlanId], references: [id])
   sessions        WebSession[]
   marketingSite   MarketingSite?
+  bookingOf       Location[]     @relation("LocationBookingSite")
 
   @@index([propertyId])
   @@map("tracked_sites")
@@ -1504,6 +1510,8 @@ model MarketingSite {
   createdBy        User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
   versions         MarketingSiteVersion[] @relation("MarketingSiteVersions")
   generationRuns   GenerationRun[]
+  publications     MarketingSitePublication[]
+  domains          SiteDomain[]
 
   @@index([locationId])
   @@map("marketing_sites")
@@ -1534,6 +1542,8 @@ model MarketingSiteVersion {
   children      MarketingSiteVersion[] @relation("MarketingSiteVersionParent")
   latestOf      MarketingSite[]        @relation("MarketingSiteLatest")
   publishedOf   MarketingSite[]        @relation("MarketingSitePublished")
+  publicationsOf         MarketingSitePublication[] @relation("PublicationVersion")
+  publicationsPreviousOf MarketingSitePublication[] @relation("PublicationPreviousVersion")
   createdBy     User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@unique([siteId, revision])
@@ -1597,6 +1607,87 @@ model GenerationRun {
   @@index([status, nextAttemptAt])
   @@index([requestedById, createdAt])
   @@map("generation_runs")
+}
+
+/// Действие журнала публикаций (DATA_MODEL §29.4, MKT7)
+enum SitePublicationAction {
+  PUBLISH
+  ROLLBACK
+  PAUSE
+  RESUME
+  ARCHIVE
+}
+
+/// Журнал публикаций управляемого сайта (DATA_MODEL §29.4, MKT7): только дописывается (триггер
+/// marketing_site_publication_immutable, права); у PUBLISH, ROLLBACK, RESUME версия есть, у PAUSE и ARCHIVE нет (CHECK
+/// marketing_site_publications_shape); версии только своего сайта (триггер marketing_site_publication_guard). Откат
+/// возможен только на версию, которая встречается в этом журнале
+model MarketingSitePublication {
+  id                String                @id @default(uuid()) @db.Uuid
+  siteId            String                @map("site_id") @db.Uuid
+  action            SitePublicationAction
+  versionId         String?               @map("version_id") @db.Uuid
+  previousVersionId String?               @map("previous_version_id") @db.Uuid
+  actorId           String?               @map("actor_id") @db.Uuid
+  createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  site            MarketingSite         @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  version         MarketingSiteVersion? @relation("PublicationVersion", fields: [versionId], references: [id], onDelete: Restrict)
+  previousVersion MarketingSiteVersion? @relation("PublicationPreviousVersion", fields: [previousVersionId], references: [id], onDelete: Restrict)
+  actor           User?                 @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([siteId, createdAt])
+  @@map("marketing_site_publications")
+}
+
+/// Вид домена сайта: платформенный поддомен `<slug>.<SITES_BASE_DOMAIN>` (MKT7) или свой домен клиента (MKT10,
+/// Cloudflare for SaaS, Q-271)
+enum SiteDomainKind {
+  PLATFORM_SUBDOMAIN
+  CUSTOM
+}
+
+/// Жизнь домена (§29.8): платформа PENDING → ACTIVE; свой домен PENDING → VERIFYING → VERIFIED → ACTIVE,
+/// VERIFYING → FAILED; снятие REMOVED конечное (триггер site_domain_guard)
+enum SiteDomainStatus {
+  PENDING
+  VERIFYING
+  VERIFIED
+  ACTIVE
+  FAILED
+  REMOVED
+}
+
+enum SiteDomainVerificationMethod {
+  DNS_TXT
+  HTTP_FILE
+}
+
+/// Хост управляемого сайта (DATA_MODEL §29.6, MKT7). Хост в одном виде (CHECK site_domains_host_format), один живой
+/// владелец хоста и один основной домен сайта (частичные UNIQUE в миграции …064), сайт, хост и вид не меняются.
+/// Физически не удаляется: снятие это REMOVED. providerRef: id Custom Hostname Cloudflare (MKT10)
+model SiteDomain {
+  id                 String                        @id @default(uuid()) @db.Uuid
+  siteId             String                        @map("site_id") @db.Uuid
+  host               String                        @db.VarChar(253)
+  kind               SiteDomainKind
+  isPrimary          Boolean                       @default(false) @map("is_primary")
+  status             SiteDomainStatus              @default(PENDING)
+  verificationMethod SiteDomainVerificationMethod? @map("verification_method")
+  verificationToken  String?                       @map("verification_token") @db.VarChar(64)
+  verifiedAt         DateTime?                     @map("verified_at") @db.Timestamptz(6)
+  activatedAt        DateTime?                     @map("activated_at") @db.Timestamptz(6)
+  removedAt          DateTime?                     @map("removed_at") @db.Timestamptz(6)
+  lastCheckAt        DateTime?                     @map("last_check_at") @db.Timestamptz(6)
+  failureCode        String?                       @map("failure_code") @db.VarChar(40)
+  providerRef        String?                       @map("provider_ref") @db.VarChar(200)
+  createdAt          DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  site MarketingSite @relation(fields: [siteId], references: [id], onDelete: Restrict)
+
+  @@index([siteId])
+  @@map("site_domains")
 }
 
 /// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.
@@ -1815,6 +1906,7 @@ model User {
   marketingSitesCreated        MarketingSite[]
   marketingSiteVersionsCreated MarketingSiteVersion[]
   generationRunsRequested      GenerationRun[]
+  sitePublications             MarketingSitePublication[]
 
   @@map("users")
 }

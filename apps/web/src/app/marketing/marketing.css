@@ -101,3 +101,34 @@
     flex: 1 1 100%;
   }
 }
+
+/* Публикация сайта (MKT7, DESIGN.md §8): факты сайта списком и ряд действий. Только управление, не редактор */
+.publication-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.publication-facts dt {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.publication-facts dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+.publication-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+/* Журнал публикаций (MKT7): четыре узкие колонки, общий `min-width: 520px` уводил таблицу в прокрутку на телефоне;
+   скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки, те же грабли, что в finance.css */
+.publication-history .table-scroll {
+  position: relative;
+}
+.publication-history .table-scroll > .tbl {
+  min-width: 0;
+}

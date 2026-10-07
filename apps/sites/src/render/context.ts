@@ -14,11 +14,28 @@ export interface RenderContext {
   apiOrigin: string | null;
   /** Карта `assetId → адрес`; в MKT4 пуста (SiteAsset нет), картинки не выводятся */
   assets: Record<string, string>;
+  /**
+   * Превью (MKT7): токен разрешает одну версию целиком, со всеми её страницами, поэтому переход внутри превью несёт тот
+   * же токен. У публичного сайта поля нет, адреса прежние
+   */
+  previewToken?: string | null;
 }
 
 export class RenderError extends Error {}
 
 export const pagePath = (page: Page) => (page.isHome ? '/' : `/${page.slug}`);
+
+/**
+ * Внутренний адрес сайта для разметки: у превью к пути добавляется токен до фрагмента (`/privacy?token=…#faq`), фрагмент
+ * той же страницы (`#faq`) не трогается, браузер сам оставляет текущий адрес с токеном. Внешние адреса сюда не попадают
+ */
+export function localHref(path: string, ctx: Pick<RenderContext, 'previewToken'>): string {
+  if (!ctx.previewToken || path.startsWith('#')) return path;
+  const hash = path.indexOf('#');
+  const base = hash < 0 ? path : path.slice(0, hash);
+  const fragment = hash < 0 ? '' : path.slice(hash);
+  return `${base}?token=${encodeURIComponent(ctx.previewToken)}${fragment}`;
+}
 
 /**
  * Строки секции цен: категории секции, действующие по `B-CATEGORY` (факты не загрузились: все), с названием из карточек
@@ -92,8 +109,11 @@ export function targetHref(target: Target, ctx: RenderContext): { href: string; 
   // секция цен скрыта, пока скрипт не покажет строку с ценой: ссылка на неё вела бы в пустоту
   if (found.section && (found.section.type === 'pricing' || !sectionVisible(found.section, ctx))) return null;
   const path = pagePath(found.page);
-  if (!found.section) return { href: path, external: false };
-  return { href: found.page.id === ctx.page.id ? `#${found.section.id}` : `${path}#${found.section.id}`, external: false };
+  if (!found.section) return { href: localHref(path, ctx), external: false };
+  return {
+    href: found.page.id === ctx.page.id ? `#${found.section.id}` : localHref(`${path}#${found.section.id}`, ctx),
+    external: false,
+  };
 }
 
 /** Куда ведёт кнопка `BOOK`: секция брони этой страницы, иначе главной; брони нет вовсе, кнопки нет */
@@ -102,7 +122,7 @@ function bookingHref(ctx: RenderContext): string | null {
   if (here) return `#${here.id}`;
   const home = ctx.spec.pages.find((p) => p.isHome);
   const there = home?.sections.find((s) => s.type === 'booking');
-  return home && there ? `/#${there.id}` : null;
+  return home && there ? localHref(`/#${there.id}`, ctx) : null;
 }
 
 export function actionHref(action: Action, ctx: RenderContext): { href: string; external: boolean } | null {

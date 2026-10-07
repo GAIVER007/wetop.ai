@@ -1,0 +1,310 @@
+# Сквозные (e2e) · 07.10.2026 19:58 Алматы · vm
+# коммит b2a7421 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/website.spec.ts' '--workers=1' '-g' 'снимки'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+  ✓  1 tests/ui/website.spec.ts:305:1 › снимки WEB2 (16.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  2 tests/ui/website.spec.ts:445:1 › снимки WEB3 (15.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/website/a..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="website/an...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <div>
+[WebServer]                           <PeriodForm>
+[WebServer]                             <form method="get" className="row row--l...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="site"
+[WebServer]                                 value="ui-site"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: с" name="from" defaultValue="2026-10-01">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: с"
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: по" name="to" rangeFromName="from" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: по"
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-07"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  3 tests/ui/website.spec.ts:539:1 › снимки WEB4 (9.5s)
+
+  3 passed (55.8s)
+
+# код выхода 0 · 58 с

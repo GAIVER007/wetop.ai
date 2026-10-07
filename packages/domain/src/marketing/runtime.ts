@@ -1,30 +1,11 @@
 /**
- * Чистые правила публичного рантайма сайта (MKT4, `docs/marketing/README.md` §4). Здесь нет базы и HTTP: нормализация
- * хоста, разбор карты хостов для dev и test и коды категорий опубликованной версии для `publicFacts`.
+ * Чистые правила публичного рантайма сайта (MKT4, `docs/marketing/README.md` §4). Здесь нет базы и HTTP: разбор карты
+ * хостов для dev и test и коды категорий опубликованной версии для `publicFacts`. Нормализатор хоста в `host.ts` (MKT7).
  */
 
-const HOST_LABEL_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+import { normalizeSiteHost } from './host';
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-
-/**
- * Хост запроса в одном виде: нижний регистр, без порта, без точки в конце. `www.` не срезается: это другой хост, и решать
- * о переадресации будет основной домен сайта (MKT7). Хост должен быть именем из двух и более частей; всё остальное
- * (пробелы, путь, логин, пустые части) это `null`, то есть «такого сайта нет».
- */
-export function normalizeSiteHost(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
-  let host = raw.trim().toLowerCase();
-  const colon = host.lastIndexOf(':');
-  if (colon !== -1) {
-    if (!/^\d{1,5}$/.test(host.slice(colon + 1))) return null;
-    host = host.slice(0, colon);
-  }
-  if (host.endsWith('.')) host = host.slice(0, -1);
-  if (host.length === 0 || host.length > 253) return null;
-  const labels = host.split('.');
-  if (labels.length < 2) return null;
-  return labels.every((label) => HOST_LABEL_RE.test(label)) ? host : null;
-}
 
 /**
  * Карта хостов только для dev и test (до MKT7 и `SiteDomain`): `"host=siteId,host2=siteId2"`. Неверная пара

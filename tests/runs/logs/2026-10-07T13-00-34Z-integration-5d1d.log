@@ -1,0 +1,266 @@
+# Интеграционные (integration) · 07.10.2026 18:00 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-00-34Z-integration-5d1d.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-publication.test.ts (11 tests | 11 failed) 2043ms
+   ❯ MKT7 публикация управляемого сайта (11)
+     × §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 215ms
+     × §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 8ms
+     × §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 13ms
+     × §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 74ms
+     × §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 18ms
+     × §84: тариф брони только явный, связанный или канонический; первый активный не берётся 136ms
+     × §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 78ms
+     × §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 76ms
+     × §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 11ms
+     × §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 6ms
+     × §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 16ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:283:23
+    281|     // превью ревизии 1: ровно эта версия, без ключа сайта, брони и сч…
+    282|     const p1 = await call('POST', '/marketing/site/preview', { body: {…
+    283|     expect(p1.status).toBe(200);
+       |                       ^
+    284|     expect(new URL(p1.body.url).host).toBe(`preview.${BASE_DOMAIN}`);
+    285|     expect(Date.parse(p1.body.expiresAt) - Date.now()).toBeGreaterThan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:365:66
+    363|
+    364|   it('§82: пауза канонического управляемого сайта: указатель остаётся,…
+    365|     expect((await call('POST', '/marketing/site/pause')).status).toBe(…
+       |                                                                  ^
+    366|     const managed = (await siteRow('main')).trackedSiteId!;
+    367|     expect(await pointerOf('main')).toBe(managed);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается
+AssertionError: {"message":"Cannot POST /marketing/site/archive","error":"Not Found","statusCode":404}: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:376:50
+    374|     const before = await siteRow('main');
+    375|     const res = await call('POST', '/marketing/site/archive');
+    376|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+       |                                                  ^
+    377|     const after = await db.marketingSite.findUniqueOrThrow({ where: { …
+    378|     expect(after.state).toBe('ARCHIVED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:391:156
+    389|     await save('auto', 0, specFor('Авто', ['std']));
+    390|     const v1 = (await siteRow('auto')).latestVersionId!;
+    391|     expect((await call('POST', '/marketing/site/publish', { location: …
+       |                                                                                                                                                            ^
+    392|     const site = await siteRow('auto');
+    393|     expect(await pointerOf('auto')).toBe(site.trackedSiteId);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит
+AssertionError: expected { …(13) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "bookingEnabled": true,
+  "bookingRatePlan": {
+    "code": "BASE",
+    "id": "5d326f93-fad1-4486-a1e8-da6c484836b2",
+    "name": "База",
+  },
+  "checkInTime": "14:00",
+  "checkOutTime": "12:00",
+  "createdAt": 2026-10-07T13:00:43.249Z,
+  "hosts": [
+    "amb1.example.test",
+  ],
+  "id": "7de58e18-66f8-4d46-b542-ffa454f33f7e",
+  "name": "Amb1",
+  "organizationId": "8ed1c9b5-2892-41de-83a1-d4a1a6a2aae6",
+  "propertyId": "986e2ce0-806a-42d8-ac67-17705cf33ea4",
+  "publicKey": "pms_d0a019770c4e",
+  "status": "ACTIVE",
+  "timezone": "Asia/Almaty",
+}
+
+ ❯ tests/integration/site-publication.test.ts:399:42
+    397|   it('§81: два подходящих сайта без указателя: продавец без сайта, пуб…
+    398|     expect(await pointerOf('ambiguous')).toBeNull();
+    399|     expect(await agentSite('ambiguous')).toBeNull();
+       |                                          ^
+    400|     await createSite('ambiguous');
+    401|     await save('ambiguous', 0, specFor('Неоднозначно', ['std']));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §84: тариф брони только явный, связанный или канонический; первый активный не берётся
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:420:25
+    418|     // у объекта есть активный тариф BASE, но источника нет: 409, а не…
+    419|     const none = await publish({});
+    420|     expect(none.status).toBe(409);
+       |                         ^
+    421|     expect(none.body.code).toBe('BOOKING_RATE_PLAN_REQUIRED');
+    422|     expect((await publish({ bookingRatePlanId: rate['main'] })).body.c…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория
+AssertionError: {"message":"Документ сайта не прошёл проверку","errors":[{"path":"pages[0].sections[3].images","code":"count","message":"Ожидается от 3 до 24 элементов"}]}: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ save tests/integration/site-publication.test.ts:126:50
+    124|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+    125|     const res = await call('POST', '/marketing/site/versions', { locat…
+    126|     expect(res.status, JSON.stringify(res.body)).toBe(201);
+       |                                                  ^
+    127|   }
+    128|   async function siteRow(key: keyof typeof L) {
+ ❯ tests/integration/site-publication.test.ts:458:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика
+AssertionError: expected [ 404, 404 ] to deeply equal [ 200, 200 ]
+
+- Expected
++ Received
+
+  [
+-   200,
+-   200,
++   404,
++   404,
+  ]
+
+ ❯ tests/integration/site-publication.test.ts:496:34
+    494|       call('POST', '/marketing/site/publish', { location: L.race, body…
+    495|     ]);
+    496|     expect([a.status, b.status]).toEqual([200, 200]);
+       |                                  ^
+    497|     const site = await siteRow('race');
+    498|     expect(await db.marketingSitePublication.count({ where: { siteId: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:507:129
+    505|     expect((await call('POST', '/marketing/site/preview', { location: …
+    506|     expect((await call('POST', '/marketing/site/preview', { user: 'B',…
+    507|     expect((await call('POST', '/marketing/site/preview', { location: …
+       |                                                                                                                                 ^
+    508|     expect((await call('POST', '/marketing/site/preview', { location: …
+    509|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:514:142
+    512|     const foreign = external['amb1'];
+    513|     expect((await call('PUT', '/marketing/site/booking-source', { loca…
+    514|     expect((await call('PUT', '/marketing/site/booking-source', { loca…
+       |                                                                                                                                              ^
+    515|     expect((await call('PUT', '/marketing/site/booking-source', { loca…
+    516|     expect(await pointerOf('auto')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503
+AssertionError: expected 409 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 409
+
+ ❯ createSite tests/integration/site-publication.test.ts:122:24
+    120|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    121|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    122|     expect(res.status).toBe(201);
+       |                        ^
+    123|   }
+    124|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:526:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  13:00:35
+   Duration  8.79s (transform 46%, tests 33%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-00-34Z-integration-5d1d.json
+
+# код выхода 1 · 10 с

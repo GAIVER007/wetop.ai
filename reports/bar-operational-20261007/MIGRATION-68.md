@@ -1,6 +1,6 @@
-# BAR financial replay migration 66
+# BAR financial replay migration 68
 
-Approved scope: D1/D2/D3 and T11, 2026-10-07. Migration: `20261007000066_bar_financial_replay`. Synced main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e has 71 migration directories, canonical maximum 65. This forward migration makes 72 directories. The prior 70-migration rehearsal is historical evidence; the complete 72-migration rehearsal is mandatory in final CI. BAR migrations 55-57 remain unchanged.
+Approved scope: D1/D2/D3 and T11, 2026-10-07. Migration: `20261007000068_bar_financial_replay`. Fresh main 791adad02a5955102f32ffa9c6533a29bc4f3757 has 73 migration directories, canonical maximum 67. This forward migration makes 74 directories. The prior 70-migration rehearsal is historical evidence; the complete 74-migration rehearsal is mandatory in final CI. BAR migrations 55-57 remain unchanged.
 
 ## Backup and deployment boundary
 

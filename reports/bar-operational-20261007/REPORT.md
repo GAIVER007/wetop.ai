@@ -4,7 +4,7 @@ Status: implementation candidate. This document records local evidence at the ca
 
 ## Scope and baseline
 
-Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e adds marketing publication migrations 64 and 65, so the unpublished BAR migration is now `20261007000066_bar_financial_replay`, making 72 directories. Existing BAR 55-57 are preserved.
+Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e adds marketing publication migrations 64 and 65, so the unpublished BAR migration is now `20261007000068_bar_financial_replay`, making 72 directories. Existing BAR 55-57 are preserved.
 
 ## Approved behavior
 
@@ -52,7 +52,7 @@ The earlier full unit attempt had three host-resource timeouts (3791 passed, fou
 
 Synthetic PostgreSQL snapshots and real API browser screenshots are in this directory. Cleanup deletes task-owned operational fixtures and sessions; append-only audit and its required synthetic identity parents are retained. No real guest data or session credentials are included. Traces are disabled because they can contain authentication cookies. Public-site redirect acceptance uses a local site server.
 
-See `MIGRATION-66.md` for backup, guarded backfill, validation and rollback. Old ENOSPC/stale generated-client notes describe earlier failed attempts only; disk was recovered and Prisma regenerated. No production, release, MV8 or unrelated financial feature was changed. Final exact SHA, complete job outcomes and readiness will be recorded in the PR manifest after CI, without changing the tested candidate SHA.
+See `MIGRATION-68.md` for backup, guarded backfill, validation and rollback. Old ENOSPC/stale generated-client notes describe earlier failed attempts only; disk was recovered and Prisma regenerated. No production, release, MV8 or unrelated financial feature was changed. Final exact SHA, complete job outcomes and readiness will be recorded in the PR manifest after CI, without changing the tested candidate SHA.
 
 ## Final fresh-main impact, 2026-10-07
 
@@ -88,3 +88,6 @@ Final acceptance correction keeps original accounting assertions and timeout lim
 
 
 CI 37658200209 on 3499bd067: all nine real-session BAR browser cases PASS, with 22 screenshots downloaded and Finance/catalog reload evidence visually reviewed. Food/Beauty PASS. Branches has 38 PASS/1 FAIL: a document-wide locator encounters the visible Food Today screen plus Next's temporary hidden streaming copy. The accepted READ_ONLY/STAFF test now scopes to the accessible main landmark, asserts exactly one screen and retains visibility/error assertions and unchanged limits. Its local four-combination regression PASS. No Branches/Food production behavior changed. A new full exact-head CI supersedes the unfinished prior run.
+
+
+Fresh-main impact during final CI: PR285 Site Assets advanced main to 791adad02a5955102f32ffa9c6533a29bc4f3757 and occupies 66/67. No BAR/Finance changes. The unpublished BAR migration is now 68; final inventory 74 directories. The prior pending exact-head run was cancelled. Sync the new schema/RLS/marketing routes and require a new full exact-head CI. Earlier 70/72-migration evidence is historical.

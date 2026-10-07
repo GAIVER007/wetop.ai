@@ -6132,3 +6132,8 @@ Problem: the full financial acceptance must identify the exact tested SHA, while
 ### BAR migration numbering after MKT7 sync (2026-10-07)
 
 Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e occupies canonical numbers 64 and 65 with marketing publication migrations. The unpublished BAR financial replay migration moves from 64 to 66; historical local evidence retains its original number. BAR and Finance source behavior is unchanged upstream. Rehearse the complete merged migration set before readiness.
+
+
+### BAR migration numbering after Site Assets sync (2026-10-07)
+
+Fresh main 791adad02a5955102f32ffa9c6533a29bc4f3757 occupies canonical 66/67 with Site Assets. Move the unpublished BAR financial replay migration from 66 to free 68. Retain earlier run numbers as historical evidence; require the full 74-migration chain on the merged candidate. Site Assets changes have no BAR/Finance semantic changes. Existing BAR migrations remain untouched.

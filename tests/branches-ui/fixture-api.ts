@@ -293,12 +293,21 @@ app.use(
               // MV8: день салона и ресторана от текущего момента. Только данные базы; читают их настоящие контроллеры
               const now = Date.now();
               const at = (minutes: number) => new Date(now + minutes * 60_000);
-              const [food, , , salon] = await db.location.findMany({
-                where: { business: { organizationId: org }, status: 'ACTIVE' },
-                orderBy: { createdAt: 'asc' },
+              // Millisecond createdAt ties cannot identify a fixture branch reliably.
+              const food = await db.location.findFirstOrThrow({
+                where: {
+                  business: { organizationId: org, vertical: 'FOOD_SERVICE' },
+                  status: 'ACTIVE',
+                  name: 'Тестовый филиал Центр',
+                },
+              });
+              const salon = await db.location.findFirstOrThrow({
+                where: { business: { organizationId: org, vertical: 'BEAUTY' }, status: 'ACTIVE' },
               });
               const timezone = typeof body.timezone === 'string' ? body.timezone : food!.timezone;
               await db.location.update({ where: { id: food!.id }, data: { timezone } });
+              if (body.analyticsStable === true)
+                await db.location.update({ where: { id: salon!.id }, data: { timezone } });
               const localDay = localInput(new Date(now).toISOString(), timezone).slice(0, 10);
               const midnight = Date.parse(instantOf(`${localDay}T00:00`, timezone));
               const local = (minutes: number) => new Date(midnight + minutes * 60_000);
@@ -356,8 +365,8 @@ app.use(
                     customerId: customer.id,
                     employeeId: employee!.id,
                     serviceId: service.id,
-                    startsAt: at(from),
-                    endsAt: at(to),
+                    startsAt: body.analyticsStable === true ? local(360 + from) : at(from),
+                    endsAt: body.analyticsStable === true ? local(360 + to) : at(to),
                     status,
                     price: 1200000n,
                     currency: 'KZT',

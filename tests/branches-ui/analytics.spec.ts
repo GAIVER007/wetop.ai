@@ -16,7 +16,8 @@ const setScope = (page: Page, business: string, location: string) =>
 async function seed(request: import('@playwright/test').APIRequestContext) {
   const f = await (await request.post(`${api}/__test/reset`)).json();
   const r = await request.post(`${api}/__test/seed-today`, {
-    data: { timezone: 'Pacific/Kiritimati' },
+    // Analytics fixtures use one local date in both verticals, independent of wall-clock hour.
+    data: { timezone: 'Pacific/Kiritimati', analyticsStable: true },
   });
   expect(r.ok()).toBe(true);
   return { ...f, ...(await r.json()) };

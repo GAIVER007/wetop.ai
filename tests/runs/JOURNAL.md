@@ -7239,3 +7239,6 @@
 | 07.10.2026 16:48 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 27 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-48-49Z-unit-4062.log) | MKT6 доводка, полный |
 | 07.10.2026 16:51 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts tests/integration/marketing-site.test.ts tests/int | ✅ 88 из 88 | 19 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-21Z-integration-4489.log) | MKT6 доводка, целевой |
 | 07.10.2026 16:51 | integration | ✅ 869 из 869 | 3 мин 27 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-45Z-integration-840c.log) | MKT6 доводка, полный |
+| 07.10.2026 17:04 | typecheck | ✅ без ошибок | 1 мин 1 с | fe3b723 | [лог](logs/2026-10-07T12-04-57Z-typecheck-480a.log) | MKT6 доводка, вершина после main e0089a23 |
+| 07.10.2026 17:06 | lint | ✅ без ошибок | 54 с | fe3b723 | [лог](logs/2026-10-07T12-06-00Z-lint-80dd.log) | MKT6 доводка, вершина после main e0089a23 |
+| 07.10.2026 17:06 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 26 с | fe3b723 | [лог](logs/2026-10-07T12-06-54Z-unit-9647.log) | MKT6 доводка, вершина после main e0089a23 |

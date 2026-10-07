@@ -480,118 +480,115 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
-/* Панель «Сегодня» (поручение 02.10, образец — Lite PMS): рядом со строками управления,
-   чтобы не отнимать высоту у сетки; на экранах уже 1200px скрыта — день живёт на Главной */
+/* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
+   расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
+   гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
+   занято, загрузка), значения жирно столбцом. На компьютере карточка справа, управление календарём
+   слева (владелец 06.10: «с компа сделай это справа»); до 1199 px карточка на всю ширину, управление под ней. */
 .board-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-4);
+  margin-bottom: 0;
 }
 .board-top > .board-controls {
   flex: 1 1 auto;
   min-width: 0;
+  justify-content: flex-start;
+  margin-bottom: 0;
 }
-/* При панели «Сегодня» слева управление календарём прижато вправо */
-.board-day-panel + .board-controls {
-  justify-content: flex-end;
+.board-top > .board-controls .board-bar {
+  margin-left: 0;
 }
-.board-day-panel + .board-controls .board-bar {
+.board-top > .board-controls .board-period > .seg {
   margin-left: 0;
 }
 .board-day-panel {
-  display: grid;
-  grid-template-columns: minmax(200px, 1fr) minmax(290px, 1.4fr);
-  gap: var(--space-2);
-  flex: 0 1 600px;
-  min-width: 0;
-}
-.board-day-panel section {
+  order: 1;
+  flex: 0 1 560px;
   min-width: 0;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-control);
   background: var(--surface);
-  padding: calc(var(--space-4) * 0.75);
+  /* сетка должна начинаться до 384 px на 1440 (контракт C1), а цели ссылок — от 24 px (axe):
+     строки 24 px, заголовок без отступа, рамка вплотную */
+  padding: 0 var(--space-4);
 }
 .board-day-panel__title {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.board-day-panel__title h2 {
   margin: 0;
   font-size: var(--text-sm);
-  font-weight: 600;
-}
-.board-day-panel__title > span {
-  color: var(--muted);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
-.board-day-panel__load {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-.board-day-panel__load > b {
-  font-size: 32px;
-  color: var(--primary);
-  line-height: 1.2;
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
-.board-day-panel__load > span {
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-.board-day-panel__load small {
-  display: block;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.board-day-panel__meter {
-  margin-top: calc(var(--space-4) * 0.75);
-  height: 6px;
-  border-radius: var(--radius-control);
-  background: var(--primary-soft);
-  overflow: hidden;
-}
-.board-day-panel__meter > span {
-  display: block;
-  height: 100%;
-  background: var(--primary);
-}
-.board-day-panel__grid {
+.board-day-panel__columns {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 0 var(--space-4);
+}
+.board-day-panel__col + .board-day-panel__col {
+  border-left: 1px solid var(--border-soft);
+  padding-left: var(--space-4);
 }
 .board-day-panel__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  min-height: 24px;
   font-size: var(--text-sm);
-  min-height: 28px;
-}
-.board-day-panel__row--arrivals {
-  grid-column: 1 / -1;
 }
 .board-day-panel__row > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.board-day-panel__row > a:hover {
+  color: var(--primary);
+}
+.board-day-panel__row > span {
   color: var(--text-2);
 }
 .board-day-panel__row > b {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-@media (min-width: 601px) and (max-width: 1199px) {
+.board-day-panel__row--occupancy > b {
+  color: var(--primary);
+}
+@media (max-width: 1199px) {
   .board-top {
     flex-direction: column;
     align-items: stretch;
   }
   .board-day-panel {
+    order: 0;
     flex: none;
-    width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .board-day-panel {
+    padding: var(--space-2);
+  }
+  .board-day-panel__title {
+    font-size: var(--text-sm);
+  }
+  .board-day-panel__columns {
+    gap: 0 var(--space-2);
+  }
+  .board-day-panel__col + .board-day-panel__col {
+    padding-left: var(--space-2);
+  }
+  .board-day-panel__row {
+    font-size: var(--text-xs);
+    min-height: 24px;
+  }
+  /* «81 (13 + 68 коек)» на 360 px не влезает в колонку — разбивка переносится, страница вбок не едет */
+  .board-day-panel__row > b {
+    white-space: normal;
+    text-align: right;
   }
 }
 .board-stay-caption {
@@ -1933,53 +1930,6 @@
   }
 }
 
-/* Two compact daily widgets above the mobile calendar. */
-@media (max-width: 600px) {
-  .board-top {
-    flex-direction: column;
-    align-items: stretch;
-    gap: calc(var(--space-4) * 0.75);
-    margin-bottom: var(--space-2);
-  }
-  .board-top > .board-controls {
-    flex: none;
-    justify-content: flex-start;
-  }
-  .board-day-panel {
-    flex: none;
-    width: 100%;
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .board-day-panel section {
-    padding: calc(var(--space-4) * 0.75) var(--space-4);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-md);
-  }
-  .board-day-panel__load > b {
-    font-size: 40px;
-  }
-  .board-day-panel__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .board-day-panel__row {
-    min-height: 44px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .board-day-panel__row:last-child {
-    border-bottom: 0;
-  }
-  .board-day-panel__row > a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    flex: 1;
-  }
-  .board-day-panel__row > b {
-    font-size: var(--text-md);
-  }
-}
-
 .free-menu__arrival,
 .free-menu__summary {
   display: none;
@@ -2062,133 +2012,5 @@
   .board .board-hk__menu .action-menu__button {
     width: 44px;
     min-height: 44px;
-  }
-}
-
-/* Preserve the compact desktop header while mobile uses stacked widgets. */
-@media (min-width: 1200px) {
-  .board-day-panel {
-    grid-template-columns: 200px minmax(0, 1fr);
-  }
-  .board-day-panel section {
-    padding: 0 var(--space-2);
-  }
-  .board-day-panel__title {
-    margin-bottom: var(--space-1);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-xs);
-  }
-  .board-day-panel__title > span {
-    display: none;
-  }
-  .board-day-panel__load {
-    gap: var(--space-2);
-  }
-  .board-day-panel__load > b {
-    font-size: 24px;
-  }
-  .board-day-panel__load > span {
-    font-size: var(--text-xs);
-  }
-  .board-day-panel__meter {
-    margin-top: var(--space-1);
-    height: 4px;
-  }
-  .board-day-panel__guests .board-day-panel__title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .board-day-panel__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: var(--space-2);
-  }
-  .board-day-panel__row--arrivals {
-    grid-column: span 2;
-  }
-  .board-day-panel__row {
-    min-height: 24px;
-    font-size: var(--text-xs);
-    line-height: 16px;
-  }
-  .board-day-panel__row > a {
-    display: flex;
-    align-items: center;
-    min-height: 24px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .board-day-panel__load > span {
-    white-space: nowrap;
-  }
-  .board-day-panel__load small {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-}
-
-/* Mobile revision: a single daily summary leaves room for the calendar. */
-@media (max-width: 600px) {
-  .board-day-panel {
-    gap: 0;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    overflow: hidden;
-  }
-  .board-day-panel section {
-    padding: var(--space-2) calc(var(--space-4) * 0.75);
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-  .board-day-panel__occupancy {
-    border-bottom: 1px solid var(--border-soft) !important;
-  }
-  .board-day-panel__title {
-    margin-bottom: var(--space-1);
-  }
-  .board-day-panel__title h2 {
-    font-size: var(--text-sm);
-  }
-  .board-day-panel__load {
-    gap: var(--space-4);
-  }
-  .board-day-panel__load > b {
-    font-size: 32px;
-  }
-  .board-day-panel__load small {
-    display: inline;
-    margin-left: var(--space-1);
-  }
-  .board-day-panel__meter {
-    margin-top: var(--space-2);
-    height: 4px;
-  }
-  .board-day-panel__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-4);
-    row-gap: var(--space-2);
-  }
-  .board-day-panel__row {
-    border-bottom: 0;
-    gap: var(--space-1);
-  }
-  .board-day-panel__row > a {
-    font-size: var(--text-sm);
-    line-height: 1.25;
-  }
-  .board-day-panel__row--arrivals {
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .board-day-panel__row > b {
-    font-size: var(--text-lg);
   }
 }

@@ -15,42 +15,20 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    await expect(panel.getByRole('heading', { name: 'Загрузка на сегодня' })).toBeVisible();
-    await expect(panel.getByRole('heading', { name: 'Гости сегодня' })).toBeVisible();
+    // сводка по образцу Lite PMS (06.10): две колонки, без дней рождения, задач и скобок
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
-    await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
+    await expect(panel.getByText('Задачи')).toHaveCount(0);
     const panelBox = await panel.boundingBox();
     expect(panelBox!.height).toBeLessThanOrEqual(280);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
     await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
-    const noShows = await (
-      await get(
-        `${FIXTURE_API}/hotel/reservations?from=${day.date}&to=${day.date}&date=arrival&status=NO_SHOW`,
-      )
-    ).json();
-    await expect(panel.getByTestId('day-noshow')).toHaveText(String(noShows.total));
-    const created = await (
-      await get(
-        `${FIXTURE_API}/hotel/reservations?from=${day.date}&to=${day.date}&date=created&pageSize=200`,
-      )
-    ).json();
-    const hot = created.rows.filter(
-      (r: { arrivalDate: string; status: string }) =>
-        r.arrivalDate === day.date && ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'].includes(r.status),
-    ).length;
-    await expect(panel.getByTestId('day-hot')).toHaveText(String(hot));
-    await expect(panel.getByRole('link', { name: 'Незаезды', exact: true })).toHaveAttribute(
-      'href',
-      `/reservations?from=${day.date}&to=${day.date}&date=arrival&status=NO_SHOW`,
-    );
     const board = await (
       await get(`${FIXTURE_API}/chessboard?from=${day.date}&to=${day.date}`)
     ).json();
-    const freeRooms = board.rows.filter(
-      (r: { unit: { kind: string }; cells: { state: string }[] }) =>
-        r.unit.kind === 'ROOM' && r.cells[0]?.state === 'FREE',
+    const free = board.rows.filter(
+      (r: { cells: { state: string }[] }) => r.cells[0]?.state === 'FREE',
     ).length;
-    await expect(panel.getByTestId('day-free')).toHaveText(String(freeRooms));
+    await expect(panel.getByTestId('day-free')).toHaveText(String(free));
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);
@@ -96,9 +74,8 @@ test('empty booking base shows zero occupancy and no urgent bookings', async ({
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel.getByTestId('day-occupancy')).toHaveText('0%');
-  await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '0');
-  await expect(panel.getByTestId('day-hot')).toHaveText('0');
-  await expect(panel.getByTestId('day-noshow')).toHaveText('0');
+  await expect(panel.getByTestId('day-occupied')).toHaveText('0');
+  await expect(panel.getByTestId('day-arrivals')).toHaveText('0');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -110,33 +87,13 @@ for (const theme of ['light', 'dark'] as const) {
     const AxeBuilder = (await import('@axe-core/playwright')).default;
     const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
     expect(results.violations).toEqual([]);
-    await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+    await expect(panel.getByTestId('day-occupancy')).toHaveText('8%');
     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
     await page.screenshot({
       path: `reports/calendar-mobile-statistics-2026-10-05/${theme}-390.png`,
     });
   });
 }
-
-test('marked no-show increments no-show count and leaves hot bookings', async ({
-  page,
-  request,
-}) => {
-  const headers = { 'x-wetop-test-client': '1' };
-  const card = await (
-    await request.get(`${FIXTURE_API}/reservations/20260913-TEST1`, { headers })
-  ).json();
-  const response = await request.post(
-    `${FIXTURE_API}/reservations/20260913-TEST1/items/${card.items[0].id}/no-show`,
-    { headers, data: {} },
-  );
-  expect(response.ok()).toBe(true);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/chessboard');
-  const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel.getByTestId('day-noshow')).toHaveText('1');
-  await expect(panel.getByTestId('day-hot')).toHaveText('2');
-});
 
 for (const theme of ['light', 'dark'] as const) {
   test(`desktop daily widgets ${theme}: accessible pointer targets`, async ({ page }) => {

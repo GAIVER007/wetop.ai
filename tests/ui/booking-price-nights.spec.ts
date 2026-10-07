@@ -25,18 +25,17 @@ test('форма брони: детализация цены по дням, су
   await expect(form.getByTestId('price-by-night-sum')).toContainText('средняя стоимость ночи');
 });
 
-test('календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты', async ({
-  page,
-}) => {
+test('календарь: сводка дня карточкой справа, управление слева', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // было 5 строк (~150px) против одной строки управления; теперь две строки показателей
-  expect(p.height).toBeLessThanOrEqual(Math.max(c.height, 64) + 4);
+  // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
+  expect(p.height).toBeLessThanOrEqual(190);
+  expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
   await expect(panel.getByTestId('day-free')).toBeVisible();
-  await expect(panel.getByTestId('day-units')).toBeVisible();
+  await expect(panel.getByTestId('day-units')).toHaveCount(0);
   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });
 });

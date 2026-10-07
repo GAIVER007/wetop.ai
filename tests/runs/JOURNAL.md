@@ -7463,3 +7463,5 @@
 | 07.10.2026 23:26 | unit | ✅ 4030 из 4033, пропущено 3 | 2 мин 24 с | 2677a24 | [лог](logs/2026-10-07T18-26-39Z-unit-6823.log) |  |
 | 07.10.2026 23:29 | integration | ❌ упало 1 из 922 | 3 мин 22 с | 2677a24 | [лог](logs/2026-10-07T18-29-06Z-integration-1402.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
 | 07.10.2026 23:32 | integration | ❌ упало 1 из 922 | 3 мин 39 с | 2677a24 +1 | [лог](logs/2026-10-07T18-32-50Z-integration-2ba1.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 07.10.2026 23:36 | integration | ❌ упало 1 из 923 | 3 мин 38 с | 2677a24 +8 | [лог](logs/2026-10-07T18-36-45Z-integration-a1cf.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 07.10.2026 23:40 | integration | ✅ 923 из 923 | 3 мин 29 с | da95b99 | [лог](logs/2026-10-07T18-40-55Z-integration-d37a.log) |  |

@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 07.10.2026 19:03 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:53439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+(node:53925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/bar-operational/bar.spec.ts:106:1 › populated sales and movements are readable through real guarded HTTP API (1.5s)
+  ✓   2 tests/bar-operational/bar.spec.ts:121:1 › C13 replay after real reversal returns stored status without effects (1.0s)
+  ✓   3 tests/bar-operational/bar.spec.ts:168:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (907ms)
+  ✓   4 tests/bar-operational/bar.spec.ts:267:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (781ms)
+  ✓   5 tests/bar-operational/bar.spec.ts:296:1 › C14 read-only reads existing sales and rejects a new sale without effects (740ms)
+  ✓   6 tests/bar-operational/bar.spec.ts:311:1 › browser shows populated BAR and retains it after reload on a phone (9.2s)
+  ✓   7 tests/bar-operational/bar.spec.ts:345:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (356ms)
+  ✓   8 tests/bar-operational/bar.spec.ts:390:1 › C03 repeat receipt posting and C04 full supplier repayment preserve stock and reject excess (426ms)
+  ✓   9 tests/bar-operational/bar.spec.ts:424:1 › C15 guarded HTTP denies foreign product, receipt and sale IDs without changing either tenant (939ms)
+  ✓  10 tests/bar-operational/bar.spec.ts:501:1 › C16 simultaneous debt repayment creates one payment at the remaining-debt barrier (359ms)
+  ✓  11 tests/bar-operational/bar.spec.ts:519:1 › C16 simultaneous receipt posting creates exactly one lot and movement (364ms)
+  ✓  12 tests/bar-operational/bar.spec.ts:543:1 › C16 simultaneous restock reversal creates one return per original lot (398ms)
+  ✓  13 tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate (3.5s)
+
+  13 passed (33.1s)
+
+# код выхода 0 · 36 с

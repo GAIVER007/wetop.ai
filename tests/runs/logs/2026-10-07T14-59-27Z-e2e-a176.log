@@ -1,0 +1,105 @@
+# Сквозные (e2e) · 07.10.2026 19:59 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1' '--grep' 'Folio browser|abandoning an unsaved|browser shows populated' '--repeat-each=3'
+[WebServer] (node:33475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:38924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/bar-operational/bar.spec.ts:325:1 › browser shows populated BAR and retains it after reload on a phone (42.5s)
+  ✘  2 tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication (31.7s)
+(node:46921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/bar-operational/bar.spec.ts:855:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (1.2m)
+(node:51154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/bar-operational/bar.spec.ts:325:1 › browser shows populated BAR and retains it after reload on a phone (28.3s)
+  ✘  5 tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication (49.3s)
+(node:53767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/bar-operational/bar.spec.ts:855:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (1.2m)
+(node:54848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/bar-operational/bar.spec.ts:325:1 › browser shows populated BAR and retains it after reload on a phone (22.7s)
+  ✓  8 tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication (17.8s)
+  ✓  9 tests/bar-operational/bar.spec.ts:855:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (28.0s)
+
+
+  1) tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('form.bar-folio-form').getByRole('alert')
+    Expected substring: "Нет ответа API"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('form.bar-folio-form').getByRole('alert') with timeout 5000ms
+      - waiting for locator('form.bar-folio-form').getByRole('alert')
+
+
+      837 |   await request.post(`${qa}/__qa/fault`, { data: { mode: 'bar_after' } });
+      838 |   await form.getByRole('button', { name: 'Добавить в счет', exact: true }).click();
+    > 839 |   await expect(form.getByRole('alert')).toContainText('Нет ответа API');
+          |                                         ^
+      840 |   await expect(form.locator('[name=folioId]')).toHaveValue(folioId);
+      841 |   await expect(form.locator('[name=productId]')).toHaveValue(a.id);
+      842 |   await expect(form.locator('[name=quantityUnits]')).toHaveValue('1');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:839:41
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication/error-context.md
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication/error-context.md
+
+  2) tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('form.bar-folio-form').getByRole('alert')
+    Expected substring: "Нет ответа API"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('form.bar-folio-form').getByRole('alert') with timeout 5000ms
+      - waiting for locator('form.bar-folio-form').getByRole('alert')
+
+
+      837 |   await request.post(`${qa}/__qa/fault`, { data: { mode: 'bar_after' } });
+      838 |   await form.getByRole('button', { name: 'Добавить в счет', exact: true }).click();
+    > 839 |   await expect(form.getByRole('alert')).toContainText('Нет ответа API');
+          |                                         ^
+      840 |   await expect(form.locator('[name=folioId]')).toHaveValue(folioId);
+      841 |   await expect(form.locator('[name=productId]')).toHaveValue(a.id);
+      842 |   await expect(form.locator('[name=quantityUnits]')).toHaveValue('1');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:839:41
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication-repeat1/error-context.md
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication-repeat1/error-context.md
+
+  2 failed
+    tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+    tests/bar-operational/bar.spec.ts:787:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+  7 passed (7.7m)
+
+# код выхода 1 · 7 мин 56 с

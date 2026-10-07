@@ -58,7 +58,7 @@ done
 
 # День смены по Алматы (UTC+5 без перехода на летнее время, как confirmationNumber в @pms/domain)
 [ -n "$day" ] || day="$(date -u -d '+5 hours' +%F 2>/dev/null || date -u -v+5H +%F)"
-[[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "день смены: нужно ГГГГ-ММ-ДД, а не «$day»"
+[[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "день смены: нужно ГГГГ-ММ-ДД, а не «${day}»"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

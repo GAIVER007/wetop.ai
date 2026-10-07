@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 07.10.2026 19:24 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:37410) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] node:net:2008
+[WebServer]     const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+[WebServer]                ^
+[WebServer] 
+[WebServer] Error: listen EADDRINUSE: address already in use 127.0.0.1:55824
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+[WebServer]     at listenInCluster (node:net:2065:12)
+[WebServer]     at node:net:2274:7
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '127.0.0.1',
+[WebServer]   port: 55824
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v24.15.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 4 с

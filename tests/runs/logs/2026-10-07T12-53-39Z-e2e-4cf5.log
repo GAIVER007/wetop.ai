@@ -1,0 +1,107 @@
+# Сквозные (e2e) · 07.10.2026 17:53 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:94411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:94500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/bar-operational/bar.spec.ts:105:1 › populated sales and movements are readable through real guarded HTTP API (833ms)
+  ✓  2 tests/bar-operational/bar.spec.ts:120:1 › C13 replay after real reversal returns stored status without effects (624ms)
+  ✘  3 tests/bar-operational/bar.spec.ts:145:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (280ms)
+(node:94515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/bar-operational/bar.spec.ts:244:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (371ms)
+  ✓  5 tests/bar-operational/bar.spec.ts:273:1 › C14 read-only reads existing sales and rejects a new sale without effects (197ms)
+  ✘  6 tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone (13.3s)
+
+
+  1) tests/bar-operational/bar.spec.ts:145:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts 
+
+    PrismaClientValidationError: 
+    Invalid `prisma.accommodationType.create()` invocation:
+
+    {
+      data: {
+        propertyId: "9313105d-5cfd-4b6c-85f4-1f0d22e6e1f2",
+        code: "QA",
+        name: "Synthetic room",
+        kind: "ROOM",
+              ~~~~~~
+        capacityAdults: 1
+      }
+    }
+
+    Invalid value for argument `kind`. Expected AccommodationKind.
+
+      148 |   const { call, f, payload } = await prepare(request);
+      149 |   const property = await db.property.findUniqueOrThrow({ where: { locationId: f.locationId } });
+    > 150 |   const category = await db.accommodationType.create({
+          |                    ^
+      151 |     data: {
+      152 |       propertyId: property.id,
+      153 |       code: 'QA',
+        at throwValidationException (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+        at vn.handleRequestError (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+        at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+        at vn.request (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+        at a (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:150:20
+
+    Error Context: test-results/bar-C06-C08-real-folio-cha-c4cc7-e-reconcile-integer-amounts/error-context.md
+
+    Error Context: test-results/bar-C06-C08-real-folio-cha-c4cc7-e-reconcile-integer-amounts/error-context.md
+
+  2) tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Бар', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Бар', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Бар', exact: true })
+        - waiting for "http://127.0.0.1:55823/onboarding" navigation to finish...
+        - navigated to "http://127.0.0.1:55823/onboarding"
+
+
+      298 |   await page.waitForURL('**/today');
+      299 |   await page.goto('/bar');
+    > 300 |   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+          |                                                                         ^
+      301 |   await expect(page.getByRole('heading', { name: 'Продажи', exact: true })).toBeVisible();
+      302 |   await expect(page.getByText('Synthetic A').first()).toBeVisible();
+      303 |   await expect(page.getByRole('alert')).toHaveCount(0);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:300:73
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+  2 failed
+    tests/bar-operational/bar.spec.ts:145:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts 
+    tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone 
+  4 passed (22.6s)
+
+# код выхода 1 · 25 с

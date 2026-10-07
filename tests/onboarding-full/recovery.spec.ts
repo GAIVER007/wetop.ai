@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-const qa = 'http://127.0.0.1:55825';
+import { fullQaPorts } from './ports';
+const qa = fullQaPorts.url;
 test.beforeEach(async ({ page, request }) => {
   const fixture = await (await request.post(`${qa}/__qa/reset`, { data: {} })).json();
   await page.goto('/auth/fallback');

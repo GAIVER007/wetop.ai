@@ -101,6 +101,7 @@ export class BarService {
     if (!['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'KASPI', 'HALYK'].includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
     if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора продажи');
     const result = await this.repo.sellRetail({ productId, quantityUnits: integer(body.quantityUnits, 'Количество'), method, idempotencyKey });
+    if (result.kind === 'idempotency_conflict') throw new ConflictException('Этот ключ уже использован для другой продажи');
     if (result.kind === 'not_found') throw new NotFoundException('Товар не найден');
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);
     return result;
@@ -116,6 +117,7 @@ export class BarService {
     const quantityUnits = integer(body.quantityUnits, 'Количество');
     if (quantityUnits > 2_147_483_647n) throw new BadRequestException('Количество слишком большое');
     const result = await this.repo.sellToFolio({ folioId, productId, quantityUnits, idempotencyKey });
+    if (result.kind === 'idempotency_conflict') throw new ConflictException('Этот ключ уже использован для другой продажи');
     if (result.kind === 'folio_not_found') throw new NotFoundException('Открытый счет гостя не найден');
     if (result.kind === 'product_not_found') throw new NotFoundException('Товар не найден');
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);

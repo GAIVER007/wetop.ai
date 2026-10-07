@@ -1,0 +1,57 @@
+# Интеграционные (integration) · 07.10.2026 18:49 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-49-54Z-integration-430c.json' 'tests/integration/bar-property-guard.test.ts' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-external-parent-ownership.test.ts' 'tests/integration/bar-parent-concurrency.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 617ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 1006ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 16305ms
+   ✓ BAR parent mutation races preserve ownership (200)
+     ✓ wetop_app: sale cash, create, link-first, parent READ COMMITTED, link READ COMMITTED 325ms
+     ✓ wetop_service: sale cash, relink, link-first, parent READ COMMITTED, link READ COMMITTED 317ms
+     ✓ wetop_app: folio, create, link-first, parent READ COMMITTED, link REPEATABLE READ 322ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 5379ms
+   ✓ BAR ownership: invoker guards apply to app and BYPASSRLS service (105)
+     ✓ wetop_app INSERT denies receipt line foreign product 350ms
+     ✓ wetop_app INSERT denies lot same-property wrong product 328ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 127ms
+
+ Test Files  5 passed (5)
+      Tests  370 passed (370)
+   Start at  17:50:09
+   Duration  31.94s (tests 88%, import 7%, transform 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-49-54Z-integration-430c.json
+
+# код выхода 0 · 47 с

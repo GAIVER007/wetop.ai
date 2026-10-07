@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 07.10.2026 17:59 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:97230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:97324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/bar-operational/bar.spec.ts:106:1 › populated sales and movements are readable through real guarded HTTP API (2.8s)
+  ✓  2 tests/bar-operational/bar.spec.ts:121:1 › C13 replay after real reversal returns stored status without effects (2.2s)
+  ✓  3 tests/bar-operational/bar.spec.ts:146:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (6.6s)
+  ✓  4 tests/bar-operational/bar.spec.ts:245:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (3.4s)
+  ✓  5 tests/bar-operational/bar.spec.ts:274:1 › C14 read-only reads existing sales and rejects a new sale without effects (962ms)
+  ✘  6 tests/bar-operational/bar.spec.ts:289:1 › browser shows populated BAR and retains it after reload on a phone (44.6s)
+(node:97545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 tests/bar-operational/bar.spec.ts:323:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (6.4s)
+
+
+  1) tests/bar-operational/bar.spec.ts:289:1 › browser shows populated BAR and retains it after reload on a phone 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('cell', { name: 'Synthetic A A', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('cell', { name: 'Synthetic A A', exact: true }) with timeout 5000ms
+      - waiting for getByRole('cell', { name: 'Synthetic A A', exact: true })
+
+
+      310 |   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+      311 |   await expect(page.getByRole('heading', { name: 'Продажи', exact: true })).toBeVisible();
+    > 312 |   await expect(page.getByRole('cell', { name: 'Synthetic A A', exact: true })).toBeVisible();
+          |                                                                                ^
+      313 |   await expect(page.getByRole('alert')).toHaveCount(0);
+      314 |   await page.reload();
+      315 |   await expect(page.getByRole('cell', { name: 'Synthetic A A', exact: true })).toBeVisible();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:312:80
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+  2) tests/bar-operational/bar.spec.ts:323:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      352 |         return result.rows[0].waiting;
+      353 |       })
+    > 354 |       .toBeGreaterThanOrEqual(2);
+          |        ^
+      355 |   } finally {
+      356 |     await blocker.query('COMMIT');
+      357 |     await blocker.end();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:354:8
+
+    Error: apiRequestContext.post: Request context disposed.
+    Call log:
+      - → POST http://127.0.0.1:55825/bar/sales/retail
+        - user-agent: Playwright/1.63.0 (arm64; macOS 26.6) node/26.9
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-session: [REDACTED]
+        - x-wetop-scope: business=3a24fb49-de02-46b8-b3cb-02c3da50d550;location=7b2cf247-0033-4563-b951-9b58d6a15984
+        - content-type: application/json
+        - content-length: 144
+
+
+      339 |   const keys = [randomUUID(), randomUUID()];
+      340 |   const requests = keys.map((idempotencyKey) =>
+    > 341 |     request.post(`${qa}/bar/sales/retail`, {
+          |             ^
+      342 |       headers,
+      343 |       data: { ...payload, quantityUnits: '1', idempotencyKey },
+      344 |     }),
+        at map (/Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:341:13)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:340:25
+
+    Error Context: test-results/bar-C16-last-unit-concurre-d554f-led-real-PostgreSQL-barrier/error-context.md
+
+    Error Context: test-results/bar-C16-last-unit-concurre-d554f-led-real-PostgreSQL-barrier/error-context.md
+
+  2 failed
+    tests/bar-operational/bar.spec.ts:289:1 › browser shows populated BAR and retains it after reload on a phone 
+    tests/bar-operational/bar.spec.ts:323:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier 
+  5 passed (1.7m)
+
+# код выхода 1 · 2 мин 3 с

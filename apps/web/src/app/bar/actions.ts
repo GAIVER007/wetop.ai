@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, barApi } from '../../lib/api';
 
-export interface BarActionResult { error: string | null; ok: number; message?: string }
+export interface BarActionResult { error: string | null; ok: number; message?: string; retry?: { key: string } }
 const value = (fd: FormData, key: string) => String(fd.get(key) ?? '').trim();
 const describe = (error: unknown) => error instanceof ApiError ? error.message : error instanceof Error ? error.message : String(error);
 const minor = (raw: string, field: string) => {
@@ -43,26 +43,32 @@ export async function postBarReceiptAction(fd: FormData): Promise<void> {
   revalidatePath('/bar');
 }
 
+function saleIntent(previous: BarActionResult, fd: FormData) {
+  return previous.retry ?? { key: value(fd, 'idempotencyKey') || crypto.randomUUID() };
+}
+
 export async function sellBarRetailAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
+  const intent = saleIntent(_previous, fd);
   try {
-    await barApi.sellRetail({
+    const sale = await barApi.sellRetail({
       productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), method: value(fd, 'method'),
-      idempotencyKey: crypto.randomUUID(),
+      idempotencyKey: intent.key,
     });
     revalidatePath('/bar');
-    return { error: null, ok: Date.now(), message: 'Продажа записана, остаток и касса обновлены' };
+    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Эта продажа уже отменена. Новая продажа не создана.' : 'Продажа записана, остаток и касса обновлены' };
   } catch (error) {
-    return { error: describe(error), ok: _previous.ok };
+    return { error: describe(error), ok: _previous.ok, retry: intent };
   }
 }
 
 export async function sellBarToFolioAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
+  const intent = saleIntent(_previous, fd);
   try {
-    await barApi.sellToFolio({ folioId: value(fd, 'folioId'), productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), idempotencyKey: crypto.randomUUID() });
+    const sale = await barApi.sellToFolio({ folioId: value(fd, 'folioId'), productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), idempotencyKey: intent.key });
     revalidatePath('/bar');
-    return { error: null, ok: Date.now(), message: 'Товар добавлен в счет гостя, остаток обновлен' };
+    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Это начисление уже отменено. Новое начисление не создано.' : 'Товар добавлен в счет гостя, остаток обновлен' };
   } catch (error) {
-    return { error: describe(error), ok: _previous.ok };
+    return { error: describe(error), ok: _previous.ok, retry: intent };
   }
 }
 

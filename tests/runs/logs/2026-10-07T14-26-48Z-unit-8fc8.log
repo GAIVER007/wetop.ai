@@ -1,0 +1,105 @@
+# Модульные (unit) · 07.10.2026 19:26 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-26-48Z-unit-8fc8.json' 'tests/unit/full-qa-ports.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ❯ |unit| tests/unit/full-qa-ports.test.ts (2 tests | 2 failed) 203ms
+   × isolated full QA can use its own loopback port range 199ms
+   × rejects an invalid port range before starting any fixture 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/full-qa-ports.test.ts > isolated full QA can use its own loopback port range
+AssertionError: expected 'http://127.0.0.1:55823' to be 'http://127.0.0.1:56080' // Object.is equality
+
+Expected: "http://127.0.0.1:56080"
+Received: "http://127.0.0.1:55823"
+
+ ❯ tests/unit/full-qa-ports.test.ts:7:31
+      5|   vi.resetModules();
+      6|   const config = (await import('../onboarding-full/playwright.config')…
+      7|   expect(config.use?.baseURL).toBe('http://127.0.0.1:56080');
+       |                               ^
+      8|   const servers = config.webServer;
+      9|   expect(Array.isArray(servers)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/full-qa-ports.test.ts > rejects an invalid port range before starting any fixture
+AssertionError: promise resolved "{ …(1), …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "default": {
++     "testDir": ".",
++     "testMatch": "*.spec.ts",
++     "timeout": 150000,
++     "use": {
++       "baseURL": "http://127.0.0.1:55823",
++       "viewport": {
++         "height": 1000,
++         "width": 1440,
++       },
++     },
++     "webServer": [
++       {
++         "command": "npx tsx --tsconfig apps/api/tsconfig.json tests/onboarding-full/api.ts",
++         "cwd": "../..",
++         "env": {
++           "AUTH_REQUIRED": "1",
++           "CHANNEX_FULL_SYNC": "off",
++           "CHANNEX_OUTBOX_WORKER": "off",
++           "CHANNEX_PULL": "off",
++           "CHANNEX_WEBHOOK_HEALTH": "off",
++           "DATABASE_SCHEMA": "pms_test",
++           "GUARD": "off",
++           "GUARD_AUTOFIX": "off",
++           "NODE_ENV": "test",
++         },
++         "reuseExistingServer": false,
++         "url": "http://127.0.0.1:55825/__qa/health",
++       },
++       {
++         "command": "npm exec -w apps/web -- next dev --port 55823 --hostname 127.0.0.1",
++         "cwd": "../..",
++         "env": {
++           "APP_API_URL": "http://127.0.0.1:55825",
++           "APP_AUTH_REQUIRED": "1",
++           "APP_URL": "http://127.0.0.1:55823",
++           "NEXT_TELEMETRY_DISABLED": "1",
++           "WETOP_SITE_URL": "http://127.0.0.1:55823",
++         },
++         "reuseExistingServer": false,
++         "timeout": 120000,
++         "url": "http://127.0.0.1:55823/auth/fallback",
++       },
++     ],
++     "workers": 1,
++     Symbol(defineConfigWasUsed): true,
++   },
+  }
+
+ ❯ tests/unit/full-qa-ports.test.ts:15:64
+     13|   vi.stubEnv('WETOP_QA_PORT_BASE', '65535');
+     14|   vi.resetModules();
+     15|   await expect(import('../onboarding-full/playwright.config')).rejects…
+       |                                                                ^
+     16| });
+     17|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  18:26:49
+   Duration  302ms (tests 91%, transform 6%, import 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-26-48Z-unit-8fc8.json
+
+# код выхода 1 · 1 с

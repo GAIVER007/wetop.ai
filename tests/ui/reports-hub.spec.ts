@@ -109,7 +109,7 @@ test('карточки ведут в готовые экраны с тем же 
   const main = page.getByRole('main');
   await expect(main.getByTestId('report-finance')).toHaveAttribute(
     'href',
-    `/finance?from=${monthFrom}&to=${monthTo}`,
+    `/finance?from=${monthFrom}&to=${monthTo}#charges`,
   );
   await expect(main.getByTestId('report-debts')).toHaveAttribute(
     'href',
@@ -156,7 +156,7 @@ test('пресет «Сегодня» и свой период меняют ад
   await expect(page).toHaveURL(`/reports?from=${today}&to=${today}`);
   await expect(main.getByTestId('report-finance')).toHaveAttribute(
     'href',
-    `/finance?from=${today}&to=${today}`,
+    `/finance?from=${today}&to=${today}#charges`,
   );
 
   // свой период — та же форма С/По, что на «Финансах»

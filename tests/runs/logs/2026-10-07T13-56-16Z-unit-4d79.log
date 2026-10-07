@@ -1,0 +1,63 @@
+# Модульные (unit) · 07.10.2026 18:56 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 20
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-56-16Z-unit-4d79.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (10 tests | 2 failed) 43ms
+   ✓ форма прихода бара (8)
+     ✓ переводит тенге и процент в целые младшие единицы 27ms
+     ✓ не пропускает float и не отправляет запрос 1ms
+     ✓ передает розничную продажу с ключом повтора 1ms
+     ✓ переводит частичную оплату поставщику в minor units 0ms
+     ✓ передает продажу в счет гостя с ключом повтора 0ms
+     ✓ передает фактический остаток без float 0ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ❯ BAR sale retry identity (2)
+     × retail: forwards the same form intent key after a lost response 9ms
+     × folio: forwards the same form intent key after a lost response 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR sale retry identity > retail: forwards the same form intent key after a lost response
+AssertionError: expected '99dc7916-23db-418f-9882-4a7cf78636cf' to be 'f7506320-a7cc-471f-90b5-d6e2e5629959' // Object.is equality
+
+Expected: "f7506320-a7cc-471f-90b5-d6e2e5629959"
+Received: "99dc7916-23db-418f-9882-4a7cf78636cf"
+
+ ❯ apps/web/src/app/bar/actions.test.ts:219:42
+    217|       await action(first, fd);
+    218|       const calls = vi.mocked(api).mock.calls;
+    219|       expect(calls[0][0].idempotencyKey).toBe(fd.get('idempotencyKey')…
+       |                                          ^
+    220|       expect(calls[1][0].idempotencyKey).toBe(calls[0][0].idempotencyK…
+    221|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR sale retry identity > folio: forwards the same form intent key after a lost response
+AssertionError: expected '1752b634-d2d9-4909-8f2c-2c95727cf49e' to be 'f7506320-a7cc-471f-90b5-d6e2e5629959' // Object.is equality
+
+Expected: "f7506320-a7cc-471f-90b5-d6e2e5629959"
+Received: "1752b634-d2d9-4909-8f2c-2c95727cf49e"
+
+ ❯ apps/web/src/app/bar/actions.test.ts:219:42
+    217|       await action(first, fd);
+    218|       const calls = vi.mocked(api).mock.calls;
+    219|       expect(calls[0][0].idempotencyKey).toBe(fd.get('idempotencyKey')…
+       |                                          ^
+    220|       expect(calls[1][0].idempotencyKey).toBe(calls[0][0].idempotencyK…
+    221|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  17:56:20
+   Duration  499ms (transform 54%, tests 22%, import 20%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-56-16Z-unit-4d79.json
+
+# код выхода 1 · 4 с

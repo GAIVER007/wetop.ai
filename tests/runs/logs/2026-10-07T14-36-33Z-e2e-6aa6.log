@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 07.10.2026 19:36 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:74724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+(node:74795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/bar-operational/bar.spec.ts:107:1 › populated sales and movements are readable through real guarded HTTP API (533ms)
+  ✓   2 tests/bar-operational/bar.spec.ts:122:1 › C13 replay after real reversal returns stored status without effects (317ms)
+  ✓   3 tests/bar-operational/bar.spec.ts:169:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (256ms)
+  ✓   4 tests/bar-operational/bar.spec.ts:281:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (199ms)
+  ✓   5 tests/bar-operational/bar.spec.ts:310:1 › C14 read-only reads existing sales and rejects a new sale without effects (180ms)
+  ✓   6 tests/bar-operational/bar.spec.ts:325:1 › browser shows populated BAR and retains it after reload on a phone (3.2s)
+  ✓   7 tests/bar-operational/bar.spec.ts:359:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (309ms)
+  ✓   8 tests/bar-operational/bar.spec.ts:404:1 › C03 repeat receipt posting and C04 full supplier repayment preserve stock and reject excess (204ms)
+  ✓   9 tests/bar-operational/bar.spec.ts:438:1 › C15 guarded HTTP denies foreign product, receipt and sale IDs without changing either tenant (516ms)
+  ✓  10 tests/bar-operational/bar.spec.ts:515:1 › C16 simultaneous debt repayment creates one payment at the remaining-debt barrier (269ms)
+  ✓  11 tests/bar-operational/bar.spec.ts:533:1 › C16 simultaneous receipt posting creates exactly one lot and movement (277ms)
+  ✓  12 tests/bar-operational/bar.spec.ts:558:1 › C16 simultaneous restock reversal creates one return per original lot (309ms)
+  ✓  13 tests/bar-operational/bar.spec.ts:586:1 › C13 browser retries a committed retail sale after lost response without a duplicate (2.2s)
+  ✓  14 tests/bar-operational/bar.spec.ts:637:1 › C01 unused barcode product can be archived without damaging existing history (201ms)
+  ✓  15 tests/bar-operational/bar.spec.ts:683:1 › C02 persisted multiline draft and repeated reads leave debt stock and cash unchanged (182ms)
+  ✓  16 tests/bar-operational/bar.spec.ts:715:1 › C13 same sale key with changed payload is rejected without effects (194ms)
+  ✓  17 tests/bar-operational/bar.spec.ts:741:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (257ms)
+  ✓  18 tests/bar-operational/bar.spec.ts:782:1 › C13 Folio browser preserves a committed charge and retries it without duplication (1.9s)
+
+  18 passed (16.4s)
+
+# код выхода 0 · 17 с

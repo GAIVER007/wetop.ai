@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 07.10.2026 19:34 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1' '--grep' 'simultaneous identical intent'
+[WebServer] (node:73767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:73838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (5.3s)
+
+
+  1) tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    1
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      738 |       const result = await blocker.query("SELECT count(*)::int AS waiting FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND (query LIKE '%bar_stock_lots%' OR query LIKE '%pms.bar-sale:%')");
+      739 |       return result.rows[0].waiting;
+    > 740 |     }).toBeGreaterThanOrEqual(2);
+          |        ^
+      741 |   } finally {
+      742 |     await blocker.query('COMMIT');
+      743 |     await blocker.end();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:740:8
+
+    Error: apiRequestContext.post: Request context disposed.
+    Call log:
+      - → POST http://127.0.0.1:56082/bar/sales/retail
+        - user-agent: Playwright/1.63.0 (arm64; macOS 26.6) node/24.15
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-session: [REDACTED-SYNTHETIC-SESSION]
+        - x-wetop-scope: business=f9055bab-222f-4d78-b677-50c1f5e6be4e;location=ba1517fd-c1b6-4a4e-aa91-1ba15cc6b466
+        - content-type: application/json
+        - content-length: 144
+
+
+      732 |   const idempotencyKey = randomUUID();
+      733 |   const data = { ...payload, quantityUnits: '1', idempotencyKey };
+    > 734 |   const calls = [request.post(`${qa}/bar/sales/retail`, { headers, data }), request.post(`${qa}/bar/sales/retail`, { headers, data })];
+          |                          ^
+      735 |   try {
+      736 |     await expect.poll(async () => {
+      737 |       await blocker.query('SELECT pg_stat_clear_snapshot()');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:734:26
+
+    Error Context: test-results/bar-C13-simultaneous-ident-f04ca--a-controlled-stock-barrier/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier 
+
+# код выхода 1 · 10 с

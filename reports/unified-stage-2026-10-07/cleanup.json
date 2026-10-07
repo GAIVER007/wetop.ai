@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-07T17:15:45.747637+00:00",
+  "postgresql_version": "17",
+  "data": "synthetic only",
+  "owned_ports": [
+    55934,
+    56080,
+    56081,
+    56082
+  ],
+  "listeners_found": false,
+  "removed_owned_paths": [
+    "/tmp/wetop-unified-pgdata-20261007",
+    "/tmp/wetop-unified-pg-bin-20261007"
+  ],
+  "owned_temporary_paths_remaining": [],
+  "production_changed": false,
+  "foreign_processes_touched": false,
+  "recreated_stand_cleanup": "completed after final master and BAR runs"
+}

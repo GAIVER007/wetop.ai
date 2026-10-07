@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 07.10.2026 18:53 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--grep' 'C13 browser' '--workers=1'
+[WebServer] (node:28173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:29410) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate (7.4s)
+
+
+  1) tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+
+    Error: locator.selectOption: Error: strict mode violation: locator('form.bar-sale-form').locator('[name=productId]') resolved to 3 elements:
+        1) <select class="inp" required="" name="productId">…</select> aka getByLabel('ТоварВыберите товарSynthetic').first()
+        2) <select class="inp" required="" name="productId">…</select> aka getByLabel('ТоварВыберите товарSynthetic').nth(1)
+        3) <select class="inp" required="" name="productId">…</select> aka getByLabel('ТоварВыберите товарSynthetic A, по системе 8Synthetic B, по системе')
+
+    Call log:
+      - waiting for locator('form.bar-sale-form').locator('[name=productId]')
+
+
+      590 |   await page.goto('/bar');
+      591 |   const form = page.locator('form.bar-sale-form');
+    > 592 |   await form.locator('[name=productId]').selectOption(a.id);
+          |                                          ^
+      593 |   await form.locator('[name=quantityUnits]').fill('1');
+      594 |   await request.post(`${qa}/__qa/fault`, { data: { mode: 'bar_after' } });
+      595 |   await form.getByRole('button', { name: 'Продать', exact: true }).click();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:592:42
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+
+# код выхода 1 · 17 с

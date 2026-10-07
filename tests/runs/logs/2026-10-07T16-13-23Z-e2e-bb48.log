@@ -1,0 +1,556 @@
+# Сквозные (e2e) · 07.10.2026 21:13 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:68247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:68369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+(node:68388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/bar-operational/access.spec.ts:134:1 › C15 real SessionGuard isolates foreign cash charges Folio and substituted related IDs (5.0s)
+  ✓   2 tests/bar-operational/access.spec.ts:259:1 › C14 existing OWNER MANAGER STAFF and read-only permissions through real SessionGuard (1.2s)
+  ✓   3 tests/bar-operational/bar.spec.ts:107:1 › populated sales and movements are readable through real guarded HTTP API (980ms)
+  ✓   4 tests/bar-operational/bar.spec.ts:122:1 › C13 replay after real reversal returns stored status without effects (1.8s)
+  ✓   5 tests/bar-operational/bar.spec.ts:169:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (1.7s)
+  ✓   6 tests/bar-operational/bar.spec.ts:281:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (2.0s)
+  ✓   7 tests/bar-operational/bar.spec.ts:310:1 › C14 read-only reads existing sales and rejects a new sale without effects (1.1s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:06.708Z","id":"qa-68369-1","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:06.966Z","id":"qa-68369-1","route":"other","phase":"response","status":201,"elapsedMs":258}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:07.407Z","id":"qa-68369-2","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:07.495Z","id":"qa-68369-2","route":"other","phase":"response","status":200,"elapsedMs":88}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:09.734Z","id":"qa-68369-3","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:09.936Z","id":"qa-68369-3","route":"/auth/me","phase":"response","status":200,"elapsedMs":202}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:09.973Z","id":"qa-68369-4","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:10.180Z","id":"qa-68369-4","route":"other","phase":"response","status":200,"elapsedMs":207}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:10.536Z","id":"qa-68369-5","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:10.543Z","id":"qa-68369-6","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:10.548Z","id":"qa-68369-7","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.245Z","id":"qa-68369-7","route":"other","phase":"response","status":200,"elapsedMs":697}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.288Z","id":"qa-68369-5","route":"other","phase":"response","status":200,"elapsedMs":752}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.461Z","id":"qa-68369-8","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.466Z","id":"qa-68369-9","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.489Z","id":"qa-68369-6","route":"other","phase":"response","status":200,"elapsedMs":946}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.590Z","id":"qa-68369-8","route":"other","phase":"response","status":403,"elapsedMs":129}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:11.700Z","id":"qa-68369-9","route":"other","phase":"response","status":200,"elapsedMs":234}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.268Z","id":"qa-68369-10","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.444Z","id":"qa-68369-10","route":"/auth/me","phase":"response","status":200,"elapsedMs":176}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.455Z","id":"qa-68369-11","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.636Z","id":"qa-68369-11","route":"/auth/me","phase":"response","status":200,"elapsedMs":181}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.711Z","id":"qa-68369-12","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.778Z","id":"qa-68369-12","route":"/onboarding","phase":"response","status":200,"elapsedMs":67}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.789Z","id":"qa-68369-13","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:13.849Z","id":"qa-68369-13","route":"/hotel/onboarding","phase":"response","status":200,"elapsedMs":60}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:14.381Z","id":"qa-68369-14","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:14.386Z","id":"qa-68369-15","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:14.495Z","id":"qa-68369-14","route":"/onboarding","phase":"response","status":200,"elapsedMs":114}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:14.519Z","id":"qa-68369-16","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:14.526Z","id":"qa-68369-15","route":"/onboarding","phase":"response","status":200,"elapsedMs":140}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.270Z","id":"qa-68369-16","route":"/hotel/onboarding","phase":"response","status":201,"elapsedMs":751}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.392Z","id":"qa-68369-17","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.435Z","id":"qa-68369-17","route":"/auth/me","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.460Z","id":"qa-68369-18","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.817Z","id":"qa-68369-18","route":"other","phase":"response","status":200,"elapsedMs":357}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.960Z","id":"qa-68369-19","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.966Z","id":"qa-68369-20","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:15.972Z","id":"qa-68369-21","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.118Z","id":"qa-68369-19","route":"other","phase":"response","status":200,"elapsedMs":158}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.177Z","id":"qa-68369-22","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.186Z","id":"qa-68369-21","route":"other","phase":"response","status":200,"elapsedMs":214}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.198Z","id":"qa-68369-20","route":"other","phase":"response","status":200,"elapsedMs":232}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.222Z","id":"qa-68369-23","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.233Z","id":"qa-68369-23","route":"other","phase":"response","status":403,"elapsedMs":11}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.391Z","id":"qa-68369-22","route":"other","phase":"response","status":200,"elapsedMs":214}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.418Z","id":"qa-68369-24","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.554Z","id":"qa-68369-24","route":"other","phase":"response","status":200,"elapsedMs":136}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.615Z","id":"qa-68369-25","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.694Z","id":"qa-68369-25","route":"/auth/me","phase":"response","status":200,"elapsedMs":79}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.738Z","id":"qa-68369-26","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.742Z","id":"qa-68369-27","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.745Z","id":"qa-68369-28","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.753Z","id":"qa-68369-29","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.763Z","id":"qa-68369-30","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.770Z","id":"qa-68369-31","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.777Z","id":"qa-68369-32","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.783Z","id":"qa-68369-33","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.786Z","id":"qa-68369-34","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.793Z","id":"qa-68369-35","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.876Z","id":"qa-68369-26","route":"other","phase":"response","status":200,"elapsedMs":138}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:16.912Z","id":"qa-68369-27","route":"other","phase":"response","status":200,"elapsedMs":170}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.253Z","id":"qa-68369-28","route":"other","phase":"response","status":200,"elapsedMs":508}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.263Z","id":"qa-68369-29","route":"other","phase":"response","status":200,"elapsedMs":510}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.270Z","id":"qa-68369-30","route":"other","phase":"response","status":200,"elapsedMs":507}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.277Z","id":"qa-68369-31","route":"other","phase":"response","status":200,"elapsedMs":507}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.284Z","id":"qa-68369-32","route":"other","phase":"response","status":200,"elapsedMs":507}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.291Z","id":"qa-68369-33","route":"other","phase":"response","status":200,"elapsedMs":508}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.296Z","id":"qa-68369-34","route":"other","phase":"response","status":200,"elapsedMs":510}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:17.305Z","id":"qa-68369-35","route":"other","phase":"response","status":200,"elapsedMs":512}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.203Z","id":"qa-68369-36","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.207Z","id":"qa-68369-37","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.296Z","id":"qa-68369-37","route":"other","phase":"response","status":200,"elapsedMs":89}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.303Z","id":"qa-68369-36","route":"other","phase":"response","status":200,"elapsedMs":100}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.526Z","id":"qa-68369-38","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.605Z","id":"qa-68369-38","route":"/auth/me","phase":"response","status":200,"elapsedMs":79}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.707Z","id":"qa-68369-39","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.712Z","id":"qa-68369-40","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.716Z","id":"qa-68369-41","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.721Z","id":"qa-68369-42","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.724Z","id":"qa-68369-43","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.727Z","id":"qa-68369-44","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.733Z","id":"qa-68369-45","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.740Z","id":"qa-68369-46","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.742Z","id":"qa-68369-47","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.745Z","id":"qa-68369-48","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:18.818Z","id":"qa-68369-39","route":"other","phase":"response","status":200,"elapsedMs":111}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.153Z","id":"qa-68369-40","route":"other","phase":"response","status":200,"elapsedMs":441}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.164Z","id":"qa-68369-42","route":"other","phase":"response","status":200,"elapsedMs":443}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.169Z","id":"qa-68369-41","route":"other","phase":"response","status":200,"elapsedMs":453}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.174Z","id":"qa-68369-44","route":"other","phase":"response","status":200,"elapsedMs":447}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.184Z","id":"qa-68369-48","route":"other","phase":"response","status":200,"elapsedMs":439}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.191Z","id":"qa-68369-47","route":"other","phase":"response","status":200,"elapsedMs":449}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.197Z","id":"qa-68369-43","route":"other","phase":"response","status":200,"elapsedMs":473}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.203Z","id":"qa-68369-45","route":"other","phase":"response","status":200,"elapsedMs":470}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.208Z","id":"qa-68369-46","route":"other","phase":"response","status":200,"elapsedMs":468}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.794Z","id":"qa-68369-49","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:19.842Z","id":"qa-68369-49","route":"other","phase":"response","status":200,"elapsedMs":48}
+  ✓   8 tests/bar-operational/bar.spec.ts:325:1 › browser shows populated BAR and retains it after reload on a phone (17.2s)
+  ✓   9 tests/bar-operational/bar.spec.ts:364:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (1.0s)
+  ✓  10 tests/bar-operational/bar.spec.ts:409:1 › C03 repeat receipt posting and C04 full supplier repayment preserve stock and reject excess (759ms)
+  ✓  11 tests/bar-operational/bar.spec.ts:443:1 › C15 guarded HTTP denies foreign product, receipt and sale IDs without changing either tenant (2.4s)
+  ✓  12 tests/bar-operational/bar.spec.ts:520:1 › C16 simultaneous debt repayment creates one payment at the remaining-debt barrier (670ms)
+  ✓  13 tests/bar-operational/bar.spec.ts:538:1 › C16 simultaneous receipt posting creates exactly one lot and movement (687ms)
+  ✓  14 tests/bar-operational/bar.spec.ts:563:1 › C16 simultaneous restock reversal creates one return per original lot (888ms)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.008Z","id":"qa-68369-50","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.182Z","id":"qa-68369-50","route":"other","phase":"response","status":201,"elapsedMs":174}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.223Z","id":"qa-68369-51","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.256Z","id":"qa-68369-51","route":"other","phase":"response","status":200,"elapsedMs":33}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.370Z","id":"qa-68369-52","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.444Z","id":"qa-68369-52","route":"/auth/me","phase":"response","status":200,"elapsedMs":74}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.460Z","id":"qa-68369-53","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.550Z","id":"qa-68369-53","route":"other","phase":"response","status":200,"elapsedMs":90}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.768Z","id":"qa-68369-54","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.772Z","id":"qa-68369-55","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.776Z","id":"qa-68369-56","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.889Z","id":"qa-68369-54","route":"other","phase":"response","status":200,"elapsedMs":121}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.938Z","id":"qa-68369-57","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.954Z","id":"qa-68369-56","route":"other","phase":"response","status":200,"elapsedMs":178}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:30.966Z","id":"qa-68369-55","route":"other","phase":"response","status":200,"elapsedMs":194}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.036Z","id":"qa-68369-58","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.042Z","id":"qa-68369-58","route":"other","phase":"response","status":403,"elapsedMs":6}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.050Z","id":"qa-68369-57","route":"other","phase":"response","status":200,"elapsedMs":112}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.904Z","id":"qa-68369-59","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.970Z","id":"qa-68369-59","route":"/auth/me","phase":"response","status":200,"elapsedMs":66}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:31.978Z","id":"qa-68369-60","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.044Z","id":"qa-68369-60","route":"/auth/me","phase":"response","status":200,"elapsedMs":66}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.053Z","id":"qa-68369-61","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.141Z","id":"qa-68369-61","route":"/onboarding","phase":"response","status":200,"elapsedMs":88}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.153Z","id":"qa-68369-62","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.277Z","id":"qa-68369-62","route":"/hotel/onboarding","phase":"response","status":200,"elapsedMs":124}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.540Z","id":"qa-68369-63","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.546Z","id":"qa-68369-64","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.674Z","id":"qa-68369-63","route":"/onboarding","phase":"response","status":200,"elapsedMs":134}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.711Z","id":"qa-68369-64","route":"/onboarding","phase":"response","status":200,"elapsedMs":165}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:32.772Z","id":"qa-68369-65","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.410Z","id":"qa-68369-65","route":"/hotel/onboarding","phase":"response","status":201,"elapsedMs":638}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.619Z","id":"qa-68369-66","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.660Z","id":"qa-68369-66","route":"/auth/me","phase":"response","status":200,"elapsedMs":41}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.691Z","id":"qa-68369-67","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.739Z","id":"qa-68369-67","route":"other","phase":"response","status":200,"elapsedMs":48}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.791Z","id":"qa-68369-68","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.795Z","id":"qa-68369-69","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:33.798Z","id":"qa-68369-70","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.036Z","id":"qa-68369-68","route":"other","phase":"response","status":200,"elapsedMs":245}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.083Z","id":"qa-68369-71","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.087Z","id":"qa-68369-70","route":"other","phase":"response","status":200,"elapsedMs":289}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.096Z","id":"qa-68369-69","route":"other","phase":"response","status":200,"elapsedMs":301}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.119Z","id":"qa-68369-72","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.150Z","id":"qa-68369-72","route":"other","phase":"response","status":403,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.161Z","id":"qa-68369-73","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.165Z","id":"qa-68369-71","route":"other","phase":"response","status":200,"elapsedMs":82}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.208Z","id":"qa-68369-73","route":"other","phase":"response","status":200,"elapsedMs":47}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.272Z","id":"qa-68369-74","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.373Z","id":"qa-68369-74","route":"/auth/me","phase":"response","status":200,"elapsedMs":101}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.412Z","id":"qa-68369-75","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.415Z","id":"qa-68369-76","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.418Z","id":"qa-68369-77","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.421Z","id":"qa-68369-78","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.424Z","id":"qa-68369-79","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.426Z","id":"qa-68369-80","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.430Z","id":"qa-68369-81","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.433Z","id":"qa-68369-82","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.436Z","id":"qa-68369-83","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.438Z","id":"qa-68369-84","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.480Z","id":"qa-68369-75","route":"other","phase":"response","status":200,"elapsedMs":68}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.505Z","id":"qa-68369-76","route":"other","phase":"response","status":200,"elapsedMs":90}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.720Z","id":"qa-68369-77","route":"other","phase":"response","status":200,"elapsedMs":302}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.730Z","id":"qa-68369-78","route":"other","phase":"response","status":200,"elapsedMs":309}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.737Z","id":"qa-68369-79","route":"other","phase":"response","status":200,"elapsedMs":313}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.743Z","id":"qa-68369-80","route":"other","phase":"response","status":200,"elapsedMs":317}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.752Z","id":"qa-68369-81","route":"other","phase":"response","status":200,"elapsedMs":322}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.758Z","id":"qa-68369-82","route":"other","phase":"response","status":200,"elapsedMs":325}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.763Z","id":"qa-68369-83","route":"other","phase":"response","status":200,"elapsedMs":327}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:34.769Z","id":"qa-68369-84","route":"other","phase":"response","status":200,"elapsedMs":331}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.367Z","id":"qa-68369-85","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.370Z","id":"qa-68369-86","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.413Z","id":"qa-68369-86","route":"other","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.419Z","id":"qa-68369-85","route":"other","phase":"response","status":200,"elapsedMs":52}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.938Z","id":"qa-68369-87","route":"/bar/sales/retail","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:35.981Z","id":"qa-68369-87","route":"/bar/sales/retail","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":43,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:14:35.981Z","route":"/bar/sales/retail","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.073Z","id":"qa-68369-88","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.109Z","id":"qa-68369-88","route":"/auth/me","phase":"response","status":200,"elapsedMs":36}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.136Z","id":"qa-68369-89","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.139Z","id":"qa-68369-90","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.141Z","id":"qa-68369-91","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.143Z","id":"qa-68369-92","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.145Z","id":"qa-68369-93","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.148Z","id":"qa-68369-94","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.152Z","id":"qa-68369-95","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.154Z","id":"qa-68369-96","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.156Z","id":"qa-68369-97","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.160Z","id":"qa-68369-98","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.177Z","id":"qa-68369-89","route":"other","phase":"response","status":200,"elapsedMs":41}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.207Z","id":"qa-68369-90","route":"other","phase":"response","status":200,"elapsedMs":68}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.271Z","id":"qa-68369-91","route":"other","phase":"response","status":200,"elapsedMs":130}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.289Z","id":"qa-68369-92","route":"other","phase":"response","status":200,"elapsedMs":146}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.299Z","id":"qa-68369-94","route":"other","phase":"response","status":200,"elapsedMs":151}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.308Z","id":"qa-68369-93","route":"other","phase":"response","status":200,"elapsedMs":163}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.318Z","id":"qa-68369-97","route":"other","phase":"response","status":200,"elapsedMs":162}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.329Z","id":"qa-68369-98","route":"other","phase":"response","status":200,"elapsedMs":169}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.335Z","id":"qa-68369-95","route":"other","phase":"response","status":200,"elapsedMs":183}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.348Z","id":"qa-68369-96","route":"other","phase":"response","status":200,"elapsedMs":194}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.907Z","id":"qa-68369-99","route":"/bar/sales/retail","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:36.933Z","id":"qa-68369-99","route":"/bar/sales/retail","phase":"response","status":409,"elapsedMs":26}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.002Z","id":"qa-68369-100","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.035Z","id":"qa-68369-100","route":"/auth/me","phase":"response","status":200,"elapsedMs":33}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.075Z","id":"qa-68369-101","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.080Z","id":"qa-68369-102","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.085Z","id":"qa-68369-103","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.087Z","id":"qa-68369-104","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.089Z","id":"qa-68369-105","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.093Z","id":"qa-68369-106","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.100Z","id":"qa-68369-107","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.105Z","id":"qa-68369-108","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.110Z","id":"qa-68369-109","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.115Z","id":"qa-68369-110","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.212Z","id":"qa-68369-102","route":"other","phase":"response","status":200,"elapsedMs":132}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.224Z","id":"qa-68369-101","route":"other","phase":"response","status":200,"elapsedMs":149}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.267Z","id":"qa-68369-103","route":"other","phase":"response","status":200,"elapsedMs":182}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.286Z","id":"qa-68369-104","route":"other","phase":"response","status":200,"elapsedMs":199}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.311Z","id":"qa-68369-110","route":"other","phase":"response","status":200,"elapsedMs":196}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.328Z","id":"qa-68369-109","route":"other","phase":"response","status":200,"elapsedMs":218}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.338Z","id":"qa-68369-106","route":"other","phase":"response","status":200,"elapsedMs":245}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.351Z","id":"qa-68369-105","route":"other","phase":"response","status":200,"elapsedMs":262}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.359Z","id":"qa-68369-107","route":"other","phase":"response","status":200,"elapsedMs":259}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.366Z","id":"qa-68369-108","route":"other","phase":"response","status":200,"elapsedMs":261}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.877Z","id":"qa-68369-111","route":"/bar/sales/retail","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:37.970Z","id":"qa-68369-111","route":"/bar/sales/retail","phase":"response","status":201,"elapsedMs":94}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.027Z","id":"qa-68369-112","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.050Z","id":"qa-68369-112","route":"/auth/me","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.084Z","id":"qa-68369-113","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.088Z","id":"qa-68369-114","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.093Z","id":"qa-68369-115","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.102Z","id":"qa-68369-116","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.105Z","id":"qa-68369-117","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.107Z","id":"qa-68369-118","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.112Z","id":"qa-68369-119","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.122Z","id":"qa-68369-120","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.124Z","id":"qa-68369-121","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.126Z","id":"qa-68369-122","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.148Z","id":"qa-68369-113","route":"other","phase":"response","status":200,"elapsedMs":64}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.177Z","id":"qa-68369-114","route":"other","phase":"response","status":200,"elapsedMs":89}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.189Z","id":"qa-68369-116","route":"other","phase":"response","status":200,"elapsedMs":87}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.198Z","id":"qa-68369-115","route":"other","phase":"response","status":200,"elapsedMs":105}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.206Z","id":"qa-68369-118","route":"other","phase":"response","status":200,"elapsedMs":99}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.220Z","id":"qa-68369-121","route":"other","phase":"response","status":200,"elapsedMs":96}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.225Z","id":"qa-68369-122","route":"other","phase":"response","status":200,"elapsedMs":99}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.230Z","id":"qa-68369-117","route":"other","phase":"response","status":200,"elapsedMs":125}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.237Z","id":"qa-68369-119","route":"other","phase":"response","status":200,"elapsedMs":125}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.243Z","id":"qa-68369-120","route":"other","phase":"response","status":200,"elapsedMs":121}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.840Z","id":"qa-68369-123","route":"/bar/sales/retail","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:38.965Z","id":"qa-68369-123","route":"/bar/sales/retail","phase":"response","status":201,"elapsedMs":125}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.013Z","id":"qa-68369-124","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.039Z","id":"qa-68369-124","route":"/auth/me","phase":"response","status":200,"elapsedMs":26}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.067Z","id":"qa-68369-125","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.072Z","id":"qa-68369-126","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.077Z","id":"qa-68369-127","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.080Z","id":"qa-68369-128","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.084Z","id":"qa-68369-129","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.086Z","id":"qa-68369-130","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.089Z","id":"qa-68369-131","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.094Z","id":"qa-68369-132","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.104Z","id":"qa-68369-133","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.106Z","id":"qa-68369-134","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.121Z","id":"qa-68369-125","route":"other","phase":"response","status":200,"elapsedMs":54}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.151Z","id":"qa-68369-126","route":"other","phase":"response","status":200,"elapsedMs":79}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.165Z","id":"qa-68369-127","route":"other","phase":"response","status":200,"elapsedMs":88}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.183Z","id":"qa-68369-128","route":"other","phase":"response","status":200,"elapsedMs":103}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.202Z","id":"qa-68369-130","route":"other","phase":"response","status":200,"elapsedMs":116}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.221Z","id":"qa-68369-129","route":"other","phase":"response","status":200,"elapsedMs":137}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.227Z","id":"qa-68369-134","route":"other","phase":"response","status":200,"elapsedMs":121}
+  ✓  15 tests/bar-operational/bar.spec.ts:591:1 › C13 browser retries a committed retail sale after lost response without a duplicate (12.1s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.237Z","id":"qa-68369-133","route":"other","phase":"response","status":200,"elapsedMs":133}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.246Z","id":"qa-68369-131","route":"other","phase":"response","status":200,"elapsedMs":157}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:39.254Z","id":"qa-68369-132","route":"other","phase":"response","status":200,"elapsedMs":160}
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '958906650'
+[WebServer] }
+  ✓  16 tests/bar-operational/bar.spec.ts:651:1 › C01 unused barcode product can be archived without damaging existing history (814ms)
+  ✓  17 tests/bar-operational/bar.spec.ts:697:1 › C02 persisted multiline draft and repeated reads leave debt stock and cash unchanged (484ms)
+  ✓  18 tests/bar-operational/bar.spec.ts:729:1 › C13 same sale key with changed payload is rejected without effects (407ms)
+  ✓  19 tests/bar-operational/bar.spec.ts:755:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (381ms)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.167Z","id":"qa-68369-135","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.236Z","id":"qa-68369-135","route":"other","phase":"response","status":201,"elapsedMs":69}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.250Z","id":"qa-68369-136","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.260Z","id":"qa-68369-136","route":"other","phase":"response","status":200,"elapsedMs":10}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.318Z","id":"qa-68369-137","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.349Z","id":"qa-68369-137","route":"/auth/me","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.358Z","id":"qa-68369-138","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.401Z","id":"qa-68369-138","route":"other","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.463Z","id":"qa-68369-139","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.465Z","id":"qa-68369-140","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.466Z","id":"qa-68369-141","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.506Z","id":"qa-68369-139","route":"other","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.510Z","id":"qa-68369-140","route":"other","phase":"response","status":200,"elapsedMs":45}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.543Z","id":"qa-68369-142","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.545Z","id":"qa-68369-141","route":"other","phase":"response","status":200,"elapsedMs":79}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.570Z","id":"qa-68369-143","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.572Z","id":"qa-68369-142","route":"other","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:42.642Z","id":"qa-68369-143","route":"other","phase":"response","status":403,"elapsedMs":72}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.063Z","id":"qa-68369-144","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.135Z","id":"qa-68369-144","route":"/auth/me","phase":"response","status":200,"elapsedMs":72}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.162Z","id":"qa-68369-145","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.164Z","id":"qa-68369-146","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.167Z","id":"qa-68369-147","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.170Z","id":"qa-68369-148","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.172Z","id":"qa-68369-149","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.175Z","id":"qa-68369-150","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.177Z","id":"qa-68369-151","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.179Z","id":"qa-68369-152","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.181Z","id":"qa-68369-153","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.184Z","id":"qa-68369-154","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.213Z","id":"qa-68369-145","route":"other","phase":"response","status":200,"elapsedMs":51}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.229Z","id":"qa-68369-146","route":"other","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.386Z","id":"qa-68369-147","route":"other","phase":"response","status":200,"elapsedMs":219}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.391Z","id":"qa-68369-148","route":"other","phase":"response","status":200,"elapsedMs":221}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.396Z","id":"qa-68369-149","route":"other","phase":"response","status":200,"elapsedMs":224}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.401Z","id":"qa-68369-150","route":"other","phase":"response","status":200,"elapsedMs":226}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.405Z","id":"qa-68369-151","route":"other","phase":"response","status":200,"elapsedMs":228}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.409Z","id":"qa-68369-152","route":"other","phase":"response","status":200,"elapsedMs":230}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.413Z","id":"qa-68369-153","route":"other","phase":"response","status":200,"elapsedMs":232}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.417Z","id":"qa-68369-154","route":"other","phase":"response","status":200,"elapsedMs":233}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.596Z","id":"qa-68369-155","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.611Z","id":"qa-68369-155","route":"other","phase":"response","status":200,"elapsedMs":15}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.881Z","id":"qa-68369-156","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.883Z","id":"qa-68369-157","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.892Z","id":"qa-68369-156","route":"other","phase":"response","status":200,"elapsedMs":11}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:43.895Z","id":"qa-68369-157","route":"other","phase":"response","status":200,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.284Z","id":"qa-68369-158","route":"/bar/sales/folio","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.312Z","id":"qa-68369-158","route":"/bar/sales/folio","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":28,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:14:44.312Z","route":"/bar/sales/folio","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.341Z","id":"qa-68369-159","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.353Z","id":"qa-68369-159","route":"/auth/me","phase":"response","status":200,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.369Z","id":"qa-68369-160","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.371Z","id":"qa-68369-161","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.373Z","id":"qa-68369-162","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.376Z","id":"qa-68369-163","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.377Z","id":"qa-68369-164","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.379Z","id":"qa-68369-165","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.380Z","id":"qa-68369-166","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.382Z","id":"qa-68369-167","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.383Z","id":"qa-68369-168","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.385Z","id":"qa-68369-169","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.388Z","id":"qa-68369-160","route":"other","phase":"response","status":200,"elapsedMs":19}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.399Z","id":"qa-68369-161","route":"other","phase":"response","status":200,"elapsedMs":28}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.404Z","id":"qa-68369-162","route":"other","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.408Z","id":"qa-68369-163","route":"other","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.411Z","id":"qa-68369-165","route":"other","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.416Z","id":"qa-68369-164","route":"other","phase":"response","status":200,"elapsedMs":39}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.418Z","id":"qa-68369-168","route":"other","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.421Z","id":"qa-68369-169","route":"other","phase":"response","status":200,"elapsedMs":36}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.423Z","id":"qa-68369-166","route":"other","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.426Z","id":"qa-68369-167","route":"other","phase":"response","status":200,"elapsedMs":44}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.597Z","id":"qa-68369-170","route":"/bar/sales/folio","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.609Z","id":"qa-68369-170","route":"/bar/sales/folio","phase":"response","status":201,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.632Z","id":"qa-68369-171","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.659Z","id":"qa-68369-171","route":"/auth/me","phase":"response","status":200,"elapsedMs":27}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.676Z","id":"qa-68369-172","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.678Z","id":"qa-68369-173","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.679Z","id":"qa-68369-174","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.680Z","id":"qa-68369-175","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.682Z","id":"qa-68369-176","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.683Z","id":"qa-68369-177","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.685Z","id":"qa-68369-178","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.686Z","id":"qa-68369-179","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.687Z","id":"qa-68369-180","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.689Z","id":"qa-68369-181","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.694Z","id":"qa-68369-172","route":"other","phase":"response","status":200,"elapsedMs":18}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.709Z","id":"qa-68369-173","route":"other","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.715Z","id":"qa-68369-174","route":"other","phase":"response","status":200,"elapsedMs":36}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.720Z","id":"qa-68369-175","route":"other","phase":"response","status":200,"elapsedMs":40}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.724Z","id":"qa-68369-177","route":"other","phase":"response","status":200,"elapsedMs":41}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.727Z","id":"qa-68369-180","route":"other","phase":"response","status":200,"elapsedMs":40}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.731Z","id":"qa-68369-181","route":"other","phase":"response","status":200,"elapsedMs":42}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.734Z","id":"qa-68369-176","route":"other","phase":"response","status":200,"elapsedMs":52}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.737Z","id":"qa-68369-178","route":"other","phase":"response","status":200,"elapsedMs":52}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.740Z","id":"qa-68369-179","route":"other","phase":"response","status":200,"elapsedMs":54}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.888Z","id":"qa-68369-182","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.928Z","id":"qa-68369-182","route":"/auth/me","phase":"response","status":200,"elapsedMs":40}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.944Z","id":"qa-68369-183","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.946Z","id":"qa-68369-184","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.947Z","id":"qa-68369-185","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.949Z","id":"qa-68369-186","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.951Z","id":"qa-68369-187","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.952Z","id":"qa-68369-188","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.954Z","id":"qa-68369-189","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.955Z","id":"qa-68369-190","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.957Z","id":"qa-68369-191","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.958Z","id":"qa-68369-192","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.983Z","id":"qa-68369-183","route":"other","phase":"response","status":200,"elapsedMs":39}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.993Z","id":"qa-68369-184","route":"other","phase":"response","status":200,"elapsedMs":47}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.996Z","id":"qa-68369-185","route":"other","phase":"response","status":200,"elapsedMs":49}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:44.998Z","id":"qa-68369-186","route":"other","phase":"response","status":200,"elapsedMs":49}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.001Z","id":"qa-68369-188","route":"other","phase":"response","status":200,"elapsedMs":49}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.004Z","id":"qa-68369-192","route":"other","phase":"response","status":200,"elapsedMs":46}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.007Z","id":"qa-68369-189","route":"other","phase":"response","status":200,"elapsedMs":53}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.009Z","id":"qa-68369-191","route":"other","phase":"response","status":200,"elapsedMs":52}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.080Z","id":"qa-68369-190","route":"other","phase":"response","status":200,"elapsedMs":125}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.083Z","id":"qa-68369-187","route":"other","phase":"response","status":200,"elapsedMs":132}
+  ✓  20 tests/bar-operational/bar.spec.ts:796:1 › C13 Folio browser preserves a committed charge and retries it without duplication (3.9s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:45.946Z","id":"qa-68369-193","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.015Z","id":"qa-68369-193","route":"other","phase":"response","status":201,"elapsedMs":69}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.025Z","id":"qa-68369-194","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.035Z","id":"qa-68369-194","route":"other","phase":"response","status":200,"elapsedMs":10}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.071Z","id":"qa-68369-195","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.099Z","id":"qa-68369-195","route":"/auth/me","phase":"response","status":200,"elapsedMs":28}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.105Z","id":"qa-68369-196","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.123Z","id":"qa-68369-196","route":"other","phase":"response","status":200,"elapsedMs":18}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.184Z","id":"qa-68369-197","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.185Z","id":"qa-68369-198","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.187Z","id":"qa-68369-199","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.212Z","id":"qa-68369-197","route":"other","phase":"response","status":200,"elapsedMs":28}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.216Z","id":"qa-68369-199","route":"other","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.247Z","id":"qa-68369-200","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.248Z","id":"qa-68369-201","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.250Z","id":"qa-68369-198","route":"other","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.255Z","id":"qa-68369-201","route":"other","phase":"response","status":403,"elapsedMs":7}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.291Z","id":"qa-68369-200","route":"other","phase":"response","status":200,"elapsedMs":44}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.790Z","id":"qa-68369-202","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.822Z","id":"qa-68369-202","route":"/auth/me","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.828Z","id":"qa-68369-203","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.846Z","id":"qa-68369-203","route":"/auth/me","phase":"response","status":200,"elapsedMs":18}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.852Z","id":"qa-68369-204","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.872Z","id":"qa-68369-204","route":"/onboarding","phase":"response","status":200,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.880Z","id":"qa-68369-205","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:46.909Z","id":"qa-68369-205","route":"/hotel/onboarding","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.145Z","id":"qa-68369-206","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.165Z","id":"qa-68369-206","route":"/onboarding","phase":"response","status":200,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.251Z","id":"qa-68369-207","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.454Z","id":"qa-68369-207","route":"/hotel/onboarding","phase":"response","status":201,"elapsedMs":203}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.495Z","id":"qa-68369-208","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.514Z","id":"qa-68369-208","route":"/auth/me","phase":"response","status":200,"elapsedMs":19}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.520Z","id":"qa-68369-209","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.539Z","id":"qa-68369-209","route":"other","phase":"response","status":200,"elapsedMs":19}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.567Z","id":"qa-68369-210","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.570Z","id":"qa-68369-211","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.572Z","id":"qa-68369-212","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.596Z","id":"qa-68369-210","route":"other","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.609Z","id":"qa-68369-213","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.611Z","id":"qa-68369-212","route":"other","phase":"response","status":200,"elapsedMs":39}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.628Z","id":"qa-68369-214","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.633Z","id":"qa-68369-211","route":"other","phase":"response","status":200,"elapsedMs":63}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.650Z","id":"qa-68369-214","route":"other","phase":"response","status":403,"elapsedMs":22}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.703Z","id":"qa-68369-213","route":"other","phase":"response","status":200,"elapsedMs":94}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.806Z","id":"qa-68369-215","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.809Z","id":"qa-68369-216","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.918Z","id":"qa-68369-216","route":"other","phase":"response","status":200,"elapsedMs":109}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.925Z","id":"qa-68369-215","route":"/auth/me","phase":"response","status":200,"elapsedMs":119}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.955Z","id":"qa-68369-217","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.959Z","id":"qa-68369-218","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.961Z","id":"qa-68369-219","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.963Z","id":"qa-68369-220","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.966Z","id":"qa-68369-221","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.969Z","id":"qa-68369-222","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.971Z","id":"qa-68369-223","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.973Z","id":"qa-68369-224","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.975Z","id":"qa-68369-225","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:47.977Z","id":"qa-68369-226","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.021Z","id":"qa-68369-217","route":"other","phase":"response","status":200,"elapsedMs":66}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.040Z","id":"qa-68369-218","route":"other","phase":"response","status":200,"elapsedMs":81}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.045Z","id":"qa-68369-219","route":"other","phase":"response","status":200,"elapsedMs":84}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.050Z","id":"qa-68369-220","route":"other","phase":"response","status":200,"elapsedMs":87}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.160Z","id":"qa-68369-222","route":"other","phase":"response","status":200,"elapsedMs":191}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.165Z","id":"qa-68369-223","route":"other","phase":"response","status":200,"elapsedMs":194}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.169Z","id":"qa-68369-221","route":"other","phase":"response","status":200,"elapsedMs":203}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.173Z","id":"qa-68369-225","route":"other","phase":"response","status":200,"elapsedMs":198}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.176Z","id":"qa-68369-224","route":"other","phase":"response","status":200,"elapsedMs":203}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.179Z","id":"qa-68369-226","route":"other","phase":"response","status":200,"elapsedMs":202}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.594Z","id":"qa-68369-227","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.595Z","id":"qa-68369-228","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.639Z","id":"qa-68369-227","route":"other","phase":"response","status":200,"elapsedMs":45}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:48.643Z","id":"qa-68369-228","route":"other","phase":"response","status":200,"elapsedMs":48}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.027Z","id":"qa-68369-229","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.072Z","id":"qa-68369-229","route":"/auth/me","phase":"response","status":200,"elapsedMs":45}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.085Z","id":"qa-68369-230","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.130Z","id":"qa-68369-230","route":"other","phase":"response","status":200,"elapsedMs":45}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.218Z","id":"qa-68369-231","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.220Z","id":"qa-68369-232","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.223Z","id":"qa-68369-233","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.265Z","id":"qa-68369-231","route":"other","phase":"response","status":200,"elapsedMs":47}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.270Z","id":"qa-68369-233","route":"other","phase":"response","status":200,"elapsedMs":47}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.275Z","id":"qa-68369-232","route":"other","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.349Z","id":"qa-68369-234","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.351Z","id":"qa-68369-235","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.358Z","id":"qa-68369-235","route":"other","phase":"response","status":403,"elapsedMs":7}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.389Z","id":"qa-68369-234","route":"other","phase":"response","status":200,"elapsedMs":40}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.667Z","id":"qa-68369-236","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.747Z","id":"qa-68369-236","route":"/auth/me","phase":"response","status":200,"elapsedMs":80}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.776Z","id":"qa-68369-237","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.779Z","id":"qa-68369-238","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.782Z","id":"qa-68369-239","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.785Z","id":"qa-68369-240","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.788Z","id":"qa-68369-241","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.793Z","id":"qa-68369-242","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.801Z","id":"qa-68369-243","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.807Z","id":"qa-68369-244","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.813Z","id":"qa-68369-245","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.820Z","id":"qa-68369-246","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.911Z","id":"qa-68369-237","route":"other","phase":"response","status":200,"elapsedMs":135}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:49.934Z","id":"qa-68369-238","route":"other","phase":"response","status":200,"elapsedMs":155}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.087Z","id":"qa-68369-239","route":"other","phase":"response","status":200,"elapsedMs":305}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.091Z","id":"qa-68369-240","route":"other","phase":"response","status":200,"elapsedMs":306}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.095Z","id":"qa-68369-242","route":"other","phase":"response","status":200,"elapsedMs":302}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.101Z","id":"qa-68369-245","route":"other","phase":"response","status":200,"elapsedMs":288}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.105Z","id":"qa-68369-241","route":"other","phase":"response","status":200,"elapsedMs":317}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.109Z","id":"qa-68369-243","route":"other","phase":"response","status":200,"elapsedMs":308}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.112Z","id":"qa-68369-244","route":"other","phase":"response","status":200,"elapsedMs":305}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.117Z","id":"qa-68369-246","route":"other","phase":"response","status":200,"elapsedMs":297}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.265Z","id":"qa-68369-247","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.282Z","id":"qa-68369-247","route":"other","phase":"response","status":200,"elapsedMs":17}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.509Z","id":"qa-68369-248","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:14:50.538Z","id":"qa-68369-248","route":"other","phase":"response","status":200,"elapsedMs":29}
+  ✓  21 tests/bar-operational/bar.spec.ts:873:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (5.2s)
+  ✓  22 tests/bar-operational/bar.spec.ts:915:1 › C15 foreign receipt supplier and line product are rejected before any draft is saved (1.0s)
+  ✓  23 tests/bar-operational/repeat-risk.spec.ts:65:1 › AS-IS supplier payment lost response exposes repeat risk despite remaining-debt lock (339ms)
+  ✓  24 tests/bar-operational/repeat-risk.spec.ts:99:1 › AS-IS write-off lost response exposes repeat risk despite FIFO stock lock (223ms)
+
+  24 passed (1.4m)
+
+# код выхода 0 · 1 мин 30 с

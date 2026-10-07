@@ -1278,3 +1278,18 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 ## A4b: архивный объект в `propertyRef` и его кэш (2026-10-06, OPEN, технический долг)
 
 Найдено при SCOPE-HARDENING, в тот PR намеренно не включено (решение владельца). `organizationPropertyRef` (`apps/api/src/database/property-ref.ts`) при scope ORGANIZATION и BUSINESS не фильтрует ACTIVE Location и Business, а найденный объект живёт в кэше процесса до перезапуска. После архивирования первого отеля запросы без выбранного филиала продолжат указывать на него. Одного условия `status: 'ACTIVE'` мало: уже закэшированный объект останется. Нужно отдельно решить семантику инвалидации кэша (сброс при архивировании, срок жизни или отказ от кэша) и оценить влияние на число запросов. До решения кэш не меняется.
+
+
+## Unified acceptance financial policy gates (2026-10-07, OPEN)
+
+Owner decisions requested; no accounting or authorization changes before an answer.
+
+- BAR no-restock reversal: define treatment of the removed sales COGS (1320 in C10). Current behavior is a reproduction target, not an accepted policy.
+- BAR Folio reversal: define allowed behavior for open, partially paid, paid and closed accounts, preserving payment records.
+- Supplier cash void: define debt restoration and links after cancellation of a supplier payment.
+- BAR desk/refunds: define OWNER and STAFF sale/reversal permissions; existing guards remain intact.
+- Website/A4b: proposed HOSPITALITY OWNER/MANAGER scope, ACTIVE Business/Location and removal of long-lived property cache. Await explicit owner decision before implementation.
+
+## Continuation scope confirmation (2026-10-07)
+
+Owner response in current chat confirms keeping the accurate sale replay fix from PR279 and presenting additional reversal rules separately. Financial repeat/void/loss/role/Folio/surplus and Website/A4b proposals are in reports/unified-stage-2026-10-07/POLICY-PROPOSALS.md. No new financial or authorization rule implemented by this continuation.

@@ -1,0 +1,21 @@
+# Модульные (unit) · 07.10.2026 22:11 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-11-20Z-unit-f2cb.json' 'tests/unit/full-qa-proxy-transport.test.ts' 'tests/unit/deploy-server.test.ts' 'tests/unit/ci-runner.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| tests/unit/full-qa-proxy-transport.test.ts (2 tests) 83ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (23 tests) 2228ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1617ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 502ms
+ ✓ |unit| tests/unit/deploy-server.test.ts (40 tests) 114ms
+
+ Test Files  3 passed (3)
+      Tests  65 passed (65)
+   Start at  21:11:22
+   Duration  2.78s (tests 96%, transform 2%, import 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-11-20Z-unit-f2cb.json
+
+# код выхода 0 · 4 с

@@ -135,7 +135,7 @@ export default async function ReportsHubPage({
         <>
           <Group title="Деньги">
             <ReportCard
-              href={`/finance?${q}`}
+              href={`/finance?${q}#charges`}
               testId="report-finance"
               title="Финансы за период"
               value={fin && formatMoney(fin.chargedMinor, cur)}

@@ -43,7 +43,6 @@ import {
   movePreviewAction,
   stayAction,
   updateReservationAction,
-  updateStayGuestsAction,
   type ActionResult,
 } from '../actions';
 import { CHANNELS, SOURCES, fromChannex } from '../sources';
@@ -187,7 +186,6 @@ export function ReservationActions(props: {
               item={it}
               ratePlans={props.ratePlans}
             />
-            <GuestsForm number={props.number} item={it} />
             <AssignForm
               number={props.number}
               currency={props.currency}
@@ -405,51 +403,6 @@ function EditForm(props: {
         <Button type="submit" disabled={pending}>
           Сохранить
         </Button>
-      </Row>
-      {state.error && <Alert>{state.error}</Alert>}
-    </form>
-  );
-}
-
-/** Гостей на проживании (Q-102). Цена не меняется: перецена по календарю — «Изменить даты». */
-function GuestsForm(props: {
-  number: string;
-  item: { id: string; adults: number; children: number; accommodationTypeName: string };
-}) {
-  const [state, action, pending] = useActionState<ActionResult, FormData>(
-    updateStayGuestsAction.bind(null, props.number, props.item.id),
-    { error: null },
-  );
-  return (
-    <form
-      key={`${props.item.adults}-${props.item.children}-${state.attempt ?? 0}`}
-      action={action}
-      className="panel"
-      data-testid={`guests-form-${props.item.id}`}
-    >
-      <Row>
-        <Field inline label="Гостей">
-          <Input
-            type="number"
-            name="adults"
-            min={1}
-            defaultValue={state.values?.adults ?? props.item.adults}
-            className="inp--w64"
-          />
-        </Field>
-        <Field inline label="Детей">
-          <Input
-            type="number"
-            name="children"
-            min={0}
-            defaultValue={state.values?.children ?? props.item.children}
-            className="inp--w64"
-          />
-        </Field>
-        <Button type="submit" tone="secondary" size="sm" disabled={pending}>
-          Сохранить
-        </Button>
-        <span className="hint">цена не меняется; пересчитать по календарю — «Изменить даты»</span>
       </Row>
       {state.error && <Alert>{state.error}</Alert>}
     </form>

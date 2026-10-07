@@ -1,0 +1,66 @@
+# Модульные (unit) · 07.10.2026 19:18 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-18-09Z-unit-13a2.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (12 tests | 2 failed) 19ms
+   ✓ форма прихода бара (8)
+     ✓ переводит тенге и процент в целые младшие единицы 12ms
+     ✓ не пропускает float и не отправляет запрос 0ms
+     ✓ передает розничную продажу с ключом повтора 1ms
+     ✓ переводит частичную оплату поставщику в minor units 0ms
+     ✓ передает продажу в счет гостя с ключом повтора 0ms
+     ✓ передает фактический остаток без float 0ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ✓ BAR sale retry identity (2)
+     ✓ retail: forwards the same form intent key after a lost response 1ms
+     ✓ folio: forwards the same form intent key after a lost response 0ms
+   ❯ BAR cancelled replay feedback (2)
+     × retail: cancelled replay never claims a new posted sale 3ms
+     × folio: cancelled replay never claims a new posted sale 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR cancelled replay feedback > retail: cancelled replay never claims a new posted sale
+AssertionError: expected 'Продажа записана, остаток и касса обн…' to contain 'уже отменен'
+
+Expected: "уже отменен"
+Received: "Продажа записана, остаток и касса обновлены"
+
+ ❯ apps/web/src/app/bar/actions.test.ts:124:30
+    122|       const result = await action({ error: null, ok: 0 }, new FormData…
+    123|       expect(result.error).toBeNull();
+    124|       expect(result.message).toContain('уже отменен');
+       |                              ^
+    125|       expect(result.message).toContain('не создан');
+    126|       expect(result.retry).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR cancelled replay feedback > folio: cancelled replay never claims a new posted sale
+AssertionError: expected 'Товар добавлен в счет гостя, остаток …' to contain 'уже отменен'
+
+Expected: "уже отменен"
+Received: "Товар добавлен в счет гостя, остаток обновлен"
+
+ ❯ apps/web/src/app/bar/actions.test.ts:124:30
+    122|       const result = await action({ error: null, ok: 0 }, new FormData…
+    123|       expect(result.error).toBeNull();
+    124|       expect(result.message).toContain('уже отменен');
+       |                              ^
+    125|       expect(result.message).toContain('не создан');
+    126|       expect(result.retry).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  18:18:10
+   Duration  149ms (transform 49%, tests 28%, import 18%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-18-09Z-unit-13a2.json
+
+# код выхода 1 · 1 с

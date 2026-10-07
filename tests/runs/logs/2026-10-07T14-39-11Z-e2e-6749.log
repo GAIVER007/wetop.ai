@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 07.10.2026 19:39 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1' '--grep' 'abandoning an unsaved'
+[WebServer] (node:77087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77115) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:77182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:850:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (2.5m)
+
+
+  1) tests/bar-operational/bar.spec.ts:850:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged 
+
+    Test timeout of 150000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 150000ms exceeded.
+    Call log:
+      - waiting for locator('form.bar-receipt-form').locator('[name=supplierId]')
+        - locator resolved to <select class="inp" required="" name="supplierId" id="bar-supplier">…</select>
+      - attempting select option action
+        - waiting for element to be visible and enabled
+      - element was detached from the DOM, retrying
+        - waiting for "http://127.0.0.1:56080/onboarding" navigation to finish...
+        - navigated to "http://127.0.0.1:56080/onboarding"
+        - waiting for "http://127.0.0.1:56080/register/setup" navigation to finish...
+        - navigated to "http://127.0.0.1:56080/register/setup"
+
+
+      869 |   await page.goto('/bar');
+      870 |   const form = page.locator('form.bar-receipt-form');
+    > 871 |   await form.locator('[name=supplierId]').selectOption(stored.supplierId!);
+          |                                           ^
+      872 |   await form.locator('[name=documentNumber]').fill('UNSAVED-SYNTHETIC');
+      873 |   await form.locator('[name="productId.0"]').selectOption(a.id);
+      874 |   await form.locator('[name="quantityUnits.0"]').fill('3');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:871:43
+
+    Error Context: test-results/bar-C02-abandoning-an-unsa-f2571-t-cash-and-ledger-unchanged/error-context.md
+
+    Error Context: test-results/bar-C02-abandoning-an-unsa-f2571-t-cash-and-ledger-unchanged/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:850:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged 
+
+# код выхода 1 · 2 мин 50 с

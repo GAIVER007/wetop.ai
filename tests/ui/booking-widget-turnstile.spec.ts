@@ -255,8 +255,11 @@ test('ключ создания: после отказа проверки нов
   await solve(page, 'tok-old');
   const submit = page.locator('[data-pmsw="submit"]');
   await submit.click();
+  await expect(page.locator('[data-pmsw="msg"]')).toContainText('Проверка устарела');
+  await expect.poll(() => tsState(page).then((t) => t.resets)).toBe(1);
   await expect(submit).toBeDisabled();
   await solve(page, 'tok-new');
+  await expect(submit).toBeEnabled();
   await submit.click();
   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);

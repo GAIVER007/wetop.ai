@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 07.10.2026 19:33 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1' '--grep' 'simultaneous identical intent'
+[WebServer] (node:71263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:72244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (700ms)
+
+
+  1) tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        201,
+    -   201,
+    +   500,
+      ]
+
+      744 |   }
+      745 |   const replies = await Promise.all(calls);
+    > 746 |   expect(replies.map((r) => r.status())).toEqual([201, 201]);
+          |                                          ^
+      747 |   const bodies = await Promise.all(replies.map((r) => r.json()));
+      748 |   expect(bodies[0].id).toBe(bodies[1].id);
+      749 |   expect(await db.barSale.count({ where: { idempotencyKey } })).toBe(1);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:746:42
+
+    Error Context: test-results/bar-C13-simultaneous-ident-f04ca--a-controlled-stock-barrier/error-context.md
+
+    Error Context: test-results/bar-C13-simultaneous-ident-f04ca--a-controlled-stock-barrier/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:726:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier 
+
+# код выхода 1 · 6 с

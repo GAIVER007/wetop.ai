@@ -1,0 +1,15 @@
+{
+  "organizationId": "38061ba7-d3ef-4554-b8da-7e103965606d",
+  "locationId": "81444889-6e22-472e-82f4-8256416dd0cb",
+  "saleId": "e8e8b855-58a8-406a-a38c-c2008a7a884b",
+  "report": {
+    "purchasesMinor": "280000",
+    "supplierPaidMinor": "60000",
+    "revenueMinor": "384000",
+    "costMinor": "132000",
+    "grossProfitMinor": "252000",
+    "writeOffMinor": "0",
+    "stockCostMinor": "148000",
+    "supplierDebtMinor": "220000"
+  }
+}

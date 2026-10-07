@@ -15,6 +15,7 @@ import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
 import { BoardClock } from './board-clock';
+import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -128,6 +129,7 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Календарь"
+      className="calendar-page"
       actions={
         <>
           <Link
@@ -153,17 +155,18 @@ export default async function ChessboardPage({
         </>
       }
     >
-      <div className="board-top">
-        {/* Полоса дня на всю ширину, под ней строка управления (замечание владельца 06.10:
-            два столбика рядом с управлением читались плохо) */}
-        {day && (
-          <DayPanel
-            day={day}
-            board={from <= today && today <= to ? board : todayBoard}
-            today={today}
-            timeZone={clock.timezone}
-          />
-        )}
+      <CalendarWorkspace
+        summary={
+          day && (
+            <DayPanel
+              day={day}
+              board={from <= today && today <= to ? board : todayBoard}
+              today={today}
+              timeZone={clock.timezone}
+            />
+          )
+        }
+      >
         <div className="board-controls">
           <div className="board-period">
             <span className="board-date-nav">
@@ -218,6 +221,7 @@ export default async function ChessboardPage({
             </span>
           </div>
           <div className="board-bar">
+            <CalendarExpandButton />
             <BoardDateRange
               key={`${board.from}-${board.to}`}
               from={board.from}
@@ -240,35 +244,34 @@ export default async function ChessboardPage({
             </BoardHelp>
           </div>
         </div>
-      </div>
-      {overbooked.length > 0 && (
-        <Alert boxed data-testid="overbooked-callout">
-          Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
-          <a href="#unassigned-stays">Разрешить</a>
-        </Alert>
-      )}
-      {failedEvents > 0 && (
-        <Alert boxed tone="warning" data-testid="review-callout">
-          Входящая бронь требует разбора:{' '}
-          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
-          автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
-        </Alert>
-      )}
-      <UnassignedStays
-        stays={board.unassigned ?? []}
-        critical={overbooked.length > 0}
-        categories={categoriesOf(board.rows)}
-        readOnly={shell?.readOnly ?? false}
-      />
-      <ChessboardGrid
-        board={board}
-        today={today}
-        fitMonth={isMonth}
-        readOnly={shell?.readOnly ?? false}
-      />
+        {overbooked.length > 0 && (
+          <Alert boxed data-testid="overbooked-callout">
+            Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
+            <a href="#unassigned-stays">Разрешить</a>
+          </Alert>
+        )}
+        {failedEvents > 0 && (
+          <Alert boxed tone="warning" data-testid="review-callout">
+            Входящая бронь требует разбора:{' '}
+            {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
+            автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
+          </Alert>
+        )}
+        <UnassignedStays
+          stays={board.unassigned ?? []}
+          critical={overbooked.length > 0}
+          categories={categoriesOf(board.rows)}
+          readOnly={shell?.readOnly ?? false}
+        />
+        <ChessboardGrid
+          board={board}
+          today={today}
+          fitMonth={isMonth}
+          readOnly={shell?.readOnly ?? false}
+        />
+      </CalendarWorkspace>
       <div className="board-footer">
-        <details className="board-legend-details">
-          <summary>Обозначения</summary>
+        <div className="board-legend-details" aria-label="Цвета и статусы календаря">
           <Legend
             data-testid="board-legend"
             items={[
@@ -277,15 +280,15 @@ export default async function ChessboardPage({
               { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
               { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
               { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-              // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
+              // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная без значка
               { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
               { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
-              { label: 'без значка — проверена, доступна' },
+              { label: 'без значка: проверена, доступна' },
             ]}
           />
-        </details>
+        </div>
         <span className="board-gesture-hint">
-          Плашка — переселить, правый край — продлить, пустые клетки — протянуть и создать бронь
+          Плашка: переселить. Правый край: продлить. Пустые клетки: выделить даты для брони.
         </span>
       </div>
     </Page>
@@ -354,11 +357,11 @@ function DayPanel({
               владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
           {row(
             'free',
-            'Свободно номеров',
+            'Свободно мест',
             n(s?.free),
             `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
           )}
-          {row('occupied', 'Занято номеров', n(s?.occupied))}
+          {row('occupied', 'Занято мест', n(s?.occupied))}
           {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
         </div>
       </div>

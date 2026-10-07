@@ -87,3 +87,62 @@ describe('форма прихода бара', () => {
     expect(barApi.setProductPrice).toHaveBeenCalledWith('product-1', '85000');
   });
 });
+
+describe('BAR sale retry identity', () => {
+  for (const [label, action, api] of [
+    ['retail', sellBarRetailAction, barApi.sellRetail],
+    ['folio', sellBarToFolioAction, barApi.sellToFolio],
+  ] as const) {
+    it(`${label}: forwards the same form intent key after a lost response`, async () => {
+      vi.mocked(api).mockReset();
+      vi.mocked(api).mockRejectedValueOnce(new Error('Synthetic lost reply'));
+      const fd = new FormData();
+      Object.entries({
+        productId: 'product-1',
+        folioId: 'folio-1',
+        quantityUnits: '1',
+        method: 'CASH',
+        idempotencyKey: 'f7506320-a7cc-471f-90b5-d6e2e5629959',
+      }).forEach(([key, value]) => fd.set(key, value));
+      const first = await action({ error: null, ok: 0 }, fd);
+      expect(first.error).toContain('Synthetic lost reply');
+      await action(first, fd);
+      const calls = vi.mocked(api).mock.calls;
+      expect(calls).toHaveLength(2);
+      for (const call of calls) expect(call).toEqual([expect.objectContaining({ idempotencyKey: fd.get('idempotencyKey') })]);
+    });
+  }
+});
+
+
+describe('BAR cancelled replay feedback', () => {
+  for (const [label, action, api] of [['retail', sellBarRetailAction, barApi.sellRetail], ['folio', sellBarToFolioAction, barApi.sellToFolio]] as const) {
+    it(`${label}: cancelled replay never claims a new posted sale`, async () => {
+      vi.mocked(api).mockResolvedValue({ id: 'cancelled-sale', status: 'REVERSED', chargeId: 'cancelled-charge', revenueMinor: '100', costMinor: '50' });
+      const result = await action({ error: null, ok: 0 }, new FormData());
+      expect(result.error).toBeNull();
+      expect(result.message).toContain('уже отменен');
+      expect(result.message).toContain('не создан');
+      expect(result.retry).toBeUndefined();
+    });
+  }
+});
+
+
+describe('BAR uncertain sale intent', () => {
+  for (const [label, action, api] of [['retail', sellBarRetailAction, barApi.sellRetail], ['folio', sellBarToFolioAction, barApi.sellToFolio]] as const) {
+    it(`${label}: editing an uncertain request does not silently start a new sale`, async () => {
+      vi.mocked(api).mockReset();
+      vi.mocked(api).mockRejectedValue(new Error('Synthetic response lost'));
+      const fd = new FormData();
+      Object.entries({ productId: 'product-1', folioId: 'folio-1', quantityUnits: '1', method: 'CASH' }).forEach(([key, value]) => fd.set(key, value));
+      const first = await action({ error: null, ok: 0 }, fd);
+      fd.set('quantityUnits', '2');
+      await action(first, fd);
+      const calls = vi.mocked(api).mock.calls;
+      expect(calls).toHaveLength(2);
+      expect(calls[0]).toEqual([expect.objectContaining({ idempotencyKey: first.retry?.key })]);
+      expect(calls[1]).toEqual([expect.objectContaining({ idempotencyKey: first.retry?.key, quantityUnits: '2' })]);
+    });
+  }
+});

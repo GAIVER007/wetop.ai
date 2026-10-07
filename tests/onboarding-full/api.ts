@@ -1,3 +1,5 @@
+import { fullQaPorts } from './ports';
+import { qaProxyResponseHeaders } from './proxy-transport';
 /** Full AppModule with real guards, sessions and RLS. Only synthetic localhost data. */
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
@@ -23,6 +25,32 @@ const module = await Test.createTestingModule({ imports: [AppModule] })
   .useClass(NoopAriPublisher)
   .compile();
 const app = module.createNestApplication({ logger: false });
+const traceEnabled = process.env.WETOP_QA_PROXY_TRACE === '1';
+const traceId = (value: unknown) =>
+  typeof value === 'string' && /^qa-[0-9]+-[0-9]+$/.test(value) ? value : undefined;
+if (traceEnabled)
+  app.use(
+    (
+      req: { headers: Record<string, unknown>; method: string; path: string },
+      res: { statusCode: number; on: (event: string, callback: () => void) => void },
+      next: () => void,
+    ) => {
+      const id = traceId(req.headers['x-wetop-qa-trace']);
+      const at = new Date().toISOString();
+      const start = Date.now();
+      void evidence({ kind: 'api-start', id, at, method: req.method, route: req.path });
+      res.on('finish', () => {
+        void evidence({
+          kind: 'api-response',
+          id,
+          at: new Date().toISOString(),
+          status: res.statusCode,
+          elapsedMs: Date.now() - start,
+        });
+      });
+      next();
+    },
+  );
 app.use(
   (
     req: { path: string },
@@ -34,7 +62,7 @@ app.use(
     else next();
   },
 );
-await app.listen(55824, '127.0.0.1');
+await app.listen(fullQaPorts.api, '127.0.0.1');
 let fault = 'none';
 let last: {
   organizationId: string;
@@ -42,7 +70,17 @@ let last: {
   businessId: string;
   locationId: string;
 } | null = null;
+let socketSequence = 0;
+const socketTrace = new WeakMap<
+  object,
+  { socketId: number; lastId: string | undefined; requests: number }
+>();
 const proxy = createServer(async (req, res) => {
+  const socket = socketTrace.get(req.socket);
+  if (socket) {
+    socket.requests++;
+    socket.lastId = traceId(req.headers['x-wetop-qa-trace']);
+  }
   if (req.url?.startsWith('/__qa/')) {
     let raw = '';
     for await (const chunk of req) raw += chunk;
@@ -206,6 +244,55 @@ const proxy = createServer(async (req, res) => {
     return;
   }
   const mode = fault;
+  const started = Date.now();
+  const id = traceId(req.headers['x-wetop-qa-trace']);
+  if (traceEnabled) {
+    void evidence({
+      kind: 'proxy-start',
+      socketId: socket?.socketId,
+      id,
+      at: new Date().toISOString(),
+      route: req.url,
+      method: req.method,
+      fault: mode,
+    });
+    res.on('close', () => {
+      if (!res.writableFinished)
+        void evidence({
+          kind: 'proxy-incomplete-close',
+          id,
+          at: new Date().toISOString(),
+          fault: mode,
+          elapsedMs: Date.now() - started,
+        });
+    });
+  }
+  if (process.env.WETOP_QA_PROXY_TRACE === '1') {
+    const route = new URL(req.url ?? '/', 'http://127.0.0.1').pathname;
+    res.on('finish', () => {
+      void evidence({
+        kind: 'proxy-response',
+        id,
+        at: new Date().toISOString(),
+        route,
+        method: req.method,
+        fault: mode,
+        status: res.statusCode,
+        elapsedMs: Date.now() - started,
+      });
+    });
+    req.on('aborted', () => {
+      void evidence({
+        kind: 'proxy-aborted',
+        id,
+        at: new Date().toISOString(),
+        route,
+        method: req.method,
+        fault: mode,
+        elapsedMs: Date.now() - started,
+      });
+    });
+  }
   if (mode === 'offline') {
     req.socket.destroy();
     return;
@@ -224,25 +311,75 @@ const proxy = createServer(async (req, res) => {
     return;
   }
   const upstream = proxyRequest(
-    { hostname: '127.0.0.1', port: 55824, path: req.url, method: req.method, headers: req.headers },
+    {
+      hostname: '127.0.0.1',
+      port: fullQaPorts.api,
+      path: req.url,
+      method: req.method,
+      headers: req.headers,
+    },
     (reply) => {
-      if (req.url === '/onboarding' && req.method === 'POST' && mode === 'after') {
+      if (
+        req.method === 'POST' &&
+        ((req.url === '/onboarding' && mode === 'after') ||
+          ((req.url === '/bar/sales/retail' || req.url === '/bar/sales/folio') &&
+            mode === 'bar_after') ||
+          (req.url === '/bar/write-offs' && mode === 'bar_writeoff_after') ||
+          (/^\/bar\/receipts\/[^/]+\/payments$/.test(req.url ?? '') &&
+            mode === 'bar_supplier_after'))
+      ) {
         fault = 'none';
         reply.resume();
-        reply.on('end', () => req.socket.destroy());
+        reply.on('end', () => {
+          if (process.env.WETOP_QA_PROXY_TRACE === '1')
+            void evidence({
+              kind: 'proxy-intentional-drop',
+              id,
+              at: new Date().toISOString(),
+              route: req.url,
+              status: reply.statusCode,
+              fault: mode,
+            });
+          req.socket.destroy();
+        });
         return;
       }
-      res.writeHead(reply.statusCode || 500, reply.headers);
+      res.writeHead(reply.statusCode || 500, qaProxyResponseHeaders(reply.headers));
       reply.pipe(res);
     },
   );
-  upstream.on('error', () => {
+  upstream.on('error', (error: NodeJS.ErrnoException) => {
+    if (process.env.WETOP_QA_PROXY_TRACE === '1')
+      void evidence({
+        kind: 'proxy-upstream-error',
+        id,
+        at: new Date().toISOString(),
+        code: error.code ?? 'UNKNOWN',
+        fault: mode,
+      });
     res.statusCode = 503;
     res.end('{}');
   });
   req.pipe(upstream);
 });
-await new Promise<void>((resolve) => proxy.listen(55825, '127.0.0.1', resolve));
+if (traceEnabled)
+  proxy.on('connection', (socket) => {
+    const state = {
+      socketId: ++socketSequence,
+      requests: 0,
+      lastId: undefined as string | undefined,
+    };
+    socketTrace.set(socket, state);
+    socket.on('close', (hadError) => {
+      void evidence({
+        kind: 'proxy-socket-close',
+        at: new Date().toISOString(),
+        ...state,
+        hadError,
+      });
+    });
+  });
+await new Promise<void>((resolve) => proxy.listen(fullQaPorts.proxy, '127.0.0.1', resolve));
 console.log('Full guarded QA API ready, external dispatch disabled');
 for (const signal of ['SIGINT', 'SIGTERM'])
   process.on(signal, () => {

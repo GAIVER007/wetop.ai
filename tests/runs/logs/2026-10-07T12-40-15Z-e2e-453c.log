@@ -1,0 +1,193 @@
+# Сквозные (e2e) · 07.10.2026 17:40 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/unified-acceptance.spec.ts' '--workers=1'
+[WebServer] (node:85382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:85488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:85493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 (17.9s)
+(node:85624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 1440 (17.9s)
+(node:85714) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 (17.9s)
+(node:85794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 390 (16.4s)
+
+
+  1) tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.fund-result-heading').getByRole('heading')
+    Expected: "Найдено 1 вариант"
+    Received: "Найдено 3 варианта"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.fund-result-heading').getByRole('heading') with timeout 15000ms
+      - waiting for locator('.fund-result-heading').getByRole('heading')
+        33 × locator resolved to <h2>Найдено 3 варианта</h2>
+           - unexpected value "Найдено 3 варианта"
+
+
+      11 |     const heading = page.locator('.fund-result-heading');
+      12 |     await expect(page.locator('.fund-availability > article')).toHaveCount(1);
+    > 13 |     await expect(heading.getByRole('heading')).toHaveText('Найдено 1 вариант');
+         |                                                ^
+      14 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+      15 |     await page.reload();
+      16 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:13:48
+
+    Error Context: test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 1440 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('report-finance')
+    Expected: "/finance?from=2026-10-01&to=2026-10-31#charges"
+    Received: "/finance?from=2026-10-01&to=2026-10-31"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByTestId('report-finance')
+        34 × locator resolved to <a class="report-card" data-testid="report-finance" href="/finance?from=2026-10-01&to=2026-10-31">…</a>
+           - unexpected value "/finance?from=2026-10-01&to=2026-10-31"
+
+
+      29 |     await page.goto('/reports?from=2026-10-01&to=2026-10-31');
+      30 |     const card = page.getByTestId('report-finance');
+    > 31 |     await expect(card).toHaveAttribute('href', '/finance?from=2026-10-01&to=2026-10-31#charges');
+         |                        ^
+      32 |     await card.click();
+      33 |     await settleStreaming(page);
+      34 |     await expect(page.getByRole('button', { name: 'Отчёты и управление' })).toHaveAttribute('aria-expanded', 'true');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:31:24
+
+    Error Context: test-results/unified-acceptance-FIN-NAV-837be-nd-preserves-period-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-FIN-NAV-837be-nd-preserves-period-at-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-FIN-NAV-837be-nd-preserves-period-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.fund-result-heading').getByRole('heading')
+    Expected: "Найдено 1 вариант"
+    Received: "Найдено 3 варианта"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.fund-result-heading').getByRole('heading') with timeout 15000ms
+      - waiting for locator('.fund-result-heading').getByRole('heading')
+        33 × locator resolved to <h2>Найдено 3 варианта</h2>
+           - unexpected value "Найдено 3 варианта"
+
+
+      11 |     const heading = page.locator('.fund-result-heading');
+      12 |     await expect(page.locator('.fund-availability > article')).toHaveCount(1);
+    > 13 |     await expect(heading.getByRole('heading')).toHaveText('Найдено 1 вариант');
+         |                                                ^
+      14 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+      15 |     await page.reload();
+      16 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:13:48
+
+    Error Context: test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 390 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('report-finance')
+    Expected: "/finance?from=2026-10-01&to=2026-10-31#charges"
+    Received: "/finance?from=2026-10-01&to=2026-10-31"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('report-finance') with timeout 15000ms
+      - waiting for getByTestId('report-finance')
+        34 × locator resolved to <a class="report-card" data-testid="report-finance" href="/finance?from=2026-10-01&to=2026-10-31">…</a>
+           - unexpected value "/finance?from=2026-10-01&to=2026-10-31"
+
+
+      29 |     await page.goto('/reports?from=2026-10-01&to=2026-10-31');
+      30 |     const card = page.getByTestId('report-finance');
+    > 31 |     await expect(card).toHaveAttribute('href', '/finance?from=2026-10-01&to=2026-10-31#charges');
+         |                        ^
+      32 |     await card.click();
+      33 |     await settleStreaming(page);
+      34 |     await expect(page.getByRole('button', { name: 'Отчёты и управление' })).toHaveAttribute('aria-expanded', 'true');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:31:24
+
+    Error Context: test-results/unified-acceptance-FIN-NAV-68eff-and-preserves-period-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-FIN-NAV-68eff-and-preserves-period-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-FIN-NAV-68eff-and-preserves-period-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 
+    tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 1440 
+    tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 ─
+    tests/ui/unified-acceptance.spec.ts:27:3 › FIN-NAV-01: finance card opens charges and preserves period at 390 
+
+# код выхода 1 · 1 мин 32 с

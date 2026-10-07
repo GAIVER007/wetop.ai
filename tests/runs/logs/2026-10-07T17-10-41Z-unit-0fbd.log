@@ -1,0 +1,44 @@
+# Модульные (unit) · 07.10.2026 22:10 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-10-41Z-unit-0fbd.json' 'tests/unit/full-qa-proxy-transport.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ❯ |unit| tests/unit/full-qa-proxy-transport.test.ts (2 tests | 1 failed) 84ms
+   ✓ control: idle socket reuse can reset before an HTTP request reaches the server 57ms
+   × QA proxy transport survives peer idle close without retry or pooled socket reuse 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/full-qa-proxy-transport.test.ts > QA proxy transport survives peer idle close without retry or pooled socket reuse
+AssertionError: expected { code: 'ECONNRESET', reused: true } to deeply equal { status: 200, reused: false }
+
+- Expected
++ Received
+
+  {
+-   "reused": false,
+-   "status": 200,
++   "code": "ECONNRESET",
++   "reused": true,
+  }
+
+ ❯ tests/unit/full-qa-proxy-transport.test.ts:40:74
+     38| it('QA proxy transport survives peer idle close without retry or poole…
+     39|   const headers = qaProxyResponseHeaders({ 'keep-alive': 'timeout=5', …
+     40|   expect(await requestAfterPeerClose(headers as Record<string, string>…
+       |                                                                          ^
+     41|   expect(headers).not.toHaveProperty('keep-alive');
+     42| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  21:10:43
+   Duration  229ms (tests 66%, transform 17%, import 15%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-10-41Z-unit-0fbd.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,111 @@
+# Сквозные (e2e) · 07.10.2026 17:54 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:95182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:95286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/bar-operational/bar.spec.ts:105:1 › populated sales and movements are readable through real guarded HTTP API (2.2s)
+  ✓  2 tests/bar-operational/bar.spec.ts:120:1 › C13 replay after real reversal returns stored status without effects (890ms)
+  ✓  3 tests/bar-operational/bar.spec.ts:145:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (1.2s)
+  ✓  4 tests/bar-operational/bar.spec.ts:244:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (1.1s)
+  ✓  5 tests/bar-operational/bar.spec.ts:273:1 › C14 read-only reads existing sales and rejects a new sale without effects (778ms)
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Failed to flush logs to file: Error: ENOSPC: no space left on device, write
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] Persisting failed: Unable to write SST file 00000036.sst
+[WebServer] 
+[WebServer] Caused by:[WebServer] 
+[WebServer]     0: Failed to write small value block
+[WebServer]     1: Failed to write block data
+[WebServer]     2: failed to write to file `/Users/urijzapojnov/wetop-unified-acceptance-20261007/apps/web/.next/dev/cache/turbopack/v16.3.6-a758ffcf/00000036.sst`: No space left on device (os error 28)
+[WebServer] Persisting is disabled for this session due to an unrecoverable error. Stopping the background persisting process.
+  ✘  6 tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone (1.7m)
+
+
+  1) tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText('Synthetic A').first()
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" getByText('Synthetic A').first() with timeout 5000ms
+      - waiting for getByText('Synthetic A').first()
+        12 × locator resolved to <option value="879408f6-8e3e-4e3a-8d68-a6daf6371e19">…</option>
+           - unexpected value "hidden"
+
+
+      306 |   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+      307 |   await expect(page.getByRole('heading', { name: 'Продажи', exact: true })).toBeVisible();
+    > 308 |   await expect(page.getByText('Synthetic A').first()).toBeVisible();
+          |                                                       ^
+      309 |   await expect(page.getByRole('alert')).toHaveCount(0);
+      310 |   await page.reload();
+      311 |   await expect(page.getByText('Synthetic A').first()).toBeVisible();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:308:55
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+    Error Context: test-results/bar-browser-shows-populate-2ce3e--it-after-reload-on-a-phone/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:288:1 › browser shows populated BAR and retains it after reload on a phone 
+  5 passed (2.1m)
+
+# код выхода 1 · 2 мин 12 с

@@ -1,0 +1,159 @@
+# Модульные (unit) · 07.10.2026 19:14 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-14-23Z-unit-77f2.json' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/auto-deploy.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/launchd-status.test.ts' 'tests/unit/local-db-migrate-target.test.ts' 'tests/unit/repo-sync.test.ts' 'tests/unit/shift-check-wrapper.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 39821ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 1971ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 982ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2998ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2314ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 3041ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2373ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 2397ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2655ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2602ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2974ms
+     ✓ локальные правки в клоне — не затирает их 2006ms
+     ✓ историю ветки переписали — не выкладывает поверх 3012ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 4239ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2706ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1953ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1596ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 11927ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1895ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 2167ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 2339ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1836ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 2075ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1596ms
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 1 failed) 52851ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 1524ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 1769ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 1353ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 1610ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 3152ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 2040ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 1424ms
+     ✓ чужой remote или папка не под git — код 2 и ни одного действия 547ms
+     ✓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту 1340ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 3484ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 3302ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 1290ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 3200ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 3728ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 1837ms
+     ✓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению 1211ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 1349ms
+     ✓ находит вторую копию репозитория рядом с папкой 1684ms
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 1345ms
+     ✓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 1803ms
+     ✓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 2099ms
+     ✓ чужой репозиторий внутри папки назван, но не переносится 1842ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 2028ms
+     ✓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 4123ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 3759ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 9794ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1279ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 1920ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1849ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1456ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 1449ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1828ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 11539ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 1094ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 1328ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 573ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 847ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 1325ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 976ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 861ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 1507ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 1853ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 1130ms
+ ✓ |unit| tests/unit/local-db-migrate-target.test.ts (1 test) 3707ms
+   ✓ local-db start migrates the local database even when .env carries DIRECT_URL 3706ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed) 2036ms
+   ❯ scripts/ops/shift-check.sh (4)
+     ✓ таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона 602ms
+     ✓ повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется 753ms
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 41ms
+     ✓ без --date день смены сегодняшний по Алматы 639ms
+ ✓ |unit| tests/unit/launchd-status.test.ts (4 tests) 7551ms
+   ✓ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 1532ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 2510ms
+     ✓ задача загружена и адрес отвечает — обычная строка без предупреждения 2094ms
+     ✓ задача загружена, а снаружи молчит — называет это расхождением 1412ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /private/var/folders/sl/5hhh0s…' to contain '--archive-nested'
+
+- Expected
++ Received
+
+- --archive-nested
++ Папка: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-i1vkqP/WETOP
++   ✓ origin → /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-i1vkqP/GAIVER007/wetop.ai.git
++ Git: ветка main, коммит b36879b; origin/main b36879b
++   ✓ совпадает с origin/main
++   · неотслеживаемых файлов: 1 (git status)
++   ✗ ещё одна копия репозитория рядом: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-i1vkqP/seed (b36879b от 2026-10-07)
++   → оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)
++   ✗ внутри папки вторая копия репозитория: Чат агент/WETOP (ветка ai-seller)
++   · это старая папка бота: с 24.09 он живёт в apps/ai-seller ветки main, со всей историей
++   · всё из неё уже на GitHub; .env и данные переедут вместе с папкой
++ /Users/urijzapojnov/wetop-unified-acceptance-20261007/scripts/ops/repo-sync.sh: line 283: top_rel�: unbound variable
++
+
+ ❯ tests/unit/repo-sync.test.ts:545:17
+    543|     expect(out).toMatch(/apps\/ai-seller/);
+    544|     expect(out).toMatch(/всё из неё уже на GitHub/);
+    545|     expect(out).toContain('--archive-nested');
+       |                 ^
+    546|     expect(out).not.toContain('SECRET=1');
+    547|     expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/wetop-unified-acc…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/wetop-unified-acceptance-20261007/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  2 failed | 74 passed | 1 skipped (77)
+   Start at  18:14:25
+   Duration  70.71s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-14-23Z-unit-77f2.json
+
+# код выхода 1 · 1 мин 12 с

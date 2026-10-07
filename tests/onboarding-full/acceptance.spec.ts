@@ -1,5 +1,6 @@
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
-const qa = 'http://127.0.0.1:55825';
+import { fullQaPorts } from './ports';
+const qa = fullQaPorts.url;
 async function fixture(request: APIRequestContext, vertical = 'BEAUTY') {
   return (await request.post(`${qa}/__qa/reset`, { data: { vertical } })).json();
 }

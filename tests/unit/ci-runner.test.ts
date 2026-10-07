@@ -99,6 +99,19 @@ describe('свой раннер CI', () => {
     for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
   });
 
+  it('наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a)', () => {
+    const vertical = withoutComments(job('ui-vertical'));
+    expect(vertical).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(vertical).toMatch(/needs: fast/);
+    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui\]/);
+    expect(vertical).toMatch(/fail-fast: false/);
+    expect(vertical).toMatch(/timeout-minutes: \d+/);
+    // подставные API трёх наборов читают схему pms_test локальной базы
+    expect(vertical).toMatch(/image: postgres:16/);
+    expect(vertical).toContain('npm run test:schema');
+    expect(vertical).toContain('npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts');
+  });
+
   it('сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)', () => {
     const db = withoutComments(job('db'));
     const step = db.slice(db.indexOf('name: Сквозные тесты'));
@@ -301,4 +314,15 @@ describe('скрипт запуска раннера: регистрация', (
     expect(r.code, r.err).toBe(0);
     expect(r.calls).toBe('run\n');
   });
+});
+
+it('release CI runs guarded BAR acceptance after the general database E2E suite', () => {
+  const dbJob = /\n {2}db:\n([\s\S]*?)(?=\n {2}ui-shard:)/.exec(RELEASE)?.[1] ?? '';
+  const general = dbJob.indexOf('run: npx playwright test --workers=2');
+  const bar = dbJob.indexOf('run: npx playwright test --config tests/bar-operational/playwright.config.ts');
+  expect(general).toBeGreaterThan(-1);
+  expect(bar).toBeGreaterThan(general);
+  const barStep = dbJob.slice(dbJob.lastIndexOf('- name:', bar), bar);
+  expect(barStep).toContain('DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev');
+  expect(barStep).not.toContain('continue-on-error');
 });

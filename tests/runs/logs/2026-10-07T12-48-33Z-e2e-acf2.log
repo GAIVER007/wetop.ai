@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 07.10.2026 17:48 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:90205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:90273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:105:1 › populated sales and movements are readable through real guarded HTTP API (947ms)
+(node:90285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/bar-operational/bar.spec.ts:120:1 › C13 replay after real reversal returns stored status without effects (412ms)
+
+
+  1) tests/bar-operational/bar.spec.ts:105:1 › populated sales and movements are readable through real guarded HTTP API 
+
+    Error: sales: 500 {"statusCode":500,"message":"Internal server error"}
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      29 |         ? await request.get(`${qa}/bar/${path}`, { headers })
+      30 |         : await request.post(`${qa}/bar/${path}`, { headers, data });
+    > 31 |     expect(response.ok(), `${path}: ${response.status()} ${await response.text()}`).toBe(true);
+         |                                                                                     ^
+      32 |     return response.json();
+      33 |   };
+      34 |   const category = await call('categories', { name: 'QA operational', defaultMarkupBasis: 10000 });
+        at call (/Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:31:85)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:109:17
+
+    Error Context: test-results/bar-populated-sales-and-mo-67479-rough-real-guarded-HTTP-API/error-context.md
+
+    Error Context: test-results/bar-populated-sales-and-mo-67479-rough-real-guarded-HTTP-API/error-context.md
+
+  2) tests/bar-operational/bar.spec.ts:120:1 › C13 replay after real reversal returns stored status without effects 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "REVERSED"
+    Received: "POSTED"
+
+      133 |   const before = await counts();
+      134 |   const replay = await call('sales/retail', payload);
+    > 135 |   expect(replay.status).toBe(stored.status);
+          |                         ^
+      136 |   expect(await counts()).toEqual(before);
+      137 | });
+      138 |
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:135:25
+
+    Error Context: test-results/bar-C13-replay-after-real--18e0d-ored-status-without-effects/error-context.md
+
+    Error Context: test-results/bar-C13-replay-after-real--18e0d-ored-status-without-effects/error-context.md
+
+  2 failed
+    tests/bar-operational/bar.spec.ts:105:1 › populated sales and movements are readable through real guarded HTTP API 
+    tests/bar-operational/bar.spec.ts:120:1 › C13 replay after real reversal returns stored status without effects 
+
+# код выхода 1 · 9 с

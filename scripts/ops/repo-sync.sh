@@ -280,7 +280,7 @@ EOF
     fi
   else
     info "всё из неё уже на GitHub; .env и данные переедут вместе с папкой"
-    need "убрать дубль из рабочей папки: scripts/ops/repo-sync.sh --archive-nested (перенесёт «$top_rel» целиком в $ARCHIVE_DIR, ничего не удалит)"
+    need "убрать дубль из рабочей папки: scripts/ops/repo-sync.sh --archive-nested (перенесёт «${top_rel}» целиком в $ARCHIVE_DIR, ничего не удалит)"
   fi
 done <<EOF
 $nested_git

@@ -119,9 +119,6 @@ export function AvailabilityFinder({
         (bed || c.capacityAdults >= guests) && (availability?.available ?? 0) < (bed ? guests : 1),
     };
   });
-  const found = rows.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
-  const freeCount = (bed: boolean) =>
-    found.filter((c) => c.bed === bed).reduce((n, c) => n + (c.availability?.available ?? 0), 0);
   const matching = rows.filter(
     (c) =>
       (!category || c.code === category) &&
@@ -130,6 +127,9 @@ export function AvailabilityFinder({
   const visible = showAll
     ? matching.filter((c) => !c.soldOut)
     : matching.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
+  const found = visible.filter((c) => (c.availability?.available ?? 0) > 0);
+  const freeCount = (bed: boolean) =>
+    found.filter((c) => c.bed === bed).reduce((n, c) => n + (c.availability?.available ?? 0), 0);
   const soldOut = matching.filter((c) => c.soldOut);
   return (
     <>

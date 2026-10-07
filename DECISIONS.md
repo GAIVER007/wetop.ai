@@ -6078,3 +6078,67 @@ Reason: fulfill already approved MV8 scope isolation requirements without replac
 Проблема: signedInUser превращает любой ApiError в отсутствие сессии; серверная команда мастера не различает неизвестный исход записи и подтверждённый отказ. План утверждён владельцем, база 7c101e5e. Варианты: автоматический повтор команды, повторный вход при любой ошибке, проверка сохранённого состояния перед повтором. Решение: отдельный same-origin маршрут GET/POST с обычной session/scope проверкой API, ограниченным JSON и Origin; browser сохраняет ввод при 5xx, читает актуальный draft/version/step перед повтором, 409 требует загрузить сохранённую версию, 401 требует входа. Подтверждённые 403 не маскируются выходом.
 
 Сохранены landingForVertical и текущие Beauty/Food/согласованные scope-потоки. Модель и права не меняются, новых migrations нет. Не копируются старый calendar landing и Turnstile изменения. Следствие: восстановления не ослабляют auth; неизвестный исход команды требует readback, а не слепой второй записи. Полный API и синтетический PostgreSQL 17 проверяются отдельно от домена.
+
+
+## Unified acceptance candidate (2026-10-07)
+
+Problem: independent UI, U07, calendar and design candidates did not prove their combined behavior.
+Options: release all moving main, reuse the old U07 base, or freeze the approved main subset.
+Decision approved in the coordinator chat: base 94a2ae33416ece62d2bd18d8f3ef1896ed209702, adapted U07 e070da7e, reviewed calendar PR 264 and DS0a PR 267 changes. One executor owns shared source and a localhost PostgreSQL 17 synthetic stand. MKT6, MV9 and further modules are excluded. No main/release/production change is authorized by this task.
+Reason: current scope selection and accepted role/layout fixes remain intact while the exact combined candidate receives new evidence.
+Consequences: full CI must run on the eventual exact SHA; policy-dependent BAR and website changes remain gated by explicit owner decisions. Existing 060/061 migration delta must be evaluated separately before any production release.
+
+## BAR read serialization and replay status correction (2026-10-07)
+
+Problem: real guarded API tests on PostgreSQL 17 returned HTTP 500 for populated sales/movements, and a replay after reversal reported POSTED while the stored sale was REVERSED.
+Options: serialize all nested ORM product fields, globally alter JSON serialization, or select only the product name declared by these read contracts.
+Decision: select the declared product name for sales/movements; return the persisted sale status in replay responses. UI response types recognize the existing REVERSED enum value.
+Reason: the failure came from nested product BigInt values that the response did not normalize. Global serializers would broaden the change. The status fix does not create new money or stock effects.
+Consequences: no schema, price, FIFO, refunds or permissions change. Real HTTP/DB RED tests are in tests/bar-operational, followed by GREEN with unchanged effect counts. Financial policy questions remain open.
+
+
+## 2026-10-07: Unified calendar footer integration
+
+Problem: selected PR264 side-summary layout narrows the legend to the left grid column. The inherited 1366x768 acceptance test reports a 46px grid bottom gap against the unchanged 32px maximum. All legend labels must remain accessible.
+
+Options: weaken the bound; truncate labels or introduce horizontal legend scrolling; give the legend the full page width. Decision: preserve the test and labels, place the existing footer after CalendarWorkspace within the page flex column. No data, booking commands, permissions or persistence change. Consequence: grid height is recovered without changing summary layout or introducing extra controls. The inherited RED and repeated browser GREEN will provide evidence.
+
+## 2026-10-07: BAR form retries retain one operation identity
+
+Real guarded browser reproduction (13-59-09Z-e2e-af9e) committed a sale, dropped its response and created a second sale on the same user retry. Cause: both server actions created a fresh UUID on every invocation. Keep a signature and key in action retry state for the same submitted fields; controlled inputs retain values during an error. Confirmed success clears retry state so a subsequent deliberate sale is separate. Alternative global automatic POST retry rejected because other writes may not be idempotent. No schema, price, cash or access policy change. Direct API changed-payload replay remains a separate acceptance item.
+
+## 2026-10-07: BAR replay validates original request
+
+C13 real API RED (14-09-31Z-e2e-cd6b) returned 201 for the original key with a different quantity. Compare persisted sale line product/quantity, destination Folio and retail cash method before returning a replay. A mismatch returns HTTP 409; exact replay retains stored status and has no effects. Existing columns fully describe these request fields, so a new hash field or migration is unnecessary. No pricing, stock-cost, cash, Folio or access rule changed. Simultaneous same-key requests remain an additional verification item.
+
+## 2026-10-07: Shell diagnostic variables adjacent to UTF-8 delimiters
+
+Full unit RED reported 29 failures; repeating the affected eight files with maxWorkers=2 and unchanged five-second timeouts left exactly two failures. System Bash treated the UTF-8 closing quote adjacent to an unbraced variable as part of its identifier, failing under set -u instead of printing the required diagnostic. Brace top_rel and day inside the two affected messages. No commands, conditions, data operations, timeout or test assertions changed. Remaining 27 initial failures were resource-related in this local run; full rerun required.
+
+## 2026-10-07: Sale action feedback reflects cancelled replay
+
+Unit RED 14-18-09Z-unit-13a2 showed both forms claimed a new sale after the API returned REVERSED for a replay. Branch the success message on stored status, explicitly stating that the previous sale/charge is cancelled and no new one was created. No change to reversal eligibility, amounts or refunds.
+
+## 2026-10-07: Uncertain sale identity survives edits
+
+Supersedes signature-based reuse in the earlier form retry decision. RED 14-22-28Z-unit-3717 and 14-23-01Z-e2e-c6b1 showed changing quantity after a lost reply started a new intent instead of reaching the API conflict check. Hold the pending key until an acknowledged result, regardless of field edits. Existing API validation rejects a changed payload after a commit; restoring original fields permits exact replay. After confirmed success, state clears and a deliberate new sale gets a new key. Remove the now-unused signature. No new transaction, field, calculation or access policy.
+
+## 2026-10-07: isolated full API QA loopback ports
+
+Problem: another owned-by-other-session QA stand occupies the fixed full-API ports. Stopping that process would violate AGENTS section 17. Options: wait for every foreign run or assign this synthetic stand a separate range. Decision: support WETOP_QA_PORT_BASE for the three loopback-only fixture ports, validate 1024..65533 before startup. Default CI ports remain 55823..55825. Application routes, guards, external dispatch restrictions and assertions are unchanged. Consequence: this run uses 56080..56082 with its own PostgreSQL 17 on 55934. RED 14-26-48Z-unit-8fc8 (2/2 failed), GREEN 14-30-54Z-unit-9922 (2/2 passed).
+
+## 2026-10-07: serialize concurrent BAR sale intent replay
+
+Problem: controlled real PostgreSQL stock barrier reproduces HTTP 201/500 for two identical concurrent requests, even though the unique constraint prevents the second committed sale. Decision: take a transaction advisory lock on property ID plus intent key before reading a replay in both retail and Folio paths, using the existing project hashtextextended pattern. This preserves stock row locks, tenant guards, financial formulas and the unique constraint. A different payload retains 409. No fields or migrations added. The barrier observer now includes advisory-lock waits because the second identical request waits before the stock query. Original RED: 14-33-58Z-e2e-565d. GREEN: 14-35-00Z-e2e-045a, same sale ID, one sale and one stock movement. Test-only observer correction 14-34-34Z is not counted as an application regression; parameterized SQL does not expose the literal key in pg_stat_activity. Synthetic session diagnostic was redacted from saved evidence.
+
+## 2026-10-07: guarded BAR acceptance in release-checks
+
+Problem: new operational tests were not part of the final CI candidate gate. Decision: run the guarded BAR Playwright configuration after the existing general DB E2E suite, with the existing isolated CI database and restricted wetop_app URL. Preserve all existing jobs and assertions. Synthetic BAR records are contained in the ephemeral CI service and the owned local QA database; no production purge or copied data. Consequence: existing PostgreSQL 16 CI coverage plus separately recorded PostgreSQL 17 operational evidence, not an implied production certification. RED 14-37-07Z-unit-4c95, GREEN 14-37-32Z-unit-840e.
+
+## 2026-10-07: reject foreign BAR receipt links with a resource error
+
+Problem: full guarded API returns 500 when an owned receipt request supplies a foreign supplier ID. Database guard prevents the draft, but the application does not validate link ownership before attempting insertion. Controlled RED 14-48-00Z-e2e-aa1b; strengthened unchanged-state RED 14-50-28Z-e2e-692c confirms reports and all receipts/lines in both tenants remain unchanged. Decision: check supplier and distinct line product IDs against the resolved property before creating the receipt, return 404 for absent or foreign resources. Keep existing SQL ownership guards, session/role checks and price/stock formulas. No new active/archive rule, no schema or public success response changes. GREEN remains pending.
+
+## 2026-10-07: fault-injection proxy does not reuse upstream connection lifetime
+
+Problem: full master U09 reproduces front-to-proxy ECONNRESET before HTTP dispatch after idle connection closes. Next correlation, proxy socket history and continued API health separate this transport failure from API application failure and deliberate fault modes. A deterministic worker-thread peer-close barrier reproduces the same error on a reused connection. Options: retry requests, lengthen timeouts, or make the test adapter explicitly close its normal responses. Decision: only the test proxy strips upstream keep-alive and sends Connection: close. This removes idle-pool reuse without replaying commands or altering application transport, SessionGuard, money, fault injection or acceptance assertions. RED 17-10-41Z-unit-0fbd; GREEN 17-11-20Z-unit-f2cb (65/65 including existing CI and production environment contracts). The two older failures without correlation remain unattributed; the original complete master and BAR sequences must pass again before reporting this fix accepted.

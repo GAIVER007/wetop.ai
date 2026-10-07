@@ -1,0 +1,109 @@
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-a5a99e66-2489-403a-ad5d-d491a93e8c80","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-860c1cfd-59ed-4440-adc8-85365138c50b","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-b15561d7-ae6f-4841-a75f-9b26b1c929e5","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-439b378a-d9f2-4e51-9123-cd47dd672007","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"A4b/C15","variant":"foreign selection falls back to own organization only","status":200,"isolation":"PASS","selectionPolicy":"OPEN"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-f115c525-dbd6-493d-8fdd-b8e9f3b2a289","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"A4b/C15","variant":"foreign selection falls back to own organization only","status":200,"isolation":"PASS","selectionPolicy":"OPEN"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-68c1c766-d6d4-4cb3-8657-e8d538366b3b","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"A4b/C15","variant":"foreign selection falls back to own organization only","status":200,"isolation":"PASS","selectionPolicy":"OPEN"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/cash","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/operations?from=2026-10-01&to=2026-10-10","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/finance/reservations/QA-ACCESS-a8fab904-9936-4f9d-9582-c2cb126d69ce","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"scoped read","path":"/bar/folios","status":200,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/charges/:id/void","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/close","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/folios/:id/charges","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/cash/operations","status":400,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/finance/payments","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"C15","variant":"foreign mutation/link denied","path":"/bar/sales/folio","status":404,"result":"PASS"}
+{"scenario":"A4b/C15","variant":"foreign selection falls back to own organization only","status":200,"isolation":"PASS","selectionPolicy":"OPEN"}
+{"scenario":"C14","role":"OWNER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"MANAGER","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"STAFF","variant":"current cash/refunds/settings guards","result":"PASS"}
+{"scenario":"C14","role":"OWNER","variant":"read-only existing reads and blocked writes","result":"PASS"}

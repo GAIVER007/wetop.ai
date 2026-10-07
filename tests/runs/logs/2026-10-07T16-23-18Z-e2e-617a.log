@@ -1,0 +1,989 @@
+# Сквозные (e2e) · 07.10.2026 21:23 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' '--workers=1'
+[WebServer] (node:10538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10859) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+(node:11264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:45.899Z","id":"qa-10859-1","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:46.626Z","id":"qa-10859-1","route":"other","phase":"response","status":201,"elapsedMs":727}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:47.077Z","id":"qa-10859-2","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:47.242Z","id":"qa-10859-2","route":"other","phase":"response","status":200,"elapsedMs":165}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:48.608Z","id":"qa-10859-3","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:48.788Z","id":"qa-10859-3","route":"/auth/me","phase":"response","status":200,"elapsedMs":180}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:48.819Z","id":"qa-10859-4","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:48.969Z","id":"qa-10859-5","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:49.096Z","id":"qa-10859-4","route":"other","phase":"response","status":200,"elapsedMs":277}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:49.245Z","id":"qa-10859-5","route":"other","phase":"response","status":200,"elapsedMs":276}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:50.820Z","id":"qa-10859-6","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.112Z","id":"qa-10859-6","route":"/auth/me","phase":"response","status":200,"elapsedMs":293}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.140Z","id":"qa-10859-7","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.198Z","id":"qa-10859-7","route":"/auth/me","phase":"response","status":200,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.209Z","id":"qa-10859-8","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.364Z","id":"qa-10859-8","route":"/onboarding","phase":"response","status":200,"elapsedMs":155}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:51.997Z","id":"qa-10859-9","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.009Z","id":"qa-10859-10","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.276Z","id":"qa-10859-11","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.282Z","id":"qa-10859-9","route":"/onboarding","phase":"response","status":200,"elapsedMs":285}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.295Z","id":"qa-10859-10","route":"/onboarding","phase":"response","status":200,"elapsedMs":286}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.563Z","id":"qa-10859-11","route":"/auth/me","phase":"response","status":200,"elapsedMs":287}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.583Z","id":"qa-10859-12","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.884Z","id":"qa-10859-12","route":"/auth/me","phase":"response","status":200,"elapsedMs":301}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:52.927Z","id":"qa-10859-13","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:53.105Z","id":"qa-10859-13","route":"/onboarding","phase":"response","status":200,"elapsedMs":178}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:53.237Z","id":"qa-10859-14","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:53.240Z","id":"qa-10859-15","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:53.319Z","id":"qa-10859-15","route":"/onboarding","phase":"response","status":200,"elapsedMs":79}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:53.330Z","id":"qa-10859-14","route":"/onboarding","phase":"response","status":200,"elapsedMs":93}
+  ✓   1 tests/onboarding-full/acceptance.spec.ts:36:1 › U01 first launch uses verified vertical and creates no draft on read (10.3s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:54.212Z","id":"qa-10859-16","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:54.759Z","id":"qa-10859-16","route":"other","phase":"response","status":201,"elapsedMs":547}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:54.940Z","id":"qa-10859-17","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:55.072Z","id":"qa-10859-17","route":"other","phase":"response","status":200,"elapsedMs":132}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:55.469Z","id":"qa-10859-18","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:55.762Z","id":"qa-10859-18","route":"/auth/me","phase":"response","status":200,"elapsedMs":293}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:55.885Z","id":"qa-10859-19","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:56.209Z","id":"qa-10859-20","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:56.236Z","id":"qa-10859-19","route":"other","phase":"response","status":200,"elapsedMs":351}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:57.552Z","id":"qa-10859-20","route":"other","phase":"response","status":200,"elapsedMs":1343}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.229Z","id":"qa-10859-21","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.463Z","id":"qa-10859-21","route":"/auth/me","phase":"response","status":200,"elapsedMs":234}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.480Z","id":"qa-10859-22","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.687Z","id":"qa-10859-22","route":"/auth/me","phase":"response","status":200,"elapsedMs":207}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.707Z","id":"qa-10859-23","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:23:59.837Z","id":"qa-10859-23","route":"/onboarding","phase":"response","status":200,"elapsedMs":130}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.111Z","id":"qa-10859-24","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.131Z","id":"qa-10859-25","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.364Z","id":"qa-10859-24","route":"/onboarding","phase":"response","status":200,"elapsedMs":253}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.427Z","id":"qa-10859-25","route":"/onboarding","phase":"response","status":200,"elapsedMs":296}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.523Z","id":"qa-10859-26","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:00.800Z","id":"qa-10859-26","route":"/onboarding","phase":"response","status":201,"elapsedMs":277}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.066Z","id":"qa-10859-27","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.210Z","id":"qa-10859-27","route":"/auth/me","phase":"response","status":200,"elapsedMs":144}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.293Z","id":"qa-10859-28","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.380Z","id":"qa-10859-28","route":"/auth/me","phase":"response","status":200,"elapsedMs":87}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.403Z","id":"qa-10859-29","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.488Z","id":"qa-10859-29","route":"/onboarding","phase":"response","status":200,"elapsedMs":85}
+  ✓   2 tests/onboarding-full/acceptance.spec.ts:47:1 › U02 save/reload restores version, step and draft (8.5s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.941Z","id":"qa-10859-30","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:01.944Z","id":"qa-10859-31","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:02.035Z","id":"qa-10859-30","route":"/onboarding","phase":"response","status":200,"elapsedMs":94}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:02.047Z","id":"qa-10859-31","route":"/onboarding","phase":"response","status":200,"elapsedMs":103}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:02.954Z","id":"qa-10859-32","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.135Z","id":"qa-10859-32","route":"other","phase":"response","status":201,"elapsedMs":181}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.168Z","id":"qa-10859-33","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.237Z","id":"qa-10859-33","route":"other","phase":"response","status":200,"elapsedMs":69}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.426Z","id":"qa-10859-34","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.509Z","id":"qa-10859-34","route":"/auth/me","phase":"response","status":200,"elapsedMs":83}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.531Z","id":"qa-10859-35","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.722Z","id":"qa-10859-36","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.727Z","id":"qa-10859-35","route":"other","phase":"response","status":200,"elapsedMs":196}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:03.910Z","id":"qa-10859-36","route":"other","phase":"response","status":200,"elapsedMs":188}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:05.593Z","id":"qa-10859-37","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:05.886Z","id":"qa-10859-37","route":"/auth/me","phase":"response","status":200,"elapsedMs":294}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:05.908Z","id":"qa-10859-38","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:06.276Z","id":"qa-10859-38","route":"/auth/me","phase":"response","status":200,"elapsedMs":367}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:06.334Z","id":"qa-10859-39","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:06.703Z","id":"qa-10859-39","route":"/onboarding","phase":"response","status":200,"elapsedMs":369}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.169Z","id":"qa-10859-40","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.185Z","id":"qa-10859-41","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.494Z","id":"qa-10859-41","route":"/onboarding","phase":"response","status":200,"elapsedMs":309}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.507Z","id":"qa-10859-40","route":"/onboarding","phase":"response","status":200,"elapsedMs":338}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.549Z","id":"qa-10859-42","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:07.715Z","id":"qa-10859-42","route":"/onboarding","phase":"response","status":201,"elapsedMs":166}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:09.772Z","id":"qa-10859-43","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:09.844Z","id":"qa-10859-43","route":"/auth/me","phase":"response","status":200,"elapsedMs":72}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:09.852Z","id":"qa-10859-44","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:09.970Z","id":"qa-10859-44","route":"/auth/me","phase":"response","status":200,"elapsedMs":118}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:09.985Z","id":"qa-10859-45","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.037Z","id":"qa-10859-45","route":"/onboarding","phase":"response","status":200,"elapsedMs":52}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.462Z","id":"qa-10859-46","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.482Z","id":"qa-10859-47","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.569Z","id":"qa-10859-46","route":"/onboarding","phase":"response","status":401,"elapsedMs":107}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.576Z","id":"qa-10859-47","route":"/onboarding","phase":"response","status":401,"elapsedMs":94}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:10.995Z","id":"qa-10859-48","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:11.718Z","id":"qa-10859-48","route":"other","phase":"response","status":201,"elapsedMs":723}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.003Z","id":"qa-10859-49","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.058Z","id":"qa-10859-49","route":"other","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.381Z","id":"qa-10859-50","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.694Z","id":"qa-10859-50","route":"/auth/me","phase":"response","status":200,"elapsedMs":313}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.731Z","id":"qa-10859-51","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.846Z","id":"qa-10859-52","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.878Z","id":"qa-10859-51","route":"other","phase":"response","status":200,"elapsedMs":147}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:12.973Z","id":"qa-10859-52","route":"other","phase":"response","status":200,"elapsedMs":127}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.610Z","id":"qa-10859-53","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.740Z","id":"qa-10859-53","route":"/auth/me","phase":"response","status":200,"elapsedMs":130}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.751Z","id":"qa-10859-54","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.828Z","id":"qa-10859-54","route":"/auth/me","phase":"response","status":200,"elapsedMs":77}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.843Z","id":"qa-10859-55","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:13.941Z","id":"qa-10859-55","route":"/onboarding","phase":"response","status":200,"elapsedMs":98}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:14.068Z","id":"qa-10859-56","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:14.069Z","id":"qa-10859-57","route":"/onboarding","phase":"start"}
+  ✓   3 tests/onboarding-full/acceptance.spec.ts:63:1 › U03 close/reopen and real re-login preserve saved progress (12.1s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:14.121Z","id":"qa-10859-56","route":"/onboarding","phase":"response","status":200,"elapsedMs":53}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:14.125Z","id":"qa-10859-57","route":"/onboarding","phase":"response","status":200,"elapsedMs":56}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:15.258Z","id":"qa-10859-58","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:15.604Z","id":"qa-10859-58","route":"other","phase":"response","status":201,"elapsedMs":346}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:15.766Z","id":"qa-10859-59","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:15.863Z","id":"qa-10859-59","route":"other","phase":"response","status":200,"elapsedMs":97}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.102Z","id":"qa-10859-60","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.355Z","id":"qa-10859-60","route":"/auth/me","phase":"response","status":200,"elapsedMs":253}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.398Z","id":"qa-10859-61","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.513Z","id":"qa-10859-62","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.606Z","id":"qa-10859-61","route":"other","phase":"response","status":200,"elapsedMs":208}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:16.768Z","id":"qa-10859-62","route":"other","phase":"response","status":200,"elapsedMs":255}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:18.340Z","id":"qa-10859-63","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:18.729Z","id":"qa-10859-63","route":"/auth/me","phase":"response","status":200,"elapsedMs":389}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:18.777Z","id":"qa-10859-64","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:18.951Z","id":"qa-10859-64","route":"/auth/me","phase":"response","status":200,"elapsedMs":174}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:18.964Z","id":"qa-10859-65","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:19.382Z","id":"qa-10859-65","route":"/onboarding","phase":"response","status":200,"elapsedMs":418}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:19.980Z","id":"qa-10859-66","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.163Z","id":"qa-10859-67","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.310Z","id":"qa-10859-68","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.353Z","id":"qa-10859-66","route":"/onboarding","phase":"response","status":200,"elapsedMs":373}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.364Z","id":"qa-10859-67","route":"/onboarding","phase":"response","status":200,"elapsedMs":201}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.416Z","id":"qa-10859-68","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":106,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:24:20.417Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.594Z","id":"qa-10859-69","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:20.645Z","id":"qa-10859-69","route":"/onboarding","phase":"response","status":200,"elapsedMs":51}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.172Z","id":"qa-10859-70","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.391Z","id":"qa-10859-70","route":"/auth/me","phase":"response","status":200,"elapsedMs":219}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.416Z","id":"qa-10859-71","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.478Z","id":"qa-10859-71","route":"/auth/me","phase":"response","status":200,"elapsedMs":62}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.487Z","id":"qa-10859-72","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.510Z","id":"qa-10859-72","route":"/onboarding","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.841Z","id":"qa-10859-73","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:21.890Z","id":"qa-10859-73","route":"/onboarding","phase":"response","status":200,"elapsedMs":49}
+  ✓   4 tests/onboarding-full/acceptance.spec.ts:82:1 › U04 commit with lost response, repeat and reload produce one progress (7.8s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:22.844Z","id":"qa-10859-74","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.136Z","id":"qa-10859-74","route":"other","phase":"response","status":201,"elapsedMs":292}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.356Z","id":"qa-10859-75","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.417Z","id":"qa-10859-75","route":"other","phase":"response","status":200,"elapsedMs":61}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.559Z","id":"qa-10859-76","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.633Z","id":"qa-10859-76","route":"/auth/me","phase":"response","status":200,"elapsedMs":74}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.649Z","id":"qa-10859-77","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.710Z","id":"qa-10859-78","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.714Z","id":"qa-10859-77","route":"other","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:23.822Z","id":"qa-10859-78","route":"other","phase":"response","status":200,"elapsedMs":112}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.724Z","id":"qa-10859-79","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.786Z","id":"qa-10859-79","route":"/auth/me","phase":"response","status":200,"elapsedMs":62}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.794Z","id":"qa-10859-80","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.849Z","id":"qa-10859-80","route":"/auth/me","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.856Z","id":"qa-10859-81","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:24.927Z","id":"qa-10859-81","route":"/onboarding","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.181Z","id":"qa-10859-82","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.236Z","id":"qa-10859-82","route":"/onboarding","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.400Z","id":"qa-10859-83","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.495Z","id":"qa-10859-83","route":"/auth/me","phase":"response","status":200,"elapsedMs":95}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.509Z","id":"qa-10859-84","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.651Z","id":"qa-10859-84","route":"/auth/me","phase":"response","status":200,"elapsedMs":142}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:25.662Z","id":"qa-10859-85","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.017Z","id":"qa-10859-85","route":"/onboarding","phase":"response","status":200,"elapsedMs":355}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.238Z","id":"qa-10859-86","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.239Z","id":"qa-10859-87","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.343Z","id":"qa-10859-86","route":"/onboarding","phase":"response","status":200,"elapsedMs":105}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.370Z","id":"qa-10859-87","route":"/onboarding","phase":"response","status":200,"elapsedMs":131}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.378Z","id":"qa-10859-88","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.524Z","id":"qa-10859-88","route":"/onboarding","phase":"response","status":201,"elapsedMs":146}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:26.964Z","id":"qa-10859-89","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.062Z","id":"qa-10859-89","route":"/onboarding","phase":"response","status":201,"elapsedMs":98}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.213Z","id":"qa-10859-90","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.384Z","id":"qa-10859-90","route":"/onboarding","phase":"response","status":201,"elapsedMs":171}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.795Z","id":"qa-10859-91","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.823Z","id":"qa-10859-92","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.929Z","id":"qa-10859-91","route":"/onboarding","phase":"response","status":200,"elapsedMs":134}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:27.936Z","id":"qa-10859-92","route":"/onboarding","phase":"response","status":200,"elapsedMs":113}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:28.297Z","id":"qa-10859-93","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:28.299Z","id":"qa-10859-94","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:28.368Z","id":"qa-10859-93","route":"/onboarding","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:28.391Z","id":"qa-10859-94","route":"/onboarding","phase":"response","status":200,"elapsedMs":92}
+  ✓   5 tests/onboarding-full/acceptance.spec.ts:99:1 › U05 unsaved/saved back and forward are explicit (6.6s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.210Z","id":"qa-10859-95","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.480Z","id":"qa-10859-95","route":"other","phase":"response","status":201,"elapsedMs":270}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.505Z","id":"qa-10859-96","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.540Z","id":"qa-10859-96","route":"other","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.650Z","id":"qa-10859-97","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.723Z","id":"qa-10859-97","route":"/auth/me","phase":"response","status":200,"elapsedMs":73}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.751Z","id":"qa-10859-98","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.895Z","id":"qa-10859-99","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:30.898Z","id":"qa-10859-98","route":"other","phase":"response","status":200,"elapsedMs":147}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:31.159Z","id":"qa-10859-99","route":"other","phase":"response","status":200,"elapsedMs":264}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.511Z","id":"qa-10859-100","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.644Z","id":"qa-10859-100","route":"/auth/me","phase":"response","status":200,"elapsedMs":133}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.667Z","id":"qa-10859-101","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.760Z","id":"qa-10859-101","route":"/auth/me","phase":"response","status":200,"elapsedMs":93}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.769Z","id":"qa-10859-102","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:32.824Z","id":"qa-10859-102","route":"/onboarding","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.077Z","id":"qa-10859-103","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.079Z","id":"qa-10859-104","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.164Z","id":"qa-10859-105","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.221Z","id":"qa-10859-103","route":"/onboarding","phase":"response","status":200,"elapsedMs":144}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.240Z","id":"qa-10859-104","route":"/onboarding","phase":"response","status":200,"elapsedMs":161}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.291Z","id":"qa-10859-105","route":"/onboarding","phase":"response","status":201,"elapsedMs":127}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.487Z","id":"qa-10859-106","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:33.742Z","id":"qa-10859-106","route":"/onboarding","phase":"response","status":400,"elapsedMs":255}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:34.347Z","id":"qa-10859-107","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:34.520Z","id":"qa-10859-107","route":"/onboarding","phase":"response","status":400,"elapsedMs":173}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:35.406Z","id":"qa-10859-108","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:35.733Z","id":"qa-10859-108","route":"/onboarding","phase":"response","status":201,"elapsedMs":327}
+  ✓   6 tests/onboarding-full/acceptance.spec.ts:120:1 › U06 invalid input never persists, correction proceeds (7.7s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.038Z","id":"qa-10859-109","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.333Z","id":"qa-10859-109","route":"other","phase":"response","status":201,"elapsedMs":295}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.413Z","id":"qa-10859-110","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.467Z","id":"qa-10859-110","route":"other","phase":"response","status":200,"elapsedMs":54}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.658Z","id":"qa-10859-111","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.748Z","id":"qa-10859-111","route":"/auth/me","phase":"response","status":200,"elapsedMs":90}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.764Z","id":"qa-10859-112","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.821Z","id":"qa-10859-113","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:38.891Z","id":"qa-10859-112","route":"other","phase":"response","status":200,"elapsedMs":127}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:39.009Z","id":"qa-10859-113","route":"other","phase":"response","status":200,"elapsedMs":188}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.317Z","id":"qa-10859-114","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.562Z","id":"qa-10859-114","route":"/auth/me","phase":"response","status":200,"elapsedMs":245}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.627Z","id":"qa-10859-115","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.765Z","id":"qa-10859-115","route":"/auth/me","phase":"response","status":200,"elapsedMs":138}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.775Z","id":"qa-10859-116","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:40.915Z","id":"qa-10859-116","route":"/onboarding","phase":"response","status":200,"elapsedMs":140}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.559Z","id":"qa-10859-117","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.719Z","id":"qa-10859-118","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.739Z","id":"qa-10859-117","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":180,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:24:41.739Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.802Z","id":"qa-10859-118","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":83,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:24:41.804Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.826Z","id":"qa-10859-119","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:41.847Z","id":"qa-10859-119","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":21,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:24:41.847Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.068Z","id":"qa-10859-120","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.137Z","id":"qa-10859-120","route":"/onboarding","phase":"response","status":200,"elapsedMs":69}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.163Z","id":"qa-10859-121","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.247Z","id":"qa-10859-121","route":"/onboarding","phase":"response","status":201,"elapsedMs":84}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.465Z","id":"qa-10859-122","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.542Z","id":"qa-10859-122","route":"/auth/me","phase":"response","status":200,"elapsedMs":77}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.560Z","id":"qa-10859-123","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.697Z","id":"qa-10859-123","route":"/auth/me","phase":"response","status":200,"elapsedMs":137}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.713Z","id":"qa-10859-124","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.824Z","id":"qa-10859-124","route":"/onboarding","phase":"response","status":200,"elapsedMs":111}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.970Z","id":"qa-10859-125","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:42.971Z","id":"qa-10859-126","route":"/onboarding","phase":"start"}
+  ✓   7 tests/onboarding-full/acceptance.spec.ts:140:1 › U07 complete API disconnect preserves input and retry (6.6s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:43.024Z","id":"qa-10859-125","route":"/onboarding","phase":"response","status":200,"elapsedMs":54}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:43.032Z","id":"qa-10859-126","route":"/onboarding","phase":"response","status":200,"elapsedMs":61}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:44.467Z","id":"qa-10859-127","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:44.766Z","id":"qa-10859-127","route":"other","phase":"response","status":201,"elapsedMs":299}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:44.806Z","id":"qa-10859-128","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:44.873Z","id":"qa-10859-128","route":"other","phase":"response","status":200,"elapsedMs":67}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.067Z","id":"qa-10859-129","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.159Z","id":"qa-10859-129","route":"/auth/me","phase":"response","status":200,"elapsedMs":92}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.205Z","id":"qa-10859-130","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.319Z","id":"qa-10859-131","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.443Z","id":"qa-10859-130","route":"other","phase":"response","status":200,"elapsedMs":238}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:45.621Z","id":"qa-10859-131","route":"other","phase":"response","status":200,"elapsedMs":302}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.157Z","id":"qa-10859-132","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.383Z","id":"qa-10859-132","route":"/auth/me","phase":"response","status":200,"elapsedMs":226}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.392Z","id":"qa-10859-133","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.766Z","id":"qa-10859-133","route":"/auth/me","phase":"response","status":200,"elapsedMs":374}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.779Z","id":"qa-10859-134","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:47.854Z","id":"qa-10859-134","route":"/onboarding","phase":"response","status":200,"elapsedMs":75}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.187Z","id":"qa-10859-135","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.300Z","id":"qa-10859-136","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.307Z","id":"qa-10859-135","route":"/onboarding","phase":"response","status":200,"elapsedMs":120}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.323Z","id":"qa-10859-136","route":"/onboarding","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.327Z","id":"qa-10859-137","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.476Z","id":"qa-10859-137","route":"/onboarding","phase":"response","status":201,"elapsedMs":149}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.606Z","id":"qa-10859-138","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:48.876Z","id":"qa-10859-138","route":"/onboarding","phase":"response","status":201,"elapsedMs":270}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:49.522Z","id":"qa-10859-139","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:49.858Z","id":"qa-10859-139","route":"/onboarding","phase":"response","status":201,"elapsedMs":336}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.055Z","id":"qa-10859-140","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.137Z","id":"qa-10859-140","route":"/auth/me","phase":"response","status":200,"elapsedMs":82}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.263Z","id":"qa-10859-141","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.377Z","id":"qa-10859-142","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.552Z","id":"qa-10859-141","route":"other","phase":"response","status":200,"elapsedMs":289}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.579Z","id":"qa-10859-142","route":"/auth/me","phase":"response","status":200,"elapsedMs":202}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.624Z","id":"qa-10859-143","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:50.784Z","id":"qa-10859-144","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:51.017Z","id":"qa-10859-144","route":"other","phase":"response","status":200,"elapsedMs":233}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:51.098Z","id":"qa-10859-143","route":"other","phase":"response","status":200,"elapsedMs":474}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:52.520Z","id":"qa-10859-145","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:52.796Z","id":"qa-10859-145","route":"other","phase":"response","status":201,"elapsedMs":276}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:52.919Z","id":"qa-10859-146","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:53.014Z","id":"qa-10859-146","route":"other","phase":"response","status":200,"elapsedMs":95}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:53.422Z","id":"qa-10859-147","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:54.039Z","id":"qa-10859-147","route":"/auth/me","phase":"response","status":200,"elapsedMs":617}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:54.101Z","id":"qa-10859-148","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:54.253Z","id":"qa-10859-149","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:54.563Z","id":"qa-10859-149","route":"other","phase":"response","status":200,"elapsedMs":306}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:24:55.574Z","id":"qa-10859-148","route":"other","phase":"response","status":200,"elapsedMs":1473}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:01.530Z","id":"qa-10859-150","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:05.733Z","id":"qa-10859-150","route":"/auth/me","phase":"response","status":200,"elapsedMs":4203}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:05.963Z","id":"qa-10859-151","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:06.474Z","id":"qa-10859-151","route":"/auth/me","phase":"response","status":200,"elapsedMs":511}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:06.509Z","id":"qa-10859-152","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:07.421Z","id":"qa-10859-152","route":"/onboarding","phase":"response","status":200,"elapsedMs":912}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.180Z","id":"qa-10859-153","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.366Z","id":"qa-10859-153","route":"/auth/me","phase":"response","status":200,"elapsedMs":186}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.411Z","id":"qa-10859-154","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.593Z","id":"qa-10859-155","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.596Z","id":"qa-10859-154","route":"other","phase":"response","status":200,"elapsedMs":185}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:09.795Z","id":"qa-10859-155","route":"other","phase":"response","status":200,"elapsedMs":202}
+  ✓   8 tests/onboarding-full/acceptance.spec.ts:155:1 › U08 completion replay is denied and re-login preserves completion (27.6s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:14.412Z","id":"qa-10859-156","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:15.505Z","id":"qa-10859-156","route":"other","phase":"response","status":201,"elapsedMs":1092}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:15.840Z","id":"qa-10859-157","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:16.008Z","id":"qa-10859-157","route":"other","phase":"response","status":200,"elapsedMs":168}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:16.496Z","id":"qa-10859-158","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:16.955Z","id":"qa-10859-158","route":"/auth/me","phase":"response","status":200,"elapsedMs":460}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:17.117Z","id":"qa-10859-159","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:17.808Z","id":"qa-10859-159","route":"other","phase":"response","status":200,"elapsedMs":691}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.172Z","id":"qa-10859-160","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.176Z","id":"qa-10859-161","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.182Z","id":"qa-10859-162","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.624Z","id":"qa-10859-162","route":"other","phase":"response","status":200,"elapsedMs":442}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.715Z","id":"qa-10859-163","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.727Z","id":"qa-10859-160","route":"other","phase":"response","status":200,"elapsedMs":555}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.744Z","id":"qa-10859-161","route":"other","phase":"response","status":200,"elapsedMs":568}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.938Z","id":"qa-10859-164","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:18.948Z","id":"qa-10859-163","route":"other","phase":"response","status":403,"elapsedMs":233}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:19.184Z","id":"qa-10859-164","route":"other","phase":"response","status":200,"elapsedMs":246}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.533Z","id":"qa-10859-165","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.655Z","id":"qa-10859-165","route":"/auth/me","phase":"response","status":200,"elapsedMs":122}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.667Z","id":"qa-10859-166","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.730Z","id":"qa-10859-166","route":"/auth/me","phase":"response","status":200,"elapsedMs":63}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.742Z","id":"qa-10859-167","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.850Z","id":"qa-10859-167","route":"/onboarding","phase":"response","status":200,"elapsedMs":108}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.869Z","id":"qa-10859-168","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:20.924Z","id":"qa-10859-168","route":"/hotel/onboarding","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:21.351Z","id":"qa-10859-169","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:21.358Z","id":"qa-10859-170","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:21.455Z","id":"qa-10859-169","route":"/onboarding","phase":"response","status":200,"elapsedMs":104}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:21.462Z","id":"qa-10859-170","route":"/onboarding","phase":"response","status":200,"elapsedMs":104}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:21.662Z","id":"qa-10859-171","route":"/hotel/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:24.289Z","id":"qa-10859-171","route":"/hotel/onboarding","phase":"response","status":201,"elapsedMs":2627}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:24.953Z","id":"qa-10859-172","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.332Z","id":"qa-10859-172","route":"/auth/me","phase":"response","status":200,"elapsedMs":379}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.380Z","id":"qa-10859-173","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.590Z","id":"qa-10859-173","route":"other","phase":"response","status":200,"elapsedMs":210}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.896Z","id":"qa-10859-174","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.902Z","id":"qa-10859-175","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:25.912Z","id":"qa-10859-176","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.371Z","id":"qa-10859-176","route":"other","phase":"response","status":200,"elapsedMs":459}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.507Z","id":"qa-10859-177","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.519Z","id":"qa-10859-177","route":"other","phase":"response","status":403,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.524Z","id":"qa-10859-174","route":"other","phase":"response","status":200,"elapsedMs":628}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.754Z","id":"qa-10859-178","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:26.792Z","id":"qa-10859-175","route":"other","phase":"response","status":200,"elapsedMs":890}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:29.827Z","id":"qa-10859-178","route":"other","phase":"response","status":200,"elapsedMs":3073}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:34.890Z","id":"qa-10859-179","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:34.928Z","id":"qa-10859-180","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:35.272Z","id":"qa-10859-180","route":"other","phase":"error","name":"TypeError","code":"ECONNRESET","elapsedMs":344,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:25:35.272Z","route":"other","name":"TypeError","code":null,"causeCode":"ECONNRESET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:25:35.298Z","id":"qa-10859-179","route":"/auth/me","phase":"error","name":"TypeError","code":"ECONNRESET","elapsedMs":408,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:25:35.298Z","route":"/auth/me","name":"TypeError","code":null,"causeCode":"ECONNRESET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:125:11)
+[WebServer]     at async getJson (src/lib/api.ts:171:15)
+[WebServer]     at async Object.me (src/lib/api.ts:546:20)
+[WebServer]     at async signedInUser (src/app/login/signed-in.ts:18:14)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:12:9)
+[WebServer]   123 |     }
+[WebServer]   124 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 125 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   126 |       503,
+[WebServer]   127 |       options.method && options.method !== 'GET'
+[WebServer]   128 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   9 tests/onboarding-full/acceptance.spec.ts:188:1 › U09 existing hotel fund and rates survive reopening wizard (2.5m)
+(node:26579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:49.637Z","id":"qa-10859-181","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.018Z","id":"qa-10859-181","route":"other","phase":"response","status":201,"elapsedMs":381}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.132Z","id":"qa-10859-182","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.310Z","id":"qa-10859-182","route":"other","phase":"response","status":200,"elapsedMs":178}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.718Z","id":"qa-10859-183","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.827Z","id":"qa-10859-183","route":"/auth/me","phase":"response","status":200,"elapsedMs":109}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.844Z","id":"qa-10859-184","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.912Z","id":"qa-10859-185","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:50.973Z","id":"qa-10859-184","route":"other","phase":"response","status":200,"elapsedMs":129}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:51.077Z","id":"qa-10859-185","route":"other","phase":"response","status":200,"elapsedMs":165}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.023Z","id":"qa-10859-186","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.199Z","id":"qa-10859-186","route":"/auth/me","phase":"response","status":200,"elapsedMs":176}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.259Z","id":"qa-10859-187","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.425Z","id":"qa-10859-187","route":"/auth/me","phase":"response","status":200,"elapsedMs":166}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.433Z","id":"qa-10859-188","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.510Z","id":"qa-10859-188","route":"/onboarding","phase":"response","status":200,"elapsedMs":77}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.869Z","id":"qa-10859-189","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.877Z","id":"qa-10859-190","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.930Z","id":"qa-10859-190","route":"/onboarding","phase":"response","status":200,"elapsedMs":53}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:53.950Z","id":"qa-10859-189","route":"/onboarding","phase":"response","status":200,"elapsedMs":81}
+  ✓  10 tests/onboarding-full/acceptance.spec.ts:207:1 › U10 read-only UI and direct API forbid writes (7.3s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.179Z","id":"qa-10859-191","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.460Z","id":"qa-10859-191","route":"other","phase":"response","status":201,"elapsedMs":281}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.504Z","id":"qa-10859-192","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.562Z","id":"qa-10859-192","route":"other","phase":"response","status":200,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.725Z","id":"qa-10859-193","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.827Z","id":"qa-10859-193","route":"/auth/me","phase":"response","status":200,"elapsedMs":102}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.856Z","id":"qa-10859-194","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.970Z","id":"qa-10859-195","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:56.986Z","id":"qa-10859-194","route":"other","phase":"response","status":200,"elapsedMs":130}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:57.149Z","id":"qa-10859-195","route":"other","phase":"response","status":200,"elapsedMs":179}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.034Z","id":"qa-10859-196","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.159Z","id":"qa-10859-196","route":"/auth/me","phase":"response","status":200,"elapsedMs":125}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.172Z","id":"qa-10859-197","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.253Z","id":"qa-10859-197","route":"/auth/me","phase":"response","status":200,"elapsedMs":81}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.266Z","id":"qa-10859-198","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.592Z","id":"qa-10859-198","route":"/onboarding","phase":"response","status":200,"elapsedMs":326}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.915Z","id":"qa-10859-199","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:58.917Z","id":"qa-10859-200","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.113Z","id":"qa-10859-200","route":"/onboarding","phase":"response","status":200,"elapsedMs":196}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.201Z","id":"qa-10859-199","route":"/onboarding","phase":"response","status":200,"elapsedMs":286}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.555Z","id":"qa-10859-201","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.685Z","id":"qa-10859-201","route":"/auth/me","phase":"response","status":200,"elapsedMs":130}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.696Z","id":"qa-10859-202","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.798Z","id":"qa-10859-202","route":"/auth/me","phase":"response","status":200,"elapsedMs":102}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.826Z","id":"qa-10859-203","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:27:59.869Z","id":"qa-10859-203","route":"/onboarding","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.000Z","id":"qa-10859-204","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.002Z","id":"qa-10859-205","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.055Z","id":"qa-10859-204","route":"/onboarding","phase":"response","status":200,"elapsedMs":55}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.066Z","id":"qa-10859-205","route":"/onboarding","phase":"response","status":200,"elapsedMs":64}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.108Z","id":"qa-10859-206","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.181Z","id":"qa-10859-206","route":"/onboarding","phase":"response","status":201,"elapsedMs":73}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.287Z","id":"qa-10859-207","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.313Z","id":"qa-10859-207","route":"/auth/me","phase":"response","status":200,"elapsedMs":26}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.321Z","id":"qa-10859-208","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.358Z","id":"qa-10859-208","route":"/auth/me","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.368Z","id":"qa-10859-209","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.401Z","id":"qa-10859-209","route":"/onboarding","phase":"response","status":200,"elapsedMs":33}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.643Z","id":"qa-10859-210","route":"/onboarding","phase":"start"}
+  ✓  11 tests/onboarding-full/acceptance.spec.ts:225:1 › U11 real STAFF rejected, MANAGER saved (6.6s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:00.785Z","id":"qa-10859-210","route":"/onboarding","phase":"response","status":200,"elapsedMs":142}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:01.726Z","id":"qa-10859-211","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.008Z","id":"qa-10859-211","route":"other","phase":"response","status":201,"elapsedMs":282}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.065Z","id":"qa-10859-212","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.118Z","id":"qa-10859-212","route":"other","phase":"response","status":200,"elapsedMs":53}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.262Z","id":"qa-10859-213","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.358Z","id":"qa-10859-213","route":"/auth/me","phase":"response","status":200,"elapsedMs":96}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.394Z","id":"qa-10859-214","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.573Z","id":"qa-10859-215","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:02.578Z","id":"qa-10859-214","route":"other","phase":"response","status":200,"elapsedMs":184}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:03.057Z","id":"qa-10859-215","route":"other","phase":"response","status":200,"elapsedMs":484}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:03.938Z","id":"qa-10859-216","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.312Z","id":"qa-10859-216","route":"/auth/me","phase":"response","status":200,"elapsedMs":374}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.325Z","id":"qa-10859-217","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.399Z","id":"qa-10859-217","route":"/auth/me","phase":"response","status":200,"elapsedMs":74}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.411Z","id":"qa-10859-218","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.477Z","id":"qa-10859-218","route":"/onboarding","phase":"response","status":200,"elapsedMs":66}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:04.875Z","id":"qa-10859-219","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:05.144Z","id":"qa-10859-220","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:05.152Z","id":"qa-10859-221","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:05.160Z","id":"qa-10859-219","route":"/onboarding","phase":"response","status":200,"elapsedMs":285}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:05.210Z","id":"qa-10859-221","route":"/onboarding","phase":"response","status":200,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:05.260Z","id":"qa-10859-220","route":"/onboarding","phase":"response","status":201,"elapsedMs":116}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:07.858Z","id":"qa-10859-222","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.185Z","id":"qa-10859-222","route":"other","phase":"response","status":201,"elapsedMs":327}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.231Z","id":"qa-10859-223","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.291Z","id":"qa-10859-223","route":"other","phase":"response","status":200,"elapsedMs":60}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.487Z","id":"qa-10859-224","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.587Z","id":"qa-10859-224","route":"/auth/me","phase":"response","status":200,"elapsedMs":100}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.611Z","id":"qa-10859-225","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.670Z","id":"qa-10859-226","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.725Z","id":"qa-10859-225","route":"other","phase":"response","status":200,"elapsedMs":114}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:08.819Z","id":"qa-10859-226","route":"other","phase":"response","status":200,"elapsedMs":149}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:09.888Z","id":"qa-10859-227","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:09.987Z","id":"qa-10859-227","route":"/auth/me","phase":"response","status":200,"elapsedMs":99}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:09.996Z","id":"qa-10859-228","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:10.317Z","id":"qa-10859-228","route":"/auth/me","phase":"response","status":200,"elapsedMs":321}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:10.373Z","id":"qa-10859-229","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:10.524Z","id":"qa-10859-229","route":"/onboarding","phase":"response","status":200,"elapsedMs":151}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:10.880Z","id":"qa-10859-230","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:10.884Z","id":"qa-10859-231","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:11.309Z","id":"qa-10859-230","route":"/onboarding","phase":"response","status":200,"elapsedMs":429}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:11.399Z","id":"qa-10859-231","route":"/onboarding","phase":"response","status":200,"elapsedMs":515}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:11.890Z","id":"qa-10859-232","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:11.995Z","id":"qa-10859-232","route":"/auth/me","phase":"response","status":200,"elapsedMs":105}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.023Z","id":"qa-10859-233","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.137Z","id":"qa-10859-233","route":"/auth/me","phase":"response","status":200,"elapsedMs":114}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.158Z","id":"qa-10859-234","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.365Z","id":"qa-10859-234","route":"/onboarding","phase":"response","status":200,"elapsedMs":207}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.706Z","id":"qa-10859-235","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.719Z","id":"qa-10859-236","route":"/onboarding","phase":"start"}
+  ✓  12 tests/onboarding-full/acceptance.spec.ts:249:1 › U12 full guarded API and UI isolate organizations (12.1s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.901Z","id":"qa-10859-235","route":"/onboarding","phase":"response","status":200,"elapsedMs":195}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:12.905Z","id":"qa-10859-236","route":"/onboarding","phase":"response","status":200,"elapsedMs":186}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:15.419Z","id":"qa-10859-237","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:15.652Z","id":"qa-10859-237","route":"other","phase":"response","status":201,"elapsedMs":233}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:15.694Z","id":"qa-10859-238","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:15.731Z","id":"qa-10859-238","route":"other","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:15.856Z","id":"qa-10859-239","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.024Z","id":"qa-10859-239","route":"/auth/me","phase":"response","status":200,"elapsedMs":168}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.081Z","id":"qa-10859-240","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.376Z","id":"qa-10859-240","route":"other","phase":"response","status":200,"elapsedMs":295}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.422Z","id":"qa-10859-241","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.469Z","id":"qa-10859-242","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.478Z","id":"qa-10859-243","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.483Z","id":"qa-10859-244","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:16.914Z","id":"qa-10859-241","route":"other","phase":"response","status":200,"elapsedMs":492}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:17.235Z","id":"qa-10859-242","route":"other","phase":"response","status":200,"elapsedMs":766}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:17.474Z","id":"qa-10859-243","route":"other","phase":"response","status":200,"elapsedMs":996}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:17.482Z","id":"qa-10859-244","route":"other","phase":"response","status":200,"elapsedMs":999}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:19.719Z","id":"qa-10859-245","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:20.053Z","id":"qa-10859-245","route":"/auth/me","phase":"response","status":200,"elapsedMs":334}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:20.169Z","id":"qa-10859-246","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:20.313Z","id":"qa-10859-246","route":"/auth/me","phase":"response","status":200,"elapsedMs":144}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:20.325Z","id":"qa-10859-247","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:20.754Z","id":"qa-10859-247","route":"/onboarding","phase":"response","status":200,"elapsedMs":429}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:23.123Z","id":"qa-10859-248","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:23.199Z","id":"qa-10859-249","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:23.593Z","id":"qa-10859-250","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:25.219Z","id":"qa-10859-249","route":"/onboarding","phase":"response","status":200,"elapsedMs":2020}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:25.973Z","id":"qa-10859-248","route":"/onboarding","phase":"response","status":200,"elapsedMs":2850}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:26.134Z","id":"qa-10859-250","route":"/onboarding","phase":"response","status":201,"elapsedMs":2539}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:30.495Z","id":"qa-10859-251","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:33.019Z","id":"qa-10859-251","route":"/onboarding","phase":"response","status":201,"elapsedMs":2523}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:35.480Z","id":"qa-10859-252","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:36.164Z","id":"qa-10859-252","route":"/onboarding","phase":"response","status":201,"elapsedMs":684}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:37.252Z","id":"qa-10859-253","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:37.735Z","id":"qa-10859-253","route":"/auth/me","phase":"response","status":200,"elapsedMs":483}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:37.819Z","id":"qa-10859-254","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.209Z","id":"qa-10859-254","route":"other","phase":"response","status":200,"elapsedMs":391}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.315Z","id":"qa-10859-255","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.372Z","id":"qa-10859-256","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.475Z","id":"qa-10859-257","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.493Z","id":"qa-10859-258","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.671Z","id":"qa-10859-255","route":"other","phase":"response","status":200,"elapsedMs":356}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:38.770Z","id":"qa-10859-256","route":"other","phase":"response","status":200,"elapsedMs":398}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.149Z","id":"qa-10859-259","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.153Z","id":"qa-10859-258","route":"other","phase":"response","status":200,"elapsedMs":660}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.166Z","id":"qa-10859-257","route":"other","phase":"response","status":200,"elapsedMs":696}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.258Z","id":"qa-10859-259","route":"/auth/me","phase":"response","status":200,"elapsedMs":109}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.266Z","id":"qa-10859-260","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.308Z","id":"qa-10859-260","route":"/auth/me","phase":"response","status":200,"elapsedMs":42}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.332Z","id":"qa-10859-261","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:39.487Z","id":"qa-10859-261","route":"/onboarding","phase":"response","status":200,"elapsedMs":155}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.164Z","id":"qa-10859-262","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.320Z","id":"qa-10859-262","route":"/auth/me","phase":"response","status":200,"elapsedMs":156}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.367Z","id":"qa-10859-263","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.776Z","id":"qa-10859-263","route":"other","phase":"response","status":200,"elapsedMs":409}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.884Z","id":"qa-10859-264","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.895Z","id":"qa-10859-265","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.902Z","id":"qa-10859-266","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:40.912Z","id":"qa-10859-267","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:41.378Z","id":"qa-10859-264","route":"other","phase":"response","status":200,"elapsedMs":494}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:41.418Z","id":"qa-10859-265","route":"other","phase":"response","status":200,"elapsedMs":523}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:41.455Z","id":"qa-10859-267","route":"other","phase":"response","status":200,"elapsedMs":543}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:41.524Z","id":"qa-10859-266","route":"other","phase":"response","status":200,"elapsedMs":622}
+  ✓  13 tests/onboarding-full/acceptance.spec.ts:318:1 › Food mobile completion retains its vertical and current landing (29.4s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:45.866Z","id":"qa-10859-268","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.167Z","id":"qa-10859-268","route":"other","phase":"response","status":201,"elapsedMs":301}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.227Z","id":"qa-10859-269","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.317Z","id":"qa-10859-269","route":"other","phase":"response","status":200,"elapsedMs":90}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.475Z","id":"qa-10859-270","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.546Z","id":"qa-10859-270","route":"/auth/me","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.565Z","id":"qa-10859-271","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.635Z","id":"qa-10859-272","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.747Z","id":"qa-10859-271","route":"other","phase":"response","status":200,"elapsedMs":182}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:46.879Z","id":"qa-10859-272","route":"other","phase":"response","status":200,"elapsedMs":244}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.100Z","id":"qa-10859-273","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.154Z","id":"qa-10859-273","route":"/auth/me","phase":"response","status":200,"elapsedMs":54}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.168Z","id":"qa-10859-274","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.239Z","id":"qa-10859-274","route":"/auth/me","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.251Z","id":"qa-10859-275","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.322Z","id":"qa-10859-275","route":"/onboarding","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.577Z","id":"qa-10859-276","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.578Z","id":"qa-10859-277","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.625Z","id":"qa-10859-276","route":"/onboarding","phase":"response","status":200,"elapsedMs":48}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.636Z","id":"qa-10859-277","route":"/onboarding","phase":"response","status":200,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.706Z","id":"qa-10859-278","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.720Z","id":"qa-10859-278","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":14,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:28:48.721Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.868Z","id":"qa-10859-279","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.897Z","id":"qa-10859-279","route":"/onboarding","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:48.934Z","id":"qa-10859-280","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.008Z","id":"qa-10859-280","route":"/onboarding","phase":"response","status":201,"elapsedMs":74}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.152Z","id":"qa-10859-281","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.189Z","id":"qa-10859-281","route":"/auth/me","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.195Z","id":"qa-10859-282","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.224Z","id":"qa-10859-282","route":"/auth/me","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.253Z","id":"qa-10859-283","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.318Z","id":"qa-10859-283","route":"/onboarding","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.514Z","id":"qa-10859-284","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:49.543Z","id":"qa-10859-284","route":"/onboarding","phase":"response","status":200,"elapsedMs":29}
+  ✓  14 tests/onboarding-full/recovery.spec.ts:18:3 › U07 offline: retains draft, retries and persists once (6.0s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:50.494Z","id":"qa-10859-285","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:50.796Z","id":"qa-10859-285","route":"other","phase":"response","status":201,"elapsedMs":302}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:50.840Z","id":"qa-10859-286","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:50.940Z","id":"qa-10859-286","route":"other","phase":"response","status":200,"elapsedMs":100}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.141Z","id":"qa-10859-287","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.253Z","id":"qa-10859-287","route":"/auth/me","phase":"response","status":200,"elapsedMs":112}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.279Z","id":"qa-10859-288","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.364Z","id":"qa-10859-289","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.451Z","id":"qa-10859-288","route":"other","phase":"response","status":200,"elapsedMs":172}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:51.604Z","id":"qa-10859-289","route":"other","phase":"response","status":200,"elapsedMs":240}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:52.684Z","id":"qa-10859-290","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:52.904Z","id":"qa-10859-290","route":"/auth/me","phase":"response","status":200,"elapsedMs":220}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:52.926Z","id":"qa-10859-291","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.087Z","id":"qa-10859-291","route":"/auth/me","phase":"response","status":200,"elapsedMs":161}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.097Z","id":"qa-10859-292","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.315Z","id":"qa-10859-292","route":"/onboarding","phase":"response","status":200,"elapsedMs":218}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.681Z","id":"qa-10859-293","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.702Z","id":"qa-10859-294","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.799Z","id":"qa-10859-295","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.894Z","id":"qa-10859-293","route":"/onboarding","phase":"response","status":200,"elapsedMs":213}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:28:53.900Z","id":"qa-10859-294","route":"/onboarding","phase":"response","status":200,"elapsedMs":198}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:53.807Z","id":"qa-10859-295","route":"/onboarding","phase":"error","name":"TimeoutError","code":null,"elapsedMs":60008,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:29:53.810Z","route":"/onboarding","name":"TimeoutError","code":null,"causeCode":null,"fetchFailed":false,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:54.263Z","id":"qa-10859-296","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:54.418Z","id":"qa-10859-296","route":"/onboarding","phase":"response","status":200,"elapsedMs":155}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:54.452Z","id":"qa-10859-297","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:54.505Z","id":"qa-10859-297","route":"/onboarding","phase":"response","status":201,"elapsedMs":53}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.126Z","id":"qa-10859-298","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.169Z","id":"qa-10859-298","route":"/auth/me","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.178Z","id":"qa-10859-299","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.203Z","id":"qa-10859-299","route":"/auth/me","phase":"response","status":200,"elapsedMs":25}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.212Z","id":"qa-10859-300","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:55.227Z","id":"qa-10859-300","route":"/onboarding","phase":"response","status":200,"elapsedMs":15}
+  ✓  15 tests/onboarding-full/recovery.spec.ts:18:3 › U07 timeout: retains draft, retries and persists once (1.1m)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.733Z","id":"qa-10859-301","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.851Z","id":"qa-10859-301","route":"other","phase":"response","status":201,"elapsedMs":118}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.866Z","id":"qa-10859-302","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.878Z","id":"qa-10859-302","route":"other","phase":"response","status":200,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.919Z","id":"qa-10859-303","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.951Z","id":"qa-10859-303","route":"/auth/me","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.959Z","id":"qa-10859-304","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.985Z","id":"qa-10859-305","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:56.988Z","id":"qa-10859-304","route":"other","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.048Z","id":"qa-10859-305","route":"other","phase":"response","status":200,"elapsedMs":63}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.492Z","id":"qa-10859-306","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.529Z","id":"qa-10859-306","route":"/auth/me","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.536Z","id":"qa-10859-307","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.559Z","id":"qa-10859-307","route":"/auth/me","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.565Z","id":"qa-10859-308","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.584Z","id":"qa-10859-308","route":"/onboarding","phase":"response","status":200,"elapsedMs":19}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.823Z","id":"qa-10859-309","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.825Z","id":"qa-10859-310","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.853Z","id":"qa-10859-309","route":"/onboarding","phase":"response","status":200,"elapsedMs":30}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.863Z","id":"qa-10859-310","route":"/onboarding","phase":"response","status":200,"elapsedMs":38}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.884Z","id":"qa-10859-311","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.886Z","id":"qa-10859-311","route":"/onboarding","phase":"response","status":503,"elapsedMs":2}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.966Z","id":"qa-10859-312","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.980Z","id":"qa-10859-312","route":"/onboarding","phase":"response","status":200,"elapsedMs":14}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:57.996Z","id":"qa-10859-313","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.021Z","id":"qa-10859-313","route":"/onboarding","phase":"response","status":201,"elapsedMs":25}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.095Z","id":"qa-10859-314","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.116Z","id":"qa-10859-314","route":"/auth/me","phase":"response","status":200,"elapsedMs":21}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.120Z","id":"qa-10859-315","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.143Z","id":"qa-10859-315","route":"/auth/me","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.150Z","id":"qa-10859-316","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.225Z","id":"qa-10859-316","route":"/onboarding","phase":"response","status":200,"elapsedMs":75}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.378Z","id":"qa-10859-317","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.388Z","id":"qa-10859-318","route":"/onboarding","phase":"start"}
+  ✓  16 tests/onboarding-full/recovery.spec.ts:18:3 › U07 before503: retains draft, retries and persists once (2.8s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.408Z","id":"qa-10859-317","route":"/onboarding","phase":"response","status":200,"elapsedMs":30}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.417Z","id":"qa-10859-318","route":"/onboarding","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.838Z","id":"qa-10859-319","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.939Z","id":"qa-10859-319","route":"other","phase":"response","status":201,"elapsedMs":101}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.953Z","id":"qa-10859-320","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:58.969Z","id":"qa-10859-320","route":"other","phase":"response","status":200,"elapsedMs":16}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.027Z","id":"qa-10859-321","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.070Z","id":"qa-10859-321","route":"/auth/me","phase":"response","status":200,"elapsedMs":43}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.079Z","id":"qa-10859-322","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.113Z","id":"qa-10859-323","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.116Z","id":"qa-10859-322","route":"other","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.187Z","id":"qa-10859-323","route":"other","phase":"response","status":200,"elapsedMs":74}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.641Z","id":"qa-10859-324","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.662Z","id":"qa-10859-324","route":"/auth/me","phase":"response","status":200,"elapsedMs":21}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.669Z","id":"qa-10859-325","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.688Z","id":"qa-10859-325","route":"/auth/me","phase":"response","status":200,"elapsedMs":19}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.695Z","id":"qa-10859-326","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.710Z","id":"qa-10859-326","route":"/onboarding","phase":"response","status":200,"elapsedMs":15}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.971Z","id":"qa-10859-327","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.972Z","id":"qa-10859-328","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.992Z","id":"qa-10859-327","route":"/onboarding","phase":"response","status":200,"elapsedMs":21}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:29:59.995Z","id":"qa-10859-328","route":"/onboarding","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.035Z","id":"qa-10859-329","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.068Z","id":"qa-10859-329","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":33,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:30:00.068Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.169Z","id":"qa-10859-330","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.192Z","id":"qa-10859-330","route":"/onboarding","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.303Z","id":"qa-10859-331","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.325Z","id":"qa-10859-331","route":"/auth/me","phase":"response","status":200,"elapsedMs":22}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.332Z","id":"qa-10859-332","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.355Z","id":"qa-10859-332","route":"/auth/me","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.362Z","id":"qa-10859-333","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.393Z","id":"qa-10859-333","route":"/onboarding","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.513Z","id":"qa-10859-334","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.525Z","id":"qa-10859-334","route":"/onboarding","phase":"response","status":200,"elapsedMs":12}
+  ✓  17 tests/onboarding-full/recovery.spec.ts:18:3 › U07 after: retains draft, retries and persists once (2.1s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:00.960Z","id":"qa-10859-335","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.047Z","id":"qa-10859-335","route":"other","phase":"response","status":201,"elapsedMs":87}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.058Z","id":"qa-10859-336","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.070Z","id":"qa-10859-336","route":"other","phase":"response","status":200,"elapsedMs":12}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.119Z","id":"qa-10859-337","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.160Z","id":"qa-10859-337","route":"/auth/me","phase":"response","status":200,"elapsedMs":41}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.170Z","id":"qa-10859-338","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.215Z","id":"qa-10859-339","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.218Z","id":"qa-10859-338","route":"other","phase":"response","status":200,"elapsedMs":48}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.312Z","id":"qa-10859-339","route":"other","phase":"response","status":200,"elapsedMs":97}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.765Z","id":"qa-10859-340","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.797Z","id":"qa-10859-340","route":"/auth/me","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.805Z","id":"qa-10859-341","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.836Z","id":"qa-10859-341","route":"/auth/me","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.843Z","id":"qa-10859-342","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:01.859Z","id":"qa-10859-342","route":"/onboarding","phase":"response","status":200,"elapsedMs":16}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.085Z","id":"qa-10859-343","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.087Z","id":"qa-10859-344","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.101Z","id":"qa-10859-343","route":"/onboarding","phase":"response","status":200,"elapsedMs":15}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.103Z","id":"qa-10859-344","route":"/onboarding","phase":"response","status":200,"elapsedMs":16}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.129Z","id":"qa-10859-345","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.152Z","id":"qa-10859-345","route":"/onboarding","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":23,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:30:02.152Z","route":"/onboarding","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.208Z","id":"qa-10859-346","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.222Z","id":"qa-10859-346","route":"/onboarding","phase":"response","status":200,"elapsedMs":14}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.360Z","id":"qa-10859-347","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.383Z","id":"qa-10859-347","route":"/auth/me","phase":"response","status":200,"elapsedMs":23}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.389Z","id":"qa-10859-348","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.417Z","id":"qa-10859-348","route":"/auth/me","phase":"response","status":200,"elapsedMs":28}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.427Z","id":"qa-10859-349","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.458Z","id":"qa-10859-349","route":"/onboarding","phase":"response","status":200,"elapsedMs":31}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.574Z","id":"qa-10859-350","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:02.589Z","id":"qa-10859-350","route":"/onboarding","phase":"response","status":200,"elapsedMs":15}
+  ✓  18 tests/onboarding-full/recovery.spec.ts:38:1 › lost next response never advances twice (2.0s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.046Z","id":"qa-10859-351","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.133Z","id":"qa-10859-351","route":"other","phase":"response","status":201,"elapsedMs":87}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.147Z","id":"qa-10859-352","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.162Z","id":"qa-10859-352","route":"other","phase":"response","status":200,"elapsedMs":15}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.222Z","id":"qa-10859-353","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.330Z","id":"qa-10859-353","route":"/auth/me","phase":"response","status":200,"elapsedMs":108}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.354Z","id":"qa-10859-354","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.420Z","id":"qa-10859-355","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.426Z","id":"qa-10859-354","route":"other","phase":"response","status":200,"elapsedMs":72}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:03.549Z","id":"qa-10859-355","route":"other","phase":"response","status":200,"elapsedMs":129}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.233Z","id":"qa-10859-356","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.259Z","id":"qa-10859-356","route":"/auth/me","phase":"response","status":200,"elapsedMs":26}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.267Z","id":"qa-10859-357","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.303Z","id":"qa-10859-357","route":"/auth/me","phase":"response","status":200,"elapsedMs":36}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.311Z","id":"qa-10859-358","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.349Z","id":"qa-10859-358","route":"/onboarding","phase":"response","status":200,"elapsedMs":38}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.503Z","id":"qa-10859-359","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.523Z","id":"qa-10859-359","route":"/onboarding","phase":"response","status":200,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.671Z","id":"qa-10859-360","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.693Z","id":"qa-10859-360","route":"/auth/me","phase":"response","status":200,"elapsedMs":22}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.698Z","id":"qa-10859-361","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.719Z","id":"qa-10859-361","route":"/auth/me","phase":"response","status":200,"elapsedMs":21}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.725Z","id":"qa-10859-362","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:04.771Z","id":"qa-10859-362","route":"/onboarding","phase":"response","status":200,"elapsedMs":46}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.170Z","id":"qa-10859-363","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.181Z","id":"qa-10859-364","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.205Z","id":"qa-10859-363","route":"/onboarding","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.210Z","id":"qa-10859-364","route":"/onboarding","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.227Z","id":"qa-10859-365","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.259Z","id":"qa-10859-365","route":"/onboarding","phase":"response","status":201,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.382Z","id":"qa-10859-366","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.402Z","id":"qa-10859-366","route":"/onboarding","phase":"response","status":409,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.466Z","id":"qa-10859-367","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.483Z","id":"qa-10859-367","route":"/auth/me","phase":"response","status":200,"elapsedMs":17}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.487Z","id":"qa-10859-368","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.522Z","id":"qa-10859-368","route":"/auth/me","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.529Z","id":"qa-10859-369","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.556Z","id":"qa-10859-369","route":"/onboarding","phase":"response","status":200,"elapsedMs":27}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.758Z","id":"qa-10859-370","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.782Z","id":"qa-10859-370","route":"/onboarding","phase":"response","status":200,"elapsedMs":24}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.787Z","id":"qa-10859-371","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:05.800Z","id":"qa-10859-371","route":"/onboarding","phase":"response","status":200,"elapsedMs":13}
+  ✓  19 tests/onboarding-full/recovery.spec.ts:49:1 › 409 preserves unsaved input and never overwrites another window (3.2s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.251Z","id":"qa-10859-372","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.327Z","id":"qa-10859-372","route":"other","phase":"response","status":201,"elapsedMs":76}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.337Z","id":"qa-10859-373","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.345Z","id":"qa-10859-373","route":"other","phase":"response","status":200,"elapsedMs":8}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.380Z","id":"qa-10859-374","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.410Z","id":"qa-10859-374","route":"/auth/me","phase":"response","status":200,"elapsedMs":30}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.416Z","id":"qa-10859-375","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.447Z","id":"qa-10859-376","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.448Z","id":"qa-10859-375","route":"other","phase":"response","status":200,"elapsedMs":32}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.512Z","id":"qa-10859-376","route":"other","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:06.956Z","id":"qa-10859-377","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.004Z","id":"qa-10859-377","route":"/auth/me","phase":"response","status":200,"elapsedMs":48}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.012Z","id":"qa-10859-378","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.032Z","id":"qa-10859-378","route":"/auth/me","phase":"response","status":200,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.039Z","id":"qa-10859-379","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.064Z","id":"qa-10859-379","route":"/onboarding","phase":"response","status":200,"elapsedMs":25}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.293Z","id":"qa-10859-380","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.333Z","id":"qa-10859-380","route":"/onboarding","phase":"response","status":200,"elapsedMs":40}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.385Z","id":"qa-10859-381","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.393Z","id":"qa-10859-381","route":"/onboarding","phase":"response","status":401,"elapsedMs":8}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.701Z","id":"qa-10859-382","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:07.742Z","id":"qa-10859-382","route":"/auth/me","phase":"response","status":401,"elapsedMs":41}
+  ✓  20 tests/onboarding-full/recovery.spec.ts:75:3 › expire: real SessionGuard denies write and requires login (2.4s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.659Z","id":"qa-10859-383","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.762Z","id":"qa-10859-383","route":"other","phase":"response","status":201,"elapsedMs":103}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.778Z","id":"qa-10859-384","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.796Z","id":"qa-10859-384","route":"other","phase":"response","status":200,"elapsedMs":18}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.859Z","id":"qa-10859-385","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.904Z","id":"qa-10859-385","route":"/auth/me","phase":"response","status":200,"elapsedMs":45}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.916Z","id":"qa-10859-386","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.968Z","id":"qa-10859-387","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:08.976Z","id":"qa-10859-386","route":"other","phase":"response","status":200,"elapsedMs":60}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.129Z","id":"qa-10859-387","route":"other","phase":"response","status":200,"elapsedMs":161}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.589Z","id":"qa-10859-388","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.615Z","id":"qa-10859-388","route":"/auth/me","phase":"response","status":200,"elapsedMs":26}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.622Z","id":"qa-10859-389","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.656Z","id":"qa-10859-389","route":"/auth/me","phase":"response","status":200,"elapsedMs":34}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.663Z","id":"qa-10859-390","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.687Z","id":"qa-10859-390","route":"/onboarding","phase":"response","status":200,"elapsedMs":24}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.957Z","id":"qa-10859-391","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.966Z","id":"qa-10859-392","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.977Z","id":"qa-10859-391","route":"/onboarding","phase":"response","status":200,"elapsedMs":20}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:09.984Z","id":"qa-10859-392","route":"/onboarding","phase":"response","status":200,"elapsedMs":18}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:10.025Z","id":"qa-10859-393","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:10.031Z","id":"qa-10859-393","route":"/onboarding","phase":"response","status":401,"elapsedMs":6}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:10.106Z","id":"qa-10859-394","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:10.160Z","id":"qa-10859-394","route":"/auth/me","phase":"response","status":401,"elapsedMs":54}
+  ✓  21 tests/onboarding-full/recovery.spec.ts:75:3 › revoke: real SessionGuard denies write and requires login (2.3s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:10.960Z","id":"qa-10859-395","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.031Z","id":"qa-10859-395","route":"other","phase":"response","status":201,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.042Z","id":"qa-10859-396","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.051Z","id":"qa-10859-396","route":"other","phase":"response","status":200,"elapsedMs":9}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.099Z","id":"qa-10859-397","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.135Z","id":"qa-10859-397","route":"/auth/me","phase":"response","status":200,"elapsedMs":36}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.143Z","id":"qa-10859-398","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.173Z","id":"qa-10859-399","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.176Z","id":"qa-10859-398","route":"other","phase":"response","status":200,"elapsedMs":33}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.244Z","id":"qa-10859-399","route":"other","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.876Z","id":"qa-10859-400","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.962Z","id":"qa-10859-400","route":"/auth/me","phase":"response","status":200,"elapsedMs":86}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:11.985Z","id":"qa-10859-401","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.113Z","id":"qa-10859-401","route":"/auth/me","phase":"response","status":200,"elapsedMs":128}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.121Z","id":"qa-10859-402","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.186Z","id":"qa-10859-402","route":"/onboarding","phase":"response","status":200,"elapsedMs":65}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.308Z","id":"qa-10859-403","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.310Z","id":"qa-10859-404","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.383Z","id":"qa-10859-403","route":"/onboarding","phase":"response","status":200,"elapsedMs":75}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.388Z","id":"qa-10859-404","route":"/onboarding","phase":"response","status":200,"elapsedMs":78}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.423Z","id":"qa-10859-405","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.434Z","id":"qa-10859-405","route":"/onboarding","phase":"response","status":403,"elapsedMs":11}
+  ✓  22 tests/onboarding-full/recovery.spec.ts:100:3 › STAFF: real guarded API rejects write (1.9s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:12.966Z","id":"qa-10859-406","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.067Z","id":"qa-10859-406","route":"other","phase":"response","status":201,"elapsedMs":101}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.085Z","id":"qa-10859-407","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.114Z","id":"qa-10859-407","route":"other","phase":"response","status":200,"elapsedMs":29}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.191Z","id":"qa-10859-408","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.285Z","id":"qa-10859-408","route":"/auth/me","phase":"response","status":200,"elapsedMs":94}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.301Z","id":"qa-10859-409","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.353Z","id":"qa-10859-410","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.359Z","id":"qa-10859-409","route":"other","phase":"response","status":200,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.455Z","id":"qa-10859-410","route":"other","phase":"response","status":200,"elapsedMs":102}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.902Z","id":"qa-10859-411","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.939Z","id":"qa-10859-411","route":"/auth/me","phase":"response","status":200,"elapsedMs":37}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.947Z","id":"qa-10859-412","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:13.993Z","id":"qa-10859-412","route":"/auth/me","phase":"response","status":200,"elapsedMs":46}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.011Z","id":"qa-10859-413","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.049Z","id":"qa-10859-413","route":"/onboarding","phase":"response","status":200,"elapsedMs":38}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.274Z","id":"qa-10859-414","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.298Z","id":"qa-10859-414","route":"/onboarding","phase":"response","status":200,"elapsedMs":24}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.357Z","id":"qa-10859-415","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.372Z","id":"qa-10859-415","route":"/onboarding","phase":"response","status":403,"elapsedMs":15}
+  ✓  23 tests/onboarding-full/recovery.spec.ts:100:3 › READ_ONLY: real guarded API rejects write (1.9s)
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:14.912Z","id":"qa-10859-416","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.017Z","id":"qa-10859-416","route":"other","phase":"response","status":201,"elapsedMs":105}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.032Z","id":"qa-10859-417","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.067Z","id":"qa-10859-417","route":"other","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.151Z","id":"qa-10859-418","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.215Z","id":"qa-10859-418","route":"/auth/me","phase":"response","status":200,"elapsedMs":64}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.229Z","id":"qa-10859-419","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.281Z","id":"qa-10859-420","route":"other","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.381Z","id":"qa-10859-419","route":"other","phase":"response","status":200,"elapsedMs":152}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:15.541Z","id":"qa-10859-420","route":"other","phase":"response","status":200,"elapsedMs":260}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.267Z","id":"qa-10859-421","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.338Z","id":"qa-10859-421","route":"/auth/me","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.347Z","id":"qa-10859-422","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.420Z","id":"qa-10859-422","route":"/auth/me","phase":"response","status":200,"elapsedMs":73}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.430Z","id":"qa-10859-423","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.474Z","id":"qa-10859-423","route":"/onboarding","phase":"response","status":200,"elapsedMs":44}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.610Z","id":"qa-10859-424","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.611Z","id":"qa-10859-425","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.646Z","id":"qa-10859-425","route":"/onboarding","phase":"response","status":200,"elapsedMs":35}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.661Z","id":"qa-10859-424","route":"/onboarding","phase":"response","status":200,"elapsedMs":51}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.693Z","id":"qa-10859-426","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.751Z","id":"qa-10859-426","route":"/onboarding","phase":"response","status":201,"elapsedMs":58}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.861Z","id":"qa-10859-427","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:16.892Z","id":"qa-10859-427","route":"/auth/me","phase":"error","name":"TypeError","code":"UND_ERR_SOCKET","elapsedMs":31,"nestedCodes":[]}
+[WebServer] QA_BACKEND_FAILURE {"at":"2026-10-07T16:30:16.892Z","route":"/auth/me","name":"TypeError","code":null,"causeCode":"UND_ERR_SOCKET","fetchFailed":true,"nextFetchFrame":false}
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:125:11)
+[WebServer]     at async getJson (src/lib/api.ts:171:15)
+[WebServer]     at async Object.me (src/lib/api.ts:546:20)
+[WebServer]     at async signedInUser (src/app/login/signed-in.ts:18:14)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:12:9)
+[WebServer]   123 |     }
+[WebServer]   124 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 125 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   126 |       503,
+[WebServer]   127 |       options.method && options.method !== 'GET'
+[WebServer]   128 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.358Z","id":"qa-10859-428","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.459Z","id":"qa-10859-428","route":"/auth/me","phase":"response","status":200,"elapsedMs":101}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.469Z","id":"qa-10859-429","route":"/auth/me","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.540Z","id":"qa-10859-429","route":"/auth/me","phase":"response","status":200,"elapsedMs":71}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.583Z","id":"qa-10859-430","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.604Z","id":"qa-10859-430","route":"/onboarding","phase":"response","status":200,"elapsedMs":21}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.692Z","id":"qa-10859-431","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.695Z","id":"qa-10859-432","route":"/onboarding","phase":"start"}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.731Z","id":"qa-10859-431","route":"/onboarding","phase":"response","status":200,"elapsedMs":39}
+[WebServer] QA_FETCH_TRACE {"at":"2026-10-07T16:30:17.734Z","id":"qa-10859-432","route":"/onboarding","phase":"response","status":200,"elapsedMs":39}
+  ✓  24 tests/onboarding-full/recovery.spec.ts:120:1 › initial protected page outage requires a real reload after recovery, without invalidating session (3.3s)
+
+
+  1) tests/onboarding-full/acceptance.spec.ts:188:1 › U09 existing hotel fund and rates survive reopening wizard 
+
+    Test timeout of 150000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 150000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+      navigated to "http://127.0.0.1:56080/register/setup"
+    ============================================================
+
+      201 |   expect(before.rates).toBeGreaterThan(0);
+      202 |   await page.goto('/register/setup');
+    > 203 |   await page.waitForURL('**/today');
+          |              ^
+      204 |   await page.reload();
+      205 |   expect(await snapshot(request)).toEqual(before);
+      206 | });
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/onboarding-full/acceptance.spec.ts:203:14
+
+    Error Context: test-results/acceptance-U09-existing-ho-684a8-es-survive-reopening-wizard/error-context.md
+
+    Error Context: test-results/acceptance-U09-existing-ho-684a8-es-survive-reopening-wizard/error-context.md
+
+  1 failed
+    tests/onboarding-full/acceptance.spec.ts:188:1 › U09 existing hotel fund and rates survive reopening wizard 
+  23 passed (6.9m)
+
+# код выхода 1 · 7 мин 1 с

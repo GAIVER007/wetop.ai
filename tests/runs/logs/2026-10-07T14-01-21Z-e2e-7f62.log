@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 07.10.2026 19:01 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--grep' 'C13 browser' '--workers=1'
+[WebServer] (node:49756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:51281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate (17.5s)
+
+
+  1) tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).locator('[name=productId]')
+    Expected: "1bae8991-2957-4443-b5c0-580d68ce8b2e"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).locator('[name=productId]') with timeout 5000ms
+      - waiting for locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).locator('[name=productId]')
+        14 × locator resolved to <select class="inp" required="" name="productId">…</select>
+           - unexpected value ""
+
+
+      600 |     await db.barSale.count({ where: { property: { organizationId: f.organizationId } } }),
+      601 |   ).toBe(2);
+    > 602 |   await expect(form.locator('[name=productId]')).toHaveValue(a.id);
+          |                                                  ^
+      603 |   await expect(form.locator('[name=quantityUnits]')).toHaveValue('1');
+      604 |   await form.getByRole('button', { name: 'Продать', exact: true }).click();
+      605 |   await expect(form.getByRole('status')).toContainText('Продажа записана');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:602:50
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+  1 failed
+    tests/bar-operational/bar.spec.ts:571:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+
+# код выхода 1 · 43 с

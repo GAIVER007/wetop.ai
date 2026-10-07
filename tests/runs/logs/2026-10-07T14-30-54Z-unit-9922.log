@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 19:30 Алматы · MacBook-Air-Urij.local
+# коммит fd465e4 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-30-54Z-unit-9922.json' 'tests/unit/full-qa-ports.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| tests/unit/full-qa-ports.test.ts (2 tests) 216ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:30:55
+   Duration  312ms (tests 92%, transform 5%, import 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-30-54Z-unit-9922.json
+
+# код выхода 0 · 1 с

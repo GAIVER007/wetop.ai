@@ -60,7 +60,7 @@ interface BotReply {
 
 const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 
-/** Ответ бота по контракту `site-generation/0`; не по контракту — `null`, и расход тогда неизвестен */
+/** Ответ бота по контракту `site-generation/0`; не по контракту `null`, и расход тогда неизвестен */
 export function parseBotReply(raw: unknown): BotReply | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const r = raw as Record<string, unknown>;
@@ -124,8 +124,8 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Аренда `RUNNING` истекла: воркер умер. Запрос к ИИ ещё не уходил — повтор (или TIMEOUT после третьей попытки);
-   * уходил — расход неизвестен, `USAGE_UNAVAILABLE` (Q-274: неизвестный расход не считается нулём).
+   * Аренда `RUNNING` истекла: воркер умер. Запрос к ИИ ещё не уходил: повтор (или TIMEOUT после третьей попытки);
+   * уходил: расход неизвестен, `USAGE_UNAVAILABLE` (Q-274: неизвестный расход не считается нулём).
    */
   async recover(): Promise<number> {
     const now = this.now();
@@ -148,7 +148,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Захват: задача `QUEUED` с наступившим сроком под `FOR UPDATE SKIP LOCKED`, затем замок организации и проверка, что
+   * Захват: задача `QUEUED` с наступившим сроком под `FOR UPDATE SKIP LOCKED` (по одной), затем замок организации и проверка, что
    * у неё нет другой `RUNNING`: платные вызовы одной организации идут по одному, иначе два воркера потратили бы бюджет
    * дважды. Разные организации идут параллельно.
    */
@@ -163,9 +163,15 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           JOIN businesses b ON b.id = l.business_id
          WHERE r.status = 'QUEUED' AND (r.next_attempt_at IS NULL OR r.next_attempt_at <= ${now})
          ORDER BY r.created_at, r.id
-         LIMIT 20
-           FOR UPDATE OF r SKIP LOCKED`;
+         LIMIT 20`;
       for (const candidate of candidates) {
+        // Замок по одной строке: замок сразу на всех кандидатов спрятал бы задачи других организаций от соседнего
+        // воркера. Состояние проверяется ещё раз под замком: сосед мог уже взять задачу и зафиксировать
+        const locked = await tx.$queryRaw<Array<{ id: string }>>`
+          SELECT id FROM generation_runs
+           WHERE id = ${candidate.id}::uuid AND status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
+             FOR UPDATE SKIP LOCKED`;
+        if (locked.length === 0) continue;
         await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${candidate.organization_id}::uuid FOR UPDATE`;
         const busy = await tx.$queryRaw<Array<{ n: number }>>`
           SELECT count(*)::int AS n FROM generation_runs r

@@ -416,7 +416,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     expect(await db.marketingSiteVersion.count({ where: { siteId: w.site } })).toBe(0);
   });
 
-  it('бюджет: расход дня считается по организации, исчерпан — модель не вызывается; соседняя организация не затронута', async () => {
+  it('бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута', async () => {
     process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET = '5000';
     const w = await world();
     const first = await queued(w);

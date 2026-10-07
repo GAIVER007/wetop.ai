@@ -7220,3 +7220,13 @@
 | 07.10.2026 16:08 | typecheck | ✅ без ошибок | 1 мин 3 с | 0745160 +9 | [лог](logs/2026-10-07T11-08-12Z-typecheck-60fc.log) | MKT6: после API и воркера |
 | 07.10.2026 16:09 | lint | ❌ ошибок: 2 | 52 с | 0745160 +9 | [лог](logs/2026-10-07T11-09-16Z-lint-92ed.log) | MKT6 |
 | 07.10.2026 16:10 | lint | ✅ без ошибок | 51 с | 0745160 +10 | [лог](logs/2026-10-07T11-10-18Z-lint-3724.log) | MKT6 |
+| 07.10.2026 16:11 | unit | ✅ 3785 из 3788, пропущено 3 | 2 мин 24 с | f5261ba | [лог](logs/2026-10-07T11-11-26Z-unit-363c.log) | MKT6: полный unit |
+| 07.10.2026 16:13 | integration | ✅ 869 из 869 | 3 мин 16 с | f5261ba | [лог](logs/2026-10-07T11-13-55Z-integration-3819.log) | MKT6: полный integration |
+| 07.10.2026 16:19 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ❌ упало 1 из 25 | 13 с | f5261ba +2 | [лог](logs/2026-10-07T11-19-38Z-integration-59d0.log) | MKT6: итоговая вершина после правок комментариев |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 13 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-13Z-integration-8c6b.log) | MKT6: захват по одной строке, прогон 1 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 12 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-27Z-integration-2d07.log) | MKT6: захват по одной строке, прогон 2 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 12 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-40Z-integration-ce38.log) | MKT6: захват по одной строке, прогон 3 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts -t очередь --repeat=10) | ❌ код выхода 1 | 1 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-59Z-integration-f794.log) | MKT6: захват под гонкой, 11 повторов |
+| 07.10.2026 16:21 | typecheck | ✅ без ошибок | 56 с | f5261ba +5 | [лог](logs/2026-10-07T11-21-58Z-typecheck-ab92.log) | MKT6: итог |
+| 07.10.2026 16:22 | lint | ✅ без ошибок | 52 с | f5261ba +5 | [лог](logs/2026-10-07T11-22-55Z-lint-ecf0.log) | MKT6: итог |
+| 07.10.2026 16:23 | integration | ✅ 869 из 869 | 3 мин 16 с | f5261ba +2 | [лог](logs/2026-10-07T11-23-48Z-integration-6781.log) | MKT6: полный integration на итоговом коде |

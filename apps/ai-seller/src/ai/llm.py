@@ -58,7 +58,7 @@ USAGE_UNKNOWN = "usage_unknown"
 class CallUsage:
     """Расход ОДНОГО фактического вызова поставщика (MKT6, Q-274).
 
-    complete — поставщик сообщил и вход, и выход. False — вызов ушёл, а
+    complete: поставщик сообщил и вход, и выход. False: вызов ушёл, а
     расход неизвестен: таймаут ответа, обрыв связи, ответ без usage.
     Ответ поставщика с кодом ошибки вызовом не считается: генерации не было.
     """
@@ -427,7 +427,7 @@ class CascadeClient:
         if settings.llm_prompt_cache_mark and vendor_of(model) in _CACHE_MARK_VENDORS:
             convo = _with_cache_mark(convo)
         tokens = Usage()
-        # Вызов ушёл, а расход ещё не записан: исключение в это время — неизвестный расход (MKT6)
+        # Вызов ушёл, а расход ещё не записан: исключение в это время даёт неизвестный расход (MKT6)
         in_flight = False
 
         try:

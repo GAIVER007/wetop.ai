@@ -33,7 +33,7 @@ async def site_generation(request: Request) -> JSONResponse:
     try:
         result = await generate_site(request.app.state.settings, get_cascade_client(), body)
     except Exception:
-        # Каскад исключений не поднимает; сюда попадает сбой сборки. Расход неизвестен — 500, платформа
+        # Каскад исключений не поднимает; сюда попадает сбой сборки. Расход неизвестен: 500, платформа
         # считает его USAGE_UNAVAILABLE.
         logger.exception("генерация сайта: сбой")
         return JSONResponse(status_code=500, content={"status": "error"})

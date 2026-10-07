@@ -7066,3 +7066,6 @@
 | 07.10.2026 13:14 | typecheck | ✅ без ошибок | 1 мин 25 с | 012c06d +9 | [лог](logs/2026-10-07T08-14-43Z-typecheck-8175.log) | DS0a |
 | 07.10.2026 13:16 | lint | ✅ без ошибок | 55 с | 012c06d +9 | [лог](logs/2026-10-07T08-16-10Z-lint-b1b4.log) | DS0a |
 | 07.10.2026 13:17 | unit | ✅ 3749 из 3752, пропущено 3 | 2 мин 42 с | 366c143 | [лог](logs/2026-10-07T08-17-37Z-unit-c33e.log) | DS0a полный unit |
+| 07.10.2026 13:21 | e2e (частично: --config tests/beauty-ui/playwright.config.ts) | ❌ упало 10 из 10 | 31 с | 45912be | [лог](logs/2026-10-07T08-21-27Z-e2e-8133.log) | DS0a: набор beauty-ui локально |
+| 07.10.2026 13:22 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ❌ упало 12 из 13 | 25 с | 721dc98 | [лог](logs/2026-10-07T08-22-00Z-e2e-6986.log) | DS0a: набор food-ui локально |
+| 07.10.2026 13:22 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 26 из 26 | 38 с | 721dc98 | [лог](logs/2026-10-07T08-22-26Z-e2e-0aa5.log) | DS0a: набор branches-ui локально |

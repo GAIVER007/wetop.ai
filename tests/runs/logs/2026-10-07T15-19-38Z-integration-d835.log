@@ -1,0 +1,74 @@
+# Интеграционные (integration) · 07.10.2026 20:19 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-19-38Z-integration-d835.json' 'tests/integration/bar-payment-void-race.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-payment-void-race.test.ts (3 tests | 3 failed) 6068ms
+   × T10 shared receipt lock serializes void-first without overpayment or duplicate compensation 1585ms
+   × T10 shared receipt lock serializes pay-first without overpayment or duplicate compensation 1612ms
+   × T10 ordinary write-off stays separate from no-restock FIFO loss without a second loss or warehouse decrement 225ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-payment-void-race.test.ts > T10 shared receipt lock serializes void-first without overpayment or duplicate compensation
+AssertionError: requests observed waiting on the shared receipt lock: expected 0 to be greater than or equal to 1
+ ❯ waiting tests/integration/bar-payment-void-race.test.ts:35:78
+     33|       await new Promise(resolve => setTimeout(resolve, 10));
+     34|     }
+     35|     expect(observed, 'requests observed waiting on the shared receipt …
+       |                                                                              ^
+     36|   };
+     37|   const pay = () => f.request(`receipts/${d.r1.id}/payments`, { amount…
+ ❯ tests/integration/bar-payment-void-race.test.ts:43:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-void-race.test.ts > T10 shared receipt lock serializes pay-first without overpayment or duplicate compensation
+AssertionError: requests observed waiting on the shared receipt lock: expected 1 to be greater than or equal to 2
+ ❯ waiting tests/integration/bar-payment-void-race.test.ts:35:78
+     33|       await new Promise(resolve => setTimeout(resolve, 10));
+     34|     }
+     35|     expect(observed, 'requests observed waiting on the shared receipt …
+       |                                                                              ^
+     36|   };
+     37|   const pay = () => f.request(`receipts/${d.r1.id}/payments`, { amount…
+ ❯ tests/integration/bar-payment-void-race.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-void-race.test.ts > T10 ordinary write-off stays separate from no-restock FIFO loss without a second loss or warehouse decrement
+AssertionError: expected { nonRestockedLossMinor: '0', …(8) } to match object { …(5) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "costMinor": "0",
+-   "nonRestockedLossMinor": "132000",
++   "nonRestockedLossMinor": "0",
+    "revenueMinor": "0",
+    "stockCostMinor": "132000",
+    "writeOffMinor": "16000",
+  }
+
+ ❯ tests/integration/bar-payment-void-race.test.ts:69:23
+     67|   expect((await f.request('write-offs', { productId: d.a.id, quantityU…
+     68|   const report = await f.request('report', undefined, d.options);
+     69|   expect(report.body).toMatchObject({ nonRestockedLossMinor: '132000',…
+       |                       ^
+     70|   expect(await f.db.barCostLoss.count({ where: { saleId: sale.body.id …
+     71|   expect((await f.request(`sales/${sale.body.id}/reverse`, { restock: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  19:19:44
+   Duration  14.64s (tests 53%, transform 31%, import 16%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-19-38Z-integration-d835.json
+
+# код выхода 1 · 21 с

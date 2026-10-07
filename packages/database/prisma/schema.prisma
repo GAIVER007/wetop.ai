@@ -2558,7 +2558,7 @@ model TableAssignment {
 
 /// Permanent replay result, committed atomically with BAR ledger effects.
 model BarOperationIntent {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   propertyId  String   @map("property_id") @db.Uuid
   kind        String   @db.VarChar(32)
   key         String   @db.VarChar(120)
@@ -2575,7 +2575,7 @@ model BarOperationIntent {
 
 /// Compensation preserves the original supplier payment and Finance audit.
 model BarSupplierPaymentReversal {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   propertyId  String   @map("property_id") @db.Uuid
   paymentId   String   @unique @map("payment_id") @db.Uuid
   amountMinor BigInt   @map("amount_minor")
@@ -2589,7 +2589,7 @@ model BarSupplierPaymentReversal {
 
 /// FIFO cost lost on reversal without restock; no second warehouse decrement.
 model BarCostLoss {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   propertyId  String   @map("property_id") @db.Uuid
   saleId      String   @unique @map("sale_id") @db.Uuid
   amountMinor BigInt   @map("amount_minor")

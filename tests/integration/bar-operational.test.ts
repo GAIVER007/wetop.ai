@@ -75,7 +75,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '60000', method: 'CASH' }, d.options);
     const sale = await f.request('sales/retail', { productId: d.a.id, quantityUnits: '12', method: 'CASH', idempotencyKey: randomUUID() }, d.options);
     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock, reason: 'Synthetic reversal' }, d.options)).status).toBe(201);
-    expect(await report(d.options)).toMatchObject({ stockCostMinor: restock ? '280000' : '148000', revenueMinor: '0', costMinor: '0', writeOffMinor: '0', supplierDebtMinor: '220000' });
+    expect(await report(d.options)).toMatchObject({ stockCostMinor: restock ? '280000' : '148000', nonRestockedLossMinor: restock ? '0' : '132000', revenueMinor: '0', costMinor: '0', writeOffMinor: '0', supplierDebtMinor: '220000' });
     const stored = await f.db.barSale.findUniqueOrThrow({ where: { id: sale.body.id }, include: { cashOperation: true } });
     expect(stored.status).toBe('REVERSED');
     expect(stored.cashOperation?.status).toBe('VOIDED');

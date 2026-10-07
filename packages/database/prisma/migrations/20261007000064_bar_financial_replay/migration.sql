@@ -73,6 +73,11 @@ INSERT INTO bar_operation_intents(property_id,kind,key,request,result,operation_
 CREATE FUNCTION bar_financial_record_guard() RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER AS $$
 DECLARE linked_property uuid; linked_amount bigint; linked_status text; matched boolean;
 BEGIN
+ IF TG_TABLE_NAME NOT IN ('bar_operation_intents','bar_supplier_payment_reversals','bar_cost_losses') THEN RAISE EXCEPTION 'Unknown BAR financial record table'; END IF;
+ IF TG_OP='DELETE' THEN
+  IF current_user NOT IN ('wetop_app','wetop_service') AND pg_has_role(current_user,(SELECT relowner FROM pg_class WHERE oid=TG_RELID),'USAGE') THEN RETURN OLD; END IF;
+  RAISE EXCEPTION 'BAR financial records are immutable';
+ END IF;
  IF TG_OP='UPDATE' THEN RAISE EXCEPTION 'BAR financial records are immutable'; END IF;
  IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Unsupported BAR financial record operation'; END IF;
  IF TG_TABLE_NAME='bar_cost_losses' THEN
@@ -114,12 +119,11 @@ DO $$ DECLARE s text:=current_schema(); path text; t text; BEGIN
  EXECUTE format('ALTER FUNCTION %I.bar_financial_record_guard() SET search_path = %s',s,path);
  EXECUTE format('ALTER FUNCTION %I.bar_financial_parent_guard() SET search_path = %s',s,path);
  FOREACH t IN ARRAY ARRAY['bar_operation_intents','bar_supplier_payment_reversals','bar_cost_losses'] LOOP
-  EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION bar_financial_record_guard()',t||'_guard',t);
+  EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION bar_financial_record_guard()',t||'_guard',t);
   EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY',t);
   EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY',t);
   EXECUTE format('CREATE POLICY rls_tenant ON %I FOR ALL TO wetop_app USING (app_property_visible(property_id)) WITH CHECK (app_property_visible(property_id))',t);
-  EXECUTE format('REVOKE DELETE ON %I FROM wetop_app,wetop_service',t);
-  EXECUTE format('GRANT SELECT,INSERT,UPDATE ON %I TO wetop_app,wetop_service',t);
+  EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON %I TO wetop_app,wetop_service',t);
  END LOOP;
 END $$;
 CREATE TRIGGER bar_sales_financial_parent_guard BEFORE UPDATE ON bar_sales FOR EACH ROW EXECUTE FUNCTION bar_financial_parent_guard();

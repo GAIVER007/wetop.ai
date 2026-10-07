@@ -44,7 +44,7 @@ describe('BAR financial records: populated FORCE RLS and ownership under app/ser
       try {
         await client.query(`SET LOCAL ROLE ${role}`);
         await client.query("SELECT set_config('app.org_id',$1,true)", [a.org]);
-        await expect(client.query(`DELETE FROM ${table} WHERE property_id=$1`, [a.property])).rejects.toThrow(/permission denied/);
+        await expect(client.query(`DELETE FROM ${table} WHERE property_id=$1`, [a.property])).rejects.toThrow('immutable');
       } finally { await client.query('ROLLBACK'); }
     }
   });

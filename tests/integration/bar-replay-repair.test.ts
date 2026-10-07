@@ -5,7 +5,7 @@ import { barOperationalFixture, type BarOperationalFixture } from '../tools/bar-
 
 describe('BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL', () => {
   let f: BarOperationalFixture;
-  beforeAll(async () => { f = await barOperationalFixture(); });
+  beforeAll(async () => { f = await barOperationalFixture(0, true); });
   afterAll(async () => { await f?.close(); });
   async function stocked() {
     const side = await f.side(), d = await f.prepare(side);
@@ -86,11 +86,11 @@ describe('BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL', 
       await barrier.query('COMMIT');
       const responses = await Promise.all(pending);
       expect(responses.map(row => row.status)).toEqual([201,201]);
-      expect(responses[0].body.id).toBe(responses[1].body.id);
+      expect(responses[0]!.body.id).toBe(responses[1]!.body.id);
       expect(await f.db.barOperationIntent.count({ where: { propertyId: d.side.property, kind: dbKind, key: idempotencyKey } })).toBe(1);
       const before = await effects(d.side.property);
       await f.restart();
-      expect((await f.request(path, input, d.options)).body.id).toBe(responses[0].body.id);
+      expect((await f.request(path, input, d.options)).body.id).toBe(responses[0]!.body.id);
       expect(await effects(d.side.property)).toEqual(before);
     } finally { await barrier.query('ROLLBACK'); await Promise.allSettled(pending); await barrier.end(); }
   });
@@ -156,6 +156,17 @@ describe('BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL', 
       expect(await effects(d.side.property)).toEqual(after);
       expect(await f.db.barOperationIntent.count({ where: { propertyId: d.side.property, kind: dbKind, key: idempotencyKey } })).toBe(1);
     } finally { controller.abort(); await barrier.query('ROLLBACK'); await Promise.allSettled(pending); await barrier.end(); }
+  });
+  it.each(['retail','folio'])('T08 %s persisted replay after reversal returns the same REVERSED sale without new effects', async kind => {
+    const d = await stocked(), input = { productId: d.a.id, quantityUnits: '1', method: 'CASH', folioId: d.side.folio, idempotencyKey: randomUUID() };
+    const sale = await f.request(`sales/${kind}`, input, d.options);
+    expect(sale.status).toBe(201);
+    expect((await f.request(`sales/${sale.body.id}/reverse`, { restock: true, reason: 'Synthetic current-state replay' }, d.options)).status).toBe(201);
+    const before = await effects(d.side.property);
+    const replay = await f.request(`sales/${kind}`, input, d.options);
+    expect(replay.status).toBe(201);
+    expect(replay.body).toMatchObject({ id: sale.body.id, status: 'REVERSED' });
+    expect(await effects(d.side.property)).toEqual(before);
   });
   it('T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property', async () => {
     const d = await stocked(), idempotencyKey = randomUUID();

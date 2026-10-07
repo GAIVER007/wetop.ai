@@ -6089,7 +6089,7 @@ separate questions requiring an approved contract.
 
 ## ADR-BAR-OPERATIONAL-REPAIR-NEXT (2026-10-07)
 
-Status: ACCEPTED by owner on 2026-10-07 for D1/D2, separate FIFO loss and refunds matrix. Paid/closed Folio remains BLOCKED.
+Status: ACCEPTED by owner on 2026-10-07 for D1/D2, separate FIFO loss and refunds matrix. The subsequent T11 decision below also authorizes the paid/closed Folio denial policy.
 Problem: payment/write-off retries duplicate effects, Finance void does not restore
 supplier debt, and no-restock reversal drops sold goods cost from the summary.
 
@@ -6112,4 +6112,4 @@ Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. P
 
 Problem: retaining the legacy sale key uniqueness across both channels contradicts the owner's approved Property + kind + key scope. Options: reject cross-kind reuse, prefix stored keys, or make the persistent registry authoritative. Decision: retain the original client keys and make the legacy sale lookup index non-unique; BarOperationIntent enforces uniqueness and transactional replay for each kind. Consequence: independent RETAIL/FOLIO intentions may share a key; rollback refuses collisions instead of discarding valid financial history.
 
-2026-10-07, BAR durable evidence: table default privileges granted DELETE, which could forget an accepted operation key. Preserve the approved permanent-journal contract by revoking DELETE for wetop_app and wetop_service on intent, payment reversal and cost loss records. Administrative cleanup/rollback uses the database owner; no production action is authorized.
+2026-10-07, BAR durable evidence: table default privileges granted DELETE, which could forget an accepted operation key. The restore rehearsal proved that generic rights migrations regrant DELETE. Enforce the approved permanent-journal contract with immutable DELETE triggers for wetop_app and wetop_service on intent, payment reversal and cost loss records. Only another table-owning administrative role may delete derived records during synthetic cleanup or separately authorized rollback. This survives the existing rights replay without a new permission migration; no production action is authorized.

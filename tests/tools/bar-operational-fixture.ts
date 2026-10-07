@@ -113,7 +113,7 @@ export async function barOperationalFixture(port = 0, authenticated = false) {
     const login = authenticated && !options.anonymous ? await identity(selected, options.role ?? 'OWNER') : null;
     const response = await fetch(`${base}${path.startsWith('/') ? path : `/bar/${path}`}`, {
       method: options.method ?? (body === undefined ? 'GET' : 'POST'),
-      signal: options.signal,
+      ...(options.signal ? { signal: options.signal } : {}),
       headers: { ...(login ? { authorization: `Bearer ${login.token}` } : {}), 'content-type': 'application/json', 'x-bar-fixture-org': selected.org, 'x-bar-fixture-role': options.role ?? 'OWNER', 'x-wetop-scope': `business=${selected.business};location=${selected.location}` },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });

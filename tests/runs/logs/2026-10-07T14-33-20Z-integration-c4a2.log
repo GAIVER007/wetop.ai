@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 07.10.2026 19:33 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-33-20Z-integration-c4a2.json' 'tests/integration/bar-financial-rls.test.ts' 'tests/integration/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/db-restore-prod.test.ts (2 tests) 4696ms
+   ✓ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     ✓ после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 1437ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 861ms
+ ❯ |integration| tests/integration/bar-financial-rls.test.ts (9 tests | 2 failed) 484ms
+   ❯ BAR financial records: populated FORCE RLS and ownership under app/service (9)
+     ✓ populated profile A returns the expected complete record set 4ms
+     ✓ populated profile B returns the expected complete record set 1ms
+     ✓ populated profile unset returns the expected complete record set 1ms
+     ✓ populated profile empty returns the expected complete record set 1ms
+     ✓ populated profile service returns the expected complete record set 1ms
+     × wetop_app cannot delete durable financial evidence 5ms
+     × wetop_service cannot delete durable financial evidence 1ms
+     ✓ wetop_app accepts own links, rejects foreign links and immutable record updates without uniqueness masking 10ms
+     ✓ wetop_service accepts own links, rejects foreign links and immutable record updates without uniqueness masking 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-financial-rls.test.ts > BAR financial records: populated FORCE RLS and ownership under app/service > wetop_app cannot delete durable financial evidence
+ FAIL  |integration| tests/integration/bar-financial-rls.test.ts > BAR financial records: populated FORCE RLS and ownership under app/service > wetop_service cannot delete durable financial evidence
+AssertionError: expected [Function] to throw error including 'immutable' but got 'permission denied for table bar_opera…'
+
+Expected: "immutable"
+Received: "permission denied for table bar_operation_intents"
+
+ ❯ tests/integration/bar-financial-rls.test.ts:47:94
+     45|         await client.query(`SET LOCAL ROLE ${role}`);
+     46|         await client.query("SELECT set_config('app.org_id',$1,true)", …
+     47|         await expect(client.query(`DELETE FROM ${table} WHERE property…
+       |                                                                                              ^
+     48|       } finally { await client.query('ROLLBACK'); }
+     49|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 9 passed (11)
+   Start at  18:33:21
+   Duration  7.11s (tests 80%, transform 11%, import 10%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-33-20Z-integration-c4a2.json
+
+# код выхода 1 · 8 с

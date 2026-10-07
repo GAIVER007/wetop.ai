@@ -1,0 +1,31 @@
+# Типы (typecheck) · 07.10.2026 19:26 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/bar-replay-repair.test.ts(89,14): error TS2532: Object is possibly 'undefined'.
+tests/integration/bar-replay-repair.test.ts(89,41): error TS2532: Object is possibly 'undefined'.
+tests/integration/bar-replay-repair.test.ts(93,70): error TS2532: Object is possibly 'undefined'.
+tests/tools/bar-operational-fixture.ts(114,92): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(input: string | URL | Request, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Argument of type '{ body?: string; method: string; signal: AbortSignal | undefined; headers: { 'content-type': string; 'x-bar-fixture-org': string; 'x-bar-fixture-role': MembershipRole; 'x-wetop-scope': string; authorization?: string; }; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'signal' are incompatible.
+        Type 'AbortSignal | undefined' is not assignable to type 'AbortSignal | null'.
+          Type 'undefined' is not assignable to type 'AbortSignal | null'.
+  Overload 2 of 2, '(input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Argument of type '{ body?: string; method: string; signal: AbortSignal | undefined; headers: { 'content-type': string; 'x-bar-fixture-org': string; 'x-bar-fixture-role': MembershipRole; 'x-wetop-scope': string; authorization?: string; }; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'signal' are incompatible.
+        Type 'AbortSignal | undefined' is not assignable to type 'AbortSignal | null'.
+          Type 'undefined' is not assignable to type 'AbortSignal | null'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

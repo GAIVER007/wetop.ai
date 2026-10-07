@@ -12,6 +12,8 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
     await page.screenshot({ path: testInfo.outputPath(`${name}.png`), fullPage: true });
   };
   await page.goto('/bar');
+  // The intent control becomes enabled only after the client storage subscription hydrates.
+  await expect(page.locator('.bar-sale-form select[name="method"]')).toBeEnabled();
   for (const id of [data.r1.id, data.r2.id]) {
     const form = page.locator('form').filter({ has: page.locator(`input[name="id"][value="${id}"]`) });
     await form.getByRole('button', { name: 'Провести', exact: true }).click();

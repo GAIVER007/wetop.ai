@@ -181,3 +181,24 @@ for (const theme of ['light', 'dark'] as const) {
     });
   });
 }
+
+/** План finance-payments-direct 07.10.2026: платёж гостя аннулируется из ленты, строка остаётся аннулированной */
+test('F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено»', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${url}&op=payment#operations`);
+  const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+  const row = main.getByTestId('op-row').filter({ has: page.getByTestId('payment-void') }).first();
+  await expect(row).toHaveAttribute('data-kind', 'PAYMENT');
+  const amount = (await row.getByTestId('op-amount').innerText()).trim();
+  await row.getByTestId('payment-void').click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Аннулировать платёж?');
+  await expect(dialog).toContainText(amount);
+  await dialog.getByRole('button', { name: 'Аннулировать', exact: true }).click();
+  await expect(row).toHaveClass(/is-void/);
+  await expect(row).toContainText('аннулирована');
+  await expect(row.getByTestId('payment-void')).toHaveCount(0);
+});

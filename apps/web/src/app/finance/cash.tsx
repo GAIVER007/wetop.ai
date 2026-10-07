@@ -26,6 +26,7 @@ import {
   createCashCategoryAction,
   toggleCashCategoryAction,
   voidCashOperationAction,
+  voidPaymentAction,
   type CashActionResult,
 } from './cash-actions';
 
@@ -529,6 +530,43 @@ function Categories({ categories }: { categories: CashCategory[] }) {
         </tbody>
       </Table>
     </div>
+  );
+}
+
+/** «Аннулировать» у платежа гостя в общей ленте: вопрос с суммой; с возвратом или чеком API откажет словами */
+export function VoidPaymentOperation({ id, summary }: { id: string; summary: string }) {
+  const { ask, dialog } = useConfirm();
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <>
+      {dialog}
+      <Button
+        type="button"
+        tone="ghost"
+        disabled={busy}
+        aria-busy={busy}
+        data-testid="payment-void"
+        onClick={async () => {
+          if (
+            !(await ask({
+              title: 'Аннулировать платёж?',
+              body: `${summary}. Платёж останется в ленте со статусом «аннулирован», сумма вернётся в остаток брони к оплате. Поменять способ или сумму можно в карточке брони.`,
+              confirmLabel: 'Аннулировать',
+              tone: 'danger',
+            }))
+          )
+            return;
+          setBusy(true);
+          const r = await voidPaymentAction(id);
+          setBusy(false);
+          setError(r.error);
+        }}
+      >
+        Аннулировать
+      </Button>
+      {error && <Alert>{error}</Alert>}
+    </>
   );
 }
 

@@ -34,6 +34,8 @@
   }
   .tour__card {
     position: absolute;
+    top: var(--tour-top);
+    left: var(--tour-left);
     display: grid;
     gap: var(--space-2);
     width: min(460px, calc(100vw - 32px));
@@ -130,8 +132,8 @@
   }
   @media (max-width: 600px) {
     .tour__card {
-      top: 50% !important;
-      left: 50% !important;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
     }
   }

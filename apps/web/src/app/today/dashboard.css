@@ -252,8 +252,6 @@
   }
   .dash-table td,
   .dash-table th {
-    padding: 8px 8px;
-    font-size: var(--text-xs);
     white-space: nowrap;
   } /* название категории может переноситься, число мест — под ним */
   .dash-table td.dash-table__name {

@@ -21,6 +21,10 @@ export function diffDumps(before: Dump, after: Dump) {
     }
     for (const [prop, value] of Object.entries(row)) {
       if (prop === 'class') continue;
+      // цвет рамки нулевой толщины не виден: такое расхождение не считается
+      const side = /^border-(top|bottom|left|right)-color$/.exec(prop)?.[1];
+      const width = `border-${side}-width`;
+      if (side && row[width] === '0px' && next[width] === '0px') continue;
       if (next[prop] !== value)
         changes.push({ path, cls: row['class'] ?? '', prop, from: value, to: next[prop] ?? '' });
     }

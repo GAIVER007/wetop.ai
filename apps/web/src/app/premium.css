@@ -567,7 +567,7 @@
       align-items: flex-start;
     }
     .stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
     .bottom-navigation {
@@ -611,13 +611,6 @@
     }
     .profile-dropdown {
       right: -4px;
-    }
-  }
-  @media print {
-    .bottom-navigation,
-    .demo-banner,
-    .read-only-banner {
-      display: none !important;
     }
   }
   /* Operational dashboard: шапка блоков и «Требуют внимания» живут в today/desk.css */
@@ -754,7 +747,6 @@
     box-shadow: var(--shadow);
     max-height: calc(100dvh - 350px);
     min-height: 280px;
-    background: var(--glass-panel);
   }
   .board {
     background: var(--surface);
@@ -767,12 +759,10 @@
   }
   .board__unit-head,
   .board__unit {
-    background: var(--surface) !important;
     color: var(--text-2);
-    border-right: 1px solid var(--border) !important;
+    border-right: 1px solid var(--border);
   }
   .board__unit-head {
-    background: var(--surface-muted) !important;
     font-size: var(--text-xs);
     padding: 12px 16px;
   }
@@ -823,7 +813,6 @@
   }
   .board__group td,
   .board__group-name {
-    background: var(--surface-muted) !important;
     height: 30px;
     color: var(--muted);
     border-color: var(--border);
@@ -1511,15 +1500,15 @@
     .board--month th.board__unit-head {
       padding: 0;
       font-size: 0;
-      border-right: 0 !important;
+      border-right: 0;
     }
     .board--month th.board__unit-head > * {
       display: none;
     }
     .board.board--month td.board__unit {
       padding: 0;
-      border-right: 0 !important;
-      background: transparent !important;
+      border-right: 0;
+      background: transparent;
     }
     .board--month .board-unit-link {
       position: absolute;

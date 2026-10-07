@@ -327,9 +327,6 @@
     font-size: var(--text-xs);
     margin-bottom: 6px;
   }
-  .fact__value {
-    font-size: var(--text-md);
-  }
   .split {
     gap: 24px;
   }
@@ -559,10 +556,6 @@
   }
 
   @media print {
-    .workspace-header,
-    .skip-link {
-      display: none !important;
-    }
     .workspace .page {
       max-width: none;
       padding: 0;
@@ -861,7 +854,6 @@
     color: var(--muted);
   }
   .board tr.board__group td {
-    background: var(--success-soft);
     height: 36px;
   }
   .board .board__stay {
@@ -886,9 +878,6 @@
   }
   .board td.is-we:not(.is-today),
   .board th.is-we:not(.is-today) {
-    background: var(--success-soft);
-  }
-  .board tr:hover td.board__unit {
     background: var(--success-soft);
   }
   .board .board__unit-head {

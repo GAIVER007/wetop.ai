@@ -78,9 +78,9 @@ it('список исключений --glass-panel только сокраща�
 
 it('сетка шахматки и таблица остаются непрозрачными', () => {
   const board = all.find(({ f }) => f.endsWith('chessboard/board.css'))!.css;
-  expect(board).toMatch(
-    /\.board,\s*\.board thead th,\s*\.board td\.board__unit\s*\{[^}]*var\(--surface-solid\)/,
-  );
+  expect(board).toMatch(/\.board,\s*\.board thead th\s*\{[^}]*var\(--surface-solid\)/);
+  // липкая колонка номеров: непрозрачная заливка, строки уезжают под неё
+  expect(bodiesOf('.board td.board__unit').join('\n')).toMatch(/background:\s*var\(--surface\)/);
   expect(bodiesOf('.tbl').join('\n')).toContain('var(--surface-solid)');
   expect(bodiesOf('.tbl thead th').join('\n')).toContain('var(--surface-solid)');
 });

@@ -43,8 +43,7 @@
     background: var(--surface);
     white-space: nowrap;
   }
-  .board tr.is-over,
-  .board tr.is-over td.board__unit {
+  .board tr.is-over {
     background: var(--st-confirmed);
   }
   .board td.board__cell {
@@ -142,9 +141,12 @@
     box-shadow: inset 0 0 0 1px var(--primary);
   }
   .board,
-  .board thead th,
-  .board td.board__unit {
+  .board thead th {
     background: var(--surface-solid);
+  }
+  /* Шапка колонки номеров приглушена, как строки групп (до DS0b её держало правило с important в premium.css) */
+  .board thead th.board__unit-head {
+    background: var(--surface-muted);
   } /*
  * Шахматка: правки по замечанию владельца 15.09.2026 «сделай максимально удобно, чтобы всё было видно».
  * Файл грузится после globals/workspace/premium и переопределяет только то, что мешало видеть:
@@ -815,9 +817,6 @@
   }
 
   /* §56: наведение различимо — строка места подсвечивается вся, свободные клетки чуть заметнее */
-  .board tbody tr:hover td.board__unit {
-    background: var(--row-hover);
-  }
   .board tbody tr:not(.board__group):hover td.board__cell {
     background: color-mix(in srgb, var(--row-hover) 55%, transparent);
   }
@@ -1709,8 +1708,7 @@
     color: var(--muted);
   }
   /* прежняя заливка строки под курсором цветом статуса (globals.css) — лишняя рядом с призраком */
-  .board tr[data-drop].is-over,
-  .board tr[data-drop].is-over td.board__unit {
+  .board tr[data-drop].is-over {
     background: var(--surface);
   }
   .board .board__stay.is-lifted {
@@ -1827,9 +1825,6 @@
   }
   .board .board__stay[data-match='hit'][data-plate-start][data-plate-end] {
     box-shadow: inset 0 0 0 2px var(--primary);
-  }
-  .board td.board__unit[data-match='hit'] {
-    background: var(--primary-soft);
   }
 
   /*
@@ -2003,15 +1998,15 @@
     .board {
       --week-unit-width: 144px;
       --month-unit-width: 144px;
-      width: var(--mobile-board-width) !important;
+      width: var(--mobile-board-width) !important; /* slop-allow: important перебивает ширину таблицы, которую board-grid.tsx ставит инлайн для компьютера */
       min-width: var(--mobile-board-width);
       table-layout: fixed;
     }
     .board col:first-child {
-      width: 144px !important;
+      width: 144px !important; /* slop-allow: important перебивает инлайн-ширину колонки номеров из board-grid.tsx */
     }
     .board col:not(:first-child) {
-      width: 104px !important;
+      width: 104px !important; /* slop-allow: important перебивает инлайн-ширину колонки дня из board-grid.tsx */
     }
     .board td.board__cell,
     .board td.board__unit,
@@ -2048,7 +2043,7 @@
       font-size: 16px;
     }
     .stay-preview {
-      inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important;
+      inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important; /* slop-allow: important на телефоне карточка внизу экрана, а stay-preview.tsx ставит left и top из JS */
       width: calc(100% - 16px);
       max-height: calc(85dvh - env(safe-area-inset-bottom));
       overflow-y: auto;

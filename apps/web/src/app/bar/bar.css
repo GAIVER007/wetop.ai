@@ -196,11 +196,4 @@
       min-height: 44px;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .bar-receipt-form *,
-    .bar-line * {
-      scroll-behavior: auto;
-      transition-duration: 0.01ms !important;
-    }
-  }
 }

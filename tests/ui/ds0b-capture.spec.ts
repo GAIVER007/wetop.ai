@@ -125,9 +125,16 @@ for (const [width, theme] of [
     mkdirSync(dir, { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    // прогрев: холодный next dev отдаёт содержимое потоком, первый заход ловит экран загрузки
+    for (const route of STYLE_ROUTES) await page.goto(route);
     for (const route of STYLE_ROUTES) {
       await page.goto(route);
       await page.waitForLoadState('networkidle').catch(() => undefined);
+      await page
+        .waitForFunction('!document.querySelector(".skeleton, [aria-busy=\\"true\\"]")', null, {
+          timeout: 30_000,
+        })
+        .catch(() => undefined);
       await page.mouse.move(0, 0);
       // Выражение строкой: в корневом tsconfig нет библиотеки DOM
       const dump = await page.evaluate(`(() => {

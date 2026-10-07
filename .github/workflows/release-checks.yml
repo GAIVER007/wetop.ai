@@ -151,10 +151,8 @@ jobs:
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
         run: npx playwright test --config tests/onboarding/playwright.config.ts
-      # Под замком и с выбранным филиалом, как живой вход: production-сборка стойки после MV8 анониму
-      # «Главную» не показывает (`/today` → `/scope/resolve` → вход), а права оболочки без указателя
-      # филиала неизвестны (07.10.2026, прогон 37605915912). Вход и указатель ставит `tests/e2e/_auth.setup.ts`.
       - name: Сквозные тесты
+        # Вошедшим пользователем (решение владельца 07.10.2026): после MV8 стойка без входа не угадывает гостиницу
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
           E2E_AUTH: '1'

@@ -119,8 +119,8 @@ PostgreSQL 16.14 из npm (`@embedded-postgres/<платформа>`, darwin-arm
 20.09.2026: `test:schema` уже заполняет `pms_test`; повторно вызывать для неё
 `seed-local` нельзя — размещения пересекаются. `db:local` отдельно засевает только
 `public`. Для выбора версии PostgreSQL добавьте её `bin` в начало PATH; для своего
-стенда задайте `PMS_LOCAL_PGDATA` и `PMS_LOCAL_PGPORT`. При включённом `E2E_AUTH=1`
-изолированный API использует тестовый `SESSION_SECRET` (переопределяется через
+стенда задайте `PMS_LOCAL_PGDATA` и `PMS_LOCAL_PGPORT`. Замок входа в сквозных
+включён по умолчанию с 07.10.2026 (отказ только `E2E_AUTH=0`); при нём изолированный API использует тестовый `SESSION_SECRET` (переопределяется через
 `E2E_SESSION_SECRET`), не требует production-секрета. На Mac при нехватке ресурсов
 запускайте unit с `--maxWorkers=2` отдельно от браузерного набора. Приёмка и
 RED/GREEN: `reports/current-release-acceptance-2026-09-20/report.md`.

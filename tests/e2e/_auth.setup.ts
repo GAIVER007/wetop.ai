@@ -1,9 +1,12 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { createPrismaClient } from '@pms/database';
 import { hashPassword } from '@pms/domain';
 import { AUTH_STATE, E2E_PASSWORD, E2E_USER, SERVICE_KEY, SESSION_COOKIE } from '../tools/e2e-auth';
+
+/** Указатель рабочего филиала стойки (`apps/web/src/lib/scope-pointer.ts`) */
+const SCOPE_COOKIE = 'wetop_scope';
 
 /**
  * Вход для прогона с включённым замком API (`E2E_AUTH=1`, порядок — `plans/slice-13-accounts-saas.md` §7а).
@@ -15,7 +18,7 @@ import { AUTH_STATE, E2E_PASSWORD, E2E_USER, SERVICE_KEY, SESSION_COOKIE } from 
  * Отдельно проверяется, что замок и правда включён: `reuseExistingServer` мог подобрать стенд от прежнего
  * прогона без замка, и тогда набор дал бы зелёное, ничего не доказав.
  */
-test('вход сотрудника автотестов: замок включён, сессия в cookie стойки', async ({ page, request }) => {
+test('вход сотрудника автотестов: замок включён, сессия и филиал в cookie стойки', async ({ request, page }) => {
   const api = process.env['APP_API_URL'] ?? '';
   expect(api, 'APP_API_URL не задан конфигом e2e').not.toBe('');
 
@@ -66,14 +69,6 @@ test('вход сотрудника автотестов: замок включ�
       create: { userId: user.id, organizationId: organization.id, role: 'OWNER' },
       update: { role: 'OWNER' },
     });
-    // Главный администратор установки: неисправности сторожа общие на всю установку (`system_incidents` без объекта,
-    // ADR-124), и под замком их отдают только ему или организации единственного подключения к каналам, которого в сиде
-    // стенда нет. Без этого `incidents.spec` под замком получает 403 (07.10.2026)
-    await db.platformAdmin.upsert({
-      where: { userId: user.id },
-      create: { userId: user.id, note: 'стенд e2e' },
-      update: { revokedAt: null },
-    });
   } finally {
     await db.$disconnect();
   }
@@ -97,9 +92,9 @@ test('вход сотрудника автотестов: замок включ�
   const session = (await login.json()) as { token: string; expiresAt: string };
   expect(session.token).toBeTruthy();
 
-  // Как у живого входа: сессия в cookie, затем стойка сама выбирает филиал на `/scope/resolve` и кладёт указатель
-  // `wetop_scope` (SCOPE-HARDENING, 06.10.2026). Без указателя `/today` после MV8 не знает направления, а права
-  // оболочки неизвестны (`deskShell`), и спеки видели бы вход на wetop.ai вместо «Главной» (07.10.2026).
+  // Как после входа человека: сессия в cookie, затем `/scope/resolve` выбирает единственный филиал организации и
+  // ставит его указатель. Без подтверждённого филиала стойка не выдаёт прав (MV8, PR #272), и спеки не видели бы
+  // возвратов, сторно и журнала. Филиал выбирает сам сервер стойки, тест его не подставляет.
   await page.context().addCookies([
     {
       name: SESSION_COOKIE,
@@ -112,14 +107,11 @@ test('вход сотрудника автотестов: замок включ�
       sameSite: 'Lax',
     },
   ]);
-  await page.goto('/scope/resolve?next=%2Ftoday');
-  await expect(page).toHaveURL(/\/today$/);
-  const scope = (await page.context().cookies()).find((c) => c.name === 'wetop_scope');
-  // Playwright отдаёт значение куки в кодировке адреса (`business%3D…`)
-  expect(
-    decodeURIComponent(scope?.value ?? ''),
-    'после /scope/resolve стойка не поставила указатель филиала',
-  ).toMatch(/^business=[0-9a-f-]+;location=[0-9a-f-]+$/);
+  await page.goto('/scope/resolve');
+  await expect(page).not.toHaveURL(/\/scope\/resolve|\/branches|#login/);
+  const scope = (await page.context().cookies()).find((c) => c.name === SCOPE_COOKIE);
+  expect(scope?.value, '/scope/resolve не выбрал филиал сотруднику автотестов').toBeTruthy();
+
   mkdirSync(dirname(AUTH_STATE), { recursive: true });
-  writeFileSync(AUTH_STATE, JSON.stringify(await page.context().storageState()));
+  await page.context().storageState({ path: AUTH_STATE });
 });

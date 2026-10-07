@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 07.10.2026 13:55 Алматы · vm
+# коммит 4ccb084 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-compact-screen.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (6.0s)
+
+
+  1) tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 400
+    Received:   375.203125
+
+      11 |   const board = page.getByRole('region', { name: 'Календарь по дням' });
+      12 |   const box = await board.boundingBox();
+    > 13 |   expect(box!.height).toBeGreaterThan(400);
+         |                       ^
+      14 |   expect(await page.evaluate('document.documentElement.scrollHeight <= innerHeight + 1')).toBe(
+      15 |     true,
+      16 |   );
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:13:23
+
+    Error Context: test-results/chessboard-compact-screen--60848-emembered-category-overview/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+
+# код выхода 1 · 19 с

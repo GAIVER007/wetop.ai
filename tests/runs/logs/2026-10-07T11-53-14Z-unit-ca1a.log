@@ -1,0 +1,22 @@
+# Модульные (unit) · 07.10.2026 16:53 Алматы · vm
+# коммит 710d66d (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 39
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-53-14Z-unit-ca1a.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/ci-runner.test.ts' 'tests/unit/e2e-auth-config.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 17ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (22 tests) 280ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 14ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 22ms
+ ✓ |unit| tests/unit/e2e-auth-config.test.ts (4 tests) 932ms
+   ✓ конфиг e2e и замок API (4)
+     ✓ изолированный API проверяет сессии без рабочего SESSION_SECRET 902ms
+
+ Test Files  5 passed (5)
+      Tests  63 passed (63)
+   Start at  11:53:16
+   Duration  1.38s (tests 50%, transform 27%, import 22%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-53-14Z-unit-ca1a.json
+
+# код выхода 0 · 3 с

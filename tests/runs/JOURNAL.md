@@ -7478,3 +7478,14 @@
 | 08.10.2026 00:13 | typecheck | ✅ без ошибок | 1 мин 6 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-13-39Z-typecheck-eb8c.log) |  |
 | 08.10.2026 00:14 | lint | ✅ без ошибок | 59 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-14-46Z-lint-8059.log) |  |
 | 08.10.2026 00:15 | unit (частично: tests/unit/design-slop.test.ts tests/unit/build-tokens.test.ts) | ✅ 17 из 17 | 4 с | 9346cc7 +2 | [лог](logs/2026-10-07T19-15-46Z-unit-b1d5.log) |  |
+| 08.10.2026 00:21 | unit (частично: apps/sites/src/draft-preview.test.ts) | ❌ код выхода 1 | 2 с | 5423299 +1 | [лог](logs/2026-10-07T19-21-27Z-unit-15b4.log) | (файл не выполнился) |
+| 08.10.2026 00:21 | unit (частично: apps/sites/src/draft-preview.test.ts) | ✅ 6 из 6 | 2 с | 5423299 +2 | [лог](logs/2026-10-07T19-21-41Z-unit-20ba.log) |  |
+| 08.10.2026 00:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ код выхода 1 | 15 с | 5423299 +10 | [лог](logs/2026-10-07T19-28-38Z-e2e-840e.log) | (ошибка вне тестов) |
+| 08.10.2026 00:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 4 из 22 | 6 мин 15 с | 5423299 +10 | [лог](logs/2026-10-07T19-29-58Z-e2e-82d3.log) | просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит |
+| 08.10.2026 00:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 22 | 7 мин 42 с | 5423299 +10 | [лог](logs/2026-10-07T19-36-59Z-e2e-893d.log) | редактор на компьютере, доступность и снимки: light |
+| 08.10.2026 00:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1 -g редактор на) | ✅ 4 из 4 | 1 мин 1 с | 5423299 +10 | [лог](logs/2026-10-07T19-45-05Z-e2e-380c.log) |  |
+| 08.10.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 29 из 29 | 3 мин 13 с | 5423299 +10 | [лог](logs/2026-10-07T19-46-29Z-e2e-f81f.log) |  |
+| 08.10.2026 00:49 | typecheck | ✅ без ошибок | 56 с | 5423299 +10 | [лог](logs/2026-10-07T19-49-46Z-typecheck-261f.log) |  |
+| 08.10.2026 00:50 | lint | ✅ без ошибок | 49 с | 5423299 +10 | [лог](logs/2026-10-07T19-50-43Z-lint-b82e.log) |  |
+| 08.10.2026 00:51 | unit (частично: tests/unit apps/sites packages/domain/src/marketing) | ✅ 800 из 803, пропущено 3 | 1 мин 22 с | 5423299 +9 | [лог](logs/2026-10-07T19-51-33Z-unit-4c74.log) |  |
+| 08.10.2026 00:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1 -g открыть голову\|ИИ одного блока) | ❌ упало 2 из 2 | 1 мин 22 с | 5423299 +10 | [лог](logs/2026-10-07T19-53-04Z-e2e-5c85.log) | мутация: щелчок по блоку ничего не выбирает |

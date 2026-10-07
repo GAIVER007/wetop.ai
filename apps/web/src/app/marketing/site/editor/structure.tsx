@@ -18,7 +18,8 @@ import { Alert, Button, Field, Select, cx } from '../../../../components/ui';
 import { useEditor } from './fields';
 
 /**
- * Структура сайта (MKT9 §12, §19–§27): страницы и секции выбранной страницы, добавление, перестановка кнопками
+ * Структура сайта (MKT9 §12, §19–§27; MKT9.1: вкладка «Блоки», настройки сайта своей вкладкой): страницы и секции
+ * открытой страницы, добавление, перестановка кнопками
  * (путь с клавиатуры, без перетаскивания), копия и удаление. Страницу или секцию, на которую ссылаются навигация,
  * кнопки или политика, удалить нельзя: показывается, где она используется; ссылки сами не удаляются.
  */
@@ -29,16 +30,19 @@ export function Structure({
   selection,
   select,
   ask,
+  shownPage,
 }: {
   selection: Selection;
   select: (next: Selection) => void;
   ask: (title: string, body: string) => Promise<boolean>;
+  /** Страница, открытая в просмотре справа: её секции раскрыты, пока ничего не выбрано */
+  shownPage: number;
 }) {
   const c = useEditor();
   const [blocked, setBlocked] = useState<{ title: string; refs: SpecReference[] } | null>(null);
   const [addType, setAddType] = useState('about');
   const pages = (c.spec['pages'] as Rec[] | undefined) ?? [];
-  const openPage = selection.kind === 'site' ? -1 : selection.page;
+  const openPage = selection.kind === 'site' ? shownPage : selection.page;
   const sectionsOf = (i: number) => (pages[i]?.['sections'] as Rec[] | undefined) ?? [];
   const setPages = (next: Rec[]) => c.set(['pages'], next);
   const setSections = (i: number, next: Rec[]) => c.set(['pages', i, 'sections'], next);
@@ -91,15 +95,7 @@ export function Structure({
           </Button>
         </Alert>
       )}
-      <button
-        type="button"
-        className={cx('ed-node', selection.kind === 'site' && 'is-on')}
-        aria-current={selection.kind === 'site' ? 'true' : undefined}
-        onClick={() => select({ kind: 'site' })}
-      >
-        Настройки сайта
-      </button>
-      <h3 className="ed-structure__title">Страницы</h3>
+      <h3 className="ed-structure__title">Страницы и блоки</h3>
       <ol className="ed-tree">
         {pages.map((page, i) => {
           const home = page['isHome'] === true;

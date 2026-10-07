@@ -80,8 +80,9 @@ export default async function SiteEditorPage() {
       </Page>
     );
   return (
-    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Страницы и секции сайта; сохранение создаёт новую версию черновика." actions={links}>
+    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Попросите ИИ или поправьте блок сами: сайт меняется сразу. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации." actions={links}>
       <SiteEditor
+        siteId={site.id}
         base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}
         published={site.published}
         versions={loaded.versions}

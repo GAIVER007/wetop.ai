@@ -11,7 +11,7 @@ import {
   normalizePageSlug,
   removeLocale,
 } from '@pms/domain';
-import { Button, Field, Input, Textarea } from '../../../../components/ui';
+import { Button, Field, Input } from '../../../../components/ui';
 import { getAt, pathId, type Path } from './paths';
 import {
   ActionField,
@@ -409,37 +409,4 @@ export function SectionForm({
 }
 
 /** Команда ИИ: текст человека как данные; пусто у секции значит «пересобери, сохранив назначение» */
-export function AiCommand({
-  label,
-  button,
-  max,
-  optional,
-  disabledReason,
-  busy,
-  onRun,
-  testId,
-}: {
-  label: string;
-  button: string;
-  max: number;
-  optional: boolean;
-  disabledReason: string | null;
-  busy: boolean;
-  onRun: (text: string) => void;
-  testId: string;
-}) {
-  const [text, setText] = useState('');
-  const id = `${testId}-text`;
-  return (
-    <div className="ed-ai" data-testid={testId}>
-      <Field label={label} controlId={id} hint={disabledReason ?? (optional ? 'Можно оставить пустым: ИИ пересоберёт секцию, сохранив её назначение.' : undefined)}>
-        <Textarea rows={3} maxLength={max} value={text} onChange={(e) => setText(e.currentTarget.value)} />
-      </Field>
-      <Button type="button" tone="secondary" disabled={!!disabledReason || busy || (!optional && !text.trim())} onClick={() => onRun(text)}>
-        {button}
-      </Button>
-    </div>
-  );
-}
-
 export type { Spec };

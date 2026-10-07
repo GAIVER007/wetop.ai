@@ -527,9 +527,6 @@
   .reservations-controls .reservations-status-mobile {
     display: flex;
   }
-  .reservations-status-mobile > .field__label {
-    font-size: var(--text-xs);
-  }
   .reservations-dates[data-open='true'] {
     flex: 1 1 100%;
     flex-wrap: wrap;
@@ -587,10 +584,8 @@
     .reservations-controls {
       padding: var(--space-2);
     }
-  } /* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
-  @media (max-width: 600px) {
     .reservations-export {
       display: none;
     }
-  }
+  } /* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
 }

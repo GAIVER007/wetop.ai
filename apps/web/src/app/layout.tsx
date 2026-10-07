@@ -3,15 +3,10 @@
 import './globals.css';
 import './components.css';
 import './workspace.css';
-import './today/desk.css';
-import './today/dashboard.css';
-import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
 import '../components/shell/top-menu.css';
-import './hotel-settings/settings.css';
-import './control.css';
 import { headers } from 'next/headers';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';

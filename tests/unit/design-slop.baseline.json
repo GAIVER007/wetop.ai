@@ -1,24 +1,21 @@
 {
   "color-literal": {},
   "space-off-scale": {
-    "apps/web/src/app/chessboard/board.css": 10,
-    "apps/web/src/app/directory.css": 11,
-    "apps/web/src/app/globals.css": 74,
-    "apps/web/src/app/login/login.css": 1,
-    "apps/web/src/app/management/hotel.css": 19,
-    "apps/web/src/app/premium.css": 111,
-    "apps/web/src/app/today/dashboard.css": 21,
-    "apps/web/src/app/workspace.css": 68
+    "apps/web/src/app/chessboard/board.css": 16,
+    "apps/web/src/app/components.css": 60,
+    "apps/web/src/app/directory.css": 10,
+    "apps/web/src/app/management/analytics/analytics.css": 15,
+    "apps/web/src/app/premium.css": 95,
+    "apps/web/src/app/workspace.css": 49
   },
   "uppercase": {
-    "apps/web/src/app/globals.css": 1,
-    "apps/web/src/app/today/dashboard.css": 1
+    "apps/web/src/app/components.css": 2
   },
   "shadow-on-page": {
+    "apps/web/src/app/components.css": 2,
     "apps/web/src/app/globals.css": 1,
-    "apps/web/src/app/management/hotel.css": 1,
-    "apps/web/src/app/premium.css": 4,
-    "apps/web/src/app/workspace.css": 2
+    "apps/web/src/app/premium.css": 2,
+    "apps/web/src/app/workspace.css": 1
   },
   "window-confirm": {},
   "dot-separator": {
@@ -32,18 +29,16 @@
   "trailing-arrow": {},
   "font-under-12": {},
   "radius-literal": {
-    "apps/web/src/app/chessboard/board.css": 1,
+    "apps/web/src/app/chessboard/board.css": 3,
+    "apps/web/src/app/components.css": 8,
     "apps/web/src/app/directory.css": 1,
-    "apps/web/src/app/globals.css": 4,
-    "apps/web/src/app/management/hotel.css": 4,
-    "apps/web/src/app/premium.css": 22,
-    "apps/web/src/app/today/dashboard.css": 5,
-    "apps/web/src/app/workspace.css": 17
+    "apps/web/src/app/management/analytics/analytics.css": 3,
+    "apps/web/src/app/premium.css": 18,
+    "apps/web/src/app/workspace.css": 12
   },
   "z-index-literal": {
-    "apps/web/src/app/chessboard/board.css": 4,
-    "apps/web/src/app/globals.css": 3,
-    "apps/web/src/app/premium.css": 5,
+    "apps/web/src/app/chessboard/board.css": 7,
+    "apps/web/src/app/premium.css": 4,
     "apps/web/src/app/workspace.css": 3
   },
   "font-literal": {
@@ -51,41 +46,37 @@
     "apps/web/src/app/ai-seller/agents/agents.css": 2,
     "apps/web/src/app/channels/channels.css": 22,
     "apps/web/src/app/chessboard/board.css": 3,
+    "apps/web/src/app/components.css": 4,
     "apps/web/src/app/connections/integrations.css": 7,
     "apps/web/src/app/finance/finance.css": 14,
-    "apps/web/src/app/food/food.css": 10,
-    "apps/web/src/app/globals.css": 4,
+    "apps/web/src/app/food/food.css": 9,
     "apps/web/src/app/journal/journal.css": 1,
-    "apps/web/src/app/premium.css": 7,
+    "apps/web/src/app/premium.css": 5,
     "apps/web/src/app/reservations/new/booking-compact.css": 8,
-    "apps/web/src/app/today/owner-dashboard.css": 2,
-    "apps/web/src/app/workspace.css": 2
+    "apps/web/src/app/today/owner-dashboard.css": 2
   },
   "space-literal-not-var": {
     "apps/web/src/app/ai-agents/ai-agents.css": 12,
     "apps/web/src/app/ai-seller/agents/agents.css": 14,
-    "apps/web/src/app/beauty/beauty.css": 50,
+    "apps/web/src/app/beauty/beauty.css": 42,
     "apps/web/src/app/channels/channels.css": 61,
-    "apps/web/src/app/chessboard/board.css": 23,
+    "apps/web/src/app/chessboard/board.css": 30,
+    "apps/web/src/app/components.css": 127,
     "apps/web/src/app/connections/integrations.css": 15,
-    "apps/web/src/app/directory.css": 92,
+    "apps/web/src/app/directory.css": 87,
     "apps/web/src/app/finance/finance.css": 36,
-    "apps/web/src/app/food/food.css": 33,
-    "apps/web/src/app/globals.css": 143,
+    "apps/web/src/app/food/food.css": 31,
     "apps/web/src/app/inventory/fund.css": 27,
     "apps/web/src/app/journal/journal.css": 4,
-    "apps/web/src/app/login/login.css": 36,
-    "apps/web/src/app/login/role-access.css": 5,
-    "apps/web/src/app/management/analytics/analytics.css": 14,
-    "apps/web/src/app/management/hotel.css": 32,
-    "apps/web/src/app/premium.css": 212,
+    "apps/web/src/app/login/role-access.css": 4,
+    "apps/web/src/app/management/analytics/analytics.css": 44,
+    "apps/web/src/app/premium.css": 184,
     "apps/web/src/app/register/setup/setup.css": 4,
     "apps/web/src/app/reservations/new/booking-compact.css": 28,
     "apps/web/src/app/status/status.css": 8,
-    "apps/web/src/app/today/dashboard.css": 53,
     "apps/web/src/app/today/owner-dashboard.css": 104,
     "apps/web/src/app/today/vertical-today.css": 8,
-    "apps/web/src/app/workspace.css": 124
+    "apps/web/src/app/workspace.css": 89
   },
   "inline-style": {
     "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 4,
@@ -109,30 +100,28 @@
     "apps/web/src/components/shell/product-tour.tsx": 2,
     "apps/web/src/components/ui.tsx": 3
   },
+  "important": {},
   "breakpoint-literal": {
     "apps/web/src/app/ai-agents/ai-agents.css": 1,
     "apps/web/src/app/ai-seller/agents/agents.css": 1,
     "apps/web/src/app/ai-seller/ai-seller.css": 4,
-    "apps/web/src/app/bar/bar.css": 4,
+    "apps/web/src/app/bar/bar.css": 2,
     "apps/web/src/app/channels/channels.css": 3,
     "apps/web/src/app/chessboard/board.css": 4,
+    "apps/web/src/app/components.css": 7,
     "apps/web/src/app/connections/integrations.css": 1,
-    "apps/web/src/app/control.css": 1,
     "apps/web/src/app/create/wizard.css": 2,
     "apps/web/src/app/finance/finance.css": 7,
-    "apps/web/src/app/globals.css": 5,
     "apps/web/src/app/hotel-settings/settings.css": 1,
     "apps/web/src/app/inventory/fund.css": 1,
     "apps/web/src/app/inventory/inventory.css": 5,
     "apps/web/src/app/login/role-access.css": 1,
-    "apps/web/src/app/management/analytics/analytics.css": 3,
+    "apps/web/src/app/management/analytics/analytics.css": 5,
     "apps/web/src/app/onboarding/onboarding.css": 1,
     "apps/web/src/app/platform/support/support.css": 1,
     "apps/web/src/app/premium.css": 5,
     "apps/web/src/app/reservations/new/booking-compact.css": 6,
     "apps/web/src/app/reservations/reservations.css": 4,
-    "apps/web/src/app/staff/staff.css": 1,
-    "apps/web/src/app/today/dashboard.css": 2,
     "apps/web/src/app/today/desk.css": 1,
     "apps/web/src/app/today/owner-dashboard.css": 3,
     "apps/web/src/app/workspace.css": 4

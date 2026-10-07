@@ -6,23 +6,6 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
     align-items: start;
   }
-  .beauty-text {
-    margin: 0 0 8px;
-    color: var(--text);
-  }
-  .beauty-list {
-    display: grid;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .beauty-list li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-    align-items: baseline;
-  }
   .beauty-note {
     color: var(--muted);
   } /* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
@@ -195,26 +178,6 @@
     border-color: var(--border);
     color: var(--muted);
   } /* День списком: он же единственный вид на телефоне */
-  .beauty-daylist {
-    display: none;
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .beauty-daylist-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-    align-items: baseline;
-    width: 100%;
-    padding: 8px;
-    text-align: left;
-    border: 0;
-    border-bottom: 1px solid var(--border);
-    background: none;
-    color: var(--text);
-    cursor: pointer;
-  }
   .beauty-facts {
     display: grid;
     gap: 8px;
@@ -230,10 +193,6 @@
   @media (max-width: 600px) {
     .beauty-grid-day {
       display: none;
-    }
-
-    .beauty-daylist {
-      display: block;
     }
   } /* MV5: shared WETOP calendar and operational screens. */
   .beauty-date-bar {

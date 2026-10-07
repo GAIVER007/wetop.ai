@@ -81,9 +81,6 @@
   .brand-name > span {
     color: var(--primary);
   }
-  .brand-dot {
-    color: var(--success);
-  }
   /* объект и филиал в шапке: сжимается первым, подписи обрезаются многоточием */
   .workspace-header__property {
     flex: 0 1 auto;
@@ -317,12 +314,6 @@
     box-shadow: none;
     border-radius: var(--radius);
   }
-  .facts--card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-  }
   .fact__label {
     font-size: var(--text-xs);
     margin-bottom: 6px;
@@ -353,16 +344,6 @@
     width: min(480px, calc(100vw - 32px));
     padding: 24px;
     border-radius: 14px;
-  }
-  .dialog-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .dialog-heading h2 {
-    font-size: var(--text-2xl);
-    margin: 0;
   }
   .search-dialog > p {
     font-size: var(--text-sm);
@@ -470,9 +451,6 @@
     }
     .toolbar .field {
       flex: 1 1 140px;
-    }
-    .facts--card {
-      padding: 16px;
     }
   }
   @media (max-width: 360px) {
@@ -761,24 +739,6 @@
     max-height: 160px;
     overflow: auto;
   }
-  .board-unassigned-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-  }
-  .board-unassigned-title svg {
-    width: 16px;
-    height: 16px;
-  }
-  .board-unassigned-list {
-    list-style: none;
-    margin: 3px 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-  }
   .board-help {
     margin-top: 16px;
     font-size: var(--text-xs);
@@ -825,15 +785,6 @@
   .board th.is-today .board__d {
     background: var(--primary);
     color: var(--muted);
-  }
-  .board .board__occ {
-    margin-top: 6px;
-    font-size: var(--text-xs);
-    color: var(--muted);
-  }
-  .board-occ-total {
-    color: var(--muted);
-    font-weight: 400;
   }
   .board td.board__cell {
     height: 48px;

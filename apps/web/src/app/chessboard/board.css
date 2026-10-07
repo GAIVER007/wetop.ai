@@ -29,10 +29,6 @@
     font-weight: 400;
     color: var(--muted-2);
   }
-  .board__occ {
-    font-weight: 700;
-    color: var(--text);
-  }
   .board td {
     padding: 3px 6px;
     border-bottom: 1px solid var(--border-soft);
@@ -89,10 +85,6 @@
     font-weight: 700;
     font-size: var(--text-sm);
     color: var(--text);
-  }
-  .board__occ {
-    font-weight: 600;
-    color: var(--text-2);
   }
   .board th.is-today {
     background: var(--primary-soft);
@@ -1021,9 +1013,6 @@
       height: var(--space-6);
       font-size: var(--text-md);
     }
-    .board-footer .board-unassigned--empty {
-      margin-left: 0;
-    }
 
     .board--week .board-stay-nights {
       display: none;
@@ -1160,9 +1149,6 @@
     line-height: 16px;
     white-space: nowrap;
     color: inherit;
-  }
-  .board-stay-channel {
-    font-weight: var(--weight-semibold, 600);
   }
   .board .board-stay-due {
     gap: var(--space-1);
@@ -1445,10 +1431,6 @@
     }
     .board-controls .board-period > .seg a {
       padding: var(--space-2) var(--space-2);
-    }
-    .board .board__date {
-      padding-top: var(--space-2);
-      padding-bottom: var(--space-2);
     }
     .board-stay-menu {
       top: 9px;
@@ -1998,7 +1980,9 @@
     .board {
       --week-unit-width: 144px;
       --month-unit-width: 144px;
-      width: var(--mobile-board-width) !important; /* slop-allow: important перебивает ширину таблицы, которую board-grid.tsx ставит инлайн для компьютера */
+      width: var(
+        --mobile-board-width
+      ) !important; /* slop-allow: important перебивает ширину таблицы, которую board-grid.tsx ставит инлайн для компьютера */
       min-width: var(--mobile-board-width);
       table-layout: fixed;
     }
@@ -2105,15 +2089,9 @@
       overflow-wrap: anywhere;
       min-width: 0;
     }
-  }
-
-  @media (max-width: 600px) {
     .free-menu__dates {
       display: none;
     }
-  }
-
-  @media (max-width: 600px) {
     .board .board-group-toggle {
       display: grid;
       grid-template-columns: 10px minmax(0, 1fr);

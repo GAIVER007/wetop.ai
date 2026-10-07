@@ -23,15 +23,6 @@
   .role-access dd[data-allowed='true'] {
     color: var(--primary);
   }
-  .team-access {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-  .team-access > summary {
-    cursor: pointer;
-    font-weight: 600;
-    padding: 8px 0;
-  }
   @media (max-width: 700px) {
     .role-access {
       grid-template-columns: 1fr;

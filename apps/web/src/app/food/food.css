@@ -233,16 +233,6 @@
   .food-detail dt {
     color: var(--text-2);
   }
-  .food-unassigned-panel {
-    padding: 16px;
-    display: grid;
-    gap: 16px;
-  }
-  .food-unassigned-panel h2,
-  .food-unassigned-panel p {
-    margin: 0;
-    font-size: 16px;
-  }
   .food-workspace > section > h2 {
     margin: 0;
     font-size: 18px;

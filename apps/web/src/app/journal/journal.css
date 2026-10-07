@@ -1,4 +1,94 @@
 @layer sections {
+  /* Перенесено из control.css (MV8.5 DS0b): раньше грузилось из layout.tsx */
+  .control-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: end;
+    margin: 0 0 var(--space-4);
+  }
+  .control-toolbar .field {
+    flex: 1 1 160px;
+    margin: 0;
+    min-width: 0;
+  }
+  .control-toolbar .field:first-child {
+    flex: 2 1 250px;
+  }
+  .control-toolbar .check {
+    align-self: center;
+  }
+  .control-journal-search {
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    background: var(--surface-solid);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-radius: var(--radius);
+  }
+  .journal-day th {
+    padding: var(--space-4) var(--space-4) var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+    background: none;
+  }
+  .dir-table--journal tbody tr:first-child .journal-day th,
+  .journal-day:first-child th {
+    padding-top: var(--space-2);
+  }
+  .journal-time {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+  .control-journal-search .field:first-child {
+    flex: 0 1 320px;
+  }
+  .control-page .control-table {
+    white-space: normal;
+  }
+  .control-table th {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+  }
+  .control-table td {
+    padding: var(--space-4);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+  .control-table td:first-child {
+    max-width: 420px;
+  }
+  .control-table .row {
+    gap: var(--space-2);
+  }
+  .control-table .btn {
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .control-toolbar {
+      gap: var(--space-2);
+    }
+    .control-toolbar .field:first-child {
+      flex-basis: 100%;
+    }
+    .control-toolbar .field {
+      flex-basis: calc(50% - var(--space-2));
+    }
+    .control-journal-search .check {
+      width: 100%;
+    }
+    .control-page .control-table tbody td {
+      padding: 0;
+    }
+    .control-page .control-table tbody tr {
+      padding: var(--space-4);
+      gap: var(--space-2) var(--space-4);
+    }
+  }
   .control-journal-search {
     display: flex;
     flex-wrap: wrap;

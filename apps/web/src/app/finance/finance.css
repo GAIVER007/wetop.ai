@@ -255,13 +255,6 @@
   #charges {
     scroll-margin-top: var(--space-16);
   }
-  .finance-ops__filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-2);
-  }
   .finance-ops .table-scroll {
     position: relative;
   }
@@ -506,9 +499,6 @@
       grid-template-columns: 1fr;
       align-items: stretch;
     }
-  } /* Телефон: вкладки раздела и кнопки полосы периода, цели нажатия не ниже 44 px (DESIGN.md).
- * Вкладки стояли 37 px, «Показать» 36 px: это основная навигация экрана, пальцем мимо. */
-  @media (max-width: 600px) {
     .finance-tabs button {
       min-height: var(--touch-target);
     }
@@ -516,7 +506,8 @@
     .finance-toolbar .field--inline .inp {
       font-size: var(--text-lg);
     }
-  } /* сверка кассы (§21.4): строка состояния под плитками и галочка поправки в панели */
+  } /* Телефон: вкладки раздела и кнопки полосы периода, цели нажатия не ниже 44 px (DESIGN.md).
+ * Вкладки стояли 37 px, «Показать» 36 px: это основная навигация экрана, пальцем мимо. */ /* сверка кассы (§21.4): строка состояния под плитками и галочка поправки в панели */
   .cash-reconciliation-status {
     display: grid;
     gap: var(--space-1);

@@ -8,6 +8,7 @@ import { Icon } from '../../../components/icon';
 import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
 import { BookingSettings, InstallWidgetButton } from '../forms';
 import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
+import '../website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -127,8 +128,7 @@ function SiteBooking({
         {/* ADR-144: языки и письмо-подтверждение сделаны; дети и SMS не решены, предоплата — срез платёжных ссылок */}
         <p className="hint" data-testid="booking-guest-limits">
           Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю,
-          предоплату.
-          Скидка тарифа и промокода не суммируется: гостю применяется большая.
+          предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.
         </p>
       </Panel>
 

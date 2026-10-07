@@ -42,6 +42,10 @@ const STYLE_ROUTES = [
   '/market',
   '/ai-agents',
   '/design-system',
+  '/journal',
+  '/units/R01',
+  '/website/booking',
+  '/website/settings',
 ];
 const PROPS = [
   'display',

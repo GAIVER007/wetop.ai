@@ -162,14 +162,10 @@
     .bar-line {
       grid-template-columns: 1fr 1fr;
     }
-  }
-  @media (max-width: 900px) {
     .bar-sale-form,
     .bar-folio-form {
       grid-template-columns: 1fr 1fr;
     }
-  }
-  @media (max-width: 900px) {
     .bar-product-form {
       grid-template-columns: 1fr 1fr;
     }

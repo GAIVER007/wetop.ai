@@ -163,12 +163,6 @@
   .attention-empty p {
     margin-bottom: 0;
     line-height: var(--leading-relaxed);
-  }
-  .eyebrow {
-    font-size: var(--text-xs);
-    letter-spacing: 0.12em;
-    font-weight: 500;
-    color: var(--muted);
   } /*
  * Разбивка «Требуют внимания» по причинам (23.09.2026). Три счётчика в ряд: число крупно, причина
  * подписью. Ноль остаётся тихим — тревожный тон только там, где есть дело; §9: смысл держится
@@ -240,14 +234,6 @@
     .attention-item + .attention-item {
       border-top: 1px solid var(--border-soft);
     }
-  }
-  .fund-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-1) var(--space-4);
-    color: var(--muted);
-    font-size: var(--text-sm);
   }
   .fund-footer .card-heading__link {
     margin-left: auto;

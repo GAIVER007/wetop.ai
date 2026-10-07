@@ -7198,3 +7198,51 @@
 | 07.10.2026 17:04 | lint | ✅ без ошибок | 31 с | ef46db3 +5 | [лог](logs/2026-10-07T12-04-26Z-lint-9f62.log) |  |
 | 07.10.2026 17:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1247 tests/ui/booking-widget-turnstile.spec.ts:244) | ❌ упало 1 из 2 | 40 с | 94a2ae3 | [лог](logs/2026-10-07T12-49-50Z-e2e-c185.log) | шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке |
 | 07.10.2026 17:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1247 tests/ui/booking-widget-turnstile.spec.ts) | ✅ 10 из 10 | 18 с | 94a2ae3 +2 | [лог](logs/2026-10-07T12-50-38Z-e2e-b520.log) |  |
+| 07.10.2026 15:31 | integration (частично: tests/integration/generation-runs-db.test.ts) | ❌ упало 9 из 9 | 8 с | be399dd +1 | [лог](logs/2026-10-07T10-31-49Z-integration-86dc.log) | MKT6 red: generation_runs нет |
+| 07.10.2026 15:34 | integration (частично: tests/integration/generation-runs-db.test.ts) | ✅ 9 из 9 | 6 с | be399dd +7 | [лог](logs/2026-10-07T10-34-05Z-integration-06b9.log) | MKT6 green: миграции 062 и 063 |
+| 07.10.2026 15:34 | integration (частично: tests/integration/marketing-site.test.ts tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/in | ✅ 78 из 78 | 29 с | be399dd +8 | [лог](logs/2026-10-07T10-34-20Z-integration-99de.log) | MKT6: регрессия MKT3-MKT5, RLS и восстановление после 062/063 |
+| 07.10.2026 15:45 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ код выхода 1 | 2 с | 4f0e531 +1 | [лог](logs/2026-10-07T10-45-20Z-unit-a1e6.log) | MKT6 red: модуля generation нет |
+| 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ✅ 15 из 15 | 2 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-06Z-unit-3867.log) | MKT6 green: правила генерации |
+| 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 2 из 15 | 3 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-17Z-unit-1922.log) | MKT6 мутация: кэш в расходе |
+| 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 15 | 2 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-21Z-unit-31f1.log) | MKT6 мутация: картинки не проверяются |
+| 07.10.2026 15:46 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 15 | 3 с | 4f0e531 +3 | [лог](logs/2026-10-07T10-46-24Z-unit-6f90.log) | MKT6 мутация: телефон не сверяется |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 2 из 3 | 10 с | 086ce66 +12 | [лог](logs/2026-10-07T10-59-07Z-unit-4bb5.log) | MKT6 red: маршрутов генерации нет в таблице прав |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 10 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-19Z-unit-a758.log) | MKT6 green: таблица прав |
+| 07.10.2026 15:59 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 9 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-43Z-unit-438c.log) | MKT6 green: таблица прав |
+| 07.10.2026 15:59 | typecheck | ❌ ошибок: 3 | 1 мин 29 с | 086ce66 +13 | [лог](logs/2026-10-07T10-59-57Z-typecheck-6ccb.log) | MKT6: API и воркер |
+| 07.10.2026 16:05 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 16 из 16 | 13 с | 0745160 +9 | [лог](logs/2026-10-07T11-05-50Z-integration-e9bc.log) | MKT6: API и воркер генерации |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ✅ 16 из 16 | 14 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-12Z-integration-9f79.log) | MKT6: API и воркер генерации |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 13 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-39Z-integration-3b41.log) | MKT6 мутация: бюджет не проверяется перед вызовом |
+| 07.10.2026 16:06 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 12 с | 0745160 +9 | [лог](logs/2026-10-07T11-06-53Z-integration-c057.log) | MKT6 мутация: хэш брифа не перепроверяется |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 10 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-05Z-integration-a570.log) | MKT6 мутация: организация не сериализуется |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-16Z-integration-6576.log) | MKT6 мутация: восстановление не смотрит на отправку |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 2 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-29Z-integration-5bd9.log) | MKT6 мутация: неизвестный расход дня не блокирует |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 1 из 16 | 12 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-41Z-integration-c902.log) | MKT6 мутация: успех без проверки базы |
+| 07.10.2026 16:07 | integration (частично: tests/integration/site-generation.test.ts) | ❌ упало 2 из 16 | 11 с | 0745160 +9 | [лог](logs/2026-10-07T11-07-54Z-integration-3287.log) | MKT6 мутация: постановка без сверки брифа |
+| 07.10.2026 16:08 | typecheck | ✅ без ошибок | 1 мин 3 с | 0745160 +9 | [лог](logs/2026-10-07T11-08-12Z-typecheck-60fc.log) | MKT6: после API и воркера |
+| 07.10.2026 16:09 | lint | ❌ ошибок: 2 | 52 с | 0745160 +9 | [лог](logs/2026-10-07T11-09-16Z-lint-92ed.log) | MKT6 |
+| 07.10.2026 16:10 | lint | ✅ без ошибок | 51 с | 0745160 +10 | [лог](logs/2026-10-07T11-10-18Z-lint-3724.log) | MKT6 |
+| 07.10.2026 16:11 | unit | ✅ 3785 из 3788, пропущено 3 | 2 мин 24 с | f5261ba | [лог](logs/2026-10-07T11-11-26Z-unit-363c.log) | MKT6: полный unit |
+| 07.10.2026 16:13 | integration | ✅ 869 из 869 | 3 мин 16 с | f5261ba | [лог](logs/2026-10-07T11-13-55Z-integration-3819.log) | MKT6: полный integration |
+| 07.10.2026 16:19 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ❌ упало 1 из 25 | 13 с | f5261ba +2 | [лог](logs/2026-10-07T11-19-38Z-integration-59d0.log) | MKT6: итоговая вершина после правок комментариев |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 13 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-13Z-integration-8c6b.log) | MKT6: захват по одной строке, прогон 1 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 12 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-27Z-integration-2d07.log) | MKT6: захват по одной строке, прогон 2 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts) | ✅ 25 из 25 | 12 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-40Z-integration-ce38.log) | MKT6: захват по одной строке, прогон 3 |
+| 07.10.2026 16:20 | integration (частично: tests/integration/site-generation.test.ts -t очередь --repeat=10) | ❌ код выхода 1 | 1 с | f5261ba +2 | [лог](logs/2026-10-07T11-20-59Z-integration-f794.log) | MKT6: захват под гонкой, 11 повторов |
+| 07.10.2026 16:21 | typecheck | ✅ без ошибок | 56 с | f5261ba +5 | [лог](logs/2026-10-07T11-21-58Z-typecheck-ab92.log) | MKT6: итог |
+| 07.10.2026 16:22 | lint | ✅ без ошибок | 52 с | f5261ba +5 | [лог](logs/2026-10-07T11-22-55Z-lint-ecf0.log) | MKT6: итог |
+| 07.10.2026 16:23 | integration | ✅ 869 из 869 | 3 мин 16 с | f5261ba +2 | [лог](logs/2026-10-07T11-23-48Z-integration-6781.log) | MKT6: полный integration на итоговом коде |
+| 07.10.2026 16:38 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 3 из 18 | 4 с | 8b2e27c +4 | [лог](logs/2026-10-07T11-38-05Z-unit-c3f1.log) | MKT6 доводка red: адрес, имя, структурные данные |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ✅ 18 из 18 | 3 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-33Z-unit-8a06.log) | MKT6 доводка green: адрес, имя, структурные данные |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 18 | 3 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-42Z-unit-1c6a.log) | MKT6 мутация: includeGeo не проверяется |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 18 | 2 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-46Z-unit-7061.log) | MKT6 мутация: имя не проверяется |
+| 07.10.2026 16:46 | typecheck | ✅ без ошибок | 1 мин 26 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-46-24Z-typecheck-71d5.log) | MKT6 доводка |
+| 07.10.2026 16:47 | lint | ✅ без ошибок | 54 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-47-51Z-lint-77fa.log) | MKT6 доводка |
+| 07.10.2026 16:48 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 27 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-48-49Z-unit-4062.log) | MKT6 доводка, полный |
+| 07.10.2026 16:51 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts tests/integration/marketing-site.test.ts tests/int | ✅ 88 из 88 | 19 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-21Z-integration-4489.log) | MKT6 доводка, целевой |
+| 07.10.2026 16:51 | integration | ✅ 869 из 869 | 3 мин 27 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-45Z-integration-840c.log) | MKT6 доводка, полный |
+| 07.10.2026 17:04 | typecheck | ✅ без ошибок | 1 мин 1 с | fe3b723 | [лог](logs/2026-10-07T12-04-57Z-typecheck-480a.log) | MKT6 доводка, вершина после main e0089a23 |
+| 07.10.2026 17:06 | lint | ✅ без ошибок | 54 с | fe3b723 | [лог](logs/2026-10-07T12-06-00Z-lint-80dd.log) | MKT6 доводка, вершина после main e0089a23 |
+| 07.10.2026 17:06 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 26 с | fe3b723 | [лог](logs/2026-10-07T12-06-54Z-unit-9647.log) | MKT6 доводка, вершина после main e0089a23 |
+| 07.10.2026 17:09 | typecheck | ✅ без ошибок | 56 с | d4e95a1 | [лог](logs/2026-10-07T12-09-54Z-typecheck-46db.log) | MKT6 доводка, вершина после main 94a2ae33 |
+| 07.10.2026 17:10 | lint | ✅ без ошибок | 55 с | d4e95a1 | [лог](logs/2026-10-07T12-10-52Z-lint-abea.log) | MKT6 доводка, вершина после main 94a2ae33 |

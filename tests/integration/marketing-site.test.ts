@@ -548,12 +548,12 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
         });
       });
 
-      it('до MKT6 источник только MANUAL: AI и IMPORT отклонены', async () => {
+      it('источник: AI без задачи генерации (MKT6) и IMPORT отклонены, MANUAL проходит', async () => {
         await probe(async (attempt) => {
           const site = await freshSite();
           for (const source of ['AI', 'IMPORT'])
             await expect(attempt(insertVersion(site, SPEC, 'site-spec/0', source), []))
-              .rejects.toThrow(/marketing_site_versions_source_manual/);
+              .rejects.toThrow(/marketing_site_versions_source_provenance/);
           await attempt(insertVersion(site, SPEC, 'site-spec/0', 'MANUAL'), []);
         });
       });

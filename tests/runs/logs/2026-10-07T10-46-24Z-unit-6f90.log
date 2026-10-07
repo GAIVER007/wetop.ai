@@ -1,0 +1,51 @@
+# Модульные (unit) · 07.10.2026 15:46 Алматы · vm
+# коммит 4f0e531 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-46-24Z-unit-6f90.json' 'packages/domain/src/marketing/generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/generation.test.ts (15 tests | 1 failed) 52ms
+   ✓ бюджет генерации сайтов (Q-274) (4)
+     ✓ умолчание 150 000; число из окружения; ноль, минус и мусор выключают, а не снимают предел 4ms
+     ✓ расход это вход плюс выход; кэш уже внутри входа и второй раз не считается 0ms
+     ✓ сумма по всем платным вызовам: неудачная первая ступень и удачная запасная складываются 1ms
+     ✓ сутки бюджета строго UTC 1ms
+   ✓ повторы (2)
+     ✓ MODEL_UNAVAILABLE, TIMEOUT и SCHEMA_INVALID повторяются до трёх попыток через 30, 60 и 120 с 1ms
+     ✓ бюджет, неизвестный расход, смена брифа и базы, отказ модели конечны сразу 0ms
+   ✓ языки сайта из брифа (1)
+     ✓ подсказки продавца без повторов в его порядке; без них русский 1ms
+   ❯ проверка ответа модели платформой (7)
+     ✓ годный документ проходит тот же валидатор SiteSpec и дополнительные правила 5ms
+     ✓ проза, не объект и неверная схема отклонены 3ms
+     ✓ языки ровно как задано, язык по умолчанию первый 2ms
+     ✓ категории только из брифа: в карточках и в ценах 2ms
+     ✓ до MKT8 ни одной картинки: ассет, логотип, галерея и картинка героя отклонены 6ms
+     × контакты, юридические данные и ссылки не выдумываются 10ms
+     ✓ больше 256 КБ отклонено 13ms
+   ✓ ошибки проверки для повтора: только путь и код (1)
+     ✓ кодирует в 500 знаков, вырезает чужой текст из пути, читает обратно 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/generation.test.ts > проверка ответа модели платформой > контакты, юридические данные и ссылки не выдумываются
+AssertionError: expected [] to include 'invented_contact'
+ ❯ packages/domain/src/marketing/generation.test.ts:214:62
+    212|     const phone = goodSpec();
+    213|     phone.site.contacts.phone = '<телефон>';
+    214|     expect(codes(checkGeneratedSpec(phone, INPUT, LOCALES))).toContain…
+       |                                                              ^
+    215|     const email = goodSpec();
+    216|     email.site.contacts.email = '<email>';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  10:46:26
+   Duration  813ms (transform 83%, tests 9%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-46-24Z-unit-6f90.json
+
+# код выхода 1 · 3 с

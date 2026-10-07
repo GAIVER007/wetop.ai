@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from src import dashboard_router
+from src import dashboard_router, site_generation_router
 from src.channels import telegram as telegram_channel
 from src.channels import whatsapp as whatsapp_channel
 from src.channels import widget as widget_channel
@@ -191,6 +191,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Песочница живёт в корне (/internal/sandbox) и от пути панели не зависит:
     # её адрес прописан в сборочном плане, менять его нельзя.
     app.include_router(dashboard_router.router)
+    # Генерация сайта (MKT6): тоже в корне, по служебному ключу платформы
+    app.include_router(site_generation_router.router)
     # Виджет на сайте: префикс /widget уже под IpBlockMiddleware.
     app.include_router(widget_channel.router)
     # WhatsApp Cloud API: вебхук под организацией (С3); подпись проверяет дверь

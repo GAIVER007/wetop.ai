@@ -1,0 +1,54 @@
+# Модульные (unit) · 07.10.2026 16:39 Алматы · vm
+# коммит 8b2e27c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-39-46Z-unit-7061.json' 'packages/domain/src/marketing/generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/generation.test.ts (18 tests | 1 failed) 125ms
+   ✓ бюджет генерации сайтов (Q-274) (4)
+     ✓ умолчание 150 000; число из окружения; ноль, минус и мусор выключают, а не снимают предел 3ms
+     ✓ расход это вход плюс выход; кэш уже внутри входа и второй раз не считается 0ms
+     ✓ сумма по всем платным вызовам: неудачная первая ступень и удачная запасная складываются 1ms
+     ✓ сутки бюджета строго UTC 1ms
+   ✓ повторы (2)
+     ✓ MODEL_UNAVAILABLE, TIMEOUT и SCHEMA_INVALID повторяются до трёх попыток через 30, 60 и 120 с 0ms
+     ✓ бюджет, неизвестный расход, смена брифа и базы, отказ модели конечны сразу 0ms
+   ✓ языки сайта из брифа (1)
+     ✓ подсказки продавца без повторов в его порядке; без них русский 0ms
+   ❯ проверка ответа модели платформой (10)
+     ✓ годный документ проходит тот же валидатор SiteSpec и дополнительные правила 6ms
+     ✓ проза, не объект и неверная схема отклонены 3ms
+     ✓ языки ровно как задано, язык по умолчанию первый 7ms
+     ✓ категории только из брифа: в карточках и в ценах 7ms
+     ✓ до MKT8 ни одной картинки: ассет, логотип, галерея и картинка героя отклонены 13ms
+     ✓ контакты, юридические данные и ссылки не выдумываются 6ms
+     ✓ адрес только как в брифе: другой адрес отклонён, тот же с другими пробелами и регистром проходит 2ms
+     × имя гостиницы только из брифа: переименование отклонено, тот же текст другим регистром проходит 16ms
+     ✓ структурные данные не обещают фактов, которых нет в брифе: geo никогда, адрес только при адресе брифа 2ms
+     ✓ больше 256 КБ отклонено 51ms
+   ✓ ошибки проверки для повтора: только путь и код (1)
+     ✓ кодирует в 500 знаков, вырезает чужой текст из пути, читает обратно 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/generation.test.ts > проверка ответа модели платформой > имя гостиницы только из брифа: переименование отклонено, тот же текст другим регистром проходит
+AssertionError: expected [] to include 'invented_identity'
+ ❯ packages/domain/src/marketing/generation.test.ts:264:22
+    262|     renamed.site.displayName = t('Royal Dubai Luxury Hotel');
+    263|     const r = checkGeneratedSpec(renamed, brief, LOCALES);
+    264|     expect(codes(r)).toContain('invented_identity');
+       |                      ^
+    265|     expect(r.ok ? [] : r.errors.map((e) => e.path)).toContain('site.di…
+    266|     const same = goodSpec();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  11:39:47
+   Duration  842ms (transform 72%, tests 20%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-39-46Z-unit-7061.json
+
+# код выхода 1 · 2 с

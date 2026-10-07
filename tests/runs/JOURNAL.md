@@ -7059,3 +7059,9 @@
 | 07.10.2026 11:46 | e2e (частично: --config tests/beauty-ui/playwright.config.ts) | ✅ 10 из 10 | 2 мин 22 с | 658b651 | [лог](logs/2026-10-07T06-46-07Z-e2e-674c.log) |  |
 | 07.10.2026 11:48 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ✅ 13 из 13 | 3 мин 13 с | 658b651 | [лог](logs/2026-10-07T06-48-29Z-e2e-c03f.log) |  |
 | 07.10.2026 11:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ✅ 7 из 7 | 1 мин 7 с | 658b651 | [лог](logs/2026-10-07T06-51-51Z-e2e-3d31.log) |  |
+| 07.10.2026 13:10 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-scale.test.ts tests/unit/ci-runner.test.ts scripts/design/dead-css.test.ts) | ❌ упало 22 из 42 | 5 с | 012c06d +6 | [лог](logs/2026-10-07T08-10-41Z-unit-d84a.log) | DS0a RED: новые сторожа, шкала, ui-vertical, опись CSS до реализации |
+| 07.10.2026 13:13 | unit (частично: tests/unit/design-slop.test.ts) | ❌ упало 6 из 17 | 4 с | 012c06d +8 | [лог](logs/2026-10-07T08-13-45Z-unit-6f91.log) | DS0a RED храповика: новые правила есть, снимок их ещё не знает |
+| 07.10.2026 13:14 | unit (частично: tests/unit/design-slop.test.ts) | ❌ упало 2 из 17 | 3 с | 012c06d +10 | [лог](logs/2026-10-07T08-14-04Z-unit-1081.log) | DS0a RED orphan-module: today-widgets.tsx возвращён временно, сторож его ловит |
+| 07.10.2026 13:14 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-scale.test.ts tests/unit/ci-runner.test.ts scripts/design/dead-css.test.ts tests/unit/design- | ✅ 60 из 60 | 3 с | 012c06d +9 | [лог](logs/2026-10-07T08-14-12Z-unit-950a.log) | DS0a GREEN: сторожа, шкала, ui-vertical, опись CSS, храповик со снимком |
+| 07.10.2026 13:14 | typecheck | ✅ без ошибок | 1 мин 25 с | 012c06d +9 | [лог](logs/2026-10-07T08-14-43Z-typecheck-8175.log) | DS0a |
+| 07.10.2026 13:16 | lint | ✅ без ошибок | 55 с | 012c06d +9 | [лог](logs/2026-10-07T08-16-10Z-lint-b1b4.log) | DS0a |

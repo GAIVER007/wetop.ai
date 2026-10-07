@@ -24,6 +24,7 @@ import json
 import logging
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -47,6 +48,25 @@ _TOOL_CALLS = "tool_calls"
 
 NOT_CONFIGURED = "llm_not_configured"
 ALL_FAILED = "all_models_failed"
+# Генерация сайта (MKT6): перед вызовом остаток бюджета кончился; расход вызова неизвестен.
+BUDGET = "budget"
+BUDGET_STOP = "budget_exhausted"
+USAGE_UNKNOWN = "usage_unknown"
+
+
+@dataclass(frozen=True)
+class CallUsage:
+    """Расход ОДНОГО фактического вызова поставщика (MKT6, Q-274).
+
+    complete — поставщик сообщил и вход, и выход. False — вызов ушёл, а
+    расход неизвестен: таймаут ответа, обрыв связи, ответ без usage.
+    Ответ поставщика с кодом ошибки вызовом не считается: генерации не было.
+    """
+
+    input: int | None
+    cached: int | None
+    output: int | None
+    complete: bool
 
 
 @dataclass
@@ -286,8 +306,20 @@ class CascadeClient:
         use_tools: bool = True,
         max_tool_rounds: int = 3,
         api_key: str | None = None,
+        before_call: Callable[[], bool] | None = None,
+        on_call: Callable[[CallUsage], None] | None = None,
+        max_tokens: int | None = None,
+        timeout: float | None = None,
+        mask: bool = True,
     ) -> LlmResult:
         """Один вызов слоя модели. Никогда не поднимает исключение.
+
+        Генерация сайта (MKT6) передаёт `before_call` (False: остаток бюджета
+        кончился, вызов не делается и каскад останавливается), `on_call` (расход
+        каждого фактического вызова) и свои `max_tokens`, `timeout`, `mask=False`
+        (в брифе нет данных гостей, а контакты гостиницы нужны в документе).
+        Неполный расход вызова останавливает каскад: следующую ступень не зовём,
+        пока неизвестно, сколько потрачено. Без этих аргументов поведение прежнее.
 
         `api_key` — ключ модели партнёра на этот ход (С2, Q-186): с ним каскад
         ходит к тому же роутеру, но расход ложится на партнёра. None — ключ
@@ -298,7 +330,7 @@ class CascadeClient:
             allowlist_phones=self._settings.pii_allowlist_phones_list,
             allowlist_emails=self._settings.pii_allowlist_emails_list,
         )
-        masked = masker.mask(messages)
+        masked = masker.mask(messages) if mask else list(messages)
         # Тот же маскировщик дописывает метки из результатов инструментов.
         mapping = masker.mapping
         no_key = api_key is None and not self._settings.llm_api_key
@@ -308,6 +340,15 @@ class CascadeClient:
 
         attempts: list[AttemptLog] = []
         spent: int | None = None
+        unknown = False
+
+        def report(call: CallUsage) -> None:
+            nonlocal unknown
+            unknown = unknown or not call.complete
+            if on_call is not None:
+                on_call(call)
+
+        hooks = before_call is not None or on_call is not None
         try:
             for model in self.models:
                 started = time.perf_counter()
@@ -318,9 +359,16 @@ class CascadeClient:
                     use_tools=use_tools,
                     max_tool_rounds=max_tool_rounds,
                     api_key=api_key,
+                    before_call=before_call,
+                    report=report if hooks else None,
+                    max_tokens=max_tokens,
+                    timeout=timeout,
                 )
                 seconds = round(time.perf_counter() - started, 3)
                 spent = _add(spent, usage.total)
+                if outcome == BUDGET:
+                    attempts.append(AttemptLog(model, BUDGET, seconds, note=text))
+                    return LlmResult(ok=False, attempts=attempts, mapping=mapping, tokens_used=spent, error=BUDGET_STOP)
                 if outcome == OK:
                     attempts.append(AttemptLog(model, OK, seconds))
                     return LlmResult(
@@ -339,6 +387,9 @@ class CascadeClient:
                     )
                 # При отказе слот text несёт короткую заметку, не текст ответа.
                 attempts.append(AttemptLog(model, outcome, seconds, note=text))
+                if unknown:
+                    logger.error("модель %s: %s, расход неизвестен, каскад остановлен", model, outcome)
+                    return LlmResult(ok=False, attempts=attempts, mapping=mapping, tokens_used=spent, error=USAGE_UNKNOWN)
                 logger.warning("модель %s: %s, переключение на следующую ступень", model, outcome)
         except Exception:
             # Последний рубеж: сбой диспетчера или разбора не должен вылететь в движок.
@@ -355,6 +406,10 @@ class CascadeClient:
         use_tools: bool,
         max_tool_rounds: int,
         api_key: str | None = None,
+        before_call: Callable[[], bool] | None = None,
+        report: Callable[[CallUsage], None] | None = None,
+        max_tokens: int | None = None,
+        timeout: float | None = None,
     ) -> tuple[str, str, Usage]:
         """Одна ступень -> (исход, текст, расход по всем её раундам).
 
@@ -372,26 +427,43 @@ class CascadeClient:
         if settings.llm_prompt_cache_mark and vendor_of(model) in _CACHE_MARK_VENDORS:
             convo = _with_cache_mark(convo)
         tokens = Usage()
+        # Вызов ушёл, а расход ещё не записан: исключение в это время — неизвестный расход (MKT6)
+        in_flight = False
 
         try:
             for round_no in range(max_tool_rounds + 1):
+                if before_call is not None and not before_call():
+                    return BUDGET, "остаток бюджета исчерпан", tokens
+                in_flight = report is not None
                 try:
                     response = await client.chat.completions.create(
                         model=model,
                         messages=convo,
                         temperature=settings.llm_temperature,
-                        max_tokens=settings.llm_max_tokens,
-                        timeout=settings.llm_timeout_seconds,
+                        max_tokens=max_tokens or settings.llm_max_tokens,
+                        timeout=timeout or settings.llm_timeout_seconds,
                         **({"tools": tools} if tools else {}),
                     )
                 except openai.APITimeoutError:
+                    if report is not None:
+                        in_flight = False
+                        report(CallUsage(None, None, None, complete=False))
                     return TIMEOUT, "таймаут попытки", tokens
                 except openai.APIConnectionError:
+                    if report is not None:
+                        in_flight = False
+                        report(CallUsage(None, None, None, complete=False))
                     return CONNECTION, "нет соединения", tokens
                 except openai.APIStatusError as exc:
+                    # Поставщик ответил отказом: генерации не было, вызов не оплачен
+                    in_flight = False
                     return HTTP_ERROR, f"HTTP {exc.status_code}", tokens
 
-                tokens.add(_usage_of(response))
+                call = _usage_of(response)
+                tokens.add(call)
+                if report is not None:
+                    in_flight = False
+                    report(CallUsage(call.input, call.cached, call.output, complete=call.input is not None and call.output is not None))
 
                 outcome, message, note = _inspect(response)
                 if outcome == OK:
@@ -407,6 +479,8 @@ class CascadeClient:
                 convo.extend(masker.mask(await self._tools.dispatch(message.tool_calls)))
         except Exception as exc:  # APIResponseValidationError, сбой разбора и всё прочее
             logger.exception("модель %s: ответ не разобран", model)
+            if in_flight and report is not None:
+                report(CallUsage(None, None, None, complete=False))
             return INVALID, f"исключение {type(exc).__name__}", tokens
 
         return TOOL_ERROR, f"раундов инструментов больше {max_tool_rounds}", tokens

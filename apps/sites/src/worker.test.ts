@@ -180,3 +180,76 @@ describe('отказы без имени сайта', () => {
     expect(calls).toEqual([]);
   });
 });
+
+describe('MKT7: основной хост и превью', () => {
+  const PREVIEW_ENV = { ...ENV, SITES_BASE_DOMAIN: 'sites.test' };
+  function previewRuntime(reply: { status: number; body?: unknown }) {
+    const calls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+      calls.push(`${url.pathname}?${url.searchParams.toString()}`);
+      if (url.pathname === '/sites-runtime/preview')
+        return new Response(reply.body === undefined ? '' : JSON.stringify(reply.body), { status: reply.status });
+      return new Response('', { status: 404 });
+    }) as typeof fetch;
+    const rt = createRuntime(PREVIEW_ENV, { fetchImpl, log: () => undefined });
+    return { get: (url: string) => rt.fetch(new Request(url)), calls };
+  }
+  const previewBody = () => ({
+    ...current({ publicKey: null, bookingEnabled: false }),
+    state: 'PREVIEW',
+    expiresAt: '2026-10-07T12:00:00.000Z',
+  });
+
+  it('не основной хост: 301 на основной с тем же путём и запросом', async () => {
+    const { get } = runtime({ 'old.sites.test': ok({ primaryHost: 'luxx.sites.test' }) });
+    const res = await get('https://old.sites.test/privacy?utm_source=x');
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://luxx.sites.test/privacy?utm_source=x');
+    const { get: same } = runtime({ 'luxx.sites.test': ok({ primaryHost: 'luxx.sites.test' }) });
+    expect((await same('https://LUXX.sites.test/')).status).toBe(200);
+  });
+
+  it('превью: только версия из токена, без скриптов WETOP, noindex, private no-store, без referrer', async () => {
+    const { get, calls } = previewRuntime({ status: 200, body: previewBody() });
+    const res = await get('https://preview.sites.test/?token=abc.def');
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(['/sites-runtime/preview?token=abc.def']);
+    const html = await res.text();
+    expect(html).not.toMatch(/<script async|<script defer/);
+    expect(html).not.toContain('pms_');
+    expect(html).not.toContain('rel="canonical"');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(res.headers.get('content-security-policy')).toContain("script-src 'none'");
+  });
+
+  it('превью: robots.txt запрещает всё, карты сайта нет, без токена API не спрашивается', async () => {
+    const { get, calls } = previewRuntime({ status: 200, body: previewBody() });
+    const robots = await get('https://preview.sites.test/robots.txt');
+    expect(robots.status).toBe(200);
+    expect(await robots.text()).toContain('Disallow: /');
+    expect((await get('https://preview.sites.test/sitemap.xml?token=abc.def')).status).toBe(404);
+    const none = await get('https://preview.sites.test/');
+    expect(none.status).toBe(404);
+    expect(none.headers.get('cache-control')).toBe('private, no-store');
+    expect(calls).toEqual([]);
+  });
+
+  it('превью: истёкшая ссылка 410, испорченная 404, нейтрально и без имени сайта', async () => {
+    const expired = await previewRuntime({ status: 410, body: { code: 'preview_expired' } }).get('https://preview.sites.test/?token=a.b');
+    expect(expired.status).toBe(410);
+    expect(expired.headers.get('cache-control')).toBe('private, no-store');
+    const bad = await previewRuntime({ status: 404 }).get('https://preview.sites.test/?token=a.b');
+    expect(bad.status).toBe(404);
+    expect(await bad.text()).not.toContain('Степной');
+  });
+
+  it('хост не имя (IP, одна часть): 404 без запроса к API', async () => {
+    const { get, calls } = runtime({});
+    expect((await get('http://127.0.0.1/')).status).toBe(404);
+    expect((await get('http://localhost/')).status).toBe(404);
+    expect(calls).toEqual([]);
+  });
+});

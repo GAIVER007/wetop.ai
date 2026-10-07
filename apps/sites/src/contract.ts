@@ -1,4 +1,4 @@
-import type { Env, RuntimeCurrent, SiteSpec } from './types';
+import type { Env, RuntimeCurrent, RuntimePreview, SiteSpec } from './types';
 
 /**
  * Клиент контракта `GET /sites-runtime/current` (план MKT4 §10). Память изолята:
@@ -122,6 +122,51 @@ export class ContractClient {
       return { kind: 'unavailable', reason: 'shape' };
     return { kind: 'ok', current };
   }
+}
+
+export type PreviewResult =
+  | { kind: 'ok'; preview: RuntimePreview & { spec: SiteSpec }; spec: SiteSpec }
+  | { kind: 'not_found' }
+  | { kind: 'expired' }
+  | { kind: 'invalid' }
+  | { kind: 'unavailable' };
+
+/**
+ * Превью (MKT7): одна версия по токену, без кэша вовсе (ответ личный и короткоживущий) и без старой копии при сбое API:
+ * лучше «временно недоступно», чем чужая или устаревшая версия
+ */
+export async function fetchPreview(
+  env: Pick<Env, 'SITES_API_URL' | 'SITES_RUNTIME_KEY'>,
+  token: string,
+  fetchImpl: typeof fetch = (input, init) => fetch(input, init),
+): Promise<PreviewResult> {
+  let url: URL;
+  try {
+    url = new URL('/sites-runtime/preview', env.SITES_API_URL);
+  } catch {
+    return { kind: 'unavailable' };
+  }
+  url.searchParams.set('token', token);
+  let res: Response;
+  try {
+    res = await fetchImpl(url.toString(), {
+      headers: { 'x-wetop-service-key': env.SITES_RUNTIME_KEY, accept: 'application/json' },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch {
+    return { kind: 'unavailable' };
+  }
+  if (res.status === 404) return { kind: 'not_found' };
+  if (res.status === 410) return { kind: 'expired' };
+  if (res.status === 503) {
+    const body = (await res.json().catch(() => null)) as { code?: string } | null;
+    return body?.code === 'spec_invalid' ? { kind: 'invalid' } : { kind: 'unavailable' };
+  }
+  if (res.status !== 200) return { kind: 'unavailable' };
+  const preview = (await res.json().catch(() => null)) as RuntimePreview | null;
+  if (!preview || preview.state !== 'PREVIEW' || !preview.spec || preview.spec.schemaVersion !== 'site-spec/0')
+    return { kind: 'unavailable' };
+  return { kind: 'ok', preview: preview as RuntimePreview & { spec: SiteSpec }, spec: preview.spec };
 }
 
 const specKey = (current: Pick<RuntimeCurrent, 'siteId' | 'specHash'>) => `${current.siteId}:${current.specHash}`;

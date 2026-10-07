@@ -115,3 +115,11 @@ Final CSS/token guards after mobile repairs: 44/44, 2026-10-07T16-30-12Z-unit-7e
 Mobile bottom allowance GREEN across all 12 checked routes: 2026-10-07T16-30-28Z-e2e-6cb4, canonical limits, 1/1. The previous 18 passing mobile/focus/category checks remain unchanged; final full CI must validate the combined candidate.
 
 Final runtime candidate: 131b235e (following canonical snapshot commit 55083b97). All local source changes are committed and pushed. CI result will be recorded in PR #284 to avoid changing the candidate merely to record its own run result.
+
+## Candidate 409b8d05 verification
+
+Full release-checks 37653177214: fast, bot, all three general UI shards, Beauty, Food and database jobs passed. Branches: 38 passed, 1 failed. Trace proves a hidden streamed `div#S:0` and the visible main temporarily contained the same food-today test id. The role/read-only assertion now selects the accessible main landmark before the test id. No application or access policy changed.
+
+Production Next.js build passed on runtime candidate 409b8d05: successful compile, type checks and 75 static pages generated. Only generated next-env.d.ts changed; it is restored before committing.
+
+Branches targeted GREEN after landmark scoping: 2026-10-07T17-18-11Z-e2e-9f6e, 1/1 at canonical limits against isolated local PostgreSQL 55482. Runtime remains identical to 409b8d05; only test reliability and evidence change.

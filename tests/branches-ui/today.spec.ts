@@ -381,7 +381,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       ] as const) {
         await setScope(page, scope);
         await page.goto('/today');
-        await expect(page.getByTestId(testId), JSON.stringify(control)).toBeVisible();
+        // Streamed hidden segments may temporarily duplicate the test id outside the active main.
+        await expect(
+          page.getByRole('main').getByTestId(testId),
+          JSON.stringify(control),
+        ).toBeVisible();
         await expect(page.getByTestId('today-error')).toHaveCount(0);
       }
     }

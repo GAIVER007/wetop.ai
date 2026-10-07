@@ -1,37 +1,25 @@
 'use client';
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { createContext, useActionState, useContext, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { CashBalances, CashCategory } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
-import {
-  Alert,
-  Badge,
-  Button,
-  Field,
-  Input,
-  Select,
-  Stat,
-  Table,
-  Textarea,
-} from '../../components/ui';
+import { Alert, Button, Field, Input, Select, Stat, Textarea } from '../../components/ui';
 import { METHOD_RU } from './labels';
 import { displayDate } from '../../lib/display-date';
 import {
   cashOperationAction,
   cashReconcileAction,
   cashTransferAction,
-  createCashCategoryAction,
-  toggleCashCategoryAction,
   voidCashOperationAction,
   voidPaymentAction,
   type CashActionResult,
 } from './cash-actions';
 
 const NONE: CashActionResult = { error: null, ok: 0 };
-type Drawer = 'operation' | 'income' | 'expense' | 'transfer' | 'categories' | 'reconcile' | null;
+type Drawer = 'operation' | 'income' | 'expense' | 'transfer' | 'reconcile' | null;
 
 /**
  * Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md): остатки по способам за всё время,
@@ -65,7 +53,9 @@ export function CashPanel({
     setSaved(text);
     setDrawer(null);
   };
+  const methods = cash.paymentMethods ?? CASH_METHOD_OPTIONS;
   return (
+    <CashMethodsContext.Provider value={methods}>
     <section
       className={quickOnly ? 'cash-quick' : 'finance-block cash'}
       aria-label={quickOnly ? 'Быстрые действия кассы' : 'Касса'}
@@ -119,14 +109,13 @@ export function CashPanel({
           </>
         )}
         {!quickOnly && maySettings && (
-          <Button
-            type="button"
-            tone="ghost"
-            onClick={() => open('categories')}
+          <Link
+            className="btn btn--ghost"
+            href="/hotel-settings/directories#cash-categories"
             data-testid="cash-categories-btn"
           >
-            Статьи
-          </Button>
+            Статьи кассы
+          </Link>
         )}
         <span
           className="settings-save-state settings-save-state--saved"
@@ -208,17 +197,6 @@ export function CashPanel({
           <TransferForm onCancel={() => setDrawer(null)} onSaved={onSaved} />
         </Overlay>
       )}
-      {drawer === 'categories' && (
-        <Overlay
-          open
-          drawer
-          className="settings-service-drawer"
-          title="Статьи кассы"
-          onClose={() => setDrawer(null)}
-        >
-          <Categories categories={categories} />
-        </Overlay>
-      )}
       {drawer === 'reconcile' && (
         <Overlay
           open
@@ -231,6 +209,7 @@ export function CashPanel({
         </Overlay>
       )}
     </section>
+    </CashMethodsContext.Provider>
   );
 }
 
@@ -284,7 +263,8 @@ function ReconcileForm({
 }) {
   const [state, action, pending] = useActionState(cashReconcileAction, NONE);
   useSavedEffect(state, onSaved);
-  const [method, setMethod] = useState('CASH');
+  // сверяют то, что лежит плитками: включённые по умолчанию и способы с движениями
+  const [method, setMethod] = useState(cash.balances[0]?.method ?? 'CASH');
   const expected = cash.balances.find((b) => b.method === method)?.balanceMinor ?? '0';
   return (
     <form action={action} className="settings-service-form" data-testid="cash-reconcile-form">
@@ -296,9 +276,9 @@ function ReconcileForm({
           onChange={(e) => setMethod(e.target.value)}
           data-testid="cash-reconcile-method"
         >
-          {CASH_METHOD_OPTIONS.map((m) => (
-            <option key={m} value={m}>
-              {METHOD_RU[m]}
+          {cash.balances.map((b) => (
+            <option key={b.method} value={b.method}>
+              {METHOD_RU[b.method]}
             </option>
           ))}
         </Select>
@@ -341,12 +321,15 @@ const CASH_METHOD_OPTIONS = [
   'BANK_TRANSFER_PERSON',
   'BANK_TRANSFER_LEGAL',
 ] as const;
+/** Включённые способы кассы объекта (DATA_MODEL §21.6): старый API без поля даёт все шесть */
+const CashMethodsContext = createContext<readonly string[]>(CASH_METHOD_OPTIONS);
 
 function MethodSelect({ name, label, testId }: { name: string; label: string; testId?: string }) {
+  const methods = useContext(CashMethodsContext);
   return (
     <Field label={label}>
-      <Select name={name} defaultValue="CASH" data-testid={testId}>
-        {CASH_METHOD_OPTIONS.map((m) => (
+      <Select name={name} defaultValue={methods[0] ?? 'CASH'} data-testid={testId}>
+        {methods.map((m) => (
           <option key={m} value={m}>
             {METHOD_RU[m]}
           </option>
@@ -465,71 +448,6 @@ function TransferForm({
       </p>
       <FormFooter pending={pending} onCancel={onCancel} />
     </form>
-  );
-}
-
-/** Справочник статей: добавить и выключить; удаления нет — операциям остаётся след */
-function Categories({ categories }: { categories: CashCategory[] }) {
-  const [state, action, pending] = useActionState(createCashCategoryAction, NONE);
-  return (
-    <div className="cash-categories" data-testid="cash-categories">
-      <form action={action} className="settings-service-form">
-        {state.error && <Alert boxed>{state.error}</Alert>}
-        {state.ok > 0 && !state.error && (
-          <p role="status" className="settings-save-state settings-save-state--saved">
-            ✓ Статья добавлена
-          </p>
-        )}
-        <div className="cash-category-add">
-          <Field label="Тип">
-            <Select name="kind" defaultValue="EXPENSE">
-              <option value="EXPENSE">Расход</option>
-              <option value="INCOME">Доход</option>
-            </Select>
-          </Field>
-          <Field label="Название">
-            <Input name="name" required maxLength={80} data-testid="cash-category-name" />
-          </Field>
-          <Button type="submit" disabled={pending} aria-busy={pending}>
-            Добавить
-          </Button>
-        </div>
-      </form>
-      <Table size="sm" data-testid="cash-categories-table">
-        <thead>
-          <tr>
-            <th>Статья</th>
-            <th>Тип</th>
-            <th>Статус</th>
-            <th>
-              <span className="sr-only">Действия</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((c) => (
-            <tr key={c.id}>
-              <td>{c.name}</td>
-              <td>{c.kind === 'INCOME' ? 'Доход' : 'Расход'}</td>
-              <td>
-                <Badge tone={c.active ? 'ok' : 'neutral'}>
-                  {c.active ? 'действует' : 'выключена'}
-                </Badge>
-              </td>
-              <td>
-                <form action={toggleCashCategoryAction}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <input type="hidden" name="active" value={c.active ? 'false' : 'true'} />
-                  <Button type="submit" tone="secondary">
-                    {c.active ? 'Выключить' : 'Включить'}
-                  </Button>
-                </form>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </div>
   );
 }
 

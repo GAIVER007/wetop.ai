@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
-import { serviceCatalogApi } from '../../../lib/api';
+import { financeApi, paymentMethodsApi, serviceCatalogApi } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
@@ -11,6 +11,7 @@ import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { Notice, Panel } from '../../../components/ui';
 import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
+import { CashCategoriesEditor, PaymentMethodsForm } from '../directories';
 import {
   GeneralSettingsForm,
   RegionalSettings,
@@ -28,6 +29,7 @@ const tabs = [
   { view: '', href: '/hotel-settings', label: 'Основное' },
   { view: 'stay', href: '/hotel-settings/stay', label: 'Проживание' },
   { view: 'services', href: '/hotel-settings/services', label: 'Услуги' },
+  { view: 'directories', href: '/hotel-settings/directories', label: 'Справочники' },
 ] as const;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -105,6 +107,16 @@ export default async function HotelSettingsPage({
               }
             >
               <Services editable={mayEdit} />
+            </Suspense>
+          ) : view === 'directories' ? (
+            <Suspense
+              fallback={
+                <Panel data-testid="settings-loading" role="status">
+                  Читаем справочники объекта…
+                </Panel>
+              }
+            >
+              <Directories editable={mayEdit} />
             </Suspense>
           ) : !loaded.ok ? (
             <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />
@@ -237,5 +249,42 @@ async function Services({ editable }: { editable: boolean }) {
         </Link>
       </Panel>
     </>
+  );
+}
+
+/** «Справочники» (ADR-152): способы оплаты объекта и статьи кассы; по одному запросу на каждый */
+async function Directories({ editable }: { editable: boolean }) {
+  const loaded = await settle(Promise.all([paymentMethodsApi.get(), financeApi.cashCategories()]));
+  if (!loaded.ok)
+    return <LoadError testId="directories-error" {...loadErrorProps(loaded.error)} />;
+  const [methods, categories] = loaded.value;
+  return (
+    <div className="settings-stack">
+      <Panel
+        className="settings-block"
+        aria-labelledby="settings-payment-methods"
+        data-testid="payment-methods"
+      >
+        <h2 id="settings-payment-methods">Способы оплаты</h2>
+        <p className="settings-note">
+          Какие способы стойка предлагает при приёме денег и в каком порядке.
+        </p>
+        <PaymentMethodsForm stored={methods.methods} editable={editable} />
+      </Panel>
+      <Panel
+        className="settings-block"
+        id="cash-categories"
+        aria-labelledby="settings-cash-categories"
+        data-testid="cash-categories"
+      >
+        <h2 id="settings-cash-categories">Статьи кассы</h2>
+        <p className="settings-note">
+          Статьи поступлений и расходов кассы. Удаления нет: статья выключается, прошлые операции
+          хранят её.
+        </p>
+        <CashCategoriesEditor categories={categories} editable={editable} />
+      </Panel>
+      {!editable && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+    </div>
   );
 }

@@ -104,6 +104,7 @@ for (const theme of ['light', 'dark'] as const) {
     for (const route of [
       '/hotel-settings',
       '/hotel-settings/services',
+      '/hotel-settings/directories',
       '/hotel-settings/stay',
       '/connections',
       '/website/settings',

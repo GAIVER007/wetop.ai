@@ -68,6 +68,8 @@ for (const screen of [
   '/hotel-settings',
   '/hotel-settings/stay',
   '/hotel-settings/services',
+  // «Справочники» (ADR-152): способы оплаты и статьи кассы по одному запросу
+  '/hotel-settings/directories',
   // «Сотрудники» (TEAM1): люди и приглашения — по одному запросу
   '/team',
   '/connections',

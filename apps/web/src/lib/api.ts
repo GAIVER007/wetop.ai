@@ -217,6 +217,17 @@ export type CatalogServiceInput = {
   price?: string;
   active?: boolean;
 };
+/** Способы оплаты объекта (DATA_MODEL §21.6, ADR-152): включённые и порядок; правят владелец и управляющий */
+export interface PaymentMethodSettingRow {
+  method: string;
+  enabled: boolean;
+}
+export const paymentMethodsApi = {
+  get: () => getJson<{ methods: PaymentMethodSettingRow[] }>('/hotel/payment-methods'),
+  update: (methods: PaymentMethodSettingRow[]) =>
+    sendJson<{ methods: PaymentMethodSettingRow[] }>('PUT', '/hotel/payment-methods', { methods }),
+};
+
 export const serviceCatalogApi = {
   list: () => getJson<CatalogService[]>('/hotel/services'),
   create: (input: CatalogServiceInput) =>
@@ -1509,6 +1520,8 @@ export interface ReservationFinance {
   paidMinor: string;
   refundedMinor: string;
   balanceMinor: string;
+  /** включённые способы оплаты объекта в порядке показа (DATA_MODEL §21.6); старый API поля не шлёт */
+  paymentMethods?: string[];
 }
 export interface ServiceOption {
   code: string;
@@ -1605,6 +1618,8 @@ export interface CashBalances {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
+  /** включённые способы кассы в порядке показа (DATA_MODEL §21.6); старый API поля не шлёт */
+  paymentMethods?: string[];
   categories: CashCategory[];
   /** последняя сверка по каждому способу (§21.4) */
   reconciliations: Array<{
@@ -1665,6 +1680,8 @@ export const financeApi = {
   },
   // касса (DATA_MODEL §21)
   cash: () => getJson<CashBalances>('/finance/cash'),
+  /** справочник статей без остатков: «Настройки объекта → Справочники» (ADR-152) */
+  cashCategories: () => getJson<CashCategory[]>('/finance/cash/categories'),
   createCashCategory: (body: unknown) =>
     sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
   updateCashCategory: (id: string, body: unknown) =>

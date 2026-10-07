@@ -382,6 +382,7 @@ export default async function ReservationPage({
                     <PaymentRequestsPanel
                       number={r.confirmationNumber}
                       propertyName={paymentRequests?.propertyName ?? ''}
+                      paymentMethods={finance?.paymentMethods}
                       requests={paymentRequests?.requests ?? null}
                       folios={finance.folios}
                     />

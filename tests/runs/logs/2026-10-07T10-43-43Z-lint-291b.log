@@ -1,0 +1,12 @@
+# Линтер (lint) · 07.10.2026 15:43 Алматы · vm
+# коммит 89d21bc (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 20
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/app/finance/cash.tsx
+  11:3  error  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+  17:3  error  'Table' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 30 с

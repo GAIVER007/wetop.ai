@@ -1,7 +1,18 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, hotelSettingsApi, serviceCatalogApi, type CatalogService } from '../../lib/api';
-import { parseServiceInput, type ServiceInputField } from '@pms/domain';
+import {
+  ApiError,
+  financeApi,
+  hotelSettingsApi,
+  paymentMethodsApi,
+  serviceCatalogApi,
+  type CatalogService,
+} from '../../lib/api';
+import {
+  parsePaymentMethodSettings,
+  parseServiceInput,
+  type ServiceInputField,
+} from '@pms/domain';
 import { formValues } from '../../lib/form-values';
 
 export interface SettingsActionResult {
@@ -99,4 +110,67 @@ export async function saveService(
   } catch (e) {
     return fail(e instanceof ApiError || e instanceof Error ? e.message : String(e));
   }
+}
+
+/** Итог действий «Справочников» (ADR-152): ошибка словами или сообщение об успехе */
+export interface DirectoryActionResult {
+  error: string | null;
+  message: string | null;
+}
+const fail = (e: unknown): DirectoryActionResult => ({
+  error: e instanceof ApiError || e instanceof Error ? e.message : String(e),
+  message: null,
+});
+
+/**
+ * Сохранить способы оплаты объекта (DATA_MODEL §21.6): форма шлёт весь список в порядке показа; проверка той же
+ * функцией домена, что у API, поэтому причина отказа одна. API проверяет ещё раз (право `settings`).
+ */
+export async function savePaymentMethods(
+  _prev: DirectoryActionResult | null,
+  form: FormData,
+): Promise<DirectoryActionResult> {
+  let methods: unknown;
+  try {
+    methods = JSON.parse(String(form.get('methods') ?? '[]'));
+  } catch {
+    return { error: 'Список способов не прочитан, обновите страницу', message: null };
+  }
+  const parsed = parsePaymentMethodSettings({ methods });
+  if (!parsed.ok) return { error: parsed.reason, message: null };
+  try {
+    await paymentMethodsApi.update(parsed.value);
+  } catch (e) {
+    return fail(e);
+  }
+  revalidatePath('/hotel-settings/directories');
+  return { error: null, message: 'Способы оплаты сохранены' };
+}
+
+/** Статья кассы: без `id` новая, с `id` переименование или выключение; удаления нет (§21) */
+export async function saveCashCategory(
+  _prev: DirectoryActionResult | null,
+  form: FormData,
+): Promise<DirectoryActionResult> {
+  const id = String(form.get('id') ?? '').trim();
+  const name = form.get('name');
+  const active = form.get('active');
+  try {
+    if (!id) {
+      await financeApi.createCashCategory({
+        kind: String(form.get('kind') ?? ''),
+        name: String(name ?? ''),
+      });
+    } else {
+      const patch: { name?: string; active?: boolean } = {};
+      if (typeof name === 'string') patch.name = name;
+      if (typeof active === 'string') patch.active = active === 'true';
+      await financeApi.updateCashCategory(id, patch);
+    }
+  } catch (e) {
+    return fail(e);
+  }
+  revalidatePath('/hotel-settings/directories');
+  revalidatePath('/finance');
+  return { error: null, message: id ? 'Статья сохранена' : 'Статья добавлена' };
 }

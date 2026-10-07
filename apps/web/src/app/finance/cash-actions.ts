@@ -110,30 +110,6 @@ export async function voidCashOperationAction(id: string): Promise<CashActionRes
   return done('Операция аннулирована.');
 }
 
-export async function createCashCategoryAction(
-  _prev: CashActionResult,
-  fd: FormData,
-): Promise<CashActionResult> {
-  try {
-    await financeApi.createCashCategory({ kind: s(fd, 'kind'), name: s(fd, 'name') });
-  } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
-  }
-  return done('Статья добавлена.');
-}
-
-/** Выключить или включить статью; статья не удаляется — операциям остаётся след */
-export async function toggleCashCategoryAction(fd: FormData): Promise<void> {
-  const id = String(fd.get('id') ?? '');
-  const active = String(fd.get('active') ?? '') === 'true';
-  try {
-    await financeApi.updateCashCategory(id, { active });
-  } catch {
-    // статус покажет перечитанный список; молча ломать навигацию формой нельзя
-  }
-  revalidatePath('/finance');
-}
-
 /** Аннулировать платёж гостя из ленты операций (план finance-payments-direct 07.10.2026): без возвратов и чека */
 export async function voidPaymentAction(id: string): Promise<CashActionResult> {
   try {

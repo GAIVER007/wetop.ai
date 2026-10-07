@@ -109,25 +109,27 @@ test('перевод с комиссией: остатки обоих спосо
   expect(await tenge(page, 'cash-CASH')).toBe(cashWas);
 });
 
-test('статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода', async ({
+test('статьи: кнопка «Статьи кассы» ведёт в «Настройки объекта → Справочники»; выключенная статья уходит из формы расхода', async ({
   page,
+  request,
 }) => {
   await page.goto(`${url}#cash`);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
-  await page.getByTestId('cash-categories-btn').click();
-  const panel = page.getByTestId('cash-categories');
-  await expect(panel.getByRole('row', { name: /Комиссия банка/ })).toBeVisible();
-  await panel.getByTestId('cash-category-name').fill('Реклама');
-  await panel.getByRole('button', { name: 'Добавить' }).click();
-  const added = panel.getByRole('row', { name: /Реклама/ });
-  await expect(added).toBeVisible();
-  await added.getByRole('button', { name: 'Выключить' }).click();
-  await expect(added.getByText('выключена')).toBeVisible();
-  await page.keyboard.press('Escape');
+  // редактор статей один, в настройках объекта (ADR-152); в кассе только ссылка
+  await expect(page.getByTestId('cash-categories-btn')).toHaveAttribute(
+    'href',
+    '/hotel-settings/directories#cash-categories',
+  );
+  await request.patch(`${fixture}/finance/cash/categories/ui-cashcat-salary`, {
+    headers: { 'x-wetop-test-client': '1' },
+    data: { active: false },
+  });
+  await page.reload();
+  await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   await page.getByTestId('cash-expense-btn').click();
   const options = page.getByTestId('cash-category').locator('option');
-  await expect(options.filter({ hasText: 'Зарплата' })).toHaveCount(1);
-  await expect(options.filter({ hasText: 'Реклама' })).toHaveCount(0);
+  await expect(options.filter({ hasText: 'Бытовые расходы' })).toHaveCount(1);
+  await expect(options.filter({ hasText: 'Зарплата' })).toHaveCount(0);
 });
 
 test('«только чтение»: кнопок кассы нет, остатки видны', async ({ page, request }) => {

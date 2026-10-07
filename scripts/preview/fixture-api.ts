@@ -76,6 +76,10 @@ import {
   parseCompetitorInput,
   parseOccupancyPercent,
   type MarketReading,
+  assertPaymentMethodEnabled,
+  enabledPaymentMethods,
+  parsePaymentMethodSettings,
+  resolvePaymentMethodSettings,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -1347,6 +1351,19 @@ const cashCategorySeed = [
   { id: 'ui-cashcat-household', kind: 'EXPENSE' as const, name: 'Бытовые расходы', active: true },
 ];
 let cashCategories = structuredClone(cashCategorySeed);
+// способы оплаты объекта (DATA_MODEL §21.6): строки настройки; пусто — умолчания домена
+let paymentMethodRows: Array<{ method: string; enabled: boolean; sortOrder: number }> = [];
+const enabledMethods = (): string[] =>
+  enabledPaymentMethods(resolvePaymentMethodSettings(paymentMethodRows));
+/** отказ выключенного способа словами, как у API (400); null — способ принимается */
+const disabledMethodRefusal = (method: string): string | null => {
+  try {
+    assertPaymentMethodEnabled(method, enabledMethods());
+    return null;
+  } catch (e) {
+    return e instanceof FinanceRuleError ? e.message : String(e);
+  }
+};
 let cashOps: Array<{
   id: string;
   kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
@@ -1935,6 +1952,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
     paidMinor: sum('paidMinor'),
     refundedMinor: sum('refundedMinor'),
     balanceMinor: sum('balanceMinor'),
+    paymentMethods: enabledMethods(),
   };
 }
 
@@ -3777,8 +3795,13 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/finance/cash') {
     const by = fixtureCashBalances();
-    const order = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
-    const defaults = new Set(order.slice(0, 4));
+    const cashOrder = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
+    // способы объекта (DATA_MODEL §21.6): плитки по Q-246, порядок по настройке, выключенный без движений без плитки
+    const cashEnabled = enabledMethods().filter((m) => cashOrder.includes(m));
+    const defaults = new Set(
+      cashEnabled.filter((m) => ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL'].includes(m)),
+    );
+    const order = [...cashEnabled, ...cashOrder.filter((m) => !cashEnabled.includes(m))];
     const balances = order
       .filter((m) => defaults.has(m) || by.has(m))
       .map((m) => ({ method: m, balanceMinor: (by.get(m) ?? 0n).toString() }));
@@ -3786,6 +3809,7 @@ function read(path: string, q: URLSearchParams): unknown {
       currency: 'KZT',
       totalMinor: balances.reduce((a, b) => a + BigInt(b.balanceMinor), 0n).toString(),
       balances,
+      paymentMethods: cashEnabled,
       // статьи и сверки — тем же ответом, как у API (бюджет запросов)
       categories: [...cashCategories].sort(
         (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
@@ -4693,6 +4717,7 @@ createServer(async (req, res) => {
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
+      paymentMethodRows = [];
       cashOps = [];
       cashRecs = [];
       piiStorage = 'real';
@@ -5280,6 +5305,20 @@ createServer(async (req, res) => {
           vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
         },
       });
+    }
+    // способы оплаты объекта и справочник статей (ADR-152): право settings, как у API
+    if (path === '/hotel/payment-methods' && req.method === 'GET') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      return send(200, { methods: resolvePaymentMethodSettings(paymentMethodRows) });
+    }
+    if (path === '/finance/cash/categories' && req.method === 'GET') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      return send(
+        200,
+        [...cashCategories].sort(
+          (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
+        ),
+      );
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
       const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
@@ -6711,6 +6750,13 @@ createServer(async (req, res) => {
       if (v.active !== undefined) row.active = v.active;
       return send(200, row);
     }
+    if (path === '/hotel/payment-methods' && req.method === 'PUT') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      const parsed = parsePaymentMethodSettings(body);
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      paymentMethodRows = parsed.value.map((m, sortOrder) => ({ ...m, sortOrder }));
+      return send(200, { methods: parsed.value });
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
@@ -7070,6 +7116,10 @@ createServer(async (req, res) => {
         return send(400, { message: 'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers' });
       const method = String((transfer ? body['from'] : body['method']) ?? '');
       const methodTo = transfer ? String(body['to'] ?? '') : null;
+      for (const m of [method, methodTo]) {
+        const refusal = m ? disabledMethodRefusal(m) : null;
+        if (refusal) return send(400, { message: refusal });
+      }
       let amountMinor: bigint;
       try {
         amountMinor = parseMoney(String(body['amount'] ?? ''));
@@ -7208,6 +7258,10 @@ createServer(async (req, res) => {
       const methodCode = String(body['method'] ?? '');
       if (!['KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'CARD_TERMINAL'].includes(methodCode))
         return send(400, { message: 'Способ: Kaspi, Halyk, перевод или терминал' });
+      {
+        const refusal = disabledMethodRefusal(methodCode);
+        if (refusal) return send(400, { message: refusal });
+      }
       let amountMinor: bigint;
       try {
         amountMinor = parseMoney(String(body['amount'] ?? '').replace(/\s/g, ''));
@@ -7349,6 +7403,13 @@ createServer(async (req, res) => {
         voidedPayments.delete(paymentId);
         return send(400, { message: 'method — один из способов оплаты' });
       }
+      {
+        const refusal = disabledMethodRefusal(methodCode);
+        if (refusal) {
+          voidedPayments.delete(paymentId);
+          return send(400, { message: refusal });
+        }
+      }
       let amountMinor: bigint;
       try {
         amountMinor = parseMoney(String(body['amount'] ?? ''));
@@ -7429,6 +7490,10 @@ createServer(async (req, res) => {
       return send(200, finance(reservation));
     }
     if (path === '/finance/payments') {
+      {
+        const refusal = disabledMethodRefusal(String(body['method'] ?? ''));
+        if (refusal) return send(400, { message: refusal });
+      }
       try {
         const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;
         const allocations = rows.map((a) => ({

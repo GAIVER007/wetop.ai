@@ -53,6 +53,7 @@ const ACTION_RU: Record<string, string> = {
   'finance.cash.operation.void': 'Кассовая операция аннулирована',
   'finance.cash.category.created': 'Статья кассы создана',
   'finance.cash.category.updated': 'Статья кассы изменена',
+  'hotel.payment_methods.updated': 'Способы оплаты объекта изменены',
   'finance.cash.reconciliation': 'Касса пересчитана',
   'finance.payment': 'Оплата принята',
   'finance.refund': 'Возврат оплаты',

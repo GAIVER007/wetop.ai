@@ -63,6 +63,9 @@ export default async function MarketingPage() {
             <Link className="btn btn--secondary" href="/marketing/site">
               Публикация
             </Link>
+            <Link className="btn btn--secondary" href="/marketing/site/assets">
+              Изображения
+            </Link>
             <span className="marketing-product__next">ИИ-конструктор: скоро</span>
           </div>
         </section>

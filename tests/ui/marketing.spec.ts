@@ -106,9 +106,10 @@ test('хаб: карточка «Сайт и SEO» ведёт на /website, б�
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(site).toContainText('ИИ-конструктор: скоро');
   // «скоро» не кнопка: в карточке ровно одна ссылка, и это «Открыть»
-  // «Открыть» ведёт в /website, «Публикация» на страницу публикации сайта (MKT7)
-  await expect(site.getByRole('link')).toHaveCount(2);
+  // «Открыть» ведёт в /website, «Публикация» на страницу публикации сайта (MKT7), «Изображения» в библиотеку (MKT8)
+  await expect(site.getByRole('link')).toHaveCount(3);
   await expect(site.getByRole('link', { name: 'Публикация', exact: true })).toHaveAttribute('href', '/marketing/site');
+  await expect(site.getByRole('link', { name: 'Изображения', exact: true })).toHaveAttribute('href', '/marketing/site/assets');
   await expect(site.getByRole('button')).toHaveCount(0);
 
   const soon = hub.getByTestId('marketing-soon');

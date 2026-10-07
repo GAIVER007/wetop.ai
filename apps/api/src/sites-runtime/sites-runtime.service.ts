@@ -10,6 +10,7 @@ import {
 import {
   normalizeSiteHost,
   SITE_SPEC_SCHEMA_VERSION,
+  siteSpecAssetRefs,
   siteSpecCategoryCodes,
   siteSpecHash,
   validateSiteSpec,
@@ -17,6 +18,8 @@ import {
 import { withServiceDatabase } from '../auth/request-context';
 import { publicApiUrl } from '../analytics/analytics.service';
 import { previewSecretFromEnv, verifyPreviewToken } from '../marketing-site/preview-token';
+import { signedAssetMap } from '../marketing-site/asset-refs';
+import { SITE_ASSET_STORAGE, signedUrlTtl, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { resolveSiteHost } from './host-resolver';
 import {
   SITES_RUNTIME_REPOSITORY,
@@ -74,7 +77,10 @@ export const PREVIEW_EXPIRED = { code: 'preview_expired', message: 'Ссылка
  */
 @Injectable()
 export class SitesRuntimeService {
-  constructor(@Inject(SITES_RUNTIME_REPOSITORY) private readonly repo: SitesRuntimeRepository) {}
+  constructor(
+    @Inject(SITES_RUNTIME_REPOSITORY) private readonly repo: SitesRuntimeRepository,
+    @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
+  ) {}
 
   async current(query: { host?: unknown; knownSpecHash?: unknown }, now = new Date()): Promise<RuntimeCurrent> {
     const known = query.knownSpecHash;
@@ -97,7 +103,8 @@ export class SitesRuntimeService {
       publicKey: row.publicKey,
       bookingEnabled: row.bookingEnabled,
       publicApiUrl: publicApiUrl(),
-      assets: {},
+      // опубликованная версия всегда уже публиковалась: удержанный удалённый ассет ей годится (откат, план MKT8 §8)
+      assets: await this.assets(row, true),
       publicFacts: await this.facts(row, now),
     };
   }
@@ -140,7 +147,7 @@ export class SitesRuntimeService {
       publicKey: null,
       bookingEnabled: false,
       publicApiUrl: publicApiUrl(),
-      assets: {},
+      assets: await this.assets(row, await withServiceDatabase(() => this.repo.versionPublished(row.siteId, row.versionId))),
       publicFacts: await this.facts(row, now),
       expiresAt: new Date(checked.exp * 1000).toISOString(),
     };
@@ -164,6 +171,22 @@ export class SitesRuntimeService {
     }
     const site = row.spec['site'] as { defaultLocale: string };
     return site.defaultLocale;
+  }
+
+  /**
+   * MKT8: подписанные GET только по ссылкам этой версии и только ассетов филиала сайта нужного вида; отдельного чтения
+   * ассета по id у рантайма нет. Хранилище не настроено или сбой: пусто, картинки просто не выводятся
+   */
+  private async assets(row: PublishedSiteRow, historical: boolean): Promise<Record<string, string>> {
+    const refs = siteSpecAssetRefs(row.spec);
+    if (!refs.length || !this.storage) return {};
+    try {
+      const rows = await withServiceDatabase(() => this.repo.assets(row.locationId, refs.map((r) => r.assetId)));
+      return await signedAssetMap(this.storage, refs, rows, historical, signedUrlTtl());
+    } catch (error) {
+      console.error(JSON.stringify({ event: 'sites_runtime.assets_failed', siteId: row.siteId, error: (error as Error).name }));
+      return {};
+    }
   }
 
   /** Белый список `publicFacts` (§4.4): не загрузились, значит null, а не выдуманные значения */

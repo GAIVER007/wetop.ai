@@ -540,12 +540,13 @@ export class SitePublicationService {
 
   /** Хосты сайта счётчика: живые домены сайта есть, снятые убраны; чужие хосты сайта счётчика не трогаются */
   private async syncHosts(tx: DbTx, siteId: string, trackedSiteId: string) {
-    const domains = await tx.siteDomain.findMany({ where: { siteId }, select: { host: true, status: true } });
-    const live = domains.filter((d) => d.status === 'ACTIVE').map((d) => d.host);
-    const ours = new Set(domains.map((d) => d.host));
-    const ts = await tx.trackedSite.findUniqueOrThrow({ where: { id: trackedSiteId }, select: { hosts: true } });
-    const hosts = [...new Set([...ts.hosts.filter((h) => !ours.has(h)), ...live])];
-    await tx.trackedSite.update({ where: { id: trackedSiteId }, data: { hosts } });
+    // источник правды SiteDomain: у сайта счётчика управляемого сайта ровно его ACTIVE-хосты, ничего вручную добавленного
+    const live = await tx.siteDomain.findMany({
+      where: { siteId, status: 'ACTIVE' },
+      orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+      select: { host: true },
+    });
+    await tx.trackedSite.update({ where: { id: trackedSiteId }, data: { hosts: live.map((d) => d.host) } });
   }
 
   private async record(

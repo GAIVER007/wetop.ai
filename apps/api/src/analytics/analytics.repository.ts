@@ -40,6 +40,11 @@ export interface SiteRecord {
   bookingRatePlan: { id: string; code: string; name: string } | null;
   /** Организация объекта сайта: публичный путь сайта действует от её имени (план tenant-isolation п. 4); null — ничья */
   organizationId?: string | null;
+  /**
+   * MKT7: сайт счётчика управляемого сайта WETOP (есть строка `marketing_sites` с этим `tracked_site_id`). Им управляет
+   * только публикация; старый путь `/analytics/sites` его читает, но не правит и не удаляет
+   */
+  managed?: boolean;
 }
 
 /**
@@ -194,6 +199,7 @@ const SITE_SELECT = {
   property: {
     select: { timezone: true, checkInTime: true, checkOutTime: true, organizationId: true },
   },
+  marketingSite: { select: { id: true } },
 } as const;
 
 type SiteRow = {
@@ -212,6 +218,7 @@ type SiteRow = {
     checkOutTime: string;
     organizationId: string | null;
   };
+  marketingSite: { id: string } | null;
 };
 
 const toRecord = (r: SiteRow): SiteRecord => ({
@@ -228,6 +235,7 @@ const toRecord = (r: SiteRow): SiteRecord => ({
   bookingEnabled: r.bookingEnabled,
   bookingRatePlan: r.bookingRatePlan,
   organizationId: r.property.organizationId,
+  managed: r.marketingSite !== null,
 });
 
 @Injectable()
@@ -388,8 +396,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       bookingRatePlanId?: string | null;
     },
   ): Promise<SiteRecord | null> {
+    // MKT7: строку управляемого сайта меняет только публикация (`SitePublicationService`), не этот путь
     const exists = await this.prisma.db.trackedSite.findFirst({
-      where: { id, propertyId: await this.propertyId() },
+      where: { id, propertyId: await this.propertyId(), marketingSite: { is: null } },
       select: { id: true },
     });
     if (!exists) return null;
@@ -402,7 +411,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
   async deleteSite(id: string): Promise<boolean> {
     const { count } = await this.prisma.db.trackedSite.deleteMany({
-      where: { id, propertyId: await this.propertyId() },
+      where: { id, propertyId: await this.propertyId(), marketingSite: { is: null } },
     });
     return count > 0;
   }

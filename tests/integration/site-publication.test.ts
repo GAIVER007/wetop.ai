@@ -8,11 +8,13 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
+import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
 import { useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { PrismaAnalyticsRepository } from '../../apps/api/src/analytics/analytics.repository';
 import { SitesRuntimeModule } from '../../apps/api/src/sites-runtime/sites-runtime.module';
+import { AnalyticsModule } from '../../apps/api/src/analytics/analytics.module';
 import { SitesRuntimeService } from '../../apps/api/src/sites-runtime/sites-runtime.service';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
@@ -212,7 +214,7 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     await db.location.update({ where: { id: L.kept }, data: { bookingTrackedSiteId: external['kept'] } });
     await db.trackedSite.update({ where: { id: external['kept'] }, data: { status: 'PAUSED' } });
 
-    const module = await Test.createTestingModule({ imports: [MarketingSiteModule, SitesRuntimeModule] })
+    const module = await Test.createTestingModule({ imports: [MarketingSiteModule, SitesRuntimeModule, AnalyticsModule] })
       .overrideProvider(PrismaService)
       .useValue({ db })
       .compile();
@@ -375,6 +377,64 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     expect(await agentSite('main')).toBeNull();
     expect((await call('POST', '/marketing/site/resume')).status).toBe(200);
     expect((await agentSite('main'))?.id).toBe(managed);
+  });
+
+  it('MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации', async () => {
+    const site = await siteRow('main');
+    const real = `${slugs.main}.${BASE_DOMAIN}`;
+    // строку подменили в обход публикации (старый путь, ручной SQL): лишний хост не должен пережить синхронизацию
+    await db.trackedSite.update({ where: { id: site.trackedSiteId! }, data: { hosts: [real, 'rogue.example.com'] } });
+    expect((await call('POST', '/marketing/site/pause')).status).toBe(200);
+    expect((await call('POST', '/marketing/site/resume')).status).toBe(200);
+    expect((await siteRow('main')).trackedSite!.hosts).toEqual([real]);
+  });
+
+  it('MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше', async () => {
+    const site = await siteRow('main');
+    const managed = site.trackedSiteId!;
+    const before = await db.trackedSite.findUniqueOrThrow({ where: { id: managed } });
+    const pointerBefore = await pointerOf('main');
+    for (const body of [
+      { hosts: ['rogue.example.com'] },
+      { status: 'PAUSED' },
+      { bookingEnabled: false },
+      { bookingRatePlanCode: 'BASE' },
+      { name: 'Чужое имя' },
+    ]) {
+      const r = await call('PATCH', `/analytics/sites/${managed}`, { body });
+      expect(r.status, JSON.stringify(r.body)).toBe(409);
+      expect(r.body.code).toBe('MANAGED_SITE_READ_ONLY');
+    }
+    const del = await call('DELETE', `/analytics/sites/${managed}`);
+    expect(del.status).toBe(409);
+    expect(del.body.code).toBe('MANAGED_SITE_READ_ONLY');
+    expect(await db.trackedSite.findUniqueOrThrow({ where: { id: managed } })).toEqual(before);
+    expect((await siteRow('main')).trackedSiteId).toBe(managed);
+    expect(await pointerOf('main')).toBe(pointerBefore);
+    expect((await current(`${slugs.main}.${BASE_DOMAIN}`)).status).toBe(200);
+    // чтение остаётся и помечает сайт
+    const card = await call('GET', `/analytics/sites/${managed}`);
+    expect(card.status).toBe(200);
+    expect(card.body.site.managed).toBe(true);
+    // защита в репозитории, если проверку сервиса обойдут: тот же филиал, что у запроса, без сервиса
+    const asOwner = <T,>(fn: () => Promise<T>) =>
+      withSignedInUser(
+        { userId: user, organizationId: org, scope: 'LOCATION', businessId: hotel, locationId: L.main, vertical: 'HOSPITALITY' },
+        fn,
+      );
+    expect(await asOwner(() => sites.updateSite(managed, { hosts: ['rogue.example.com'] }))).toBeNull();
+    expect(await asOwner(() => sites.deleteSite(managed))).toBe(false);
+    expect(await db.trackedSite.findUniqueOrThrow({ where: { id: managed } })).toEqual(before);
+    // внешний сайт: создание, правка и удаление по прежнему контракту
+    const created = await call('POST', '/analytics/sites', { body: { name: 'Внешний MKT7', hosts: ['ext-mkt7.example.test'] } });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body.site.managed).toBe(false);
+    const id = created.body.site.id;
+    const patched = await call('PATCH', `/analytics/sites/${id}`, { body: { status: 'PAUSED', hosts: ['ext2-mkt7.example.test'] } });
+    expect(patched.status).toBe(200);
+    expect(patched.body.site).toMatchObject({ status: 'PAUSED', hosts: ['ext2-mkt7.example.test'] });
+    expect((await call('DELETE', `/analytics/sites/${id}`)).status).toBe(200);
+    expect(await db.trackedSite.findUnique({ where: { id } })).toBeNull();
   });
 
   it('§83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается', async () => {

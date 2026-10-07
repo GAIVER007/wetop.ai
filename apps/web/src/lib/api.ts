@@ -1842,6 +1842,8 @@ export interface TrackedSite {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** MKT7: сайт счётчика управляемого сайта WETOP; настраивается только в «Маркетинг → Публикация сайта» */
+  managed?: boolean;
 }
 export interface TrackedSiteCard {
   site: TrackedSite;

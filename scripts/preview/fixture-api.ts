@@ -4812,6 +4812,8 @@ createServer(async (req, res) => {
             };
         }
       if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
+      // MKT7: сайт счётчика управляемого сайта WETOP; старый путь отвечает 409, как API
+      if (body['siteManaged'] === true) site = { ...site, managed: true } as typeof site;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -6994,6 +6996,12 @@ createServer(async (req, res) => {
       return send(201, read('/analytics/sites/ui-site', url.searchParams));
     }
     if (path === '/analytics/sites/ui-site') {
+      if ((site as { managed?: boolean }).managed)
+        return send(409, {
+          code: 'MANAGED_SITE_READ_ONLY',
+          message: 'Управляемый сайт настраивается в «Маркетинг → Сайт и SEO»',
+          statusCode: 409,
+        });
       if (req.method === 'DELETE') {
         siteDeleted = true;
         return send(200, { deleted: true });

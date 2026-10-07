@@ -230,7 +230,7 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     },
   ): Promise<SiteRecord | null> {
     const s = this.sitesById.get(id);
-    if (!s) return null;
+    if (!s || s.managed) return null;
     const { bookingRatePlanId, ...rest } = patch;
     const next: SiteRecord = { ...s, ...rest };
     if (bookingRatePlanId !== undefined) {
@@ -241,7 +241,13 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     return next;
   }
   async deleteSite(id: string): Promise<boolean> {
+    if (this.sitesById.get(id)?.managed) return false;
     return this.sitesById.delete(id);
+  }
+  /** MKT7: отметить сайт как сайт счётчика управляемого сайта WETOP (в базе это связь `marketing_sites.tracked_site_id`) */
+  markManaged(id: string): void {
+    const s = this.sitesById.get(id);
+    if (s) this.sitesById.set(id, { ...s, managed: true });
   }
   async record(hits: StoredHit[]): Promise<void> {
     this.recorded.push(...hits);

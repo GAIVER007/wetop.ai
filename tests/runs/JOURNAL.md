@@ -7389,3 +7389,12 @@
 | 07.10.2026 19:03 | unit | ✅ 3869 из 3872, пропущено 3 | 2 мин 26 с | 38fc39d | [лог](logs/2026-10-07T14-03-44Z-unit-a171.log) |  |
 | 07.10.2026 19:06 | typecheck | ✅ без ошибок | 57 с | 38fc39d | [лог](logs/2026-10-07T14-06-13Z-typecheck-16ac.log) |  |
 | 07.10.2026 19:07 | lint | ✅ без ошибок | 53 с | 38fc39d | [лог](logs/2026-10-07T14-07-11Z-lint-48b1.log) |  |
+| 07.10.2026 19:51 | integration (частично: tests/integration/site-publication.test.ts) | ❌ код выхода 1 | 3 с | b2a7421 +5 | [лог](logs/2026-10-07T14-51-15Z-integration-c062.log) |  |
+| 07.10.2026 19:51 | integration (частично: tests/integration/site-publication.test.ts) | ❌ упало 2 из 15 | 14 с | b2a7421 +5 | [лог](logs/2026-10-07T14-51-43Z-integration-24d8.log) | MKT7 публикация управляемого сайта MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации |
+| 07.10.2026 19:52 | integration (частично: tests/integration/site-publication.test.ts) | ✅ 15 из 15 | 10 с | b2a7421 +6 | [лог](logs/2026-10-07T14-52-06Z-integration-60db.log) |  |
+| 07.10.2026 19:52 | integration (частично: tests/integration/site-publication.test.ts) | ✅ 15 из 15 | 11 с | b2a7421 +6 | [лог](logs/2026-10-07T14-52-26Z-integration-92e2.log) | мутация: deleteSite без защиты управляемого |
+| 07.10.2026 19:53 | integration (частично: tests/integration/site-publication.test.ts) | ❌ упало 3 из 15 | 10 с | b2a7421 +6 | [лог](logs/2026-10-07T14-53-00Z-integration-b9f7.log) | мутация: deleteSite без защиты управляемого |
+| 07.10.2026 19:53 | integration (частично: tests/integration/site-publication.test.ts) | ✅ 15 из 15 | 10 с | b2a7421 +6 | [лог](logs/2026-10-07T14-53-11Z-integration-ab82.log) |  |
+| 07.10.2026 19:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1 -g MKT7) | ❌ упало 1 из 1 | 49 с | b2a7421 +8 | [лог](logs/2026-10-07T14-54-46Z-e2e-737c.log) | red: экран без отметки сайта WETOP |
+| 07.10.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1) | ❌ упало 1 из 20 | 2 мин 33 с | b2a7421 +11 | [лог](logs/2026-10-07T14-55-40Z-e2e-207d.log) | снимки WEB3 |
+| 07.10.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1 -g снимки) | ✅ 3 из 3 | 58 с | b2a7421 +11 | [лог](logs/2026-10-07T14-58-21Z-e2e-6351.log) |  |

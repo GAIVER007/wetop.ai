@@ -4,6 +4,7 @@ import { Prisma } from '@pms/database';
 import {
   FinanceRuleError,
   LUXX_APARTS_PROPERTY,
+  assertPaymentReversible,
   assertRefundWithin,
   folioBalance,
   zonedStartOfDay,
@@ -123,6 +124,12 @@ export interface PaymentRecord {
   status: 'COMPLETED' | 'VOIDED';
   amountMinor: bigint;
   currency: string;
+  paidAt: string;
+  note: string | null;
+  /** Чек по запросу гостя (§26): пока он есть, платёж не аннулируется и не меняется (У3) */
+  receiptNumber: string | null;
+  /** Запрос оплаты (§24), закрытый этим платежом; аннулирование возвращает его в ожидание (У4) */
+  requestId: string | null;
   allocations: Array<{ folioId: string; amountMinor: bigint }>;
   refunds: Array<{ folioId: string; amountMinor: bigint }>;
 }
@@ -340,6 +347,13 @@ export interface FinanceRepository {
   /** Платёж вместе с распределением — атомарно */
   createPayment(p: NewPayment, audit?: AuditEntry): Promise<string>;
   paymentById(id: string): Promise<PaymentRecord | null>;
+  /**
+   * Аннулировать платёж (план finance-payments-direct 07.10.2026): под блокировкой строки платежа и его счетов,
+   * правило У3 перепроверяется в транзакции; запрос оплаты, закрытый платежом, снова ждёт оплаты (У4).
+   */
+  voidPayment(id: string, audit?: AuditEntry): Promise<void>;
+  /** Заменить платёж: старый `VOIDED`, новый `COMPLETED` с распределением, запрос оплаты переходит на новый (У1, У4) */
+  replacePayment(id: string, p: NewPayment, audit?: AuditEntry): Promise<string>;
   createRefund(r: NewRefund, audit?: AuditEntry): Promise<string>;
   /**
    * Отметка «чек выдан» по запросу гостя (DATA_MODEL §26): только у проведённого платежа объекта, один чек на платёж.
@@ -958,7 +972,12 @@ export class PrismaFinanceRepository implements FinanceRepository {
     const { id: propertyId } = await this.property();
     const p = await this.prisma.db.payment.findFirst({
       where: { id, propertyId },
-      include: { allocations: true, refunds: true },
+      include: {
+        allocations: true,
+        refunds: true,
+        receipt: { select: { number: true } },
+        request: { select: { id: true } },
+      },
     });
     return p
       ? {
@@ -967,10 +986,87 @@ export class PrismaFinanceRepository implements FinanceRepository {
           status: p.status,
           amountMinor: p.amount,
           currency: p.currency,
+          paidAt: p.paidAt.toISOString(),
+          note: p.note,
+          receiptNumber: p.receipt?.number ?? null,
+          requestId: p.request?.id ?? null,
           allocations: p.allocations.map((a) => ({ folioId: a.folioId, amountMinor: a.amount })),
           refunds: p.refunds.map((r) => ({ folioId: r.folioId, amountMinor: r.amount })),
         }
       : null;
+  }
+  /**
+   * Платёж под блокировкой строки для аннулирования или замены: статус, возвраты и чек перечитываются в той же
+   * транзакции (как предел возврата в `createRefund`), счета платежа берутся в блокировку открытыми.
+   */
+  private async lockReversiblePayment(
+    tx: TxClient,
+    id: string,
+    propertyId: string,
+  ): Promise<{ folioIds: string[]; requestId: string | null }> {
+    const rows = await tx.$queryRaw<Array<{ status: string }>>`
+      SELECT "status"::text AS status FROM "payments"
+       WHERE "id" = ${id}::uuid AND "property_id" = ${propertyId}::uuid FOR UPDATE`;
+    if (!rows[0]) throw new FinanceStateError('Платёж не найден');
+    const [refunded, receipt, allocations, request] = await Promise.all([
+      tx.refund.aggregate({ where: { paymentId: id }, _sum: { amount: true } }),
+      tx.fiscalReceipt.findUnique({ where: { paymentId: id }, select: { number: true } }),
+      tx.paymentAllocation.findMany({ where: { paymentId: id }, select: { folioId: true } }),
+      tx.paymentRequest.findUnique({ where: { paymentId: id }, select: { id: true } }),
+    ]);
+    assertPaymentReversible({
+      status: rows[0].status === 'COMPLETED' ? 'COMPLETED' : 'VOIDED',
+      refundedMinor: refunded._sum.amount ?? 0n,
+      receiptNumber: receipt?.number ?? null,
+    });
+    const folioIds = allocations.map((a) => a.folioId);
+    await lockOpenFolios(tx, folioIds);
+    return { folioIds, requestId: request?.id ?? null };
+  }
+  async voidPayment(id: string, audit?: AuditEntry): Promise<void> {
+    const { id: propertyId } = await this.property();
+    await this.prisma.db.$transaction(async (t) => {
+      const tx = t as unknown as TxClient;
+      const { requestId } = await this.lockReversiblePayment(tx, id, propertyId);
+      await tx.payment.update({ where: { id }, data: { status: 'VOIDED' } });
+      if (requestId)
+        await tx.paymentRequest.update({
+          where: { id: requestId },
+          data: { status: 'PENDING', paymentId: null, closedAt: null },
+        });
+      if (audit) await writeAudit(tx, { ...audit, entityId: id });
+    });
+  }
+  async replacePayment(id: string, p: NewPayment, audit?: AuditEntry): Promise<string> {
+    const { id: propertyId } = await this.property();
+    return this.prisma.db.$transaction(async (t) => {
+      const tx = t as unknown as TxClient;
+      const { requestId } = await this.lockReversiblePayment(tx, id, propertyId);
+      // счета нового платежа могут отличаться от старых: их блокируем отдельно, закрытый откажет
+      await lockOpenFolios(
+        tx,
+        p.allocations.map((a) => a.folioId),
+      );
+      await tx.payment.update({ where: { id }, data: { status: 'VOIDED' } });
+      const row = await tx.payment.create({
+        data: {
+          propertyId,
+          method: p.method,
+          amount: p.amountMinor,
+          currency: p.currency,
+          note: p.note,
+          ...(p.paidAt ? { paidAt: new Date(p.paidAt) } : {}),
+          allocations: {
+            create: p.allocations.map((a) => ({ folioId: a.folioId, amount: a.amountMinor })),
+          },
+        },
+        select: { id: true },
+      });
+      if (requestId)
+        await tx.paymentRequest.update({ where: { id: requestId }, data: { paymentId: row.id } });
+      if (audit) await writeAudit(tx, { ...audit, entityId: id }, row.id);
+      return row.id;
+    });
   }
   /**
    * Возврат: предел «не больше внесённого на этот счёт минус уже возвращённое» пересчитывается под блокировкой платежа.

@@ -680,6 +680,27 @@ active
 > разнесения и возврата держит база: `CHECK (amount > 0)` на `payments`, `payment_allocations`, `refunds` —
 > ноль и минус не запишутся даже ошибкой кода. Начисления (`charges`) без CHECK намеренно: сторно — минус.
 
+> **v2.12 (07.10.2026, поручение владельца, ADR-151; план `plans/finance-payments-direct-2026-10-07.md`).
+> Схема и миграции не менялись: правила поверх полей, которые уже были.**
+> - **Аннулирование платежа.** `Payment.status = VOIDED` ставит команда `POST /finance/payments/:id/void`
+>   (право `refunds`): только проведённый платёж без возвратов и без фискального чека (§26), все его счета
+>   открыты. Аннулированный платёж из баланса счёта, остатков кассы (§21) и сумм отчётов выпадает, строка
+>   остаётся в ленте со статусом «аннулирован». Запрос оплаты (§24), закрытый этим платежом, снова ждёт оплаты.
+> - **Замена платежа.** `POST /finance/payments/:id/replace`: старый `VOIDED`, новый `COMPLETED` с тем же
+>   `paid_at` одной транзакцией под блокировкой строки платежа и счетов; без `allocations` сумма ложится на
+>   единственный счёт старого платежа, групповой платёж без распределения отклоняется словами. Запрос оплаты
+>   переводится на новый платёж. Журнал: `finance.payment.void`, `finance.payment.replaced`.
+> - **Цена проживания вручную.** `PATCH /reservations/:number/items/:itemId` с `price` пишет
+>   `ReservationItem.price`; начисление `ACCOMMODATION` переписывает система тем же `ensureFolioWithAccommodation`,
+>   что при смене дат, `Reservation.total_amount` пересчитывается по неотменённым проживаниям. Вниз только с
+>   правом `refunds` (как корректировка на уменьшение, ADR-107); отменённое, незаезд и выехавшее не меняются.
+>   При смене дат или категории цена снова считается по тарифу: ручная цена не закрепляется. Журнал
+>   `reservation.item.price`.
+> - **Скидка** это `ADJUSTMENT` со знаком минус и подписью «Скидка N% на проживание» или «Скидка: причина»;
+>   процент считается от действующего начисления за проживание целыми тиынами с отбрасыванием остатка
+>   (`discountMinor` в домене). Отдельной сущности у скидки нет.
+> - Возврат (`Refund`) по-прежнему не аннулируется (Q-278); дата платежа при замене не меняется (Q-277).
+
 ## 7. Channel Manager
 
 > **Назначение ячейки броням из каналов (Q-094, 10.09.2026):** при приёме ревизии `new` проживание получает
@@ -2672,6 +2693,10 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
    отметка оплаты по уведомлению банка) появятся после документации в `/docs` (Q-262), без изменения таблицы:
    у запроса добавится только внешний идентификатор.
 6. Журнал: `finance.payment_request.created`, `.paid`, `.cancelled`.
+7. **Запрос это второстепенный путь (07.10.2026, ADR-151).** Оплату на месте, на терминале и переводом стойка
+   принимает без запроса, одним шагом; запрос нужен, когда гостю отправляют счёт заранее (5–6 раз в период).
+   Аннулирование платежа по запросу (§6 v2.12) возвращает запрос в `PENDING` (`payment_id = null`,
+   `closed_at = null`), замена платежа переводит `payment_id` на новый платёж, статус `PAID` остаётся.
 
 **Миграция** `20261003000046_payment_requests` с `down.sql`; на рабочей базе применяет владелец.
 
@@ -2910,8 +2935,8 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0`; CHECK `(spec ->> 'schemaVersion') IS NOT DISTINCT FROM schema_version` |
 | `spec` | JSONB NOT NULL | документ `SiteSpec`, объект. Допустимый размер один: 256 КБ канонической записи, держит проверка документа и API. CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ) только грубая страховка, не второй допустимый размер: `jsonb::text` не каноническая запись и выходит до полутора раз длиннее |
 | `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
-| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). Enum целевой и полный уже в MKT3, но **база в MKT3 временно разрешает только `MANUAL`** (CHECK `source = 'MANUAL'`): MKT6 вместе с `generation_runs` и `generation_run_id` снимает или заменяет его правилом «AI требует `generation_run_id`», `IMPORT` открывается в срезе, где появится путь импорта |
-| `generation_run_id` | UUID NULL FK → `generation_runs` | **появляется в MKT6** вместе с таблицей; обязателен при `source = 'AI'`. В MKT3 колонки нет, сохранение пишет только `MANUAL` |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). С MKT6 (миграция `…062`) CHECK `marketing_site_versions_source_provenance`: `MANUAL` только без `generation_run_id`, `AI` только с ним; `IMPORT` по-прежнему не проходит и откроется в срезе, где появится путь импорта |
+| `generation_run_id` | UUID NULL UNIQUE FK → `generation_runs` ON DELETE RESTRICT | в базе с MKT6: обязателен при `source = 'AI'`, запрещён при `MANUAL`; задача только своего сайта (триггер `marketing_site_version_run_guard`); одна задача создаёт не больше одной версии |
 | `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
 | `created_at` | timestamptz | |
 
@@ -3014,9 +3039,10 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 убирается. Родительский домен платформенных поддоменов в `hosts` не кладётся никогда: `hostMatches` пускает любой
 поддомен (`packages/domain/src/web-analytics/source.ts:84-91`).
 
-### 29.7 `GenerationRun` (кандидат)
+### 29.7 `GenerationRun` (утверждено, в базе с MKT6)
 
-Сохранённая задача генерации ИИ.
+Сохранённая задача генерации ИИ, она же очередь в Postgres (миграции `20261007000062_generation_run_core`, права
+`…063_generation_run_grants`; контракт `docs/marketing/site-generation-v0.md`). MKT6 ставит только `INITIAL`.
 
 | Поле | Тип | Правило |
 |---|---|---|
@@ -3031,14 +3057,22 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 | `brief_hash` | CHAR(64) NULL | хэш собранного брифа; сам бриф строится заново из данных |
 | `instruction` | VARCHAR(2000) NULL | текст команды человека (данные, не инструкция системе); срок хранения как у черновиков |
 | `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
-| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274) |
+| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274 закрыт 07.10): агрегат по всем фактическим вызовам модели в run, включая неудачные и повторы; расход `tokens_input + tokens_output`, `tokens_cached` входит в input |
 | `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
-| `next_attempt_at` | timestamptz NULL | |
-| `error_code` | VARCHAR(40) NULL | словарь: `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT` |
+| `next_attempt_at` | timestamptz NULL | в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут) |
+| `dispatched_at` | timestamptz NULL | **добавлено в MKT6**: запрос к ИИ ушёл, расход ещё не записан; падение воркера в это время даёт `USAGE_UNAVAILABLE`, а не повтор (Q-274: неизвестный расход не считается нулём) |
+| `error_code` | VARCHAR(40) NULL | словарь (CHECK): `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT`, `USAGE_UNAVAILABLE`, `BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, `BUDGET_DAY_CHANGED` |
 | `error_message` | VARCHAR(500) NULL | замаскированный текст для человека |
 | `created_at`, `started_at`, `finished_at` | timestamptz | |
 
 Не хранится: собранный промпт целиком, ответ модели целиком (только принятая версия), ключи, адреса поставщика.
+
+Что держит база (MKT6): вставка только `QUEUED`; переходы §29.8 (триггер `generation_run_guard`); форма состояния
+(CHECK `generation_runs_status_shape`: `QUEUED` без версии и конца, `RUNNING` с началом, `SUCCEEDED` с версией, концом и без
+ошибки, `FAILED` с концом и кодом, `CANCELLED` с концом); токены целые, не меньше нуля, `tokens_cached <= tokens_input`,
+сумма только растёт; `attempts` от 0 до 3 и только растёт; сайт, вид, ключ, бриф, команда, база, автор и первое начало
+не меняются; `base_version_id` и `output_version_id` только версии своего сайта, итоговая ссылается на эту задачу.
+UNIQUE (`site_id`, `request_key`), UNIQUE `output_version_id`.
 Образец исполнения: очередь в Postgres с воркером, как `channel_outbox` (`apps/api/src/channels/outbox.worker.ts:35-70`).
 Таблица `wizard_jobs` (`schema.prisma:1985-2000`) не переиспользуется: она про мастер продавца и кодом не используется.
 
@@ -3056,17 +3090,20 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 продолжает получать новые черновые версии; рантайм их не видит до следующей публикации.
 
 `GenerationRun.status`: `QUEUED → RUNNING → SUCCEEDED | FAILED`; `RUNNING → QUEUED` при повторной попытке;
-`QUEUED → CANCELLED`. Конечные: `SUCCEEDED`, `FAILED`, `CANCELLED`.
+`QUEUED → CANCELLED | FAILED` (`FAILED` без вызова модели, например при восстановлении). Конечные: `SUCCEEDED`, `FAILED`,
+`CANCELLED`; переходы держит триггер `generation_run_guard`.
 
 `SiteDomain.status`: платформенный поддомен `PENDING → ACTIVE` при публикации; свой домен
 `PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
 `ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
 
-### 29.9 Изоляция (для двух таблиц MKT3 сделано, для остальных кандидат)
+### 29.9 Изоляция (для двух таблиц MKT3 и `generation_runs` MKT6 сделано, для остальных кандидат)
 
 Все шесть таблиц в `RLS_TENANT_TABLES`. Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
 `EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;
 для дочерних таблиц через `marketing_sites`. Функции триггеров закрепляют `search_path` (`current_schema(), public, pg_temp`).
+`generation_runs` (MKT6): политика через свой сайт, FORCE; `wetop_app` только читает и ставит задачу (SELECT, INSERT),
+состояние, расход и результат меняет воркер служебным путём; `wetop_service` без `DELETE`.
 Публичному рантайму роль `wetop_app` не выдаётся: он читает через узкий служебный путь API только **текущую**
 опубликованную версию сайта, разрешённого по хосту, и безопасные публичные факты его Location
 (`docs/marketing/README.md` §4.2, §4.4). Чтения версии по `id`, в том числе ранее опубликованной, у служебного ключа

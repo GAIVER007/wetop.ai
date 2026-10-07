@@ -47,9 +47,27 @@ export function TopNav({
   const path = usePathname() ?? '';
   const router = useRouter();
   const shell = desk ? use(desk) : null;
+  const scopeKey = shell?.scopeKey ?? 'unresolved';
+  const [blockedScope, setBlockedScope] = useState<string | null>(null);
+  const scopeSwitching = blockedScope === scopeKey;
+  useEffect(() => {
+    const begin = () => {
+      setBlockedScope(scopeKey);
+      setSearch(false);
+      setMenu(false);
+      setProfile(false);
+    };
+    const failed = () => setBlockedScope(null);
+    window.addEventListener('wetop-scope-switch', begin);
+    window.addEventListener('wetop-scope-switch-failed', failed);
+    return () => {
+      window.removeEventListener('wetop-scope-switch', begin);
+      window.removeEventListener('wetop-scope-switch-failed', failed);
+    };
+  }, [scopeKey]);
   const beauty = shell?.vertical === 'BEAUTY';
   const food = shell?.vertical === 'FOOD_SERVICE';
-  const hospitality = !beauty && !food && !shell?.access.unknown;
+  const hospitality = !scopeSwitching && !beauty && !food && !shell?.access.unknown;
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
@@ -96,8 +114,8 @@ export function TopNav({
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   return (
     <DataFreshnessProvider enabled={hospitality}>
-      <div className="workspace">
-        <a className="skip-link" href="#main-content">
+      <div className="workspace" data-scope-switching={scopeSwitching || undefined}>
+        <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
         <header className="workspace-header">
@@ -238,7 +256,15 @@ export function TopNav({
               <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
             </div>
           )}
-          {children}
+          <div className="workspace-content" hidden={scopeSwitching}>
+            {children}
+          </div>
+          {scopeSwitching && (
+            <main id="scope-switch-status" tabIndex={-1}>
+              <h1>Сегодня</h1>
+              <p role="status">Переключаем филиал…</p>
+            </main>
+          )}
         </div>
         {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">

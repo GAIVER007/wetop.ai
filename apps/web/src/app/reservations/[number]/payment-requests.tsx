@@ -12,7 +12,6 @@ import {
   Field,
   Input,
   Notice,
-  Panel,
   Row,
   Select,
   Stack,
@@ -95,19 +94,28 @@ export function PaymentRequestsPanel({
   const message = other.message ?? state.message;
   const pendingRequests = (requests ?? []).filter((r) => r.status === 'PENDING');
 
+  // Запросы — редкий путь (5–6 раз в период против сотен обычных оплат): блок свёрнут, пока нет ожидающих
   return (
-    <Panel data-testid="payment-requests">
-      <Row gap="lg" className="row--baseline">
-        <b className="panel__title panel__title--lg">Запросы оплаты</b>
+    <details
+      className="panel"
+      data-testid="payment-requests"
+      open={pendingRequests.length > 0 || undefined}
+    >
+      <summary className="bold" data-testid="payment-requests-toggle">
+        Отправить гостю счёт на оплату
         {pendingRequests.length > 0 && (
-          <Badge tone="warn" data-testid="payment-requests-pending">
-            ждут оплаты: {pendingRequests.length}
-          </Badge>
+          <>
+            {' '}
+            <Badge tone="warn" data-testid="payment-requests-pending">
+              ждут оплаты: {pendingRequests.length}
+            </Badge>
+          </>
         )}
-      </Row>
+      </summary>
       <p className="hint">
-        Выставьте гостю счёт в Kaspi по номеру телефона или вставьте ссылку банка, отправьте гостю
-        текст. Когда деньги пришли, нажмите «Оплачено»: оплата ляжет на счёт проживания.
+        Kaspi по номеру телефона, ссылка банка или реквизиты перевода: выставьте счёт и отправьте
+        гостю готовый текст. Когда деньги пришли, нажмите «Оплачено»: оплата ляжет на счёт
+        проживания. Оплату на месте принимайте выше, без запроса.
       </p>
       {requests === null && (
         <Alert boxed tone="warning">
@@ -287,6 +295,6 @@ export function PaymentRequestsPanel({
         </form>
       )}
       {dialog}
-    </Panel>
+    </details>
   );
 }

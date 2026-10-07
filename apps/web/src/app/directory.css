@@ -788,6 +788,11 @@ a.dir-number:hover {
 }
 
 /* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */
+/* Скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает страницу
+   на телефоне до 442 px: те же грабли, что у долгов в «Финансах» и у салона (замер 07.10.2026) */
+.folio-panel .table-scroll {
+  position: relative;
+}
 .folio-forms {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));

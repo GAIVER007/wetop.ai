@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 07.10.2026 12:35 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv8-audit-20261007), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '--grep' 'pending Hospitality'
+[WebServer] (node:39915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:40113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/today.spec.ts:318:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (8.8s)
+
+
+  1) tests/branches-ui/today.spec.ts:318:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "/system/freshness",
+    + ]
+
+      355 |       // Allow the triggered HTTP poll to reach the real API call journal.
+      356 |       await page.waitForTimeout(1000);
+    > 357 |       expect((await callsSince(request, from)).filter((c) => c === '/system/freshness')).toEqual(
+          |                                                                                          ^
+      358 |         [],
+      359 |       );
+      360 |     } finally {
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/branches-ui/today.spec.ts:357:90
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/today.spec.ts:318:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling
+
+# код выхода 1 · 27 с

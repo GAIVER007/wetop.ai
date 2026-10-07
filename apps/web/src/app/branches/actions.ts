@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { branchDestination } from '../../lib/branch-destination';
-import { hotelApi } from '../../lib/hotel-api';
 import { setScopeCookie } from '../../lib/session';
 
 export async function selectBranch(form: FormData) {
@@ -62,8 +61,7 @@ export async function branchChoices() {
         item.locationId === me.context?.locationId &&
         item.location.businessId === me.context?.businessId,
     );
-    const currentId =
-      selected?.id ?? (me.context?.businessId ? null : (await hotelApi.settings()).property.id);
+    const currentId = selected?.id ?? null;
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
       currentId,

@@ -1,0 +1,31 @@
+# Модульные (unit) · 07.10.2026 15:45 Алматы · vm
+# коммит 4f0e531 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-45-20Z-unit-a1e6.json' 'packages/domain/src/marketing/generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/generation.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/generation.test.ts [ packages/domain/src/marketing/generation.test.ts ]
+Error: Cannot find module './generation' imported from /home/user/wetop.ai/packages/domain/src/marketing/generation.test.ts
+ ❯ packages/domain/src/marketing/generation.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { SiteBriefInput } from './brief';
+      3| import {
+       | ^
+      4|   addUsage,
+      5|   checkGeneratedSpec,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:45:22
+   Duration  441ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-45-20Z-unit-a1e6.json
+
+# код выхода 1 · 2 с

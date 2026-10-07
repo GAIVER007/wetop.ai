@@ -157,6 +157,28 @@ export class FinanceController {
     return this.service.issueReceipt(id, dto ?? {});
   }
 
+  /** Аннулировать платёж (план finance-payments-direct 07.10.2026): владелец и управляющий, как возврат (ADR-107) */
+  @Access('refunds')
+  @Post('payments/:id/void')
+  @HttpCode(200)
+  voidPayment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['voidPayment']>[1],
+  ) {
+    return this.service.voidPayment(id, dto ?? {});
+  }
+
+  /** Заменить платёж: старый аннулируется, новый проводится той же транзакцией */
+  @Access('refunds')
+  @Post('payments/:id/replace')
+  @HttpCode(200)
+  replacePayment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['replacePayment']>[1],
+  ) {
+    return this.service.replacePayment(id, dto ?? {});
+  }
+
   @Access('refunds')
   @Post('payments/:id/refunds')
   refund(

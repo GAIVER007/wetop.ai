@@ -65,7 +65,10 @@ test('счёт на проживание: начисления, оплата, в
     'data-kind',
     'ACCOMMODATION',
   );
-  await expect(panel.getByTestId('charge-row').first().locator('button')).toHaveCount(0); // сторно проживания нет
+  // сторно проживания нет; с ADR-151 у проживания есть только «Изменить цену»
+  const stayRow = panel.getByTestId('charge-row').first();
+  await expect(stayRow.locator('[data-testid^="void-"]')).toHaveCount(0);
+  await expect(stayRow.getByTestId('stay-price-btn')).toHaveText('Изменить цену');
 
   // штраф 1 000 ₸
   let cf = panel.getByTestId('charge-form');
@@ -94,7 +97,8 @@ test('счёт на проживание: начисления, оплата, в
   expect(await balance()).toBe(0n);
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('оплачено');
 
-  // возврат 500 ₸ из этого платежа
+  // возврат 500 ₸ из этого платежа: форма раскрывается кнопкой «Вернуть» (07.10.2026)
+  await panel.getByTestId('refund-btn').click();
   const rf = panel.getByTestId('refund-form');
   await rf.locator('input[name="amount"]').fill('500');
   await rf.locator('input[name="reason"]').fill('ранний выезд');

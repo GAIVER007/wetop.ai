@@ -1,9 +1,12 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { createPrismaClient } from '@pms/database';
 import { hashPassword } from '@pms/domain';
 import { AUTH_STATE, E2E_PASSWORD, E2E_USER, SERVICE_KEY, SESSION_COOKIE } from '../tools/e2e-auth';
+
+/** Указатель рабочего филиала стойки (`apps/web/src/lib/scope-pointer.ts`) */
+const SCOPE_COOKIE = 'wetop_scope';
 
 /**
  * Вход для прогона с включённым замком API (`E2E_AUTH=1`, порядок — `plans/slice-13-accounts-saas.md` §7а).
@@ -15,7 +18,7 @@ import { AUTH_STATE, E2E_PASSWORD, E2E_USER, SERVICE_KEY, SESSION_COOKIE } from 
  * Отдельно проверяется, что замок и правда включён: `reuseExistingServer` мог подобрать стенд от прежнего
  * прогона без замка, и тогда набор дал бы зелёное, ничего не доказав.
  */
-test('вход сотрудника автотестов: замок включён, сессия в cookie стойки', async ({ request }) => {
+test('вход сотрудника автотестов: замок включён, сессия и филиал в cookie стойки', async ({ request, page }) => {
   const api = process.env['APP_API_URL'] ?? '';
   expect(api, 'APP_API_URL не задан конфигом e2e').not.toBe('');
 
@@ -89,23 +92,26 @@ test('вход сотрудника автотестов: замок включ�
   const session = (await login.json()) as { token: string; expiresAt: string };
   expect(session.token).toBeTruthy();
 
+  // Как после входа человека: сессия в cookie, затем `/scope/resolve` выбирает единственный филиал организации и
+  // ставит его указатель. Без подтверждённого филиала стойка не выдаёт прав (MV8, PR #272), и спеки не видели бы
+  // возвратов, сторно и журнала. Филиал выбирает сам сервер стойки, тест его не подставляет.
+  await page.context().addCookies([
+    {
+      name: SESSION_COOKIE,
+      value: session.token,
+      domain: '127.0.0.1',
+      path: '/',
+      expires: Math.floor(new Date(session.expiresAt).getTime() / 1000),
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax',
+    },
+  ]);
+  await page.goto('/scope/resolve');
+  await expect(page).not.toHaveURL(/\/scope\/resolve|\/branches|#login/);
+  const scope = (await page.context().cookies()).find((c) => c.name === SCOPE_COOKIE);
+  expect(scope?.value, '/scope/resolve не выбрал филиал сотруднику автотестов').toBeTruthy();
+
   mkdirSync(dirname(AUTH_STATE), { recursive: true });
-  writeFileSync(
-    AUTH_STATE,
-    JSON.stringify({
-      cookies: [
-        {
-          name: SESSION_COOKIE,
-          value: session.token,
-          domain: '127.0.0.1',
-          path: '/',
-          expires: Math.floor(new Date(session.expiresAt).getTime() / 1000),
-          httpOnly: true,
-          secure: false,
-          sameSite: 'Lax',
-        },
-      ],
-      origins: [],
-    }),
-  );
+  await page.context().storageState({ path: AUTH_STATE });
 });

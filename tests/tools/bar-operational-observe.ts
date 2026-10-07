@@ -13,14 +13,14 @@ try {
   await f.request('sales/retail', input);
   const replay = await f.request('sales/retail', input);
   const changedPayload = await f.request('sales/retail', { ...input, quantityUnits: '2' });
-  const paymentBody = { amountMinor: '10000', method: 'CASH' };
+  const paymentBody = { idempotencyKey: randomUUID(), amountMinor: '10000', method: 'CASH' };
   await f.request(`receipts/${d.r1.id}/payments`, paymentBody);
   await f.request(`receipts/${d.r1.id}/payments`, paymentBody);
   const payments = await f.db.barSupplierPayment.findMany({ where: { receiptId: d.r1.id } });
   const beforeVoid = await f.request('report');
   const voidResult = await f.request(`/finance/cash/operations/${payments[0]!.cashOperationId}/void`, {});
   const afterVoid = await f.request('report');
-  const writeOffBody = { productId: d.a.id, quantityUnits: '1', reason: 'Synthetic lost-response observation' };
+  const writeOffBody = { idempotencyKey: randomUUID(), productId: d.a.id, quantityUnits: '1', reason: 'Synthetic lost-response observation' };
   await f.request('write-offs', writeOffBody);
   await f.request('write-offs', writeOffBody);
   const writeOffCount = await f.db.barStockMovement.count({ where: { propertyId: f.primary.property, kind: 'WRITE_OFF' } });

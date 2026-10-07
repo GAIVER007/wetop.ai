@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 test('real BAR cycle persists across browser reloads and reconciles API totals', async ({ page, context, request }, testInfo) => {
   const data = await (await request.get('http://127.0.0.1:55994/__test/data')).json();
-  await context.addCookies([{ name: 'wetop_onboarding_later', value: '1', url: 'http://127.0.0.1:55993' }]);
-  const api = async (path: string) => (await request.get(`http://127.0.0.1:55994/bar/${path}`)).json();
+  await context.addCookies([{ name: 'wetop_onboarding_later', value: '1', url: 'http://127.0.0.1:55993' }, { name: 'wetop_scope', value: encodeURIComponent(`business=${data.side.business};location=${data.side.location}`), url: 'http://127.0.0.1:55993' }]);
+  expect((await context.request.post('http://127.0.0.1:55994/__test/login')).ok()).toBe(true);
+  const session = (await context.cookies()).find(cookie => cookie.name === 'wetop_session')!.value;
+  const api = async (path: string) => (await request.get(`http://127.0.0.1:55994/bar/${path}`, { headers: { 'x-wetop-session': session, 'x-wetop-scope': `business=${data.side.business};location=${data.side.location}` } })).json();
   const capture = async (name: string, stock: string) => {
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();

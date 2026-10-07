@@ -1,0 +1,53 @@
+# Интеграционные (integration) · 07.10.2026 18:32 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-32-46Z-integration-17e0.json' 'tests/integration/bar-real-auth.test.ts' 'tests/integration/bar-operational.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-real-auth.test.ts (4 tests) 3331ms
+   ✓ BAR real SessionGuard/AuthService rights and read-only (4)
+     ✓ OWNER desk reads and writes, refunds/settings follow the accepted matrix 763ms
+     ✓ MANAGER desk reads and writes, refunds/settings follow the accepted matrix 329ms
+     ✓ STAFF desk reads and writes, refunds/settings follow the accepted matrix 796ms
+(node:80473) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/bar-operational.test.ts (13 tests | 1 failed) 15150ms
+   ❯ BAR operational acceptance: real HTTP and PostgreSQL (13)
+     ✓ C01-C08 reconciles drafts, FIFO, cash, Folio, write-off and shortage in minor units 1385ms
+     ✓ C09/C10 reversal restock=true preserves exact stock and cash, repeat denies 297ms
+     ✓ C09/C10 reversal restock=false preserves exact stock and cash, repeat denies 650ms
+     ✓ C13 replay after void returns actual REVERSED status for retail without new effects 3410ms
+     ✓ C13 replay after void returns actual REVERSED status for folio without new effects 828ms
+     ✓ C11 invalid inputs and insufficient stock leave no partial effects 168ms
+     ✓ C15 foreign product, receipt, sale and Folio are denied without cross-property writes 209ms
+     ✓ C01 archives an unused product without affecting stock, and C04 pays remaining debt exactly 286ms
+     ✓ C14 current STAFF contract permits desk sales but denies catalog settings 196ms
+     ✓ C16 controlled row-lock race: last-unit 169ms
+     × C16 controlled row-lock race: supplier-balance 5017ms
+     ✓ C16 controlled row-lock race: receipt-post 481ms
+     ✓ C16 controlled row-lock race: sale-reverse 540ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C16 controlled row-lock race: supplier-balance
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/bar-operational.test.ts:139:77
+    137|     expect((await f.request('sales/retail', { productId: d.a.id, quant…
+    138|   });
+    139|   it.each(['last-unit', 'supplier-balance', 'receipt-post', 'sale-reve…
+       |                                                                             ^
+    140|     const d = await stocked();
+    141|     let table: string, id: string, path: string, body: Record<string, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+   Start at  17:32:47
+   Duration  26.18s (tests 76%, import 14%, transform 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-32-46Z-integration-17e0.json
+
+# код выхода 1 · 28 с

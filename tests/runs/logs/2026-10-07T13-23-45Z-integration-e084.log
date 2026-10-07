@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 07.10.2026 18:23 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-23-45Z-integration-e084.json' 'tests/integration/bar-replay-repair.test.ts' 'tests/integration/bar-reversal-policy.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-23-45Z-integration-e084.json
+filter: tests/integration/bar-replay-repair.test.ts, tests/integration/bar-reversal-policy.test.ts
+projects: integration
+
+|integration|
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: миграция 20261007000064_bar_financial_replay на схеме pms_test не применилась: relation "bar_operation_intents" already exists
+ ❯ ensureTestSchema tests/tools/test-schema.ts:82:15
+     80|       } catch (e) {
+     81|         await client.query('ROLLBACK');
+     82|         throw new Error(`миграция ${name} на схеме ${TEST_SCHEMA} не п…
+       |               ^
+     83|           cause: e,
+     84|         });
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+ ❯ start node_modules/vitest/dist/chunks/cac.D805sv8h.js:2370:15
+
+Caused by: error: relation "bar_operation_intents" already exists
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:76:9
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 115, severity: 'ERROR', code: '42P07', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'heap.c', routine: 'heap_create_with_catalog' }
+
+
+
+
+# код выхода 1 · 13 с

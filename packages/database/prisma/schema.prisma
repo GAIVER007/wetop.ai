@@ -151,6 +151,9 @@ model Property {
   barStockLots        BarStockLot[]
   barStockMovements   BarStockMovement[]
   barSales            BarSale[]
+  barOperationIntents BarOperationIntent[]
+  barPaymentReversals BarSupplierPaymentReversal[]
+  barCostLosses       BarCostLoss[]
   deskTasks           DeskTask[]
   paymentRequests     PaymentRequest[]
   fiscalReceipts      FiscalReceipt[]
@@ -1141,6 +1144,7 @@ model BarSupplierPayment {
   createdById     String?  @map("created_by_id") @db.Uuid
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  reversal      BarSupplierPaymentReversal?
   receipt       BarReceipt    @relation(fields: [receiptId], references: [id], onDelete: Restrict)
   cashOperation CashOperation @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
 
@@ -1160,6 +1164,7 @@ model BarSale {
   totalRevenue    BigInt        @map("total_revenue")
   totalCost       BigInt        @map("total_cost")
   createdById     String?       @map("created_by_id") @db.Uuid
+  reversalRestocked Boolean? @map("reversal_restocked")
   reversedAt      DateTime?     @map("reversed_at") @db.Timestamptz(6)
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -1168,8 +1173,9 @@ model BarSale {
   cashOperation CashOperation? @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   charge        Charge?        @relation(fields: [chargeId], references: [id], onDelete: Restrict)
   lines         BarSaleLine[]
+  costLoss      BarCostLoss?
 
-  @@unique([propertyId, idempotencyKey])
+  @@index([propertyId, idempotencyKey])
   @@index([propertyId, createdAt])
   @@map("bar_sales")
 }
@@ -2547,4 +2553,51 @@ model TableAssignment {
 
   @@index([tableId])
   @@map("table_assignments")
+}
+
+
+/// Permanent replay result, committed atomically with BAR ledger effects.
+model BarOperationIntent {
+  id          String   @id @default(uuid()) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  kind        String   @db.VarChar(32)
+  key         String   @db.VarChar(120)
+  request     Json
+  result      Json
+  operationId String   @map("operation_id") @db.Uuid
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  @@unique([propertyId, kind, key])
+  @@index([propertyId, createdAt])
+  @@map("bar_operation_intents")
+}
+
+/// Compensation preserves the original supplier payment and Finance audit.
+model BarSupplierPaymentReversal {
+  id          String   @id @default(uuid()) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  paymentId   String   @unique @map("payment_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor")
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  payment BarSupplierPayment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  @@index([propertyId, createdAt])
+  @@map("bar_supplier_payment_reversals")
+}
+
+/// FIFO cost lost on reversal without restock; no second warehouse decrement.
+model BarCostLoss {
+  id          String   @id @default(uuid()) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  saleId      String   @unique @map("sale_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor")
+  reason      String
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  sale BarSale @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  @@index([propertyId, createdAt])
+  @@map("bar_cost_losses")
 }

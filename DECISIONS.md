@@ -6107,3 +6107,9 @@ write-off and no hidden goods cost. Consequences: approved model/API/report chan
 forward migration and rollback rehearsal are needed. Implement the confirmed choices in plans/bar-operational-repair-next-2026-10-07.md, including linked append-only compensation records for supplier void and cost loss.
 
 Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
+
+## BAR D1 key scope implementation, 2026-10-07
+
+Problem: retaining the legacy sale key uniqueness across both channels contradicts the owner's approved Property + kind + key scope. Options: reject cross-kind reuse, prefix stored keys, or make the persistent registry authoritative. Decision: retain the original client keys and make the legacy sale lookup index non-unique; BarOperationIntent enforces uniqueness and transactional replay for each kind. Consequence: independent RETAIL/FOLIO intentions may share a key; rollback refuses collisions instead of discarding valid financial history.
+
+2026-10-07, BAR durable evidence: table default privileges granted DELETE, which could forget an accepted operation key. Preserve the approved permanent-journal contract by revoking DELETE for wetop_app and wetop_service on intent, payment reversal and cost loss records. Administrative cleanup/rollback uses the database owner; no production action is authorized.

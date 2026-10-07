@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
+import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction, writeOffBarAction } from './actions';
 import { barApi } from '../../lib/api';
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
-  barApi: { createCategory: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn() },
+  barApi: { createCategory: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), writeOff: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn() },
 }));
 
 describe('форма прихода бара', () => {
@@ -37,16 +37,16 @@ describe('форма прихода бара', () => {
   it('передает розничную продажу с ключом повтора', async () => {
     vi.mocked(barApi.sellRetail).mockResolvedValue({ id: 'sale-1', status: 'POSTED', revenueMinor: '140000', costMinor: '30000' });
     const fd = new FormData();
-    Object.entries({ productId: 'product-1', quantityUnits: '2', method: 'CASH' }).forEach(([key, value]) => fd.set(key, value));
+    Object.entries({ idempotencyKey: 'retail-intent', productId: 'product-1', quantityUnits: '2', method: 'CASH' }).forEach(([key, value]) => fd.set(key, value));
     const result = await sellBarRetailAction({ error: null, ok: 0 }, fd);
     expect(result.error).toBeNull();
     expect(barApi.sellRetail).toHaveBeenCalledWith(expect.objectContaining({ productId: 'product-1', quantityUnits: '2', method: 'CASH', idempotencyKey: expect.any(String) }));
   });
 
   it('переводит частичную оплату поставщику в minor units', async () => {
-    vi.mocked(barApi.payReceipt).mockResolvedValue({ id: 'payment-1', receiptId: 'receipt-1', paidAmount: '8050', dueAmount: '9950' });
+    vi.mocked(barApi.payReceipt).mockResolvedValue({ id: 'payment-1', status: 'COMPLETED', receiptId: 'receipt-1', paidAmount: '8050', dueAmount: '9950' });
     const fd = new FormData();
-    Object.entries({ receiptId: 'receipt-1', amount: '80.50', method: 'BANK_TRANSFER_LEGAL' }).forEach(([key, value]) => fd.set(key, value));
+    Object.entries({ idempotencyKey: 'payment-intent', receiptId: 'receipt-1', amount: '80.50', method: 'BANK_TRANSFER_LEGAL' }).forEach(([key, value]) => fd.set(key, value));
     const result = await payBarSupplierAction({ error: null, ok: 0 }, fd);
     expect(result.error).toBeNull();
     expect(barApi.payReceipt).toHaveBeenCalledWith('receipt-1', expect.objectContaining({ amountMinor: '8050', method: 'BANK_TRANSFER_LEGAL' }));
@@ -55,7 +55,7 @@ describe('форма прихода бара', () => {
   it('передает продажу в счет гостя с ключом повтора', async () => {
     vi.mocked(barApi.sellToFolio).mockResolvedValue({ id: 'sale-2', status: 'POSTED', chargeId: 'charge-1', revenueMinor: '70000', costMinor: '15000' });
     const fd = new FormData();
-    Object.entries({ folioId: 'folio-1', productId: 'product-1', quantityUnits: '1' }).forEach(([key, value]) => fd.set(key, value));
+    Object.entries({ idempotencyKey: 'folio-intent', folioId: 'folio-1', productId: 'product-1', quantityUnits: '1' }).forEach(([key, value]) => fd.set(key, value));
     const result = await sellBarToFolioAction({ error: null, ok: 0 }, fd);
     expect(result.error).toBeNull();
     expect(barApi.sellToFolio).toHaveBeenCalledWith(expect.objectContaining({ folioId: 'folio-1', productId: 'product-1', quantityUnits: '1', idempotencyKey: expect.any(String) }));
@@ -86,4 +86,35 @@ describe('форма прихода бара', () => {
     expect(result.error).toBeNull();
     expect(barApi.setProductPrice).toHaveBeenCalledWith('product-1', '85000');
   });
+});
+
+
+describe('BAR browser intent key survives server action retries', () => {
+  beforeEach(() => vi.clearAllMocks());
+  it.each([
+    ['retail', sellBarRetailAction, 'sellRetail'],
+    ['folio', sellBarToFolioAction, 'sellToFolio'],
+    ['write-off', writeOffBarAction, 'writeOff'],
+    ['payment', payBarSupplierAction, 'payReceipt'],
+  ] as const)('%s forwards the same explicit key on both attempts', async (_kind, action, method) => {
+    const fd = new FormData();
+    Object.entries({ productId: 'synthetic-product', folioId: 'synthetic-folio', receiptId: 'synthetic-receipt', quantityUnits: '1', amount: '10.00', method: 'CASH', reason: 'Synthetic loss', idempotencyKey: 'persisted-intent-1' }).forEach(([k,v]) => fd.set(k,v));
+    vi.mocked(barApi.sellRetail).mockResolvedValue({ id: 'operation', status: 'POSTED', revenueMinor: '1000', costMinor: '100' });
+    vi.mocked(barApi.sellToFolio).mockResolvedValue({ id: 'operation', status: 'POSTED', chargeId: 'charge', revenueMinor: '1000', costMinor: '100' });
+    vi.mocked(barApi.payReceipt).mockResolvedValue({ id: 'operation', status: 'COMPLETED', receiptId: 'synthetic-receipt', paidAmount: '1000', dueAmount: '9000' });
+    vi.mocked(barApi.writeOff).mockResolvedValue({ id: 'operation', costMinor: '100', movementsCreated: 1 });
+    await action({ error: null, ok: 0 }, fd);
+    await action({ error: null, ok: 0 }, fd);
+    expect(barApi[method]).toHaveBeenCalledTimes(2);
+    for (const call of vi.mocked(barApi[method]).mock.calls) expect(call.at(-1)).toMatchObject({ idempotencyKey: 'persisted-intent-1' });
+  });
+});
+
+
+it('expired-session navigation is preserved instead of displaying NEXT_REDIRECT', async () => {
+  const expired = Object.assign(new Error('NEXT_REDIRECT'), { digest: 'NEXT_REDIRECT;push;/login;307;' });
+  vi.mocked(barApi.sellRetail).mockRejectedValueOnce(expired);
+  const fd = new FormData();
+  Object.entries({ productId: 'product-1', quantityUnits: '1', method: 'CASH', idempotencyKey: 'persisted-intent' }).forEach(([key,value]) => fd.set(key,value));
+  await expect(sellBarRetailAction({ error: null, ok: 0 }, fd)).rejects.toBe(expired);
 });

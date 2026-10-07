@@ -40,7 +40,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     const postedEffects = await effects(side.property);
     expect((await f.request(`receipts/${d.r1.id}/post`, {}, d.options)).status).toBe(409);
     expect(await effects(side.property)).toEqual(postedEffects);
-    expect((await f.request(`receipts/${d.r1.id}/payments`, { amountMinor: '60000', method: 'CASH' }, d.options)).body).toMatchObject({ paidAmount: '60000', dueAmount: '60000' });
+    expect((await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '60000', method: 'CASH' }, d.options)).body).toMatchObject({ paidAmount: '60000', dueAmount: '60000' });
     expect(await report(d.options)).toMatchObject({ supplierPaidMinor: '60000', supplierDebtMinor: '220000', stockCostMinor: '280000' });
     const retail = await f.request('sales/retail', { productId: d.a.id, quantityUnits: '12', method: 'CASH', idempotencyKey: randomUUID() }, d.options);
     expect(retail.status).toBe(201);
@@ -53,7 +53,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     const charge = await f.db.charge.findUniqueOrThrow({ where: { id: folio.body.chargeId } });
     expect(charge).toMatchObject({ folioId: side.folio, kind: 'SERVICE', amount: 96000n });
     expect(await report(d.options)).toMatchObject({ stockCostMinor: '100000' });
-    const writeOff = await f.request('write-offs', { productId: d.a.id, quantityUnits: '1', reason: 'Synthetic spoilage' }, d.options);
+    const writeOff = await f.request('write-offs', { idempotencyKey: randomUUID(), productId: d.a.id, quantityUnits: '1', reason: 'Synthetic spoilage' }, d.options);
     expect(writeOff.body.costMinor).toBe('16000');
     expect(await report(d.options)).toMatchObject({ stockCostMinor: '84000' });
     const countBody = { productId: d.a.id, actualUnits: '3', reason: 'Synthetic count' };
@@ -72,7 +72,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
   });
   it.each([true, false])('C09/C10 reversal restock=%s preserves exact stock and cash, repeat denies', async restock => {
     const d = await stocked();
-    await f.request(`receipts/${d.r1.id}/payments`, { amountMinor: '60000', method: 'CASH' }, d.options);
+    await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '60000', method: 'CASH' }, d.options);
     const sale = await f.request('sales/retail', { productId: d.a.id, quantityUnits: '12', method: 'CASH', idempotencyKey: randomUUID() }, d.options);
     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock, reason: 'Synthetic reversal' }, d.options)).status).toBe(201);
     expect(await report(d.options)).toMatchObject({ stockCostMinor: restock ? '280000' : '148000', revenueMinor: '0', costMinor: '0', writeOffMinor: '0', supplierDebtMinor: '220000' });
@@ -106,7 +106,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
       expect([400, 409]).toContain(r.status);
       expect(await effects(d.side.property)).toEqual(before);
     }
-    expect((await f.request(`receipts/${d.r1.id}/payments`, { amountMinor: '120001', method: 'CASH' }, d.options)).status).toBe(409);
+    expect((await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '120001', method: 'CASH' }, d.options)).status).toBe(409);
     expect(await effects(d.side.property)).toEqual(before);
     expect((await f.request('inventory-counts', { productId: d.b.id, actualUnits: '0', reason: 'Zero is valid' }, d.options)).status).toBe(201);
   });
@@ -115,7 +115,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     const before = await effects(own.side.property), foreign = await effects(other.side.property);
     expect((await f.request('sales/retail', { productId: other.a.id, quantityUnits: '1', method: 'CASH', idempotencyKey: randomUUID() }, own.options)).status).toBe(404);
     expect((await f.request('sales/folio', { productId: own.a.id, folioId: other.side.folio, quantityUnits: '1', idempotencyKey: randomUUID() }, own.options)).status).toBe(404);
-    expect((await f.request(`receipts/${other.r1.id}/payments`, { amountMinor: '1', method: 'CASH' }, own.options)).status).toBe(404);
+    expect((await f.request(`receipts/${other.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '1', method: 'CASH' }, own.options)).status).toBe(404);
     expect(await effects(own.side.property)).toEqual(before);
     expect(await effects(other.side.property)).toEqual(foreign);
   });
@@ -126,9 +126,9 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     const before = await effects(d.side.property);
     expect((await f.request(`products/${unused.body.id}/active`, { active: false }, { ...d.options, method: 'PATCH' })).status).toBe(200);
     expect(await effects(d.side.property)).toEqual(before);
-    for (const amountMinor of ['60000', '60000']) expect((await f.request(`receipts/${d.r1.id}/payments`, { amountMinor, method: 'CASH' }, d.options)).status).toBe(201);
+    for (const amountMinor of ['60000', '60000']) expect((await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor, method: 'CASH' }, d.options)).status).toBe(201);
     expect((await report(d.options)).supplierDebtMinor).toBe('160000');
-    expect((await f.request(`receipts/${d.r1.id}/payments`, { amountMinor: '1', method: 'CASH' }, d.options)).status).toBe(409);
+    expect((await f.request(`receipts/${d.r1.id}/payments`, { idempotencyKey: randomUUID(), amountMinor: '1', method: 'CASH' }, d.options)).status).toBe(409);
   });
   it('C14 current STAFF contract permits desk sales but denies catalog settings', async () => {
     const d = await stocked(), options = { ...d.options, role: 'STAFF' as const };
@@ -145,7 +145,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
       table = 'bar_stock_lots'; id = lot.id; path = 'sales/retail';
       body = { productId: d.a.id, quantityUnits: '1', method: 'CASH' };
     } else if (operation === 'supplier-balance') {
-      table = 'bar_receipts'; id = d.r1.id; path = `receipts/${id}/payments`; body = { amountMinor: '120000', method: 'CASH' };
+      table = 'bar_receipts'; id = d.r1.id; path = `receipts/${id}/payments`; body = { idempotencyKey: randomUUID(), amountMinor: '120000', method: 'CASH' };
     } else if (operation === 'receipt-post') {
       const draft = await f.request('receipts', { supplierId: d.supplier.id, documentNumber: 'Race', documentDate: '2026-10-07', receivedDate: '2026-10-07', currency: 'KZT', lines: [{ productId: d.a.id, quantityUnits: '1', unitCostMinor: '16000', markupBasis: 10000 }] }, d.options);
       table = 'bar_receipts'; id = draft.body.id; path = `receipts/${id}/post`; body = {};
@@ -159,7 +159,7 @@ describe('BAR operational acceptance: real HTTP and PostgreSQL', () => {
     try {
       await barrier.query('BEGIN');
       await barrier.query(`SELECT id FROM ${table} WHERE id=$1 FOR UPDATE`, [id]);
-      pending = [0, 1].map(() => f.request(path, { ...body, ...(operation === 'last-unit' ? { idempotencyKey: randomUUID() } : {}) }, d.options));
+      pending = [0, 1].map(() => f.request(path, { ...body, ...(operation === 'last-unit' || operation === 'supplier-balance' ? { idempotencyKey: randomUUID() } : {}) }, d.options));
       const deadline = Date.now() + 5000;
       let waiting = 0;
       while (Date.now() < deadline) {

@@ -1,0 +1,125 @@
+# Модульные (unit) · 07.10.2026 18:25 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-25-43Z-unit-1a54.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (12 tests | 4 failed) 90ms
+   ✓ форма прихода бара (8)
+     ✓ переводит тенге и процент в целые младшие единицы 48ms
+     ✓ не пропускает float и не отправляет запрос 1ms
+     ✓ передает розничную продажу с ключом повтора 7ms
+     ✓ переводит частичную оплату поставщику в minor units 1ms
+     ✓ передает продажу в счет гостя с ключом повтора 1ms
+     ✓ передает фактический остаток без float 1ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ❯ BAR browser intent key survives server action retries (4)
+     × retail forwards the same explicit key on both attempts 21ms
+     × folio forwards the same explicit key on both attempts 2ms
+     × write-off forwards the same explicit key on both attempts 2ms
+     × payment forwards the same explicit key on both attempts 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR browser intent key survives server action retries > retail forwards the same explicit key on both attempts
+AssertionError: expected { Object (productId, quantityUnits, ...) } to match object { Object (idempotencyKey) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "idempotencyKey": "persisted-intent-1",
++   "idempotencyKey": "3b9106e2-e57c-4801-8e41-e9a7e110bd08",
+  }
+
+ ❯ apps/web/src/app/bar/actions.test.ts:106:82
+    104|     await action({ error: null, ok: 0 }, fd);
+    105|     expect(barApi[method]).toHaveBeenCalledTimes(2);
+    106|     for (const call of vi.mocked(barApi[method]).mock.calls) expect(ca…
+       |                                                                                  ^
+    107|   });
+    108| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR browser intent key survives server action retries > folio forwards the same explicit key on both attempts
+AssertionError: expected { folioId: 'synthetic-folio', …(3) } to match object { Object (idempotencyKey) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "idempotencyKey": "persisted-intent-1",
++   "idempotencyKey": "87fb28a7-273c-4274-b42c-ecad2c471dba",
+  }
+
+ ❯ apps/web/src/app/bar/actions.test.ts:106:82
+    104|     await action({ error: null, ok: 0 }, fd);
+    105|     expect(barApi[method]).toHaveBeenCalledTimes(2);
+    106|     for (const call of vi.mocked(barApi[method]).mock.calls) expect(ca…
+       |                                                                                  ^
+    107|   });
+    108| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR browser intent key survives server action retries > write-off forwards the same explicit key on both attempts
+AssertionError: expected { Object (productId, quantityUnits, ...) } to match object { Object (idempotencyKey) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "idempotencyKey": "persisted-intent-1",
++   "productId": "synthetic-product",
++   "quantityUnits": "1",
++   "reason": "Synthetic loss",
+  }
+
+ ❯ apps/web/src/app/bar/actions.test.ts:106:82
+    104|     await action({ error: null, ok: 0 }, fd);
+    105|     expect(barApi[method]).toHaveBeenCalledTimes(2);
+    106|     for (const call of vi.mocked(barApi[method]).mock.calls) expect(ca…
+       |                                                                                  ^
+    107|   });
+    108| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > BAR browser intent key survives server action retries > payment forwards the same explicit key on both attempts
+AssertionError: expected { amountMinor: '1000', …(2) } to match object { Object (idempotencyKey) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "idempotencyKey": "persisted-intent-1",
++   "amountMinor": "1000",
++   "method": "CASH",
++   "note": null,
+  }
+
+ ❯ apps/web/src/app/bar/actions.test.ts:106:82
+    104|     await action({ error: null, ok: 0 }, fd);
+    105|     expect(barApi[method]).toHaveBeenCalledTimes(2);
+    106|     for (const call of vi.mocked(barApi[method]).mock.calls) expect(ca…
+       |                                                                                  ^
+    107|   });
+    108| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 8 passed (12)
+   Start at  17:25:46
+   Duration  820ms (transform 54%, tests 23%, import 18%, worker 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-25-43Z-unit-1a54.json
+
+# код выхода 1 · 4 с

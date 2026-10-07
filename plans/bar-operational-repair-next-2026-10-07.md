@@ -1,6 +1,6 @@
 # BAR: три исправления и окончательная приёмка
 
-Статус: D1/D2/D3 и матрица прав подтверждены владельцем 07.10.2026. Реализация разрешена в ранее согласованном локальном QA-контуре. C12 остаётся BLOCKED.
+Статус: D1/D2/D3 и матрица прав подтверждены владельцем 07.10.2026. Реализация разрешена в ранее согласованном локальном QA-контуре. C12 принят: paid/closed Folio запрещает reverse.
 Поручение: продолжить три исправления, затем доказать права, read-only, полный цикл и CI.
 Готовый фикс фактического REVERSED из PR279 сохраняется, повторная реализация не нужна.
 
@@ -30,7 +30,7 @@ Payload содержит receipt/product, сумму/количество, ме�
 Хеш не заменяет сами согласованные параметры. Ключ без payload не считается
 достаточной защитой. Две вкладки с одним ключом защищены сервером; независимые
 намерения с разными ключами не объединяются по совпадению суммы/времени.
-Нужны forward migration и новая сущность, согласовать до кода.
+Forward migration и новая сущность согласованы D1.
 Старым операциям ключи не придумывать; historical duplicates не удалять автоматически.
 
 D2. Принято: учитывать оплату поставщику только при linked cash.status=COMPLETED.
@@ -63,8 +63,7 @@ STAFF может читать, проводить приход, оплачива
 READ_ONLY является статусом организации, не новой ролью: чтение допустимо, все BAR
 mutations запрещены реальным SessionGuard. Внешние права не расширяются.
 Если STAFF должен отменять продажи, требуется отдельное явное решение.
-Paid/closed Folio reversal остаётся незакрытым финансовым вопросом C12; его нельзя
-считать принятым за счёт согласования этих трёх исправлений.
+C12 подтверждён отдельно: closed или любой paid Folio запрещает reverse.
 
 ## Этапы после согласования
 
@@ -109,3 +108,5 @@ BarCostLoss: unique saleId, immutable propertyId, amountMinor, reason/author/tim
 Все новые связи проверяются независимыми ownership guards для app и service; FORCE RLS и pinned функции. Legacy migration backfill проводится только для однозначных связей; сомнительные legacy записи блокируют приёмку.
 
 Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
+
+Resume preflight: disk 23 GiB free; own tree clean/no locks; synced main c22aeae9 contains no BAR or migration changes. Forward migration number 64 is free. OperationIntent.operationId explicitly identifies the persisted result, including write-off source UUID; immutable fields and ownership validation cover it.

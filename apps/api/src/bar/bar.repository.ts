@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import type { Prisma } from '@pms/database';
+import { ConflictException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { allocateFifo, LUXX_APARTS_PROPERTY, salePriceFromMarkup } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
@@ -41,8 +42,8 @@ export interface BarSupplierInput {
 }
 export interface BarRetailSaleInput { productId: string; quantityUnits: bigint; method: string; idempotencyKey: string }
 export interface BarFolioSaleInput { folioId: string; productId: string; quantityUnits: bigint; idempotencyKey: string }
-export interface BarWriteOffInput { productId: string; quantityUnits: bigint; reason: string }
-export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null }
+export interface BarWriteOffInput { productId: string; quantityUnits: bigint; reason: string; idempotencyKey: string }
+export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null; idempotencyKey: string }
 export interface BarInventoryCountInput { productId: string; actualUnits: bigint; reason: string }
 
 export interface BarRepository {
@@ -77,6 +78,54 @@ export const BAR_REPOSITORY = Symbol('BAR_REPOSITORY');
 export class PrismaBarRepository implements BarRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   private propertyId() { return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name); }
+  /** The registry and effects share one transaction; aborted attempts claim no key. */
+  private async operation<T extends { kind: string }>(
+    propertyId: string, kind: string, key: string, request: Record<string, string | null>,
+    write: (tx: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
+    try {
+      return await this.prisma.db.$transaction(async tx => {
+        // Validate scope before looking up a result, including inactive/closed replays.
+        if (request.productId && !await tx.barProduct.findFirst({ where: { id: request.productId, propertyId } }))
+          throw new NotFoundException('Товар не найден');
+        if (request.receiptId && !await tx.barReceipt.findFirst({ where: { id: request.receiptId, propertyId } }))
+          throw new NotFoundException('Приход не найден');
+        if (request.folioId && !await tx.folio.findFirst({ where: { id: request.folioId, reservationItem: { reservation: { propertyId } } } }))
+          throw new NotFoundException('Счет гостя не найден');
+        const namespace = kind;
+        await tx.$queryRaw`SELECT 1 AS locked FROM (SELECT pg_advisory_xact_lock(hashtextextended(${`${propertyId}:${namespace}:${key}`}, 0))) lock`;
+        const previous = await tx.barOperationIntent.findUnique({ where: { propertyId_kind_key: { propertyId, kind, key } } });
+        if (previous) {
+          const canonical = (value: Record<string, unknown>) => JSON.stringify(Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+          if (canonical(previous.request as Record<string, unknown>) !== canonical(request))
+            throw new ConflictException('Ключ операции уже использован с другими параметрами');
+          const result = previous.result as unknown as T;
+          if (kind === 'RETAIL' || kind === 'FOLIO') {
+            const sale = await tx.barSale.findFirstOrThrow({ where: { id: previous.operationId, propertyId } });
+            return Object.assign({}, result, { status: sale.status });
+          }
+          if (kind === 'SUPPLIER_PAYMENT') {
+            const payment = await tx.barSupplierPayment.findUniqueOrThrow({ where: { id: previous.operationId }, include: { cashOperation: true, receipt: { include: { payments: { where: { cashOperation: { status: 'COMPLETED' } } } } } } });
+            const paid = payment.receipt.payments.reduce((sum, row) => sum + row.amount, 0n);
+            return Object.assign({}, result, { status: payment.cashOperation.status, dueAmount: (payment.receipt.totalAmount - paid).toString() });
+          }
+          return result;
+        }
+        if ((kind === 'RETAIL' || kind === 'FOLIO') && await tx.barSale.findFirst({ where: { propertyId, idempotencyKey: key, folioId: kind === 'RETAIL' ? null : { not: null } } }))
+          throw new ConflictException('Исторический ключ продажи требует проверки журнала');
+        const result = await write(tx);
+        if (result.kind === 'posted' || result.kind === 'paid') {
+          const saved = result as T & { id: string };
+          await tx.barOperationIntent.create({ data: { propertyId, kind, key, request, result: JSON.parse(JSON.stringify(saved)), operationId: saved.id, createdById: auditUserId() } });
+        }
+        return result;
+      });
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error && ['P2028', 'P2034'].includes(String(error.code)))
+        throw new ServiceUnavailableException('Результат операции пока неизвестен. Повторите с тем же ключом');
+      throw error;
+    }
+  }
   async categories() {
     return (this.prisma.db as any).barCategory.findMany({ where: { propertyId: await this.propertyId() }, orderBy: { name: 'asc' } });
   }
@@ -143,7 +192,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async receipts() {
     const rows = await (this.prisma.db as any).barReceipt.findMany({
-      where: { propertyId: await this.propertyId() }, include: { supplier: true, payments: { select: { amount: true } }, _count: { select: { lines: true } } },
+      where: { propertyId: await this.propertyId() }, include: { supplier: true, payments: { where: { cashOperation: { status: 'COMPLETED' } }, select: { amount: true } }, _count: { select: { lines: true } } },
       orderBy: [{ receivedDate: 'desc' }, { createdAt: 'desc' }],
     });
     return rows.map((row: any) => {
@@ -185,11 +234,12 @@ export class PrismaBarRepository implements BarRepository {
   }
   async report() {
     const propertyId = await this.propertyId();
-    const [receipts, sales, lots, writeOffs] = await Promise.all([
-      (this.prisma.db as any).barReceipt.findMany({ where: { propertyId, status: 'POSTED' }, include: { payments: { select: { amount: true } } } }),
+    const [receipts, sales, lots, writeOffs, losses] = await Promise.all([
+      (this.prisma.db as any).barReceipt.findMany({ where: { propertyId, status: 'POSTED' }, include: { payments: { where: { cashOperation: { status: 'COMPLETED' } }, select: { amount: true } } } }),
       (this.prisma.db as any).barSale.findMany({ where: { propertyId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true } }),
       (this.prisma.db as any).barStockLot.findMany({ where: { propertyId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
       (this.prisma.db as any).barStockMovement.findMany({ where: { propertyId, kind: 'WRITE_OFF' }, select: { units: true, unitCost: true } }),
+      this.prisma.db.barCostLoss.findMany({ where: { propertyId }, select: { amountMinor: true } }),
     ]);
     const purchases = receipts.reduce((sum: bigint, row: any) => sum + BigInt(row.totalAmount), 0n);
     const paid = receipts.reduce((sum: bigint, row: any) => sum + row.payments.reduce((part: bigint, payment: any) => part + BigInt(payment.amount), 0n), 0n);
@@ -197,13 +247,11 @@ export class PrismaBarRepository implements BarRepository {
     const cost = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
     const stockCost = lots.reduce((sum: bigint, row: any) => sum + BigInt(row.remainingUnits) * BigInt(row.unitCost), 0n);
     const writeOff = writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
-    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString() };
+    return { nonRestockedLossMinor: losses.reduce((sum, row) => sum + row.amountMinor, 0n).toString(), purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString() };
   }
   async sellRetail(input: BarRetailSaleInput) {
     const propertyId = await this.propertyId();
-    return this.prisma.db.$transaction(async (tx) => {
-      const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: replay.status as 'POSTED' | 'REVERSED', revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+    return this.operation(propertyId, 'RETAIL', input.idempotencyKey, { productId: input.productId, quantityUnits: input.quantityUnits.toString(), method: input.method }, async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
       if (!product) return { kind: 'not_found' as const };
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
@@ -227,9 +275,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async sellToFolio(input: BarFolioSaleInput) {
     const propertyId = await this.propertyId();
-    return this.prisma.db.$transaction(async (tx) => {
-      const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: replay.status as 'POSTED' | 'REVERSED', chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+    return this.operation(propertyId, 'FOLIO', input.idempotencyKey, { productId: input.productId, quantityUnits: input.quantityUnits.toString(), folioId: input.folioId }, async (tx) => {
       await tx.$queryRaw`SELECT f.id FROM folios f JOIN reservation_items i ON i.id = f.reservation_item_id JOIN reservations r ON r.id = i.reservation_id WHERE f.id = ${input.folioId}::uuid AND r.property_id = ${propertyId}::uuid AND f.status = 'OPEN' FOR UPDATE OF f`;
       const folio = await (tx as any).folio.findFirst({ where: { id: input.folioId, status: 'OPEN', reservationItem: { reservation: { propertyId } } } });
       if (!folio) return { kind: 'folio_not_found' as const };
@@ -283,14 +329,15 @@ export class PrismaBarRepository implements BarRepository {
       }
       if (sale.cashOperationId) await (tx as any).cashOperation.update({ where: { id: sale.cashOperationId }, data: { status: 'VOIDED' } });
       if (sale.chargeId) await (tx as any).charge.update({ where: { id: sale.chargeId }, data: { voidedAt: new Date() } });
-      await (tx as any).barSale.update({ where: { id }, data: { status: 'REVERSED', reversedAt: new Date() } });
+      await (tx as any).barSale.update({ where: { id }, data: { status: 'REVERSED', reversedAt: new Date(), reversalRestocked: restock } });
+      if (!restock) await tx.barCostLoss.create({ data: { propertyId, saleId: id, amountMinor: sale.totalCost, reason, createdById: auditUserId() } });
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: id, action: 'bar.sale.reversed', after: { restock, reason } } });
       return { kind: 'reversed' as const, id, status: 'REVERSED' as const, restocked: restock };
     });
   }
   async writeOff(input: BarWriteOffInput) {
     const propertyId = await this.propertyId();
-    return this.prisma.db.$transaction(async (tx) => {
+    return this.operation(propertyId, 'WRITE_OFF', input.idempotencyKey, { productId: input.productId, quantityUnits: input.quantityUnits.toString(), reason: input.reason }, async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
       if (!product) return { kind: 'not_found' as const };
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
@@ -353,9 +400,9 @@ export class PrismaBarRepository implements BarRepository {
   }
   async payReceipt(id: string, input: BarSupplierPaymentInput) {
     const propertyId = await this.propertyId();
-    return this.prisma.db.$transaction(async (tx) => {
+    return this.operation(propertyId, 'SUPPLIER_PAYMENT', input.idempotencyKey, { receiptId: id, amountMinor: input.amountMinor.toString(), method: input.method, note: input.note }, async (tx) => {
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
-      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, propertyId }, include: { supplier: true, payments: { select: { amount: true } } } });
+      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, propertyId }, include: { supplier: true, payments: { where: { cashOperation: { status: 'COMPLETED' } }, select: { amount: true } } } });
       if (!receipt) return { kind: 'not_found' as const };
       if (receipt.status !== 'POSTED') return { kind: 'not_posted' as const };
       const alreadyPaid = receipt.payments.reduce((sum: bigint, payment: any) => sum + BigInt(payment.amount), 0n);
@@ -370,7 +417,7 @@ export class PrismaBarRepository implements BarRepository {
       const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, cashOperationId: cash.id, amount: input.amountMinor, paidAt: now, createdById: auditUserId() } });
       const remaining = dueAmount - input.amountMinor;
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: payment.id, action: 'bar.supplier_payment.created', after: { receiptId: id, amount: input.amountMinor.toString(), dueAmount: remaining.toString(), method: input.method } } });
-      return { kind: 'paid' as const, id: payment.id, receiptId: id, paidAmount: input.amountMinor.toString(), dueAmount: remaining.toString() };
+      return { kind: 'paid' as const, status: 'COMPLETED' as const, id: payment.id, receiptId: id, paidAmount: input.amountMinor.toString(), dueAmount: remaining.toString() };
     });
   }
   async inventoryCount(input: BarInventoryCountInput) {

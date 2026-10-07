@@ -1,0 +1,31 @@
+# Модульные (unit) · 06.10.2026 23:54 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-54-46Z-unit-2515.json' 'apps/api/src/sites-runtime'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts [ apps/api/src/sites-runtime/sites-runtime.controller.test.ts ]
+Error: Cannot find module './sites-runtime.controller' imported from /home/user/wetop.ai/apps/api/src/sites-runtime/sites-runtime.controller.test.ts
+ ❯ apps/api/src/sites-runtime/sites-runtime.controller.test.ts:14:1
+     12| import { AuthService } from '../auth/auth.service';
+     13| import { databaseTenant } from '../auth/request-context';
+     14| import { SitesRuntimeController } from './sites-runtime.controller';
+       | ^
+     15| import {
+     16|   SITES_RUNTIME_REPOSITORY,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:54:47
+   Duration  3.38s (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-54-46Z-unit-2515.json
+
+# код выхода 1 · 5 с

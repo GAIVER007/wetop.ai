@@ -225,6 +225,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /market/competitors/:id/occupancy': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
+  // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
+  'GET /sites-runtime/current': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -369,6 +371,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /w/widget.js': 'public',
   'GET /w/config': 'public',
   'GET /w/availability': 'public',
+  // Q-276: цена «от» тарифа брони сайта, тот же ключ и домен, что у availability
+  'GET /w/from-prices': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
@@ -429,6 +433,14 @@ describe('права маршрутов API (ADR-107)', () => {
       .map(([key]) => key);
     expect(unannotated, 'маршруты без @Access и без @Public').toEqual([]);
     expect(actual).toEqual(EXPECTED);
+  });
+
+  it('MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет', async () => {
+    const actual = await routes();
+    const runtime = Object.keys(actual).filter((key) => /\/sites-runtime(\/|$)/.test(key));
+    expect(runtime).toEqual(['GET /sites-runtime/current']);
+    const byId = Object.keys(actual).filter((key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key));
+    expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
   });
 
   it('замок ролей стоит сразу за замком входа: без сессии роль не узнать', () => {

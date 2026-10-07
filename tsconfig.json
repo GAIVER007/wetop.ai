@@ -11,6 +11,7 @@
   },
   "include": [
     "packages/*/src/**/*.ts",
+    "apps/sites/src/**/*.ts",
     "scripts/*/src/**/*.ts",
     "scripts/preview/**/*.ts",
     "tests/**/*.ts",

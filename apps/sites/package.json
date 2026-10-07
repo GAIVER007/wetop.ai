@@ -1,0 +1,12 @@
+{
+  "name": "@pms/sites",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Публичный рантайм управляемых сайтов WETOP (MKT4): Cloudflare Worker, SiteSpec v0 → HTML",
+  "type": "module",
+  "scripts": {
+    "dev": "npx wrangler@4.148.0 dev --env dev",
+    "check:bundle": "npx wrangler@4.148.0 deploy --env staging --dry-run --outdir .wrangler-dry",
+    "preview": "tsx src/dev-server.ts"
+  }
+}

@@ -1,0 +1,607 @@
+# Интеграционные (integration) · 06.10.2026 23:58 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-58-07Z-integration-1cbc.json' 'tests/integration/sites-runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/sites-runtime.test.ts (13 tests | 6 failed) 1028ms
+   ❯ MKT4 sites runtime: only the published pointer (13)
+     × опубликованная версия, а не более новый черновик latest_version_id 59ms
+     ✓ ответ: ключ связанного сайта счётчика, бронь выключена, основного хоста нет до MKT7 14ms
+     × knownSpecHash совпал: документ не отдаётся 16ms
+     × knownSpecHash черновика ничего не открывает: в ответе всё равно опубликованная версия 14ms
+     ✓ publicFacts только из объекта филиала сайта и только белый список 19ms
+     × черновой сайт: 404 без имени сайта и без документа 37ms
+     × пауза: 404 без имени сайта и без документа 12ms
+     × архивный сайт: 404 без имени сайта и без документа 8ms
+     ✓ архивный филиал: 404 без имени сайта и без документа 12ms
+     ✓ архивный Business: 404 без имени сайта и без документа 7ms
+     ✓ неизвестный хост: 404 без имени сайта и без документа 2ms
+     ✓ документ не проходит валидатор: 503, документа в ответе нет 9ms
+     ✓ без ключа рантайма: 401 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > опубликованная версия, а не более новый черновик latest_version_id
+AssertionError: expected '7fb21c4d-5a5e-47e2-82e8-bd46d0dd8584' to be '6ecfb73f-7f23-4871-96ba-13a657de25fb' // Object.is equality
+
+Expected: "6ecfb73f-7f23-4871-96ba-13a657de25fb"
+Received: "7fb21c4d-5a5e-47e2-82e8-bd46d0dd8584"
+
+ ❯ tests/integration/sites-runtime.test.ts:219:30
+    217|     const r = await current('live.mkt4.localhost');
+    218|     expect(r.status).toBe(200);
+    219|     expect(r.body.versionId).toBe(live.v1);
+       |                              ^
+    220|     expect(r.body.specHash).toBe(siteSpecHash(PUBLISHED));
+    221|     expect(r.body.spec.site.displayName).toEqual({ ru: 'Опубликованная…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > knownSpecHash совпал: документ не отдаётся
+AssertionError: expected { site: { seo: { …(3) }, …(7) }, …(5) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "integrations": {
+    "analytics": {
+      "consent": "NOT_REQUIRED",
+      "mode": "WETOP_TRACKER",
+    },
+    "booking": {
+      "mode": "WETOP_WIDGET",
+    },
+  },
+  "navigation": {
+    "footer": [
+      {
+        "label": {
+          "ru": "Главная",
+        },
+        "target": {
+          "kind": "PAGE",
+          "pageId": "page-home",
+        },
+      },
+      {
+        "label": {
+          "ru": "Политика конфиденциальности",
+        },
+        "target": {
+          "kind": "PAGE",
+          "pageId": "page-privacy",
+        },
+      },
+    ],
+    "header": [
+      {
+        "label": {
+          "ru": "Номера",
+        },
+        "target": {
+          "kind": "SECTION",
+          "pageId": "page-home",
+          "sectionId": "sec-rooms",
+        },
+      },
+      {
+        "label": {
+          "ru": "Удобства",
+        },
+        "target": {
+          "kind": "SECTION",
+          "pageId": "page-home",
+          "sectionId": "sec-amenities",
+        },
+      },
+      {
+        "label": {
+          "ru": "Вопросы",
+        },
+        "target": {
+          "kind": "SECTION",
+          "pageId": "page-home",
+          "sectionId": "sec-faq",
+        },
+      },
+      {
+        "label": {
+          "ru": "Контакты",
+        },
+        "target": {
+          "kind": "SECTION",
+          "pageId": "page-home",
+          "sectionId": "sec-contacts",
+        },
+      },
+    ],
+    "headerCta": {
+      "action": {
+        "kind": "BOOK",
+      },
+      "label": {
+        "ru": "Забронировать",
+      },
+    },
+  },
+  "pages": [
+    {
+      "id": "page-home",
+      "isHome": true,
+      "sections": [
+        {
+          "heading": {
+            "ru": "Тихие номера у вокзала",
+          },
+          "id": "sec-hero",
+          "image": {
+            "alt": {
+              "ru": "Фасад гостиницы вечером",
+            },
+            "assetId": "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d",
+          },
+          "primaryAction": {
+            "action": {
+              "kind": "BOOK",
+            },
+            "label": {
+              "ru": "Выбрать даты",
+            },
+          },
+          "secondaryAction": {
+            "action": {
+              "kind": "WHATSAPP",
+            },
+            "label": {
+              "ru": "Написать в WhatsApp",
+            },
+          },
+          "subheading": {
+            "ru": "Заезд круглосуточно, парковка во дворе, завтрак по желанию.",
+          },
+          "type": "hero",
+          "variant": "IMAGE_FULL",
+        },
+        {
+          "heading": {
+            "ru": "О гостинице",
+          },
+          "id": "sec-about",
+          "image": {
+            "alt": {
+              "ru": "Лобби с диваном и стойкой регистрации",
+            },
+            "assetId": "9c4f5d23-6e70-4182-9d9e-0f1a2b3c4d5e",
+          },
+          "paragraphs": [
+            {
+              "ru": "Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно.",
+            },
+            {
+              "ru": "До вокзала пять минут пешком, до центра пятнадцать минут на автобусе.",
+            },
+          ],
+          "type": "about",
+          "variant": "TEXT_IMAGE",
+        },
+        {
+          "heading": {
+            "ru": "Почему у нас удобно",
+          },
+          "id": "sec-features",
+          "items": [
+            {
+              "icon": "CLOCK",
+              "text": {
+                "ru": "Администратор на месте круглые сутки.",
+              },
+              "title": {
+                "ru": "Заезд в любое время",
+              },
+            },
+            {
+              "icon": "PARKING",
+              "text": {
+                "ru": "Бесплатно для гостей, во дворе.",
+              },
+              "title": {
+                "ru": "Своя парковка",
+              },
+            },
+            {
+              "icon": "WIFI",
+              "text": {
+                "ru": "Wi-Fi во всех номерах.",
+              },
+              "title": {
+                "ru": "Быстрый интернет",
+              },
+            },
+          ],
+          "type": "features",
+          "variant": "GRID",
+        },
+        {
+          "heading": {
+            "ru": "Номера",
+          },
+          "id": "sec-rooms",
+          "items": [
+            {
+              "categoryCode": "standard-double",
+              "description": {
+                "ru": "Двуспальная кровать, душ, рабочий стол.",
+              },
+              "highlights": [
+                [Object],
+                [Object],
+              ],
+              "images": [
+                [Object],
+              ],
+              "title": {
+                "ru": "Стандарт для двоих",
+              },
+            },
+            {
+              "categoryCode": "dorm-bed",
+              "description": {
+                "ru": "Кровать с занавеской, шкафчик с замком, розетка у изголовья.",
+              },
+              "highlights": [
+                [Object],
+              ],
+              "images": [
+                [Object],
+              ],
+              "title": {
+                "ru": "Место в общем номере",
+              },
+            },
+          ],
+          "showFromPrice": true,
+          "showLiveCapacity": true,
+          "type": "accommodations",
+          "variant": "CARDS",
+        },
+        {
+          "heading": {
+            "ru": "Удобства и услуги",
+          },
+          "id": "sec-amenities",
+          "items": [
+            {
+              "icon": "BREAKFAST",
+              "label": {
+                "ru": "Завтрак",
+              },
+              "note": {
+                "ru": "по желанию, оплачивается отдельно",
+              },
+            },
+            {
+              "icon": "LAUNDRY",
+              "label": {
+                "ru": "Прачечная",
+              },
+            },
+            {
+              "icon": "LUGGAGE",
+              "label": {
+                "ru": "Камера хранения",
+              },
+            },
+          ],
+          "type": "amenities",
+          "variant": "LIST",
+        },
+        {
+          "categoryCodes": [
+            "standard-double",
+            "dorm-bed",
+          ],
+          "heading": {
+            "ru": "Цены",
+          },
+          "id": "sec-pricing",
+          "note": {
+            "ru": "Точная цена зависит от дат. Выберите даты в форме бронирования.",
+          },
+          "type": "pricing",
+          "variant": "FROM_PRICES",
+        },
+        {
+          "heading": {
+            "ru": "Фотографии",
+          },
+          "id": "sec-gallery",
+          "images": [
+            {
+              "alt": {
+                "ru": "Коридор второго этажа",
+              },
+              "assetId": "c3d4e5f6-2031-4c4d-8e5f-6a7b8c9d0e1f",
+            },
+            {
+              "alt": {
+                "ru": "Кухня для гостей",
+              },
+              "assetId": "d4e5f607-3142-4d5e-9f60-7b8c9d0e1f20",
+            },
+            {
+              "alt": {
+                "ru": "Двор с парковкой",
+              },
+              "assetId": "e5f60718-4253-4e6f-8071-8c9d0e1f2031",
+            },
+          ],
+          "type": "gallery",
+          "variant": "GRID",
+        },
+        {
+          "heading": {
+            "ru": "Забронировать",
+          },
+          "id": "sec-booking",
+          "note": {
+            "ru": "Бронь подтверждается сразу. Оплата при заезде.",
+          },
+          "showCheckInOut": true,
+          "type": "booking",
+          "variant": "INLINE",
+        },
+        {
+          "emitStructuredData": true,
+          "heading": {
+            "ru": "Частые вопросы",
+          },
+          "id": "sec-faq",
+          "items": [
+            {
+              "answer": {
+                "ru": "Да, администратор на месте круглые сутки.",
+              },
+              "question": {
+                "ru": "Можно ли заехать ночью?",
+              },
+            },
+            {
+              "answer": {
+                "ru": "Да, бесплатная, во дворе гостиницы.",
+              },
+              "question": {
+                "ru": "Есть ли парковка?",
+              },
+            },
+          ],
+          "type": "faq",
+          "variant": "ACCORDION",
+        },
+        {
+          "directions": {
+            "ru": "От вокзала прямо по улице, второй дом после аптеки.",
+          },
+          "heading": {
+            "ru": "Как нас найти",
+          },
+          "id": "sec-contacts",
+          "map": {
+            "provider": "OPENSTREETMAP_LINK",
+          },
+          "showAddress": true,
+          "showEmail": true,
+          "showPhone": true,
+          "showWhatsapp": true,
+          "type": "contacts",
+          "variant": "WITH_MAP",
+        },
+        {
+          "action": {
+            "action": {
+              "kind": "BOOK",
+            },
+            "label": {
+              "ru": "Выбрать даты",
+            },
+          },
+          "heading": {
+            "ru": "Приезжайте отдохнуть",
+          },
+          "id": "sec-cta",
+          "text": {
+            "ru": "Бронь напрямую дешевле, чем на сайтах-агрегаторах.",
+          },
+          "type": "cta",
+          "variant": "BANNER",
+        },
+      ],
+      "seo": {
+        "canonical": "SELF",
+        "description": {
+          "ru": "Номера и койко-места рядом с вокзалом. Онлайн-бронирование без комиссии, заезд с 14:00.",
+        },
+        "includeInSitemap": true,
+        "index": true,
+        "og": {
+          "description": {
+            "ru": "Тихие номера в пяти минутах от вокзала.",
+          },
+          "imageAssetId": "8b3e4c12-5d6f-4071-8c8d-9e0f1a2b3c4d",
+          "title": {
+            "ru": "Гостиница «Степной ветер»",
+          },
+        },
+        "title": {
+          "ru": "Гостиница у вокзала в Астане",
+        },
+      },
+      "slug": "",
+      "title": {
+        "ru": "Гостиница «Степной ветер» в Астане",
+      },
+    },
+    {
+      "id": "page-privacy",
+      "isHome": false,
+      "sections": [
+        {
+          "heading": {
+            "ru": "Политика конфиденциальности",
+          },
+          "id": "sec-privacy-text",
+          "paragraphs": [
+            {
+              "ru": "Мы получаем имя, телефон и email гостя только для брони и связи по ней.",
+            },
+            {
+              "ru": "Данные не передаются третьим лицам, кроме случаев, предусмотренных законом.",
+            },
+          ],
+          "type": "about",
+          "variant": "TEXT_ONLY",
+        },
+      ],
+      "seo": {
+        "canonical": "SELF",
+        "description": {
+          "ru": "Как гостиница «Степной ветер» обрабатывает персональные данные гостей.",
+        },
+        "includeInSitemap": false,
+        "index": false,
+        "title": {
+          "ru": "Политика конфиденциальности",
+        },
+      },
+      "slug": "privacy",
+      "title": {
+        "ru": "Политика конфиденциальности",
+      },
+    },
+  ],
+  "schemaVersion": "site-spec/0",
+  "site": {
+    "brand": {
+      "faviconAssetId": "7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c",
+      "logo": {
+        "alt": {
+          "ru": "Логотип гостиницы «Степной ветер»",
+        },
+        "assetId": "6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+      },
+      "tagline": {
+        "ru": "Тихие номера в пяти минутах от вокзала",
+      },
+    },
+    "contacts": {
+      "address": {
+        "ru": "Астана, ул. Вымышленная, 10",
+      },
+      "email": "<email>",
+      "geo": {
+        "lat": 51.1694,
+        "lng": 71.4491,
+      },
+      "phone": "<телефон>",
+      "social": [
+        {
+          "network": "INSTAGRAM",
+          "url": "https://www.instagram.com/stepnoy.veter.example",
+        },
+      ],
+      "whatsapp": "<телефон>",
+    },
+    "defaultLocale": "ru",
+    "displayName": {
+      "ru": "Черновик, который нельзя показать",
+    },
+    "legal": {
+      "operatorName": {
+        "ru": "ИП «Степной ветер»",
+      },
+      "privacyPageId": "page-privacy",
+    },
+    "locales": [
+      "ru",
+    ],
+    "seo": {
+      "robots": "INDEX",
+      "structuredData": {
+        "includeAddress": true,
+        "includeGeo": true,
+        "type": "HOTEL",
+      },
+      "titleTemplate": {
+        "ru": "%s, гостиница «Степной ветер»",
+      },
+    },
+    "vertical": "HOSPITALITY",
+  },
+  "theme": {
+    "accent": "TEAL",
+    "colorScheme": "LIGHT",
+    "density": "COMFORTABLE",
+    "preset": "CALM",
+    "radius": "SOFT",
+    "typography": "MODERN",
+  },
+}
+
+ ❯ tests/integration/sites-runtime.test.ts:244:25
+    242|     const r = await current('live.mkt4.localhost', `&knownSpecHash=${s…
+    243|     expect(r.status).toBe(200);
+    244|     expect(r.body.spec).toBeUndefined();
+       |                         ^
+    245|     expect(r.body.versionId).toBe(live.v1);
+    246|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > knownSpecHash черновика ничего не открывает: в ответе всё равно опубликованная версия
+AssertionError: expected '7fb21c4d-5a5e-47e2-82e8-bd46d0dd8584' to be '6ecfb73f-7f23-4871-96ba-13a657de25fb' // Object.is equality
+
+Expected: "6ecfb73f-7f23-4871-96ba-13a657de25fb"
+Received: "7fb21c4d-5a5e-47e2-82e8-bd46d0dd8584"
+
+ ❯ tests/integration/sites-runtime.test.ts:250:30
+    248|   it('knownSpecHash черновика ничего не открывает: в ответе всё равно …
+    249|     const r = await current('live.mkt4.localhost', `&knownSpecHash=${s…
+    250|     expect(r.body.versionId).toBe(live.v1);
+       |                              ^
+    251|     expect(r.body.spec.site.displayName).toEqual({ ru: 'Опубликованная…
+    252|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > черновой сайт: 404 без имени сайта и без документа
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > пауза: 404 без имени сайта и без документа
+ FAIL  |integration| tests/integration/sites-runtime.test.ts > MKT4 sites runtime: only the published pointer > архивный сайт: 404 без имени сайта и без документа
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ tests/integration/sites-runtime.test.ts:276:22
+    274|   ])('%s: 404 без имени сайта и без документа', async (_label, key) =>…
+    275|     const r = await current(`${key}.mkt4.localhost`);
+    276|     expect(r.status).toBe(404);
+       |                      ^
+    277|     expect(r.body.spec).toBeUndefined();
+    278|     expect(r.text).not.toContain('Опубликованная версия');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 7 passed (13)
+   Start at  18:58:08
+   Duration  4.73s (transform 42%, tests 33%, import 24%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-58-07Z-integration-1cbc.json
+
+# код выхода 1 · 6 с

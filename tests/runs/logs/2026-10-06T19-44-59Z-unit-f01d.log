@@ -1,0 +1,52 @@
+# Модульные (unit) · 07.10.2026 00:44 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-44-59Z-unit-f01d.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 105ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 74ms
+     ✓ MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 29ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(325) } to deeply equal { 'GET /onboarding': 'self', …(324) }
+
+- Expected
++ Received
+
+@@ -150,10 +150,11 @@
+    "GET /tasks": "desk",
+    "GET /units/:code": "desk",
+    "GET /w/availability": "public",
+    "GET /w/config": "public",
+    "GET /w/demo": "public",
++   "GET /w/from-prices": "public",
+    "GET /w/widget.js": "public",
+    "GET /wizard/quota": "public",
+    "GET /wizard/status": "public",
+    "PATCH /analytics/sites/:id": "settings",
+    "PATCH /auth/members/:userId": "owner",
+
+ ❯ apps/api/src/auth/route-access.test.ts:431:20
+    429|       .map(([key]) => key);
+    430|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    431|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    432|   });
+    433|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  19:45:00
+   Duration  4.48s (transform 74%, import 24%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-44-59Z-unit-f01d.json
+
+# код выхода 1 · 5 с

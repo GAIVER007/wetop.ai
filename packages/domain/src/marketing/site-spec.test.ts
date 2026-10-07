@@ -253,6 +253,32 @@ describe('SiteSpec v0: отказы', () => {
   });
 });
 
+describe('SiteSpec v0: категория в секции цен ссылается на карточку размещения', () => {
+  const allCardCodes = (s: Record<string, any>) =>
+    s.pages
+      .flatMap((p: any) => p.sections)
+      .filter((x: any) => x.type === 'accommodations')
+      .flatMap((x: any) => x.items.map((i: any) => i.categoryCode));
+
+  it('код цены без карточки размещения отклоняется: название строки взять негде', () => {
+    const s = spec();
+    expect(allCardCodes(s)).not.toContain('pricing-only');
+    section(s, 'pricing').categoryCodes.push('pricing-only');
+    rejects(s, 'pages[0].sections[5].categoryCodes[2]', 'pricing_category_without_card');
+  });
+
+  it('карточка с тем же кодом на другой странице документа делает его корректным', () => {
+    const s = spec();
+    section(s, 'pricing').categoryCodes.push('pricing-only');
+    const card = structuredClone(section(s, 'accommodations').items[0]);
+    card.categoryCode = 'pricing-only';
+    const rooms = section(s, 'accommodations');
+    s.pages[1].sections.push({ id: 'sec-rooms-more', type: 'accommodations', variant: 'ROWS', heading: rooms.heading, items: [card] });
+    const result = validateSiteSpec(s);
+    expect(result.ok ? [] : result.errors).toEqual([]);
+  });
+});
+
 describe('каноническая запись и хэш', () => {
   it('порядок ключей не влияет, в том числе во вложенных объектах', () => {
     const a = { b: 1, a: { d: [1, 2], c: 'x' } };

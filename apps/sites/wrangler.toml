@@ -1,0 +1,21 @@
+# Публичный рантайм сайтов WETOP (MKT4, Q-269: Cloudflare Workers, Worker сам origin сайта).
+# Боевых доменов, маршрутов и окружения production здесь нет до MKT7 (Q-271): сайт открывается только по адресу
+# workers.dev окружения staging или локально (`npm run dev -w apps/sites`). Ключ рантайма только секретом:
+#   npx wrangler@4.148.0 secret put SITES_RUNTIME_KEY --env staging
+# Выкладка и проверки: apps/sites/README.md.
+name = "wetop-sites"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+[env.dev]
+name = "wetop-sites-dev"
+workers_dev = false
+vars = { SITES_ENV = "dev", SITES_API_URL = "http://127.0.0.1:3001" }
+
+[env.staging]
+name = "wetop-sites-staging"
+workers_dev = true
+# Адрес API staging задаётся при первой выкладке staging (`--var SITES_API_URL:<адрес>`): боевой API разрешает
+# хосты только с MKT7, а dev-резолвер в production выключен. Пустой адрес даёт 503, а не чужой сайт.
+vars = { SITES_ENV = "staging", SITES_API_URL = "" }

@@ -6990,3 +6990,72 @@
 | 07.10.2026 11:14 | lint | ✅ без ошибок | 52 с | 028e29a | [лог](logs/2026-10-07T06-14-17Z-lint-80fe.log) |  |
 | 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/today-attention.sp | ✅ 46 из 46 | 5 мин | 028e29a | [лог](logs/2026-10-07T06-15-16Z-e2e-be9b.log) |  |
 | 07.10.2026 11:20 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts --workers=1) | ✅ 26 из 26 | 2 мин 21 с | 028e29a | [лог](logs/2026-10-07T06-20-18Z-e2e-807c.log) |  |
+| 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing/runtime.test.ts) | ❌ упало 20 из 20 | 3 с | 6a6a46b +1 | [лог](logs/2026-10-06T18-53-14Z-unit-cb4b.log) | MKT4 red: runtime helpers absent |
+| 06.10.2026 23:53 | unit (частично: packages/domain/src/marketing) | ✅ 57 из 57 | 2 с | 6a6a46b +4 | [лог](logs/2026-10-06T18-53-33Z-unit-ec6f.log) | MKT4 green: runtime helpers |
+| 06.10.2026 23:54 | unit (частично: apps/api/src/sites-runtime) | ❌ код выхода 1 | 5 с | 6a6a46b +5 | [лог](logs/2026-10-06T18-54-46Z-unit-2515.log) | MKT4 red: sites-runtime module absent |
+| 06.10.2026 23:55 | unit (частично: apps/api/src/sites-runtime) | ✅ 17 из 17 | 5 с | 6a6a46b +11 | [лог](logs/2026-10-06T18-55-45Z-unit-4bca.log) | MKT4 green: sites-runtime module |
+| 06.10.2026 23:56 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 6 с | 6a6a46b +13 | [лог](logs/2026-10-06T18-56-14Z-unit-d359.log) | MKT4: route table and runtime routes |
+| 06.10.2026 23:56 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 7 с | 6a6a46b +13 | [лог](logs/2026-10-06T18-56-26Z-unit-da5b.log) | MKT4 red: route table without sites-runtime row |
+| 06.10.2026 23:57 | integration (частично: tests/integration/sites-runtime.test.ts) | ❌ код выхода 1 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-57-48Z-integration-2b61.log) | MKT4 red: mutation reads latest_version_id without state |
+| 06.10.2026 23:58 | integration (частично: tests/integration/sites-runtime.test.ts) | ❌ упало 6 из 13 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-58-07Z-integration-1cbc.log) | MKT4 red: mutation reads latest_version_id without state |
+| 06.10.2026 23:58 | integration (частично: tests/integration/sites-runtime.test.ts) | ✅ 13 из 13 | 6 с | 6a6a46b +14 | [лог](logs/2026-10-06T18-58-18Z-integration-536e.log) | MKT4 green: only published pointer |
+| 07.10.2026 00:07 | unit (частично: apps/sites) | ❌ упало 10 из 133 | 3 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-07-51Z-unit-80d9.log) | MKT4 red: five mutations (escape, CSP, registry, canonical, 404 cache) |
+| 07.10.2026 00:07 | unit (частично: apps/sites packages/domain/src/marketing apps/api/src/sites-runtime apps/api/src/auth) | ✅ 425 из 425 | 14 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-07-58Z-unit-e82d.log) | MKT4 green: sites runtime worker, domain helpers, API, auth |
+| 07.10.2026 00:09 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ код выхода 1 | 1 мин 2 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-09-34Z-e2e-e9c9.log) | MKT4 runtime UI 390/1440 axe |
+| 07.10.2026 00:10 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 9 из 9 | 15 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-10-43Z-e2e-8737.log) | MKT4 runtime UI 390/1440 axe |
+| 07.10.2026 00:11 | typecheck | ✅ без ошибок | 57 с | 6a6a46b +40 | [лог](logs/2026-10-06T19-11-51Z-typecheck-ae25.log) | MKT4 |
+| 07.10.2026 00:13 | lint | ✅ без ошибок | 36 с | 6a6a46b +40 | [лог](logs/2026-10-06T19-13-02Z-lint-36e5.log) | MKT4 |
+| 07.10.2026 00:13 | unit | ❌ упало 1 из 3647, пропущено 3 | 1 мин 56 с | 6a6a46b +37 | [лог](logs/2026-10-06T19-13-42Z-unit-18a1.log) | MKT4 full unit |
+| 07.10.2026 00:15 | integration | ❌ код выхода 1 | 2 с | 6a6a46b +15 | [лог](logs/2026-10-06T19-15-39Z-integration-802c.log) | MKT4 full integration |
+| 07.10.2026 00:16 | unit (частично: tests/unit/test-schema-plan.test.ts) | ❌ упало 3 из 8 | 1 с | 6a6a46b +38 | [лог](logs/2026-10-06T19-16-43Z-unit-29b7.log) | red: copyPlan for nullable FK cycle (MKT3 site<->version) absent |
+| 07.10.2026 00:16 | unit (частично: tests/unit/test-schema-plan.test.ts) | ✅ 8 из 8 | 2 с | 6a6a46b +39 | [лог](logs/2026-10-06T19-16-56Z-unit-7b2f.log) | green: copyPlan relaxes nullable FK cycle |
+| 07.10.2026 00:17 | integration | ✅ 820 из 820 | 2 мин 8 с | 6a6a46b +15 | [лог](logs/2026-10-06T19-17-32Z-integration-f1df.log) | MKT4 full integration after copyPlan fix |
+| 07.10.2026 00:20 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 40 из 40 | 1 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-04Z-unit-61f4.log) | MKT4: Dockerfile copies apps/sites manifest |
+| 07.10.2026 00:20 | unit | ✅ 3647 из 3650, пропущено 3 | 1 мин 47 с | 6a6a46b +41 | [лог](logs/2026-10-06T19-20-09Z-unit-2d0a.log) | MKT4 full unit after Dockerfile and copyPlan |
+| 07.10.2026 00:41 | unit (частично: packages/domain/src/web-booking/from-price.test.ts) | ❌ код выхода 1 | 3 с | e8497b0 +1 | [лог](logs/2026-10-06T19-41-57Z-unit-030e.log) | Q-276 red: from-price domain absent |
+| 07.10.2026 00:42 | unit (частично: packages/domain/src/web-booking) | ✅ 46 из 46 | 2 с | e8497b0 +3 | [лог](logs/2026-10-06T19-42-18Z-unit-732f.log) | Q-276 green: from-price domain |
+| 07.10.2026 00:43 | integration (частично: tests/integration/from-prices.test.ts) | ❌ код выхода 1 | 3 с | e8497b0 +4 | [лог](logs/2026-10-06T19-43-35Z-integration-ca56.log) | Q-276 red: fromPrices absent |
+| 07.10.2026 00:43 | integration (частично: tests/integration/from-prices.test.ts) | ❌ упало 9 из 9 | 6 с | e8497b0 +4 | [лог](logs/2026-10-06T19-43-51Z-integration-eefc.log) | Q-276 red: fromPrices absent |
+| 07.10.2026 00:44 | integration (частично: tests/integration/from-prices.test.ts) | ❌ упало 1 из 9 | 5 с | e8497b0 +6 | [лог](logs/2026-10-06T19-44-34Z-integration-4bea.log) | Q-276 green: /w/from-prices |
+| 07.10.2026 00:44 | integration (частично: tests/integration/from-prices.test.ts) | ✅ 9 из 9 | 5 с | e8497b0 +6 | [лог](logs/2026-10-06T19-44-47Z-integration-26cf.log) | Q-276 green: /w/from-prices |
+| 07.10.2026 00:44 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 5 с | e8497b0 +5 | [лог](logs/2026-10-06T19-44-59Z-unit-f01d.log) | Q-276 red: route table without /w/from-prices |
+| 07.10.2026 00:45 | unit (частично: apps/api/src/web-booking apps/api/src/auth/route-access.test.ts) | ✅ 106 из 106 | 7 с | e8497b0 +7 | [лог](logs/2026-10-06T19-45-23Z-unit-d484.log) | Q-276 green: /w/from-prices route, CORS, route table |
+| 07.10.2026 00:46 | unit (частично: apps/sites/src/render/from-price.test.ts) | ❌ упало 4 из 21 | 2 с | e8497b0 +11 | [лог](logs/2026-10-06T19-46-32Z-unit-d625.log) | Q-276 red: worker price placeholders absent |
+| 07.10.2026 00:47 | unit (частично: apps/sites) | ❌ упало 6 из 159 | 3 с | e8497b0 +19 | [лог](logs/2026-10-06T19-47-45Z-unit-fb5b.log) | Q-276 green: worker live from-price |
+| 07.10.2026 00:48 | unit (частично: apps/sites) | ✅ 160 из 160 | 2 с | e8497b0 +21 | [лог](logs/2026-10-06T19-48-24Z-unit-b1b6.log) | Q-276 green: worker live from-price |
+| 07.10.2026 00:49 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ упало 1 из 11 | 14 с | e8497b0 +22 | [лог](logs/2026-10-06T19-49-15Z-e2e-8fb8.log) | Q-276 runtime UI 390/1440 axe with live from-price |
+| 07.10.2026 00:49 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 12 с | e8497b0 +22 | [лог](logs/2026-10-06T19-49-43Z-e2e-2319.log) | Q-276 runtime UI 390/1440 axe with live from-price |
+| 07.10.2026 00:50 | typecheck | ✅ без ошибок | 51 с | e8497b0 +24 | [лог](logs/2026-10-06T19-50-57Z-typecheck-8dac.log) | Q-276 |
+| 07.10.2026 00:52 | lint | ❌ ошибок: 1 | 39 с | e8497b0 +24 | [лог](logs/2026-10-06T19-52-02Z-lint-e667.log) | Q-276 |
+| 07.10.2026 00:52 | unit | ✅ 3683 из 3686, пропущено 3 | 1 мин 50 с | e8497b0 +22 | [лог](logs/2026-10-06T19-52-41Z-unit-3768.log) | Q-276 full unit |
+| 07.10.2026 00:54 | lint | ✅ без ошибок | 33 с | e8497b0 +24 | [лог](logs/2026-10-06T19-54-41Z-lint-0019.log) | Q-276 |
+| 07.10.2026 00:55 | unit (частично: apps/sites) | ✅ 160 из 160 | 3 с | e8497b0 +22 | [лог](logs/2026-10-06T19-55-15Z-unit-fdc4.log) | Q-276 after lint fix |
+| 07.10.2026 00:55 | integration | ✅ 829 из 829 | 2 мин 6 с | e8497b0 +8 | [лог](logs/2026-10-06T19-55-23Z-integration-1aa3.log) | Q-276 full integration |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing/site-spec.test.ts) | ❌ упало 2 из 39 | 13 с | c53ee7c +1 | [лог](logs/2026-10-07T06-01-25Z-unit-fe97.log) | SiteSpec v0: категория в секции цен ссылается на карточку размещения код цены без карточки размещения отклоняется: название строки взять негде |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing/site-spec.test.ts) | ❌ упало 1 из 39 | 3 с | c53ee7c +1 | [лог](logs/2026-10-07T06-01-44Z-unit-6bee.log) | SiteSpec v0: категория в секции цен ссылается на карточку размещения код цены без карточки размещения отклоняется: название строки взять негде |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing) | ✅ 59 из 59 | 2 с | c53ee7c +2 | [лог](logs/2026-10-07T06-01-57Z-unit-85a7.log) |  |
+| 07.10.2026 11:02 | unit (частично: apps/sites) | ✅ 161 из 161 | 5 с | c53ee7c +3 | [лог](logs/2026-10-07T06-02-15Z-unit-8c54.log) |  |
+| 07.10.2026 11:02 | unit (частично: apps/sites/src/render/from-price.test.ts) | ❌ упало 1 из 22 | 2 с | c53ee7c +4 | [лог](logs/2026-10-07T06-02-29Z-unit-7bda.log) | секция pricing название строки берётся из карточки размещения на другой странице; код категории как название не выводится |
+| 07.10.2026 11:03 | unit (частично: apps/api/src/sites-runtime packages/domain/src/web-booking apps/api/src/web-booking) | ✅ 166 из 166 | 13 с | c53ee7c +4 | [лог](logs/2026-10-07T06-03-17Z-unit-32d2.log) |  |
+| 07.10.2026 11:03 | typecheck | ✅ без ошибок | 1 мин 22 с | c53ee7c +4 | [лог](logs/2026-10-07T06-03-35Z-typecheck-ea46.log) |  |
+| 07.10.2026 11:04 | lint | ✅ без ошибок | 56 с | c53ee7c +4 | [лог](logs/2026-10-07T06-04-58Z-lint-2df9.log) |  |
+| 07.10.2026 11:05 | unit | ✅ 3686 из 3689, пропущено 3 | 2 мин 49 с | c53ee7c +4 | [лог](logs/2026-10-07T06-05-57Z-unit-5606.log) |  |
+| 07.10.2026 11:09 | integration | ✅ 829 из 829 | 3 мин 13 с | c53ee7c +3 | [лог](logs/2026-10-07T06-09-10Z-integration-46f1.log) |  |
+| 07.10.2026 11:12 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 18 с | c53ee7c +4 | [лог](logs/2026-10-07T06-12-29Z-e2e-44b1.log) |  |
+| 07.10.2026 11:12 | e2e (частично: --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboard-mobile.spec.ts tests/ui/chessboard-we | ❌ код выхода 1 | 6 с | c53ee7c +4 | [лог](logs/2026-10-07T06-12-52Z-e2e-a528.log) | (ошибка вне тестов) |
+| 07.10.2026 11:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ❌ код выхода 1 | 2 мин 4 с | c53ee7c +4 | [лог](logs/2026-10-07T06-13-06Z-e2e-7b81.log) | (ошибка вне тестов) |
+| 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 45 из 45 | 6 мин 36 с | c53ee7c +4 | [лог](logs/2026-10-07T06-15-19Z-e2e-01ca.log) |  |
+| 07.10.2026 11:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/guests-birthdays.spec.ts tests/ui/booking-price-nights.spec | ✅ 41 из 41 | 2 мин 38 с | c53ee7c +4 | [лог](logs/2026-10-07T06-22-01Z-e2e-df7c.log) |  |
+| 07.10.2026 11:28 | unit (частично: packages/domain/src/marketing packages/domain/src/web-booking apps/api/src/sites-runtime apps/api/src/web-booking apps/sites apps/web/src/app/to | ✅ 448 из 448 | 12 с | ed03fba | [лог](logs/2026-10-07T06-28-28Z-unit-a613.log) |  |
+| 07.10.2026 11:28 | typecheck | ✅ без ошибок | 1 мин 9 с | ed03fba | [лог](logs/2026-10-07T06-28-44Z-typecheck-137f.log) |  |
+| 07.10.2026 11:29 | lint | ✅ без ошибок | 54 с | ed03fba | [лог](logs/2026-10-07T06-29-54Z-lint-262d.log) |  |
+| 07.10.2026 11:30 | unit | ✅ 3720 из 3723, пропущено 3 | 2 мин 28 с | ed03fba | [лог](logs/2026-10-07T06-30-50Z-unit-4d18.log) |  |
+| 07.10.2026 11:33 | integration | ✅ 829 из 829 | 3 мин 13 с | ed03fba | [лог](logs/2026-10-07T06-33-22Z-integration-1857.log) |  |
+| 07.10.2026 11:36 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 17 с | ed03fba | [лог](logs/2026-10-07T06-36-41Z-e2e-7f38.log) |  |
+| 07.10.2026 11:37 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 7 из 26 | 2 мин 5 с | ed03fba | [лог](logs/2026-10-07T06-37-00Z-e2e-a939.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 07.10.2026 11:39 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 4 из 26 | 1 мин 51 с | ed03fba | [лог](logs/2026-10-07T06-39-26Z-e2e-5588.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 07.10.2026 11:41 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 7 из 26 | 1 мин 48 с | c7e63d7 | [лог](logs/2026-10-07T06-41-39Z-e2e-c40e.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 07.10.2026 11:43 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 4 из 26 | 1 мин 53 с | c7e63d7 | [лог](logs/2026-10-07T06-43-55Z-e2e-531a.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 07.10.2026 11:46 | e2e (частично: --config tests/beauty-ui/playwright.config.ts) | ✅ 10 из 10 | 2 мин 22 с | 658b651 | [лог](logs/2026-10-07T06-46-07Z-e2e-674c.log) |  |
+| 07.10.2026 11:48 | e2e (частично: --config tests/food-ui/playwright.config.ts) | ✅ 13 из 13 | 3 мин 13 с | 658b651 | [лог](logs/2026-10-07T06-48-29Z-e2e-c03f.log) |  |
+| 07.10.2026 11:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts) | ✅ 7 из 7 | 1 мин 7 с | 658b651 | [лог](logs/2026-10-07T06-51-51Z-e2e-3d31.log) |  |

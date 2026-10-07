@@ -1,0 +1,320 @@
+# Модульные (unit) · 07.10.2026 00:07 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 37
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-07-51Z-unit-80d9.json' 'apps/sites'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/sites/src/contract.test.ts (14 tests | 1 failed) 96ms
+   ✓ контракт: запрос и ключ (1)
+     ✓ ходит только в /sites-runtime/current с хостом и ключом рантайма 62ms
+   ✓ кэш (3)
+     ✓ 60 секунд без повторного запроса, потом перепроверка с knownSpecHash и без документа в ответе 6ms
+     ✓ новая публикация: новый хэш и новый документ 5ms
+     ✓ документ не в памяти, а API ответил без него: второй запрос целиком 2ms
+   ❯ отказы (10)
+     × 404 сразу забывает хост: снятый сайт не показывается и из кэша 9ms
+     ✓ spec_invalid: выдача закрыта, без старой копии 2ms
+     ✓ незнакомая версия схемы: отказ 1ms
+     ✓ API недоступен (сеть): подтверждённая копия до 10 минут, с записью в лог 2ms
+     ✓ API недоступен (500): подтверждённая копия до 10 минут, с записью в лог 1ms
+     ✓ API недоступен (503 без кода): подтверждённая копия до 10 минут, с записью в лог 1ms
+     ✓ API недоступен (ключ отклонён): подтверждённая копия до 10 минут, с записью в лог 1ms
+     ✓ API недоступен и копии нет: unavailable 0ms
+     ✓ адрес API не задан: unavailable, а не падение 0ms
+     ✓ ответ не того вида: unavailable 0ms
+ ❯ |unit| apps/sites/src/seo.test.ts (13 tests | 1 failed) 24ms
+   ❯ индексация и canonical: только production и основной хост (4)
+     ✓ dev без основного хоста: noindex, canonical и og:url нет 4ms
+     × staging даже с хостом боевой canonical не выдумывает 7ms
+     ✓ production с основным хостом: index, canonical на основной хост 1ms
+     ✓ production, но сайт NOINDEX или страница без индекса: noindex 1ms
+   ✓ мета страницы (2)
+     ✓ title из SEO страницы, иначе через titleTemplate 1ms
+     ✓ description, viewport, Open Graph, стили файлом 1ms
+   ✓ JSON-LD (4)
+     ✓ Hotel на главной: имя, адрес, телефон, гео, удобства, время заезда из publicFacts 2ms
+     ✓ без флагов адреса и гео их нет; без основного хоста нет url 1ms
+     ✓ FAQPage при emitStructuredData 1ms
+     ✓ в ld+json знак < экранируется: тег скрипта не закрыть 1ms
+   ✓ robots.txt и sitemap.xml (3)
+     ✓ dev и staging: всё закрыто, карта пуста 1ms
+     ✓ production: разрешено, ссылка на карту; в карте только индексируемые страницы с includeInSitemap 0ms
+     ✓ сайт NOINDEX: закрыт и в production 2ms
+ ❯ |unit| apps/sites/src/worker.test.ts (13 tests | 1 failed) 110ms
+   ❯ страница сайта (9)
+     ✓ главная: 200, HTML с lang, H1, заголовки безопасности, короткий кэш, noindex в dev 66ms
+     ✓ скрипты только WETOP: счётчик и виджет с ключом связанного сайта, своих встроенных скриптов нет 3ms
+     ✓ согласие на счётчик: data-consent="wait" 2ms
+     ✓ бронь выключена у сайта счётчика: ни виджета, ни Turnstile в CSP 2ms
+     × связанного сайта счётчика нет: ни одного внешнего скрипта, script-src none 18ms
+     ✓ вторая страница по адресу, хвостовая косая черта 301, неизвестный путь 404 в оболочке сайта 5ms
+     ✓ HEAD без тела; POST 405 2ms
+     ✓ robots.txt и sitemap.xml по хосту 2ms
+     ✓ стили: файл с хэшем, долгий неизменяемый кэш, без запроса к API 2ms
+   ✓ отказы без имени сайта (4)
+     ✓ неизвестный хост 404: нейтральная страница, имени нет 1ms
+     ✓ неверный документ: 503, не кэшируется 1ms
+     ✓ незнакомая секция в документе: 503 и запись в лог, а не частичная страница 2ms
+     ✓ сайт не запрашивает API за favicon.ico 0ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 15ms
+ ❯ |unit| apps/sites/src/headers.test.ts (12 tests | 2 failed) 14ms
+   ❯ CSP рантайма (3)
+     × ни unsafe-eval, ни unsafe-inline для скриптов; только API WETOP и Turnstile при брони 8ms
+     ✓ без брони Turnstile не разрешён 1ms
+     × без ключа и адреса API скриптов нет вовсе 1ms
+   ✓ адрес API (9)
+     ✓ https://api.wetop.ai/ → https://api.wetop.ai 1ms
+     ✓ http://127.0.0.1:3001 → http://127.0.0.1:3001 0ms
+     ✓ http://localhost:3001/x → http://localhost:3001 0ms
+     ✓ http://api.wetop.ai → null 0ms
+     ✓ javascript:alert(1) → null 0ms
+     ✓ data:text/html,x → null 0ms
+     ✓  → null 0ms
+     ✓ null → null 0ms
+     ✓ not a url → null 0ms
+ ❯ |unit| apps/sites/src/render/variants.test.ts (22 tests | 2 failed) 54ms
+   ❯ каждый вариант рисуется (22)
+     ✓ hero IMAGE_FULL 5ms
+     ✓ hero IMAGE_SIDE 1ms
+     ✓ hero TEXT_ONLY 1ms
+     ✓ about TEXT_ONLY 1ms
+     ✓ about TEXT_IMAGE 1ms
+     ✓ features GRID 1ms
+     ✓ features LIST 1ms
+     ✓ accommodations CARDS 1ms
+     ✓ accommodations ROWS 2ms
+     ✓ amenities LIST 1ms
+     ✓ amenities ICONS 1ms
+     ✓ gallery GRID 1ms
+     ✓ gallery CAROUSEL 1ms
+     ✓ booking INLINE 1ms
+     ✓ contacts PLAIN 1ms
+     ✓ contacts WITH_MAP 1ms
+     ✓ faq ACCORDION 1ms
+     × faq LIST 5ms
+     ✓ cta BANNER 1ms
+     ✓ cta SPLIT 1ms
+     ✓ pricing не рисуется до Q-276: рендерер отказывает, а не выдумывает цену 2ms
+     × картинка с картой ассетов: адрес из карты, ALT экранирован, ленивая загрузка 19ms
+ ❯ |unit| apps/sites/src/render/sections.test.ts (30 tests | 3 failed) 74ms
+   ❯ реестр рендереров совпадает с реестром валидатора SiteSpec v0 (1)
+     × у каждого типа и варианта валидатора есть рендерер, лишних нет 15ms
+   ✓ незнакомая секция или вариант: отказ, а не «как получится» (3)
+     ✓ тип 1ms
+     ✓ вариант 1ms
+     ✓ тип из прототипа 1ms
+   ❯ каждая секция примера (18)
+     ✓ один H1: заголовок первой секции hero 1ms
+     ✓ секция sec-hero выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-about выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-features выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-rooms выводится с якорем и подписанным заголовком 1ms
+     ✓ секция sec-amenities выводится с якорем и подписанным заголовком 1ms
+     ✓ секция sec-booking выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-faq выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-contacts выводится с якорем и подписанным заголовком 0ms
+     ✓ секция sec-cta выводится с якорем и подписанным заголовком 0ms
+     ✓ pricing скрыт до Q-276: цены «от» в HTML нет 0ms
+     ✓ gallery скрыта: SiteAsset нет, картинок нет вовсе 0ms
+     ✓ accommodations: живая вместимость из publicFacts 0ms
+     ✓ booking: строка заезда и выезда из publicFacts, точка монтирования виджета 0ms
+     ✓ faq ACCORDION на details без скриптов 0ms
+     × contacts: телефон, WhatsApp, почта и ссылка на OpenStreetMap 21ms
+     ✓ features и amenities: значки из словаря WETOP, aria-hidden 0ms
+     ✓ кнопка BOOK ведёт к секции брони этой страницы 0ms
+   ✓ живые данные: неактивная категория и сбой фактов (3)
+     ✓ неактивная или неизвестная категория прячет карточку 1ms
+     ✓ все категории неактивны: секция номеров скрыта целиком 1ms
+     ✓ факты не загрузились: карточки из снимка остаются, живая вместимость и время заезда скрыты 1ms
+   ✓ бронь не работает: формы нет, есть телефон (1)
+     ✓ bookingLive false 1ms
+   ❯ экранирование: текст документа не становится разметкой (3)
+     × кавычки, амперсанд и знак меньше в тексте и атрибутах 18ms
+     ✓ внешний адрес не https в ссылке не выводится 1ms
+     ✓ незнакомый значок: отказ 1ms
+   ✓ страница без hero: H1 из заголовка страницы (1)
+     ✓ privacy 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/sites/src/contract.test.ts > отказы > 404 сразу забывает хост: снятый сайт не показывается и из кэша
+AssertionError: expected 'ok' to be 'unavailable' // Object.is equality
+
+Expected: "unavailable"
+Received: "ok"
+
+ ❯ apps/sites/src/contract.test.ts:89:40
+     87|     expect((await c.get('h.kz')).kind).toBe('not_found');
+     88|     // следующий сбой API не воскрешает снятый сайт старой копией
+     89|     expect((await c.get('h.kz')).kind).toBe('unavailable');
+       |                                        ^
+     90|   });
+     91|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| apps/sites/src/headers.test.ts > CSP рантайма > ни unsafe-eval, ни unsafe-inline для скриптов; только API WETOP и Turnstile при брони
+AssertionError: expected 'script-src \'unsafe-inline\' https://…' to be 'script-src https://api.example.test h…' // Object.is equality
+
+Expected: "script-src https://api.example.test https://challenges.cloudflare.com"
+Received: "script-src 'unsafe-inline' https://api.example.test https://challenges.cloudflare.com"
+
+ ❯ apps/sites/src/headers.test.ts:10:42
+      8|     const csp = contentSecurityPolicy({ apiOrigin: 'https://api.exampl…
+      9|     expect(csp).not.toContain('unsafe-eval');
+     10|     expect(directive(csp, 'script-src')).toBe(`script-src https://api.…
+       |                                          ^
+     11|     expect(directive(csp, 'frame-src')).toBe(`frame-src ${TURNSTILE_OR…
+     12|     expect(directive(csp, 'frame-ancestors')).toBe("frame-ancestors 'n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| apps/sites/src/headers.test.ts > CSP рантайма > без ключа и адреса API скриптов нет вовсе
+AssertionError: expected 'script-src \'unsafe-inline\' \'none\'' to be 'script-src \'none\'' // Object.is equality
+
+Expected: "script-src 'none'"
+Received: "script-src 'unsafe-inline' 'none'"
+
+ ❯ apps/sites/src/headers.test.ts:29:44
+     27|     ]) {
+     28|       const csp = contentSecurityPolicy(input);
+     29|       expect(directive(csp, 'script-src')).toBe("script-src 'none'");
+       |                                            ^
+     30|       expect(directive(csp, 'connect-src')).toBe("connect-src 'none'");
+     31|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| apps/sites/src/seo.test.ts > индексация и canonical: только production и основной хост > staging даже с хостом боевой canonical не выдумывает
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ apps/sites/src/seo.test.ts:18:41
+     16|
+     17|   it('staging даже с хостом боевой canonical не выдумывает', () => {
+     18|     expect(STAGING_WITH_HOST.indexable).toBe(false);
+       |                                         ^
+     19|     const head = renderHead(ctx(), STAGING_WITH_HOST, '/x.css');
+     20|     expect(head).not.toContain('rel="canonical"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > страница сайта > связанного сайта счётчика нет: ни одного внешнего скрипта, script-src none
+AssertionError: expected 'default-src \'none\'; script-src \'un…' to contain 'script-src \'none\''
+
+Expected: "script-src 'none'"
+Received: "default-src 'none'; script-src 'unsafe-inline' 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+
+ ❯ apps/sites/src/worker.test.ts:71:56
+     69|     const html = await res.text();
+     70|     expect(html).not.toMatch(/<script async/);
+     71|     expect(res.headers.get('content-security-policy')).toContain("scri…
+       |                                                        ^
+     72|   });
+     73|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/sites/src/render/sections.test.ts > реестр рендереров совпадает с реестром валидатора SiteSpec v0 > у каждого типа и варианта валидатора есть рендерер, лишних нет
+AssertionError: expected { hero: [ 'IMAGE_FULL', …(2) ], …(10) } to deeply equal { hero: [ 'IMAGE_FULL', …(2) ], …(10) }
+
+- Expected
++ Received
+
+@@ -22,11 +22,10 @@
+      "BANNER",
+      "SPLIT",
+    ],
+    "faq": [
+      "ACCORDION",
+-     "LIST",
+    ],
+    "features": [
+      "GRID",
+      "LIST",
+    ],
+
+ ❯ apps/sites/src/render/sections.test.ts:15:21
+     13|     const runtime = Object.fromEntries(Object.entries(SECTION_RENDERER…
+     14|     const validator = Object.fromEntries(Object.entries(SITE_SPEC_SECT…
+     15|     expect(runtime).toEqual(validator);
+       |                     ^
+     16|   });
+     17| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/sites/src/render/sections.test.ts > каждая секция примера > contacts: телефон, WhatsApp, почта и ссылка на OpenStreetMap
+AssertionError: expected '<section id="sec-hero" aria-labelledb…' to contain 'https://www.openstreetmap.org/?mlat=5…'
+
+Expected: "https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491"
+Received: "<section id="sec-hero" aria-labelledby="sec-hero-title" class="hero"><div class="wrap"><h1 id="sec-hero-title">Тихие номера у вокзала</h1><p class="lead">Заезд круглосуточно, парковка во дворе, завтрак по желанию.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a><a class="btn btn--ghost" href="https://wa.me/<телефон>" rel="noopener noreferrer">Написать в WhatsApp</a></div></div></section><section id="sec-about" aria-labelledby="sec-about-title"><div class="wrap"><h2 id="sec-about-title">О гостинице</h2><p>Двадцать номеров на трёх этажах. Окна во двор, поэтому шума с проспекта не слышно.</p><p>До вокзала пять минут пешком, до центра пятнадцать минут на автобусе.</p></div></section><section id="sec-features" aria-labelledby="sec-features-title"><div class="wrap"><h2 id="sec-features-title">Почему у нас удобно</h2><ul class="list grid"><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><h3>Заезд в любое время</h3><p class="muted">Администратор на месте круглые сутки.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg><div><h3>Своя парковка</h3><p class="muted">Бесплатно для гостей, во дворе.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg><div><h3>Быстрый интернет</h3><p class="muted">Wi-Fi во всех номерах.</p></div></li></ul></div></section><section id="sec-rooms" aria-labelledby="sec-rooms-title"><div class="wrap"><h2 id="sec-rooms-title">Номера</h2><ul class="list grid"><li class="card"><h3>Стандарт для двоих</h3><p>Двуспальная кровать, душ, рабочий стол.</p><p class="muted">До 2 гостей</p><ul class="chips"><li>18 м²</li><li>Окна во двор</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="card"><h3>Место в общем номере</h3><p>Кровать с занавеской, шкафчик с замком, розетка у изголовья.</p><p class="muted">До 1 гостя</p><ul class="chips"><li>Женский и общий номер</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul></div></section><section id="sec-amenities" aria-labelledby="sec-amenities-title"><div class="wrap"><h2 id="sec-amenities-title">Удобства и услуги</h2><ul class="list list--cols"><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v4M12 3v4"/></svg><span>Завтрак<br><span class="muted">по желанию, оплачивается отдельно</span></span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6h1"/></svg><span>Прачечная</span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 11v5M15 11v5"/></svg><span>Камера хранения</span></li></ul></div></section><section id="sec-booking" aria-labelledby="sec-booking-title"><div class="wrap"><h2 id="sec-booking-title">Забронировать</h2><p class="muted">Заезд с 14:00, выезд до 12:00</p><p class="booking-note">Бронь подтверждается сразу. Оплата при заезде.</p><div id="pms-booking"></div></div></section><section id="sec-faq" aria-labelledby="sec-faq-title" class="faq"><div class="wrap"><h2 id="sec-faq-title">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id="sec-contacts" aria-labelledby="sec-contacts-title"><div class="wrap"><h2 id="sec-contacts-title">Как нас найти</h2><ul class="contact-list"><li>Телефон: <a href="tel:<телефон>"><телефон></a></li><li>WhatsApp: <a href="https://wa.me/<телефон>" rel="noopener noreferrer"><телефон></a></li><li>Почта: <a href="mailto:<email>"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href="https://www.openstreetmap.org/?mlat=51.1694&mlon=71.4491#map=17/51.1694/71.4491" rel="noopener noreferrer">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id="sec-cta" aria-labelledby="sec-cta-title" class="cta-band"><div class="wrap"><h2 id="sec-cta-title">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/sections.test.ts:74:18
+     72|     expect(html).toContain('href="https://wa.me/<телефон>" rel="noop…
+     73|     expect(html).toContain('href="mailto:<email>"'…
+     74|     expect(html).toContain('https://www.openstreetmap.org/?mlat=51.169…
+       |                  ^
+     75|   });
+     76|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/sites/src/render/sections.test.ts > экранирование: текст документа не становится разметкой > кавычки, амперсанд и знак меньше в тексте и атрибутах
+AssertionError: expected '<section id="sec-hero" aria-labelledb…' to contain 'Тест &quot;кавычек&quot; &amp; &#39;а…'
+
+Expected: "Тест &quot;кавычек&quot; &amp; &#39;апострофа&#39; &lt; 3 &gt; 2"
+Received: "<section id="sec-hero" aria-labelledby="sec-hero-title" class="hero"><div class="wrap"><h1 id="sec-hero-title">Тест "кавычек" & 'апострофа' < 3 > 2</h1><p class="lead">Заезд круглосуточно, парковка во дворе, завтрак по желанию.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a><a class="btn btn--ghost" href="https://wa.me/<телефон>" rel="noopener noreferrer">Написать в WhatsApp</a></div></div></section><section id="sec-about" aria-labelledby="sec-about-title"><div class="wrap"><h2 id="sec-about-title">О гостинице</h2><p>a < b && c > d "x"</p></div></section><section id="sec-features" aria-labelledby="sec-features-title"><div class="wrap"><h2 id="sec-features-title">Почему у нас удобно</h2><ul class="list grid"><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><h3>Заезд в любое время</h3><p class="muted">Администратор на месте круглые сутки.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg><div><h3>Своя парковка</h3><p class="muted">Бесплатно для гостей, во дворе.</p></div></li><li class="card item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg><div><h3>Быстрый интернет</h3><p class="muted">Wi-Fi во всех номерах.</p></div></li></ul></div></section><section id="sec-rooms" aria-labelledby="sec-rooms-title"><div class="wrap"><h2 id="sec-rooms-title">Номера</h2><ul class="list grid"><li class="card"><h3>Стандарт для двоих</h3><p>Двуспальная кровать, душ, рабочий стол.</p><p class="muted">До 2 гостей</p><ul class="chips"><li>18 м²</li><li>Окна во двор</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="card"><h3>Место в общем номере</h3><p>Кровать с занавеской, шкафчик с замком, розетка у изголовья.</p><p class="muted">До 1 гостя</p><ul class="chips"><li>Женский и общий номер</li></ul><div class="actions"><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul></div></section><section id="sec-amenities" aria-labelledby="sec-amenities-title"><div class="wrap"><h2 id="sec-amenities-title">Удобства и услуги</h2><ul class="list list--cols"><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v4M12 3v4"/></svg><span>Завтрак<br><span class="muted">по желанию, оплачивается отдельно</span></span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6h1"/></svg><span>Прачечная</span></li><li class="item"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 11v5M15 11v5"/></svg><span>Камера хранения</span></li></ul></div></section><section id="sec-booking" aria-labelledby="sec-booking-title"><div class="wrap"><h2 id="sec-booking-title">Забронировать</h2><p class="muted">Заезд с 14:00, выезд до 12:00</p><p class="booking-note">Бронь подтверждается сразу. Оплата при заезде.</p><div id="pms-booking"></div></div></section><section id="sec-faq" aria-labelledby="sec-faq-title" class="faq"><div class="wrap"><h2 id="sec-faq-title">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id="sec-contacts" aria-labelledby="sec-contacts-title"><div class="wrap"><h2 id="sec-contacts-title">Как нас найти</h2><ul class="contact-list"><li>Телефон: <a href="tel:<телефон>"><телефон></a></li><li>WhatsApp: <a href="https://wa.me/<телефон>" rel="noopener noreferrer"><телефон></a></li><li>Почта: <a href="mailto:<email>"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href="https://www.openstreetmap.org/?mlat=51.1694&mlon=71.4491#map=17/51.1694/71.4491" rel="noopener noreferrer">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id="sec-cta" aria-labelledby="sec-cta-title" class="cta-band"><div class="wrap"><h2 id="sec-cta-title">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/sections.test.ts:129:18
+    127|     about['paragraphs'] = [{ ru: 'a < b && c > d "x"' }];
+    128|     const html = renderSections(ctx({ spec, page: home(spec) }));
+    129|     expect(html).toContain('Тест &quot;кавычек&quot; &amp; &#39;апостр…
+       |                  ^
+    130|     expect(html).toContain('a &lt; b &amp;&amp; c &gt; d &quot;x&quot;…
+    131|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/sites/src/render/variants.test.ts > каждый вариант рисуется > faq LIST
+TypeError: SECTION_RENDERERS[type][variant] is not a function
+ ❯ apps/sites/src/render/variants.test.ts:28:51
+     26|     const assets: Record<string, string> = {};
+     27|     for (const id of JSON.stringify(s).match(/[0-9a-f]{8}-[0-9a-f]{4}-…
+     28|     const html = SECTION_RENDERERS[type]![variant]!(s, ctx({ assets })…
+       |                                                   ^
+     29|     expect(html.startsWith(`<section id="${s.id}"`)).toBe(true);
+     30|     expect(html).toContain(`<h2 id="${s.id}-title">`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/sites/src/render/variants.test.ts > каждый вариант рисуется > картинка с картой ассетов: адрес из карты, ALT экранирован, ленивая загрузка
+AssertionError: expected '<section id="sec-gallery" aria-labell…' to contain '<img src="https://assets.example.test…'
+
+Expected: "<img src="https://assets.example.test/img.webp" alt="Номер &quot;люкс&quot; &amp; вид" loading="lazy""
+Received: "<section id="sec-gallery" aria-labelledby="sec-gallery-title"><div class="wrap"><h2 id="sec-gallery-title">Фотографии</h2><ul class="list grid"><li><img src="https://assets.example.test/img.webp" alt="Номер "люкс" & вид" loading="lazy" decoding="async"></li><li><img src="https://assets.example.test/img.webp" alt="Кухня для гостей" loading="lazy" decoding="async"></li><li><img src="https://assets.example.test/img.webp" alt="Двор с парковкой" loading="lazy" decoding="async"></li></ul></div></section>"
+
+ ❯ apps/sites/src/render/variants.test.ts:43:18
+     41|     const assets = Object.fromEntries(images.map((i) => [i.assetId, AS…
+     42|     const html = SECTION_RENDERERS['gallery']!['GRID']!(s, ctx({ asset…
+     43|     expect(html).toContain(`<img src="${ASSET}" alt="Номер &quot;люкс&…
+       |                  ^
+     44|   });
+     45| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  6 failed | 1 passed (7)
+      Tests  10 failed | 123 passed (133)
+   Start at  19:07:52
+   Duration  1.70s (transform 76%, tests 12%, import 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-07-51Z-unit-80d9.json
+
+# код выхода 1 · 3 с

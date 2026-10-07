@@ -7046,3 +7046,11 @@
 | 07.10.2026 11:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ❌ код выхода 1 | 2 мин 4 с | c53ee7c +4 | [лог](logs/2026-10-07T06-13-06Z-e2e-7b81.log) | (ошибка вне тестов) |
 | 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 45 из 45 | 6 мин 36 с | c53ee7c +4 | [лог](logs/2026-10-07T06-15-19Z-e2e-01ca.log) |  |
 | 07.10.2026 11:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/guests-birthdays.spec.ts tests/ui/booking-price-nights.spec | ✅ 41 из 41 | 2 мин 38 с | c53ee7c +4 | [лог](logs/2026-10-07T06-22-01Z-e2e-df7c.log) |  |
+| 07.10.2026 11:28 | unit (частично: packages/domain/src/marketing packages/domain/src/web-booking apps/api/src/sites-runtime apps/api/src/web-booking apps/sites apps/web/src/app/to | ✅ 448 из 448 | 12 с | ed03fba | [лог](logs/2026-10-07T06-28-28Z-unit-a613.log) |  |
+| 07.10.2026 11:28 | typecheck | ✅ без ошибок | 1 мин 9 с | ed03fba | [лог](logs/2026-10-07T06-28-44Z-typecheck-137f.log) |  |
+| 07.10.2026 11:29 | lint | ✅ без ошибок | 54 с | ed03fba | [лог](logs/2026-10-07T06-29-54Z-lint-262d.log) |  |
+| 07.10.2026 11:30 | unit | ✅ 3720 из 3723, пропущено 3 | 2 мин 28 с | ed03fba | [лог](logs/2026-10-07T06-30-50Z-unit-4d18.log) |  |
+| 07.10.2026 11:33 | integration | ✅ 829 из 829 | 3 мин 13 с | ed03fba | [лог](logs/2026-10-07T06-33-22Z-integration-1857.log) |  |
+| 07.10.2026 11:36 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 17 с | ed03fba | [лог](logs/2026-10-07T06-36-41Z-e2e-7f38.log) |  |
+| 07.10.2026 11:37 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 7 из 26 | 2 мин 5 с | ed03fba | [лог](logs/2026-10-07T06-37-00Z-e2e-a939.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |
+| 07.10.2026 11:39 | e2e (частично: --config tests/branches-ui/playwright.config.ts) | ❌ упало 4 из 26 | 1 мин 51 с | ed03fba | [лог](logs/2026-10-07T06-39-26Z-e2e-5588.log) | real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression |

@@ -11,7 +11,17 @@ import { describe, expect, it } from 'vitest';
  * `components.css`, и каждый селектор там встречается один раз в своём медиазапросе. Раздел, которому
  * нужен другой вид, пишет свой класс или селектор с контекстом (`.board .btn`), а не второе `.btn`.
  */
-export const PRIMITIVES = ['btn', 'panel', 'stat', 'tbl', 'page__title', 'seg', 'badge', 'inp', 'field'];
+export const PRIMITIVES = [
+  'btn',
+  'panel',
+  'stat',
+  'tbl',
+  'page__title',
+  'seg',
+  'badge',
+  'inp',
+  'field',
+];
 const ROOT = resolve(import.meta.dirname, '../..');
 const SRC = resolve(ROOT, 'apps/web/src');
 const OWNER = 'apps/web/src/app/components.css';
@@ -40,10 +50,14 @@ export function primitiveRules(css: string, file: string): PrimitiveRule[] {
         new RegExp(`^\\.${p}(?:(?:--|__)[\\w-]*)?(?![\\w-])`).test(selector),
       );
       // `.tbl.dir-table--stays`: класс раздела рядом с примитивом, это вариант раздела, а не примитив
-      const classes = [...selector.replace(/\[[^\]]*\]|:not\([^)]*\)/g, '').matchAll(/\.([\w-]+)/g)].map((m) => m[1]!);
+      const classes = [
+        ...selector.replace(/\[[^\]]*\]|:not\([^)]*\)/g, '').matchAll(/\.([\w-]+)/g),
+      ].map((m) => m[1]!);
       const own = (c: string) =>
-        /^(is|has)-/.test(c) || PRIMITIVES.some((p) => new RegExp(`^${p}(?:(?:--|__)[\\w-]*)?$`).test(c));
-      if (primitive && classes.every(own)) out.push({ file, context: context.trim(), selector, primitive });
+        /^(is|has)-/.test(c) ||
+        PRIMITIVES.some((p) => new RegExp(`^${p}(?:(?:--|__)[\\w-]*)?$`).test(c));
+      if (primitive && classes.every(own))
+        out.push({ file, context: context.trim(), selector, primitive });
     }
   });
   return out;
@@ -54,7 +68,10 @@ export function ownerViolations(rules: PrimitiveRule[], owner = OWNER): string[]
   const seen = new Map<string, string>();
   const problems: string[] = [];
   for (const r of rules) {
-    if (r.file !== owner) problems.push(`${r.file}: ${r.context} ${r.selector} (примитив .${r.primitive} вне ${owner})`);
+    if (r.file !== owner)
+      problems.push(
+        `${r.file}: ${r.context} ${r.selector} (примитив .${r.primitive} вне ${owner})`,
+      );
     const key = `${r.context}|${r.selector}`;
     if (seen.has(key)) problems.push(`${r.file}: ${r.context} ${r.selector} определён второй раз`);
     seen.set(key, r.file);
@@ -95,7 +112,26 @@ describe('примитив определён один раз (DS0b)', () => {
       .filter((f) => f.endsWith('.css'))
       .flatMap((f) => primitiveRules(readFileSync(f, 'utf8'), relative(ROOT, f)));
     for (const p of PRIMITIVES)
-      expect(rules.some((r) => r.selector === `.${p}`), `.${p} определён`).toBe(true);
+      expect(
+        rules.some((r) => r.selector === `.${p}`),
+        `.${p} определён`,
+      ).toBe(true);
     expect(ownerViolations(rules)).toEqual([]);
+  });
+
+  it('globals.css объявляет порядок слоёв первым: layout.tsx импортирует его до любого модуля', () => {
+    // CSS, который компонент импортирует выше, объявил бы свой слой раньше и перевернул порядок слоёв
+    const layout = readFileSync(join(SRC, 'app', 'layout.tsx'), 'utf8');
+    const first = /^import\s+[^;]+;/m.exec(layout)?.[0];
+    expect(first).toBe("import './globals.css';");
+    const globals = readFileSync(join(SRC, 'app', 'globals.css'), 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    expect(
+      globals
+        .trimStart()
+        .startsWith('@layer reset, tokens, base, components, sections, utilities;'),
+    ).toBe(true);
   });
 });

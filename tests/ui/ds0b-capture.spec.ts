@@ -113,17 +113,24 @@ for (const theme of ['light', 'dark'] as const) {
   }
 }
 
-test('вычисленные стили маршрутов гостиницы, 1440 светлая', async ({ page }) => {
-  test.setTimeout(600_000);
-  mkdirSync(stylesOut, { recursive: true });
-  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 1440, height: 900 });
-  for (const route of STYLE_ROUTES) {
-    await page.goto(route);
-    await page.waitForLoadState('networkidle').catch(() => undefined);
-    await page.mouse.move(0, 0);
-    // Выражение строкой: в корневом tsconfig нет библиотеки DOM
-    const dump = await page.evaluate(`(() => {
+// 1440 светлая пишет в `<phase>/`, остальные виды в `<phase>-<ширина>-<тема>/`
+for (const [width, theme] of [
+  [1440, 'light'],
+  [390, 'light'],
+  [1440, 'dark'],
+] as const) {
+  test(`вычисленные стили маршрутов гостиницы, ${width} ${theme}`, async ({ page }) => {
+    test.setTimeout(600_000);
+    const dir = width === 1440 && theme === 'light' ? stylesOut : `${stylesOut}-${width}-${theme}`;
+    mkdirSync(dir, { recursive: true });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    for (const route of STYLE_ROUTES) {
+      await page.goto(route);
+      await page.waitForLoadState('networkidle').catch(() => undefined);
+      await page.mouse.move(0, 0);
+      // Выражение строкой: в корневом tsconfig нет библиотеки DOM
+      const dump = await page.evaluate(`(() => {
       const props = ${JSON.stringify(PROPS)};
       const out = {};
       const path = (el) => {
@@ -144,7 +151,8 @@ test('вычисленные стили маршрутов гостиницы, 1
       }
       return out;
     })()`);
-    const name = route.slice(1).replace(/\//g, '-');
-    writeFileSync(`${stylesOut}/${name}.json`, JSON.stringify(dump));
-  }
-});
+      const name = route.slice(1).replace(/\//g, '-');
+      writeFileSync(`${dir}/${name}.json`, JSON.stringify(dump));
+    }
+  });
+}

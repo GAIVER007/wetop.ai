@@ -1244,6 +1244,7 @@ test('деньги за период: период длиннее года об�
  * никогда.
  */
 test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   const plate = page.getByTestId('stay-cell').first();
   await expect(plate).toBeVisible();

@@ -7103,3 +7103,5 @@
 | 07.10.2026 14:29 | typecheck | ✅ без ошибок | 1 мин | a8deeb1 | [лог](logs/2026-10-07T09-29-52Z-typecheck-5338.log) |  |
 | 07.10.2026 14:30 | lint | ✅ без ошибок | 37 с | a8deeb1 | [лог](logs/2026-10-07T09-30-53Z-lint-6bfd.log) |  |
 | 07.10.2026 14:31 | unit | ✅ 3734 из 3737, пропущено 3 | 1 мин 59 с | a8deeb1 | [лог](logs/2026-10-07T09-31-31Z-unit-3ac9.log) |  |
+| 07.10.2026 15:07 | typecheck | ✅ без ошибок | 1 мин 27 с | 08c4e2a | [лог](logs/2026-10-07T10-07-08Z-typecheck-25b2.log) |  |
+| 07.10.2026 15:08 | unit (частично: -- apps/api/src/auth/route-access.test.ts packages/domain/src/marketing apps/api/src/finance) | ✅ 3762 из 3765, пропущено 3 | 2 мин 29 с | 08c4e2a | [лог](logs/2026-10-07T10-08-36Z-unit-77ba.log) |  |

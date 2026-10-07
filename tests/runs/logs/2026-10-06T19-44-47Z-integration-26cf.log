@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 07.10.2026 00:44 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-44-47Z-integration-26cf.json' 'tests/integration/from-prices.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/from-prices.test.ts (9 tests) 1096ms
+   ✓ цена «от» сайта: только тариф брони, 30 ночей, полная вместимость (integration) (9)
+     ✓ лимит запросов с одного адреса 518ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  19:44:48
+   Duration  4.28s (transform 46%, tests 40%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-44-47Z-integration-26cf.json
+
+# код выхода 0 · 5 с

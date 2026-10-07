@@ -2849,6 +2849,14 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 > `marketing_site_publications` и `site_domains` в MKT7, `generation_runs` и колонка `generation_run_id` в MKT6,
 > `site_assets` в MKT8. Временных заменителей нет. Формат содержимого версии: `docs/marketing/sitespec-v0.md`.
 > Архитектура и жизненные циклы: `docs/marketing/README.md`.
+>
+> **Публичный рантайм (MKT4, 06.10.2026, таблиц и миграций нет):** `GET /sites-runtime/current` читает сайт только в
+> `PUBLISHED` и версию только по `published_version_id`, одним запросом с цепочкой Location `ACTIVE` → Business `ACTIVE`
+> `HOSPITALITY` → объект этого Location той же организации; `latest_version_id`, история и чтение версии по id
+> рантайму недоступны. Хосты до `site_domains` (MKT7) разрешает только карта dev и test, боевое разрешение выключено;
+> `primaryHost` в ответе `null`. Цена «от» (`B-FROMPRICE`, Q-276 RESOLVED OWNER 07.10.2026) не хранится нигде: её
+> считает `GET /w/from-prices` по `tracked_sites.booking_rate_plan_id`, `daily_rates` и `restrictions.stop_sell` за 30 ночей
+> при `capacity_adults`; это подсказка тарифа, а не обещание мест. План: `plans/mkt4-public-site-runtime-2026-10-06.md`.
 
 ### 29.1 Что уже есть и не дублируется
 

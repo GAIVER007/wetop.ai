@@ -17,6 +17,8 @@ import {
   assertPromoAllows,
   assertRestrictionsAllow,
   fingerprintOf,
+  fromPriceMinor,
+  fromPriceWindow,
   hostMatches,
   localDate,
   parseBookingRequest,
@@ -81,6 +83,16 @@ export interface Quote {
   categories: QuoteCategory[];
 }
 
+/**
+ * Цена «от» сайта (`B-FROMPRICE`, Q-276): подсказка тарифа брони сайта, а не обещание мест. Категория без цены в ответ
+ * не попадает. Внутренних идентификаторов нет: только код категории, цена в тиынах строкой, валюта и окно ночей.
+ */
+export interface FromPrices {
+  currency: string;
+  window: { from: string; to: string };
+  categories: Array<{ code: string; fromMinor: string }>;
+}
+
 export interface BookingResult {
   confirmationNumber: string;
   status: string;
@@ -103,11 +115,14 @@ export const BOT_QUOTES_PER_HOUR = 120;
 const HOUR_MS = 3_600_000;
 /** Запросов цен с одного адреса в минуту: посетитель листает даты, а не бомбит */
 export const QUOTES_PER_IP_PER_MINUTE = 60;
+/** Цен «от» с одного адреса в минуту: одна страница сайта даёт один запрос */
+export const FROM_PRICES_PER_IP_PER_MINUTE = 30;
 
 const newLimits = () => ({
   bookPerIp: new AttemptWindows(BOOKING_RATE_LIMITS.perIpPerHour, HOUR_MS),
   bookPerSite: new AttemptWindows(BOOKING_RATE_LIMITS.perSitePerHour, HOUR_MS),
   quotePerIp: new AttemptWindows(QUOTES_PER_IP_PER_MINUTE, 60_000),
+  fromPricesPerIp: new AttemptWindows(FROM_PRICES_PER_IP_PER_MINUTE, 60_000),
   /** Котировки продавца по организации (ADR-085) */
   botQuotePerOrg: new AttemptWindows(BOT_QUOTES_PER_HOUR, HOUR_MS),
 });
@@ -183,6 +198,44 @@ export class WebBookingService {
     const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
     const site = await this.bookingSite(siteKey, ctx);
     return asSite(site, () => this.quoteForSite(site, raw, now));
+  }
+
+  /**
+   * Цена «от» без дат для сайта (Q-276, решение владельца 07.10.2026). Сайт, домен, действующая цепочка объекта и тариф
+   * брони те же, что у `quote` и `book` (`bookingSite`): другого способа выбрать объект или тариф нет. Цена только по
+   * тарифу брони сайта; выключенный тариф даёт пустой список, а не другой тариф. Свободные места не проверяются.
+   */
+  async fromPrices(raw: unknown, ctx: RequestContext): Promise<FromPrices> {
+    const now = ctx.now ?? new Date();
+    if (ctx.ip && !this.limits.fromPricesPerIp.allow(visitorKey(ctx.ip), now.getTime())) {
+      throw new HttpException(
+        'слишком много запросов цен с одного адреса, попробуйте через минуту',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
+    const site = await this.bookingSite(siteKey, ctx);
+    const today = localDate(now, site.timezone);
+    const window = fromPriceWindow(today);
+    return asSite(site, () =>
+      this.uow.read(async (repo) => {
+        const plan = await repo.ratePlanByCode(site.bookingRatePlan!.code);
+        if (!plan || !plan.active)
+          return { currency: plan?.currency ?? 'KZT', window: { from: window.from, to: window.to }, categories: [] };
+        const derived = plan.derivedRule ? { planName: plan.name, rule: plan.derivedRule } : null;
+        const categories: FromPrices['categories'] = [];
+        for (const cat of await repo.activeCategories()) {
+          if (!(await repo.ratePlanCoversType(plan.id, cat.id))) continue;
+          const [rates, restrictions] = await Promise.all([
+            repo.nightRates(cat.id, plan.id, window.from, window.toExclusive),
+            repo.restrictionsFor(cat.id, plan.id, window.from, window.toExclusive),
+          ]);
+          const min = fromPriceMinor({ today, capacityAdults: cat.capacityAdults, rates, restrictions, derived });
+          if (min !== null) categories.push({ code: cat.code, fromMinor: min.toString() });
+        }
+        return { currency: plan.currency, window: { from: window.from, to: window.to }, categories };
+      }),
+    );
   }
 
   /**

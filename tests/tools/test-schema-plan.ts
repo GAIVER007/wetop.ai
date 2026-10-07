@@ -40,27 +40,53 @@ export function pendingMigrations(all: readonly string[], applied: ReadonlySet<s
   return [...all].sort().filter((m) => !applied.has(m));
 }
 
-/** Порядок копирования: таблица после всех, на которые ссылается; ссылка на себя не учитывается; цикл — ошибка. */
-export function copyOrder(
+/**
+ * Порядок копирования: таблица после всех, на которые ссылается; ссылка на себя не учитывается. Цикл через обязательные
+ * ссылки это ошибка. Цикл через колонку, допускающую NULL (сайт ↔ его версии, MKT3: `marketing_sites.latest_version_id`
+ * и `marketing_site_versions.site_id`), разрывается по такому ребру; разорванные рёбра возвращаются в `relaxed`, и копия
+ * тогда идёт без построчной проверки ссылок (`copyLiveData`, `session_replication_role = replica`): CHECK работают как
+ * обычно, а целостность ссылок держит источник, где строки уже согласованы.
+ */
+export function copyPlan(
   tables: readonly string[],
-  foreignKeys: ReadonlyArray<{ table: string; references: string }>,
-): string[] {
+  foreignKeys: ReadonlyArray<{ table: string; references: string; nullable?: boolean }>,
+): { order: string[]; relaxed: Array<{ table: string; references: string }> } {
   const known = new Set(tables);
-  const deps = new Map(tables.map((t) => [t, new Set<string>()]));
-  for (const fk of foreignKeys)
-    if (fk.table !== fk.references && known.has(fk.table) && known.has(fk.references))
-      deps.get(fk.table)!.add(fk.references);
+  const edges = foreignKeys.filter((fk) => fk.table !== fk.references && known.has(fk.table) && known.has(fk.references));
   const sorted = [...tables].sort();
   const done = new Set<string>();
   const order: string[] = [];
+  const relaxed: Array<{ table: string; references: string }> = [];
+  const dropped = new Set<(typeof edges)[number]>();
+  const ready = (t: string) =>
+    edges.every((e) => e.table !== t || dropped.has(e) || done.has(e.references));
   while (order.length < sorted.length) {
-    const next = sorted.find((t) => !done.has(t) && [...deps.get(t)!].every((d) => done.has(d)));
-    if (!next)
-      throw new Error(`цикл внешних ключей: ${sorted.filter((t) => !done.has(t)).join(', ')}`);
+    let next = sorted.find((t) => !done.has(t) && ready(t));
+    if (!next) {
+      // разорвать только рёбра из колонок с NULL между ещё не скопированными таблицами
+      const open = edges.filter(
+        (e) => e.nullable === true && !dropped.has(e) && !done.has(e.table) && !done.has(e.references),
+      );
+      for (const e of open) {
+        dropped.add(e);
+        if (!relaxed.some((r) => r.table === e.table && r.references === e.references))
+          relaxed.push({ table: e.table, references: e.references });
+      }
+      next = sorted.find((t) => !done.has(t) && ready(t));
+      if (!next) throw new Error(`цикл внешних ключей: ${sorted.filter((t) => !done.has(t)).join(', ')}`);
+    }
     order.push(next);
     done.add(next);
   }
-  return order;
+  return { order, relaxed };
+}
+
+/** Порядок копирования без допусков: любой цикл через обязательные ссылки это ошибка (см. `copyPlan`) */
+export function copyOrder(
+  tables: readonly string[],
+  foreignKeys: ReadonlyArray<{ table: string; references: string; nullable?: boolean }>,
+): string[] {
+  return copyPlan(tables, foreignKeys).order;
 }
 
 export interface ColumnInfo {

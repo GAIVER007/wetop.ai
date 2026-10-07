@@ -1,0 +1,109 @@
+# Модульные (unit) · 07.10.2026 11:01 Алматы · vm
+# коммит c53ee7c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-01-25Z-unit-fe97.json' 'packages/domain/src/marketing/site-spec.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests | 2 failed) 192ms
+   ✓ SiteSpec v0: корректный документ (1)
+     ✓ пример из контракта принимается целиком 11ms
+   ✓ SiteSpec v0: отказы (16)
+     ✓ неизвестная версия схемы 7ms
+     ✓ не объект 1ms
+     ✓ неизвестный тип и вариант секции 13ms
+     ✓ лишние поля отклоняются на любом уровне, включая поля с кодом и идентификаторы владельца 17ms
+     ✓ словари темы не принимают произвольных значений 2ms
+     ✓ текст на языках: нет языка по умолчанию, чужой язык, пусто, длина, разметка, шаблон 19ms
+     ✓ повтор идентификаторов страниц и секций 4ms
+     ✓ внутренние ссылки: страница, секция, контакт для действия 18ms
+     ✓ страницы: ровно одна главная с пустым адресом, адреса уникальны и не зарезервированы 9ms
+     ✓ документ больше 256 КБ 38ms
+     ✓ адреса: только https без логина, порта, IP и localhost; javascript: и data: не проходят 7ms
+     ✓ бронь: секция требует виджет WETOP, одна на странице, заголовок обязателен 4ms
+     ✓ первая секция героя: только одна и только первой 1ms
+     ✓ SEO: шаблон заголовка с одним %s, карта сайта без индекса запрещена, robots и canonical из словаря 7ms
+     ✓ направление v0 только Hospitality 1ms
+     ✓ ассет: только форма UUID (наличие ассета проверит MKT8) 1ms
+   ❯ SiteSpec v0: категория в секции цен ссылается на карточку размещения (2)
+     × код цены без карточки размещения отклоняется: название строки взять негде 12ms
+     × карточка с тем же кодом на другой странице документа делает его корректным 5ms
+   ✓ каноническая запись и хэш (5)
+     ✓ порядок ключей не влияет, в том числе во вложенных объектах 1ms
+     ✓ порядок массивов влияет 0ms
+     ✓ Юникод записывается детерминированно 0ms
+     ✓ ключи упорядочены по кодовым точкам, не по языку 0ms
+     ✓ хэш: 64 символа нижнего регистра, меняется вместе со значением 2ms
+   ✓ адрес сайта (slug) (15)
+     ✓ нормальный адрес принимается в нижнем регистре и без пробелов по краям 1ms
+     ✓ ab отклоняется (короче трёх знаков) 0ms
+     ✓ -abc отклоняется (начинается с дефиса) 0ms
+     ✓ abc- отклоняется (кончается дефисом) 0ms
+     ✓ ab c отклоняется (пробел) 0ms
+     ✓ ветер отклоняется (не латиница) 0ms
+     ✓ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa отклоняется (длиннее 40) 0ms
+     ✓ зарезервированный www отклоняется 1ms
+     ✓ зарезервированный app отклоняется 0ms
+     ✓ зарезервированный api отклоняется 0ms
+     ✓ зарезервированный admin отклоняется 0ms
+     ✓ зарезервированный wetop отклоняется 0ms
+     ✓ зарезервированный preview отклоняется 0ms
+     ✓ зарезервированный support отклоняется 0ms
+     ✓ не строка отклоняется 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: категория в секции цен ссылается на карточку размещения > код цены без карточки размещения отклоняется: название строки взять негде
+AssertionError: документ должен быть отклонён: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ errorsOf packages/domain/src/marketing/site-spec.test.ts:27:54
+     25| function errorsOf(input: unknown) {
+     26|   const result = validateSiteSpec(input);
+     27|   expect(result.ok, 'документ должен быть отклонён').toBe(false);
+       |                                                      ^
+     28|   return result.ok ? [] : result.errors;
+     29| }
+ ❯ rejects packages/domain/src/marketing/site-spec.test.ts:31:18
+ ❯ packages/domain/src/marketing/site-spec.test.ts:267:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/site-spec.test.ts > SiteSpec v0: категория в секции цен ссылается на карточку размещения > карточка с тем же кодом на другой странице документа делает его корректным
+AssertionError: expected [ { …(3) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "code": "required",
++     "message": "Обязательное поле",
++     "path": "pages[1].sections[1].heading",
++   },
++ ]
+
+ ❯ packages/domain/src/marketing/site-spec.test.ts:277:44
+    275|     s.pages[1].sections.push({ id: 'sec-rooms-more', type: 'accommodat…
+    276|     const result = validateSiteSpec(s);
+    277|     expect(result.ok ? [] : result.errors).toEqual([]);
+       |                                            ^
+    278|   });
+    279| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 37 passed (39)
+   Start at  06:01:36
+   Duration  1.29s (transform 63%, tests 26%, import 10%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-01-25Z-unit-fe97.json
+
+# код выхода 1 · 13 с

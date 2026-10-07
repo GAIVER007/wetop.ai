@@ -28,6 +28,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { FoodModule } from './food-service/food.module';
 import { MarketingSiteModule } from './marketing-site/marketing-site.module';
+import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
@@ -53,6 +54,7 @@ import { DataConnectionModule } from './database/connection';
     BeautyModule,
     FoodModule,
     MarketingSiteModule,
+    SitesRuntimeModule,
     HotelModule,
     ChessboardModule,
     ReservationsModule,

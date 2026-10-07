@@ -1,0 +1,53 @@
+# Модульные (unit) · 07.10.2026 11:28 Алматы · vm
+# коммит ed03fba (claude/sharp-dirac-6s46fw)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-28-28Z-unit-a613.json' 'packages/domain/src/marketing' 'packages/domain/src/web-booking' 'apps/api/src/sites-runtime' 'apps/api/src/web-booking' 'apps/sites' 'apps/web/src/app/today' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/branches/switch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (17 tests) 539ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 272ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 851ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 392ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 1057ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 184ms
+ ✓ |unit| apps/sites/src/worker.test.ts (16 tests) 128ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 60ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 84ms
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 92ms
+ ✓ |unit| apps/sites/src/render/from-price.test.ts (22 tests) 60ms
+ ✓ |unit| apps/sites/src/render/variants.test.ts (23 tests) 49ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (9 tests) 102ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 28ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 25ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 51ms
+ ✓ |unit| apps/sites/src/render/sections.test.ts (30 tests) 30ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 13ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 14ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 30ms
+ ✓ |unit| apps/sites/src/headers.test.ts (14 tests) 16ms
+ ✓ |unit| packages/domain/src/web-booking/from-price.test.ts (8 tests) 22ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (7 tests) 18ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 12ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 14ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 6ms
+
+ Test Files  27 passed (27)
+      Tests  448 passed (448)
+   Start at  06:28:30
+   Duration  10.17s (transform 49%, import 34%, tests 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-28-28Z-unit-a613.json
+
+# код выхода 0 · 12 с

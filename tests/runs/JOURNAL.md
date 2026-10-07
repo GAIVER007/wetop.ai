@@ -7206,3 +7206,6 @@
 | 07.10.2026 15:53 | lint | ✅ без ошибок | 29 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-53-03Z-lint-7f84.log) |  |
 | 07.10.2026 16:53 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-guards.test.ts tests/unit/design-scale.test.ts tests/unit/ci-runner.test.ts tests/unit/e2e-auth | ✅ 63 из 63 | 3 с | 710d66d +39 | [лог](logs/2026-10-07T11-53-14Z-unit-ca1a.log) | #267 после слияния main 7c… с B и A: сторожа DS0a и гейт |
 | 07.10.2026 16:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard- tests/ui/desktop-compact.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ✅ 130 из 130 | 20 мин 36 с | 4cc08f3 +3 | [лог](logs/2026-10-07T11-31-56Z-e2e-7789.log) | регрессия baseline B после правки строки фильтров |
+| 07.10.2026 16:53 | typecheck | ✅ без ошибок | 1 мин 1 с | b316664 | [лог](logs/2026-10-07T11-53-34Z-typecheck-a64c.log) | #267 после слияния main с A и B |
+| 07.10.2026 16:54 | lint | ✅ без ошибок | 55 с | b316664 | [лог](logs/2026-10-07T11-54-37Z-lint-6d3b.log) | #267 после слияния main с A и B |
+| 07.10.2026 16:55 | unit | ✅ 3799 из 3802, пропущено 3 | 2 мин 35 с | b316664 | [лог](logs/2026-10-07T11-55-33Z-unit-5d52.log) | #267 полный unit после слияния main с A и B |

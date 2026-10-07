@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 07.10.2026 15:17 Алматы · MacBook-Air-Urij.local
+# коммит e7b1bf9 (codex/mv8-audit-20261007)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-17-11Z-integration-7948.json' 'tests/integration/site-brief.test.ts' 'tests/integration/marketing-site.test.ts' 'tests/integration/sites-runtime.test.ts' 'tests/integration/mv8-branches-contract.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-audit-20261007
+
+No test files found, exiting with code 0
+
+filter: tests/integration/site-brief.test.ts, tests/integration/marketing-site.test.ts, tests/integration/sites-runtime.test.ts, tests/integration/mv8-branches-contract.test.ts
+projects: integration
+
+|integration|
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-17-11Z-integration-7948.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect ECONNREFUSED 127.0.0.1:55983
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:56:18
+     54|   const log = opts.log ?? (() => undefined);
+     55|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     56|   const client = await pool.connect();
+       |                  ^
+     57|   try {
+     58|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 55983 }
+
+
+
+
+# код выхода 1 · 4 с

@@ -60,6 +60,9 @@ export default async function MarketingPage() {
             <Link className="btn" href="/website">
               Открыть
             </Link>
+            <Link className="btn btn--secondary" href="/marketing/site/editor">
+              Редактор
+            </Link>
             <Link className="btn btn--secondary" href="/marketing/site">
               Публикация
             </Link>

@@ -4596,7 +4596,7 @@ createServer(async (req, res) => {
     }
     const assetsResponse = siteAssetsFixture(path, req.method ?? 'GET', body, raw);
     if (assetsResponse) return send(assetsResponse.status, assetsResponse.data);
-    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body);
+    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams);
     if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);

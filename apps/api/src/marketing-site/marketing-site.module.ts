@@ -96,6 +96,31 @@ export class MarketingSiteController {
     return this.service.saveVersion(!!pointer, body);
   }
 
+  /** MKT9: история версий без документа, до 100 последних */
+  @Get('versions')
+  versions(@Headers(SCOPE_HEADER) pointer?: string) {
+    return this.service.versions(!!pointer);
+  }
+
+  /** MKT9: одна версия этого сайта с документом (только управление; рантайм старых версий не читает) */
+  @Get('versions/:id')
+  version(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string) {
+    return this.service.version(!!pointer, id);
+  }
+
+  /** MKT9: смысловая разница `against → :id` */
+  @Get('versions/:id/diff')
+  versionDiff(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string, @Query('against') against?: string) {
+    return this.service.diff(!!pointer, id, against);
+  }
+
+  /** MKT9: восстановить как новый черновик; опубликованная версия не меняется (это не откат MKT7) */
+  @Post('versions/:id/restore')
+  @HttpCode(201)
+  restoreVersion(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string, @Body() body: unknown) {
+    return this.service.restore(!!pointer, id, body);
+  }
+
   /** MKT7: подписанная ссылка предпросмотра одной версии на 60 минут; хост превью, а не домен сайта */
   @Post('preview')
   @HttpCode(200)

@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 07.10.2026 22:51 Алматы · vm
+# коммит 0c2e0d8 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T17-51-33Z-integration-9f1c.json' 'tests/integration/site-generation.test.ts' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:3504) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-generation.test.ts (16 tests) 5255ms
+   ✓ MKT6 site generation (16)
+     ✓ счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 1165ms
+     ✓ бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута 448ms
+(node:3519) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[Nest] 3519  - 10/07/2026, 5:51:47 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 3519  - 10/07/2026, 5:51:47 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (37 tests) 1523ms
+
+ Test Files  2 passed (2)
+      Tests  53 passed (53)
+   Start at  17:51:34
+   Duration  13.12s (tests 62%, transform 20%, import 18%)
+
+JSON report written to /tmp/pms-test-2026-10-07T17-51-33Z-integration-9f1c.json
+
+# код выхода 0 · 14 с

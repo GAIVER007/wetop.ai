@@ -1,0 +1,127 @@
+# MKT6: генерация первой версии сайта ИИ, план и итог
+
+Ветка `claude/sharp-dirac-6s46fw`, перезапущена от `main` `be399dd8` (PR #270 с Q-274 влит, MKT5 PR #266 `1a9b2810`
+в истории). ТЗ владельца «WETOP MKT6, AI GENERATION» от 07.10.2026. Последняя миграция на `main`: `…061`.
+
+## 1. Что делаем
+
+Асинхронная генерация первой версии управляемого сайта:
+
+`SiteBrief` → `GenerationRun` (сама очередь в Postgres) → воркер API → узкий служебный вход бота
+`POST /internal/site-generation` → ключ модели платформы → JSON `SiteSpec` → проверка платформы → неизменяемая
+`MarketingSiteVersion(source=AI)` → `latest_version_id`.
+
+Публикации, доменов, превью, ассетов, `TrackedSite`, интерфейса редактора, `SECTION`/`PATCH`/`SEO` нет (MKT7–MKT11).
+
+## 2. Модель данных (DATA_MODEL §29.3, §29.7, §29.8, §29.9)
+
+Миграция `20261007000062_generation_run_core` (+ `down.sql`):
+
+- enum `GenerationRunType` (`INITIAL`, `SECTION`, `PATCH`, `SEO`) и `GenerationRunStatus` (`QUEUED`, `RUNNING`,
+  `SUCCEEDED`, `FAILED`, `CANCELLED`);
+- таблица `generation_runs` с полями §29.7 и одним добавлением: `dispatched_at timestamptz NULL` (см. §6);
+- UNIQUE (`site_id`, `request_key`), UNIQUE `output_version_id`;
+- `marketing_site_versions.generation_run_id UUID NULL` FK, UNIQUE (один run создаёт не больше одной версии);
+- CHECK MKT3 `source = 'MANUAL'` снимается, вместо него `marketing_site_versions_source_provenance`:
+  `MANUAL` без run, `AI` с run; `IMPORT` по-прежнему не проходит;
+- CHECK формы состояния run (§16 ТЗ), токенов (целые, не меньше нуля, `cached <= input`), `attempts` от 0 до 3,
+  словарь `error_code`, формат `brief_hash`;
+- триггер `generation_run_guard`: вставка только `QUEUED`; переходы только `QUEUED → RUNNING|FAILED|CANCELLED`,
+  `RUNNING → QUEUED|SUCCEEDED|FAILED`; конечные не меняются; `site_id`, `type`, `request_key`, `requested_by_id`,
+  `brief_hash`, `base_version_id` не меняются; токены и `attempts` только растут; `base_version_id` и
+  `output_version_id` только версии того же сайта; у `output_version_id` версия ссылается обратно на этот run;
+- триггер версий: `generation_run_id` только run того же сайта;
+- RLS `rls_tenant` через `marketing_sites` (FORCE), таблица в `RLS_TENANT_TABLES`.
+
+Права отдельной миграцией `20261007000063_generation_run_grants` (+ `down.sql`), как MKT3 061: восстановление копии
+повторяет только миграции прав. `wetop_app`: SELECT, INSERT (без UPDATE и DELETE). `wetop_service`: SELECT, INSERT,
+UPDATE (без DELETE). Воркер ходит служебным путём (`DATABASE_URL`), как очередь каналов.
+
+## 3. Бюджет (Q-274, решение владельца 07.10.2026)
+
+- Только ключ платформы. Вход бота не читает `OrganizationLlmKey`, не принимает ключ и организацию.
+- `SITE_GENERATION_DAILY_TOKEN_BUDGET`, умолчание 150 000; не число или `<= 0` → генерация выключена (не безлимит).
+- День бюджета: календарные сутки UTC первого `started_at` run. Расход дня организации:
+  `SUM(COALESCE(tokens_input,0) + COALESCE(tokens_output,0))` по её run этого дня. `tokens_cached` не прибавляется.
+- Проверка перед каждым платным вызовом: платформа перед запросом к боту (остаток `<= 0` → `BUDGET_EXCEEDED` без
+  вызова), бот перед каждой ступенью каскада по переданному `budgetRemainingTokens`. Мягкий предел: последний
+  разрешённый вызов может перейти предел своим фактическим расходом.
+- Расход каждого фактического вызова (первая неудачная ступень, отказ, запасная модель, повтор после
+  `SCHEMA_INVALID`) складывается в `tokens_input/output/cached` run; платформа пишет расход до любого решения.
+- Нет полного расхода после платного вызова (нет `prompt_tokens` или `completion_tokens`, потерян ответ, обрыв
+  связи, таймаут ответа бота) → `FAILED / USAGE_UNAVAILABLE`, версия не создаётся. Такой run в сутках UTC
+  организации запрещает новые платные вызовы генерации сайтов до следующих суток. На продавца не влияет.
+- HTTP-ответ поставщика с кодом ошибки (4xx/5xx) считается неоплаченным: поставщик ответил отказом, генерации не
+  было. Таймаут и обрыв связи после отправки считаются неизвестным расходом.
+
+## 4. API управления
+
+`POST /marketing/site/generations` и `GET /marketing/site/generations/:id`, право `settings`, строгий scope MKT3.
+
+- Тело только `{ requestKey: UUID, expectedBriefHash: sha256 }`, лишнее поле 400.
+- Сайта нет → 409 «Сначала создайте сайт». У сайта уже есть версия → 409 (INITIAL не правка).
+- Сервер собирает бриф; хэш не равен `expectedBriefHash` → 409, run не создаётся, модель не вызывается.
+- Повтор с тем же `requestKey` возвращает тот же run (в любом состоянии), без второй строки и без расхода лимита.
+- Лимит постановки: 10 новых run на человека в организации за час (по строкам `generation_runs`).
+- Журнал `marketing.site.generation.requested` без брифа, промпта и документа.
+- GET отдаёт статус run своего сайта без документа; чужой run 404.
+
+## 5. Воркер (`apps/api/src/marketing-site/generation.worker.ts`)
+
+Включается вне `NODE_ENV=test`, при `SITE_GENERATION_WORKER != off` и настроенном продавце (`SELLER_URL`,
+`SELLER_SERVICE_KEY`); опрос раз в 3 с. В тестах вызывается явно, часы подменяются.
+
+1. Восстановление: `RUNNING` с истёкшей арендой (`next_attempt_at <= now`). Вызов не отправлялся
+   (`dispatched_at IS NULL`): `attempts < 3` → `QUEUED`, иначе `FAILED / TIMEOUT`. Вызов отправлялся: расход неизвестен
+   → `FAILED / USAGE_UNAVAILABLE`.
+2. Захват в короткой транзакции: `QUEUED` с наступившим `next_attempt_at`, `FOR UPDATE SKIP LOCKED`; замок строки
+   организации `FOR UPDATE`; у организации нет другого `RUNNING` → `RUNNING`, `attempts + 1`, `started_at` (первый),
+   аренда 5 минут в `next_attempt_at`. Две организации идут параллельно, два сайта одной организации по очереди.
+3. Без вызова модели: сутки UTC сменились с первого `started_at` → `FAILED / BUDGET_DAY_CHANGED`; у сайта уже есть
+   версия → `BASE_VERSION_CHANGED`; бриф филиала сайта собран заново и хэш иной → `BRIEF_CHANGED`; неизвестный расход
+   этих суток → `USAGE_UNAVAILABLE`; остаток `<= 0` → `BUDGET_EXCEEDED`.
+4. Отметка `dispatched_at`, запрос к боту без транзакции базы (таймаут 4 минуты, меньше аренды).
+5. Расход ответа записывается сразу и снимает `dispatched_at`; потерянный ответ → `USAGE_UNAVAILABLE`.
+6. Ответ проверяется тем же `validateSiteSpec`, что ручная версия, и дополнительно: `HOSPITALITY`, языки ровно
+   `targetLocales`, язык по умолчанию первый, коды категорий только из брифа, ни одного ассета и картинки, нет
+   галереи, контакты и юридические данные не выдуманы, не больше 256 КБ. Ошибка → `SCHEMA_INVALID`.
+7. Успех одной транзакцией: замок сайта, run всё ещё `RUNNING` без версии, сайт не в архиве, `latest_version_id` всё
+   ещё пуст (иначе `BASE_VERSION_CHANGED`), версия revision 1 `source = AI` с `generation_run_id`, `latest_version_id`,
+   run `SUCCEEDED`, журнал `marketing.site.generation.succeeded`. Публикация не трогается.
+
+Повторы: `MODEL_UNAVAILABLE`, `TIMEOUT`, `SCHEMA_INVALID` при `attempts < 3`, через 30, 60, 120 с. Остальные коды
+конечные сразу. При повторе после `SCHEMA_INVALID` бот получает только пары «путь, код» прошлой проверки (они лежат
+в `error_message` run, без текста ответа модели).
+
+## 6. Отступление от §29.7: `dispatched_at`
+
+ТЗ требует и восстановления после падения (§27), и отказа при неизвестном расходе (§53). Без отметки «вызов ушёл»
+восстановление не отличит падение до вызова от падения посреди платного вызова и посчитает неизвестный расход нулём.
+Поэтому одна колонка `dispatched_at`: ставится перед запросом к боту, снимается при записи расхода.
+
+## 7. Бот: `POST /internal/site-generation`
+
+Только `X-Service-Key` (тот же `SELLER_SERVICE_KEY`, сравнение байтами); сессия панели, ключ виджета и пустой ключ
+не проходят. Тело строго по контракту `site-generation/0`; лишнее поле 422. Ключ модели только платформы
+(`generate(..., api_key=None)`), `OrganizationLlmKey` не читается. Промпт в коде: правила отдельно, `briefInput` блоком
+данных с явным запретом выполнять инструкции из данных. Маскировщик ПД продавца не применяется: в брифе нет гостей
+(MKT5), а контакты гостиницы нужны в документе. Каскад: перед каждой ступенью проверка
+`spentThisRequest >= budgetRemainingTokens` → `BUDGET_EXCEEDED`; неполный расход останавливает каскад.
+Ответ всегда структурный 200: `status`, `spec` или `errorCode`, `model`, `usage { input, cached, output, complete,
+paidCalls }`. Без промпта, ответа модели, ключа, адреса поставщика.
+
+Слой модели: `CascadeClient.generate` получает необязательные `before_call` и `on_call_usage`, `max_tokens` и
+`timeout`. Без них поведение продавца прежнее.
+
+## 8. Тесты
+
+Red → green: домен (бюджет, расход, языки, проверка документа, повторы), миграция (инварианты прямыми SQL),
+бот (ключ, только платформа, BYOK не используется, данные отдельно, вредный текст остаётся данными, каскад и сумма
+расхода, нет расхода, бюджет на каждой ступени, без инструментов), API и воркер на настоящей базе (идемпотентность,
+захват двумя воркерами, одна организация последовательно, восстановление, повторы, бюджет, неизвестный расход,
+`BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, неверный вывод, счастливый путь, RLS и права), регрессия MKT3–MKT5,
+восстановление копии. Затем typecheck, lint, полный unit и integration, тесты бота.
+
+## 9. Не делаем
+
+Выкладку, миграции на рабочей базе, Worker, DNS, публикацию, `TrackedSite`, `SiteAsset`, интерфейс, MKT7.

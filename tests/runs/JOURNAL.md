@@ -7196,3 +7196,6 @@
 | 07.10.2026 17:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-desig | ✅ 34 из 34 | 3 мин 35 с | ef46db3 +5 | [лог](logs/2026-10-07T12-00-00Z-e2e-809f.log) |  |
 | 07.10.2026 17:03 | typecheck | ✅ без ошибок | 41 с | ef46db3 +5 | [лог](logs/2026-10-07T12-03-44Z-typecheck-0fdc.log) |  |
 | 07.10.2026 17:04 | lint | ✅ без ошибок | 31 с | ef46db3 +5 | [лог](logs/2026-10-07T12-04-26Z-lint-9f62.log) |  |
+| 07.10.2026 15:31 | integration (частично: tests/integration/generation-runs-db.test.ts) | ❌ упало 9 из 9 | 8 с | be399dd +1 | [лог](logs/2026-10-07T10-31-49Z-integration-86dc.log) | MKT6 red: generation_runs нет |
+| 07.10.2026 15:34 | integration (частично: tests/integration/generation-runs-db.test.ts) | ✅ 9 из 9 | 6 с | be399dd +7 | [лог](logs/2026-10-07T10-34-05Z-integration-06b9.log) | MKT6 green: миграции 062 и 063 |
+| 07.10.2026 15:34 | integration (частично: tests/integration/marketing-site.test.ts tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/in | ✅ 78 из 78 | 29 с | be399dd +8 | [лог](logs/2026-10-07T10-34-20Z-integration-99de.log) | MKT6: регрессия MKT3-MKT5, RLS и восстановление после 062/063 |

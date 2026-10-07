@@ -7362,3 +7362,4 @@
 | 07.10.2026 19:23 | typecheck | ✅ без ошибок | 31 с | 0c33362 | [лог](logs/2026-10-07T14-23-54Z-typecheck-90a2.log) |  |
 | 07.10.2026 19:25 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1 --grep stale token refreshes drawer) | ✅ 1 из 1 | 10 с | 0c33362 | [лог](logs/2026-10-07T14-25-16Z-e2e-6ae2.log) |  |
 | 07.10.2026 19:26 | unit | ✅ 3830 из 3834, пропущено 4 | 4 мин 32 с | 0c33362 | [лог](logs/2026-10-07T14-26-00Z-unit-38b3.log) |  |
+| 07.10.2026 20:22 | unit (частично: tests/unit/css-foundation.test.ts tests/unit/desk-glass.test.ts tests/unit/design-slop.test.ts scripts/design/build-tokens.test.ts) | ✅ 44 из 44 | 21 с | 3b95da9 +1 | [лог](logs/2026-10-07T15-22-46Z-unit-5b6f.log) |  |

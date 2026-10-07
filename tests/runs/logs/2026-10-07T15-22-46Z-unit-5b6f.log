@@ -1,0 +1,22 @@
+# Модульные (unit) · 07.10.2026 20:22 Алматы · MacBook-Air-Urij.local
+# коммит 3b95da9 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-22-46Z-unit-5b6f.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (2 tests) 681ms
+   ✓ flat surfaces are owned by components and the obsolete glass override is removed 635ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 1141ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 911ms
+ ✓ |unit| tests/unit/css-foundation.test.ts (10 tests) 865ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 30ms
+
+ Test Files  4 passed (4)
+      Tests  44 passed (44)
+   Start at  19:23:01
+   Duration  4.97s (import 50%, tests 27%, transform 21%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-22-46Z-unit-5b6f.json
+
+# код выхода 0 · 21 с

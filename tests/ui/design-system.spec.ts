@@ -83,6 +83,8 @@ test('повышенная контрастность проходит axe AA', 
 for (const theme of ['light', 'dark'] as const) {
   test(`axe и эталонные снимки секций: ${theme}`, async ({ page }) => {
     test.setTimeout(180_000);
+    // Keep the calendar's today marker stable across reference and regression runs.
+    await page.clock.setFixedTime(new Date('2026-10-07T12:00:00Z'));
     await page.emulateMedia({ colorScheme: theme });
     await page.goto('/design-system');
     const block = page.getByTestId(`kit-${theme}`);

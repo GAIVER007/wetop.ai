@@ -1,0 +1,100 @@
+# Сквозные (e2e) · 07.10.2026 21:23 Алматы · MacBook-Air-Urij.local
+# коммит d1461dd (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'chessboard-focus.spec.ts' 'dashboard-design.spec.ts' 'mobile-adaptation.spec.ts'
+[WebServer] (node:10539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+(node:11914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (18.3s)
+  ✓   2 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (11.4s)
+  ✓   3 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (9.2s)
+  ✓   4 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (11.3s)
+  ✓   5 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (12.8s)
+  ✓   6 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (22.8s)
+  ✓   7 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (18.4s)
+  ✓   8 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (23.2s)
+  ✓   9 tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (11.6s)
+  ✓  10 tests/ui/dashboard-design.spec.ts:28:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (10.9s)
+  ✓  11 tests/ui/dashboard-design.spec.ts:68:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (4.6s)
+  ✓  12 tests/ui/dashboard-design.spec.ts:107:1 › главная: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет (3.1s)
+[WebServer] (node:23580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (40.0s)
+(node:25069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/mobile-adaptation.spec.ts:60:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (7.2s)
+  ✓  15 tests/ui/mobile-adaptation.spec.ts:69:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (6.4s)
+  ✓  16 tests/ui/mobile-adaptation.spec.ts:84:1 › телефон: сводка и управление оставляют сетку на первом экране (7.2s)
+  ✓  17 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (5.9s)
+[WebServer] (node:26725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/mobile-adaptation.spec.ts:110:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (1.0m)
+[WebServer] (node:31730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/mobile-adaptation.spec.ts:144:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (35.0s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией 
+
+    Error: /hotel-settings: padding-bottom 16 < панель 69.5
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 69.5
+    Received:    16
+
+      49 |       .first()
+      50 |       .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+    > 51 |     expect(padBottom, `${route}: padding-bottom ${padBottom} < панель ${navHeight}`).toBeGreaterThanOrEqual(navHeight);
+         |                                                                                      ^
+      52 |     // и страница не едет вбок
+      53 |     const overflow = await page.evaluate(
+      54 |       () => document.documentElement.scrollWidth - window.innerWidth,
+        at /private/tmp/wetop-public1-20261007/tests/ui/mobile-adaptation.spec.ts:51:86
+
+    Error Context: test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--f729e-чется-под-нижней-навигацией/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией 
+  18 passed (6.0m)
+
+# код выхода 1 · 6 мин 4 с

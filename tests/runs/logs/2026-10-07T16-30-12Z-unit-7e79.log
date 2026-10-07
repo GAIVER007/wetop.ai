@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 21:30 Алматы · MacBook-Air-Urij.local
+# коммит 55083b9 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-30-12Z-unit-7e79.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 149ms
+ ✓ |unit| tests/unit/css-foundation.test.ts (10 tests) 169ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (2 tests) 34ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 15ms
+
+ Test Files  4 passed (4)
+      Tests  44 passed (44)
+   Start at  20:30:16
+   Duration  2.74s (import 66%, tests 21%, transform 12%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-30-12Z-unit-7e79.json
+
+# код выхода 0 · 6 с

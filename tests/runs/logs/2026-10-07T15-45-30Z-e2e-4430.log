@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 07.10.2026 20:45 Алматы · MacBook-Air-Urij.local
+# коммит d1461dd (codex/mv85-ds0b-css-foundation)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'calendar and drawer'
+[WebServer] (node:31834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 633ms. If /private/tmp/wetop-public1-20261007/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:32138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (1.3m)
+  ✓  2 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (11.5s)
+  ✓  3 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 light, keyboard, axe, no overflow (8.7s)
+  ✓  4 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (8.5s)
+
+  4 passed (2.7m)
+
+# код выхода 0 · 2 мин 53 с

@@ -301,7 +301,8 @@
     }
   } /* Object settings: one workspace, consistent labels and a compact regional summary. */
   .object-settings {
-    padding: var(--space-6);
+    padding-top: var(--space-6);
+    padding-inline: var(--space-6);
   }
   .object-settings .page__head {
     align-items: center;
@@ -429,7 +430,8 @@
   }
   @media (max-width: 600px) {
     .object-settings {
-      padding: var(--space-4);
+      padding-top: var(--space-4);
+      padding-inline: var(--space-4);
     }
     .object-settings .settings-block {
       padding: var(--space-4);

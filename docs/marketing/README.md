@@ -34,6 +34,9 @@ JavaScript и CSS; замену режима «внешний сайт».
 origin публичного сайта; не на сервере Hostinger, не в `apps/web` или `apps/api`, не через Cloudflare Tunnel. Реализация
 MKT4: `apps/sites`, план `plans/mkt4-public-site-runtime-2026-10-06.md`, выкладка `apps/sites/README.md`.
 
+Бриф сайта (MKT5): `GET /marketing/site/brief`, детерминированная сводка фактов филиала для будущей генерации, без ИИ и
+без хранения. Контракт, белые списки, граница с ИИ и `briefHash`: `docs/marketing/site-brief-v0.md`.
+
 ## 3. Два режима сайта
 
 | Режим | Что есть у филиала | Что делает WETOP |

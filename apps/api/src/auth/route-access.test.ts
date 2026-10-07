@@ -96,6 +96,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
   'GET /marketing/site': 'settings',
   'POST /marketing/site': 'settings',
+  'GET /marketing/site/brief': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
   'GET /food-service/areas': 'desk',

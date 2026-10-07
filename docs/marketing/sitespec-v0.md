@@ -188,7 +188,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | `features` | `GRID`, `LIST` | `heading`, `items` (2–8): `{ icon: Icon, title: LocalizedText<60>, text: LocalizedText<200> }` | | | 0 | нет | нет | H2 и H3 пунктов |
 | `accommodations` | `CARDS`, `ROWS` | `heading`, `items` (1–20): `{ categoryCode, title: LocalizedText<60>, description: LocalizedText<400> }` | `items[].images: ImageRef[]` (0–6), `items[].highlights: LocalizedText<40>[]` (0–6), `showLiveCapacity: boolean`, `showFromPrice: boolean`, `itemAction: Cta` (по умолчанию `BOOK`) | `categoryCode` уникален в секции | 0–6 на карточку | кнопка карточки ведёт в бронь этой категории | `B-CATEGORY` (неактивная или удалённая категория скрывает карточку), `B-FROMPRICE` при `showFromPrice` | H3 карточек; в JSON-LD не попадают в v0 |
 | `amenities` | `LIST`, `ICONS` | `heading`, `items` (1–24): `{ icon: Icon, label: LocalizedText<60> }` | `items[].note: LocalizedText<120>` | | 0 | нет | нет | `amenityFeature` в JSON-LD при `structuredData` |
-| `pricing` | `FROM_PRICES` | `heading`, `categoryCodes` (1–20) | `note: LocalizedText<300>` | | 0 | кнопка `BOOK` у строки | `B-FROMPRICE`, `B-CATEGORY`; цены в документе не пишутся никогда | живые цены не попадают в HTML для поисковиков в v0 и в JSON-LD |
+| `pricing` | `FROM_PRICES` | `heading`, `categoryCodes` (1–20) | `note: LocalizedText<300>` | каждый код из `categoryCodes` есть хотя бы в одной карточке `accommodations` документа (на любой странице); название строки берётся из снимка `accommodations.items[].title`, служебное имя категории PMS публично не используется | 0 | кнопка `BOOK` у строки | `B-FROMPRICE`, `B-CATEGORY`; цены в документе не пишутся никогда | живые цены не попадают в HTML для поисковиков в v0 и в JSON-LD |
 | `gallery` | `GRID`, `CAROUSEL` | `heading`, `images: ImageRef[]` (3–24) | | | 3–24 | нет | нет | ALT обязателен; ленивая загрузка |
 | `booking` | `INLINE` | `heading` | `note: LocalizedText<300>`, `showCheckInOut: boolean` | не больше одной на странице; требует `integrations.booking.mode = "WETOP_WIDGET"` | 0 | сама форма | `B-BOOK`, `B-CHECKINOUT` при `showCheckInOut` | содержимое формы не индексируется |
 | `contacts` | `PLAIN`, `WITH_MAP` | `heading` | `showPhone`, `showWhatsapp`, `showEmail`, `showAddress` (boolean), `map: { provider: "OPENSTREETMAP_LINK" }` (только `WITH_MAP`, нужна `site.contacts.geo`), `directions: LocalizedText<400>` | | 0 | `PHONE`, `WHATSAPP`, `EMAIL` из контактов сайта | нет | адрес и телефон в JSON-LD по флагам `structuredData` |
@@ -248,6 +248,9 @@ Business, Location и нет ключей. Кто владелец сайта, �
 10. `site.vertical` совпадает с вертикалью Business филиала.
 11. В документе нет полей с идентификаторами организации, Business, Location, Property, `TrackedSite`, ключами и
     секретами (их нет в схеме, и строгая схема их отвергнет).
+12. Каждый код `pricing.categoryCodes[]` есть в `categoryCode` хотя бы одной карточки `accommodations.items[]` этого же
+    документа, на любой странице; иначе отказ `pricing_category_without_card`. Строка цены берёт название из снимка
+    карточки (`accommodations.items[].title`); служебное имя категории PMS и сам `categoryCode` людям не показываются.
 
 ## 12. Будущие версии
 

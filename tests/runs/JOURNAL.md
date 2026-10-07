@@ -7031,3 +7031,18 @@
 | 07.10.2026 00:54 | lint | ✅ без ошибок | 33 с | e8497b0 +24 | [лог](logs/2026-10-06T19-54-41Z-lint-0019.log) | Q-276 |
 | 07.10.2026 00:55 | unit (частично: apps/sites) | ✅ 160 из 160 | 3 с | e8497b0 +22 | [лог](logs/2026-10-06T19-55-15Z-unit-fdc4.log) | Q-276 after lint fix |
 | 07.10.2026 00:55 | integration | ✅ 829 из 829 | 2 мин 6 с | e8497b0 +8 | [лог](logs/2026-10-06T19-55-23Z-integration-1aa3.log) | Q-276 full integration |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing/site-spec.test.ts) | ❌ упало 2 из 39 | 13 с | c53ee7c +1 | [лог](logs/2026-10-07T06-01-25Z-unit-fe97.log) | SiteSpec v0: категория в секции цен ссылается на карточку размещения код цены без карточки размещения отклоняется: название строки взять негде |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing/site-spec.test.ts) | ❌ упало 1 из 39 | 3 с | c53ee7c +1 | [лог](logs/2026-10-07T06-01-44Z-unit-6bee.log) | SiteSpec v0: категория в секции цен ссылается на карточку размещения код цены без карточки размещения отклоняется: название строки взять негде |
+| 07.10.2026 11:01 | unit (частично: packages/domain/src/marketing) | ✅ 59 из 59 | 2 с | c53ee7c +2 | [лог](logs/2026-10-07T06-01-57Z-unit-85a7.log) |  |
+| 07.10.2026 11:02 | unit (частично: apps/sites) | ✅ 161 из 161 | 5 с | c53ee7c +3 | [лог](logs/2026-10-07T06-02-15Z-unit-8c54.log) |  |
+| 07.10.2026 11:02 | unit (частично: apps/sites/src/render/from-price.test.ts) | ❌ упало 1 из 22 | 2 с | c53ee7c +4 | [лог](logs/2026-10-07T06-02-29Z-unit-7bda.log) | секция pricing название строки берётся из карточки размещения на другой странице; код категории как название не выводится |
+| 07.10.2026 11:03 | unit (частично: apps/api/src/sites-runtime packages/domain/src/web-booking apps/api/src/web-booking) | ✅ 166 из 166 | 13 с | c53ee7c +4 | [лог](logs/2026-10-07T06-03-17Z-unit-32d2.log) |  |
+| 07.10.2026 11:03 | typecheck | ✅ без ошибок | 1 мин 22 с | c53ee7c +4 | [лог](logs/2026-10-07T06-03-35Z-typecheck-ea46.log) |  |
+| 07.10.2026 11:04 | lint | ✅ без ошибок | 56 с | c53ee7c +4 | [лог](logs/2026-10-07T06-04-58Z-lint-2df9.log) |  |
+| 07.10.2026 11:05 | unit | ✅ 3686 из 3689, пропущено 3 | 2 мин 49 с | c53ee7c +4 | [лог](logs/2026-10-07T06-05-57Z-unit-5606.log) |  |
+| 07.10.2026 11:09 | integration | ✅ 829 из 829 | 3 мин 13 с | c53ee7c +3 | [лог](logs/2026-10-07T06-09-10Z-integration-46f1.log) |  |
+| 07.10.2026 11:12 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 18 с | c53ee7c +4 | [лог](logs/2026-10-07T06-12-29Z-e2e-44b1.log) |  |
+| 07.10.2026 11:12 | e2e (частично: --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboard-mobile.spec.ts tests/ui/chessboard-we | ❌ код выхода 1 | 6 с | c53ee7c +4 | [лог](logs/2026-10-07T06-12-52Z-e2e-a528.log) | (ошибка вне тестов) |
+| 07.10.2026 11:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ❌ код выхода 1 | 2 мин 4 с | c53ee7c +4 | [лог](logs/2026-10-07T06-13-06Z-e2e-7b81.log) | (ошибка вне тестов) |
+| 07.10.2026 11:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboar | ✅ 45 из 45 | 6 мин 36 с | c53ee7c +4 | [лог](logs/2026-10-07T06-15-19Z-e2e-01ca.log) |  |
+| 07.10.2026 11:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/guests-birthdays.spec.ts tests/ui/booking-price-nights.spec | ✅ 41 из 41 | 2 мин 38 с | c53ee7c +4 | [лог](logs/2026-10-07T06-22-01Z-e2e-df7c.log) |  |

@@ -65,6 +65,10 @@ class Checker {
   readonly ids = new Set<string>();
   /** Секции с картой: карте нужны координаты в контактах сайта */
   readonly mapNeeds: string[] = [];
+  /** Коды категорий из карточек размещения всего документа: строка цены берёт название оттуда */
+  readonly cardCodes = new Set<string>();
+  /** Коды категорий секций цен: каждый ищется среди карточек после разбора всех страниц */
+  readonly pricingCodes: Array<{ path: string; code: string }> = [];
 
   fail(path: string, code: string, message: string): void {
     this.errors.push({ path, code, message });
@@ -386,6 +390,11 @@ export function validateSiteSpec(input: unknown): SiteSpecResult {
   for (const mapPath of c.mapNeeds)
     if (contacts['geo'] === undefined)
       c.fail(mapPath, 'missing_contact', 'Карте нужны координаты в контактах сайта');
+  // название строки цены берётся из снимка карточки размещения, служебное имя категории наружу не идёт
+  for (const ref of c.pricingCodes)
+    if (!c.cardCodes.has(ref.code))
+      c.fail(ref.path, 'pricing_category_without_card',
+        'Для категории секции цен нужна карточка размещения с тем же categoryCode');
   const privacy = (site?.['legal'] as Rec | undefined)?.['privacyPageId'];
   if (typeof privacy === 'string' && !pages.some((p) => p.id === privacy))
     c.fail('site.legal.privacyPageId', 'unknown_reference', `Страницы «${privacy}» нет в документе`);
@@ -605,6 +614,7 @@ const SECTIONS: Record<string, SectionShape> = {
           ));
         const codes = (items ?? []).map((i) => (i as Rec | null)?.['categoryCode']);
         codes.forEach((code, i) => {
+          if (typeof code === 'string') c.cardCodes.add(code);
           if (typeof code === 'string' && codes.indexOf(code) !== i)
             c.fail(`${p}[${i}].categoryCode`, 'duplicate_category', 'Категория уже есть в секции');
         });
@@ -630,6 +640,10 @@ const SECTIONS: Record<string, SectionShape> = {
       categoryCodes: (v, p) => {
         c.arr(v, p, 1, 20, c.categoryCode);
         if (Array.isArray(v) && new Set(v).size !== v.length) c.fail(p, 'duplicate_category', 'Категории не повторяются');
+        if (Array.isArray(v))
+          v.forEach((code, i) => {
+            if (typeof code === 'string') c.pricingCodes.push({ path: `${p}[${i}]`, code });
+          });
       },
       note: c.text(300),
     }),

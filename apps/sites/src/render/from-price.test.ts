@@ -78,6 +78,24 @@ describe('секция pricing', () => {
     expect(renderSections(ctx({ facts: facts({ categories: [] }) }))).not.toContain('sec-pricing');
   });
 
+  it('название строки берётся из карточки размещения на другой странице; код категории как название не выводится', () => {
+    const spec = exampleSpec();
+    const rooms = section(spec, 'accommodations');
+    const card = { ...(rooms['items'] as Array<Record<string, unknown>>)[0]!, categoryCode: 'pricing-only', title: { ru: 'Семейный номер' } };
+    spec.pages.find((p) => !p.isHome)!.sections.push({ id: 'sec-rooms-more', type: 'accommodations', variant: 'ROWS', heading: rooms['heading'], items: [card] } as Section);
+    (section(spec, 'pricing')['categoryCodes'] as string[]).push('pricing-only');
+    const categories = [
+      { code: 'standard-double', active: true, capacityAdults: 2 },
+      { code: 'dorm-bed', active: true, capacityAdults: 1 },
+      { code: 'pricing-only', active: true, capacityAdults: 3 },
+    ];
+    const html = renderSections(ctx({ spec, page: home(spec), facts: facts({ categories }) }));
+    const pricing = html.slice(html.indexOf('id="sec-pricing"'));
+    expect(pricing).toContain('data-from-price="pricing-only"');
+    expect(pricing).toContain('<h3>Семейный номер</h3>');
+    expect(pricing).not.toContain('<h3>pricing-only</h3>');
+  });
+
   it('цены не могут работать: секции нет вовсе', () => {
     expect(renderSections(ctx({ bookingLive: false }))).not.toContain('sec-pricing');
   });

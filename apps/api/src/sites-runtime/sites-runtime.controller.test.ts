@@ -240,6 +240,9 @@ describe('ответ контракта', () => {
 
   it('publicFacts: только коды версии, только белый список полей, незнакомый код active:false', async () => {
     const spec = structuredClone(SPEC) as { pages: Array<{ sections: Array<Record<string, unknown>> }> };
+    const rooms = spec.pages[0]!.sections.find((s) => s['type'] === 'accommodations')!;
+    const items = rooms['items'] as Array<Record<string, unknown>>;
+    items.push({ ...items[0], categoryCode: 'lost-code' });
     const pricing = spec.pages[0]!.sections.find((s) => s['type'] === 'pricing')!;
     pricing['categoryCodes'] = ['standard-double', 'dorm-bed', 'lost-code'];
     published[SITE] = row({ spec, specHash: siteSpecHash(spec) });

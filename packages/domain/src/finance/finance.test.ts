@@ -12,6 +12,8 @@ import {
   channelPrepaymentToKeep,
   stayExtraPercent,
   adjacentNight,
+  assertPaymentReversible,
+  discountMinor,
 } from './finance';
 
 describe('folioBalance', () => {
@@ -183,5 +185,44 @@ describe('parseCancellationPenalty (SET4, ADR-115)', () => {
   it('другое значение, регистр, пустое и не строка — null', () => {
     for (const v of ['first_night', 'HALF', '', ' NONE', null, undefined, 1, true, {}])
       expect(parseCancellationPenalty(v)).toBeNull();
+  });
+});
+
+describe('аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3)', () => {
+  it('проведённый платёж без возвратов и чека можно аннулировать или заменить', () => {
+    expect(() =>
+      assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 0n, receiptNumber: null }),
+    ).not.toThrow();
+  });
+  it('аннулированный платёж второй раз не аннулируется', () => {
+    expect(() =>
+      assertPaymentReversible({ status: 'VOIDED', refundedMinor: 0n, receiptNumber: null }),
+    ).toThrow(/уже аннулирован/);
+  });
+  it('по платежу есть возврат: сначала возврат, потом ничего не аннулировать', () => {
+    expect(() =>
+      assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 500n, receiptNumber: null }),
+    ).toThrow(/возврат/);
+  });
+  it('по платежу выдан чек: аннулировать нельзя, чек назван', () => {
+    expect(() =>
+      assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 0n, receiptNumber: 'ФП 0001' }),
+    ).toThrow(/чек № ФП 0001/);
+  });
+});
+
+describe('скидка процентом (У7): целые тиыны, остаток отбрасывается', () => {
+  it('10 % от 12 345 тиын — 1 234, а не 1 234,5', () => {
+    expect(discountMinor(12_345n, 10)).toBe(1_234n);
+  });
+  it('100 % — вся сумма, 0 % и отрицательная база — ноль', () => {
+    expect(discountMinor(100_000n, 100)).toBe(100_000n);
+    expect(discountMinor(100_000n, 0)).toBe(0n);
+    expect(discountMinor(-5n, 10)).toBe(0n);
+  });
+  it('процент вне 0…100 или не целый — ошибка правила', () => {
+    expect(() => discountMinor(1_000n, 101)).toThrow(FinanceRuleError);
+    expect(() => discountMinor(1_000n, -1)).toThrow(FinanceRuleError);
+    expect(() => discountMinor(1_000n, 12.5)).toThrow(FinanceRuleError);
   });
 });

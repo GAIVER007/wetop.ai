@@ -1,0 +1,74 @@
+# Модульные (unit) · 07.10.2026 00:16 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 38
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-16-43Z-unit-29b7.json' 'tests/unit/test-schema-plan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/test-schema-plan.test.ts (8 tests | 3 failed) 17ms
+   ✓ pendingMigrations (1)
+     ✓ по порядку имён, без уже применённых 3ms
+   ❯ copyOrder (5)
+     ✓ родитель раньше ребёнка, ссылка на себя не мешает, порядок устойчивый 2ms
+     ✓ цикл внешних ключей — ошибка, а не молча неполная копия 1ms
+     × цикл через колонку, допускающую NULL (сайт ↔ версия, MKT3): ребро разрывается и называется 4ms
+     × без цикла ничего не разрывается, даже если ссылка допускает NULL 1ms
+     × цикл через обязательные ссылки остаётся ошибкой 4ms
+   ✓ selectExpressions (1)
+     ✓ перечисление и массив перечислений — через text в тип тестовой схемы; вычисляемые колонки пропускаются 1ms
+   ✓ hardcodedLiveAddress: спек с жёстким адресом рабочего стенда в изолированный прогон не идёт (1)
+     ✓ жёсткая константа — да; запасное значение после ?? — нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/test-schema-plan.test.ts > copyOrder > цикл через колонку, допускающую NULL (сайт ↔ версия, MKT3): ребро разрывается и называется
+TypeError: copyPlan is not a function
+ ❯ tests/unit/test-schema-plan.test.ts:50:18
+     48|   });
+     49|   it('цикл через колонку, допускающую NULL (сайт ↔ версия, MKT3): ребр…
+     50|     const plan = copyPlan(
+       |                  ^
+     51|       ['marketing_sites', 'marketing_site_versions', 'locations'],
+     52|       [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/test-schema-plan.test.ts > copyOrder > без цикла ничего не разрывается, даже если ссылка допускает NULL
+TypeError: copyPlan is not a function
+ ❯ tests/unit/test-schema-plan.test.ts:64:18
+     62|   });
+     63|   it('без цикла ничего не разрывается, даже если ссылка допускает NULL…
+     64|     const plan = copyPlan(['a', 'b'], [{ table: 'b', references: 'a', …
+       |                  ^
+     65|     expect(plan).toEqual({ order: ['a', 'b'], relaxed: [] });
+     66|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/test-schema-plan.test.ts > copyOrder > цикл через обязательные ссылки остаётся ошибкой
+AssertionError: expected [Function] to not throw an error but 'TypeError: (0 , __vite_ssr_import_1__…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"TypeError: (0 , __vite_ssr_import_1__.copyPlan) is not a function"
+
+ ❯ tests/unit/test-schema-plan.test.ts:73:11
+     71|         { table: 'b', references: 'a', nullable: true },
+     72|       ]),
+     73|     ).not.toThrow();
+       |           ^
+     74|     expect(() =>
+     75|       copyPlan(['a', 'b'], [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  19:16:45
+   Duration  317ms (transform 72%, tests 12%, import 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-16-43Z-unit-29b7.json
+
+# код выхода 1 · 1 с

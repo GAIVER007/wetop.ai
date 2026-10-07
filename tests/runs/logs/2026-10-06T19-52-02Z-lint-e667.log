@@ -1,0 +1,11 @@
+# Линтер (lint) · 07.10.2026 00:52 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 24
+# npx eslint .
+
+/home/user/wetop.ai/apps/sites/src/render/from-price.test.ts
+  18:49  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 39 с

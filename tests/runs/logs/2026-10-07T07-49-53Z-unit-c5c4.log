@@ -1,0 +1,178 @@
+# Модульные (unit) · 07.10.2026 12:49 Алматы · vm
+# коммит 33f3014 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T07-49-53Z-unit-c5c4.json' 'packages/domain/src/finance/finance.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/finance/finance.test.ts (26 tests | 7 failed) 26ms
+   ✓ folioBalance (1)
+     ✓ = active charges − allocated payments + refunds, in minor units 2ms
+   ✓ payment rules (2)
+     ✓ allocations must sum exactly to the payment amount and be positive 2ms
+     ✓ refund cannot exceed what this payment allocated to the folio minus earlier refunds 1ms
+   ✓ parseMoney (1)
+     ✓ parses major-unit strings into minor units without floats 1ms
+   ✓ penaltyAmount (Q-103: правило Legacy «первые сутки») (1)
+     ✓ NONE → 0; FIRST_NIGHT → цена первой ночи из календаря, без календаря — средняя ночь; FULL_STAY → вся цена 0ms
+   ✓ penaltyDue (Q-103: ответ управляющего 10.09.2026 — штраф только в день заезда) (2)
+     ✓ отмена заранее — без штрафа, отмена в день заезда и позже — со штрафом 0ms
+     ✓ незаезд считается всегда: гость не приехал и место простояло 0ms
+   ✓ ранний заезд и поздний выезд — половина ночи по умолчанию (ADR-021) (2)
+     ✓ половина цены одной ночи, округление вниз до целого тенге 0ms
+     ✓ нет ночей или цены — нуль, а не деление на ноль 0ms
+   ✓ предоплата канала после отмены (ADR-022, Q-108) (3)
+     ✓ без штрафа предоплата снимается целиком: деньги гостю возвращает площадка 0ms
+     ✓ со штрафом остаётся ровно штраф, остальное площадка возвращает 0ms
+     ✓ штраф больше предоплаты — остаётся вся предоплата, долг остаётся на счёте 0ms
+   ✓ доля ночи за ранний заезд и поздний выезд по времени — правило объекта из Legacy (ADR-021) (3)
+     ✓ ранний заезд: до 06:00 — вся ночь, 06:00–11:59 — половина, с 12:00 до расчётного часа 14:00 — бесплатно 0ms
+     ✓ поздний выезд: 12:01–17:59 — половина, с 18:00 — вся ночь, до расчётного часа 12:00 — бесплатно 0ms
+     ✓ кривое время — ошибка, а не тихий ноль 0ms
+   ✓ соседняя ночь для раннего заезда и позднего выезда (ADR-021, «выделять доступность» как в Legacy) (2)
+     ✓ ранний заезд занимает ночь перед заездом, поздний выезд — ночь после выезда 1ms
+     ✓ граница месяца и года считается по календарю 0ms
+   ✓ parseCancellationPenalty (SET4, ADR-115) (2)
+     ✓ принимает три правила тарифа как есть 0ms
+     ✓ другое значение, регистр, пустое и не строка — null 0ms
+   ❯ аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3) (4)
+     × проведённый платёж без возвратов и чека можно аннулировать или заменить 9ms
+     × аннулированный платёж второй раз не аннулируется 1ms
+     × по платежу есть возврат: сначала возврат, потом ничего не аннулировать 1ms
+     × по платежу выдан чек: аннулировать нельзя, чек назван 1ms
+   ❯ скидка процентом (У7): целые тиыны, остаток отбрасывается (3)
+     × 10 % от 12 345 тиын — 1 234, а не 1 234,5 1ms
+     × 100 % — вся сумма, 0 % и отрицательная база — ноль 0ms
+     × процент вне 0…100 или не целый — ошибка правила 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3) > проведённый платёж без возвратов и чека можно аннулировать или заменить
+AssertionError: expected [Function] to not throw an error but 'TypeError: (0 , __vite_ssr_import_1__…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"TypeError: (0 , __vite_ssr_import_1__.assertPaymentReversible) is not a function"
+
+ ❯ packages/domain/src/finance/finance.test.ts:195:11
+    193|     expect(() =>
+    194|       assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 0n…
+    195|     ).not.toThrow();
+       |           ^
+    196|   });
+    197|   it('аннулированный платёж второй раз не аннулируется', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3) > аннулированный платёж второй раз не аннулируется
+AssertionError: expected [Function] to throw error matching /уже аннулирован/ but got '(0 , __vite_ssr_import_1__.assertPaym…'
+
+- Expected:
+/уже аннулирован/
+
++ Received:
+"(0 , __vite_ssr_import_1__.assertPaymentReversible) is not a function"
+
+ ❯ packages/domain/src/finance/finance.test.ts:200:7
+    198|     expect(() =>
+    199|       assertPaymentReversible({ status: 'VOIDED', refundedMinor: 0n, r…
+    200|     ).toThrow(/уже аннулирован/);
+       |       ^
+    201|   });
+    202|   it('по платежу есть возврат: сначала возврат, потом ничего не аннули…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3) > по платежу есть возврат: сначала возврат, потом ничего не аннулировать
+AssertionError: expected [Function] to throw error matching /возврат/ but got '(0 , __vite_ssr_import_1__.assertPaym…'
+
+- Expected:
+/возврат/
+
++ Received:
+"(0 , __vite_ssr_import_1__.assertPaymentReversible) is not a function"
+
+ ❯ packages/domain/src/finance/finance.test.ts:205:7
+    203|     expect(() =>
+    204|       assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 50…
+    205|     ).toThrow(/возврат/);
+       |       ^
+    206|   });
+    207|   it('по платежу выдан чек: аннулировать нельзя, чек назван', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > аннулирование и замена платежа (план finance-payments-direct 07.10.2026, У3) > по платежу выдан чек: аннулировать нельзя, чек назван
+AssertionError: expected [Function] to throw error matching /чек № ФП 0001/ but got '(0 , __vite_ssr_import_1__.assertPaym…'
+
+- Expected:
+/чек № ФП 0001/
+
++ Received:
+"(0 , __vite_ssr_import_1__.assertPaymentReversible) is not a function"
+
+ ❯ packages/domain/src/finance/finance.test.ts:210:7
+    208|     expect(() =>
+    209|       assertPaymentReversible({ status: 'COMPLETED', refundedMinor: 0n…
+    210|     ).toThrow(/чек № ФП 0001/);
+       |       ^
+    211|   });
+    212| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > скидка процентом (У7): целые тиыны, остаток отбрасывается > 10 % от 12 345 тиын — 1 234, а не 1 234,5
+TypeError: discountMinor is not a function
+ ❯ packages/domain/src/finance/finance.test.ts:216:12
+    214| describe('скидка процентом (У7): целые тиыны, остаток отбрасывается', …
+    215|   it('10 % от 12 345 тиын — 1 234, а не 1 234,5', () => {
+    216|     expect(discountMinor(12_345n, 10)).toBe(1_234n);
+       |            ^
+    217|   });
+    218|   it('100 % — вся сумма, 0 % и отрицательная база — ноль', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > скидка процентом (У7): целые тиыны, остаток отбрасывается > 100 % — вся сумма, 0 % и отрицательная база — ноль
+TypeError: discountMinor is not a function
+ ❯ packages/domain/src/finance/finance.test.ts:219:12
+    217|   });
+    218|   it('100 % — вся сумма, 0 % и отрицательная база — ноль', () => {
+    219|     expect(discountMinor(100_000n, 100)).toBe(100_000n);
+       |            ^
+    220|     expect(discountMinor(100_000n, 0)).toBe(0n);
+    221|     expect(discountMinor(-5n, 10)).toBe(0n);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > скидка процентом (У7): целые тиыны, остаток отбрасывается > процент вне 0…100 или не целый — ошибка правила
+AssertionError: expected error to be instance of FinanceRuleError
+
+- Expected:
+[Function FinanceRuleError]
+
++ Received:
+TypeError {
+  "message": "(0 , __vite_ssr_import_1__.discountMinor) is not a function",
+}
+
+ ❯ packages/domain/src/finance/finance.test.ts:224:46
+    222|   });
+    223|   it('процент вне 0…100 или не целый — ошибка правила', () => {
+    224|     expect(() => discountMinor(1_000n, 101)).toThrow(FinanceRuleError);
+       |                                              ^
+    225|     expect(() => discountMinor(1_000n, -1)).toThrow(FinanceRuleError);
+    226|     expect(() => discountMinor(1_000n, 12.5)).toThrow(FinanceRuleError…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 19 passed (26)
+   Start at  07:49:54
+   Duration  353ms (transform 69%, tests 17%, import 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T07-49-53Z-unit-c5c4.json
+
+# код выхода 1 · 1 с

@@ -88,6 +88,24 @@ export class WebBookingController {
     return this.service.quote(query, context({ origin, referer, host, ip }));
   }
 
+  /**
+   * Цена «от» для управляемого сайта (`B-FROMPRICE`, Q-276): тот же ключ, домен и лимит, что у `availability`. Короткий
+   * публичный кэш: цена меняется чаще документа сайта, а устаревшее число показывать нельзя.
+   */
+  @Get('from-prices')
+  @Header('Cache-Control', 'public, max-age=60')
+  fromPrices(
+    @Query() query: Record<string, string>,
+    @Ip() socketIp: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+    @Headers('origin') origin?: string,
+    @Headers('referer') referer?: string,
+    @Headers('host') host?: string,
+  ) {
+    const ip = clientIp(socketIp, cfConnectingIp) ?? undefined;
+    return this.service.fromPrices(query, context({ origin, referer, host, ip }));
+  }
+
   @Post('book')
   @HttpCode(201)
   book(

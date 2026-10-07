@@ -133,3 +133,14 @@ export async function toggleCashCategoryAction(fd: FormData): Promise<void> {
   }
   revalidatePath('/finance');
 }
+
+/** Аннулировать платёж гостя из ленты операций (план finance-payments-direct 07.10.2026): без возвратов и чека */
+export async function voidPaymentAction(id: string): Promise<CashActionResult> {
+  try {
+    await financeApi.voidPayment(id, null);
+  } catch (e) {
+    return { error: e instanceof ApiError ? e.message : String(e), ok: 0 };
+  }
+  revalidatePath('/finance');
+  return { error: null, ok: Date.now(), message: 'Платёж аннулирован.' };
+}

@@ -15,7 +15,11 @@ test.beforeEach(async ({ request }) => {
 async function open(page: import('@playwright/test').Page) {
   await page.goto(`/reservations/${NUMBER}`);
   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
-  return page.getByTestId('payment-requests');
+  // с 07.10.2026 запросы — свёрнутый блок под счетами (план finance-payments-direct, У8): раскрываем, если закрыт
+  const panel = page.getByTestId('payment-requests');
+  if (!(await panel.evaluate((d) => (d as HTMLDetailsElement).open)))
+    await panel.getByTestId('payment-requests-toggle').click();
+  return panel;
 }
 
 test('Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт', async ({

@@ -71,6 +71,7 @@ test('действия по статусу: подтверждённой — з�
 
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
   page,
+  request,
 }) => {
   await page.goto('/chessboard');
   const confirmed = page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first();
@@ -86,6 +87,30 @@ test('«Заселить» из предпросмотра выполняет с
   await expect(confirm.or(checkedIn)).toBeVisible();
   if (await confirm.isVisible()) await confirm.getByRole('button', { name: /^Заселить/ }).click();
   await expect(checkedIn).toBeVisible();
+  const preview = page.getByTestId('stay-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+  await expect(preview.getByTestId('preview-status')).toContainText('Заселён');
+  await expect(page.getByTestId('board-legend')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.reload();
+  const persisted = page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first();
+  await persisted.click();
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+  await preview.getByRole('button', { name: 'Выселить', exact: true }).click();
+  const debt = page.locator('dialog[open]');
+  const checkedOut = preview.locator('[data-testid="preview-status"][data-status="CHECKED_OUT"]');
+  await expect(debt.or(checkedOut)).toBeVisible();
+  if (await debt.isVisible()) await debt.getByRole('button', { name: 'Выселить с долгом', exact: true }).click();
+  await expect(preview.getByTestId('preview-status')).toContainText('Выселен');
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
+  const saved = await request.get(`${fixture}/reservations/${number}`, {
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(saved.ok()).toBe(true);
+  const card = await saved.json();
+  expect(card.items.some((item: { status: string }) => item.status === 'CHECKED_OUT')).toBe(true);
 });
 
 test('подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой', async ({

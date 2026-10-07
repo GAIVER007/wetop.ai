@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button } from '../../components/ui';
+import { Alert, Button } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
@@ -48,11 +48,15 @@ const EDGE = 8;
 export function StayPreview({
   target,
   readOnly,
+  pending,
+  error,
   onClose,
   onCommand,
 }: {
   target: PreviewTarget;
   readOnly: boolean;
+  pending: boolean;
+  error: string | null;
   onClose: (restoreFocus: boolean) => void;
   onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
 }) {
@@ -100,6 +104,7 @@ export function StayPreview({
       }
     };
     const onPointer = (event: PointerEvent) => {
+      if (pending) return;
       const node = event.target as Node;
       if (ref.current?.contains(node) || target.anchor.contains(node)) return;
       onClose(false);
@@ -123,7 +128,7 @@ export function StayPreview({
       wrap?.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
-  }, [target, onClose]);
+  }, [target, onClose, pending]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
   const expected = EXPECTED.has(target.status);
@@ -162,7 +167,7 @@ export function StayPreview({
           <Icon name="close" />
         </button>
       </div>
-      <p className="stay-preview__status">
+      <p className="stay-preview__status" data-testid="preview-status" data-status={target.status} role="status">
         {STATUS_WORD[target.status] ?? target.status}
         {today && `, ${today}`}
       </p>
@@ -236,15 +241,16 @@ export function StayPreview({
           {target.unitKind === 'BED' ? 'Койка' : 'Номер'} не проверен после уборки
         </p>
       )}
-      <div className="stay-preview__actions">
+      {error && <Alert data-testid="preview-error">{error}</Alert>}
+      <div className="stay-preview__actions" aria-busy={pending}>
         {!readOnly && expected && (
-          <Button type="button" onClick={() => onCommand('check-in', target)}>
-            Заселить
+          <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
+            {pending ? 'Выполняется…' : 'Заселить'}
           </Button>
         )}
         {!readOnly && target.status === 'CHECKED_IN' && (
-          <Button type="button" onClick={() => onCommand('check-out', target)}>
-            Выселить
+          <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
+            {pending ? 'Выполняется…' : 'Выселить'}
           </Button>
         )}
         {!readOnly && live && (

@@ -2301,3 +2301,31 @@
 body:has(.calendar-workspace[data-expanded='true']) {
   overflow: hidden;
 }
+
+/* Результат команды остаётся видимым в предпросмотре. */
+.stay-preview__status[data-status] {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+.stay-preview__status[data-status='CONFIRMED'] { background: var(--st-confirmed); }
+.stay-preview__status[data-status='CHECKED_IN'] { background: var(--st-checked-in); }
+.stay-preview__status[data-status='CHECKED_OUT'] { background: var(--st-checked-out); }
+.stay-preview__status[data-status='TENTATIVE'] { background: var(--st-tentative); }
+.calendar-page .board-legend-details summary { padding-block: 0; }
+.calendar-page .board-legend-details .legend { padding-block: var(--space-1); }
+.calendar-page .board-gesture-hint { display: none; }
+
+.calendar-page .board-legend-details .legend {
+  padding: 0;
+  gap: var(--space-1) var(--space-2);
+}
+.calendar-page .board-footer .legend__swatch {
+  width: 12px;
+  height: 12px;
+}
+
+@media (min-width: 601px) {
+  .page.calendar-page { padding-bottom: 0; }
+}

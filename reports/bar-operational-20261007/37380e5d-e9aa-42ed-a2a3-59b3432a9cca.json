@@ -1,0 +1,1798 @@
+{
+  "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+  "evidence": [
+    {
+      "org": "284efd71-aa35-404a-86a3-3a04b3c7674e",
+      "property": "15c8ac71-0cea-4d6d-9c0e-43bdbc4741a2",
+      "business": "4254e46c-b89b-4a40-859b-02ac10f45f98",
+      "location": "3db725f7-2687-4efd-828e-0abb12a9e764",
+      "folio": "d4e5c96d-cdaa-4a8f-aff3-cacf1a06bba8",
+      "intents": [],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [],
+      "sales": [],
+      "lots": [],
+      "movements": [],
+      "cash": [],
+      "charges": []
+    },
+    {
+      "org": "5235b9a2-08ab-4f60-b8f0-5f1b281330f2",
+      "property": "9329201c-770a-409e-b612-83b795632ae0",
+      "business": "a4217272-c593-4209-aa82-14d9eb4d20ef",
+      "location": "1eb16100-dc16-4a23-9d8f-8044ccd8d8e1",
+      "folio": "a7bbdb1d-ae40-4bbe-b341-d7a591c41a23",
+      "intents": [
+        {
+          "id": "145f0f86-14a1-4e0f-acbf-9c13308a9f51",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "kind": "RETAIL",
+          "key": "c6099e85-3f71-4075-8405-c7544577e54e",
+          "request": {
+            "method": "CASH",
+            "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+            "quantityUnits": "1"
+          },
+          "result": {
+            "id": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+            "kind": "posted",
+            "status": "POSTED",
+            "costMinor": "10000",
+            "revenueMinor": "32000"
+          },
+          "operationId": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.300Z"
+        }
+      ],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [
+        {
+          "id": "7b81f90e-179a-4605-a6f7-52f001108a43",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "supplierId": "e7a5e724-50a5-4ce9-8362-c5ae9d72a2aa",
+          "documentNumber": "R1",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "120000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.113Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.045Z",
+          "updatedAt": "2026-10-07T16:12:48.155Z",
+          "lines": [
+            {
+              "id": "4439350f-ee3e-429d-863d-7a6236d78eb7",
+              "receiptId": "7b81f90e-179a-4605-a6f7-52f001108a43",
+              "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+              "quantityUnits": "10",
+              "unitCost": "10000",
+              "amount": "100000",
+              "markupBasis": 10000,
+              "calculatedPrice": "20000"
+            },
+            {
+              "id": "3cb02759-3ce3-4096-a979-ee0c38b4430b",
+              "receiptId": "7b81f90e-179a-4605-a6f7-52f001108a43",
+              "productId": "7f27378c-ef2a-4aa1-a959-810c623d334a",
+              "quantityUnits": "4",
+              "unitCost": "5000",
+              "amount": "20000",
+              "markupBasis": 10000,
+              "calculatedPrice": "10000"
+            }
+          ],
+          "payments": []
+        },
+        {
+          "id": "ad7daca3-2aaa-4972-a152-4cdac1eb00f8",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "supplierId": "e7a5e724-50a5-4ce9-8362-c5ae9d72a2aa",
+          "documentNumber": "R2",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "160000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.182Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.074Z",
+          "updatedAt": "2026-10-07T16:12:48.189Z",
+          "lines": [
+            {
+              "id": "68fccc83-df58-4c36-a2f6-61007a56a2da",
+              "receiptId": "ad7daca3-2aaa-4972-a152-4cdac1eb00f8",
+              "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+              "quantityUnits": "10",
+              "unitCost": "16000",
+              "amount": "160000",
+              "markupBasis": 10000,
+              "calculatedPrice": "32000"
+            }
+          ],
+          "payments": []
+        }
+      ],
+      "sales": [
+        {
+          "id": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "folioId": null,
+          "cashOperationId": "e3c430b8-0ccb-4a3e-9f91-99244faee20e",
+          "chargeId": null,
+          "idempotencyKey": "c6099e85-3f71-4075-8405-c7544577e54e",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalRevenue": "32000",
+          "totalCost": "10000",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "reversalRestocked": null,
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.271Z",
+          "lines": [
+            {
+              "id": "9e7ff621-0f26-4798-a240-35884f411255",
+              "saleId": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+              "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+              "quantityUnits": "1",
+              "salePrice": "32000",
+              "revenue": "32000",
+              "cost": "10000"
+            }
+          ]
+        }
+      ],
+      "lots": [
+        {
+          "id": "81adeca4-04bc-47d6-967c-eb5fb596c818",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+          "receiptLineId": "4439350f-ee3e-429d-863d-7a6236d78eb7",
+          "receivedUnits": "10",
+          "remainingUnits": "9",
+          "unitCost": "10000",
+          "receivedAt": "2026-10-07T16:12:48.113Z",
+          "expiresOn": null
+        },
+        {
+          "id": "0d0163ff-f6b0-4b09-b511-683055b03e95",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "7f27378c-ef2a-4aa1-a959-810c623d334a",
+          "receiptLineId": "3cb02759-3ce3-4096-a979-ee0c38b4430b",
+          "receivedUnits": "4",
+          "remainingUnits": "4",
+          "unitCost": "5000",
+          "receivedAt": "2026-10-07T16:12:48.113Z",
+          "expiresOn": null
+        },
+        {
+          "id": "b28d022b-2017-4dfb-9a28-3f2a298aca7f",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+          "receiptLineId": "68fccc83-df58-4c36-a2f6-61007a56a2da",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "16000",
+          "receivedAt": "2026-10-07T16:12:48.182Z",
+          "expiresOn": null
+        }
+      ],
+      "movements": [
+        {
+          "id": "4632e626-65a5-4dd6-aed0-a2ff08d1cc6c",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+          "lotId": "81adeca4-04bc-47d6-967c-eb5fb596c818",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "10000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "7b81f90e-179a-4605-a6f7-52f001108a43",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.138Z"
+        },
+        {
+          "id": "5544b00b-636a-4eba-8884-d364eca962fa",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "7f27378c-ef2a-4aa1-a959-810c623d334a",
+          "lotId": "0d0163ff-f6b0-4b09-b511-683055b03e95",
+          "kind": "RECEIPT",
+          "units": "4",
+          "unitCost": "5000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "7b81f90e-179a-4605-a6f7-52f001108a43",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.148Z"
+        },
+        {
+          "id": "30252c65-3c2b-469e-924a-7fed9776eba9",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+          "lotId": "b28d022b-2017-4dfb-9a28-3f2a298aca7f",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "16000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "ad7daca3-2aaa-4972-a152-4cdac1eb00f8",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.187Z"
+        },
+        {
+          "id": "4fe519b2-b519-44da-a3c9-1abad0ea55fc",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "productId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+          "lotId": "81adeca4-04bc-47d6-967c-eb5fb596c818",
+          "kind": "SALE",
+          "units": "-1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE",
+          "sourceId": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.290Z"
+        }
+      ],
+      "cash": [
+        {
+          "id": "e3c430b8-0ccb-4a3e-9f91-99244faee20e",
+          "propertyId": "9329201c-770a-409e-b612-83b795632ae0",
+          "kind": "INCOME",
+          "method": "CASH",
+          "methodTo": null,
+          "amount": "32000",
+          "categoryId": null,
+          "note": "Бар: Synthetic A",
+          "relatedId": null,
+          "status": "COMPLETED",
+          "occurredAt": "2026-10-07T16:12:48.258Z",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.258Z"
+        }
+      ],
+      "charges": []
+    },
+    {
+      "org": "405d3a5e-b96a-4ad2-89dd-6495ed4e3093",
+      "property": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+      "business": "f4d850a4-f3f5-46f5-b24e-5249e9261896",
+      "location": "85c73fdb-b051-483e-b1d7-8a7d02d48ca3",
+      "folio": "b55e4763-c567-4e48-9635-85aee0cd472e",
+      "intents": [
+        {
+          "id": "d936ddbb-4662-46a4-af0e-f0c0991d4f33",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "kind": "FOLIO",
+          "key": "42c33933-8358-44db-af3f-68ebb770b299",
+          "request": {
+            "folioId": "b55e4763-c567-4e48-9635-85aee0cd472e",
+            "productId": "83caa45f-eadb-4141-8159-40305467da75",
+            "quantityUnits": "1"
+          },
+          "result": {
+            "id": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+            "kind": "posted",
+            "status": "POSTED",
+            "chargeId": "1ef6fcba-2a1f-4df7-bb25-a5a9058e446c",
+            "costMinor": "10000",
+            "revenueMinor": "32000"
+          },
+          "operationId": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.642Z"
+        }
+      ],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [
+        {
+          "id": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "supplierId": "b3f56a22-5817-4d3b-ba7b-c611453b45aa",
+          "documentNumber": "R1",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "120000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.499Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.472Z",
+          "updatedAt": "2026-10-07T16:12:48.512Z",
+          "lines": [
+            {
+              "id": "500eed82-cdec-486e-a328-e2d4625d36ab",
+              "receiptId": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+              "productId": "83caa45f-eadb-4141-8159-40305467da75",
+              "quantityUnits": "10",
+              "unitCost": "10000",
+              "amount": "100000",
+              "markupBasis": 10000,
+              "calculatedPrice": "20000"
+            },
+            {
+              "id": "47250622-5b41-41ee-97b5-ea23e8018e46",
+              "receiptId": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+              "productId": "444c0a23-150c-4982-bac8-7a7961bcc8e6",
+              "quantityUnits": "4",
+              "unitCost": "5000",
+              "amount": "20000",
+              "markupBasis": 10000,
+              "calculatedPrice": "10000"
+            }
+          ],
+          "payments": []
+        },
+        {
+          "id": "559dcd69-38c9-44f5-bcb7-951b6b36d878",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "supplierId": "b3f56a22-5817-4d3b-ba7b-c611453b45aa",
+          "documentNumber": "R2",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "160000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.545Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.483Z",
+          "updatedAt": "2026-10-07T16:12:48.554Z",
+          "lines": [
+            {
+              "id": "75b44fb9-f3d8-4429-aeba-0853d0509113",
+              "receiptId": "559dcd69-38c9-44f5-bcb7-951b6b36d878",
+              "productId": "83caa45f-eadb-4141-8159-40305467da75",
+              "quantityUnits": "10",
+              "unitCost": "16000",
+              "amount": "160000",
+              "markupBasis": 10000,
+              "calculatedPrice": "32000"
+            }
+          ],
+          "payments": []
+        }
+      ],
+      "sales": [
+        {
+          "id": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "folioId": "b55e4763-c567-4e48-9635-85aee0cd472e",
+          "cashOperationId": null,
+          "chargeId": "1ef6fcba-2a1f-4df7-bb25-a5a9058e446c",
+          "idempotencyKey": "42c33933-8358-44db-af3f-68ebb770b299",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalRevenue": "32000",
+          "totalCost": "10000",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "reversalRestocked": null,
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.623Z",
+          "lines": [
+            {
+              "id": "3c93f27e-80bd-43b1-9400-08fe86de7c6d",
+              "saleId": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+              "productId": "83caa45f-eadb-4141-8159-40305467da75",
+              "quantityUnits": "1",
+              "salePrice": "32000",
+              "revenue": "32000",
+              "cost": "10000"
+            }
+          ]
+        }
+      ],
+      "lots": [
+        {
+          "id": "df00f83e-242e-496f-aa43-53021f25c063",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "83caa45f-eadb-4141-8159-40305467da75",
+          "receiptLineId": "500eed82-cdec-486e-a328-e2d4625d36ab",
+          "receivedUnits": "10",
+          "remainingUnits": "9",
+          "unitCost": "10000",
+          "receivedAt": "2026-10-07T16:12:48.499Z",
+          "expiresOn": null
+        },
+        {
+          "id": "b7055e78-7ec6-4d83-83e9-87c4399ea0cc",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "444c0a23-150c-4982-bac8-7a7961bcc8e6",
+          "receiptLineId": "47250622-5b41-41ee-97b5-ea23e8018e46",
+          "receivedUnits": "4",
+          "remainingUnits": "4",
+          "unitCost": "5000",
+          "receivedAt": "2026-10-07T16:12:48.499Z",
+          "expiresOn": null
+        },
+        {
+          "id": "268486f4-e61c-4318-8fa9-d1db1e38745b",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "83caa45f-eadb-4141-8159-40305467da75",
+          "receiptLineId": "75b44fb9-f3d8-4429-aeba-0853d0509113",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "16000",
+          "receivedAt": "2026-10-07T16:12:48.545Z",
+          "expiresOn": null
+        }
+      ],
+      "movements": [
+        {
+          "id": "31fbd63f-813c-4ec4-a650-7513dc5553a3",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "83caa45f-eadb-4141-8159-40305467da75",
+          "lotId": "df00f83e-242e-496f-aa43-53021f25c063",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "10000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.504Z"
+        },
+        {
+          "id": "b09e6231-aa40-4daf-8237-43a74009c7e1",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "444c0a23-150c-4982-bac8-7a7961bcc8e6",
+          "lotId": "b7055e78-7ec6-4d83-83e9-87c4399ea0cc",
+          "kind": "RECEIPT",
+          "units": "4",
+          "unitCost": "5000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.510Z"
+        },
+        {
+          "id": "eb18111a-a6da-452b-a982-ab4527f1adaa",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "83caa45f-eadb-4141-8159-40305467da75",
+          "lotId": "268486f4-e61c-4318-8fa9-d1db1e38745b",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "16000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "559dcd69-38c9-44f5-bcb7-951b6b36d878",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.551Z"
+        },
+        {
+          "id": "298e6317-2a73-432f-b9b3-50b72501eedf",
+          "propertyId": "cfb8fc9b-ff8c-4cb2-94e6-67913d683761",
+          "productId": "83caa45f-eadb-4141-8159-40305467da75",
+          "lotId": "df00f83e-242e-496f-aa43-53021f25c063",
+          "kind": "SALE",
+          "units": "-1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE",
+          "sourceId": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.636Z"
+        }
+      ],
+      "cash": [],
+      "charges": [
+        {
+          "id": "1ef6fcba-2a1f-4df7-bb25-a5a9058e446c",
+          "folioId": "b55e4763-c567-4e48-9635-85aee0cd472e",
+          "kind": "SERVICE",
+          "serviceId": null,
+          "description": "Бар: Synthetic A",
+          "quantity": 1,
+          "unitPrice": "32000",
+          "amount": "32000",
+          "serviceDate": null,
+          "createdBy": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.616Z",
+          "voidedAt": null
+        }
+      ]
+    },
+    {
+      "org": "61f30ffb-ede2-4324-be61-c6c5a5e67ed6",
+      "property": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+      "business": "dfa40d44-5c35-4a67-97f7-e1ac07ee5c8f",
+      "location": "16cfaa94-b5cd-4cca-a302-4e78122a8aa2",
+      "folio": "45710c9c-e9c1-4b29-81a3-a3334e6dfd06",
+      "intents": [
+        {
+          "id": "0eb40786-d3e8-4b12-9027-55d42df2ec05",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "kind": "FOLIO",
+          "key": "bd4f282c-cd8d-411f-9cea-7bba4c552d8f",
+          "request": {
+            "folioId": "45710c9c-e9c1-4b29-81a3-a3334e6dfd06",
+            "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+            "quantityUnits": "1"
+          },
+          "result": {
+            "id": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+            "kind": "posted",
+            "status": "POSTED",
+            "chargeId": "19e01884-f85f-409f-b626-62d78eab9a48",
+            "costMinor": "10000",
+            "revenueMinor": "32000"
+          },
+          "operationId": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.957Z"
+        }
+      ],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [
+        {
+          "id": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "supplierId": "494289f7-d662-4995-8d00-9b777d975744",
+          "documentNumber": "R1",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "120000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.854Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.823Z",
+          "updatedAt": "2026-10-07T16:12:48.866Z",
+          "lines": [
+            {
+              "id": "911948dc-78eb-4598-bab6-88ab3bedd0ca",
+              "receiptId": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+              "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+              "quantityUnits": "10",
+              "unitCost": "10000",
+              "amount": "100000",
+              "markupBasis": 10000,
+              "calculatedPrice": "20000"
+            },
+            {
+              "id": "fe3dd2a7-87ea-47c2-8c61-1500a5182075",
+              "receiptId": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+              "productId": "f42a3072-56b5-4d9c-89fd-2d4fbba6ff05",
+              "quantityUnits": "4",
+              "unitCost": "5000",
+              "amount": "20000",
+              "markupBasis": 10000,
+              "calculatedPrice": "10000"
+            }
+          ],
+          "payments": []
+        },
+        {
+          "id": "5aff8195-0c09-482c-9089-3899f86204d1",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "supplierId": "494289f7-d662-4995-8d00-9b777d975744",
+          "documentNumber": "R2",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "160000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:48.885Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.839Z",
+          "updatedAt": "2026-10-07T16:12:48.896Z",
+          "lines": [
+            {
+              "id": "098e60a8-d35f-4a55-88a3-f4bdcf9b21e9",
+              "receiptId": "5aff8195-0c09-482c-9089-3899f86204d1",
+              "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+              "quantityUnits": "10",
+              "unitCost": "16000",
+              "amount": "160000",
+              "markupBasis": 10000,
+              "calculatedPrice": "32000"
+            }
+          ],
+          "payments": []
+        }
+      ],
+      "sales": [
+        {
+          "id": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "folioId": "45710c9c-e9c1-4b29-81a3-a3334e6dfd06",
+          "cashOperationId": null,
+          "chargeId": "19e01884-f85f-409f-b626-62d78eab9a48",
+          "idempotencyKey": "bd4f282c-cd8d-411f-9cea-7bba4c552d8f",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalRevenue": "32000",
+          "totalCost": "10000",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "reversalRestocked": null,
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:48.942Z",
+          "lines": [
+            {
+              "id": "4ec1d8c1-010c-475e-83b9-167b41248040",
+              "saleId": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+              "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+              "quantityUnits": "1",
+              "salePrice": "32000",
+              "revenue": "32000",
+              "cost": "10000"
+            }
+          ]
+        }
+      ],
+      "lots": [
+        {
+          "id": "b2dc7d64-7dc9-46f8-b986-f1a876c1bcac",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+          "receiptLineId": "911948dc-78eb-4598-bab6-88ab3bedd0ca",
+          "receivedUnits": "10",
+          "remainingUnits": "9",
+          "unitCost": "10000",
+          "receivedAt": "2026-10-07T16:12:48.854Z",
+          "expiresOn": null
+        },
+        {
+          "id": "675ae2f1-34a6-4058-95f8-10b3468dea22",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "f42a3072-56b5-4d9c-89fd-2d4fbba6ff05",
+          "receiptLineId": "fe3dd2a7-87ea-47c2-8c61-1500a5182075",
+          "receivedUnits": "4",
+          "remainingUnits": "4",
+          "unitCost": "5000",
+          "receivedAt": "2026-10-07T16:12:48.854Z",
+          "expiresOn": null
+        },
+        {
+          "id": "fc195e6f-2ddd-419f-9f86-b0defac129c2",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+          "receiptLineId": "098e60a8-d35f-4a55-88a3-f4bdcf9b21e9",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "16000",
+          "receivedAt": "2026-10-07T16:12:48.885Z",
+          "expiresOn": null
+        }
+      ],
+      "movements": [
+        {
+          "id": "afa782d4-18a5-455b-b814-26054a871847",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+          "lotId": "b2dc7d64-7dc9-46f8-b986-f1a876c1bcac",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "10000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.857Z"
+        },
+        {
+          "id": "7eb44904-a0dd-4b94-9500-1a0f83c46f98",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "f42a3072-56b5-4d9c-89fd-2d4fbba6ff05",
+          "lotId": "675ae2f1-34a6-4058-95f8-10b3468dea22",
+          "kind": "RECEIPT",
+          "units": "4",
+          "unitCost": "5000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.863Z"
+        },
+        {
+          "id": "634a9a77-36b0-40be-aee0-c39d209a5299",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+          "lotId": "fc195e6f-2ddd-419f-9f86-b0defac129c2",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "16000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "5aff8195-0c09-482c-9089-3899f86204d1",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.893Z"
+        },
+        {
+          "id": "de48230d-22be-45a6-ad34-83760b6c9bbe",
+          "propertyId": "4cadce2d-ca28-44c8-b808-a7f3064cac00",
+          "productId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+          "lotId": "b2dc7d64-7dc9-46f8-b986-f1a876c1bcac",
+          "kind": "SALE",
+          "units": "-1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE",
+          "sourceId": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.950Z"
+        }
+      ],
+      "cash": [],
+      "charges": [
+        {
+          "id": "19e01884-f85f-409f-b626-62d78eab9a48",
+          "folioId": "45710c9c-e9c1-4b29-81a3-a3334e6dfd06",
+          "kind": "SERVICE",
+          "serviceId": null,
+          "description": "Бар: Synthetic A",
+          "quantity": 1,
+          "unitPrice": "32000",
+          "amount": "32000",
+          "serviceDate": null,
+          "createdBy": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:48.940Z",
+          "voidedAt": null
+        }
+      ]
+    },
+    {
+      "org": "79c0eca5-4cde-4454-8659-01bf7265f4e6",
+      "property": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+      "business": "89af92dc-02fe-4698-b380-4e2a886a4598",
+      "location": "4f1c5832-b22a-42b2-8231-3a0bb97ee58a",
+      "folio": "2db56b90-1c13-4efc-a0f7-f5f2f7927fd8",
+      "intents": [
+        {
+          "id": "122b12cb-0262-441c-9764-a992aac27976",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "kind": "FOLIO",
+          "key": "3714c522-fa35-40ec-ac77-8a3c95c25dbc",
+          "request": {
+            "folioId": "2db56b90-1c13-4efc-a0f7-f5f2f7927fd8",
+            "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+            "quantityUnits": "1"
+          },
+          "result": {
+            "id": "a74811b5-cb97-4f83-b64c-5096ab829295",
+            "kind": "posted",
+            "status": "POSTED",
+            "chargeId": "0a0c9661-8338-46f3-a177-9e8adfa79b79",
+            "costMinor": "10000",
+            "revenueMinor": "32000"
+          },
+          "operationId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.265Z"
+        }
+      ],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [
+        {
+          "id": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "supplierId": "aee903cb-3549-4c36-991a-732d647a976a",
+          "documentNumber": "R1",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "120000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:49.178Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:49.142Z",
+          "updatedAt": "2026-10-07T16:12:49.191Z",
+          "lines": [
+            {
+              "id": "bed7ad45-4d8e-4423-9bbc-3a929a85e147",
+              "receiptId": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+              "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+              "quantityUnits": "10",
+              "unitCost": "10000",
+              "amount": "100000",
+              "markupBasis": 10000,
+              "calculatedPrice": "20000"
+            },
+            {
+              "id": "35a17dec-2a1f-4dfa-864c-eefac40562d1",
+              "receiptId": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+              "productId": "e04ddd82-1fa2-483a-b537-f99df37dca07",
+              "quantityUnits": "4",
+              "unitCost": "5000",
+              "amount": "20000",
+              "markupBasis": 10000,
+              "calculatedPrice": "10000"
+            }
+          ],
+          "payments": []
+        },
+        {
+          "id": "8ba0fda7-2cdd-4e47-a3d9-2d7d9809315b",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "supplierId": "aee903cb-3549-4c36-991a-732d647a976a",
+          "documentNumber": "R2",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "160000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:49.209Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:49.156Z",
+          "updatedAt": "2026-10-07T16:12:49.215Z",
+          "lines": [
+            {
+              "id": "1f583e09-776c-4959-b3a9-0cc5d43c2fa0",
+              "receiptId": "8ba0fda7-2cdd-4e47-a3d9-2d7d9809315b",
+              "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+              "quantityUnits": "10",
+              "unitCost": "16000",
+              "amount": "160000",
+              "markupBasis": 10000,
+              "calculatedPrice": "32000"
+            }
+          ],
+          "payments": []
+        }
+      ],
+      "sales": [
+        {
+          "id": "a74811b5-cb97-4f83-b64c-5096ab829295",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "folioId": "2db56b90-1c13-4efc-a0f7-f5f2f7927fd8",
+          "cashOperationId": null,
+          "chargeId": "0a0c9661-8338-46f3-a177-9e8adfa79b79",
+          "idempotencyKey": "3714c522-fa35-40ec-ac77-8a3c95c25dbc",
+          "status": "REVERSED",
+          "currency": "KZT",
+          "totalRevenue": "32000",
+          "totalCost": "10000",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "reversalRestocked": true,
+          "reversedAt": "2026-10-07T16:12:49.300Z",
+          "createdAt": "2026-10-07T16:12:49.250Z",
+          "lines": [
+            {
+              "id": "778b6851-1aca-4fe5-b302-af9942cc26a1",
+              "saleId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+              "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+              "quantityUnits": "1",
+              "salePrice": "32000",
+              "revenue": "32000",
+              "cost": "10000"
+            }
+          ]
+        }
+      ],
+      "lots": [
+        {
+          "id": "7a120125-e028-4f17-a232-38c92cccaa34",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "receiptLineId": "bed7ad45-4d8e-4423-9bbc-3a929a85e147",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "10000",
+          "receivedAt": "2026-10-07T16:12:49.178Z",
+          "expiresOn": null
+        },
+        {
+          "id": "15f74e9e-1b9f-442f-8a64-771da6e4f529",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "e04ddd82-1fa2-483a-b537-f99df37dca07",
+          "receiptLineId": "35a17dec-2a1f-4dfa-864c-eefac40562d1",
+          "receivedUnits": "4",
+          "remainingUnits": "4",
+          "unitCost": "5000",
+          "receivedAt": "2026-10-07T16:12:49.178Z",
+          "expiresOn": null
+        },
+        {
+          "id": "6c8e751e-3ae8-42f0-a7cd-5d038b500c94",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "receiptLineId": "1f583e09-776c-4959-b3a9-0cc5d43c2fa0",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "16000",
+          "receivedAt": "2026-10-07T16:12:49.209Z",
+          "expiresOn": null
+        }
+      ],
+      "movements": [
+        {
+          "id": "e04ac654-a0f5-46e2-99e3-7d9613e7926e",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "lotId": "7a120125-e028-4f17-a232-38c92cccaa34",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "10000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.183Z"
+        },
+        {
+          "id": "c3e3acaf-4d27-4657-bf20-55da7b9d8097",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "e04ddd82-1fa2-483a-b537-f99df37dca07",
+          "lotId": "15f74e9e-1b9f-442f-8a64-771da6e4f529",
+          "kind": "RECEIPT",
+          "units": "4",
+          "unitCost": "5000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.189Z"
+        },
+        {
+          "id": "e95aa3fd-b8cc-4727-8d49-eb7f5073ab2a",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "lotId": "6c8e751e-3ae8-42f0-a7cd-5d038b500c94",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "16000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "8ba0fda7-2cdd-4e47-a3d9-2d7d9809315b",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.214Z"
+        },
+        {
+          "id": "dd37b460-95e6-4cc9-a507-fab3bb1e2140",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "lotId": "7a120125-e028-4f17-a232-38c92cccaa34",
+          "kind": "SALE",
+          "units": "-1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE",
+          "sourceId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.258Z"
+        },
+        {
+          "id": "c169a5aa-817a-415c-a95f-318116841c1d",
+          "propertyId": "c63a6f0f-6b5a-46d0-a6fd-b5ac2d5f93d8",
+          "productId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+          "lotId": "7a120125-e028-4f17-a232-38c92cccaa34",
+          "kind": "SALE_RETURN",
+          "units": "1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE_RETURN",
+          "sourceId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+          "note": "Synthetic authorized refund",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.291Z"
+        }
+      ],
+      "cash": [],
+      "charges": [
+        {
+          "id": "0a0c9661-8338-46f3-a177-9e8adfa79b79",
+          "folioId": "2db56b90-1c13-4efc-a0f7-f5f2f7927fd8",
+          "kind": "SERVICE",
+          "serviceId": null,
+          "description": "Бар: Synthetic A",
+          "quantity": 1,
+          "unitPrice": "32000",
+          "amount": "32000",
+          "serviceDate": null,
+          "createdBy": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.247Z",
+          "voidedAt": "2026-10-07T16:12:49.293Z"
+        }
+      ]
+    },
+    {
+      "org": "dd91e4e3-47b2-4708-81f2-225046a23887",
+      "property": "2ab88009-0341-4d61-a217-6cf82a28c777",
+      "business": "ea1f6119-d375-40f0-aee0-c7769cf1ad94",
+      "location": "e228a3f2-78d0-4a84-b99a-99c8c86c5649",
+      "folio": "da2a87cb-4732-4df6-95d0-ac28672e6660",
+      "intents": [
+        {
+          "id": "ea6e93eb-9048-4368-8a8f-1e04c4e5af97",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "kind": "FOLIO",
+          "key": "83d22826-e4ec-478c-b6f3-0371482135a7",
+          "request": {
+            "folioId": "da2a87cb-4732-4df6-95d0-ac28672e6660",
+            "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+            "quantityUnits": "1"
+          },
+          "result": {
+            "id": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+            "kind": "posted",
+            "status": "POSTED",
+            "chargeId": "dfbb2ca8-add6-49e2-8002-f9945a7f943f",
+            "costMinor": "10000",
+            "revenueMinor": "32000"
+          },
+          "operationId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.545Z"
+        }
+      ],
+      "paymentReversals": [],
+      "costLosses": [],
+      "receipts": [
+        {
+          "id": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "supplierId": "86a51a82-2a11-4a65-b787-6cbebd3381bd",
+          "documentNumber": "R1",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "120000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:49.454Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:49.429Z",
+          "updatedAt": "2026-10-07T16:12:49.465Z",
+          "lines": [
+            {
+              "id": "38ff2046-c7d1-4600-9a2d-f7605eaa7bf9",
+              "receiptId": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+              "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+              "quantityUnits": "10",
+              "unitCost": "10000",
+              "amount": "100000",
+              "markupBasis": 10000,
+              "calculatedPrice": "20000"
+            },
+            {
+              "id": "878d3399-14d6-4a99-b7cb-90f72e5f1e84",
+              "receiptId": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+              "productId": "9391c10c-554c-498e-bb41-2f5689b80f37",
+              "quantityUnits": "4",
+              "unitCost": "5000",
+              "amount": "20000",
+              "markupBasis": 10000,
+              "calculatedPrice": "10000"
+            }
+          ],
+          "payments": []
+        },
+        {
+          "id": "ab7321d1-cdf8-420f-8ec7-1c97501af326",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "supplierId": "86a51a82-2a11-4a65-b787-6cbebd3381bd",
+          "documentNumber": "R2",
+          "documentDate": "2026-10-07T00:00:00.000Z",
+          "receivedDate": "2026-10-07T00:00:00.000Z",
+          "status": "POSTED",
+          "currency": "KZT",
+          "totalAmount": "160000",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "postedAt": "2026-10-07T16:12:49.484Z",
+          "reversedAt": null,
+          "createdAt": "2026-10-07T16:12:49.442Z",
+          "updatedAt": "2026-10-07T16:12:49.489Z",
+          "lines": [
+            {
+              "id": "5ffc5685-fafd-43a2-b294-9fc0af9c94d6",
+              "receiptId": "ab7321d1-cdf8-420f-8ec7-1c97501af326",
+              "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+              "quantityUnits": "10",
+              "unitCost": "16000",
+              "amount": "160000",
+              "markupBasis": 10000,
+              "calculatedPrice": "32000"
+            }
+          ],
+          "payments": []
+        }
+      ],
+      "sales": [
+        {
+          "id": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "folioId": "da2a87cb-4732-4df6-95d0-ac28672e6660",
+          "cashOperationId": null,
+          "chargeId": "dfbb2ca8-add6-49e2-8002-f9945a7f943f",
+          "idempotencyKey": "83d22826-e4ec-478c-b6f3-0371482135a7",
+          "status": "REVERSED",
+          "currency": "KZT",
+          "totalRevenue": "32000",
+          "totalCost": "10000",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "reversalRestocked": true,
+          "reversedAt": "2026-10-07T16:12:49.571Z",
+          "createdAt": "2026-10-07T16:12:49.531Z",
+          "lines": [
+            {
+              "id": "9e4b4a6f-f5c3-4a34-a620-3eccac3fad47",
+              "saleId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+              "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+              "quantityUnits": "1",
+              "salePrice": "32000",
+              "revenue": "32000",
+              "cost": "10000"
+            }
+          ]
+        }
+      ],
+      "lots": [
+        {
+          "id": "c013750f-5f09-40c7-beab-9b5fa7d36e30",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "receiptLineId": "38ff2046-c7d1-4600-9a2d-f7605eaa7bf9",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "10000",
+          "receivedAt": "2026-10-07T16:12:49.454Z",
+          "expiresOn": null
+        },
+        {
+          "id": "6da0815b-11e7-4a18-b0a1-e1fd60715d88",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "9391c10c-554c-498e-bb41-2f5689b80f37",
+          "receiptLineId": "878d3399-14d6-4a99-b7cb-90f72e5f1e84",
+          "receivedUnits": "4",
+          "remainingUnits": "4",
+          "unitCost": "5000",
+          "receivedAt": "2026-10-07T16:12:49.454Z",
+          "expiresOn": null
+        },
+        {
+          "id": "bd7fc1db-2a52-4d7d-b528-71505cfd33a0",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "receiptLineId": "5ffc5685-fafd-43a2-b294-9fc0af9c94d6",
+          "receivedUnits": "10",
+          "remainingUnits": "10",
+          "unitCost": "16000",
+          "receivedAt": "2026-10-07T16:12:49.484Z",
+          "expiresOn": null
+        }
+      ],
+      "movements": [
+        {
+          "id": "f7152e1f-4f59-41e5-9234-a49444b513f8",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "lotId": "c013750f-5f09-40c7-beab-9b5fa7d36e30",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "10000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.458Z"
+        },
+        {
+          "id": "3536e211-05fb-4174-9069-ca9a2cc8c707",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "9391c10c-554c-498e-bb41-2f5689b80f37",
+          "lotId": "6da0815b-11e7-4a18-b0a1-e1fd60715d88",
+          "kind": "RECEIPT",
+          "units": "4",
+          "unitCost": "5000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.464Z"
+        },
+        {
+          "id": "59481cdc-6e30-4b98-b620-08a02df89a87",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "lotId": "bd7fc1db-2a52-4d7d-b528-71505cfd33a0",
+          "kind": "RECEIPT",
+          "units": "10",
+          "unitCost": "16000",
+          "sourceType": "BAR_RECEIPT",
+          "sourceId": "ab7321d1-cdf8-420f-8ec7-1c97501af326",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.487Z"
+        },
+        {
+          "id": "de09b2c6-9931-44a8-9595-6d7db8c0fa2a",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "lotId": "c013750f-5f09-40c7-beab-9b5fa7d36e30",
+          "kind": "SALE",
+          "units": "-1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE",
+          "sourceId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+          "note": null,
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.538Z"
+        },
+        {
+          "id": "ef256d39-5b05-41e2-9b84-12b131d646b9",
+          "propertyId": "2ab88009-0341-4d61-a217-6cf82a28c777",
+          "productId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+          "lotId": "c013750f-5f09-40c7-beab-9b5fa7d36e30",
+          "kind": "SALE_RETURN",
+          "units": "1",
+          "unitCost": "10000",
+          "sourceType": "BAR_SALE_RETURN",
+          "sourceId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+          "note": "Synthetic authorized refund",
+          "createdById": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.567Z"
+        }
+      ],
+      "cash": [],
+      "charges": [
+        {
+          "id": "dfbb2ca8-add6-49e2-8002-f9945a7f943f",
+          "folioId": "da2a87cb-4732-4df6-95d0-ac28672e6660",
+          "kind": "SERVICE",
+          "serviceId": null,
+          "description": "Бар: Synthetic A",
+          "quantity": 1,
+          "unitPrice": "32000",
+          "amount": "32000",
+          "serviceDate": null,
+          "createdBy": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+          "createdAt": "2026-10-07T16:12:49.529Z",
+          "voidedAt": "2026-10-07T16:12:49.569Z"
+        }
+      ]
+    }
+  ],
+  "audit": [
+    {
+      "id": "3ca364d9-3af2-4bdf-853c-50074d49c8d6",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_category",
+      "entityId": "9da46c25-af38-4464-b934-4a6f0ba5e20f",
+      "action": "bar.category.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic category",
+        "defaultMarkupBasis": 0
+      },
+      "createdAt": "2026-10-07T16:12:47.806Z",
+      "organizationId": null
+    },
+    {
+      "id": "fa3cdc2d-ba10-4b08-be51-6a96be03bb38",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_supplier",
+      "entityId": "e7a5e724-50a5-4ce9-8362-c5ae9d72a2aa",
+      "action": "bar.supplier.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic supplier"
+      },
+      "createdAt": "2026-10-07T16:12:47.923Z",
+      "organizationId": null
+    },
+    {
+      "id": "bb27476d-8474-4ffd-a4a7-b301885c8828",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "5da9da77-5d30-47b2-97d4-a87856afa871",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "A",
+        "name": "Synthetic A"
+      },
+      "createdAt": "2026-10-07T16:12:47.981Z",
+      "organizationId": null
+    },
+    {
+      "id": "2d0e8beb-5664-48a6-89c1-2eb671704bee",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "7f27378c-ef2a-4aa1-a959-810c623d334a",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "B",
+        "name": "Synthetic B"
+      },
+      "createdAt": "2026-10-07T16:12:48.000Z",
+      "organizationId": null
+    },
+    {
+      "id": "3a9bfc2a-f71b-4a72-8091-394f304b8a39",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "7b81f90e-179a-4605-a6f7-52f001108a43",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 2,
+        "totalAmount": "120000"
+      },
+      "createdAt": "2026-10-07T16:12:48.158Z",
+      "organizationId": null
+    },
+    {
+      "id": "ee220547-9537-48eb-a4d0-3dd7cb0b6901",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "ad7daca3-2aaa-4972-a152-4cdac1eb00f8",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 1,
+        "totalAmount": "160000"
+      },
+      "createdAt": "2026-10-07T16:12:48.191Z",
+      "organizationId": null
+    },
+    {
+      "id": "235ca0e1-465c-4ee5-ab00-2d9b31def56f",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "675a2888-4b9a-4e8f-9f52-5791a7c3a99d",
+      "action": "bar.sale.posted",
+      "before": null,
+      "after": {
+        "cost": "10000",
+        "revenue": "32000",
+        "quantityUnits": "1"
+      },
+      "createdAt": "2026-10-07T16:12:48.293Z",
+      "organizationId": null
+    },
+    {
+      "id": "a46c43ac-93d4-43d8-9336-4ddb6f3951d7",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_category",
+      "entityId": "b2e480b1-bf24-43af-81db-c368d250b47e",
+      "action": "bar.category.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic category",
+        "defaultMarkupBasis": 0
+      },
+      "createdAt": "2026-10-07T16:12:48.401Z",
+      "organizationId": null
+    },
+    {
+      "id": "0f24db89-d133-4fdd-9a9f-97ca212eb66d",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_supplier",
+      "entityId": "b3f56a22-5817-4d3b-ba7b-c611453b45aa",
+      "action": "bar.supplier.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic supplier"
+      },
+      "createdAt": "2026-10-07T16:12:48.417Z",
+      "organizationId": null
+    },
+    {
+      "id": "7d5e3b18-fe3b-4ab7-aeac-40857334c2c2",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "83caa45f-eadb-4141-8159-40305467da75",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "A",
+        "name": "Synthetic A"
+      },
+      "createdAt": "2026-10-07T16:12:48.442Z",
+      "organizationId": null
+    },
+    {
+      "id": "cf0abd4c-176b-4773-ad55-1f27bae6c302",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "444c0a23-150c-4982-bac8-7a7961bcc8e6",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "B",
+        "name": "Synthetic B"
+      },
+      "createdAt": "2026-10-07T16:12:48.459Z",
+      "organizationId": null
+    },
+    {
+      "id": "50c331d7-c3bb-49b3-a973-cf2a37e8d2a8",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "fcd06450-dbf8-4781-a866-77ea29133ae3",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 2,
+        "totalAmount": "120000"
+      },
+      "createdAt": "2026-10-07T16:12:48.514Z",
+      "organizationId": null
+    },
+    {
+      "id": "1a3e6ba3-b839-45e4-8616-fcd1b84ecb6d",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "559dcd69-38c9-44f5-bcb7-951b6b36d878",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 1,
+        "totalAmount": "160000"
+      },
+      "createdAt": "2026-10-07T16:12:48.556Z",
+      "organizationId": null
+    },
+    {
+      "id": "3ba1db4c-f8ab-4c13-84c5-a740675297ed",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "912ba7cb-c3c4-4491-b5ef-59ac96b6fbdf",
+      "action": "bar.sale.folio_posted",
+      "before": null,
+      "after": {
+        "cost": "10000",
+        "folioId": "b55e4763-c567-4e48-9635-85aee0cd472e",
+        "revenue": "32000",
+        "chargeId": "1ef6fcba-2a1f-4df7-bb25-a5a9058e446c",
+        "quantityUnits": "1"
+      },
+      "createdAt": "2026-10-07T16:12:48.638Z",
+      "organizationId": null
+    },
+    {
+      "id": "baea49db-38e7-4866-931a-21c90ce436a7",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_category",
+      "entityId": "22831417-002d-4df6-a9c5-2a7c184e98be",
+      "action": "bar.category.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic category",
+        "defaultMarkupBasis": 0
+      },
+      "createdAt": "2026-10-07T16:12:48.761Z",
+      "organizationId": null
+    },
+    {
+      "id": "556aa08e-8adb-42ca-a3dc-a06c9613fc74",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_supplier",
+      "entityId": "494289f7-d662-4995-8d00-9b777d975744",
+      "action": "bar.supplier.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic supplier"
+      },
+      "createdAt": "2026-10-07T16:12:48.777Z",
+      "organizationId": null
+    },
+    {
+      "id": "23df4037-88c0-45c8-88f3-d41e69f8a4e3",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "d719d14a-04dc-47c3-bd4d-5b94c8ebefdb",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "A",
+        "name": "Synthetic A"
+      },
+      "createdAt": "2026-10-07T16:12:48.788Z",
+      "organizationId": null
+    },
+    {
+      "id": "ba23f780-75e1-4a89-8182-69254e3b7320",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "f42a3072-56b5-4d9c-89fd-2d4fbba6ff05",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "B",
+        "name": "Synthetic B"
+      },
+      "createdAt": "2026-10-07T16:12:48.809Z",
+      "organizationId": null
+    },
+    {
+      "id": "0d15c43d-4826-4f43-926c-0470469046ca",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "9eab922b-c3a4-4613-ad94-875c9d1cf902",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 2,
+        "totalAmount": "120000"
+      },
+      "createdAt": "2026-10-07T16:12:48.869Z",
+      "organizationId": null
+    },
+    {
+      "id": "9b069be8-9806-44c0-ae8f-62c52a3b4e7a",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "5aff8195-0c09-482c-9089-3899f86204d1",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 1,
+        "totalAmount": "160000"
+      },
+      "createdAt": "2026-10-07T16:12:48.898Z",
+      "organizationId": null
+    },
+    {
+      "id": "7620036c-e6d5-4665-b90c-18f31b4662e1",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "0679ffa1-d9ca-4bd2-859d-d34c3055d29b",
+      "action": "bar.sale.folio_posted",
+      "before": null,
+      "after": {
+        "cost": "10000",
+        "folioId": "45710c9c-e9c1-4b29-81a3-a3334e6dfd06",
+        "revenue": "32000",
+        "chargeId": "19e01884-f85f-409f-b626-62d78eab9a48",
+        "quantityUnits": "1"
+      },
+      "createdAt": "2026-10-07T16:12:48.951Z",
+      "organizationId": null
+    },
+    {
+      "id": "bb6f5d1a-a4cb-4645-b87d-af908839e950",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_category",
+      "entityId": "06854542-4fb6-43d0-9106-2e0b61204fa3",
+      "action": "bar.category.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic category",
+        "defaultMarkupBasis": 0
+      },
+      "createdAt": "2026-10-07T16:12:49.073Z",
+      "organizationId": null
+    },
+    {
+      "id": "557d4d85-9af9-44da-a2f5-efbd5c77abd0",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_supplier",
+      "entityId": "aee903cb-3549-4c36-991a-732d647a976a",
+      "action": "bar.supplier.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic supplier"
+      },
+      "createdAt": "2026-10-07T16:12:49.087Z",
+      "organizationId": null
+    },
+    {
+      "id": "890d9a68-4d5c-4229-aa01-bba1763e5b3e",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "63d81632-0473-4a8e-af4d-89b309af35f3",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "A",
+        "name": "Synthetic A"
+      },
+      "createdAt": "2026-10-07T16:12:49.107Z",
+      "organizationId": null
+    },
+    {
+      "id": "05793910-22e7-4692-a942-5a604d7169fc",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "e04ddd82-1fa2-483a-b537-f99df37dca07",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "B",
+        "name": "Synthetic B"
+      },
+      "createdAt": "2026-10-07T16:12:49.127Z",
+      "organizationId": null
+    },
+    {
+      "id": "c3beca25-de31-473b-bcc2-c81e15232e7c",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "f576b10b-d0da-4e61-97fb-bd642a4930a1",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 2,
+        "totalAmount": "120000"
+      },
+      "createdAt": "2026-10-07T16:12:49.193Z",
+      "organizationId": null
+    },
+    {
+      "id": "37ff6753-6557-4e09-8cfc-815373d52747",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "8ba0fda7-2cdd-4e47-a3d9-2d7d9809315b",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 1,
+        "totalAmount": "160000"
+      },
+      "createdAt": "2026-10-07T16:12:49.218Z",
+      "organizationId": null
+    },
+    {
+      "id": "a37e8c39-74d0-4c38-a296-355240ead6ae",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+      "action": "bar.sale.folio_posted",
+      "before": null,
+      "after": {
+        "cost": "10000",
+        "folioId": "2db56b90-1c13-4efc-a0f7-f5f2f7927fd8",
+        "revenue": "32000",
+        "chargeId": "0a0c9661-8338-46f3-a177-9e8adfa79b79",
+        "quantityUnits": "1"
+      },
+      "createdAt": "2026-10-07T16:12:49.260Z",
+      "organizationId": null
+    },
+    {
+      "id": "3b727d6b-fef7-4809-8a8d-3acaac4be23a",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "a74811b5-cb97-4f83-b64c-5096ab829295",
+      "action": "bar.sale.reversed",
+      "before": null,
+      "after": {
+        "reason": "Synthetic authorized refund",
+        "restock": true
+      },
+      "createdAt": "2026-10-07T16:12:49.306Z",
+      "organizationId": null
+    },
+    {
+      "id": "e1b16e05-a6a4-4802-a7c1-ae74272d56de",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_category",
+      "entityId": "2c93122e-db04-4535-a064-0d85a9ba6917",
+      "action": "bar.category.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic category",
+        "defaultMarkupBasis": 0
+      },
+      "createdAt": "2026-10-07T16:12:49.358Z",
+      "organizationId": null
+    },
+    {
+      "id": "5e3437ed-4cce-4947-8f5d-5a8557c7dde2",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_supplier",
+      "entityId": "86a51a82-2a11-4a65-b787-6cbebd3381bd",
+      "action": "bar.supplier.created",
+      "before": null,
+      "after": {
+        "name": "Synthetic supplier"
+      },
+      "createdAt": "2026-10-07T16:12:49.380Z",
+      "organizationId": null
+    },
+    {
+      "id": "8ca42423-dbbe-43aa-89ab-17b44079d8f0",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "8f635c89-4ea0-4485-bbab-c8e2691804d5",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "A",
+        "name": "Synthetic A"
+      },
+      "createdAt": "2026-10-07T16:12:49.395Z",
+      "organizationId": null
+    },
+    {
+      "id": "ea6be74e-c02d-405a-b349-6d828ebe3192",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_product",
+      "entityId": "9391c10c-554c-498e-bb41-2f5689b80f37",
+      "action": "bar.product.created",
+      "before": null,
+      "after": {
+        "code": "B",
+        "name": "Synthetic B"
+      },
+      "createdAt": "2026-10-07T16:12:49.418Z",
+      "organizationId": null
+    },
+    {
+      "id": "1c016186-4ee3-44da-896e-40d7656f5643",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "e51759ed-ef07-4266-b96e-1b66cee0f4bc",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 2,
+        "totalAmount": "120000"
+      },
+      "createdAt": "2026-10-07T16:12:49.468Z",
+      "organizationId": null
+    },
+    {
+      "id": "6e2f56b7-be8b-4a7e-a9c3-9877e9317477",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_receipt",
+      "entityId": "ab7321d1-cdf8-420f-8ec7-1c97501af326",
+      "action": "bar.receipt.posted",
+      "before": null,
+      "after": {
+        "lines": 1,
+        "totalAmount": "160000"
+      },
+      "createdAt": "2026-10-07T16:12:49.490Z",
+      "organizationId": null
+    },
+    {
+      "id": "b42b6154-1af6-416c-9b1a-2bddf72b8731",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+      "action": "bar.sale.folio_posted",
+      "before": null,
+      "after": {
+        "cost": "10000",
+        "folioId": "da2a87cb-4732-4df6-95d0-ac28672e6660",
+        "revenue": "32000",
+        "chargeId": "dfbb2ca8-add6-49e2-8002-f9945a7f943f",
+        "quantityUnits": "1"
+      },
+      "createdAt": "2026-10-07T16:12:49.540Z",
+      "organizationId": null
+    },
+    {
+      "id": "6702990d-9e4e-42ae-8572-1aeeefc0902e",
+      "userId": "37380e5d-e9aa-42ed-a2a3-59b3432a9cca",
+      "entityType": "bar_sale",
+      "entityId": "a17b2cd0-e1b9-4909-b5d5-13345e49cf3e",
+      "action": "bar.sale.reversed",
+      "before": null,
+      "after": {
+        "reason": "Synthetic authorized refund",
+        "restock": true
+      },
+      "createdAt": "2026-10-07T16:12:49.574Z",
+      "organizationId": null
+    }
+  ],
+  "cleanup": "own operational rows deleted after marker check; append-only audit, synthetic authors and referenced organization containers retained"
+}

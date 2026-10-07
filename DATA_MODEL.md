@@ -3174,7 +3174,7 @@ Accepted compensation records: BarSupplierPaymentReversal(unique paymentId, prop
 
 Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
 
-BAR approved replay implementation detail: BarOperationIntent.operationId is the original payment/sale ID or write-off source UUID, matching result.id and validated against same-Property ledger rows. Forward migration 20261007000066_bar_financial_replay follows the verified 69-migration inventory.
+BAR approved replay implementation detail: BarOperationIntent.operationId is the original payment/sale ID or write-off source UUID, matching result.id and validated against same-Property ledger rows. Forward migration 20261007000066_bar_financial_replay follows the fresh-main 71-migration inventory (canonical maximum 65).
 
 D1 scope clarification (approved Property + operation kind + key): the permanent BarOperationIntent uniqueness is authoritative. The legacy BarSale `(propertyId,idempotencyKey)` lookup index becomes non-unique so RETAIL and FOLIO can each accept the same client key independently. Legacy sale keys are backfilled with their inferred operation kind. A down migration must refuse if cross-kind keys now collide under the former global uniqueness; preserve both operations and restore the pre-upgrade backup rather than delete history.
 

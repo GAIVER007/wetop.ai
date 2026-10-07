@@ -4,7 +4,7 @@ Status: implementation candidate. This document records local evidence at the ca
 
 ## Scope and baseline
 
-Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. Main has 69 migration directories through canonical 63; the candidate adds `20261007000066_bar_financial_replay`, making 70. Existing BAR 55-57 are preserved.
+Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e adds marketing publication migrations 64 and 65, so the unpublished BAR migration is now `20261007000066_bar_financial_replay`, making 72 directories. Existing BAR 55-57 are preserved.
 
 ## Approved behavior
 
@@ -69,3 +69,11 @@ Final browser gating: the exact-SHA release-checks workflow now includes all nin
 With causal response synchronization, the final local browser run passed all four replay kinds, actual 503/session recovery, both role cases and catalog/cash-void acceptance: 8 PASS. Only the full cycle reached its unchanged 90-second deadline. CI job contract RED `2026-10-07T15-45-48Z-unit-534b` then full CI guards GREEN `2026-10-07T15-47-19Z-unit-cf3b` passed all 23 tests. Selected RED filtered 22 unrelated tests; no skip declarations were added. Full 70-migration/drift/all-down rehearsal ended RESULT OK.
 
 Final local strict checks: root/API/web types PASS (`2026-10-07T15-49-56Z-typecheck-6236`), lint PASS (`15-49-56Z-lint-fcfe`). Full unit (`15-49-56Z-unit-72c6`) completed 3841 cases: 3825 PASS, 12 FAIL, four unchanged baseline skips. Eleven failures are existing shell cases reaching their 5-second bound; the local-db subprocess has a separate unchanged 10-second bound and returned null status. No BAR logic assertion failed. This does not constitute full local GREEN; the complete exact-SHA GitHub workflow, including the new BAR browser job, must pass before draft is removed. No assertion or timeout was changed to mask these results.
+
+
+Final upstream sync: MKT7 publication/preview/domain changes were reviewed; auth changes add only token-protected sites preview to the runtime-key allowlist. BAR and Finance code are unchanged upstream. Schema and RLS additions were retained alongside BAR records. Full exact-head CI, including 72 migration apply/drift/down checks and all nine real-session BAR browser cases, is required before draft removal. Historical local counts and failures above are not represented as final CI results.
+
+
+Post-MKT7 local verification on the synced source: 26 CI/auth route unit cases PASS; all 43 financial BAR integration cases PASS on new private database pmsbar_synced (72 migrations), including actual-session replay, roles, paid/closed Folio denial, payment/void race, immutable populated RLS and migration 66 historical backfill. Root/API/web typechecks PASS. Final complete CI remains required.
+
+Post-sync lint PASS; git diff --check PASS. Final exact-SHA CI dispatch and completion are tracked in the PR manifest, without rewriting the tested commit after CI.

@@ -4,7 +4,7 @@ import pg from 'pg';
 import { it, expect } from 'vitest';
 import { barOperationalFixture } from '../tools/bar-operational-fixture';
 
-it('migration 64 reconstructs validated legacy identities/loss/debt and rejects partial restock without changing sources or audit', async () => {
+it('migration 66 reconstructs validated legacy identities/loss/debt and rejects partial restock without changing sources or audit', async () => {
   const f = await barOperationalFixture();
   const db = new pg.Client({ connectionString: process.env.DATABASE_URL, options: '-c search_path=pms_test,public' });
   await db.connect();

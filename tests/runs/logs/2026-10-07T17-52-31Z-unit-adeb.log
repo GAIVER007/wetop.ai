@@ -1,0 +1,51 @@
+# Модульные (unit) · 07.10.2026 22:52 Алматы · MacBook-Air-Urij.local
+# коммит 35cbfa2 (codex/mv85-ds0b-css-foundation)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-52-31Z-unit-adeb.json' 'tests/unit/css-foundation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ❯ |unit| tests/unit/css-foundation.test.ts (10 tests | 1 failed) 178ms
+   ✓ DS0b: one owner for each base primitive (8)
+     ✓ .btn has one unconditional definition 22ms
+     ✓ .panel has one unconditional definition 15ms
+     ✓ .stat has one unconditional definition 29ms
+     ✓ .tbl has one unconditional definition 11ms
+     ✓ .page__title has one unconditional definition 11ms
+     ✓ .seg has one unconditional definition 12ms
+     ✓ .badge has one unconditional definition 11ms
+     ✓ .stat__value has one unconditional definition 10ms
+   × runtime selectors participate in the cascade and important is restricted to documented utilities 53ms
+   ✓ the root establishes layer precedence and does not globally import route styles 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > runtime selectors participate in the cascade and important is restricted to documented utilities
+AssertionError: app/marketing/marketing.css: .publication-facts: expected 'root' to be 'atrule' // Object.is equality
+
+Expected: "atrule"
+Received: "root"
+
+ ❯ <input css MEIi67>:106:1
+ ❯ tests/unit/css-foundation.test.ts:57:57
+     55|       while (parent && parent.type !== 'root' && !(parent.type === 'at…
+     56|         parent = parent.parent;
+     57|       expect(parent?.type, `${file}: ${rule.selector}`).toBe('atrule');
+       |                                                         ^
+     58|     });
+     59|     css.walkDecls((decl) => {
+ ❯ node_modules/postcss/lib/container.js:432:18
+ ❯ Root.walk node_modules/postcss/lib/container.js:352:18
+ ❯ Root.walkRules node_modules/postcss/lib/container.js:430:19
+ ❯ tests/unit/css-foundation.test.ts:53:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  21:52:33
+   Duration  577ms (tests 47%, import 41%, transform 10%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T17-52-31Z-unit-adeb.json
+
+# код выхода 1 · 3 с

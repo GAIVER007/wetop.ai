@@ -3,7 +3,7 @@
 Status: implementation and targeted repairs complete; final full regression pending. This is not a deployment or final acceptance report.
 Base: main `50f04c5ce104bc366d4854e5bf831b81ddfe665f`, after PR #267 and full green CI 37631054628.
 Branch: `codex/mv85-ds0b-css-foundation`.
-Current integration base: main `b6db018699fa806060d3e74f8d257ec57a9ff8c2` (MV9 vertical analytics merged during verification). Its new vertical.css follows the same sections layer contract.
+Current integration base: main `791adad02a5955102f32ffa9c6533a29bc4f3757` (MKT7/MKT8). Previous integration brought MV9 from b6db0186. Both the new vertical analytics and publication/assets CSS follow the sections layer contract.
 Draft PR: https://github.com/GAIVER007/wetop.ai/pull/284
 Previous failed CI candidate: `d1461ddc`, run https://github.com/GAIVER007/wetop.ai/actions/runs/37646528370 (failed: six UI failures; repairs and a new full run pending).
 Previous run 37644060999 passed fast/unit/types/lint/site, bot, Beauty, Food and Branches, then was cancelled by this task after visual review found narrow ghost arrows. Its partial green jobs do not replace final-candidate CI.
@@ -87,8 +87,12 @@ The local visual-only capture repeat uses a CLI timeout of 240 seconds because t
 Pending migrations are existing main changes, not part of DS0b:
 - 062 generation_run_core: new generation task table, enum types, ownership/provenance constraints and RLS; nullable generation_run_id on marketing_site_versions.
 - 063 generation_run_grants: application role SELECT/INSERT, service role SELECT/INSERT/UPDATE, no DELETE.
+- 064 marketing_publication_domains: publication journal, site domains and branch booking-site pointer/backfill.
+- 065 marketing_publication_grants: grants for publication/domain tables.
+- 066 site_assets: image library metadata, ownership constraints and RLS.
+- 067 site_asset_grants: grants for the image library.
 
-Before an approved production application: pin the green candidate, save current image/SHA, take and validate a fresh backup per docs/ops/backups.md, apply only the reviewed migration set, check ledger/constraints/RLS/grants, deploy per docs/deploy.md and verify authenticated routes plus image/SHA. Rollback scripts exist beside both migrations; 062 rollback is only valid before generation is used, because it restores the MANUAL-only constraint. Do not drop generated data to force rollback. A new migration appearing in main requires renewed review of the exact pending set.
+Before an approved production application: pin the green candidate, save current image/SHA, take and validate a fresh backup per docs/ops/backups.md, apply only the reviewed migration set, check ledger/constraints/RLS/grants, deploy per docs/deploy.md and verify authenticated routes plus image/SHA. Rollback scripts exist beside both migrations; 062 rollback is only valid before generation is used, because it restores the MANUAL-only constraint. Do not drop generated data to force rollback. 064 rollback is valid only before publication use, as it removes domains/publications and the branch booking pointer. 066 rollback is valid only before image-library use; it drops metadata and invalidates asset references, while external storage objects remain untouched. Never delete used data to force these down scripts. A new migration appearing in main requires renewed review of the exact pending set.
 
 No production mutation or release-branch update has been made by this task.
 
@@ -123,3 +127,13 @@ Full release-checks 37653177214: fast, bot, all three general UI shards, Beauty,
 Production Next.js build passed on runtime candidate 409b8d05: successful compile, type checks and 75 static pages generated. Only generated next-env.d.ts changed; it is restored before committing.
 
 Branches targeted GREEN after landmark scoping: 2026-10-07T17-18-11Z-e2e-9f6e, 1/1 at canonical limits against isolated local PostgreSQL 55482. Runtime remains identical to 409b8d05; only test reliability and evidence change.
+
+## Current-main integration
+
+Candidate 0e93dc0e completed full release-checks 37658129597 successfully. During that run, main advanced to 791adad0 through MKT7 #283 and MKT8 #285. GitHub GraphQL briefly still reported b6db0186 while REST and git fetch returned 791adad0; the final integration uses the fetched main. Merge commit 35cbfa2b preserves both histories.
+
+New marketing rules initially landed outside the layer wrapper. Guard RED: 2026-10-07T17-52-31Z-unit-adeb (9 passed, 1 failed on .publication-facts). Wrapped publication/assets rules in sections. Guard GREEN: 44/44, 2026-10-07T17-54-05Z-unit-77f8. No primitive or core-matrix route stylesheet changed in this integration.
+
+Read-only production ledger recheck after the integration confirmed 060/061 are the latest applied migrations; 062 through 067 are pending. The deployment approval scope above supersedes the earlier 062/063-only list. No production migration, release push, external storage activation or deployment has occurred.
+
+Current-main marketing regression GREEN: 42/42 at canonical limits, 2026-10-07T17-54-42Z-e2e-6841. Includes publication, assets, hub and existing website routes, light/dark, mobile, axe and synthetic mutation/readback scenarios. 44 additional screenshots are saved under marketing-after/ with a hash manifest; upstream report images were restored after collecting this task’s outputs.

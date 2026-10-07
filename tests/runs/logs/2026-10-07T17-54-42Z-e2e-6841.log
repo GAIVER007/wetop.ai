@@ -1,0 +1,192 @@
+# Сквозные (e2e) · 07.10.2026 22:54 Алматы · MacBook-Air-Urij.local
+# коммит 35cbfa2 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'marketing.spec.ts' 'marketing-site.spec.ts' 'site-assets.spec.ts' 'website.spec.ts'
+[WebServer] (node:36773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+(node:36960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (3.6s)
+  ✓   2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (2.6s)
+  ✓   3 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (4.3s)
+  ✓   4 tests/ui/marketing-site.spec.ts:87:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (1.9s)
+  ✓   5 tests/ui/marketing-site.spec.ts:99:1 › источник брони выбирается явно; архив с вопросом (2.4s)
+  ✓   6 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: light (11.6s)
+  ✓   7 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: dark (7.0s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.0s)
+  ✓   9 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (10.3s)
+  ✓  10 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (3.7s)
+[WebServer] (node:39742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/marketing.spec.ts:135:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (12.7s)
+  ✓  12 tests/ui/marketing.spec.ts:157:3 › хаб на компьютере и телефоне, доступность: light (10.1s)
+  ✓  13 tests/ui/marketing.spec.ts:157:3 › хаб на компьютере и телефоне, доступность: dark (7.6s)
+[WebServer] (node:41726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/marketing.spec.ts:198:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (9.7s)
+  ✓  15 tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (4.2s)
+  ✓  16 tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (4.8s)
+  ✓  17 tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (4.0s)
+  ✓  18 tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (3.9s)
+  ✓  19 tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (2.1s)
+  ✓  20 tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (2.2s)
+  ✓  21 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (7.1s)
+  ✓  22 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (7.4s)
+  ✓  23 tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (2.9s)
+  ✓  24 tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (3.5s)
+  ✓  25 tests/ui/website.spec.ts:73:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (4.0s)
+  ✓  26 tests/ui/website.spec.ts:96:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (3.6s)
+  ✓  27 tests/ui/website.spec.ts:127:1 › «Интеграции» больше не показывают сайт (4.0s)
+  ✓  28 tests/ui/website.spec.ts:135:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (2.9s)
+  ✓  29 tests/ui/website.spec.ts:148:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (3.5s)
+  ✓  30 tests/ui/website.spec.ts:171:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (29.0s)
+  ✓  31 tests/ui/website.spec.ts:202:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (3.7s)
+  ✓  32 tests/ui/website.spec.ts:245:1 › WEB2 · счётчик: состояние словами и одно действие (5.1s)
+  ✓  33 tests/ui/website.spec.ts:280:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (3.4s)
+  ✓  34 tests/ui/website.spec.ts:305:1 › снимки WEB2 (14.7s)
+  ✓  35 tests/ui/website.spec.ts:355:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (4.3s)
+  ✓  36 tests/ui/website.spec.ts:387:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (2.1s)
+  ✓  37 tests/ui/website.spec.ts:401:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.4s)
+  ✓  38 tests/ui/website.spec.ts:419:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (2.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  39 tests/ui/website.spec.ts:445:1 › снимки WEB3 (10.6s)
+  ✓  40 tests/ui/website.spec.ts:494:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (2.7s)
+  ✓  41 tests/ui/website.spec.ts:517:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (2.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/website/a..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="website/an...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <div>
+[WebServer]                           <PeriodForm>
+[WebServer]                             <form method="get" className="row row--l...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="site"
+[WebServer]                                 value="ui-site"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: с" name="from" defaultValue="2026-10-01">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: с"
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: по" name="to" rangeFromName="from" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: по"
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-07"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  42 tests/ui/website.spec.ts:539:1 › снимки WEB4 (5.9s)
+
+  42 passed (4.3m)
+
+# код выхода 0 · 4 мин 20 с

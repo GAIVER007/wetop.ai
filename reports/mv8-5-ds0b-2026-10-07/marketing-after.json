@@ -1,0 +1,226 @@
+{
+  "sourceMain": "791adad02a5955102f32ffa9c6533a29bc4f3757",
+  "run": "2026-10-07T17-54-42Z-e2e-6841",
+  "images": [
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/drawer-dark-390.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/drawer-dark-390.png",
+      "sha256": "6cc125bb47c30763cb286b34844a0ee89f4ae3291a2daa027fc708e43cea89d0"
+    },
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/drawer-light-390.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/drawer-light-390.png",
+      "sha256": "65bd6ced8bf0a5493afd7b0467f27c2d1ceec98a1cf704a7d236f4ff7818064b"
+    },
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/hub-dark-1440.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/hub-dark-1440.png",
+      "sha256": "eb194ca39dd774f8bc54a26633eed21752e1d72db23abbd9421ae37c64a53938"
+    },
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/hub-dark-390.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/hub-dark-390.png",
+      "sha256": "a917d76550d9e45f0bba536cae605fe4f7b6285cfb4e9dd4277ff66669ab9fa4"
+    },
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/hub-light-1440.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/hub-light-1440.png",
+      "sha256": "cc27f6cd0d2d105024011ce681b35532c35bcc816ae9b9e4dd68507cdf1ab350"
+    },
+    {
+      "source": "reports/mkt2-marketing-hub-2026-10-06/hub-light-390.png",
+      "file": "marketing-after/mkt2-marketing-hub-2026-10-06/hub-light-390.png",
+      "sha256": "0bbbf4ef7512836ca192a07756dce06f57f92974d3245a3cc107510b8663c308"
+    },
+    {
+      "source": "reports/mkt7-publication-2026-10-07/publication-dark-1440.png",
+      "file": "marketing-after/mkt7-publication-2026-10-07/publication-dark-1440.png",
+      "sha256": "644e5e11488775f4f5fa63e5604e9aa378a4ed6d19ce07e8b90ec3181cdf48f5"
+    },
+    {
+      "source": "reports/mkt7-publication-2026-10-07/publication-dark-390.png",
+      "file": "marketing-after/mkt7-publication-2026-10-07/publication-dark-390.png",
+      "sha256": "27c6d8df9a101a0338e1f9d9608a4adde092c02bbd16f077814e8378362e6ca8"
+    },
+    {
+      "source": "reports/mkt7-publication-2026-10-07/publication-light-1440.png",
+      "file": "marketing-after/mkt7-publication-2026-10-07/publication-light-1440.png",
+      "sha256": "cb65ce0b74090b3bfb0cb0d0b4a85942548a97cbf7e0a0fce9f81ffda3f496d4"
+    },
+    {
+      "source": "reports/mkt7-publication-2026-10-07/publication-light-390.png",
+      "file": "marketing-after/mkt7-publication-2026-10-07/publication-light-390.png",
+      "sha256": "ed227532d8a249a4285c531adb34bf70fd066deeb9f9435c60054bef2749d53e"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-dark-1440.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-dark-1440.png",
+      "sha256": "5f1df88697c1ac82ab95e5854b2a726ef9d4155849225d6466fe22d7b43aeeaf"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-dark-390.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-dark-390.png",
+      "sha256": "fa463dbc4fcedec8a289efc36859d6f17b7dcfaffdafe6ad3dcfbb14999b7bfa"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-deleted-dark-1440.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-deleted-dark-1440.png",
+      "sha256": "ae466b9c5b34dbb8a8d39f39b90f8d54b311d5ea2e414ef93a914a84b86c6f0e"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-deleted-light-1440.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-deleted-light-1440.png",
+      "sha256": "0a903418cb1d53700e880626e1567b625eb6cf8f2fb9341e0834b08303df841c"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-light-1440.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-light-1440.png",
+      "sha256": "91e97e367c4a2e2b7bfbd9463fdac0636004fdca07314aa65d793e41a37fbc15"
+    },
+    {
+      "source": "reports/mkt8-site-assets-2026-10-07/assets-light-390.png",
+      "file": "marketing-after/mkt8-site-assets-2026-10-07/assets-light-390.png",
+      "sha256": "d0710029da195903daf064f1eaa81e712f54fee9edf54db529cef926f52b150e"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/domain-add-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/domain-add-dark.png",
+      "sha256": "c6984dc92159e1ee22dabb8dcc0862e29cd222182d6c42edbdc1d8bc2ae55e64"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/domain-add-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/domain-add-light.png",
+      "sha256": "338015f89c8dc005a87398943fa1b7736319dc61927128a815afd4d97645404d"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/domain-added-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/domain-added-dark.png",
+      "sha256": "6593bf9a9548bc28a352d9bc0f05bfe2fd9103dd6c66a4d1d4ad8c5dda6f4ccc"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/domain-added-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/domain-added-light.png",
+      "sha256": "79034afa7d2a9e33f56f084a9e186b64a859566958aa443249f07519ab65ee7d"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/install-drawer-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/install-drawer-dark.png",
+      "sha256": "9b5c68ff3d91d820d4f8b4ea7345b6516116fa54f6e4f4be1e00950c5b497d29"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/install-drawer-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/install-drawer-light.png",
+      "sha256": "720bc05a148b6d07c13d02a4b661ee9be74f31fa3bf5ec754fde9e89c33b1061"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-placeholder-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-placeholder-dark.png",
+      "sha256": "98245768f40f7f468a971f80f42503604f5e46e4f7324e2c6f20f0ee826e7d77"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-placeholder-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-placeholder-light.png",
+      "sha256": "8c09e7c6307c0b48fa273670b67c2aec52aa3eccabf4246d92731a398cfa33a3"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-waiting-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-waiting-dark.png",
+      "sha256": "c6df61d3b33c96dfddac449285160034ca803bf9d4ea19e9665e666267eb256a"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-waiting-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-waiting-light.png",
+      "sha256": "036f6482767fdb030c00ccba2192ffc11a850f294a928a1a6a8ecc0d0e400875"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-working-dark-390.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-working-dark-390.png",
+      "sha256": "6df708c170478ae3745b7f2672bfab51151851b649966f23265d4d965ff84276"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-working-dark.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-working-dark.png",
+      "sha256": "d7770c80029f8cffc25aa60ea54307f49eb78ed16cf83629697da6a12c9ee6a7"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-working-light-390.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-working-light-390.png",
+      "sha256": "b95f5535dbd4161ebf0b3494a49af356a39462184e2d4abd33e4410eb2d4d7bf"
+    },
+    {
+      "source": "reports/website-web2-2026-09-28/settings-working-light.png",
+      "file": "marketing-after/website-web2-2026-09-28/settings-working-light.png",
+      "sha256": "0002dd3af79328093f4cc0b5f41ee1b58ad3c7337b6219d91f89dd3ff32cf619"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-install-dark.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-install-dark.png",
+      "sha256": "cbe6e0b3b511b1430b0e25b884017a51c235fb39b81d9e68409f00f776c4203f"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-install-light.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-install-light.png",
+      "sha256": "5c24acd6103288079e3ab4025bea68c397f978372026fab7903d8cce31f90026"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-off-dark.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-off-dark.png",
+      "sha256": "c6465fa71047b1b7975d7266a5fcd6f19f209f28f31918635ef1ca22c9e183cf"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-off-light.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-off-light.png",
+      "sha256": "74485092da0d7c86028821b419e8edb9a42f074f37578deb06765fc4c6d6d448"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-on-dark-390.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-on-dark-390.png",
+      "sha256": "a19a49b87e63188c6f106c90bd598605dca9ad7e24c681a50d22b88a62498d22"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-on-dark.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-on-dark.png",
+      "sha256": "01af2a10f7c11a27984357b03ede5133f4a8249bec4dd17ceac4461cd8903741"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-on-light-390.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-on-light-390.png",
+      "sha256": "e5fadf803ca24c2ad98fc01c1563b53a16ad8fd78460ffda3a9a3c5625ec100f"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-on-light.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-on-light.png",
+      "sha256": "251863f41c55227c8ad07af73612293df8f32ffb98be04dafcd3cc439776861c"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-placeholder-dark.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-placeholder-dark.png",
+      "sha256": "dbc02b8c2683b1a6b2229bfe4ac64c297b36c20903fa7406407a5b1ecfa7b13b"
+    },
+    {
+      "source": "reports/website-web3-2026-09-28/booking-placeholder-light.png",
+      "file": "marketing-after/website-web3-2026-09-28/booking-placeholder-light.png",
+      "sha256": "6de08bbcc53b560eab4ef40d9b97e4babe8d456b70b6b4a96b88d6d0af2b3aec"
+    },
+    {
+      "source": "reports/website-web4-2026-09-28/analytics-dark-390.png",
+      "file": "marketing-after/website-web4-2026-09-28/analytics-dark-390.png",
+      "sha256": "7811f410a1423d4965b52dd8037cd11c975fd5105bb2be763c4c768bb0e86088"
+    },
+    {
+      "source": "reports/website-web4-2026-09-28/analytics-dark.png",
+      "file": "marketing-after/website-web4-2026-09-28/analytics-dark.png",
+      "sha256": "bcce22caaf35c4c86e6644e1204d00b1e70e3241e8cbc8043198e5138ef6dc27"
+    },
+    {
+      "source": "reports/website-web4-2026-09-28/analytics-light-390.png",
+      "file": "marketing-after/website-web4-2026-09-28/analytics-light-390.png",
+      "sha256": "e6b959385b2b62f36d08573dca0fd5f5cb8cf071d8d3ee4bf73d49a775eca408"
+    },
+    {
+      "source": "reports/website-web4-2026-09-28/analytics-light.png",
+      "file": "marketing-after/website-web4-2026-09-28/analytics-light.png",
+      "sha256": "fbf43842701fd2a957adb688f3cfe812617b607d3681bac542e6249be286b0a4"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_verified_vertical_overrides_legacy_hotel_role[BEAUTY] __________
+
+vertical = 'BEAUTY'
+
+    @pytest.mark.parametrize("vertical", ["BEAUTY", "FOOD_SERVICE"])
+    async def test_verified_vertical_overrides_legacy_hotel_role(vertical):
+        r = await registry(Provider(context(vertical)))
+>       assert "Гостиничная роль и сценарии размещения к этому ходу не применяются" in r.system_message
+E       AssertionError: assert 'Гостиничная роль и сценарии размещения к этому ходу не применяются' in 'Вы представляете салон красоты. Доступен только каталог услуг. Запись и оплату уточняет администратор.'
+E        +  where 'Вы представляете салон красоты. Доступен только каталог услуг. Запись и оплату уточняет администратор.' = <src.ai.tools.ToolRegistry object at 0x10d790ad0>.system_message
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_tools.py:104: AssertionError
+_______ test_verified_vertical_overrides_legacy_hotel_role[FOOD_SERVICE] _______
+
+vertical = 'FOOD_SERVICE'
+
+    @pytest.mark.parametrize("vertical", ["BEAUTY", "FOOD_SERVICE"])
+    async def test_verified_vertical_overrides_legacy_hotel_role(vertical):
+        r = await registry(Provider(context(vertical)))
+>       assert "Гостиничная роль и сценарии размещения к этому ходу не применяются" in r.system_message
+E       AssertionError: assert 'Гостиничная роль и сценарии размещения к этому ходу не применяются' in 'Вы представляете ресторан. Доступны только периоды обслуживания. Наличие столов и бронь уточняет администратор. Время периодов местное, часовой пояс филиала: Asia/Almaty.'
+E        +  where 'Вы представляете ресторан. Доступны только периоды обслуживания. Наличие столов и бронь уточняет администратор. Время периодов местное, часовой пояс филиала: Asia/Almaty.' = <src.ai.tools.ToolRegistry object at 0x10d76d810>.system_message
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_tools.py:104: AssertionError
+_____________ test_failed_binding_instructs_honest_unavailability ______________
+
+    async def test_failed_binding_instructs_honest_unavailability():
+        c = context(); c["agentId"] = B
+        r = await registry(Provider(c))
+        assert r.names == []
+>       assert "Направление бизнеса не подтверждено" in r.system_message
+                                                        ^^^^^^^^^^^^^^^^
+E       AttributeError: 'ToolRegistry' object has no attribute 'system_message'
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_tools.py:110: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_vertical_tools.py::test_verified_vertical_overrides_legacy_hotel_role[BEAUTY]
+FAILED tests/test_vertical_tools.py::test_verified_vertical_overrides_legacy_hotel_role[FOOD_SERVICE]
+FAILED tests/test_vertical_tools.py::test_failed_binding_instructs_honest_unavailability
+3 failed, 14 deselected in 1.04s

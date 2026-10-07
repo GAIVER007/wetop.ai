@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/../../reports/mv10-20261007/period-semantics-red.py", line 14, in <module>
+    asyncio.run(check())
+    ~~~~~~~~~~~^^^^^^^^^
+  File "/Users/urijzapojnov/.local/share/uv/python/cpython-3.13.11-macos-aarch64-none/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Users/urijzapojnov/.local/share/uv/python/cpython-3.13.11-macos-aarch64-none/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/urijzapojnov/.local/share/uv/python/cpython-3.13.11-macos-aarch64-none/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/../../reports/mv10-20261007/period-semantics-red.py", line 10, in check
+    assert '0=воскресенье' in r.get('get_food_service_periods').description
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

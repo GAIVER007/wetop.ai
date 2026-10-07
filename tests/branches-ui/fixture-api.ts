@@ -514,6 +514,7 @@ app.use(
                 await tx.building.deleteMany({ where: { property: properties } });
                 await tx.accommodationType.deleteMany({ where: { property: properties } });
                 await tx.property.deleteMany({ where: properties });
+                await tx.sellerProfile.deleteMany({ where: { organizationId: org } });
                 await tx.sellerAgent.deleteMany({ where: { organizationId: org } });
                 await tx.organizationExtension.deleteMany({ where: { organizationId: org } });
                 await tx.location.deleteMany({ where: { business: b } });

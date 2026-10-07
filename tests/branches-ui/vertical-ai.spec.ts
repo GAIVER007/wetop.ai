@@ -23,8 +23,11 @@ test.beforeAll(async ({ request }) => {
   }
 });
 test.afterAll(async ({ request }) => {
-  await request.post(`${api}/__test/cleanup`);
-  await db.$disconnect();
+  try {
+    const cleanup = await request.post(`${api}/__test/cleanup`);
+    expect(cleanup.ok(), 'owned browser fixtures must be fully removed').toBe(true);
+    expect(await db.organization.count({ where: { id: fixture.organizationId } })).toBe(0);
+  } finally { await db.$disconnect(); }
 });
 for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']) {
   for (const theme of ['light', 'dark']) for (const width of [1440, 390]) {
@@ -57,6 +60,8 @@ for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']) {
       expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.keyboard.press('Tab'); expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
       await page.screenshot({ path: `reports/mv10-20261007/screenshots/${vertical}-${theme}-${width}.png`, fullPage: true });
       const other = fixture.agents.find(b => b.vertical !== vertical)!;
       await page.goto(`/ai-agents/${other.id}`);

@@ -1316,3 +1316,12 @@ No financial, permission, schema or migration code changed while awaiting decisi
 Owner response received: D1/D2 approved, distinct FIFO cost loss selected, D4 refunds matrix approved. Compensation records required by the supplied next-stage specification are included in the accepted plan. C12 paid/closed Folio remains BLOCKED. Fresh-main selection867a3914 and prior localhost55893 QA contour recorded in execution block.
 
 Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
+
+## MV9: определения производных показателей (07.10.2026)
+
+| № | Вопрос | Статус | Последствие |
+|---|---|---|---|
+| Q-280 | Каков знаменатель no-show rate Beauty/Food, включаются ли отмены и ещё не завершённые записи, по какой дате выбирать период? | OPEN | MV9 показывает абсолютное NO_SHOW; процент до решения не вычисляется. |
+| Q-281 | Повторный клиент: сколько состоявшихся посещений, какое окно истории и scope Business или Organization? | OPEN | MV9 не классифицирует клиентов как повторных и не показывает repeat rate. |
+
+BAR gates final status, 2026-10-07: C10/C12/C14 and D1-D4 above are RESOLVED by the owner responses and the T11 decision. Earlier pending/BLOCKED paragraphs record the historical approval sequence, not the current authorization. Implementation follows the accepted plan; merge/release/production still require a separate exact-SHA approval.

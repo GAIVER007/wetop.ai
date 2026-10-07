@@ -1,0 +1,58 @@
+# Модульные (unit) · 06.10.2026 18:53 Алматы · vm
+# коммит 64f2442 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T13-53-18Z-unit-97b4.json' 'tests/unit/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 97ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 3ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 3ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 74ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 3ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 1ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 1ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 2ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 4ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--tile-tone' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--tile-tone",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:94:21
+     92|     ]);
+     93|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     94|     expect(missing).toEqual([]);
+       |                     ^
+     95|   });
+     96| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  13:53:20
+   Duration  666ms (transform 56%, tests 24%, import 10%, worker 10%)
+
+JSON report written to /tmp/pms-test-2026-10-06T13-53-18Z-unit-97b4.json
+
+# код выхода 1 · 2 с

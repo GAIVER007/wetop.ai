@@ -13,7 +13,8 @@ import { BoardTodayLink } from './board-today-link';
 import { BoardHelp } from './board-help';
 import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
-import { hotelToday, validDate, reservationDirectory } from '../../lib/hotel-api';
+import { hotelClock, validDate } from '../../lib/hotel-api';
+import { BoardClock } from './board-clock';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -31,7 +32,8 @@ export default async function ChessboardPage({
 }) {
   await requireVertical(['HOSPITALITY']);
   const query = normalizeSearchParams(await searchParams);
-  const today = await hotelToday();
+  const clock = await hotelClock();
+  const today = clock.today();
   const currentWeek = weekPeriod(today);
   const from = query.from || currentWeek.from;
   const to =
@@ -73,27 +75,16 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, todayBoard, noShows, hotBookings] =
-    await Promise.all([
-      chessboardApi.board(from, to),
-      guardApi.incidents('open').catch(() => null),
-      channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
-      // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
-      deskShell().catch(() => null),
-      // Полоса дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
-      deskApi.today().catch(() => null),
-      from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
-      reservationDirectory({
-        from: today,
-        to: today,
-        date: 'arrival',
-        status: 'NO_SHOW',
-        pageSize: '1',
-      })
-        .then((result) => result.total)
-        .catch(() => null),
-      hotBookingsToday(today).catch(() => null),
-    ]);
+  const [board, incidents, events, shell, day, todayBoard] = await Promise.all([
+    chessboardApi.board(from, to),
+    guardApi.incidents('open').catch(() => null),
+    channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
+    // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
+    deskShell().catch(() => null),
+    // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
+    deskApi.today().catch(() => null),
+    from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
+  ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
   const month = monthPeriod(from);
@@ -163,14 +154,14 @@ export default async function ChessboardPage({
       }
     >
       <div className="board-top">
-        {/* «Сегодня» слева, управление календарём справа (владелец 03.10) */}
+        {/* Полоса дня на всю ширину, под ней строка управления (замечание владельца 06.10:
+            два столбика рядом с управлением читались плохо) */}
         {day && (
           <DayPanel
             day={day}
             board={from <= today && today <= to ? board : todayBoard}
             today={today}
-            noShows={noShows}
-            hotBookings={hotBookings}
+            timeZone={clock.timezone}
           />
         )}
         <div className="board-controls">
@@ -312,105 +303,65 @@ function categoriesOf(
   return [...seen].map(([code, name]) => ({ code, name }));
 }
 
-/** Read-only projection: bookings created on the property day with arrival on that day. */
-async function hotBookingsToday(today: string) {
-  let count = 0;
-  for (let page = 1; ; page++) {
-    const result = await reservationDirectory({
-      from: today,
-      to: today,
-      date: 'created',
-      page: String(page),
-      pageSize: '200',
-    });
-    count += result.rows.filter(
-      (r) => r.arrivalDate === today && ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'].includes(r.status),
-    ).length;
-    if (page * result.pageSize >= result.total) return count;
-  }
-}
-
 function DayPanel({
   day,
   board,
   today,
-  noShows,
-  hotBookings,
+  timeZone,
 }: {
   day: import('../../lib/api').DeskDay;
   board: import('../../lib/api').Chessboard | null;
   today: string;
-  noShows: number | null;
-  hotBookings: number | null;
+  timeZone: string;
 }) {
   const s = board?.summary[today];
   const units = s ? s.occupied + s.free + s.blocked : null;
   const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
-  const rooms = board?.rows.filter((r) => r.unit.kind === 'ROOM');
-  const freeRooms = rooms?.filter((r) =>
-    r.cells.some((c) => c.date === today && c.state === 'FREE'),
-  ).length;
-  const onlyBeds = rooms?.length === 0;
-  const dayHref = (date: string, status?: string) =>
-    `/reservations?from=${today}&to=${today}&date=${date}${status ? `&status=${status}` : ''}`;
-  const row = (id: string, label: string, value: number | null | undefined, href: string) => (
+  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
+  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const title = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    timeZone,
+  }).format(new Date(`${today}T12:00:00Z`));
+  const initialTime = new Intl.DateTimeFormat('ru-RU', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date());
+  const c = day.counts;
+  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
     <div className={`board-day-panel__row board-day-panel__row--${id}`}>
-      <Link href={href}>{label}</Link>
-      <b data-testid={`day-${id}`}>{value ?? 'н/д'}</b>
+      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
+      <b data-testid={`day-${id}`}>{value}</b>
     </div>
   );
   return (
-    <div className="board-day-panel" role="group" aria-label="Сегодня на объекте">
-      <section className="board-day-panel__occupancy">
-        <div className="board-day-panel__title">
-          <h2>Загрузка на сегодня</h2>
-          <span>{displayDate(today)}</span>
+    <section className="board-day-panel" role="group" aria-label="Сегодня на объекте">
+      <h2 className="board-day-panel__title">
+        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
+      </h2>
+      <div className="board-day-panel__columns">
+        <div className="board-day-panel__col">
+          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
+          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
+          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
         </div>
-        <div className="board-day-panel__load">
-          <b data-testid="day-occupancy">{occupancy === null ? 'н/д' : `${occupancy}%`}</b>
-          <span>
-            <b data-testid="day-occupied">{s?.occupied ?? 'н/д'}</b> занято из{' '}
-            <b data-testid="day-units">{units ?? 'н/д'}</b>{' '}
-            <small>Номера и койки</small>
-          </span>
-        </div>
-        {occupancy !== null && (
-          <div
-            className="board-day-panel__meter"
-            role="meter"
-            aria-label="Загрузка на сегодня"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={occupancy}
-            aria-valuetext={`${occupancy}%`}
-          >
-            <span style={{ width: `${occupancy}%` }} />
-          </div>
-        )}
-      </section>
-      <section className="board-day-panel__guests">
-        <div className="board-day-panel__title">
-          <h2>Гости сегодня</h2>
-        </div>
-        <div className="board-day-panel__grid">
-          <div className="board-day-panel__row board-day-panel__row--arrivals">
-            <Link href={dayHref('arrival')}>Заезды / Горящая бронь</Link>
-            <b>
-              <span data-testid="day-arrivals">{day.counts.arrivals}</span> /{' '}
-              <span data-testid="day-hot">{hotBookings ?? 'н/д'}</span>
-            </b>
-          </div>
-          {row('departures', 'Выезды', day.counts.departures, dayHref('departure'))}
-          {row('inhouse', 'Проживания', day.counts.inHouse, `/reservations?view=inhouse`)}
-          {row('noshow', 'Незаезды', noShows, dayHref('arrival', 'NO_SHOW'))}
+        <div className="board-day-panel__col">
+          {/* Без разбивки на номера и койки, без дней рождения, задач, блокировок и «Всего номеров»:
+              владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
           {row(
             'free',
-            onlyBeds ? 'Свободные койки' : 'Свободные номера',
-            onlyBeds ? s?.free : freeRooms,
-            '/rooms/availability',
+            'Свободно номеров',
+            n(s?.free),
+            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
           )}
+          {row('occupied', 'Занято номеров', n(s?.occupied))}
+          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 06.10.2026 19:51 Алматы · vm
+# коммит 2ae0f33 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-statistics.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (3.9s)
+  ✓   2 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (3.5s)
+  ✓   3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (3.3s)
+  ✓   4 tests/ui/chessboard-statistics.spec.ts:62:1 › today statistics stay available when the calendar shows another month (7.2s)
+  ✓   5 tests/ui/chessboard-statistics.spec.ts:76:1 › empty booking base shows zero occupancy and no urgent bookings (2.4s)
+  ✓   6 tests/ui/chessboard-statistics.spec.ts:90:3 › daily widgets light: accessible labels and contrasts (4.6s)
+  ✓   7 tests/ui/chessboard-statistics.spec.ts:90:3 › daily widgets dark: accessible labels and contrasts (4.9s)
+  ✓   8 tests/ui/chessboard-statistics.spec.ts:107:3 › desktop daily widgets light: accessible pointer targets (3.8s)
+  ✓   9 tests/ui/chessboard-statistics.spec.ts:107:3 › desktop daily widgets dark: accessible pointer targets (3.5s)
+  ✓  10 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.1s)
+  ✓  11 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (10.6s)
+  ✓  12 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.5s)
+  ✓  13 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (6.1s)
+  ✓  14 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (6.1s)
+  ✓  15 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (5.5s)
+  ✓  16 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (7.1s)
+  ✓  17 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (23.5s)
+  ✓  18 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (24.4s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.6s)
+
+  19 passed (2.3m)
+
+# код выхода 0 · 2 мин 22 с

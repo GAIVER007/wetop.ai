@@ -64,15 +64,22 @@ def catalog(raw, expected, vertical):
     return json.dumps(rows, ensure_ascii=False)
 
 
+def unavailable_registry():
+    registry = ToolRegistry()
+    registry.system_message = "Направление бизнеса не подтверждено. Инструменты недоступны. Сообщи о недоступности и пригласи администратора. Не предлагай размещение, услуги или бронирование."
+    return registry
+
+
 async def build_vertical_registry(providers_getter, *, booking=None):
     providers = providers_getter()
     # Only an anonymous explicit demo may use legacy non-WETOP tools.
-    if getattr(providers, "mode", None) != "wetop":
-        if providers.mode == 'stub' and not dependencies.get_current_agent_id() and not dependencies.get_current_organization_id():
+    mode = getattr(providers, "mode", None)
+    if mode != "wetop":
+        if mode == 'stub' and not dependencies.get_current_agent_id() and not dependencies.get_current_organization_id():
             return hotel_registry(providers_getter, booking=booking)
-        return ToolRegistry()
+        return unavailable_registry()
     provider = getattr(providers, "availability", None)
-    result = ToolRegistry()
+    result = unavailable_registry()
     try:
         raw = await provider.agent_context()
         expected = binding(raw)
@@ -84,6 +91,8 @@ async def build_vertical_registry(providers_getter, *, booking=None):
         "FOOD_SERVICE": "Вы представляете ресторан. Доступны только периоды обслуживания. Наличие столов и бронь уточняет администратор.",
         "HOSPITALITY": "Вы представляете гостиницу. Используйте только предоставленные гостиничные инструменты.",
     }[vertical]
+    if vertical != "HOSPITALITY":
+        result.system_message += " Гостиничная роль и сценарии размещения к этому ходу не применяются. Предмет ответа определяется этим проверенным направлением бизнеса. Общие правила конфиденциальности и точности сохраняются."
     if vertical == "FOOD_SERVICE":
         result.system_message += f" Время периодов местное, часовой пояс филиала: {raw["timezone"]}."
     if vertical == "HOSPITALITY":

@@ -15,3 +15,5 @@ Performance: fixed context reads and one projected catalog read per execution, n
 Findings resolved: hotel copy shown on Beauty/Food screens; lost server vertical in agent DTO; non-WETOP bound agents receiving legacy Hotel tools; anonymous unknown provider mode fallback; integration module exceeding its existing line limit; exact optional property typing and test fake types. Legacy runner tests now resolve the per-turn registry and still assert all four original Hotel tools. No assertion, threshold or skip was removed.
 
 Final verification results are recorded in README.md. Production behavior is not claimed from sandbox evidence.
+
+Late prompt audit found that the shared instruction generator and base seller role are Hotel-specific. Beauty/Food now use manual editing with a visible generation limitation and real save/reload evidence. A server-selected turn message explicitly replaces that legacy subject; unverified scope receives an honest unavailability message with no tools. Three new Python RED tests and the real Beauty editor RED check precede the fix. Hotel rendering and generation contracts remain unchanged.

@@ -16,7 +16,7 @@ type Recognition = {
 export function InstructionEditor({id, initial, readOnly = false, vertical = null}: {id: string; initial: AgentInstructionView; readOnly?: boolean; vertical?: BusinessVertical | null}) {
   const hospitality = vertical === 'HOSPITALITY';
   const placeholder = hospitality ? 'Назови бота Ася. Отвечай дружелюбно и коротко. Рассказывай о правилах отеля и помогай выбрать размещение…' : vertical === 'BEAUTY' ? 'Назови бота Ася. Рассказывай об услугах салона, ценах каталога и длительности. Для записи приглашай администратора.' : vertical === 'FOOD_SERVICE' ? 'Назови бота Ася. Рассказывай о периодах обслуживания ресторана. Для бронирования приглашай администратора.' : 'Опишите стиль общения и когда приглашать сотрудника.';
-  const [step, setStep] = useState(initial.saved ? 2 : 1);
+  const [step, setStep] = useState(initial.saved || !hospitality ? 2 : 1);
   const [story, setStory] = useState('');
   const [text, setText] = useState(initial.text);
   const [saved, setSaved] = useState(initial.text);
@@ -62,6 +62,7 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
     try { recorder.start(); setListening(true); } catch { setError('Не удалось начать диктовку. Попробуйте ещё раз или введите текст.'); }
   }
   function generate() {
+    if (!hospitality) return;
     setError(''); setNotice('');
     startTransition(async () => {
       const result = await generateAgentInstruction(id, story);
@@ -83,7 +84,7 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
   return <div className="agent-wizard">
     <nav className="agent-wizard__steps" aria-label="Шаги настройки агента">
       <div className="agent-wizard__step"><span>✓</span><b>Объект</b><small>Выбран</small></div>
-      <button type="button" className="agent-wizard__step" aria-current={step === 1 ? 'step' : undefined} onClick={() => changeStep(1)}><span>02</span><b>Ваш рассказ</b><small>Текст или голос</small></button>
+      <button type="button" className="agent-wizard__step" disabled={!hospitality} aria-current={step === 1 ? 'step' : undefined} onClick={() => changeStep(1)}><span>02</span><b>Ваш рассказ</b><small>{hospitality ? 'Текст или голос' : 'Пока недоступно'}</small></button>
       <button type="button" className="agent-wizard__step" aria-current={step === 2 ? 'step' : undefined} onClick={() => changeStep(2)}><span>03</span><b>Инструкция</b><small>{dirty ? 'Есть изменения' : saved ? 'Сохранена' : 'Редактирование'}</small></button>
       <div className="agent-wizard__step" aria-disabled="true"><span>04</span><b>Тестовый чат</b><small>После подключения агента</small></div>
       <div className="agent-wizard__step" aria-disabled="true"><span>05</span><b>WhatsApp и запуск</b><small>После проверки</small></div>
@@ -106,7 +107,8 @@ export function InstructionEditor({id, initial, readOnly = false, vertical = nul
             <Row><Button type="button" disabled={readOnly} onClick={() => {setText(preview.text); setPreview(null); setNotice('Редакция принята. Отредактируйте и сохраните инструкцию.');}}>Использовать эту редакцию</Button><Button type="button" tone="secondary" onClick={() => setPreview(null)}>Оставить текущую</Button></Row>
           </Panel>}
           <Panel title="Инструкция вашего продавца">
-            <Field label="Как агент должен отвечать"><Textarea rows={16} maxLength={20000} value={text} disabled={pending || readOnly} onChange={e => {setText(e.target.value); setNotice('');}} placeholder="Введите свою инструкцию или вернитесь к рассказу и сгенерируйте её." /></Field>
+            {!hospitality && <Notice tone="muted">Для этого направления напишите инструкцию вручную. Генерация пока доступна гостиницам.</Notice>}
+            <Field label="Как агент должен отвечать"><Textarea rows={16} maxLength={20000} value={text} disabled={pending || readOnly} onChange={e => {setText(e.target.value); setNotice('');}} placeholder={hospitality ? 'Введите свою инструкцию или вернитесь к рассказу и сгенерируйте её.' : placeholder} /></Field>
             <Row className="agent-wizard__save"><span className="muted">{text.length} / 20 000</span><span className="muted">{dirty ? 'Не сохранено' : saved ? 'Сохранено' : 'Пустая инструкция'}</span><Button type="button" onClick={save} disabled={pending || readOnly || !text.trim() || !dirty}>{pending ? 'Сохраняю…' : 'Сохранить инструкцию'}</Button></Row>
           </Panel>
         </>}

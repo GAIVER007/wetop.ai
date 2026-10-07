@@ -97,3 +97,14 @@ async def test_food_period_days_and_timezone_are_explicit():
     assert "0=воскресенье" in r.get("get_food_service_periods").description
     assert "6=суббота" in r.get("get_food_service_periods").description
     assert "Asia/Almaty" in r.system_message
+
+@pytest.mark.parametrize("vertical", ["BEAUTY", "FOOD_SERVICE"])
+async def test_verified_vertical_overrides_legacy_hotel_role(vertical):
+    r = await registry(Provider(context(vertical)))
+    assert "Гостиничная роль и сценарии размещения к этому ходу не применяются" in r.system_message
+
+async def test_failed_binding_instructs_honest_unavailability():
+    c = context(); c["agentId"] = B
+    r = await registry(Provider(c))
+    assert r.names == []
+    assert "Направление бизнеса не подтверждено" in r.system_message

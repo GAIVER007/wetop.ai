@@ -38,7 +38,18 @@ for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']) {
       const tools = page.getByTestId('agent-tools');
       if (vertical !== 'HOSPITALITY') {
         await expect(page.getByText('Правила бронирования', { exact: true })).toHaveCount(0);
-        await expect(page.getByRole('textbox', { name: 'Ваш рассказ' })).not.toHaveAttribute('placeholder', /отеля|размещение/);
+        await expect(page.getByRole('button', { name: /Ваш рассказ/ })).toBeDisabled();
+        await expect(page.getByRole('button', { name: 'Сгенерировать инструкцию', exact: true })).toHaveCount(0);
+        const instruction = page.getByRole('textbox', { name: 'Как агент должен отвечать', exact: true });
+        await expect(instruction).toBeVisible();
+        if (theme === 'light' && width === 1440) {
+          const text = `Продавец ${vertical}. Сообщай только сохранённые данные каталога. Для оформления пригласи администратора.`;
+          await instruction.fill(text);
+          await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
+          await expect(page.getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' })).toHaveText('Инструкция сохранена у этого агента.');
+          await page.reload();
+          await expect(page.getByRole('textbox', { name: 'Как агент должен отвечать', exact: true })).toHaveValue(text);
+        }
       }
       await expect(tools).toContainText(vertical === 'BEAUTY' ? 'цены каталога' : vertical === 'FOOD_SERVICE' ? 'периоды обслуживания' : 'стоимость проживания');
       await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');

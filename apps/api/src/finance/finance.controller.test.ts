@@ -64,6 +64,8 @@ function makeFakes() {
   ];
   const payments: PaymentRecord[] = [];
   const audits: string[] = [];
+  /** строки payment_method_settings объекта (§21.6); пусто — умолчания */
+  const paymentMethods: Array<{ method: string; enabled: boolean; sortOrder: number }> = [];
   /** Что возврат записал в журнал — проверяем, что туда не уехали контакты (аудит 26.09, С-39) */
   const auditAfter: unknown[] = [];
   let seq = 0;
@@ -397,6 +399,9 @@ function makeFakes() {
     async cashCategories() {
       return cashCategories.map((c) => ({ ...c }));
     },
+    async paymentMethodSettings() {
+      return paymentMethods.map((r) => ({ ...r }));
+    },
     async createCashCategory(c, audit) {
       if (audit) audits.push(audit.action);
       if (cashCategories.some((x) => x.kind === c.kind && x.name === c.name))
@@ -591,6 +596,7 @@ function makeFakes() {
     units,
     cashOps,
     cashCategories,
+    paymentMethods,
     get blockConflict() {
       return state.blockConflict;
     },
@@ -1273,6 +1279,90 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
   });
 
   /** План `plans/finance-payments-direct-2026-10-07.md`: платёж аннулируется и заменяется, прошлое не правится */
+  describe('способы оплаты объекта (DATA_MODEL §21.6, ADR-152)', () => {
+    const http = () => request(app.getHttpServer());
+    const F1 = '00000000-0000-4000-8000-000000000021';
+    const ALL = [
+      'CASH',
+      'CARD_TERMINAL',
+      'KASPI',
+      'HALYK',
+      'BANK_TRANSFER_PERSON',
+      'BANK_TRANSFER_LEGAL',
+      'DEPOSIT',
+      'CARD_GUARANTEE',
+    ];
+
+    it('без строк все восемь включены в системном порядке: бронь и касса отдают список', async () => {
+      const r = await get();
+      expect(r.body.paymentMethods).toEqual(ALL);
+      const c = await http().get('/finance/cash').expect(200);
+      expect(c.body.paymentMethods).toEqual([
+        'CASH',
+        'CARD_TERMINAL',
+        'KASPI',
+        'HALYK',
+        'BANK_TRANSFER_PERSON',
+        'BANK_TRANSFER_LEGAL',
+      ]);
+    });
+
+    it('выключенный способ: оплата, замена платежа, операция и перевод кассы отказывают словами', async () => {
+      fakes.paymentMethods.push({ method: 'KASPI', enabled: false, sortOrder: 0 });
+      const r = await get();
+      expect(r.body.paymentMethods).toEqual(ALL.filter((m) => m !== 'KASPI'));
+      const pay = (method: string) =>
+        http()
+          .post('/finance/payments')
+          .send({ method, amount: '5000', allocations: [{ folioId: F1, amount: '5000' }] });
+      const bad = await pay('KASPI').expect(400);
+      expect(bad.body.message).toBe('Способ оплаты «Kaspi» выключен в настройках объекта');
+      await pay('CASH').expect(201);
+      const id = (await fakes.repo.folioById(F1))!.allocations.at(-1)!.paymentId;
+      await http()
+        .post(`/finance/payments/${id}/replace`)
+        .send({ method: 'KASPI', amount: '5000' })
+        .expect(400);
+      await http()
+        .post('/finance/cash/operations')
+        .send({ kind: 'INCOME', method: 'KASPI', amount: '100' })
+        .expect(400);
+      await http()
+        .post('/finance/cash/transfers')
+        .send({ from: 'CASH', to: 'KASPI', amount: '100' })
+        .expect(400);
+      // прошлое не трогается: отбор ленты по выключенному способу остаётся доступным
+      await http().get('/finance/operations?from=2026-01-01&to=2026-12-31&method=KASPI').expect(200);
+    });
+
+    it('плитки кассы: выключенный способ без движений плитки не получает, порядок по настройке', async () => {
+      fakes.paymentMethods.push(
+        { method: 'HALYK', enabled: true, sortOrder: 0 },
+        { method: 'KASPI', enabled: false, sortOrder: 1 },
+        { method: 'CASH', enabled: true, sortOrder: 2 },
+      );
+      const c = await http().get('/finance/cash').expect(200);
+      expect(c.body.balances.map((b: { method: string }) => b.method)).toEqual([
+        'HALYK',
+        'CASH',
+        'CARD_TERMINAL',
+      ]);
+      expect(c.body.paymentMethods).toEqual([
+        'HALYK',
+        'CASH',
+        'CARD_TERMINAL',
+        'BANK_TRANSFER_PERSON',
+        'BANK_TRANSFER_LEGAL',
+      ]);
+    });
+
+    it('GET /finance/cash/categories отдаёт справочник статей без остатков', async () => {
+      const r = await http().get('/finance/cash/categories').expect(200);
+      expect(r.body.map((c: { name: string }) => c.name)).toContain('Комиссия банка');
+      expect(r.body[0]).toMatchObject({ kind: expect.any(String), active: expect.any(Boolean) });
+    });
+  });
+
   describe('аннулирование и замена платежа', () => {
     const http = () => request(app.getHttpServer());
     const F1 = '00000000-0000-4000-8000-000000000021';

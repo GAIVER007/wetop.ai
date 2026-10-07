@@ -10,7 +10,12 @@ import {
 } from '@nestjs/common';
 import {
   ADJUSTMENT_DOWN_MESSAGE,
+  CASH_METHODS,
+  DEFAULT_CASH_METHODS,
   FinanceRuleError,
+  assertPaymentMethodEnabled,
+  enabledPaymentMethods,
+  resolvePaymentMethodSettings,
   assertAllocationsMatch,
   assertPaymentReversible,
   assertCashOperation,
@@ -102,6 +107,8 @@ export interface ReservationFinanceView {
   paidMinor: string;
   refundedMinor: string;
   balanceMinor: string;
+  /** включённые способы оплаты объекта в порядке показа (§21.6); EXTERNAL сюда не входит */
+  paymentMethods: string[];
 }
 export interface PeriodReportView {
   from: string;
@@ -202,6 +209,8 @@ export interface CashView {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
+  /** включённые способы кассы в порядке показа (§21.6): для форм операций и переводов */
+  paymentMethods: string[];
   categories: CashCategoryView[];
   /** последняя сверка по каждому способу (§21.4) */
   reconciliations: Array<{
@@ -383,8 +392,16 @@ export class FinanceService {
     @Inject(UnitsService) private readonly units: UnitsService,
   ) {}
 
+  /** Включённые способы оплаты объекта (§21.6): без строк умолчания домена */
+  private async enabledMethods(): Promise<string[]> {
+    return enabledPaymentMethods(resolvePaymentMethodSettings(await this.repo.paymentMethodSettings()));
+  }
+
   async reservation(confirmationNumber: string): Promise<ReservationFinanceView> {
-    const folios = await this.repo.foliosByReservation(confirmationNumber);
+    const [folios, paymentMethods] = await Promise.all([
+      this.repo.foliosByReservation(confirmationNumber),
+      this.enabledMethods(),
+    ]);
     if (!folios) throw new NotFoundException(`Бронь ${confirmationNumber} не найдена`);
     const views = folios.map(folioView);
     const sum = (k: 'chargedMinor' | 'paidMinor' | 'refundedMinor' | 'balanceMinor') =>
@@ -397,6 +414,7 @@ export class FinanceService {
       paidMinor: sum('paidMinor'),
       refundedMinor: sum('refundedMinor'),
       balanceMinor: sum('balanceMinor'),
+      paymentMethods,
     };
   }
 
@@ -592,16 +610,23 @@ export class FinanceService {
   // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
   /** Остатки по способам — за всё время: оплаты гостей − возвраты + касса. Валюта — валюта объекта */
   async cash(): Promise<CashView> {
-    const [src, categories, reconciliations] = await Promise.all([
+    const [src, categories, reconciliations, enabled] = await Promise.all([
       this.repo.cashBalanceSources(),
       this.repo.cashCategories(),
       this.repo.latestCashReconciliations(),
+      this.enabledMethods(),
     ]);
-    const b = cashBalances(src);
+    // плитки по Q-246: четыре по умолчанию плюс способы с движениями; выключенный без движений плитки не получает
+    const cashEnabled = enabled.filter((m) => (CASH_METHODS as readonly string[]).includes(m));
+    const b = cashBalances(src, {
+      always: cashEnabled.filter((m) => (DEFAULT_CASH_METHODS as readonly string[]).includes(m)),
+      order: cashEnabled,
+    });
     return {
       currency: 'KZT',
       totalMinor: s(b.totalMinor),
       balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
+      paymentMethods: cashEnabled,
       categories,
       reconciliations: reconciliations.map((r) => ({
         method: r.method,
@@ -612,6 +637,11 @@ export class FinanceService {
         note: r.note,
       })),
     };
+  }
+
+  /** Справочник статей без остатков: для «Настроек объекта → Справочники» (ADR-152) */
+  async cashCategoriesList(): Promise<CashCategoryView[]> {
+    return this.repo.cashCategories();
   }
 
   /**
@@ -800,6 +830,9 @@ export class FinanceService {
     if (dto.methodTo !== undefined && !PAYMENT_METHODS.includes(dto.methodTo as PaymentMethod))
       throw new BadRequestException(`to — один из ${PAYMENT_METHODS.join(', ')}`);
     const amountMinor = money(dto.amount, 'amount');
+    const enabled = await this.enabledMethods();
+    rule(() => assertPaymentMethodEnabled(dto.method!, enabled));
+    if (dto.methodTo !== undefined) rule(() => assertPaymentMethodEnabled(dto.methodTo!, enabled));
     const categories = await this.repo.cashCategories();
     let category: CashCategoryRecord | undefined;
     if (dto.categoryId !== undefined) {
@@ -1149,6 +1182,8 @@ export class FinanceService {
     if (!dto.method || !PAYMENT_METHODS.includes(dto.method as PaymentMethod))
       throw new BadRequestException(`method — один из ${PAYMENT_METHODS.join(', ')}`);
     const amountMinor = money(dto.amount, 'amount');
+    const enabledNow = await this.enabledMethods();
+    rule(() => assertPaymentMethodEnabled(dto.method!, enabledNow));
     if (!Array.isArray(dto.allocations))
       throw new BadRequestException('allocations — список { folioId, amount }');
     const allocations = dto.allocations.map((a) => {
@@ -1269,6 +1304,8 @@ export class FinanceService {
     if (!dto.method || !PAYMENT_METHODS.includes(dto.method as PaymentMethod))
       throw new BadRequestException(`method — один из ${PAYMENT_METHODS.join(', ')}`);
     const amountMinor = money(dto.amount, 'amount');
+    const enabledNow = await this.enabledMethods();
+    rule(() => assertPaymentMethodEnabled(dto.method!, enabledNow));
     let allocations: Array<{ folioId: string; amountMinor: bigint }>;
     if (Array.isArray(dto.allocations)) {
       allocations = dto.allocations.map((a) => {

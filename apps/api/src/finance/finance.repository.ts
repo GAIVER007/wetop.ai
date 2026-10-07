@@ -320,6 +320,8 @@ export interface FinanceRepository {
   cashBalanceSources(): Promise<CashBalanceSources>;
   /** Статьи кассы; пустой справочник заполняется стартовым набором (Q-236) */
   cashCategories(): Promise<CashCategoryRecord[]>;
+  /** Строки настройки способов оплаты объекта (§21.6); пусто — умолчания домена */
+  paymentMethodSettings(): Promise<Array<{ method: string; enabled: boolean; sortOrder: number }>>;
   createCashCategory(
     c: { kind: 'INCOME' | 'EXPENSE'; name: string },
     audit?: AuditEntry,
@@ -1241,6 +1243,17 @@ export class PrismaFinanceRepository implements FinanceRepository {
       name: c.name,
       active: c.active,
     }));
+  }
+  async paymentMethodSettings(): Promise<
+    Array<{ method: string; enabled: boolean; sortOrder: number }>
+  > {
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.paymentMethodSetting.findMany({
+      where: { propertyId },
+      orderBy: { sortOrder: 'asc' },
+      select: { method: true, enabled: true, sortOrder: true },
+    });
+    return rows.map((r) => ({ method: r.method, enabled: r.enabled, sortOrder: r.sortOrder }));
   }
   async createCashCategory(
     c: { kind: 'INCOME' | 'EXPENSE'; name: string },

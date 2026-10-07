@@ -71,6 +71,13 @@ export class FinanceController {
     return this.service.cash();
   }
 
+  /** Справочник статей для «Настроек объекта → Справочники» (ADR-152): владелец и управляющий */
+  @Access('settings')
+  @Get('cash/categories')
+  cashCategories() {
+    return this.service.cashCategoriesList();
+  }
+
   @Access('settings')
   @Post('cash/categories')
   createCashCategory(@Body() dto: Parameters<FinanceService['createCashCategory']>[0]) {

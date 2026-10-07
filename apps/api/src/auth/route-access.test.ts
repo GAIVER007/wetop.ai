@@ -210,6 +210,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /finance/operations': 'reports',
   // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
   'GET /finance/cash': 'desk',
+  // справочник статей для «Настроек объекта» (ADR-152): владелец и управляющий
+  'GET /finance/cash/categories': 'settings',
   'POST /finance/cash/categories': 'settings',
   'PATCH /finance/cash/categories/:id': 'settings',
   'POST /finance/cash/operations': 'desk',
@@ -281,6 +283,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /hotel/services': 'settings',
   'POST /hotel/services': 'settings',
   'PATCH /hotel/services/:code': 'settings',
+  // способы оплаты объекта (DATA_MODEL §21.6, ADR-152)
+  'GET /hotel/payment-methods': 'settings',
+  'PUT /hotel/payment-methods': 'settings',
   'GET /system/connection': 'settings',
   'GET /analytics/sites': 'settings',
   'POST /analytics/sites': 'settings',

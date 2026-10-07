@@ -175,3 +175,28 @@ describe('сверка наличных (§21.4)', () => {
     expect(reconciliationAdjustment(10_000n, 10_000n)).toBeNull();
   });
 });
+
+describe('плитки кассы по настройке способов объекта (DATA_MODEL §21.6, ADR-152)', () => {
+  const src = {
+    payments: [{ method: 'BANK_TRANSFER_PERSON', amountMinor: 1_000n }],
+    refunds: [],
+    operations: [],
+  };
+  it('без настройки: четыре плитки по умолчанию плюс способы с движениями, в системном порядке', () => {
+    expect(cashBalances(src).balances.map((b) => b.method)).toEqual([
+      'CASH',
+      'KASPI',
+      'HALYK',
+      'CARD_TERMINAL',
+      'BANK_TRANSFER_PERSON',
+    ]);
+  });
+  it('выключенный способ без движений плитки не получает, порядок плиток по настройке', () => {
+    const b = cashBalances(src, {
+      always: ['KASPI', 'CASH'],
+      order: ['KASPI', 'CASH', 'CARD_TERMINAL', 'HALYK'],
+    });
+    expect(b.balances.map((x) => x.method)).toEqual(['KASPI', 'CASH', 'BANK_TRANSFER_PERSON']);
+    expect(b.totalMinor).toBe(1_000n);
+  });
+});

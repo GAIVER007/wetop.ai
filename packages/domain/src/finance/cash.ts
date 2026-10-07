@@ -58,16 +58,23 @@ export interface CashBalances {
  * Остатки по способам: Σ оплат гостей (COMPLETED) − Σ возвратов + поступления − расходы ± переводы.
  * Способы по умолчанию видны всегда, остальные кассовые — при любом движении; не-кассовые не считаются.
  */
-export function cashBalances(input: {
-  payments: Array<{ method: string; amountMinor: bigint }>;
-  refunds: Array<{ method: string; amountMinor: bigint }>;
-  operations: Array<{
-    kind: CashOperationKind;
-    method: string;
-    methodTo: string | null;
-    amountMinor: bigint;
-  }>;
-}): CashBalances {
+export function cashBalances(
+  input: {
+    payments: Array<{ method: string; amountMinor: bigint }>;
+    refunds: Array<{ method: string; amountMinor: bigint }>;
+    operations: Array<{
+      kind: CashOperationKind;
+      method: string;
+      methodTo: string | null;
+      amountMinor: bigint;
+    }>;
+  },
+  /**
+   * Настройка способов объекта (§21.6): `always` — плитки, видимые и при нуле (по умолчанию
+   * DEFAULT_CASH_METHODS), `order` — порядок показа; способы с движениями видны всегда
+   */
+  options?: { always?: readonly string[]; order?: readonly string[] },
+): CashBalances {
   const by = new Map<string, bigint>();
   const touched = new Set<string>();
   const add = (method: string, delta: bigint) => {
@@ -85,9 +92,13 @@ export function cashBalances(input: {
       if (o.methodTo) add(o.methodTo, o.amountMinor);
     }
   }
-  const balances = CASH_METHODS.filter(
-    (m) => (DEFAULT_CASH_METHODS as readonly string[]).includes(m) || touched.has(m),
-  ).map((method) => ({ method, balanceMinor: by.get(method) ?? 0n }));
+  const always = options?.always ?? DEFAULT_CASH_METHODS;
+  const order = [...(options?.order ?? []), ...CASH_METHODS].filter(
+    (m, i, all) => isCash(m) && all.indexOf(m) === i,
+  );
+  const balances = order
+    .filter((m) => always.includes(m) || touched.has(m))
+    .map((method) => ({ method, balanceMinor: by.get(method) ?? 0n }));
   return {
     balances,
     totalMinor: balances.reduce((s, b) => s + b.balanceMinor, 0n),

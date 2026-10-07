@@ -144,6 +144,7 @@ model Property {
   cashCategories      CashCategory[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  paymentMethodSettings PaymentMethodSetting[]
   barCategories       BarCategory[]
   barProducts         BarProduct[]
   barSuppliers        BarSupplier[]
@@ -1258,6 +1259,22 @@ model CashReconciliation {
 
   @@index([propertyId, method, createdAt])
   @@map("cash_reconciliations")
+}
+
+/// Способы оплаты объекта (DATA_MODEL §21.6, ADR-152): какие системные способы стойка предлагает и в каком порядке.
+/// Строк нет: умолчания (все восемь включены). EXTERNAL не настраивается (CHECK в миграции).
+model PaymentMethodSetting {
+  id         String        @id @default(uuid()) @db.Uuid
+  propertyId String        @map("property_id") @db.Uuid
+  method     PaymentMethod
+  enabled    Boolean       @default(true)
+  sortOrder  Int           @map("sort_order")
+  updatedAt  DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+
+  @@unique([propertyId, method])
+  @@map("payment_method_settings")
 }
 
 /// DATA_MODEL §24 (03.10.2026, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту

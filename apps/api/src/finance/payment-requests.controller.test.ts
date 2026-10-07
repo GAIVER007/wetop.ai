@@ -66,9 +66,14 @@ class FakeRequests {
 describe('запросы оплаты /finance/*payment-requests (DATA_MODEL §24)', () => {
   let app: INestApplication;
   const repo = new FakeRequests();
+  const disabledMethods: string[] = [];
   const finance = {
     async foliosByReservation(n: string) {
       return n === 'R-1' ? [FOLIO, CLOSED] : null;
+    },
+    /** настройка способов объекта (§21.6): выключенные способы строками, остальное умолчания */
+    async paymentMethodSettings() {
+      return disabledMethods.map((method, sortOrder) => ({ method, enabled: false, sortOrder }));
     },
   };
   beforeAll(async () => {
@@ -88,10 +93,18 @@ describe('запросы оплаты /finance/*payment-requests (DATA_MODEL §2
     repo.rows = [];
     repo.audits = [];
     repo.payments = 0;
+    disabledMethods.length = 0;
   });
   const http = () => request(app.getHttpServer());
   const create = (body: object) =>
     http().post('/finance/reservations/R-1/payment-requests').send(body);
+
+  it('выключенный в настройках объекта способ не принимает запрос оплаты (DATA_MODEL §21.6)', async () => {
+    disabledMethods.push('KASPI');
+    const r = await create({ folioId: FOLIO.id, method: 'KASPI', amount: '12 000' }).expect(400);
+    expect(r.body.message).toBe('Способ оплаты «Kaspi» выключен в настройках объекта');
+    await create({ folioId: FOLIO.id, method: 'HALYK', amount: '12 000' }).expect(201);
+  });
 
   it('Kaspi по телефону: запрос создан, сумма в тиынах, название объекта для текста гостю', async () => {
     const r = await create({ folioId: FOLIO.id, method: 'KASPI', amount: '12 000' }).expect(201);

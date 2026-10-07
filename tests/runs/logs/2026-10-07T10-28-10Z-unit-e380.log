@@ -1,0 +1,30 @@
+# Модульные (unit) · 07.10.2026 15:28 Алматы · vm
+# коммит fb520a3 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-28-10Z-unit-e380.json' 'packages/domain/src/finance/payment-methods.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/finance/payment-methods.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/finance/payment-methods.test.ts [ packages/domain/src/finance/payment-methods.test.ts ]
+Error: Cannot find module './payment-methods' imported from /home/user/wetop.ai/packages/domain/src/finance/payment-methods.test.ts
+ ❯ packages/domain/src/finance/payment-methods.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   CONFIGURABLE_PAYMENT_METHODS,
+      4|   DEFAULT_PAYMENT_METHOD_SETTINGS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:28:12
+   Duration  368ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-28-10Z-unit-e380.json
+
+# код выхода 1 · 2 с

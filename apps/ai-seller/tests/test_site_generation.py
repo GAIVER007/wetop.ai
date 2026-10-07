@@ -119,18 +119,64 @@ async def test_missing_usage_in_response_is_usage_unavailable(monkeypatch) -> No
     assert "spec" not in result
 
 
-async def test_provider_http_error_is_not_paid_and_cascade_continues(monkeypatch) -> None:
-    client, _ = cascade(monkeypatch, {PRIMARY: [503], FALLBACK: [usage_response(json.dumps(SPEC), model=FALLBACK, prompt=10, completion=20)]})
+@pytest.mark.parametrize("status", [400, 429, 500])
+async def test_provider_error_without_usage_is_unknown_and_stops_the_cascade(monkeypatch, status) -> None:
+    """Q-279: запрос ушёл поставщику, код ответа сам по себе не доказывает нулевой расход."""
+    client, router = cascade(
+        monkeypatch,
+        {PRIMARY: [status], FALLBACK: [usage_response(json.dumps(SPEC), model=FALLBACK, prompt=10, completion=20)]},
+    )
     result = await generate_site(client._settings, client, body())
-    assert result["status"] == "ok"
-    assert result["usage"] == {"input": 10, "cached": None, "output": 20, "complete": True, "paidCalls": 1}
+    assert result["errorCode"] == "USAGE_UNAVAILABLE"
+    assert result["usage"]["complete"] is False and result["usage"]["paidCalls"] == 1
+    assert "spec" not in result
+    assert [c["model"] for c in router.calls] == [PRIMARY]
 
 
-async def test_all_steps_unavailable_is_model_unavailable(monkeypatch) -> None:
-    client, _ = cascade(monkeypatch, {PRIMARY: [500], FALLBACK: [502], EMERGENCY: [503]})
+async def test_provider_error_with_complete_usage_is_counted_and_cascade_continues(monkeypatch) -> None:
+    """Q-279: полный usage в ответе с ошибкой учитывается, и запасная ступень разрешена."""
+    error_body = {
+        "error": {"message": "x"},
+        "usage": {"prompt_tokens": 1000, "completion_tokens": 100, "prompt_tokens_details": {"cached_tokens": 600}},
+    }
+    client, router = cascade(
+        monkeypatch,
+        {PRIMARY: [(502, error_body)], FALLBACK: [usage_response(json.dumps(SPEC), model=FALLBACK, prompt=2000, completion=200, cached=1000)]},
+    )
     result = await generate_site(client._settings, client, body())
+    assert result["status"] == "ok" and result["model"] == FALLBACK
+    assert result["usage"] == {"input": 3000, "cached": 1600, "output": 300, "complete": True, "paidCalls": 2}
+    assert result["usage"]["input"] + result["usage"]["output"] == 3300
+    assert [c["model"] for c in router.calls] == [PRIMARY, FALLBACK]
+
+
+async def test_provider_error_with_partial_usage_is_unknown(monkeypatch) -> None:
+    client, router = cascade(
+        monkeypatch,
+        {PRIMARY: [(500, {"usage": {"prompt_tokens": 1000}})], FALLBACK: [usage_response(json.dumps(SPEC), model=FALLBACK, prompt=1, completion=1)]},
+    )
+    result = await generate_site(client._settings, client, body())
+    assert result["errorCode"] == "USAGE_UNAVAILABLE"
+    assert [c["model"] for c in router.calls] == [PRIMARY]
+
+
+async def test_seller_flow_without_hooks_keeps_switching_steps_on_http_errors(monkeypatch) -> None:
+    """Регрессия продавца: без хуков генерации ошибка HTTP по-прежнему ведёт к следующей ступени."""
+    client, router = cascade(monkeypatch, {PRIMARY: [500], FALLBACK: [usage_response('{"reply": "ok"}', model=FALLBACK, prompt=1, completion=1)]})
+    result = await client.generate([{"role": "user", "content": "привет"}], use_tools=False)
+    assert result.ok and result.model == FALLBACK
+    assert [c["model"] for c in router.calls] == [PRIMARY, FALLBACK]
+
+
+async def test_no_provider_configured_is_model_unavailable_and_free(monkeypatch) -> None:
+    """Бесплатен только отказ до запроса к поставщику: нет адреса роутера, вызова не было."""
+    settings = llm_env(monkeypatch, LLM_BASE_URL="")
+    router = ScriptedRouter({})
+    client = CascadeClient(settings, http_client=router.http_client())
+    result = await generate_site(settings, client, body())
     assert result["errorCode"] == "MODEL_UNAVAILABLE"
-    assert result["usage"]["paidCalls"] == 0
+    assert result["usage"] == {"input": 0, "cached": None, "output": 0, "complete": True, "paidCalls": 0}
+    assert router.calls == []
 
 
 async def test_budget_is_checked_before_every_call(monkeypatch) -> None:

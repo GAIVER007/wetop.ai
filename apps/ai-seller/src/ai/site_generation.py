@@ -67,9 +67,10 @@ SYSTEM_PROMPT = """Ты составляешь первую версию сай�
 5. categoryCode бери только из данных (accommodations[].categoryCode). Каждый код из pricing.categoryCodes должен быть и в карточке секции "accommodations".
 6. Картинок нет: никаких assetId, image, images, logo, imageAssetId, faviconAssetId и секции "gallery". hero только вариант "TEXT_ONLY", about только "TEXT_ONLY", cta только "BANNER".
 7. site.vertical "HOSPITALITY". site.locales ровно как в задании, в том же порядке; site.defaultLocale первый из них. Все тексты на всех этих языках.
-8. site.contacts: phone и email только как в данных (телефон в виде +77010000000), address только если он есть в данных. Нет whatsapp, geo, social и site.legal. Внешние ссылки только на сайт гостиницы из данных.
+8. site.contacts: phone и email только как в данных (телефон в виде +77010000000), address только если он есть в данных, и на каждом языке ровно тем текстом, как в данных, без перевода. Нет whatsapp, geo, social и site.legal. Внешние ссылки только на сайт гостиницы из данных. В site.seo.structuredData includeGeo всегда false, includeAddress true только если адрес есть в данных.
 9. integrations.booking.mode "WETOP_WIDGET"; секция "booking" варианта "INLINE" одна. Одна страница с isHome true и slug "".
-10. Тон: ясно, по делу, без превосходных степеней."""
+10. Тон: ясно, по делу, без превосходных степеней.
+11. site.displayName на каждом языке ровно identity.displayNameCandidate из данных, без перевода и украшений. Слоган (tagline) пиши свободно."""
 
 
 def build_messages(body: SiteGenerationIn) -> list[dict]:

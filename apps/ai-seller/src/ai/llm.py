@@ -59,8 +59,8 @@ class CallUsage:
     """Расход ОДНОГО фактического вызова поставщика (MKT6, Q-274).
 
     complete: поставщик сообщил и вход, и выход. False: вызов ушёл, а
-    расход неизвестен: таймаут ответа, обрыв связи, ответ без usage.
-    Ответ поставщика с кодом ошибки вызовом не считается: генерации не было.
+    расход неизвестен: таймаут ответа, обрыв связи, ответ без usage, в том
+    числе ответ с кодом ошибки без полного usage (Q-279).
     """
 
     input: int | None
@@ -193,6 +193,29 @@ def _usage_of(response: Any) -> Usage:
         input=_int_or_none(getattr(usage, "prompt_tokens", None)),
         cached=_int_or_none(getattr(details, "cached_tokens", None)),
         output=_int_or_none(getattr(usage, "completion_tokens", None)),
+    )
+
+
+def _error_usage(exc: Any) -> Usage:
+    """usage из тела ответа с ошибкой (MKT6, Q-279): в корне или внутри `error`. Чего нет: None."""
+    # Целиком из ответа: SDK в `exc.body` кладёт только часть тела `error`
+    try:
+        body = exc.response.json()
+    except Exception:  # тело не JSON или ответа нет
+        body = getattr(exc, "body", None)
+    if not isinstance(body, dict):
+        return Usage()
+    usage = body.get("usage")
+    if not isinstance(usage, dict) and isinstance(body.get("error"), dict):
+        usage = body["error"].get("usage")
+    if not isinstance(usage, dict):
+        return Usage()
+    details = usage.get("prompt_tokens_details")
+    return Usage(
+        total=_int_or_none(usage.get("total_tokens")),
+        input=_int_or_none(usage.get("prompt_tokens")),
+        cached=_int_or_none(details.get("cached_tokens")) if isinstance(details, dict) else None,
+        output=_int_or_none(usage.get("completion_tokens")),
     )
 
 
@@ -455,8 +478,17 @@ class CascadeClient:
                         report(CallUsage(None, None, None, complete=False))
                     return CONNECTION, "нет соединения", tokens
                 except openai.APIStatusError as exc:
-                    # Поставщик ответил отказом: генерации не было, вызов не оплачен
                     in_flight = False
+                    if report is not None:
+                        # Q-279 (решение владельца 07.10.2026): запрос ушёл поставщику, и код ответа сам по себе
+                        # нулевой расход не доказывает. Полный usage в теле ошибки учитывается; без него расход
+                        # неизвестен, и каскад остановится. Тело ошибки в журнал не пишется.
+                        call = _error_usage(exc)
+                        complete = call.input is not None and call.output is not None
+                        if complete:
+                            tokens.add(call)
+                        report(CallUsage(call.input, call.cached, call.output, complete=complete) if complete
+                               else CallUsage(None, None, None, complete=False))
                     return HTTP_ERROR, f"HTTP {exc.status_code}", tokens
 
                 call = _usage_of(response)

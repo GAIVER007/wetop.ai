@@ -240,6 +240,45 @@ describe('проверка ответа модели платформой', () =
     expect(checkGeneratedSpec(own, withSite, LOCALES).ok).toBe(true);
   });
 
+  it('адрес только как в брифе: другой адрес отклонён, тот же с другими пробелами и регистром проходит', () => {
+    const brief = { ...INPUT, identity: { ...INPUT.identity, address: 'Алматы, ул. Абая 10' } };
+    const other = goodSpec();
+    other.site.contacts.address = t('Астана, пр. Республики 1');
+    const r = checkGeneratedSpec(other, brief, LOCALES);
+    expect(codes(r)).toContain('invented_contact');
+    expect(r.ok ? [] : r.errors.map((e) => e.path)).toContain('site.contacts.address');
+    const same = goodSpec();
+    same.site.contacts.address = t('  алматы,   ул. Абая 10 ');
+    expect(checkGeneratedSpec(same, brief, LOCALES).ok).toBe(true);
+    // перевод адреса тоже изменение: на каждом языке тот же адрес брифа
+    const translated = goodSpec();
+    translated.site.contacts.address = { kk: 'Алматы, ул. Абая 10', ru: 'Almaty, Abay st. 10' };
+    expect(codes(checkGeneratedSpec(translated, brief, LOCALES))).toContain('invented_contact');
+  });
+
+  it('имя гостиницы только из брифа: переименование отклонено, тот же текст другим регистром проходит', () => {
+    const brief = { ...INPUT, identity: { ...INPUT.identity, displayNameCandidate: 'Luxx Aparts' } };
+    const renamed = goodSpec();
+    renamed.site.displayName = t('Royal Dubai Luxury Hotel');
+    const r = checkGeneratedSpec(renamed, brief, LOCALES);
+    expect(codes(r)).toContain('invented_identity');
+    expect(r.ok ? [] : r.errors.map((e) => e.path)).toContain('site.displayName');
+    const same = goodSpec();
+    same.site.displayName = t('LUXX  APARTS');
+    expect(checkGeneratedSpec(same, brief, LOCALES).ok).toBe(true);
+  });
+
+  it('структурные данные не обещают фактов, которых нет в брифе: geo никогда, адрес только при адресе брифа', () => {
+    const geo = goodSpec();
+    geo.site.seo.structuredData.includeGeo = true;
+    expect(codes(checkGeneratedSpec(geo, INPUT, LOCALES))).toContain('unsupported_binding');
+    const address = goodSpec();
+    delete address.site.contacts.address;
+    address.site.seo.structuredData.includeAddress = true;
+    expect(codes(checkGeneratedSpec(address, { ...INPUT, identity: { ...INPUT.identity, address: null } }, LOCALES))).toContain('unsupported_binding');
+    expect(checkGeneratedSpec(goodSpec(), INPUT, LOCALES).ok).toBe(true);
+  });
+
   it('больше 256 КБ отклонено', () => {
     const big = goodSpec();
     big.pages[0].sections.push({

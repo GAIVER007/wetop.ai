@@ -7230,3 +7230,12 @@
 | 07.10.2026 16:21 | typecheck | ✅ без ошибок | 56 с | f5261ba +5 | [лог](logs/2026-10-07T11-21-58Z-typecheck-ab92.log) | MKT6: итог |
 | 07.10.2026 16:22 | lint | ✅ без ошибок | 52 с | f5261ba +5 | [лог](logs/2026-10-07T11-22-55Z-lint-ecf0.log) | MKT6: итог |
 | 07.10.2026 16:23 | integration | ✅ 869 из 869 | 3 мин 16 с | f5261ba +2 | [лог](logs/2026-10-07T11-23-48Z-integration-6781.log) | MKT6: полный integration на итоговом коде |
+| 07.10.2026 16:38 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 3 из 18 | 4 с | 8b2e27c +4 | [лог](logs/2026-10-07T11-38-05Z-unit-c3f1.log) | MKT6 доводка red: адрес, имя, структурные данные |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ✅ 18 из 18 | 3 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-33Z-unit-8a06.log) | MKT6 доводка green: адрес, имя, структурные данные |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 18 | 3 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-42Z-unit-1c6a.log) | MKT6 мутация: includeGeo не проверяется |
+| 07.10.2026 16:39 | unit (частично: packages/domain/src/marketing/generation.test.ts) | ❌ упало 1 из 18 | 2 с | 8b2e27c +5 | [лог](logs/2026-10-07T11-39-46Z-unit-7061.log) | MKT6 мутация: имя не проверяется |
+| 07.10.2026 16:46 | typecheck | ✅ без ошибок | 1 мин 26 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-46-24Z-typecheck-71d5.log) | MKT6 доводка |
+| 07.10.2026 16:47 | lint | ✅ без ошибок | 54 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-47-51Z-lint-77fa.log) | MKT6 доводка |
+| 07.10.2026 16:48 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 27 с | 8b2e27c +6 | [лог](logs/2026-10-07T11-48-49Z-unit-4062.log) | MKT6 доводка, полный |
+| 07.10.2026 16:51 | integration (частично: tests/integration/site-generation.test.ts tests/integration/generation-runs-db.test.ts tests/integration/marketing-site.test.ts tests/int | ✅ 88 из 88 | 19 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-21Z-integration-4489.log) | MKT6 доводка, целевой |
+| 07.10.2026 16:51 | integration | ✅ 869 из 869 | 3 мин 27 с | 8b2e27c +2 | [лог](logs/2026-10-07T11-51-45Z-integration-840c.log) | MKT6 доводка, полный |

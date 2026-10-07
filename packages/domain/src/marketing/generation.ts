@@ -117,6 +117,21 @@ const digits = (v: string) => v.replace(/[^0-9]/g, '');
 const ASSET_KEYS = new Set(['assetId', 'imageAssetId', 'faviconAssetId', 'image', 'images', 'logo']);
 
 /** Обход документа: каждый объект с путём, как пишет пути валидатор */
+/** Факт брифа без перефразирования: пробелы по краям, повторы пробелов и регистр не в счёт */
+function normFact(text: string): string {
+  return text.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/** Текст документа (строка или тексты по языкам) на каждом языке равен факту брифа; факта нет: не равен */
+function sameFact(value: unknown, fact: string | null): boolean {
+  if (fact === null) return false;
+  const want = normFact(fact);
+  if (typeof value === 'string') return normFact(value) === want;
+  if (!isRec(value)) return false;
+  const texts = Object.values(value);
+  return texts.length > 0 && texts.every((t) => typeof t === 'string' && normFact(t) === want);
+}
+
 function walk(value: unknown, path: string, visit: (rec: Rec, path: string) => void): void {
   if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`, visit));
   else if (isRec(value)) {
@@ -174,12 +189,22 @@ export function checkGeneratedSpec(spec: unknown, input: SiteBriefInput, targetL
       (identity.email === null || String(contacts['email']).trim().toLowerCase() !== identity.email.trim().toLowerCase())
     )
       fail('site.contacts.email', 'invented_contact', 'Почта только из брифа');
-    if (contacts['address'] !== undefined && identity.address === null)
-      fail('site.contacts.address', 'invented_contact', 'Адреса в брифе нет');
+    if (contacts['address'] !== undefined && !sameFact(contacts['address'], identity.address))
+      fail('site.contacts.address', 'invented_contact', 'Адрес только как в брифе');
     for (const key of ['whatsapp', 'geo', 'social'])
       if (contacts[key] !== undefined) fail(`site.contacts.${key}`, 'invented_contact', 'Этих данных в брифе нет');
   }
   if (site['legal'] !== undefined) fail('site.legal', 'legal_not_allowed', 'Юридические данные в брифе не передаются');
+  if (!sameFact(site['displayName'], input.identity.displayNameCandidate))
+    fail('site.displayName', 'invented_identity', 'Название только как в брифе');
+  const seo = isRec(site['seo']) ? site['seo'] : null;
+  const structured = seo && isRec(seo['structuredData']) ? seo['structuredData'] : null;
+  if (structured) {
+    if (structured['includeGeo'] === true)
+      fail('site.seo.structuredData.includeGeo', 'unsupported_binding', 'Координат в брифе нет');
+    if (structured['includeAddress'] === true && input.identity.address === null)
+      fail('site.seo.structuredData.includeAddress', 'unsupported_binding', 'Адреса в брифе нет');
+  }
 
   return errors.length > 0 ? { ok: false, errors } : base;
 }

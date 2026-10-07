@@ -83,6 +83,12 @@ export class PrismaBarRepository implements BarRepository {
     propertyId: string, kind: string, key: string, request: Record<string, string | null>,
     write: (tx: Prisma.TransactionClient) => Promise<T>,
   ): Promise<T> {
+    // PostgreSQL UUID identity is case-insensitive; opaque operation keys are not.
+    request = { ...request };
+    for (const field of ['productId', 'receiptId', 'folioId']) {
+      const reference = request[field];
+      if (typeof reference === 'string') request[field] = reference.toLowerCase();
+    }
     try {
       return await this.prisma.db.$transaction(async tx => {
         // Validate scope before looking up a result, including inactive/closed replays.

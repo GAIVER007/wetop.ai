@@ -38,6 +38,25 @@ describe('BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL', 
     expect(second.status).toBe(201);
     expect(second.body.id).not.toBe(first.body.id);
   });
+  it.each(['payment', 'write-off', 'retail', 'folio'].flatMap(kind => ['upper-first', 'lower-first'].map(order => ({ kind, order }))))('T03 $kind $order: UUID reference case is canonical while the operation key remains opaque', async ({ kind, order }) => {
+    const d = await stocked(), idempotencyKey = randomUUID().toUpperCase();
+    const lowerPath = kind === 'payment' ? `receipts/${d.r1.id}/payments` : kind === 'write-off' ? 'write-offs' : `sales/${kind}`;
+    const upperPath = kind === 'payment' ? `receipts/${d.r1.id.toUpperCase()}/payments` : lowerPath;
+    const lower = kind === 'payment' ? { amountMinor: '10000', method: 'CASH', idempotencyKey }
+      : { productId: d.a.id, quantityUnits: '1', reason: 'Synthetic UUID normalization', method: 'CASH', folioId: d.side.folio, idempotencyKey };
+    const upper = kind === 'payment' ? lower : { ...lower, productId: d.a.id.toUpperCase(), folioId: d.side.folio.toUpperCase() };
+    const first = await f.request(order === 'upper-first' ? upperPath : lowerPath, order === 'upper-first' ? upper : lower, d.options);
+    expect(first.status).toBe(201);
+    const before = await effects(d.side.property);
+    const replay = await f.request(order === 'upper-first' ? lowerPath : upperPath, order === 'upper-first' ? lower : upper, d.options);
+    expect(replay.status).toBe(201);
+    expect(replay.body.id).toBe(first.body.id);
+    expect(await effects(d.side.property)).toEqual(before);
+    const intents = await f.db.barOperationIntent.findMany({ where: { propertyId: d.side.property } });
+    expect(intents).toHaveLength(1);
+    expect(intents[0]!.key).toBe(idempotencyKey);
+    expect(intents[0]!.request).toMatchObject(kind === 'payment' ? { receiptId: d.r1.id } : { productId: d.a.id, ...(kind === 'folio' ? { folioId: d.side.folio } : {}) });
+  });
   it('T10 linked Finance void restores debt and replay returns VOIDED without paying again', async () => {
     const d = await stocked(), body = { amountMinor: '60000', method: 'CASH', idempotencyKey: randomUUID() };
     const payment = await f.request(`receipts/${d.r1.id}/payments`, body, d.options);

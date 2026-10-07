@@ -6137,3 +6137,8 @@ Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e occupies canonical numbers 6
 ### BAR migration numbering after Site Assets sync (2026-10-07)
 
 Fresh main 791adad02a5955102f32ffa9c6533a29bc4f3757 occupies canonical 66/67 with Site Assets. Move the unpublished BAR financial replay migration from 66 to free 68. Retain earlier run numbers as historical evidence; require the full 74-migration chain on the merged candidate. Site Assets changes have no BAR/Finance semantic changes. Existing BAR migrations remain untouched.
+
+
+### BAR replay UUID canonicalization (2026-10-07)
+
+Problem: the existing API accepts uppercase UUID references, while financial replay guards compare request references with canonical PostgreSQL UUID text. Actual HTTP tests reproduce four first-request 500 failures and four opposite-case replay 409 failures. Normalize only validated UUID reference fields in the registry payload; keep the operation key, method, note and reason unchanged. This restores the existing UUID contract and D1 normalized-payload replay without changing money, permissions, schema or SQL guards.

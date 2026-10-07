@@ -94,3 +94,11 @@ Fresh-main impact during final CI: PR285 Site Assets advanced main to 791adad02a
 
 
 Post-Site-Assets local verification: npm ci/client generation PASS; root/API/web typecheck PASS; lint/diff check PASS. Fresh private pmsbar_assets applies all 74 migrations. Critical financial suite: 42 PASS/1 OWNER auth 5000ms timeout; isolated actual-session auth repeat: all 4 PASS (39 remaining financial cases passed in the first run). No timeout, skip or assertion changes. Final full CI must prove the synced candidate as a whole.
+
+## UUID reference canonicalization, final review
+
+The existing API accepts UUID references in either case. Review reproduced first uppercase requests failing with 500 and opposite-case retries failing with 409 across supplier payment, write-off, retail and Folio operations. Registry payload references now use PostgreSQL canonical lowercase identity; opaque operation keys retain their original case. No SQL, migration, money or scope-policy changes were made.
+
+Recorded RED `2026-10-07T18-20-36Z-integration-dd69`: all 8 new cases failed; 21 other cases were filtered, with no new skip declarations. Recorded GREEN `2026-10-07T18-22-49Z-integration-9945`: all 29 replay, race, rollback and UUID cases passed. Both runs have `codeChangedDuringRun=false`.
+
+The complete release-checks run [37660711921](https://github.com/GAIVER007/wetop.ai/actions/runs/37660711921) passed on historical candidate `7316061bd4ba4257d746565b8d610cd445392ec0`: 3981 unit, 953 integration, 1757 bot, 53 site, 4 onboarding, 26 authenticated e2e, 9 BAR browser, 39 Branches, 13 Food and 10 Beauty tests, all three shared UI shards and the UI gate. All 74 migrations applied, schema drift and all-down rehearsal passed. This is predecessor evidence; the UUID repair requires a new complete CI run on its published head before readiness.

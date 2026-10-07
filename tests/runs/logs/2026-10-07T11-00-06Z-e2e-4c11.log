@@ -1,0 +1,64 @@
+# Сквозные (e2e) · 07.10.2026 16:00 Алматы · MacBook-Air-Urij.local
+# коммит 7c101e5 (codex/onboarding-u07-current-20261007), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' '--grep' 'before503'
+[WebServer] (node:3366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:3438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/onboarding-full/recovery.spec.ts:16:3 › U07 before503: retains draft, retries and persists once (2.5m)
+
+
+  1) tests/onboarding-full/recovery.spec.ts:16:3 › U07 before503: retains draft, retries and persists once 
+
+    Test timeout of 150000ms exceeded while running "beforeEach" hook.
+
+      1 | import { test, expect } from '@playwright/test';
+      2 | const qa = 'http://127.0.0.1:55825';
+    > 3 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      4 |   const fixture = await (await request.post(`${qa}/__qa/reset`, { data: {} })).json();
+      5 |   await page.goto('/auth/fallback');
+      6 |   await page.getByRole('main').getByLabel('Email', { exact: true }).fill(fixture.email);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/onboarding-full/recovery.spec.ts:3:6
+
+    Error: locator.click: Test timeout of 150000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Продолжить', exact: true })
+
+
+       7 |   await page.getByRole('main').getByLabel('Пароль', { exact: true }).fill(fixture.password);
+       8 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    >  9 |   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
+         |                                                                       ^
+      10 |   await expect(page.getByRole('main').getByLabel('Название бизнеса')).toBeVisible();
+      11 | });
+      12 | test.afterAll(async ({ request }) =>
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/onboarding-full/recovery.spec.ts:9:71
+
+    Error Context: test-results/recovery-U07-before503-ret-eaf06-t-retries-and-persists-once/error-context.md
+
+    Error Context: test-results/recovery-U07-before503-ret-eaf06-t-retries-and-persists-once/error-context.md
+
+  1 failed
+    tests/onboarding-full/recovery.spec.ts:16:3 › U07 before503: retains draft, retries and persists once 
+
+# код выхода 1 · 2 мин 44 с

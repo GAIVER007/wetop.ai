@@ -7182,3 +7182,12 @@
 | 07.10.2026 15:52 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 400f5c1 +3 | [лог](logs/2026-10-07T10-52-09Z-unit-f1f8.log) |  |
 | 07.10.2026 15:52 | typecheck | ✅ без ошибок | 51 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-52-11Z-typecheck-f590.log) |  |
 | 07.10.2026 15:53 | lint | ✅ без ошибок | 29 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-53-03Z-lint-7f84.log) |  |
+| 07.10.2026 15:58 | unit (частично: apps/web/src/app/login/signed-in.test.ts) | ❌ упало 3 из 12 | 5 с | 7c101e5 +1 | [лог](logs/2026-10-07T10-58-58Z-unit-d743.log) | API 503 is not a revoked session |
+| 07.10.2026 16:00 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --grep before503) | ❌ упало 1 из 1 | 2 мин 44 с | 7c101e5 +1 | [лог](logs/2026-10-07T11-00-06Z-e2e-4c11.log) | U07 before503: retains draft, retries and persists once |
+| 07.10.2026 16:03 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1 --grep before503) | ❌ упало 1 из 1 | 2 мин 38 с | 7c101e5 +1 | [лог](logs/2026-10-07T11-03-18Z-e2e-dec3.log) | U07 before503: retains draft, retries and persists once |
+| 07.10.2026 16:06 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1 --grep before503) | ❌ упало 1 из 1 | 1 мин 30 с | 7c101e5 +1 | [лог](logs/2026-10-07T11-06-16Z-e2e-45cf.log) | U07 before503: retains draft, retries and persists once |
+| 07.10.2026 16:08 | unit (частично: apps/web/src/app/login/signed-in.test.ts apps/web/src/app/register/setup/command.test.ts apps/web/src/app/register/setup/progress/route.test.ts) | ✅ 29 из 29 | 2 с | 7c101e5 +9 | [лог](logs/2026-10-07T11-08-41Z-unit-d2f3.log) |  |
+| 07.10.2026 16:09 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1 --grep before503\|lost next\|409 preserves) | ✅ 3 из 3 | 16 с | 7c101e5 +9 | [лог](logs/2026-10-07T11-09-10Z-e2e-ec09.log) |  |
+| 07.10.2026 16:12 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1) | ✅ 23 из 23 | 1 мин 45 с | 7c101e5 +9 | [лог](logs/2026-10-07T11-12-29Z-e2e-fb66.log) |  |
+| 07.10.2026 16:14 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1 --grep Food mobile) | ✅ 1 из 1 | 13 с | 7c101e5 +9 | [лог](logs/2026-10-07T11-14-39Z-e2e-2eb0.log) |  |
+| 07.10.2026 16:16 | e2e (частично: --config tests/onboarding-full/playwright.config.ts --workers=1) | ✅ 24 из 24 | 1 мин 45 с | 7c101e5 +9 | [лог](logs/2026-10-07T11-16-30Z-e2e-e316.log) |  |

@@ -7277,3 +7277,7 @@
 | 07.10.2026 17:49 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ✅ 10 из 10 | 3 мин 30 с | 4cb3746 | [лог](logs/2026-10-07T12-49-57Z-e2e-d126.log) | beauty-ui on DS0a merged with main 867a3914 |
 | 07.10.2026 17:53 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ❌ упало 1 из 13 | 3 мин 1 с | a530f50 | [лог](logs/2026-10-07T12-53-28Z-e2e-db4a.log) | food-ui on DS0a merged with main 867a3914 |
 | 07.10.2026 17:56 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 28 из 28 | 2 мин 4 с | a530f50 | [лог](logs/2026-10-07T12-56-31Z-e2e-54ae.log) | branches-ui on DS0a merged with main 867a3914 |
+| 07.10.2026 18:09 | typecheck | ✅ без ошибок | 57 с | b47697c | [лог](logs/2026-10-07T13-09-19Z-typecheck-8f02.log) |  |
+| 07.10.2026 18:10 | lint | ✅ без ошибок | 53 с | b47697c | [лог](logs/2026-10-07T13-10-16Z-lint-c321.log) |  |
+| 07.10.2026 18:11 | unit | ✅ 3819 из 3822, пропущено 3 | 2 мин 36 с | b47697c | [лог](logs/2026-10-07T13-11-11Z-unit-5bf9.log) |  |
+| 07.10.2026 18:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1250 tests/ui/booking-widget-turnstile.spec.ts tests/ui/chessboard- | ✅ 28 из 28 | 4 мин 10 с | b47697c | [лог](logs/2026-10-07T13-14-03Z-e2e-e8a2.log) | targeted after sync with main c22aeae9 |

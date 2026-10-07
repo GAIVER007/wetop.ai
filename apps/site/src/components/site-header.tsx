@@ -2,7 +2,6 @@ import { ThemeToggle } from './theme-toggle';
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
 import { loginLink, registerLink } from '../lib/site';
-import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { MobileMenu } from './mobile-menu';
 
@@ -10,24 +9,19 @@ export function SiteHeader() {
   const t = getDictionary();
   const login = loginLink();
   const register = registerLink();
-  // Якоря ведут на главную: из блога ссылка «Возможности» открывает главную сразу на нужном разделе.
-  // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
-  const hasPosts = getPublishedPosts().length > 0;
-  // Пункты меню повторяют блоки главной (plans/site-home-clear-blocks-2026-10-01.md): для кого, что умеет,
-  // откуда брони, как начать.
   const links = [
+    { href: '/#product', label: t.nav.product },
     { href: '/#audience', label: t.nav.audience },
     { href: '/#features', label: t.nav.features },
-    { href: '/#sales', label: t.nav.sales },
+    { href: '/#ai-sellers', label: t.nav.ai },
     { href: '/#start', label: t.nav.start },
-    ...(hasPosts ? [{ href: '/blog/', label: t.nav.blog }] : []),
   ];
 
   return (
-    <header className="site-header">
+    <header className="site-header public-header">
       <div className="container site-header__inner">
         <Link href="/" className="site-header__brand" aria-label={t.a11y.home}>
-          <Wordmark />
+          <Wordmark withDomain />
         </Link>
         <nav className="site-nav" aria-label={t.a11y.mainNav}>
           <ul>
@@ -48,7 +42,7 @@ export function SiteHeader() {
             {t.nav.login}
           </a>
           <a
-            className="btn btn--primary btn--sm site-header__register"
+            className="public-intro__primary site-header__register"
             href={register.href}
             data-auth="register"
           >

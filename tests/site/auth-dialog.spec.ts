@@ -133,7 +133,7 @@ test('стойка недоступна — окно говорит об это�
   );
 });
 
-test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({
+test('«Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма', async ({
   page,
 }) => {
   const calls = await mockDesk(page, {
@@ -146,8 +146,8 @@ test('«Получить доступ» при открытой регистра
   });
   await page.goto('/');
   await page
-    .locator('.hero')
-    .getByRole('link', { name: /Получить доступ/ })
+    .locator('.public-intro')
+    .getByRole('link', { name: /Регистрация/ })
     .click();
 
   const dialog = page.getByRole('dialog');
@@ -225,7 +225,7 @@ test('на телефоне окно открывается из меню и н�
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/');
   await page.getByRole('button', { name: 'Меню' }).click();
-  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Получить доступ' }).click();
+  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Регистрация' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   const box = await dialog.boundingBox();
@@ -239,7 +239,7 @@ test('на телефоне окно открывается из меню и н�
 /** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
 test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
-  const report = 'reports/mv2-registration-2026-10-04/screenshots';
+  const report = 'reports/public-homepage-v2-slice1-2026-10-07/test-screenshots';
   mkdirSync(report, { recursive: true });
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });

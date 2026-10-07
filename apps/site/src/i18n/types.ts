@@ -20,6 +20,8 @@ export type Dictionary = {
     menu: string;
   };
   nav: {
+    product: string;
+    ai: string;
     audience: string;
     features: string;
     sales: string;
@@ -52,6 +54,34 @@ export type Dictionary = {
    * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
    * Три факта, которые раньше висели под чертой на первом экране, живут здесь. Обещаний и цифр нет (§19.9).
    */
+  intro: {
+    availability: string;
+    previewLabel: string;
+    previewTitle: string;
+    previewContext: string;
+    previewDate: string;
+    previewWorkspace: string;
+    previewNav: string[];
+    eventsTitle: string;
+    events: Array<{ time: string; title: string; detail: string; status: string }>;
+    attentionTitle: string;
+    attention: Array<{ title: string; detail: string }>;
+    verticalTitle: string;
+    verticalLead: string;
+    available: string;
+    pilot: string;
+    pilotConditions: string;
+    invitation: string;
+    cards: Array<{
+      id: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+      icon: IconName;
+      title: string;
+      name: string;
+      text: string;
+      capabilities: string[];
+      note: string;
+    }>;
+  };
   facts: {
     label: string;
     items: Array<{ icon: IconName; title: string; text: string }>;

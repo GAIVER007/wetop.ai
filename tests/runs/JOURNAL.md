@@ -7244,3 +7244,13 @@
 | 07.10.2026 17:06 | unit | ✅ 3790 из 3793, пропущено 3 | 2 мин 26 с | fe3b723 | [лог](logs/2026-10-07T12-06-54Z-unit-9647.log) | MKT6 доводка, вершина после main e0089a23 |
 | 07.10.2026 17:09 | typecheck | ✅ без ошибок | 56 с | d4e95a1 | [лог](logs/2026-10-07T12-09-54Z-typecheck-46db.log) | MKT6 доводка, вершина после main 94a2ae33 |
 | 07.10.2026 17:10 | lint | ✅ без ошибок | 55 с | d4e95a1 | [лог](logs/2026-10-07T12-10-52Z-lint-abea.log) | MKT6 доводка, вершина после main 94a2ae33 |
+| 07.10.2026 17:38 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 8 из 8 | 1 мин 41 с | 867a391 | [лог](logs/2026-10-07T12-38-50Z-e2e-180f.log) | public intro: dark, 320 |
+| 07.10.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ⏹ прерван | 45 с | 867a391 +10 | [лог](logs/2026-10-07T12-42-45Z-e2e-c115.log) |  |
+| 07.10.2026 17:44 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 2 из 8 | 14 с | 867a391 +10 | [лог](logs/2026-10-07T12-44-20Z-e2e-0c60.log) | public intro: dark, 1440 |
+| 07.10.2026 17:45 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 61 | 27 с | 867a391 +10 | [лог](logs/2026-10-07T12-45-24Z-e2e-8b44.log) | в текстах главной нет длинного тире и разделителя « · » |
+| 07.10.2026 17:46 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 61 из 61 | 1 мин | 867a391 +10 | [лог](logs/2026-10-07T12-46-18Z-e2e-00fc.log) |  |
+| 07.10.2026 17:47 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 4 с | 867a391 +10 | [лог](logs/2026-10-07T12-47-32Z-unit-a482.log) |  |
+| 07.10.2026 17:47 | e2e (частично: --config tests/ui/playwright.auth.config.ts) | ❌ упало 4 из 7 | 1 мин 57 с | 867a391 +10 | [лог](logs/2026-10-07T12-47-47Z-e2e-b781.log) | защищённая /today: главная → реальная cookie → исходный экран |
+| 07.10.2026 17:50 | e2e (частично: --config tests/ui/playwright.auth.config.ts --grep защищённая /today) | ❌ упало 1 из 1 | 24 с | 867a391 +1 | [лог](logs/2026-10-07T12-50-01Z-e2e-68ef.log) | защищённая /today: главная → реальная cookie → исходный экран |
+| 07.10.2026 17:51 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 63 из 63 | 24 с | 867a391 +10 | [лог](logs/2026-10-07T12-51-42Z-e2e-6e4f.log) |  |
+| 07.10.2026 17:52 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 2 с | 867a391 +10 | [лог](logs/2026-10-07T12-52-59Z-unit-51c5.log) |  |

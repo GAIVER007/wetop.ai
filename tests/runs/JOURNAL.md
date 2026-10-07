@@ -7402,3 +7402,8 @@
 | 07.10.2026 20:02 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 22 с | f7f121f +8 | [лог](logs/2026-10-07T15-02-22Z-e2e-0fd3.log) |  |
 | 07.10.2026 20:02 | unit (частично: apps/sites/src/worker.test.ts) | ❌ упало 4 из 32 | 2 с | f7f121f +5 | [лог](logs/2026-10-07T15-02-51Z-unit-ad5f.log) | red: превью без токена в ссылках, база сайтов без проверки Q-271 |
 | 07.10.2026 20:02 | unit (частично: apps/sites/src/worker.test.ts) | ✅ 32 из 32 | 3 с | f7f121f +8 | [лог](logs/2026-10-07T15-02-55Z-unit-1c9c.log) |  |
+| 07.10.2026 20:03 | typecheck | ✅ без ошибок | 53 с | 273d631 | [лог](logs/2026-10-07T15-03-23Z-typecheck-0e68.log) |  |
+| 07.10.2026 20:04 | lint | ✅ без ошибок | 53 с | 273d631 | [лог](logs/2026-10-07T15-04-17Z-lint-0f32.log) |  |
+| 07.10.2026 20:05 | unit | ✅ 3894 из 3897, пропущено 3 | 2 мин 22 с | 273d631 | [лог](logs/2026-10-07T15-05-11Z-unit-2bb6.log) |  |
+| 07.10.2026 20:07 | integration | ✅ 893 из 893 | 3 мин 14 с | 273d631 | [лог](logs/2026-10-07T15-07-39Z-integration-dfcf.log) |  |
+| 07.10.2026 20:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts tests/ui/website.spec.ts --workers=1) | ✅ 34 из 34 | 4 мин 24 с | 273d631 | [лог](logs/2026-10-07T15-17-44Z-e2e-d942.log) |  |

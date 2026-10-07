@@ -1,3 +1,4 @@
+import '../hotel-settings/settings.css';
 import Link from 'next/link';
 import type { TrackedSiteCard } from '../../lib/api';
 import { EmptyState, Notice, Stack } from '../../components/ui';

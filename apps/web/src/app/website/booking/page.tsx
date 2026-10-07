@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import Link from 'next/link';
 import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';

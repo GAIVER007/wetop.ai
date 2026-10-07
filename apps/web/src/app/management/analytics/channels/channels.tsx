@@ -1,3 +1,4 @@
+import '../../../today/dashboard.css';
 import Link from 'next/link';
 import type { ChannelEfficiency, ChannelEfficiencyRow, ChannelEfficiencySort } from '@pms/domain';
 import { ApiError, dashboardApi } from '../../../../lib/api';

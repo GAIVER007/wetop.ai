@@ -1,3 +1,4 @@
+import './desk.css';
 import Link from 'next/link';
 import { type Chessboard, type DeskDay, type DeskRow, type GuardStatus } from '../../lib/api';
 import { formatMoney } from '../../lib/money';

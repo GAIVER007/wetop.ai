@@ -1,612 +1,598 @@
-.fund-tabs {
-  display: flex;
-  gap: 24px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-  overflow-x: auto;
-}
-.fund-tabs a {
-  padding: var(--space-4) 0;
-  white-space: nowrap;
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-}
-.fund-tabs a[aria-current='page'] {
-  color: var(--primary);
-  border-color: var(--primary);
-}
-.fund-toolbar,
-.fund-search,
-.fund-result-heading,
-.fund-footer {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin: var(--space-6) 0;
-}
-.fund-toolbar .inp {
-  width: auto;
-  min-width: 180px;
-  max-width: 100%;
-}
-.fund-toolbar > .btn:last-child {
-  margin-left: auto;
-}
-.fund-search {
-  padding: var(--space-6);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  align-items: flex-end;
-}
-.fund-search .field {
-  min-width: 190px;
-  flex: 0 1 240px;
-}
-.fund-search input {
-  min-width: 0;
-  width: 100%;
-}
-.fund-presets {
-  display: flex;
-  gap: 16px;
-  align-self: center;
-  padding-top: var(--space-6);
-}
-.fund-availability article {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  min-width: 0;
-}
-/* Таблица категорий (ТЗ «Категории v2» C1, ADR-109) */
-.fund-toolbar .chips {
-  margin: 0;
-}
-/* Название — кнопка панели категории (C2): читается как название, а не как кнопка */
-.fund-cat-open {
-  appearance: none;
-  border: 0;
-  background: none;
-  padding: 0;
-  min-height: 24px;
-  font: inherit;
-  font-weight: 600;
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
-}
-.fund-cat-open:hover {
-  text-decoration: underline;
-}
-.fund-cat-table tbody tr {
-  cursor: pointer;
-}
-.fund-view {
-  margin-left: auto;
-}
-.fund-cat-cards {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
-  gap: var(--space-4);
-}
-.fund-cat-card {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-  padding: var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-.fund-cat-card:hover {
-  background: var(--row-hover);
-}
-.fund-cat-card-top,
-.fund-cat-card-facts {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-.fund-cat-card-top {
-  align-items: flex-start;
-}
-.fund-cat-card-facts {
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-/* Форма категории (C3, ADR-119): тип и тариф — варианты рамкой, выбранный — рамка --primary */
-.fund-choice {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.fund-choice legend {
-  margin-bottom: var(--space-2);
-  padding: 0;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--text-2);
-}
-.fund-choice__option {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-control);
-  cursor: pointer;
-}
-.fund-choice__option:has(input:checked) {
-  border-color: var(--primary);
-}
-.fund-choice__option span {
-  display: grid;
-  gap: var(--space-1);
-}
-.fund-choice__option small {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.fund-created-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
-/* «Эту категорию используют» в правке категории (C4, ТЗ §17): подзаголовок как в панели, список с маркерами */
-.fund-usage {
-  display: grid;
-  gap: var(--space-2);
-}
-.fund-usage h3 {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-.fund-usage ul {
-  margin: 0;
-  padding-left: var(--space-6);
-}
-/* Панель категории (C2, ТЗ §9) */
-.fund-preview {
-  display: grid;
-  gap: var(--space-6);
-  padding: var(--space-6);
-  justify-items: start;
-}
-.fund-preview section {
-  display: grid;
-  gap: var(--space-2);
-  width: 100%;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border-soft);
-}
-.fund-preview h3 {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-.fund-preview p {
-  margin: 0;
-}
-.fund-preview .fund-members {
-  padding-top: 0;
-}
-.fund-preview-facts {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-}
-.fund-preview-facts div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-.fund-preview-facts dt {
-  color: var(--text-2);
-}
-.fund-preview-facts dd {
-  margin: 0;
-  font-weight: 600;
-  text-align: right;
-}
-.fund-preview-rates {
-  margin: 0;
-  padding-left: var(--space-6);
-}
-.fund-preview-actions,
-.fund-preview-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
-.fund-preview-footer {
-  width: 100%;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border-soft);
-}
-.fund-cat-kind {
-  color: var(--muted);
-  white-space: nowrap;
-}
-.fund-cat-capacity {
-  white-space: nowrap;
-}
-/* Значок типа продажи у названия — вместо отдельной колонки (упрощение 02.10) */
-/* ячейка остаётся ячейкой таблицы: `display: flex` на td отрывал её границу от строки */
-td.fund-cat-name svg {
-  vertical-align: -3px;
-  margin-right: var(--space-2);
-  color: var(--muted);
-}
-.fund-cat-kind svg {
-  vertical-align: -3px;
-  margin-right: var(--space-2);
-}
-.fund-members {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding-top: 16px;
-}
-.fund-members > a {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-}
-.fund-members > a:hover {
-  background: var(--primary-soft);
-}
-.fund-empty {
-  padding: 32px;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-  margin: var(--space-6) 0;
-}
-.fund-empty p {
-  color: var(--muted);
-  max-width: 640px;
-  line-height: 1.6;
-}
-.fund-form {
-  display: grid;
-  gap: var(--space-6);
-  padding: 24px;
-}
-.fund-form .field {
-  min-width: 0;
-}
-.fund-form .inp {
-  width: 100%;
-}
-.fund-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.fund-form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-4);
-}
-.fund-form p {
-  line-height: 1.6;
-}
-.fund-availability summary {
-  cursor: pointer;
-  padding: var(--space-4) 0;
-  color: var(--primary);
-  min-height: 44px;
-}
-.fund-result-heading {
-  justify-content: space-between;
-}
-.fund-result-heading h2 {
-  font-size: var(--text-2xl);
-  margin: 0;
-}
-.fund-result-heading p {
-  margin: 8px 0 0;
-}
-.fund-counts {
-  display: flex;
-  gap: 24px;
-}
-.fund-counts b {
-  font-size: var(--text-3xl);
-  margin-right: 8px;
-}
-.fund-availability {
-  display: grid;
-  gap: var(--space-4);
-}
-/* Компактные строки категорий вместо больших карточек (ADR-110, AV1) */
-.fund-availability article {
-  padding: var(--space-2) var(--space-4);
-}
-.fund-available-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-}
-.fund-available-row h3 {
-  font-size: var(--text-md);
-  margin: 4px 0;
-}
-.fund-available-count {
-  display: grid;
-  gap: var(--space-2);
-  text-align: right;
-  white-space: nowrap;
-}
-.fund-available-count b {
-  font-size: var(--text-2xl);
-  color: var(--primary);
-}
-.fund-row-note {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-}
-/* Цена «от» (ADR-110, AV2): итог за весь срок крупнее, цена ночи — подписью */
-.fund-price {
-  display: grid;
-  gap: var(--space-1);
-  margin-left: auto;
-  text-align: right;
-}
-.fund-price b {
-  font-size: var(--text-md);
-}
-.fund-price span {
-  font-size: var(--text-sm);
-}
-.fund-available-count span {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.fund-book-unit {
-  display: grid;
-  gap: 8px;
-  min-width: 150px;
-}
-.fund-book-unit span {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.fund-footer {
-  justify-content: space-between;
-}
-.fund-footer > span {
-  flex: 1;
-  min-width: 220px;
-}
-.inventory-card {
-  min-height: 100px;
-}
-.inventory-table td {
-  padding-top: var(--space-4);
-  padding-bottom: var(--space-4);
-}
-@media (max-width: 900px) {
-  .fund-counts {
-    gap: 16px;
-  }
-}
-@media (max-width: 600px) {
+@layer reset, tokens, base, components, sections, utilities;
+@layer sections {
   .fund-tabs {
-    gap: 16px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+    overflow-x: auto;
   }
-  .fund-toolbar .inp,
+  .fund-tabs a {
+    padding: var(--space-4) 0;
+    white-space: nowrap;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .fund-tabs a[aria-current='page'] {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+  .fund-toolbar,
+  .fund-search,
+  .fund-result-heading,
+  .fund-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: var(--space-6) 0;
+  }
+  .fund-toolbar .inp {
+    width: auto;
+    min-width: 180px;
+    max-width: 100%;
+  }
   .fund-toolbar > .btn:last-child {
-    width: 100%;
-    margin-left: 0;
+    margin-left: auto;
   }
   .fund-search {
-    padding: 16px;
-    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    align-items: flex-end;
   }
   .fund-search .field {
-    flex: 1 1 100%;
-    min-width: 0;
+    min-width: 190px;
+    flex: 0 1 240px;
   }
-  .fund-search > .btn {
+  .fund-search input {
+    min-width: 0;
     width: 100%;
   }
   .fund-presets {
-    padding-top: 0;
-    flex-wrap: wrap;
+    display: flex;
+    gap: 16px;
+    align-self: center;
+    padding-top: var(--space-6);
   }
   .fund-availability article {
-    padding: 16px;
-  }
-  .fund-form,
-  .fund-preview {
-    padding: 16px;
-  }
-  .fund-choice__option {
-    min-height: var(--touch-target);
-  }
-  /* Строка таблицы категорий складывается в карточку (приём .dir-table, DESIGN.md §8) */
-  .tbl.fund-cat-table,
-  .fund-cat-table tbody {
-    display: block;
-    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
     min-width: 0;
+  } /* Таблица категорий (ТЗ «Категории v2» C1, ADR-109) */
+  .fund-toolbar .chips {
+    margin: 0;
+  } /* Название , кнопка панели категории (C2): читается как название, а не как кнопка */
+  .fund-cat-open {
+    appearance: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    min-height: 24px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
   }
-  .fund-cat-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .fund-cat-open:hover {
+    text-decoration: underline;
   }
   .fund-cat-table tbody tr {
+    cursor: pointer;
+  }
+  .fund-view {
+    margin-left: auto;
+  }
+  .fund-cat-cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
+    grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+    gap: var(--space-4);
   }
-  .fund-cat-table tbody tr:last-child {
-    border-bottom: 0;
+  .fund-cat-card {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
   }
-  .fund-cat-table tbody td {
-    display: block;
+  .fund-cat-card:hover {
+    background: var(--row-hover);
+  }
+  .fund-cat-card-top,
+  .fund-cat-card-facts {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .fund-cat-card-top {
+    align-items: flex-start;
+  }
+  .fund-cat-card-facts {
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  } /* Форма категории (C3, ADR-119): тип и тариф , варианты рамкой, выбранный , рамка --primary */
+  .fund-choice {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
     padding: 0;
     border: 0;
-    min-width: 0;
-    white-space: normal;
   }
-  .fund-cat-table tbody td.fund-cat-name {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: center;
+  .fund-choice legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-2);
   }
-  /* ссылки и название сложенной карточки — цель нажатия 44 px (§11; axe target-size на 390) */
-  .fund-cat-open,
-  .fund-cat-table tbody td.fund-cat-units a,
-  .fund-cat-table tbody td.fund-cat-rates a {
-    display: inline-flex;
+  .fund-choice__option {
+    display: flex;
     align-items: center;
-    min-height: var(--touch-target);
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    cursor: pointer;
   }
-  /* «Изменить» и «Удалить» на телефоне — отдельной строкой под фактами, цели 44 px */
-  .fund-cat-table tbody td.fund-cat-actions {
-    grid-column: 1 / -1;
-    grid-row: 4;
+  .fund-choice__option:has(input:checked) {
+    border-color: var(--primary);
   }
-  .fund-cat-table tbody td.fund-cat-index {
-    display: none;
+  .fund-choice__option span {
+    display: grid;
+    gap: var(--space-1);
   }
-  .fund-cat-ops .btn {
-    min-height: var(--touch-target);
-  }
-  .fund-cat-table tbody td.fund-cat-units {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .fund-cat-table tbody td.fund-cat-capacity {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
+  .fund-choice__option small {
+    font-size: var(--text-xs);
     color: var(--muted);
   }
-  .fund-cat-table tbody td.fund-cat-rates {
-    grid-column: 1;
-    grid-row: 3;
+  .fund-created-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  } /* «Эту категорию используют» в правке категории (C4, ТЗ §17): подзаголовок как в панели, список с маркерами */
+  .fund-usage {
+    display: grid;
+    gap: var(--space-2);
   }
-  .fund-cat-table tbody td.fund-cat-status {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
+  .fund-usage h3 {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .fund-usage ul {
+    margin: 0;
+    padding-left: var(--space-6);
+  } /* Панель категории (C2, ТЗ §9) */
+  .fund-preview {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    justify-items: start;
+  }
+  .fund-preview section {
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-soft);
+  }
+  .fund-preview h3 {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .fund-preview p {
+    margin: 0;
+  }
+  .fund-preview .fund-members {
+    padding-top: 0;
+  }
+  .fund-preview-facts {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .fund-preview-facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .fund-preview-facts dt {
+    color: var(--text-2);
+  }
+  .fund-preview-facts dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+  .fund-preview-actions,
+  .fund-preview-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .fund-preview-footer {
+    width: 100%;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-soft);
+  }
+  .fund-cat-kind {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .fund-cat-capacity {
+    white-space: nowrap;
+  } /* Значок типа продажи у названия , вместо отдельной колонки (упрощение 02.10) */ /* ячейка остаётся ячейкой таблицы: `display: flex` на td отрывал её границу от строки */
+  td.fund-cat-name svg {
+    vertical-align: -3px;
+    margin-right: var(--space-2);
+    color: var(--muted);
+  }
+  .fund-cat-kind svg {
+    vertical-align: -3px;
+    margin-right: var(--space-2);
+  }
+  .fund-members {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+  }
+  .fund-members > a {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+  .fund-members > a:hover {
+    background: var(--primary-soft);
+  }
+  .fund-empty {
+    padding: 32px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    margin: var(--space-6) 0;
+  }
+  .fund-empty p {
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.6;
+  }
+  .fund-form {
+    display: grid;
+    gap: var(--space-6);
+    padding: 24px;
+  }
+  .fund-form .field {
+    min-width: 0;
+  }
+  .fund-form .inp {
+    width: 100%;
   }
   .fund-form-row {
-    grid-template-columns: 1fr;
-  }
-  .fund-available-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .fund-price {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-    text-align: left;
-  }
-  .fund-available-row h3 {
-    font-size: var(--text-lg);
-  }
-  .fund-available-count span {
-    white-space: normal;
-    max-width: 75px;
-  }
-  .fund-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
-  .fund-category-actions > * {
-    flex: 1 1 auto;
+  .fund-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-4);
   }
-  .fund-footer > .btn {
-    width: 100%;
+  .fund-form p {
+    line-height: 1.6;
   }
-  .inventory-table {
-    min-width: 640px;
+  .fund-availability summary {
+    cursor: pointer;
+    padding: var(--space-4) 0;
+    color: var(--primary);
+    min-height: 44px;
   }
-}
-/* Места категории компактным списком (ADR-110, AV3): строка «код · состояние · Выбрать», не плитки */
-.fund-units {
-  display: grid;
-  gap: var(--space-4);
-  padding-bottom: var(--space-4);
-}
-.fund-units-action {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-}
-.fund-unit-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
-  gap: 0 var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fund-unit-list li {
-  display: grid;
-  grid-template-columns: 64px 1fr auto;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 40px;
-  border-bottom: 1px solid var(--border);
-  font-size: var(--text-sm);
-}
-.fund-unit-list b {
-  font-variant-numeric: tabular-nums;
-}
-/* Категории без мест на эти даты с ближайшей доступностью (ADR-110, AV4) */
-.fund-soldout {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-}
-.fund-soldout h2 {
-  font-size: var(--text-md);
-  margin: 0;
-  color: var(--muted);
-}
-
-/* «Категории номеров» как в прежней системе (план categories-price-2026-10-06): номер строки, цена, операции */
-.fund-cat-table .fund-cat-index {
-  width: 1%;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.fund-cat-price {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.fund-cat-ops {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: nowrap;
+  .fund-result-heading {
+    justify-content: space-between;
+  }
+  .fund-result-heading h2 {
+    font-size: var(--text-2xl);
+    margin: 0;
+  }
+  .fund-result-heading p {
+    margin: 8px 0 0;
+  }
+  .fund-counts {
+    display: flex;
+    gap: 24px;
+  }
+  .fund-counts b {
+    font-size: var(--text-3xl);
+    margin-right: 8px;
+  }
+  .fund-availability {
+    display: grid;
+    gap: var(--space-4);
+  } /* Компактные строки категорий вместо больших карточек (ADR-110, AV1) */
+  .fund-availability article {
+    padding: var(--space-2) var(--space-4);
+  }
+  .fund-available-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+  }
+  .fund-available-row h3 {
+    font-size: var(--text-md);
+    margin: 4px 0;
+  }
+  .fund-available-count {
+    display: grid;
+    gap: var(--space-2);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .fund-available-count b {
+    font-size: var(--text-2xl);
+    color: var(--primary);
+  }
+  .fund-row-note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+  } /* Цена «от» (ADR-110, AV2): итог за весь срок крупнее, цена ночи , подписью */
+  .fund-price {
+    display: grid;
+    gap: var(--space-1);
+    margin-left: auto;
+    text-align: right;
+  }
+  .fund-price b {
+    font-size: var(--text-md);
+  }
+  .fund-price span {
+    font-size: var(--text-sm);
+  }
+  .fund-available-count span {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .fund-book-unit {
+    display: grid;
+    gap: 8px;
+    min-width: 150px;
+  }
+  .fund-book-unit span {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .fund-footer {
+    justify-content: space-between;
+  }
+  .fund-footer > span {
+    flex: 1;
+    min-width: 220px;
+  }
+  .inventory-card {
+    min-height: 100px;
+    background: var(--surface-solid);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-radius: var(--radius);
+  }
+  .inventory-table td {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  @media (max-width: 900px) {
+    .fund-counts {
+      gap: 16px;
+    }
+  }
+  @media (max-width: 600px) {
+    .fund-tabs {
+      gap: 16px;
+    }
+    .fund-toolbar .inp,
+    .fund-toolbar > .btn:last-child {
+      width: 100%;
+      margin-left: 0;
+    }
+    .fund-search {
+      padding: 16px;
+      gap: var(--space-4);
+    }
+    .fund-search .field {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+    .fund-search > .btn {
+      width: 100%;
+    }
+    .fund-presets {
+      padding-top: 0;
+      flex-wrap: wrap;
+    }
+    .fund-availability article {
+      padding: 16px;
+    }
+    .fund-form,
+    .fund-preview {
+      padding: 16px;
+    }
+    .fund-choice__option {
+      min-height: var(--touch-target);
+    }
+    /* Строка таблицы категорий складывается в карточку (приём .dir-table, DESIGN.md §8) */
+    .tbl.fund-cat-table,
+    .fund-cat-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .fund-cat-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .fund-cat-table tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .fund-cat-table tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .fund-cat-table tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .fund-cat-table tbody td.fund-cat-name {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+    }
+    /* ссылки и название сложенной карточки , цель нажатия 44 px (§11; axe target-size на 390) */
+    .fund-cat-open,
+    .fund-cat-table tbody td.fund-cat-units a,
+    .fund-cat-table tbody td.fund-cat-rates a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+    /* «Изменить» и «Удалить» на телефоне , отдельной строкой под фактами, цели 44 px */
+    .fund-cat-table tbody td.fund-cat-actions {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+    .fund-cat-table tbody td.fund-cat-index {
+      display: none;
+    }
+    .fund-cat-ops .btn {
+      min-height: var(--touch-target);
+    }
+    .fund-cat-table tbody td.fund-cat-units {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .fund-cat-table tbody td.fund-cat-capacity {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .fund-cat-table tbody td.fund-cat-rates {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .fund-cat-table tbody td.fund-cat-status {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+    }
+    .fund-form-row {
+      grid-template-columns: 1fr;
+    }
+    .fund-available-row {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .fund-price {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
+      text-align: left;
+    }
+    .fund-available-row h3 {
+      font-size: var(--text-lg);
+    }
+    .fund-available-count span {
+      white-space: normal;
+      max-width: 75px;
+    }
+    .fund-footer > .btn {
+      width: 100%;
+    }
+    .inventory-table {
+      min-width: 640px;
+    }
+  } /* Места категории компактным списком (ADR-110, AV3): строка «код · состояние · Выбрать», не плитки */
+  .fund-units {
+    display: grid;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  .fund-units-action {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .fund-unit-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+    gap: 0 var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fund-unit-list li {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 40px;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-sm);
+  }
+  .fund-unit-list b {
+    font-variant-numeric: tabular-nums;
+  } /* Категории без мест на эти даты с ближайшей доступностью (ADR-110, AV4) */
+  .fund-soldout {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+  .fund-soldout h2 {
+    font-size: var(--text-md);
+    margin: 0;
+    color: var(--muted);
+  } /* «Категории номеров» как в прежней системе (план categories-price-2026-10-06): номер строки, цена, операции */
+  .fund-cat-table .fund-cat-index {
+    width: 1%;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .fund-cat-price {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .fund-cat-ops {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
 }

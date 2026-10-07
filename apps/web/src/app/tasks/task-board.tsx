@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import type { DeskTask, DeskTasksList } from '../../lib/api';

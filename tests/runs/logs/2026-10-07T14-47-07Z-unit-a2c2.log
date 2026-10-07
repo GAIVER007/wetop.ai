@@ -1,0 +1,22 @@
+# Модульные (unit) · 07.10.2026 19:47 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 94
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-47-07Z-unit-a2c2.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (2 tests) 46ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 253ms
+ ✓ |unit| tests/unit/css-foundation.test.ts (9 tests) 188ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 21ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 1082ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 324ms
+
+ Test Files  5 passed (5)
+      Tests  60 passed (60)
+   Start at  18:47:10
+   Duration  1.60s (import 41%, tests 40%, transform 17%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-47-07Z-unit-a2c2.json
+
+# код выхода 0 · 5 с

@@ -1,3 +1,4 @@
+import '../../today/dashboard.css';
 import { cx } from '../../../components/ui';
 import { deltaPercent, deltaPoints, type Delta } from '../../../lib/dashboard-format';
 

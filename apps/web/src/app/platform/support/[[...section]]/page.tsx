@@ -1,3 +1,4 @@
+import '../../../hotel-settings/settings.css';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound, unstable_rethrow } from 'next/navigation';

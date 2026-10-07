@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import { useActionState } from 'react';
 import { EXTENSION_STATUSES } from '@pms/domain';
 import { DateInput } from '../../components/date-field';

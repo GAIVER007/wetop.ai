@@ -1,3 +1,4 @@
+import '../../today/dashboard.css';
 import Link from 'next/link';
 import { previousPeriod } from '@pms/domain';
 import { Button, cx } from '../../../components/ui';

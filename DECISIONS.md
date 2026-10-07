@@ -6071,3 +6071,21 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+
+## ADR-MV85-DS0B: явные слои и один владелец примитивов (07.10.2026)
+
+Проблема: globals/workspace/premium повторяют базовые примитивы, финальный glass.css
+скрывает их расхождения, а экранные стили глобально влияют на чужие маршруты.
+Варианты: продолжать поздние переопределения либо свести каскад по принятому контракту.
+Решение: слои reset, tokens, base, components, sections, utilities; primitives.css
+владеет семью базовыми примитивами и их состояниями. Общие потребители прежних
+экранных файлов сохранены в shared-sections.css; остальные импорты находятся у потребителей.
+Непрозрачные поверхности перенесены в определения, glass.css удалён.
+Геометрия из JS передаётся CSS-переменными, адаптация на телефоне не требует important.
+Причина: обычные правила вне слоя сильнее любого именованного слоя, поэтому перевод
+охватывает весь runtime CSS, кроме изолированной печати и витрины.
+Источник: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@layer
+Последствия: полный UI и три вертикальных набора, снимки до/после, контроль единственного
+владельца и слоёв. API, модель, деньги, статусы и доступность вертикалей не меняются.
+DS1 требует отдельной приёмки снимков DS0b. Production-миграции 062/063 в этот срез не входят.

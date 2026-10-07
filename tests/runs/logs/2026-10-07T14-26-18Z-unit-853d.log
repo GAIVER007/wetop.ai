@@ -1,0 +1,160 @@
+# Модульные (unit) · 07.10.2026 19:26 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-26-18Z-unit-853d.json' 'tests/unit/css-foundation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ❯ |unit| tests/unit/css-foundation.test.ts (7 tests | 7 failed) 54ms
+   ❯ DS0b: one owner for each base primitive (7)
+     × .btn has one unconditional definition 17ms
+     × .panel has one unconditional definition 6ms
+     × .stat has one unconditional definition 6ms
+     × .tbl has one unconditional definition 5ms
+     × .page__title has one unconditional definition 5ms
+     × .seg has one unconditional definition 10ms
+     × .badge has one unconditional definition 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .btn has one unconditional definition
+AssertionError: .btn: expected [ …(3) ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .panel has one unconditional definition
+AssertionError: .panel: expected [ Array(5) ] to have a length of 1 but got 5
+
+- Expected
++ Received
+
+- 1
++ 5
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .stat has one unconditional definition
+AssertionError: .stat: expected [ Array(5) ] to have a length of 1 but got 5
+
+- Expected
++ Received
+
+- 1
++ 5
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .tbl has one unconditional definition
+AssertionError: .tbl: expected [ …(3) ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .page__title has one unconditional definition
+AssertionError: .page__title: expected [ …(3) ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .seg has one unconditional definition
+AssertionError: .seg: expected [ …(3) ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > DS0b: one owner for each base primitive > .badge has one unconditional definition
+AssertionError: .badge: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/unit/css-foundation.test.ts:31:32
+     29|         });
+     30|       }
+     31|       expect(owners, selector).toHaveLength(1);
+       |                                ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  18:26:19
+   Duration  254ms (import 49%, tests 39%, transform 10%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-26-18Z-unit-853d.json
+
+# код выхода 1 · 2 с

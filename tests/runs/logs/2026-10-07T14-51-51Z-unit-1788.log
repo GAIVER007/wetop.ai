@@ -1,0 +1,43 @@
+# Модульные (unit) · 07.10.2026 19:51 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 94
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-51-51Z-unit-1788.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (2 tests) 182ms
+ ❯ |unit| tests/unit/css-foundation.test.ts (9 tests | 1 failed) 722ms
+   ✓ DS0b: one owner for each base primitive (7)
+     ✓ .btn has one unconditional definition 129ms
+     ✓ .panel has one unconditional definition 241ms
+     ✓ .stat has one unconditional definition 21ms
+     ✓ .tbl has one unconditional definition 23ms
+     ✓ .page__title has one unconditional definition 103ms
+     ✓ .seg has one unconditional definition 68ms
+     ✓ .badge has one unconditional definition 115ms
+   × runtime selectors participate in the cascade and important is restricted to documented utilities 12ms
+   ✓ the root establishes layer precedence and does not globally import route styles 3ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 49ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/css-foundation.test.ts > runtime selectors participate in the cascade and important is restricted to documented utilities
+TypeError: css.first is not a function
+ ❯ tests/unit/css-foundation.test.ts:41:16
+     39|   for (const { file, css } of sheets) {
+     40|     if (file === 'app/tokens.css') continue; // Imported with layer(to…
+     41|     expect(css.first()?.toString(), file).toBe('@layer reset, tokens, …
+       |                ^
+     42|     css.walkRules((rule) => {
+     43|       let parent = rule.parent;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 27 passed (28)
+   Start at  18:51:57
+   Duration  2.74s (import 61%, tests 21%, transform 14%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-51-51Z-unit-1788.json
+
+# код выхода 1 · 9 с

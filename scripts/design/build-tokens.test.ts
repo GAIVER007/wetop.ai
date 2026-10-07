@@ -1,5 +1,4 @@
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
@@ -57,16 +56,10 @@ describe('tokens.css генерируется из design/tokens.json', () => {
   });
   it('имена переменных прежние: ни одна var(--…) стойки не осталась без определения', () => {
     // только стойка: у главной wetop.ai (apps/site) свои токены
-    const files = execFileSync(
-      'git',
-      ['ls-files', '--', 'apps/web/src/*.css', 'apps/web/src/*.tsx'],
-      {
-        cwd: ROOT,
-        encoding: 'utf8',
-      },
-    )
-      .split('\n')
-      .filter(Boolean);
+    const files = readdirSync(resolve(ROOT, 'apps/web/src'), { recursive: true })
+      .map(String)
+      .filter((file) => /\.(css|tsx)$/.test(file))
+      .map((file) => `apps/web/src/${file}`);
     const used = new Set<string>();
     const defined = new Set(tree.tokens.map((t) => t.cssVar));
     for (const f of files) {
@@ -74,6 +67,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       for (const m of source.matchAll(/var\((--[a-z0-9-]+)/g)) used.add(m[1]!);
       // Inline CSS properties count only when their declaration exists in component source.
       for (const m of source.matchAll(/['"](--[a-z0-9-]+)['"]\s*:/g)) defined.add(m[1]!);
+      for (const m of source.matchAll(/\.setProperty\(['"](--[a-z0-9-]+)['"]/g)) defined.add(m[1]!);
     }
     // переменные, которые страницы объявляют сами: локальные размеры сетки и цвет точки бейджа
     const local = new Set([

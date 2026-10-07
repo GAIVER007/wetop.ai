@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { formatOccupancy, formatPoints } from '@pms/domain';
 import { useRouter } from 'next/navigation';

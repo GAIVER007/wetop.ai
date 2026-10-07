@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import { analyticsApi, type TrackedSiteCard } from '../../../lib/api';
 import { propertyClock } from '../../../lib/property-time';
 import { WEBSITE_TITLE, siteState, type SiteState } from '../../../lib/website';

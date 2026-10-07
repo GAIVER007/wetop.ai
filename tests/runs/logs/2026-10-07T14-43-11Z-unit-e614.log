@@ -1,0 +1,260 @@
+# Модульные (unit) · 07.10.2026 19:43 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 89
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-43-11Z-unit-e614.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/design-rules.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ❯ |unit| tests/unit/desk-glass.test.ts (0 test)
+ ✓ |unit| tests/unit/css-foundation.test.ts (7 tests) 127ms
+ ❯ |unit| tests/unit/design-slop.test.ts (17 tests | 8 failed) 28ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (17)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 3ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 12ms
+     × uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 2ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 1ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 1ms
+     × font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 1ms
+     × space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 1ms
+     ✓ inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 0ms
+     × breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 1ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     ✓ orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 0ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (17 tests | 1 failed) 680ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 65ms
+     ✓ шрифта мельче 12 px нет 96ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 80ms
+     ✓ литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 29ms
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 82ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 46ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 82ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 22ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 55ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 71ms
+   ❯ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     × «перейти к содержимому» на --primary пишется цветом --on-primary 7ms
+     ✓ в календаре инлайн-фон клетки — backgroundColor, не сокращение background 4ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 35ms
+   ✓ DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid) (4)
+     ✓ наведение меняет фон, а не текст или границу 0ms
+     ✓ отключённое поле приглушено прозрачностью, а серый фон остаётся признаком readOnly 0ms
+     ✓ поле ввода имеет стили disabled и aria-invalid 0ms
+     ✓ Field связывает hint и error с контролом 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/desk-glass.test.ts [ tests/unit/desk-glass.test.ts ]
+Error: ENOENT: no such file or directory, open '/private/tmp/wetop-public1-20261007/apps/web/src/app/glass.css'
+ ❯ tests/unit/desk-glass.test.ts:5:13
+      3| import { expect, it } from 'vitest';
+      4| const root = resolve(import.meta.dirname, '../..');
+      5| const css = readFileSync(resolve(root, 'apps/web/src/app/glass.css'), …
+       |             ^
+      6| it('shared surfaces have no decorative gradients, white inset rim or b…
+      7|   expect(css).not.toMatch(/(?:radial|linear)-gradient\(/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/primitives.css: 0 → 25",
++   "apps/web/src/components/shared-sections.css: 0 → 20",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase
+AssertionError: нарушений стало меньше — обновите снимок: DESIGN_SLOP_UPDATE=1: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/today/dashboard.css: 1 → 0",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:31:88
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+       |                                                                                        ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/shared-sections.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/primitives.css: 0 → 1",
++   "apps/web/src/components/shared-sections.css: 0 → 6",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: нарушений стало меньше — обновите снимок: DESIGN_SLOP_UPDATE=1: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/premium.css: 5 → 4",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:31:88
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+       |                                                                                        ^
+     32|     });
+     33|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/primitives.css: 0 → 6",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/primitives.css: 0 → 42",
++   "apps/web/src/components/shared-sections.css: 0 → 34",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/primitives.css: 0 → 1",
++   "apps/web/src/components/shared-sections.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > план дизайн-системы §10: попутные дефекты не возвращаются > «перейти к содержимому» на --primary пишется цветом --on-primary
+AssertionError: .skip-link есть в workspace.css: expected undefined to be defined
+ ❯ apps/web/src/design-rules.test.ts:173:53
+    171|       (r) => r.selector === '.skip-link',
+    172|     );
+    173|     expect(rule, '.skip-link есть в workspace.css').toBeDefined();
+       |                                                     ^
+    174|     expect(rule!.body).toMatch(/color:\s*var\(--on-primary\)/);
+    175|     expect(rule!.body).not.toMatch(/color:\s*var\(--muted\)/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  9 failed | 32 passed (41)
+   Start at  18:43:13
+   Duration  1.01s (import 44%, tests 43%, transform 12%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-43-11Z-unit-e614.json
+
+# код выхода 1 · 3 с

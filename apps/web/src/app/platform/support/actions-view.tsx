@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import { Badge, PanelTitle } from '../../../components/ui';
 import { PLATFORM_TIMEZONE } from '@pms/domain';
 import { supportApi } from '../../../lib/api';

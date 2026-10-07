@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { CashBalances, CashCategory } from '../../lib/api';

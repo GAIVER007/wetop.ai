@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import Link from 'next/link';
 import type { DashboardFund } from '@pms/domain';
 import { ANALYTICS_PATH } from './params';

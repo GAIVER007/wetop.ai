@@ -1,0 +1,629 @@
+# Сквозные (e2e) · 07.10.2026 19:47 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 92
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/css-foundation.spec.ts' '--workers=1'
+[WebServer] (node:10922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:11222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 light (1.6m)
+(node:12316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 dark (24.2s)
+(node:12936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 light (14.1s)
+(node:13480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 dark (45.8s)
+
+
+  1) tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 light ──────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 118
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.02,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#085fba",
+    +               "parentColor": "#b9293e",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #b9293e)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #b9293e)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"#unassigned-stays\">Разрешить</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href$=\"#unassigned-stays\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.17,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#085fba",
+    +               "parentColor": "#94600b",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #94600b)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #94600b)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/channels/events?status=FAILED\">Разобрать</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/channels/events?status=FAILED\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      25 |         await expect(page.getByRole('main')).not.toContainText('Филиал недоступен');
+      26 |         expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    > 27 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                       ^
+      28 |         await page.screenshot({
+      29 |           path: `${shots}/hospitality/${name}-${width}-${theme}.png`,
+      30 |           fullPage: true,
+        at /private/tmp/wetop-public1-20261007/tests/ui/css-foundation.spec.ts:27:71
+
+    Error Context: test-results/css-foundation-CSS-foundation-hospitality-1440-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/css-foundation-CSS-foundation-hospitality-1440-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/css-foundation-CSS-foundation-hospitality-1440-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 dark ───────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 118
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.29,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#48a5ff",
+    +               "parentColor": "#ff9ba5",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.29:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #ff9ba5)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.29:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #ff9ba5)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"#unassigned-stays\">Разрешить</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href$=\"#unassigned-stays\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.48,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#48a5ff",
+    +               "parentColor": "#f6ba52",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.48:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #f6ba52)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.48:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #f6ba52)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/channels/events?status=FAILED\">Разобрать</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/channels/events?status=FAILED\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      25 |         await expect(page.getByRole('main')).not.toContainText('Филиал недоступен');
+      26 |         expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    > 27 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                       ^
+      28 |         await page.screenshot({
+      29 |           path: `${shots}/hospitality/${name}-${width}-${theme}.png`,
+      30 |           fullPage: true,
+        at /private/tmp/wetop-public1-20261007/tests/ui/css-foundation.spec.ts:27:71
+
+    Error Context: test-results/css-foundation-CSS-foundation-hospitality-1440-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/css-foundation-CSS-foundation-hospitality-1440-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/css-foundation-CSS-foundation-hospitality-1440-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 light ───────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 118
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.02,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#085fba",
+    +               "parentColor": "#b9293e",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #b9293e)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #b9293e)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"#unassigned-stays\">Разрешить</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href$=\"#unassigned-stays\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.17,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#085fba",
+    +               "parentColor": "#94600b",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #94600b)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #94600b)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/channels/events?status=FAILED\">Разобрать</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/channels/events?status=FAILED\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      25 |         await expect(page.getByRole('main')).not.toContainText('Филиал недоступен');
+      26 |         expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    > 27 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                       ^
+      28 |         await page.screenshot({
+      29 |           path: `${shots}/hospitality/${name}-${width}-${theme}.png`,
+      30 |           fullPage: true,
+        at /private/tmp/wetop-public1-20261007/tests/ui/css-foundation.spec.ts:27:71
+
+    Error Context: test-results/css-foundation-CSS-foundation-hospitality-390-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/css-foundation-CSS-foundation-hospitality-390-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/css-foundation-CSS-foundation-hospitality-390-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 dark ────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 118
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.29,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#48a5ff",
+    +               "parentColor": "#ff9ba5",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.29:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #ff9ba5)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--boxed\" data-testid=\"overbooked-callout\">Продано сверх мест: <!-- -->Мужской общий номер продан сверх мест на ночь 2026-10-07: 37 на 36<!-- -->.<!-- --> <a href=\"#unassigned-stays\">Разрешить</a></div>",
+    +                 "target": Array [
+    +                   "div[data-testid=\"overbooked-callout\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.29:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #ff9ba5)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"#unassigned-stays\">Разрешить</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href$=\"#unassigned-stays\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.48,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#48a5ff",
+    +               "parentColor": "#f6ba52",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.48:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #f6ba52)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div role=\"alert\" class=\"alert alert--warning alert--boxed\" data-testid=\"review-callout\">Входящая бронь требует разбора:<!-- --> <!-- -->1 ревизия<!-- --> из каналов не разобрана автоматически. <a href=\"/channels/events?status=FAILED\">Разобрать</a></div>",
+    +                 "target": Array [
+    +                   ".alert--warning",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.48:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #f6ba52)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/channels/events?status=FAILED\">Разобрать</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/channels/events?status=FAILED\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      25 |         await expect(page.getByRole('main')).not.toContainText('Филиал недоступен');
+      26 |         expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    > 27 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                       ^
+      28 |         await page.screenshot({
+      29 |           path: `${shots}/hospitality/${name}-${width}-${theme}.png`,
+      30 |           fullPage: true,
+        at /private/tmp/wetop-public1-20261007/tests/ui/css-foundation.spec.ts:27:71
+
+    Error Context: test-results/css-foundation-CSS-foundation-hospitality-390-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/css-foundation-CSS-foundation-hospitality-390-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/css-foundation-CSS-foundation-hospitality-390-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 light ───────────────────
+    tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 1440 dark ────────────────────
+    tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 light ────────────────────
+    tests/ui/css-foundation.spec.ts:14:5 › CSS foundation hospitality 390 dark ─────────────────────
+
+# код выхода 130 · 3 мин 45 с

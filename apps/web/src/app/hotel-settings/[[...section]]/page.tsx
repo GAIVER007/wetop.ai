@@ -1,3 +1,4 @@
+import '../settings.css';
 import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Suspense } from 'react';

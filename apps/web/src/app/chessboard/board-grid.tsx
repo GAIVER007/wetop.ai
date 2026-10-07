@@ -1010,22 +1010,31 @@ export function ChessboardGrid({
                   } as CSSProperties)
                 : fitWeek
                   ? undefined
-                  : { width: 190 + dayWidth * board.dates.length }),
-            } as CSSProperties
+                  : { '--board-width': `${190 + dayWidth * board.dates.length}px` }),
+            } as CSSProperties & Record<`--${string}`, string>
           }
         >
           <colgroup>
             <col
-              style={{
-                width: fitMonth
-                  ? 'var(--month-unit-width)'
-                  : fitWeek
-                    ? 'var(--week-unit-width)'
-                    : 190,
-              }}
+              style={
+                {
+                  '--board-col-width': fitMonth
+                    ? 'var(--month-unit-width)'
+                    : fitWeek
+                      ? 'var(--week-unit-width)'
+                      : '190px',
+                } as CSSProperties
+              }
             />
             {board.dates.map((date) => (
-              <col key={date} style={fitMonth || fitWeek ? undefined : { width: dayWidth }} />
+              <col
+                key={date}
+                style={
+                  fitMonth || fitWeek
+                    ? undefined
+                    : ({ '--board-col-width': `${dayWidth}px` } as CSSProperties)
+                }
+              />
             ))}
           </colgroup>
           <thead>

@@ -88,8 +88,8 @@ export function StayPreview({
       below + el.offsetHeight <= window.innerHeight - EDGE
         ? below
         : Math.max(EDGE, box.top - GAP - el.offsetHeight);
-    el.style.left = `${Math.max(EDGE, left)}px`;
-    el.style.top = `${top}px`;
+    el.style.setProperty('--preview-left', `${Math.max(EDGE, left)}px`);
+    el.style.setProperty('--preview-top', `${top}px`);
   }, [target, data]);
 
   useEffect(() => {

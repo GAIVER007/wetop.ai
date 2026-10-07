@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import Link from 'next/link';
 import { Page } from '../../../components/page';
 import { ChannelConnectionSetup } from '../../channels/connection-setup';

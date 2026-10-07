@@ -1,0 +1,83 @@
+# Модульные (unit) · 07.10.2026 19:46 Алматы · MacBook-Air-Urij.local
+# коммит 50f04c5 (codex/mv85-ds0b-css-foundation), незакоммиченных файлов набора: 92
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-46-06Z-unit-3ea3.json' 'tests/unit/css-foundation.test.ts' 'tests/unit/desk-glass.test.ts' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (2 tests) 54ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 2 failed) 240ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 14ms
+     × файл на диске совпадает с выводом генератора (ручная правка — красный тест) 26ms
+     ✓ design/contrast.md совпадает с расчётом 3ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 160ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 2ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 1ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 2ms
+     ✓ шрифт не мельче 12 px 1ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 2ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 7ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 2ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 3ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 10ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 1ms
+ ✓ |unit| tests/unit/css-foundation.test.ts (9 tests) 338ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 1222ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > файл на диске совпадает с выводом генератора (ручная правка — красный тест)
+AssertionError: expected '/*\n * СГЕНЕРИРОВАНО из design/tokens…' to be '/*\n * СГЕНЕРИРОВАНО из design/tokens…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,11 +1,12 @@
+  /*
+   * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.
+   * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts
+   * сверяет этот файл с генератором: ручная правка делает его красным.
+   */
+- :root, [data-theme='light'] {
++ :root,
++ [data-theme='light'] {
+    color-scheme: light;
+    --bg: #e9f0f8;
+    --surface: #ffffff;
+    --surface-solid: #ffffff;
+    --surface-muted: #f6f8fc;
+
+ ❯ scripts/design/build-tokens.test.ts:51:59
+     49|   });
+     50|   it('файл на диске совпадает с выводом генератора (ручная правка — кр…
+     51|     expect(readFileSync(resolve(ROOT, CSS_FILE), 'utf8')).toBe(buildTo…
+       |                                                           ^
+     52|   });
+     53|   it('design/contrast.md совпадает с расчётом', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+Error: ENOENT: no such file or directory, open '/private/tmp/wetop-public1-20261007/apps/web/src/app/glass.css'
+ ❯ scripts/design/build-tokens.test.ts:73:22
+     71|     const defined = new Set(tree.tokens.map((t) => t.cssVar));
+     72|     for (const f of files) {
+     73|       const source = readFileSync(resolve(ROOT, f), 'utf8');
+       |                      ^
+     74|       for (const m of source.matchAll(/var\((--[a-z0-9-]+)/g)) used.ad…
+     75|       // Inline CSS properties count only when their declaration exist…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  2 failed | 41 passed (43)
+   Start at  18:46:09
+   Duration  1.65s (tests 64%, import 19%, transform 16%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-46-06Z-unit-3ea3.json
+
+# код выхода 1 · 5 с

@@ -1,0 +1,38 @@
+{
+  "before": {
+    "color-literal": 0,
+    "space-off-scale": 315,
+    "uppercase": 2,
+    "shadow-on-page": 8,
+    "window-confirm": 0,
+    "dot-separator": 12,
+    "trailing-arrow": 0,
+    "font-under-12": 0,
+    "radius-literal": 54,
+    "z-index-literal": 15,
+    "font-literal": 88,
+    "space-literal-not-var": 1138,
+    "inline-style": 43,
+    "breakpoint-literal": 72,
+    "layer-name": 0,
+    "orphan-module": 2
+  },
+  "after": {
+    "color-literal": 0,
+    "space-off-scale": 250,
+    "uppercase": 1,
+    "shadow-on-page": 6,
+    "window-confirm": 0,
+    "dot-separator": 12,
+    "trailing-arrow": 0,
+    "font-under-12": 0,
+    "radius-literal": 42,
+    "z-index-literal": 14,
+    "font-literal": 79,
+    "space-literal-not-var": 957,
+    "inline-style": 43,
+    "breakpoint-literal": 72,
+    "layer-name": 0,
+    "orphan-module": 2
+  }
+}

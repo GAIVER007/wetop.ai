@@ -12,7 +12,9 @@ async function settled(page: Page) {
     );
   });
 }
-const shots = 'reports/mv7-food-ui-2026-10-05/screenshots';
+const shots = process.env.VISUAL_REPORT_DIR
+  ? `${process.env.VISUAL_REPORT_DIR}/food`
+  : 'reports/mv7-food-ui-2026-10-05/screenshots';
 type Fixture = {
   business: string;
   otherBusiness: string;
@@ -167,13 +169,14 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   for (const width of [1440, 390])
     for (const theme of ['light', 'dark']) {
-      await page.setViewportSize({ width, height: 1000 });
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
       await page.emulateMedia({ colorScheme: theme as 'light' | 'dark' });
       for (const [name, path] of [
         ['floor-plan', `/floor-plan?date=${date}&time=19:00`],
         ['table-reservations', `/table-reservations?date=${date}`],
         ['dining-areas', '/dining-areas'],
         ['customers', '/customers'],
+        ['today', '/today'],
       ]) {
         await page.goto(path!);
         const themeButton = page.getByRole('button', { name: 'Переключить тему', exact: true });

@@ -1,107 +1,105 @@
-/* Хаб «Отчёты» (REP1): период одной строкой, как на «Оплатах», и карточки-ссылки группами.
+@layer reset, tokens, base, components, sections, utilities;
+@layer sections {
+  /* Хаб «Отчёты» (REP1): период одной строкой, как на «Оплатах», и карточки-ссылки группами.
    Чипы периодов — те же правила, что `.finance-presets` (ADR-106): компактные, активный — `--primary-soft`. */
-
-.reports-controls {
-  margin-bottom: var(--space-6);
-}
-.reports-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-}
-.reports-toolbar .field {
-  margin: 0;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.reports-toolbar .field--inline .inp {
-  width: 148px;
-  font-size: var(--text-sm);
-}
-.reports-controls .directory-filters {
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin: 0;
-  border: 0;
-  overflow: visible;
-}
-.reports-controls .directory-filters a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h-sm);
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  border-radius: var(--radius-control);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--text-2);
-}
-.reports-controls .directory-filters a:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-  text-decoration: none;
-}
-.reports-controls .directory-filters a.is-active {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.reports-note {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
-/* ---------- группы и карточки */
-.reports-group {
-  margin-bottom: var(--space-4); /* 16: группы ближе друг к другу, хаб влезает в экран ноутбука */
-}
-.report-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  color: inherit;
-  text-decoration: none;
-}
-.report-card:hover {
-  background: var(--row-hover);
-  text-decoration: none;
-}
-.report-card__title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--text-2);
-}
-.report-card__title svg {
-  flex: none;
-  color: var(--muted);
-}
-.report-card__value {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-}
-.report-card--warn .report-card__value {
-  color: var(--warning);
-}
-.report-card__hint {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
-/* Телефон: поле периода мельче 16 px заставляет iOS зумить страницу при фокусе (DESIGN.md). */
-@media (max-width: 600px) {
+  .reports-controls {
+    margin-bottom: var(--space-6);
+  }
+  .reports-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .reports-toolbar .field {
+    margin: 0;
+    gap: var(--space-2);
+    min-width: 0;
+  }
   .reports-toolbar .field--inline .inp {
-    font-size: var(--text-lg);
+    width: 148px;
+    font-size: var(--text-sm);
+  }
+  .reports-controls .directory-filters {
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    border: 0;
+    overflow: visible;
+  }
+  .reports-controls .directory-filters a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h-sm);
+    padding: var(--space-1) var(--space-2);
+    border: 0;
+    border-radius: var(--radius-control);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-2);
+  }
+  .reports-controls .directory-filters a:hover {
+    background: var(--surface-muted);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .reports-controls .directory-filters a.is-active {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .reports-note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  } /* ---------- группы и карточки */
+  .reports-group {
+    margin-bottom: var(--space-4); /* 16: группы ближе друг к другу, хаб влезает в экран ноутбука */
+  }
+  .report-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: inherit;
+    text-decoration: none;
+  }
+  .report-card:hover {
+    background: var(--row-hover);
+    text-decoration: none;
+  }
+  .report-card__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-2);
+  }
+  .report-card__title svg {
+    flex: none;
+    color: var(--muted);
+  }
+  .report-card__value {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+  .report-card--warn .report-card__value {
+    color: var(--warning);
+  }
+  .report-card__hint {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  } /* Телефон: поле периода мельче 16 px заставляет iOS зумить страницу при фокусе (DESIGN.md). */
+  @media (max-width: 600px) {
+    .reports-toolbar .field--inline .inp {
+      font-size: var(--text-lg);
+    }
   }
 }

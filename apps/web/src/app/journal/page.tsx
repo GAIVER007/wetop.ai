@@ -1,3 +1,4 @@
+import '../control.css';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { Fragment } from 'react';
 import Link from 'next/link';

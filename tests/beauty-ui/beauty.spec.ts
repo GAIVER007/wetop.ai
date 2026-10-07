@@ -2,7 +2,9 @@ import { test, expect, type Page, type APIRequestContext } from '@playwright/tes
 import AxeBuilder from '@axe-core/playwright';
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
 const day = '2026-10-12';
-const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
+const shots = process.env.VISUAL_REPORT_DIR
+  ? `${process.env.VISUAL_REPORT_DIR}/beauty`
+  : 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
 async function scope(page: Page, business: string, location: string) {

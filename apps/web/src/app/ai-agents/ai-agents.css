@@ -1,145 +1,126 @@
-/* Карточка агента (SA1, DESIGN.md §8): в ряду каталога карточки тянутся до одной высоты, и лишнее место
+@layer reset, tokens, base, components, sections, utilities;
+@layer sections {
+  /* Карточка агента (SA1, DESIGN.md §8): в ряду каталога карточки тянутся до одной высоты, и лишнее место
    должно оставаться внизу карточки, а не расходиться между её строками (`.panel` и `.stack`, сетки). */
-.agent-card {
-  align-content: start;
-}
-
-/* Страница агента (SA2): список настройки, статусы, а не шаги мастера */
-.agent-setup {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.agent-setup__item {
-  display: grid;
-  grid-template-columns: 24px 1fr auto;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 44px;
-}
-.agent-setup__item--done .agent-setup__label {
-  font-weight: var(--weight-semibold, 600);
-}
-
-.agent-wizard {
-  display: grid;
-  gap: var(--space-6);
-  min-width: 0;
-}
-.agent-wizard__steps {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-}
-.agent-wizard__step {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  align-content: center;
-  gap: 4px 8px;
-  padding: 16px;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  font: inherit;
-}
-button.agent-wizard__step {
-  cursor: pointer;
-}
-.agent-wizard__step span {
-  grid-row: span 2;
-  align-self: center;
-  color: var(--primary);
-  font-size: 14px;
-}
-.agent-wizard__step b {
-  font-size: 14px;
-}
-.agent-wizard__step small {
-  font-size: 12px;
-  color: var(--muted);
-}
-.agent-wizard__step[aria-current] {
-  background: var(--primary-soft);
-}
-.agent-wizard__step[aria-disabled] {
-  color: var(--muted);
-}
-.agent-wizard__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
-  gap: 24px;
-  align-items: start;
-}
-.agent-wizard__body > *,
-.agent-wizard__body .panel {
-  min-width: 0;
-}
-.agent-wizard__body .panel {
-  align-content: start;
-}
-.agent-wizard__body textarea {
-  line-height: 1.6;
-  resize: vertical;
-}
-.agent-wizard__rules ol {
-  display: grid;
-  gap: 16px;
-  padding-left: 24px;
-  line-height: 1.5;
-}
-.agent-wizard__save {
-  justify-content: space-between;
-}
-.agent-wizard__preview {
-  border-color: var(--primary);
-}
-@media (max-width: 1100px) {
-  .agent-wizard__body {
-    grid-template-columns: minmax(0, 1fr);
+  .agent-card {
+    align-content: start;
+  } /* Страница агента (SA2): список настройки, статусы, а не шаги мастера */
+  .agent-wizard {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
   }
   .agent-wizard__steps {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-@media (max-width: 600px) {
-  .agent-wizard__steps {
-    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
   }
   .agent-wizard__step {
-    padding: 8px;
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    align-content: center;
+    gap: 4px 8px;
+    padding: 16px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+  }
+  button.agent-wizard__step {
+    cursor: pointer;
+  }
+  .agent-wizard__step span {
+    grid-row: span 2;
+    align-self: center;
+    color: var(--primary);
+    font-size: 14px;
+  }
+  .agent-wizard__step b {
+    font-size: 14px;
+  }
+  .agent-wizard__step small {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .agent-wizard__step[aria-current] {
+    background: var(--primary-soft);
   }
   .agent-wizard__step[aria-disabled] {
-    display: none;
+    color: var(--muted);
   }
-}
-
-/* Catalogue: setup state is separate from verified message delivery. */
-.page:has(.agent-card) .page__head {
-  margin-bottom: 16px;
-}
-.page:has(.agent-card) .page__title {
-  font-size: 28px;
-}
-.agent-card {
-  padding: 24px;
-  gap: 16px;
-}
-.agent-card .panel__title {
-  font-size: 20px;
-}
-.agent-card .stack {
-  gap: 16px;
-}
-.agent-card__hint {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
-}
-.agent-card .fact {
-  min-width: 130px;
+  .agent-wizard__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
+    gap: 24px;
+    align-items: start;
+  }
+  .agent-wizard__body > *,
+  .agent-wizard__body .panel {
+    min-width: 0;
+  }
+  .agent-wizard__body .panel {
+    align-content: start;
+  }
+  .agent-wizard__body textarea {
+    line-height: 1.6;
+    resize: vertical;
+  }
+  .agent-wizard__rules ol {
+    display: grid;
+    gap: 16px;
+    padding-left: 24px;
+    line-height: 1.5;
+  }
+  .agent-wizard__save {
+    justify-content: space-between;
+  }
+  .agent-wizard__preview {
+    border-color: var(--primary);
+  }
+  @media (max-width: 1100px) {
+    .agent-wizard__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .agent-wizard__steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .agent-wizard__steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .agent-wizard__step {
+      padding: 8px;
+    }
+    .agent-wizard__step[aria-disabled] {
+      display: none;
+    }
+  } /* Catalogue: setup state is separate from verified message delivery. */
+  .page:has(.agent-card) .page__head {
+    margin-bottom: 16px;
+  }
+  .page:has(.agent-card) .page__title {
+    font-size: 28px;
+  }
+  .agent-card {
+    padding: 24px;
+    gap: 16px;
+  }
+  .agent-card .panel__title {
+    font-size: 20px;
+  }
+  .agent-card .stack {
+    gap: 16px;
+  }
+  .agent-card__hint {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .agent-card .fact {
+    min-width: 130px;
+  }
 }

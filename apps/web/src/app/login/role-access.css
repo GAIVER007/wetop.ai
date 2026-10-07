@@ -1,38 +1,32 @@
-.role-access {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 24px;
-  margin: 16px 0 0;
-  font-size: var(--text-sm);
-}
-.role-access > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: baseline;
-}
-.role-access dt {
-  color: var(--text);
-}
-.role-access dd {
-  margin: 0;
-  white-space: nowrap;
-  color: var(--muted);
-}
-.role-access dd[data-allowed='true'] {
-  color: var(--primary);
-}
-.team-access {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-.team-access > summary {
-  cursor: pointer;
-  font-weight: 600;
-  padding: 8px 0;
-}
-@media (max-width: 700px) {
+@layer reset, tokens, base, components, sections, utilities;
+@layer sections {
   .role-access {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 24px;
+    margin: 16px 0 0;
+    font-size: var(--text-sm);
+  }
+  .role-access > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .role-access dt {
+    color: var(--text);
+  }
+  .role-access dd {
+    margin: 0;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+  .role-access dd[data-allowed='true'] {
+    color: var(--primary);
+  }
+  @media (max-width: 700px) {
+    .role-access {
+      grid-template-columns: 1fr;
+    }
   }
 }

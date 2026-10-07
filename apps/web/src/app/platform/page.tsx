@@ -1,3 +1,4 @@
+import '../hotel-settings/settings.css';
 import { BranchWorkspace } from '../branches/workspace';
 import Link from 'next/link';
 import { Suspense } from 'react';

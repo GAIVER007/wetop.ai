@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import { useActionState, useState, useTransition, type ReactNode } from 'react';
 import {
   Alert,

@@ -1,4 +1,5 @@
 'use client';
+import '../../hotel-settings/settings.css';
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { GroupPayment } from './group-payment';

@@ -1,4 +1,5 @@
 'use client';
+import './settings.css';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Button, cx } from '../../components/ui';
 

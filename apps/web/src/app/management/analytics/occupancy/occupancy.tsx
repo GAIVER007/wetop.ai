@@ -1,3 +1,4 @@
+import '../../../today/dashboard.css';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS, type DashboardCategory, type DashboardPeriod } from '@pms/domain';
 import { ApiError, dashboardApi } from '../../../../lib/api';

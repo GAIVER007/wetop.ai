@@ -1,3 +1,4 @@
+import '../control.css';
 import { guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';

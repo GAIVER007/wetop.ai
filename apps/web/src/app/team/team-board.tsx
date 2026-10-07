@@ -1,4 +1,5 @@
 'use client';
+import '../hotel-settings/settings.css';
 import {
   createContext,
   useContext,

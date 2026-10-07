@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import Link from 'next/link';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';

@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import postcss from 'postcss';
 
 /**
  * Сторож правила DESIGN.md §15: системных окон браузера на экранах стойки нет.
@@ -44,14 +45,16 @@ function cssFiles(dir: string): string[] {
   }
   return out;
 }
-const cssRules = (file: string) =>
-  readFileSync(file, 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('}')
-    .map((block) => {
-      const [selector = '', body = ''] = block.split('{');
-      return { selector: selector.trim().split('\n').pop()?.trim() ?? '', body };
+const cssRules = (file: string) => {
+  const rules: { selector: string; body: string }[] = [];
+  postcss.parse(readFileSync(file, 'utf8')).walkRules((rule) => {
+    rules.push({
+      selector: rule.selector,
+      body: (rule.nodes ?? []).filter((node) => node.type === 'decl').map(String).join(';'),
     });
+  });
+  return rules;
+};
 const offenders = (test: (rule: { selector: string; body: string; file: string }) => boolean) =>
   cssFiles(SRC).flatMap((f) =>
     cssRules(f)

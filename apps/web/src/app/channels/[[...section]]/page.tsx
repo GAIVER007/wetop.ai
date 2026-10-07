@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';

@@ -1,4 +1,5 @@
 'use client';
+import '../control.css';
 import { useState } from 'react';
 import type { Incident } from '../../lib/api';
 import { usePropertyClock } from '../../components/property-time';

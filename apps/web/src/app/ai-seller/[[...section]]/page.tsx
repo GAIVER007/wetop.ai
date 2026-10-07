@@ -1,3 +1,4 @@
+import '../../hotel-settings/settings.css';
 import { SetupWizard } from '../setup-wizard';
 import { TelegramPanel } from '../../ai-agents/[id]/telegram-panel';
 import Link from 'next/link';

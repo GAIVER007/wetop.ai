@@ -1,3 +1,4 @@
+import '../app/management/hotel.css';
 import Link from 'next/link';
 import type { NavigationItem } from '../lib/navigation';
 import { Icon, type IconName } from './icon';

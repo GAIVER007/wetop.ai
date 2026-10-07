@@ -1,0 +1,54 @@
+# Модульные (unit) · 07.10.2026 15:58 Алматы · MacBook-Air-Urij.local
+# коммит 7c101e5 (codex/onboarding-u07-current-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-58-58Z-unit-d743.json' 'apps/web/src/app/login/signed-in.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-u07-current-20261007
+
+ ❯ |unit| apps/web/src/app/login/signed-in.test.ts (12 tests | 3 failed) 11ms
+   ✓ неполный или неразрешающий ответ API null закрывает регистрацию 2ms
+   ✓ неполный или неразрешающий ответ API {} закрывает регистрацию 0ms
+   ✓ неполный или неразрешающий ответ API {"registrationEnabled":"true"} закрывает регистрацию 0ms
+   ✓ неполный или неразрешающий ответ API {"registrationEnabled":false} закрывает регистрацию 0ms
+   ✓ сбой ответа API Error: API unavailable закрывает регистрацию 0ms
+   ✓ сбой ответа API SyntaxError: Invalid JSON закрывает регистрацию 0ms
+   ✓ явное разрешение API открывает форму 0ms
+   ✓ служебные исключения Next не поглощаются как отказ API 0ms
+   × API 503 is not a revoked session 4ms
+   × API 504 is not a revoked session 1ms
+   × API 403 is not a revoked session 0ms
+   ✓ confirmed 401 requires sign-in 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > API 503 is not a revoked session
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > API 504 is not a revoked session
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > API 403 is not a revoked session
+AssertionError: promise resolved "null" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+null
+
+ ❯ apps/web/src/app/login/signed-in.test.ts:40:31
+     38|   const failure = new ApiError(status, 'API unavailable');
+     39|   vi.spyOn(authApi, 'me').mockRejectedValue(failure);
+     40|   await expect(signedInUser()).rejects.toBe(failure);
+       |                               ^
+     41| });
+     42| it('confirmed 401 requires sign-in', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 9 passed (12)
+   Start at  14:59:02
+   Duration  223ms (transform 69%, import 17%, tests 11%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-58-58Z-unit-d743.json
+
+# код выхода 1 · 5 с

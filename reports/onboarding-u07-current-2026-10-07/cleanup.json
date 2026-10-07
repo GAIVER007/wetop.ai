@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-07T11:18:33.977915+00:00",
+  "ports_closed": {
+    "55933": true,
+    "55823": true,
+    "55824": true,
+    "55825": true
+  },
+  "stand_paths_removed": {
+    "/tmp/wetop-u07-current-pgdata-20261007": true,
+    "/tmp/wetop-u07-current-pg-bin-20261007": true
+  },
+  "production_touched": false
+}

@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { ApiError, authApi } from '../../lib/api';
-import { registrationAvailable } from './signed-in';
+import { registrationAvailable, signedInUser } from './signed-in';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -31,4 +31,15 @@ it('служебные исключения Next не поглощаются к�
   const controlFlow = new Error('NEXT_REDIRECT');
   vi.spyOn(authApi, 'options').mockRejectedValue(controlFlow);
   await expect(registrationAvailable()).rejects.toBe(controlFlow);
+});
+
+// U07: a temporary API outage must not invalidate a session.
+it.each([503, 504, 403])('API %i is not a revoked session', async (status) => {
+  const failure = new ApiError(status, 'API unavailable');
+  vi.spyOn(authApi, 'me').mockRejectedValue(failure);
+  await expect(signedInUser()).rejects.toBe(failure);
+});
+it('confirmed 401 requires sign-in', async () => {
+  vi.spyOn(authApi, 'me').mockRejectedValue(new ApiError(401, 'Session expired'));
+  await expect(signedInUser()).resolves.toBeNull();
 });

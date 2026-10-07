@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 07.10.2026 16:12 Алматы · MacBook-Air-Urij.local
+# коммит 7c101e5 (codex/onboarding-u07-current-20261007), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' '--workers=1'
+[WebServer] (node:6316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6343) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6370) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+(node:6371) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/onboarding-full/acceptance.spec.ts:35:1 › U01 first launch uses verified vertical and creates no draft on read (2.6s)
+  ✓   2 tests/onboarding-full/acceptance.spec.ts:46:1 › U02 save/reload restores version, step and draft (1.2s)
+  ✓   3 tests/onboarding-full/acceptance.spec.ts:62:1 › U03 close/reopen and real re-login preserve saved progress (1.8s)
+  ✓   4 tests/onboarding-full/acceptance.spec.ts:81:1 › U04 commit with lost response, repeat and reload produce one progress (1.2s)
+  ✓   5 tests/onboarding-full/acceptance.spec.ts:98:1 › U05 unsaved/saved back and forward are explicit (1.4s)
+  ✓   6 tests/onboarding-full/acceptance.spec.ts:119:1 › U06 invalid input never persists, correction proceeds (1.2s)
+  ✓   7 tests/onboarding-full/acceptance.spec.ts:139:1 › U07 complete API disconnect preserves input and retry (1.1s)
+  ✓   8 tests/onboarding-full/acceptance.spec.ts:154:1 › U08 completion replay is denied and re-login preserves completion (1.9s)
+  ✓   9 tests/onboarding-full/acceptance.spec.ts:187:1 › U09 existing hotel fund and rates survive reopening wizard (2.3s)
+  ✓  10 tests/onboarding-full/acceptance.spec.ts:206:1 › U10 read-only UI and direct API forbid writes (888ms)
+  ✓  11 tests/onboarding-full/acceptance.spec.ts:224:1 › U11 real STAFF rejected, MANAGER saved (1.3s)
+  ✓  12 tests/onboarding-full/acceptance.spec.ts:248:1 › U12 full guarded API and UI isolate organizations (2.5s)
+  ✓  13 tests/onboarding-full/recovery.spec.ts:17:3 › U07 offline: retains draft, retries and persists once (1.3s)
+  ✓  14 tests/onboarding-full/recovery.spec.ts:17:3 › U07 timeout: retains draft, retries and persists once (1.0m)
+  ✓  15 tests/onboarding-full/recovery.spec.ts:17:3 › U07 before503: retains draft, retries and persists once (1.4s)
+  ✓  16 tests/onboarding-full/recovery.spec.ts:17:3 › U07 after: retains draft, retries and persists once (1.2s)
+  ✓  17 tests/onboarding-full/recovery.spec.ts:37:1 › lost next response never advances twice (1.1s)
+  ✓  18 tests/onboarding-full/recovery.spec.ts:48:1 › 409 preserves unsaved input and never overwrites another window (1.6s)
+  ✓  19 tests/onboarding-full/recovery.spec.ts:74:3 › expire: real SessionGuard denies write and requires login (3.5s)
+  ✓  20 tests/onboarding-full/recovery.spec.ts:74:3 › revoke: real SessionGuard denies write and requires login (1.6s)
+  ✓  21 tests/onboarding-full/recovery.spec.ts:99:3 › STAFF: real guarded API rejects write (992ms)
+  ✓  22 tests/onboarding-full/recovery.spec.ts:99:3 › READ_ONLY: real guarded API rejects write (962ms)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:110:11)
+[WebServer]     at async getJson (src/lib/api.ts:148:15)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]     at async signedInUser (src/app/login/signed-in.ts:18:14)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:12:9)
+[WebServer]   108 |       throw error;
+[WebServer]   109 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 110 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   111 |       503,
+[WebServer]   112 |       options.method && options.method !== 'GET'
+[WebServer]   113 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  23 tests/onboarding-full/recovery.spec.ts:119:1 › initial protected page outage requires a real reload after recovery, without invalidating session (1.3s)
+
+  23 passed (1.7m)
+
+# код выхода 0 · 1 мин 45 с

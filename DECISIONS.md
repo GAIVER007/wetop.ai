@@ -6071,3 +6071,10 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+
+## U07: адаптация восстановления на свежую базу (07.10.2026)
+
+Проблема: signedInUser превращает любой ApiError в отсутствие сессии; серверная команда мастера не различает неизвестный исход записи и подтверждённый отказ. План утверждён владельцем, база 7c101e5e. Варианты: автоматический повтор команды, повторный вход при любой ошибке, проверка сохранённого состояния перед повтором. Решение: отдельный same-origin маршрут GET/POST с обычной session/scope проверкой API, ограниченным JSON и Origin; browser сохраняет ввод при 5xx, читает актуальный draft/version/step перед повтором, 409 требует загрузить сохранённую версию, 401 требует входа. Подтверждённые 403 не маскируются выходом.
+
+Сохранены landingForVertical и текущие Beauty/Food/согласованные scope-потоки. Модель и права не меняются, новых migrations нет. Не копируются старый calendar landing и Turnstile изменения. Следствие: восстановления не ослабляют auth; неизвестный исход команды требует readback, а не слепой второй записи. Полный API и синтетический PostgreSQL 17 проверяются отдельно от домена.

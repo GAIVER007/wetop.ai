@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 07.10.2026 16:06 Алматы · MacBook-Air-Urij.local
+# коммит 7c101e5 (codex/onboarding-u07-current-20261007), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' '--workers=1' '--grep' 'before503'
+[WebServer] (node:5036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5065) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:5100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/onboarding-full/recovery.spec.ts:17:3 › U07 before503: retains draft, retries and persists once (1.4m)
+
+
+  1) tests/onboarding-full/recovery.spec.ts:17:3 › U07 before503: retains draft, retries and persists once 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Повторить', exact: true })
+    Expected: visible
+    Timeout: 80000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Повторить', exact: true }) with timeout 80000ms
+      - waiting for getByRole('button', { name: 'Повторить', exact: true })
+
+
+      20 |     await request.post(`${qa}/__qa/fault`, { data: { mode } });
+      21 |     await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+    > 22 |     await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible({
+         |                                                                                ^
+      23 |       timeout: 80000,
+      24 |     });
+      25 |     expect(new URL(page.url()).pathname).toBe('/register/setup');
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/onboarding-full/recovery.spec.ts:22:80
+
+    Error Context: test-results/recovery-U07-before503-ret-eaf06-t-retries-and-persists-once/error-context.md
+
+    Error Context: test-results/recovery-U07-before503-ret-eaf06-t-retries-and-persists-once/error-context.md
+
+  1 failed
+    tests/onboarding-full/recovery.spec.ts:17:3 › U07 before503: retains draft, retries and persists once 
+
+# код выхода 1 · 1 мин 30 с

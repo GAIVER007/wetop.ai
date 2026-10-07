@@ -1,0 +1,18 @@
+# Модульные (unit) · 07.10.2026 16:08 Алматы · MacBook-Air-Urij.local
+# коммит 7c101e5 (codex/onboarding-u07-current-20261007), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T11-08-41Z-unit-d2f3.json' 'apps/web/src/app/login/signed-in.test.ts' 'apps/web/src/app/register/setup/command.test.ts' 'apps/web/src/app/register/setup/progress/route.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-u07-current-20261007
+
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (12 tests) 8ms
+ ✓ |unit| apps/web/src/app/register/setup/progress/route.test.ts (9 tests) 36ms
+ ✓ |unit| apps/web/src/app/register/setup/command.test.ts (8 tests) 33ms
+
+ Test Files  3 passed (3)
+      Tests  29 passed (29)
+   Start at  15:08:42
+   Duration  635ms (transform 75%, import 14%, tests 10%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T11-08-41Z-unit-d2f3.json
+
+# код выхода 0 · 2 с

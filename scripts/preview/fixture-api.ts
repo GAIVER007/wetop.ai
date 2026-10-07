@@ -2,6 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
+import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -4593,6 +4594,8 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const assetsResponse = siteAssetsFixture(path, req.method ?? 'GET', body, raw);
+    if (assetsResponse) return send(assetsResponse.status, assetsResponse.data);
     const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body);
     if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
@@ -4624,6 +4627,7 @@ createServer(async (req, res) => {
       resetMarket();
       resetAgentFixture();
       resetMarketingSiteFixture();
+      resetSiteAssetsFixture();
       hits.clear();
       requestHits.clear();
       taskStore.clear();

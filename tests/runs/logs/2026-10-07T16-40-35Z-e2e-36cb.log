@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 07.10.2026 21:40 Алматы · vm
+# коммит 522502c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-assets.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (3.4s)
+  ✓  2 tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (8.8s)
+  ✓  3 tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (3.1s)
+  ✓  4 tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (3.5s)
+  ✓  5 tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (1.4s)
+  ✓  6 tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (2.8s)
+  ✓  7 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (7.4s)
+  ✓  8 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (7.8s)
+
+  8 passed (52.7s)
+
+# код выхода 0 · 54 с

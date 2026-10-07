@@ -7436,3 +7436,5 @@
 | 07.10.2026 21:32 | integration (частично: tests/integration/site-assets.test.ts) | ✅ 11 из 11 | 10 с | ba1d114 +4 | [лог](logs/2026-10-07T16-32-12Z-integration-0270.log) | MKT8: API библиотеки после мутаций |
 | 07.10.2026 21:33 | unit (частично: apps/sites/src/worker.test.ts) | ❌ упало 3 из 36 | 2 с | 6fb0a3e +1 | [лог](logs/2026-10-07T16-33-05Z-unit-cbe4.log) | MKT8 red: картинки в Worker |
 | 07.10.2026 21:33 | unit (частично: apps/sites/) | ✅ 181 из 181 | 4 с | 6fb0a3e +8 | [лог](logs/2026-10-07T16-33-38Z-unit-c600.log) | MKT8 green: картинки в Worker |
+| 07.10.2026 21:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-assets.spec.ts --workers=1) | ❌ упало 3 из 8 | 1 мин 15 с | 522502c +10 | [лог](logs/2026-10-07T16-39-06Z-e2e-3d06.log) | MKT8: UI библиотеки изображений |
+| 07.10.2026 21:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-assets.spec.ts --workers=1) | ✅ 8 из 8 | 54 с | 522502c +10 | [лог](logs/2026-10-07T16-40-35Z-e2e-36cb.log) | MKT8: UI библиотеки изображений |

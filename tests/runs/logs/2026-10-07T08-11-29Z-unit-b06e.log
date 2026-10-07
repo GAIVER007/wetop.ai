@@ -1,0 +1,69 @@
+# Модульные (unit) · 07.10.2026 13:11 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-11-29Z-unit-b06e.json' 'packages/domain/src/marketing/brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/brief.test.ts (28 tests | 1 failed) 132ms
+   ✓ SiteBrief v0: форма и белые списки (9)
+     ✓ версия схемы, время сбора, хэш sha256 нижним регистром 9ms
+     ✓ факты платформы: имя, адрес филиала, контакты филиала, пояс, валюта, время заезда и выезда 5ms
+     ✓ категории по коду, без id; activeUnits как есть 2ms
+     ✓ профиль продавца: только белый список; языки сайта как пересечение с ru, kk, en в порядке продавца 4ms
+     ✓ пустые тексты продавца становятся null; языки без ru, kk, en дают пустую подсказку без ошибки 8ms
+     ✓ Channex: белый список; адресов фото нет, только сводка 5ms
+     ✓ без продавца и без Channex бриф строится; блоки null 8ms
+     ✓ недоверенный текст остаётся строкой данных, ничего не выполняется и не вырезается 1ms
+     ✓ возможности гостиницы: бронь и цена «от» как способность, без обещания опубликованного сайта 4ms
+   ❯ SiteBrief v0: старшинство (6)
+     ✓ телефон и почта филиала главнее Channex; расхождение записано 3ms
+     × телефона и почты у филиала нет: берётся Channex без расхождения; телефон объекта в бриф не идёт 20ms
+     ✓ адрес: филиал, затем объект, затем Channex 4ms
+     ✓ пробелы и регистр не дают расхождения адреса; другой адрес даёт 5ms
+     ✓ время заезда и выезда платформы главное; другое время Channex это расхождение 3ms
+     ✓ кандидат названия: Channex, иначе филиал, иначе объект; заметно другое название Channex это расхождение 6ms
+   ✓ SiteBrief v0: найдено, нет, недоступно (4)
+     ✓ found по коду, с источником; отсортировано 7ms
+     ✓ Channex не подключён: факты, которые давал только он, отсутствуют 4ms
+     ✓ Channex недоступен: его факты не «нет», а источник в sourceUnavailable; ответ тот же по платформе 2ms
+     ✓ нет категорий и контактов: accommodations и public.contact отсутствуют 3ms
+   ✓ SiteBrief v0: предлагаемая структура (3)
+     ✓ полный набор данных: секции по порядку, у каждой причины и доказательства 14ms
+     ✓ минимум данных: hero, booking, cta; без выдуманных секций 1ms
+     ✓ «что входит в цену» продавца без удобств Channex поддерживает amenities 1ms
+   ✓ SiteBrief v0: briefHash (4)
+     ✓ другое collectedAt и checkedAt: тот же хэш 1ms
+     ✓ другое состояние недоступного Channex: тот же хэш 1ms
+     ✓ другой порядок категорий и удобств: тот же хэш и тот же бриф 2ms
+     ✓ значимые правки меняют хэш: описание, FAQ, категория, условие структуры 2ms
+   ✓ SiteBrief v0: пределы (2)
+     ✓ длинное описание режется детерминированно; усечение видно в метаданных, исходника нет 1ms
+     ✓ удобств и подписей фото не больше предела 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/brief.test.ts > SiteBrief v0: старшинство > телефона и почты у филиала нет: берётся Channex без расхождения; телефон объекта в бриф не идёт
+AssertionError: expected '+7 777 PROPERTY' to be '<телефон>' // Object.is equality
+
+Expected: "<телефон>"
+Received: "+7 777 PROPERTY"
+
+ ❯ packages/domain/src/marketing/brief.test.ts:248:36
+    246|     Object.assign(s.platform.property!, { phone: '+7 777 PROPERTY', em…
+    247|     const b = buildSiteBrief(s, AT);
+    248|     expect(b.input.identity.phone).toBe('<телефон>');
+       |                                    ^
+    249|     expect(b.input.identity.phoneSource).toBe('CHANNEX');
+    250|     expect(b.input.identity.emailSource).toBe('CHANNEX');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  08:11:31
+   Duration  867ms (transform 70%, tests 20%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-11-29Z-unit-b06e.json
+
+# код выхода 1 · 2 с

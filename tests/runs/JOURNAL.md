@@ -7345,3 +7345,7 @@
 | 07.10.2026 19:23 | typecheck | ✅ без ошибок | 31 с | 0c33362 | [лог](logs/2026-10-07T14-23-54Z-typecheck-90a2.log) |  |
 | 07.10.2026 19:25 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1 --grep stale token refreshes drawer) | ✅ 1 из 1 | 10 с | 0c33362 | [лог](logs/2026-10-07T14-25-16Z-e2e-6ae2.log) |  |
 | 07.10.2026 19:26 | unit | ✅ 3830 из 3834, пропущено 4 | 4 мин 32 с | 0c33362 | [лог](logs/2026-10-07T14-26-00Z-unit-38b3.log) |  |
+| 07.10.2026 17:40 | integration (частично: tests/integration/marketing-publication-db.test.ts) | ❌ упало 9 из 9 | 9 с | 867a391 +1 | [лог](logs/2026-10-07T12-40-56Z-integration-4dda.log) | MKT7 red: публикации, домены, сайт брони без миграции |
+| 07.10.2026 17:43 | integration (частично: tests/integration/marketing-publication-db.test.ts) | ❌ упало 2 из 9 | 7 с | 867a391 +7 | [лог](logs/2026-10-07T12-43-11Z-integration-0064.log) | MKT7 green: миграция 064/065 |
+| 07.10.2026 17:43 | integration (частично: tests/integration/marketing-publication-db.test.ts) | ✅ 9 из 9 | 6 с | 867a391 +7 | [лог](logs/2026-10-07T12-43-28Z-integration-b50b.log) | MKT7 green: миграция 064/065 |
+| 07.10.2026 17:52 | integration (частично: tests/integration/rls-isolation.test.ts tests/integration/rls-credential-grants.test.ts tests/integration/db-restore-prod.test.ts tests/i | ✅ 63 из 63 | 27 с | 867a391 +7 | [лог](logs/2026-10-07T12-52-33Z-integration-624b.log) | MKT7: RLS, права, восстановление копии после 064/065 |

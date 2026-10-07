@@ -1,103 +1,102 @@
 /* Хаб «Маркетинг» (MKT2, DESIGN.md §8): одна рабочая карточка продукта и ряд будущих.
    Рабочая отличается рамкой акцента и плиткой иконки на `--primary-soft`; будущие приглушены и без ссылок. */
-
-.marketing-product {
-  display: grid;
-  gap: var(--space-4);
-  border-color: var(--primary);
-}
-.marketing-product__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-.marketing-product__icon,
-.marketing-soon__icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border-radius: var(--radius-control);
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.marketing-product__title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.marketing-product__title h2 {
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-}
-.marketing-product__text {
-  margin: 0;
-  max-width: 64ch;
-  color: var(--text-2);
-}
-.marketing-product__caps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--text-sm);
-}
-.marketing-product__caps li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.marketing-product__caps svg {
-  color: var(--primary);
-}
-.marketing-product__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
-.marketing-product__next {
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-
-.marketing-soon {
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-}
-.marketing-soon__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.marketing-soon__icon {
-  width: 32px;
-  height: 32px;
-  background: var(--surface-muted);
-  color: var(--muted);
-}
-.marketing-soon__head h3 {
-  flex: 1;
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-  color: var(--text-2);
-}
-.marketing-soon p {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-
-@media (max-width: 600px) {
-  .marketing-product__foot .btn {
-    flex: 1 1 100%;
+@layer sections {
+  .marketing-product {
+    display: grid;
+    gap: var(--space-4);
+    border-color: var(--primary);
+  }
+  .marketing-product__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .marketing-product__icon,
+  .marketing-soon__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .marketing-product__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .marketing-product__title h2 {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+  .marketing-product__text {
+    margin: 0;
+    max-width: 64ch;
+    color: var(--text-2);
+  }
+  .marketing-product__caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+  }
+  .marketing-product__caps li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .marketing-product__caps svg {
+    color: var(--primary);
+  }
+  .marketing-product__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .marketing-product__next {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .marketing-soon {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .marketing-soon__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .marketing-soon__icon {
+    width: 32px;
+    height: 32px;
+    background: var(--surface-muted);
+    color: var(--muted);
+  }
+  .marketing-soon__head h3 {
+    flex: 1;
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    color: var(--text-2);
+  }
+  .marketing-soon p {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  @media (max-width: 600px) {
+    .marketing-product__foot .btn {
+      flex: 1 1 100%;
+    }
   }
 }

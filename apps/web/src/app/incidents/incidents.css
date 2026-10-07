@@ -4,145 +4,141 @@
  * Правило раскладки одно: сверху — одна полоса состояния вместо трёх плиток и панели на четыре колонки,
  * ниже — список карточек вместо таблицы из пяти колонок. Отступы из шкалы DESIGN.md §3, цвет — только
  * токеном (§2), смысл — цвет плюс слово (§9).
- */
-
-/* ───────────────────────── Отбор: строка чипов и поиска ───────────────────────── */
-
-.incidents__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  align-items: end;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-.incidents__search {
-  flex: 0 1 280px;
-  min-width: 0;
-  margin: 0;
-}
-
-/* ───────────────────────── Карточка неисправности ───────────────────────── */
-
-.incident-cards {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0 0 var(--space-6);
-  padding: 0;
-  list-style: none;
-}
-.incident {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-1) var(--space-4);
-  /* по вертикали плотнее: с верхним меню (ADR-134) шапка выросла, а все открытые должны быть на первом экране */
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--glass-panel);
-}
-.incident--critical {
-  border-left-color: var(--danger);
-}
-.incident__head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: baseline;
-  grid-column: 1;
-}
-.incident__title {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-  overflow-wrap: anywhere;
-}
-.incident__facts,
-.incident__guard {
-  grid-column: 1;
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-  overflow-wrap: anywhere;
-}
-.incident__guard {
-  color: var(--muted);
-}
-.incident__urgent {
-  color: var(--danger);
-  font-weight: var(--weight-semibold);
-}
-.incident__actions {
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  align-self: start;
-}
-.incident__actions .row {
-  gap: var(--space-2);
-}
-.incident__actions .btn {
-  white-space: nowrap;
-}
-
-/* ───────────────────────── Закрытые за сутки: справка, не работа ───────────────────────── */
-
-.incident-history {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--glass-panel);
-}
-.incident-history > summary {
-  padding: var(--space-4);
-  border-radius: var(--radius);
-  font-weight: var(--weight-medium);
-  cursor: pointer;
-}
-.incident-history > summary:hover {
-  background: var(--surface-muted);
-}
-.incident-history__empty,
-.incident-history__list {
-  margin: 0;
-  padding: 0 var(--space-4) var(--space-4);
-  list-style: none;
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
-.incident-history__list li {
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--border-soft);
-}
-.incident-history__title {
-  display: block;
-  color: var(--text);
-}
-.incident-history__meta {
-  color: var(--muted);
-}
-
-/* ───────────────────────── Телефон ───────────────────────── */
-
-@media (max-width: 600px) {
+ */ /* ───────────────────────── Отбор: строка чипов и поиска ───────────────────────── */
+@layer sections {
   .incidents__controls {
-    gap: var(--space-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
   }
   .incidents__search {
-    flex-basis: 100%;
-  }
-  /* действия уходят под текст: кнопка рядом с тремя фразами на 390 px оставляет им 120 px */
-  .incident {
-    grid-template-columns: minmax(0, 1fr);
+    flex: 0 1 280px;
+    min-width: 0;
+    margin: 0;
+  } /* ───────────────────────── Карточка неисправности ───────────────────────── */
+  .incident-cards {
+    display: grid;
     gap: var(--space-2);
+    margin: 0 0 var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+  .incident {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-4);
+    /* по вертикали плотнее: с верхним меню (ADR-134) шапка выросла, а все открытые должны быть на первом экране */
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--glass-panel);
+  }
+  .incident--critical {
+    border-left-color: var(--danger);
+  }
+  .incident__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+    grid-column: 1;
+  }
+  .incident__title {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+  }
+  .incident__facts,
+  .incident__guard {
+    grid-column: 1;
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+  .incident__guard {
+    color: var(--muted);
+  }
+  .incident__urgent {
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
   }
   .incident__actions {
-    grid-column: 1;
-    grid-row: auto;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+  .incident__actions .row {
+    gap: var(--space-2);
   }
   .incident__actions .btn {
-    min-height: var(--touch-target);
+    white-space: nowrap;
+  } /* ───────────────────────── Закрытые за сутки: справка, не работа ───────────────────────── */
+  .incident-history {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--glass-panel);
   }
   .incident-history > summary {
-    min-height: var(--touch-target);
+    padding: var(--space-4);
+    border-radius: var(--radius);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+  }
+  .incident-history > summary:hover {
+    background: var(--surface-muted);
+  }
+  .incident-history__empty,
+  .incident-history__list {
+    margin: 0;
+    padding: 0 var(--space-4) var(--space-4);
+    list-style: none;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .incident-history__list li {
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .incident-history__title {
+    display: block;
+    color: var(--text);
+  }
+  .incident-history__meta {
+    color: var(--muted);
+  } /* ───────────────────────── Телефон ───────────────────────── */
+  @media (max-width: 600px) {
+    .incidents__controls {
+      gap: var(--space-2);
+    }
+    .incidents__search {
+      flex-basis: 100%;
+    }
+    /* действия уходят под текст: кнопка рядом с тремя фразами на 390 px оставляет им 120 px */
+    .incident {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-2);
+    }
+    .incident__actions {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .incident__actions .btn {
+      min-height: var(--touch-target);
+    }
+    .incident-history > summary {
+      min-height: var(--touch-target);
+    }
   }
 }

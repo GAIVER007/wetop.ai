@@ -1037,16 +1037,18 @@ Hospitality», «Следующее направление», плашки со�
 `--shadow-glass`, радиус `--radius-lg`) — блоки страницы:
 
 ```
-.panel  .stat  .kpi  .attention-card  .attention-summary  .section-card  .facts--card
+.panel  .stat  .kpi  .attention-card  .section-card  .facts--card
 .chart  .chain__card  .empty-state  .tbl-wrap  .table-scroll
-.room-card  .rooms-link  .incident  .incident-history  .inventory-summary
-.inventory-categories  .inventory-card  .feature-pending  .onboarding__section
+.room-card  .incident  .incident-history  .inventory-summary
+.inventory-card  .feature-pending  .onboarding__section
 .booking-head  .booking-footer  .finance-block  .reservations-controls
 .control-journal-search  .board-toolbar  .toolbar
 ```
 
-Список живёт в двух местах — здесь и в `glass.css`; сторож `tests/unit/desk-glass.test.ts` не даёт им
-разойтись. Новый блок страницы добавляется в оба.
+С MV8.5 DS0b отдельного `glass.css` нет: плоскую заливку каждый блок получает в своём правиле у
+владельца (примитивы в `components.css`, блоки разделов в их файлах). Сторож
+`tests/unit/desk-glass.test.ts` проверяет, что у каждого блока из списка есть правило и в нём нет
+градиента, белой кромки, размытия и `--glass-panel`. Новый блок страницы добавляется в список.
 
 **Стекло внутри стекла не бывает.** Блок из списка, попавший внутрь другого блока из списка, теряет
 размытие, тень и крупный радиус и остаётся тихой заливкой `--surface-muted` с рамкой: два размытия

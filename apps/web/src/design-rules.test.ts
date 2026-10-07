@@ -188,7 +188,8 @@ describe('план дизайн-системы §10: попутные дефек
 });
 
 describe('DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid)', () => {
-  const globalsCss = readFileSync(join(SRC, 'app', 'globals.css'), 'utf8');
+  // примитивы с MV8.5 DS0b живут в components.css (один владелец на селектор)
+  const globalsCss = readFileSync(join(SRC, 'app', 'components.css'), 'utf8');
   const uiSource = readFileSync(join(SRC, 'components', 'ui.tsx'), 'utf8');
   it('наведение меняет фон, а не текст или границу', () => {
     const hover = globalsCss.match(/\.inp:hover[^{]*\{([^}]*)\}/)?.[1] ?? '';

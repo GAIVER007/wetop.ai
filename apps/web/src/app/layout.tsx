@@ -18,6 +18,7 @@ import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import './globals.css';
+import './components.css';
 import './workspace.css';
 import './today/desk.css';
 import './today/dashboard.css';
@@ -28,8 +29,6 @@ import '../components/shell/sidebar.css';
 import '../components/shell/top-menu.css';
 import './hotel-settings/settings.css';
 import './control.css';
-// Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).
-import './glass.css';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',

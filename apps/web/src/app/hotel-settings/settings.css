@@ -1,410 +1,507 @@
-.settings-tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
-  scrollbar-width: thin;
-  padding: var(--space-1);
-  gap: var(--space-1);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--surface-muted);
-  margin-bottom: var(--space-6);
-}
-.settings-tabs a {
-  flex: none;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-control);
-  color: var(--text-2);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-}
-.settings-tabs a:hover {
-  background: var(--surface-muted);
-}
-.settings-tabs a[aria-current='page'] {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-/* «Настройки объекта» (SET1, ADR-115): блоки одной колонкой, поля по две в ряд */
-.settings-stack,
-.settings-form {
-  display: grid;
-  gap: var(--space-4);
-  max-width: 880px;
-  min-width: 0;
-}
-.settings-block {
-  margin: 0;
-  min-width: 0;
-  padding: var(--space-6);
-  gap: 0;
-}
-.settings-block > h2 {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-lg);
-}
-.settings-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-.settings-fields .field {
-  margin: 0;
-  min-width: 0;
-}
-.settings-fields__wide {
-  grid-column: 1 / -1;
-}
-.settings-fields--times {
-  grid-template-columns: repeat(2, minmax(0, 200px));
-  margin-bottom: var(--space-4);
-}
-.settings-block .settings-facts {
-  margin: 0 0 var(--space-4);
-}
-.settings-block .settings-facts > div:last-child {
-  border-bottom: 0;
-}
-.settings-block > :last-child {
-  margin-bottom: 0;
-}
-.settings-save-state {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.settings-save-state--saved {
-  color: var(--success-2);
-}
-/* поле времени «Проживания» (SET2): 24 часа текстом, ширина под «14:00» */
-.settings-time {
-  font-variant-numeric: tabular-nums;
-}
-/* «Услуги» (SET3): вводная строка, название-кнопка как ссылки таблиц, архив приглушён (не зачёркнут — это не сторно) */
-.settings-lead {
-  margin-bottom: var(--space-4);
-}
-.settings-service-name {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  min-height: 24px;
-}
-.settings-service-name:hover,
-.settings-service-name:focus-visible {
-  color: var(--primary);
-  text-decoration: underline;
-}
-.settings-table--services tr.is-archived td {
-  color: var(--muted);
-}
-/* подстрока под названием — только на телефоне, где колонки группы и статуса скрыты */
-.settings-service-sub {
-  display: none;
-}
-.settings-service-form {
-  display: grid;
-  gap: var(--space-4);
-}
-.settings-service-form .field {
-  margin: 0;
-}
-.settings-service-form .settings-note {
-  margin: 0;
-}
-.settings-service-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
-}
-.settings-service-help h2 {
-  font-size: var(--text-xl);
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.settings-service-help p {
-  margin: var(--space-1) 0 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.settings-facts {
-  margin: 0 0 var(--space-6);
-}
-.settings-facts > div {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
-  gap: var(--space-4);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--border-soft);
-}
-.settings-facts dt {
-  color: var(--muted);
-}
-.settings-facts dd {
-  margin: 0;
-  font-weight: var(--weight-medium);
-  overflow-wrap: anywhere;
-}
-.settings-note {
-  color: var(--muted);
-  font-size: var(--text-sm);
-  margin: 0 0 var(--space-4);
-  line-height: 1.6;
-}
-#channex-connection {
-  scroll-margin-top: calc(var(--header-h) + var(--space-4));
-}
-.settings-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-}
-.settings-toolbar .field {
-  margin: 0;
-  min-width: 0;
-  flex: 0 1 320px;
-}
-.settings-count {
-  color: var(--muted);
-  font-size: var(--text-sm);
-  padding-bottom: var(--space-2);
-}
-.settings-catalog .table-scroll > .settings-table {
-  table-layout: fixed;
-  min-width: 0;
-}
-.settings-table .cell-sub {
-  display: block;
-}
-.settings-table th:first-child {
-  width: 42%;
-}
-.settings-table td,
-.settings-table th {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  padding: var(--space-4);
-}
-.settings-table .num {
-  font-variant-numeric: tabular-nums;
-}
-.settings-service-help {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-.settings-service-help > svg {
-  color: var(--primary);
-  flex-shrink: 0;
-}
-.settings-service-help > div {
-  flex: 1;
-  min-width: 180px;
-}
-.settings-connections .panel {
-  padding: var(--space-6);
-}
-.settings-connections .panel__title {
-  font-size: var(--text-xl);
-}
-.settings-connections .connection-grid {
-  align-items: stretch;
-}
-.settings-connections .connection-grid > .panel {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: var(--space-4);
-}
-.settings-connections .connection-grid .btn {
-  margin-top: auto;
-}
-.settings-connections .connection-grid .note {
-  margin: 0;
-}
-.settings-site .site-settings-card {
-  padding: var(--space-6);
-}
-.settings-site .site-settings-card > .facts {
-  margin: var(--space-6) 0;
-}
-.settings-site .site-settings-card .panel__title {
-  font-size: var(--text-xl);
-}
-.settings-site h2,
-.settings-site h3 {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-lg);
-}
-.settings-site .site-domains-heading {
-  margin-bottom: var(--space-2);
-}
-.settings-disclosure {
-  border-top: 1px solid var(--border);
-  padding: var(--space-4) 0;
-  margin-top: var(--space-4);
-}
-.settings-disclosure > summary {
-  cursor: pointer;
-  font-weight: var(--weight-semibold);
-  min-height: var(--control-h);
-  align-content: center;
-}
-.settings-disclosure > div {
-  padding-top: var(--space-4);
-}
-.settings-site .code {
-  max-width: 100%;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-@media (max-width: 600px) {
+@layer sections {
   .settings-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: thin;
+    padding: var(--space-1);
     gap: var(--space-1);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface-muted);
+    margin-bottom: var(--space-6);
   }
   .settings-tabs a {
-    min-height: 44px;
-    padding: var(--space-2);
+    flex: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-control);
+    color: var(--text-2);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
   }
-  .settings-block,
-  .settings-connections .panel,
-  .settings-site .site-settings-card {
-    padding: var(--space-4);
+  .settings-tabs a:hover {
+    background: var(--surface-muted);
   }
-  .settings-facts > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-1);
+  .settings-tabs a[aria-current='page'] {
+    background: var(--primary-soft);
+    color: var(--primary);
+  } /* «Настройки объекта» (SET1, ADR-115): блоки одной колонкой, поля по две в ряд */
+  .settings-stack,
+  .settings-form {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 880px;
+    min-width: 0;
   }
-  .settings-fields,
+  .settings-block {
+    margin: 0;
+    min-width: 0;
+    padding: var(--space-6);
+    gap: 0;
+  }
+  .settings-block > h2 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-lg);
+  }
+  .settings-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .settings-fields .field {
+    margin: 0;
+    min-width: 0;
+  }
+  .settings-fields__wide {
+    grid-column: 1 / -1;
+  }
   .settings-fields--times {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 200px));
+    margin-bottom: var(--space-4);
+  }
+  .settings-block .settings-facts {
+    margin: 0 0 var(--space-4);
+  }
+  .settings-block .settings-facts > div:last-child {
+    border-bottom: 0;
+  }
+  .settings-block > :last-child {
+    margin-bottom: 0;
+  }
+  .settings-save-state {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .settings-save-state--saved {
+    color: var(--success-2);
+  } /* поле времени «Проживания» (SET2): 24 часа текстом, ширина под «14:00» */
+  .settings-time {
+    font-variant-numeric: tabular-nums;
+  } /* «Услуги» (SET3): вводная строка, название-кнопка как ссылки таблиц, архив приглушён (не зачёркнут — это не сторно) */
+  .settings-lead {
+    margin-bottom: var(--space-4);
   }
   .settings-service-name {
-    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    min-height: 24px;
   }
-  .settings-table--services .settings-col-wide {
+  .settings-service-name:hover,
+  .settings-service-name:focus-visible {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  .settings-table--services tr.is-archived td {
+    color: var(--muted);
+  } /* подстрока под названием — только на телефоне, где колонки группы и статуса скрыты */
+  .settings-service-sub {
     display: none;
   }
-  .settings-table--services th:first-child {
-    width: auto;
+  .settings-service-form {
+    display: grid;
+    gap: var(--space-4);
   }
-  .settings-table--services .settings-service-sub {
+  .settings-service-form .field {
+    margin: 0;
+  }
+  .settings-service-form .settings-note {
+    margin: 0;
+  }
+  .settings-service-actions {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    justify-content: flex-end;
     gap: var(--space-2);
   }
-  .settings-service-actions .btn {
-    flex: 1;
+  .settings-service-help h2 {
+    font-size: var(--text-xl);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .settings-service-help p {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .settings-facts {
+    margin: 0 0 var(--space-6);
+  }
+  .settings-facts > div {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .settings-facts dt {
+    color: var(--muted);
+  }
+  .settings-facts dd {
+    margin: 0;
+    font-weight: var(--weight-medium);
+    overflow-wrap: anywhere;
+  }
+  .settings-note {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    margin: 0 0 var(--space-4);
+    line-height: 1.6;
+  }
+  #channex-connection {
+    scroll-margin-top: calc(var(--header-h) + var(--space-4));
   }
   .settings-toolbar {
-    gap: var(--space-2);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
   }
   .settings-toolbar .field {
-    flex-basis: 100%;
+    margin: 0;
+    min-width: 0;
+    flex: 0 1 320px;
+  }
+  .settings-count {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    padding-bottom: var(--space-2);
+  }
+  .settings-catalog .table-scroll > .settings-table {
+    table-layout: fixed;
+    min-width: 0;
+  }
+  .settings-table .cell-sub {
+    display: block;
+  }
+  .settings-table th:first-child {
+    width: 42%;
   }
   .settings-table td,
   .settings-table th {
-    padding: var(--space-2);
-    font-size: var(--text-sm);
-  }
-  .settings-service-help .btn {
-    width: 100%;
     white-space: normal;
+    overflow-wrap: anywhere;
+    padding: var(--space-4);
+  }
+  .settings-table .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .settings-service-help {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .settings-service-help > svg {
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+  .settings-service-help > div {
+    flex: 1;
+    min-width: 180px;
+  }
+  .settings-connections .panel {
+    padding: var(--space-6);
+  }
+  .settings-connections .panel__title {
+    font-size: var(--text-xl);
+  }
+  .settings-connections .connection-grid {
+    align-items: stretch;
+  }
+  .settings-connections .connection-grid > .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--space-4);
+  }
+  .settings-connections .connection-grid .btn {
+    margin-top: auto;
+  }
+  .settings-connections .connection-grid .note {
+    margin: 0;
+  }
+  .settings-site .site-settings-card {
+    padding: var(--space-6);
+  }
+  .settings-site .site-settings-card > .facts {
+    margin: var(--space-6) 0;
+  }
+  .settings-site .site-settings-card .panel__title {
+    font-size: var(--text-xl);
+  }
+  .settings-site h2,
+  .settings-site h3 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-lg);
+  }
+  .settings-site .site-domains-heading {
+    margin-bottom: var(--space-2);
+  }
+  .settings-disclosure {
+    border-top: 1px solid var(--border);
+    padding: var(--space-4) 0;
+    margin-top: var(--space-4);
   }
   .settings-disclosure > summary {
-    min-height: 44px;
+    cursor: pointer;
+    font-weight: var(--weight-semibold);
+    min-height: var(--control-h);
+    align-content: center;
   }
-}
-
-/* Object settings: one workspace, consistent labels and a compact regional summary. */
-.object-settings { padding: var(--space-6); }
-.object-settings .page__head { align-items: center; margin-bottom: var(--space-4); }
-.object-settings .page__title { font-size: var(--text-2xl); }
-.object-settings .page__subtitle { font-size: var(--text-sm); }
-.object-settings .settings-tabs { margin-bottom: var(--space-6); width: fit-content; max-width: 100%; border: 0; background: var(--surface-muted); }
-.object-settings .settings-tabs a { min-height: var(--touch-target); }
-.object-settings .settings-form, .object-settings .settings-stack { max-width: none; gap: var(--space-4); }
-.object-settings .settings-block { padding: var(--space-6); align-content: start; }
-.object-settings .settings-block > h2 { font-size: var(--text-lg); margin: 0 0 var(--space-4); }
-.object-settings .settings-fields { gap: var(--space-4); }
-.object-settings .field { font-size: var(--text-sm); color: var(--muted); }
-.object-settings .settings-fields input { min-height: var(--touch-target); padding: var(--space-2) var(--space-4); border-color: var(--border-input); background: var(--surface-muted); color: var(--text); }
-.object-settings .settings-fields input:focus-visible { border-color: var(--primary); }
-.object-settings .settings-note { font-size: var(--text-sm); margin: 0 0 var(--space-4); line-height: 1.5; }
-.object-settings .settings-facts { margin: 0; }
-.object-settings .settings-facts > div { border: 0; padding: var(--space-2) 0; }
-.object-settings .settings-service-help { padding: var(--space-4); gap: var(--space-4); }
-.object-settings .settings-service-help h2 { font-size: var(--text-lg); }
-.object-settings .settings-toolbar { margin-bottom: var(--space-4); }
-.object-settings .settings-table th, .object-settings .settings-table td { padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
-@media (min-width: 1000px) {
-  .object-settings .settings-form--general { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-  .object-settings .settings-form--general > [aria-labelledby='settings-main'] { grid-column: 1; grid-row: 1; }
-  .object-settings .settings-form--general > [aria-labelledby='settings-channex-location'] { grid-column: 2; grid-row: 1; padding: var(--space-4); }
-  .object-settings .settings-form--general > [aria-labelledby='settings-legal'] { grid-column: 3; grid-row: 1; }
-  .object-settings .settings-form--general > .settings-region { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr); gap: var(--space-2) var(--space-6); align-items: center; padding: var(--space-4) var(--space-6); }
-  .object-settings .settings-region > h2 { margin: 0; }
-  .object-settings .settings-region .settings-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
-  .object-settings .settings-region .settings-note { grid-column: 1 / -1; margin: 0; }
-  .object-settings .settings-form--general > [role='alert'] { grid-column: 1 / -1; }
-  .object-settings .settings-catalog .table-scroll { max-height: max(240px, calc(100dvh - 415px)); overflow: auto; }
-}
-@media (max-width: 600px) {
-  .object-settings { padding: var(--space-4); }
-  .object-settings .settings-block { padding: var(--space-4); }
-  .object-settings .settings-tabs { width: 100%; }
-  .object-settings .settings-tabs a { flex: 1; justify-content: center; }
-}
-
-/* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.
+  .settings-disclosure > div {
+    padding-top: var(--space-4);
+  }
+  .settings-site .code {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 600px) {
+    .settings-tabs {
+      gap: var(--space-1);
+    }
+    .settings-tabs a {
+      min-height: 44px;
+      padding: var(--space-2);
+    }
+    .settings-block,
+    .settings-connections .panel,
+    .settings-site .site-settings-card {
+      padding: var(--space-4);
+    }
+    .settings-facts > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
+    .settings-fields,
+    .settings-fields--times {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .settings-service-name {
+      min-height: 44px;
+    }
+    .settings-table--services .settings-col-wide {
+      display: none;
+    }
+    .settings-table--services th:first-child {
+      width: auto;
+    }
+    .settings-table--services .settings-service-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .settings-service-actions .btn {
+      flex: 1;
+    }
+    .settings-toolbar {
+      gap: var(--space-2);
+    }
+    .settings-toolbar .field {
+      flex-basis: 100%;
+    }
+    .settings-table td,
+    .settings-table th {
+      padding: var(--space-2);
+      font-size: var(--text-sm);
+    }
+    .settings-service-help .btn {
+      width: 100%;
+      white-space: normal;
+    }
+    .settings-disclosure > summary {
+      min-height: 44px;
+    }
+  } /* Object settings: one workspace, consistent labels and a compact regional summary. */
+  .object-settings {
+    padding: var(--space-6);
+  }
+  .object-settings .page__head {
+    align-items: center;
+    margin-bottom: var(--space-4);
+  }
+  .object-settings .page__title {
+    font-size: var(--text-2xl);
+  }
+  .object-settings .page__subtitle {
+    font-size: var(--text-sm);
+  }
+  .object-settings .settings-tabs {
+    margin-bottom: var(--space-6);
+    width: fit-content;
+    max-width: 100%;
+    border: 0;
+    background: var(--surface-muted);
+  }
+  .object-settings .settings-tabs a {
+    min-height: var(--touch-target);
+  }
+  .object-settings .settings-form,
+  .object-settings .settings-stack {
+    max-width: none;
+    gap: var(--space-4);
+  }
+  .object-settings .settings-block {
+    padding: var(--space-6);
+    align-content: start;
+  }
+  .object-settings .settings-block > h2 {
+    font-size: var(--text-lg);
+    margin: 0 0 var(--space-4);
+  }
+  .object-settings .settings-fields {
+    gap: var(--space-4);
+  }
+  .object-settings .field {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .object-settings .settings-fields input {
+    min-height: var(--touch-target);
+    padding: var(--space-2) var(--space-4);
+    border-color: var(--border-input);
+    background: var(--surface-muted);
+    color: var(--text);
+  }
+  .object-settings .settings-fields input:focus-visible {
+    border-color: var(--primary);
+  }
+  .object-settings .settings-note {
+    font-size: var(--text-sm);
+    margin: 0 0 var(--space-4);
+    line-height: 1.5;
+  }
+  .object-settings .settings-facts {
+    margin: 0;
+  }
+  .object-settings .settings-facts > div {
+    border: 0;
+    padding: var(--space-2) 0;
+  }
+  .object-settings .settings-service-help {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+  .object-settings .settings-service-help h2 {
+    font-size: var(--text-lg);
+  }
+  .object-settings .settings-toolbar {
+    margin-bottom: var(--space-4);
+  }
+  .object-settings .settings-table th,
+  .object-settings .settings-table td {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  @media (min-width: 1000px) {
+    .object-settings .settings-form--general {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+    .object-settings .settings-form--general > [aria-labelledby='settings-main'] {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .object-settings .settings-form--general > [aria-labelledby='settings-channex-location'] {
+      grid-column: 2;
+      grid-row: 1;
+      padding: var(--space-4);
+    }
+    .object-settings .settings-form--general > [aria-labelledby='settings-legal'] {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .object-settings .settings-form--general > .settings-region {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
+      gap: var(--space-2) var(--space-6);
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+    }
+    .object-settings .settings-region > h2 {
+      margin: 0;
+    }
+    .object-settings .settings-region .settings-facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+    .object-settings .settings-region .settings-note {
+      grid-column: 1 / -1;
+      margin: 0;
+    }
+    .object-settings .settings-form--general > [role='alert'] {
+      grid-column: 1 / -1;
+    }
+    .object-settings .settings-catalog .table-scroll {
+      max-height: max(240px, calc(100dvh - 415px));
+      overflow: auto;
+    }
+  }
+  @media (max-width: 600px) {
+    .object-settings {
+      padding: var(--space-4);
+    }
+    .object-settings .settings-block {
+      padding: var(--space-4);
+    }
+    .object-settings .settings-tabs {
+      width: 100%;
+    }
+    .object-settings .settings-tabs a {
+      flex: 1;
+      justify-content: center;
+    }
+  } /* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.
    Телефон, роль и дата входа строками под именем: только на телефоне, где их колонки скрыты. */
-.team-member-sub .team-sub-role {
-  display: none;
-}
-/* шесть колонок: имени хватает трети, выбору роли нужна ширина под «Управляющий» */
-.settings-table--team th:first-child {
-  width: 30%;
-}
-.team-row-actions {
-  text-align: right;
-}
-.team-row-actions > * + * {
-  margin-left: var(--space-2);
-}
-.team-invites {
-  margin-top: var(--space-6);
-}
-.team-invite-form {
-  display: grid;
-  gap: var(--space-4);
-}
-.team-invite-form__actions {
-  display: flex;
-  gap: var(--space-2);
-}
-@media (max-width: 600px) {
-  .settings-table--team .settings-col-wide {
-    display: none;
-  }
-  .settings-table--team th:first-child {
-    width: auto;
-  }
-  .settings-table--team th:last-child {
-    width: 7.5rem;
-  }
   .team-member-sub .team-sub-role {
-    display: block;
+    display: none;
+  } /* шесть колонок: имени хватает трети, выбору роли нужна ширина под «Управляющий» */
+  .settings-table--team th:first-child {
+    width: 30%;
+  }
+  .team-row-actions {
+    text-align: right;
+  }
+  .team-row-actions > * + * {
+    margin-left: var(--space-2);
+  }
+  .team-invites {
+    margin-top: var(--space-6);
+  }
+  .team-invite-form {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .team-invite-form__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .settings-table--team .settings-col-wide {
+      display: none;
+    }
+    .settings-table--team th:first-child {
+      width: auto;
+    }
+    .settings-table--team th:last-child {
+      width: 7.5rem;
+    }
+    .team-member-sub .team-sub-role {
+      display: block;
+    }
   }
 }

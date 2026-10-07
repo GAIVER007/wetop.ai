@@ -2,7 +2,9 @@
  * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.
  * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts
  * сверяет этот файл с генератором: ручная правка делает его красным.
+ * Слой `tokens` (DESIGN.md §20.6): порядок слоёв объявлен первым в globals.css.
  */
+@layer tokens {
 :root, [data-theme='light'] {
   color-scheme: light;
   --bg: #e9f0f8;
@@ -349,4 +351,5 @@
     --axis-line: #e5eaf2;
     --focus: #085fba;
   }
+}
 }

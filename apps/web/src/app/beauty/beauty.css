@@ -1,412 +1,363 @@
 /* Рабочее место салона (срез B2). Отступы по шкале DESIGN.md §3, цвета только токенами */
-.beauty-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  align-items: start;
-}
-
-.beauty-text {
-  margin: 0 0 8px;
-  color: var(--text);
-}
-
-.beauty-list {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.beauty-list li {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  align-items: baseline;
-}
-
-.beauty-note {
-  color: var(--muted);
-}
-
-/* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
-.beauty-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.beauty-bar p {
-  margin: 0;
-  color: var(--muted);
-}
-
-.beauty-form {
-  display: grid;
-  gap: 16px;
-  align-content: start;
-}
-
-.beauty-form h3 {
-  margin: 16px 0 0;
-}
-
-.beauty-check {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.beauty-skills {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-}
-
-/* Телефон: второстепенные колонки каталога скрываются, иначе таблица уезжает вбок */
-@media (max-width: 600px) {
-  .beauty-page .beauty-col-wide {
-    display: none;
+@layer sections {
+  .beauty-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    align-items: start;
   }
-}
-
-/* Скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает
-   страницу на телефоне: те же грабли, что в «Финансах» (finance.css, долги) */
-.beauty-page .table-scroll {
-  position: relative;
-}
-
-/* График мастера (срез B4): выбор мастера, разделы страницы и неделя компактными строками */
-.beauty-pick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  align-items: flex-end;
-  margin-bottom: 16px;
-}
-
-.beauty-section {
-  margin-top: 32px;
-}
-
-.beauty-section h2 {
-  margin: 0;
-}
-
-.beauty-week-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.beauty-week-name {
-  min-width: 128px;
-  font-weight: 600;
-}
-
-.beauty-week-slots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.beauty-week-slot {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.beauty-time {
-  width: 96px;
-}
-
-/* Неделя это две короткие колонки: общий минимум таблиц 520 px режет её на телефоне (workspace.css) */
-.beauty-page .table-scroll > .beauty-week-table {
-  min-width: 0;
-}
-
-/* Журнал записей дня (срез B5): слева часы, дальше столбец на мастера, плитка это запись */
-.beauty-grid-day {
-  display: grid;
-  gap: 8px;
-  justify-content: start;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.beauty-hours {
-  position: relative;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.beauty-hour {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding-right: 8px;
-  border-top: 1px solid transparent;
-}
-
-.beauty-col-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin: 0 0 8px;
-  font-size: var(--text-md);
-}
-
-.beauty-col-body {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.beauty-slot {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px solid var(--border);
-}
-
-.beauty-slot--off {
-  background: var(--primary-soft);
-  opacity: 0.4;
-}
-
-.beauty-slot-free {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.beauty-slot-free:hover,
-.beauty-slot-free:focus-visible {
-  background: var(--primary-soft);
-}
-
-.beauty-tile {
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  display: grid;
-  gap: 4px;
-  padding: 8px;
-  text-align: left;
-  border: 1px solid var(--primary);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.beauty-tile-time {
-  font-weight: 600;
-}
-
-.beauty-tile-service {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.beauty-tile--done {
-  border-style: dashed;
-}
-
-.beauty-tile--no_show {
-  border-color: var(--border);
-  color: var(--muted);
-}
-
-/* День списком: он же единственный вид на телефоне */
-.beauty-daylist {
-  display: none;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.beauty-daylist-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  align-items: baseline;
-  width: 100%;
-  padding: 8px;
-  text-align: left;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  background: none;
-  color: var(--text);
-  cursor: pointer;
-}
-
-.beauty-facts {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-}
-
-.beauty-facts dt {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.beauty-facts dd {
-  margin: 0;
-}
-
-@media (max-width: 600px) {
-  .beauty-grid-day {
-    display: none;
+  .beauty-text {
+    margin: 0 0 8px;
+    color: var(--text);
   }
-
-  .beauty-daylist {
-    display: block;
-  }
-}
-
-/* MV5: shared WETOP calendar and operational screens. */
-.beauty-date-bar {
-  display: flex;
-  gap: 8px;
-  align-items: end;
-  flex-wrap: wrap;
-}
-.beauty-date-bar .field {
-  min-width: 0;
-}
-.beauty-fields-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.beauty-filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin: 24px 0;
-}
-.beauty-mobile-calendar {
-  display: none;
-}
-.beauty-grid-day {
-  justify-content: stretch;
-  margin-top: 24px;
-}
-.beauty-col-head {
-  flex-direction: column;
-  align-items: start;
-}
-.beauty-col-head small {
-  color: var(--muted);
-  font-weight: 400;
-  font-size: var(--text-sm);
-}
-.beauty-tile {
-  align-content: start;
-  gap: 0;
-  padding: 4px 8px;
-  line-height: 1.15;
-}
-.beauty-mobile-timeline {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 8px;
-}
-.beauty-detail-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-.beauty-page .beauty-customers-table {
-  min-width: 0;
-}
-@media (max-width: 600px) {
-  .beauty-mobile-calendar {
-    display: block;
-  }
-  .beauty-grid-day {
-    display: none;
-  }
-  .beauty-date-bar {
-    gap: 4px;
-    width: 100%;
-  }
-  .beauty-date-bar .field {
-    flex: 1;
-  }
-  .beauty-date-bar input {
-    width: 100%;
-    min-width: 0;
-  }
-  .beauty-page .beauty-appointments-table,
-  .beauty-page .beauty-operational-table {
-    min-width: 0;
-  }
-  .beauty-appointments-table thead,
-  .beauty-operational-table thead {
-    display: none;
-  }
-  .beauty-appointments-table tr,
-  .beauty-operational-table tr {
+  .beauty-list {
     display: grid;
     gap: 8px;
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .beauty-appointments-table td,
-  .beauty-page .beauty-operational-table td {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    border: 0;
+    margin: 0;
     padding: 0;
+    list-style: none;
   }
-  .beauty-appointments-table td::before,
-  .beauty-operational-table td::before {
-    content: attr(data-label);
+  .beauty-list li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: baseline;
+  }
+  .beauty-note {
+    color: var(--muted);
+  } /* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
+  .beauty-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .beauty-bar p {
+    margin: 0;
     color: var(--muted);
   }
-  .beauty-customers-table td,
-  .beauty-customers-table th {
-    padding: 8px;
-    overflow-wrap: anywhere;
+  .beauty-form {
+    display: grid;
+    gap: 16px;
+    align-content: start;
   }
-}
-@media (min-width: 601px) {
+  .beauty-form h3 {
+    margin: 16px 0 0;
+  }
+  .beauty-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .beauty-skills {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+  } /* Телефон: второстепенные колонки каталога скрываются, иначе таблица уезжает вбок */
+  @media (max-width: 600px) {
+    .beauty-page .beauty-col-wide {
+      display: none;
+    }
+  } /* Скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает
+   страницу на телефоне: те же грабли, что в «Финансах» (finance.css, долги) */
+  .beauty-page .table-scroll {
+    position: relative;
+  } /* График мастера (срез B4): выбор мастера, разделы страницы и неделя компактными строками */
+  .beauty-pick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .beauty-section {
+    margin-top: 32px;
+  }
+  .beauty-section h2 {
+    margin: 0;
+  }
+  .beauty-week-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .beauty-week-name {
+    min-width: 128px;
+    font-weight: 600;
+  }
+  .beauty-week-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .beauty-week-slot {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .beauty-time {
+    width: 96px;
+  } /* Неделя это две короткие колонки: общий минимум таблиц 520 px режет её на телефоне (workspace.css) */
+  .beauty-page .table-scroll > .beauty-week-table {
+    min-width: 0;
+  } /* Журнал записей дня (срез B5): слева часы, дальше столбец на мастера, плитка это запись */
   .beauty-grid-day {
-    max-height: calc(100vh - 320px);
-    overflow: auto;
+    display: grid;
+    gap: 8px;
+    justify-content: start;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .beauty-hours {
+    position: relative;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .beauty-hour {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-right: 8px;
+    border-top: 1px solid transparent;
   }
   .beauty-col-head {
-    position: sticky;
-    top: 0;
-    z-index: var(--layer-sticky);
-    background: var(--bg);
-    padding: 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 8px;
+    font-size: var(--text-md);
   }
-}
-/* Opaque drawers keep labels readable over the calendar in both themes. */
-.beauty-page .ui-overlay {
-  background: var(--surface);
+  .beauty-col-body {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .beauty-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--border);
+  }
+  .beauty-slot--off {
+    background: var(--primary-soft);
+    opacity: 0.4;
+  }
+  .beauty-slot-free {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .beauty-slot-free:hover,
+  .beauty-slot-free:focus-visible {
+    background: var(--primary-soft);
+  }
+  .beauty-tile {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    display: grid;
+    gap: 4px;
+    padding: 8px;
+    text-align: left;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .beauty-tile-time {
+    font-weight: 600;
+  }
+  .beauty-tile-service {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .beauty-tile--done {
+    border-style: dashed;
+  }
+  .beauty-tile--no_show {
+    border-color: var(--border);
+    color: var(--muted);
+  } /* День списком: он же единственный вид на телефоне */
+  .beauty-daylist {
+    display: none;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .beauty-daylist-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: baseline;
+    width: 100%;
+    padding: 8px;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .beauty-facts {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+  }
+  .beauty-facts dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .beauty-facts dd {
+    margin: 0;
+  }
+  @media (max-width: 600px) {
+    .beauty-grid-day {
+      display: none;
+    }
+
+    .beauty-daylist {
+      display: block;
+    }
+  } /* MV5: shared WETOP calendar and operational screens. */
+  .beauty-date-bar {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+  .beauty-date-bar .field {
+    min-width: 0;
+  }
+  .beauty-fields-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .beauty-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .beauty-mobile-calendar {
+    display: none;
+  }
+  .beauty-grid-day {
+    justify-content: stretch;
+    margin-top: 24px;
+  }
+  .beauty-col-head {
+    flex-direction: column;
+    align-items: start;
+  }
+  .beauty-col-head small {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: var(--text-sm);
+  }
+  .beauty-tile {
+    align-content: start;
+    gap: 0;
+    padding: 4px 8px;
+    line-height: 1.15;
+  }
+  .beauty-mobile-timeline {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .beauty-detail-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .beauty-page .beauty-customers-table {
+    min-width: 0;
+  }
+  @media (max-width: 600px) {
+    .beauty-mobile-calendar {
+      display: block;
+    }
+    .beauty-grid-day {
+      display: none;
+    }
+    .beauty-date-bar {
+      gap: 4px;
+      width: 100%;
+    }
+    .beauty-date-bar .field {
+      flex: 1;
+    }
+    .beauty-date-bar input {
+      width: 100%;
+      min-width: 0;
+    }
+    .beauty-page .beauty-appointments-table,
+    .beauty-page .beauty-operational-table {
+      min-width: 0;
+    }
+    .beauty-appointments-table thead,
+    .beauty-operational-table thead {
+      display: none;
+    }
+    .beauty-appointments-table tr,
+    .beauty-operational-table tr {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .beauty-appointments-table td,
+    .beauty-page .beauty-operational-table td {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border: 0;
+      padding: 0;
+    }
+    .beauty-appointments-table td::before,
+    .beauty-operational-table td::before {
+      content: attr(data-label);
+      color: var(--muted);
+    }
+    .beauty-customers-table td,
+    .beauty-customers-table th {
+      padding: 8px;
+      overflow-wrap: anywhere;
+    }
+  }
+  @media (min-width: 601px) {
+    .beauty-grid-day {
+      max-height: calc(100vh - 320px);
+      overflow: auto;
+    }
+    .beauty-col-head {
+      position: sticky;
+      top: 0;
+      z-index: var(--layer-sticky);
+      background: var(--bg);
+      padding: 8px 0;
+    }
+  } /* Opaque drawers keep labels readable over the calendar in both themes. */
+  .beauty-page .ui-overlay {
+    background: var(--surface);
+  }
 }

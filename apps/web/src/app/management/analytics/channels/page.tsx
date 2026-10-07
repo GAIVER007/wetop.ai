@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../../lib/vertical-guard';
 import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { hotelToday } from '../../../../lib/hotel-api';
@@ -13,6 +14,7 @@ import '../analytics.css';
  * каждому каналу за период заезда, с долями, итогом, сравнением с другим периодом и выгрузкой.
  */
 export default async function ChannelsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseChannelsQuery(sp, today);

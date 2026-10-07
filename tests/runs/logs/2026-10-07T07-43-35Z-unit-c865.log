@@ -1,0 +1,47 @@
+# Модульные (unit) · 07.10.2026 12:43 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-43-35Z-unit-c865.json' 'apps/web/src/app/branches/switch.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ❯ |unit| apps/web/src/app/branches/switch.test.ts (11 tests | 2 failed) 51ms
+   ✓ переключение сохраняет безопасный раздел /chessboard 35ms
+   ✓ переключение сохраняет безопасный раздел /reservations/other-branch-booking 1ms
+   ✓ переключение сохраняет безопасный раздел /guests/other-guest 1ms
+   ✓ переключение сохраняет безопасный раздел /finance?folioId=old 1ms
+   ✓ переключение сохраняет безопасный раздел https://outside.test 1ms
+   ✓ переключение сохраняет безопасный раздел //outside.test 0ms
+   ✓ чужой филиал не меняет cookie 1ms
+   ✓ canonical landing for verified FOOD_SERVICE branch ignores old vertical route 0ms
+   ✓ canonical landing for verified BEAUTY branch ignores old vertical route 0ms
+   × MV9 shared analytics survives BEAUTY branch switch without old filters 9ms
+   × MV9 shared analytics survives FOOD_SERVICE branch switch without old filters 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > MV9 shared analytics survives BEAUTY branch switch without old filters
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > MV9 shared analytics survives FOOD_SERVICE branch switch without old filters
+AssertionError: expected [Function] to throw error including 'redirect:/management/analytics' but got 'redirect:/today'
+
+Expected: "redirect:/management/analytics"
+Received: "redirect:/today"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:79:35
+     77|   state.list.mockResolvedValue({ items: [{ id: 'own', vertical, locati…
+     78|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+     79|   await expect(selectBranch(form)).rejects.toThrow('redirect:/manageme…
+       |                                   ^
+     80| });
+     81|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  11:43:38
+   Duration  1.35s (transform 80%, import 15%, tests 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-43-35Z-unit-c865.json
+
+# код выхода 1 · 4 с

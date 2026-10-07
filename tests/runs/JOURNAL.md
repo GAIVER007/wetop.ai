@@ -6690,3 +6690,4 @@
 | 06.10.2026 18:29 | integration | ✅ 767 из 767 | 2 мин 6 с | 8526d50 +5 | [лог](logs/2026-10-06T13-29-17Z-integration-844b.log) | MKT1B review: full integration, fresh base, deterministic seed property in tables-role |
 | 06.10.2026 18:31 | typecheck | ✅ без ошибок | 40 с | 8526d50 +5 | [лог](logs/2026-10-06T13-31-31Z-typecheck-e0f4.log) | MKT1B review final |
 | 06.10.2026 18:32 | lint | ✅ без ошибок | 36 с | 8526d50 +5 | [лог](logs/2026-10-06T13-32-12Z-lint-47a2.log) | MKT1B review final |
+| 07.10.2026 12:58 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/calendar-workspace.spec.ts tests/ui/chessboard-statistics.spec.ts tests/ui/chessboard-compact | ✅ 13 из 13 | 2 мин 40 с | e3fadd0 +9 | [лог](logs/2026-10-07T07-58-10Z-e2e-61e6.log) | Release-based calendar candidate: viewport, sidebar, fullscreen, statistics |

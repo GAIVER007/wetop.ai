@@ -7123,3 +7123,6 @@
 | 07.10.2026 14:31 | unit | ✅ 3734 из 3737, пропущено 3 | 1 мин 59 с | a8deeb1 | [лог](logs/2026-10-07T09-31-31Z-unit-3ac9.log) |  |
 | 07.10.2026 15:07 | typecheck | ✅ без ошибок | 1 мин 27 с | 08c4e2a | [лог](logs/2026-10-07T10-07-08Z-typecheck-25b2.log) |  |
 | 07.10.2026 15:08 | unit (частично: -- apps/api/src/auth/route-access.test.ts packages/domain/src/marketing apps/api/src/finance) | ✅ 3762 из 3765, пропущено 3 | 2 мин 29 с | 08c4e2a | [лог](logs/2026-10-07T10-08-36Z-unit-77ba.log) |  |
+| 07.10.2026 15:20 | e2e | ✅ 26 из 26 | 1 мин 35 с | 83ef492 | [лог](logs/2026-10-07T10-20-17Z-e2e-a626.log) | #268 после слияния main 1a9b2810 |
+| 07.10.2026 15:21 | typecheck | ✅ без ошибок | 1 мин 20 с | 83ef492 | [лог](logs/2026-10-07T10-21-57Z-typecheck-5a6d.log) | #268 после слияния main 1a9b2810 |
+| 07.10.2026 15:23 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 3 с | 83ef492 | [лог](logs/2026-10-07T10-23-18Z-unit-e354.log) | #268 после слияния main 1a9b2810 |

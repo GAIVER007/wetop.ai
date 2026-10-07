@@ -268,6 +268,11 @@ for (const width of [1440, 390])
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
       await page.emulateMedia({ colorScheme: theme });
       await page.goto(`/calendar?date=${day}`);
+      for (const name of ['Предыдущий день', 'Следующий день']) {
+        const arrow = page.getByRole('link', { name, exact: true });
+        await expect(arrow).toBeVisible();
+        expect((await arrow.boundingBox())!.width).toBeGreaterThanOrEqual(44);
+      }
       await expect(await book(page)).toBeHidden();
       await page.reload();
       if (width === 390) {

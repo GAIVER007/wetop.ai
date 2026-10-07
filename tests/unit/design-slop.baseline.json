@@ -8,7 +8,7 @@
     "apps/web/src/app/premium.css": 80,
     "apps/web/src/app/today/dashboard.css": 8,
     "apps/web/src/app/workspace.css": 48,
-    "apps/web/src/components/primitives.css": 25,
+    "apps/web/src/components/primitives.css": 24,
     "apps/web/src/components/shared-sections.css": 20
   },
   "uppercase": {
@@ -84,7 +84,7 @@
     "apps/web/src/app/today/owner-dashboard.css": 104,
     "apps/web/src/app/today/vertical-today.css": 8,
     "apps/web/src/app/workspace.css": 87,
-    "apps/web/src/components/primitives.css": 25,
+    "apps/web/src/components/primitives.css": 24,
     "apps/web/src/components/shared-sections.css": 34
   },
   "inline-style": {

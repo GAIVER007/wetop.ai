@@ -1,0 +1,204 @@
+# Сквозные (e2e) · 07.10.2026 20:31 Алматы · MacBook-Air-Urij.local
+# коммит 93ff757 (codex/mv85-ds0b-css-foundation)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'calendar and drawer'
+[WebServer] (node:91431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:92220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (1.6m)
+(node:94511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (2.3s)
+(node:95197) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 light, keyboard, axe, no overflow (2.0s)
+(node:95520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (1.5s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 90000ms exceeded.
+
+      300 |         await expect(page.getByRole('main')).toBeVisible();
+      301 |         expect(
+    > 302 |           await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+          |                      ^
+      303 |         ).toBeLessThanOrEqual(1);
+      304 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      305 |         await page.screenshot({
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:302:22
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      20 | async function reset(page: Page, request: APIRequestContext) {
+      21 |   const response = await request.post(`${api}/__test/reset`);
+    > 22 |   expect(response.ok()).toBe(true);
+         |                         ^
+      23 |   const f: Fixture = await response.json();
+      24 |   await scope(page, f.business, f.locations[0]!);
+      25 |   return f;
+        at reset (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:22:25)
+        at seed (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:28:13)
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:236:23
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      81 | }
+      82 | test.afterAll(async ({ request }) => {
+    > 83 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      84 | });
+      85 |
+      86 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:83:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      20 | async function reset(page: Page, request: APIRequestContext) {
+      21 |   const response = await request.post(`${api}/__test/reset`);
+    > 22 |   expect(response.ok()).toBe(true);
+         |                         ^
+      23 |   const f: Fixture = await response.json();
+      24 |   await scope(page, f.business, f.locations[0]!);
+      25 |   return f;
+        at reset (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:22:25)
+        at seed (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:28:13)
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:236:23
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      81 | }
+      82 | test.afterAll(async ({ request }) => {
+    > 83 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      84 | });
+      85 |
+      86 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:83:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      20 | async function reset(page: Page, request: APIRequestContext) {
+      21 |   const response = await request.post(`${api}/__test/reset`);
+    > 22 |   expect(response.ok()).toBe(true);
+         |                         ^
+      23 |   const f: Fixture = await response.json();
+      24 |   await scope(page, f.business, f.locations[0]!);
+      25 |   return f;
+        at reset (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:22:25)
+        at seed (/private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:28:13)
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:236:23
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      81 | }
+      82 | test.afterAll(async ({ request }) => {
+    > 83 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+         |                                                              ^
+      84 | });
+      85 |
+      86 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:83:62
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+
+# код выхода 1 · 4 мин 24 с

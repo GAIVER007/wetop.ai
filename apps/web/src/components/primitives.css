@@ -113,7 +113,6 @@
   }
   .panel--lg {
     padding: var(--space-4);
-    gap: 12px;
   }
   .panel__title {
     font-size: var(--text-md);
@@ -228,7 +227,6 @@
   .btn--ghost {
     background: transparent;
     color: var(--danger);
-    padding: 0 var(--space-1);
   }
   .btn--sm {
     min-height: 28px;

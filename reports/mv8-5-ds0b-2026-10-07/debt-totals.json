@@ -19,7 +19,7 @@
   },
   "after": {
     "color-literal": 0,
-    "space-off-scale": 250,
+    "space-off-scale": 249,
     "uppercase": 1,
     "shadow-on-page": 6,
     "window-confirm": 0,
@@ -29,7 +29,7 @@
     "radius-literal": 42,
     "z-index-literal": 14,
     "font-literal": 79,
-    "space-literal-not-var": 957,
+    "space-literal-not-var": 956,
     "inline-style": 43,
     "breakpoint-literal": 72,
     "layer-name": 0,

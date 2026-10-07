@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 07.10.2026 20:41 Алматы · MacBook-Air-Urij.local
+# коммит 93ff757 (codex/mv85-ds0b-css-foundation)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'calendar and drawer 1440 light'
+[WebServer] (node:17988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:20032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (22.5s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    26
+
+      272 |         const arrow = page.getByRole('link', { name, exact: true });
+      273 |         await expect(arrow).toBeVisible();
+    > 274 |         expect((await arrow.boundingBox())!.width).toBeGreaterThanOrEqual(44);
+          |                                                    ^
+      275 |       }
+      276 |       await expect(await book(page)).toBeHidden();
+      277 |       await page.reload();
+        at /private/tmp/wetop-public1-20261007/tests/beauty-ui/beauty.spec.ts:274:52
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:232:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+
+# код выхода 1 · 1 мин 47 с

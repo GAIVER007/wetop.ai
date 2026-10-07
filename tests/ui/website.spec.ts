@@ -145,6 +145,29 @@ test('настройки: пауза и удаление — в «Опасной
   await expect(page.getByTestId('site-toggle')).toHaveText('Приостановить сайт');
 });
 
+test('MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409', async ({
+  page,
+  request,
+}) => {
+  await realDomain(request);
+  await request.post(`${API}/__test/control`, { data: { siteManaged: true } });
+  for (const path of ['/website/settings', '/website/booking']) {
+    await page.goto(path);
+    const main = page.getByRole('main');
+    const notice = main.getByTestId('website-managed-site');
+    await expect(notice).toContainText('сайт WETOP');
+    await expect(notice.getByRole('link')).toHaveAttribute('href', '/marketing/site');
+    await expect(main.getByTestId('site-card')).toHaveCount(0);
+    await expect(main.getByTestId('site-danger')).toHaveCount(0);
+  }
+  const r = await request.patch(`${API}/analytics/sites/ui-site`, {
+    headers: TEST_CLIENT,
+    data: { hosts: ['rogue.example.com'] },
+  });
+  expect(r.status()).toBe(409);
+  expect((await r.json()).code).toBe('MANAGED_SITE_READ_ONLY');
+});
+
 test('четыре вкладки: доступность в двух темах, телефон без прокрутки вбок', async ({
   page,
   request,

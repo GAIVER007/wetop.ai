@@ -243,4 +243,46 @@ describe('сайты и отчёты /analytics', () => {
       expect.arrayContaining(['analytics.site.update', 'analytics.site.delete']),
     );
   });
+
+  it('MKT7: сайт WETOP (связан с управляемым сайтом) старым путём не правится и не удаляется: 409, строка цела', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/analytics/sites')
+      .send({ name: 'Сайт WETOP', hosts: ['luxx.sites.test'] })
+      .expect(201);
+    const id = created.body.site.id;
+    repo.markManaged(id);
+    const before = (await repo.site(id))!;
+    const audits = repo.audits.length;
+    for (const body of [
+      { hosts: ['rogue.example.com'] },
+      { status: 'PAUSED' },
+      { bookingEnabled: false },
+      { bookingRatePlanCode: 'BAR' },
+      { name: 'Новое имя' },
+    ]) {
+      const r = await request(app.getHttpServer()).patch(`/analytics/sites/${id}`).send(body).expect(409);
+      expect(r.body.code).toBe('MANAGED_SITE_READ_ONLY');
+      expect(r.body.message).toContain('Маркетинг');
+    }
+    const del = await request(app.getHttpServer()).delete(`/analytics/sites/${id}`).expect(409);
+    expect(del.body.code).toBe('MANAGED_SITE_READ_ONLY');
+    expect(await repo.site(id)).toEqual(before);
+    expect(repo.audits.length).toBe(audits);
+    // чтение и статистика остаются
+    const card = await request(app.getHttpServer()).get(`/analytics/sites/${id}`).expect(200);
+    expect(card.body.site.managed).toBe(true);
+    await request(app.getHttpServer()).get(`/analytics/sites/${id}/report`).expect(200);
+  });
+
+  it('MKT7: репозиторий сам не трогает строку управляемого сайта, даже если проверку сервиса обошли', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/analytics/sites')
+      .send({ name: 'Сайт WETOP 2', hosts: ['two.sites.test'] })
+      .expect(201);
+    const id = created.body.site.id;
+    repo.markManaged(id);
+    expect(await repo.updateSite(id, { hosts: ['rogue.example.com'] })).toBeNull();
+    expect(await repo.deleteSite(id)).toBe(false);
+    expect((await repo.site(id))!.hosts).toEqual(['two.sites.test']);
+  });
 });

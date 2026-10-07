@@ -1842,6 +1842,8 @@ export interface TrackedSite {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** MKT7: сайт счётчика управляемого сайта WETOP; настраивается только в «Маркетинг → Публикация сайта» */
+  managed?: boolean;
 }
 export interface TrackedSiteCard {
   site: TrackedSite;
@@ -1905,6 +1907,119 @@ export interface SiteReport {
     charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
+/** MKT7: состояние управляемого сайта для страницы публикации; документа здесь нет */
+export interface MarketingSiteSummary {
+  id: string;
+  name: string;
+  slug: string;
+  state: 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
+  latest: { id: string; revision: number } | null;
+  published: { id: string; revision: number } | null;
+  /** Действующий основной адрес; до публикации null */
+  url: string | null;
+  /** Адрес, который получит сайт при публикации; null, если адрес сайтов не настроен */
+  proposedUrl: string | null;
+}
+
+export interface SitePublicationRow {
+  id: string;
+  action: 'PUBLISH' | 'ROLLBACK' | 'PAUSE' | 'RESUME' | 'ARCHIVE';
+  versionId: string | null;
+  revision: number | null;
+  previousVersionId: string | null;
+  previousRevision: number | null;
+  actorId: string | null;
+  createdAt: string;
+}
+
+export interface BookingSourceView {
+  canonicalTrackedSiteId: string | null;
+  /** Действующие тарифы объекта для явного выбора тарифа брони при публикации */
+  ratePlans: Array<{ id: string; code: string; name: string }>;
+  options: Array<{
+    id: string;
+    name: string;
+    status: 'ACTIVE' | 'PAUSED';
+    bookingEnabled: boolean;
+    bookingRatePlan: { id: string; code: string; name: string } | null;
+    managed: boolean;
+  }>;
+}
+
+/** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
+export const marketingSiteApi = {
+  current: () => getJson<{ site: MarketingSiteSummary | null }>('/marketing/site'),
+  publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
+  bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
+  preview: (versionId: string) =>
+    sendJson<{ url: string; expiresAt: string }>('POST', '/marketing/site/preview', { versionId }),
+  publish: (expectedVersionId: string, bookingRatePlanId?: string) =>
+    sendJson<{ site: MarketingSiteSummary; changed: boolean }>('POST', '/marketing/site/publish', {
+      expectedVersionId,
+      ...(bookingRatePlanId ? { bookingRatePlanId } : {}),
+    }),
+  pause: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/pause', {}),
+  resume: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/resume', {}),
+  rollback: (versionId: string) =>
+    sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/rollback', { versionId }),
+  archive: () => sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
+  setBookingSource: (trackedSiteId: string | null) =>
+    sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
+};
+
+/** MKT8: изображение библиотеки сайта; ключа объекта и адреса бакета нет, только подписанный адрес на срок */
+export interface SiteAssetView {
+  id: string;
+  kind: 'IMAGE' | 'LOGO' | 'FAVICON';
+  status: 'READY';
+  source: 'UPLOAD' | 'CHANNEX_IMPORT';
+  mimeType: string;
+  byteSize: number;
+  width: number;
+  height: number;
+  sha256: string;
+  defaultAlt: Record<string, string> | null;
+  createdAt: string;
+  previewUrl: string | null;
+}
+
+export interface SiteAssetLibrary {
+  storage: 'READY' | 'OFF';
+  limits: { maxUploadBytes: number };
+  assets: SiteAssetView[];
+}
+
+export interface ChannexPhotoChoice {
+  photoId: string;
+  description: string | null;
+  forRoomType: boolean;
+  position: number;
+}
+
+/** «Маркетинг → Изображения сайта» (MKT8): библиотека филиала в строгом scope; файл уходит в API, не в хранилище */
+export const siteAssetsApi = {
+  list: () => getJson<SiteAssetLibrary>('/marketing/site/assets'),
+  upload: async (file: File, kind: string): Promise<{ asset: SiteAssetView; created: boolean }> => {
+    const form = new FormData();
+    form.append('kind', kind);
+    form.append('file', file, file.name);
+    const res = await backendFetch('/marketing/site/assets', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { asset: SiteAssetView; created: boolean };
+  },
+  updateAlt: (id: string, defaultAlt: Record<string, string> | null) =>
+    sendJson<{ asset: SiteAssetView }>('PATCH', `/marketing/site/assets/${encodeURIComponent(id)}`, { defaultAlt }),
+  remove: (id: string) =>
+    sendJson<{ deleted: true; retainedForPublishedHistory: boolean }>('DELETE', `/marketing/site/assets/${encodeURIComponent(id)}`, {}),
+  channexPhotos: () => getJson<{ state: string; photos: ChannexPhotoChoice[] }>('/marketing/site/assets/channex'),
+  importChannex: (photoIds: string[]) =>
+    sendJson<{ imported: Array<{ photoId: string; created: boolean; asset: SiteAssetView }>; failed: Array<{ photoId: string; code: string }> }>(
+      'POST',
+      '/marketing/site/assets/channex/import',
+      { photoIds },
+    ),
+};
+
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
   card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),

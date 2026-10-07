@@ -1,0 +1,61 @@
+# Интеграционные (integration) · 07.10.2026 21:32 Алматы · vm
+# коммит ba1d114 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-32-01Z-integration-4d51.json' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"2574fa6c-ae5e-4437-898b-d96d7155f302","kind":"IMAGE","byteSize":76}
+
+(node:8031) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-assets.test.ts (11 tests | 1 failed) 2976ms
+   ❯ MKT8 библиотека изображений сайта (10)
+     ✓ §17, §20, §33–§35: загрузка снимает EXIF и GPS, хранит только готовую копию, SHA от неё; ключа объекта наружу нет 143ms
+     ✓ §25–§27, §86: повтор той же картинки возвращает тот же ассет; другой вид и другой филиал отдельно; гонка даёт одного 205ms
+     ✓ §12–§15, §88: чужие и вредные файлы, предел 10 МиБ, лишние поля, вид: отказ без записи в хранилище и базу 236ms
+     ✓ §75: запись в хранилище не удалась: строки нет, 503; без права settings 403 33ms
+     ✓ §31, §32, §36: список без удалённых и без ключа объекта; ALT правится; чужой ассет 404 167ms
+     ✓ §39, §85: ассет только из черновиков после удаления уходит и из хранилища 91ms
+     ✓ §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 646ms
+     ✓ §28, §29, гонка удаления и публикации: удержано, если версия успела опубликоваться; иначе публикация отказывает 135ms
+     × §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор 29ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 699ms
+   ✓ MKT8 хранилище не настроено (1)
+     ✓ §6: метаданные читаются, загрузка и импорт 503 без запасного хранилища 34ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор
+AssertionError: expected [] to deeply equal [ …(4) ]
+
+- Expected
++ Received
+
+- [
+-   "808dbadb8df3d9d86545ef441e353c941f8e8787c9dc5e6269cd61ef2bfc7487",
+-   "e5cc5c31e45bfef41a80e01b828620b7cea70fd54ba39291f21d13280f732e5e",
+-   "7aa8bb4d89f0ec074c23de393ad3ca8119a19c062660da5a80a57fdf3caeb99d",
+-   "8886e26b514e626e491cadf3118735b0026053fc660b14c8edb602a050bd0d52",
+- ]
++ []
+
+ ❯ tests/integration/site-assets.test.ts:528:73
+    526|     expect(list.status).toBe(200);
+    527|     expect(list.body.state).toBe('READY');
+    528|     expect(list.body.photos.map((p: { photoId: string }) => p.photoId)…
+       |                                                                         ^
+    529|     expect(list.body.photos[0]).toEqual({ photoId: channexPhotoId('htt…
+    530|     const text = JSON.stringify(list.body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  16:32:02
+   Duration  8.95s (tests 45%, transform 36%, import 18%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-32-01Z-integration-4d51.json
+
+# код выхода 1 · 10 с

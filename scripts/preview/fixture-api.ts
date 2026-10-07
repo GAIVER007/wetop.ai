@@ -1,6 +1,8 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
+import { marketingSiteFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
+import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -4592,6 +4594,10 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const assetsResponse = siteAssetsFixture(path, req.method ?? 'GET', body, raw);
+    if (assetsResponse) return send(assetsResponse.status, assetsResponse.data);
+    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body);
+    if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
@@ -4620,6 +4626,8 @@ createServer(async (req, res) => {
       fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
+      resetMarketingSiteFixture();
+      resetSiteAssetsFixture();
       hits.clear();
       requestHits.clear();
       taskStore.clear();
@@ -4808,6 +4816,8 @@ createServer(async (req, res) => {
             };
         }
       if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
+      // MKT7: сайт счётчика управляемого сайта WETOP; старый путь отвечает 409, как API
+      if (body['siteManaged'] === true) site = { ...site, managed: true } as typeof site;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -6990,6 +7000,12 @@ createServer(async (req, res) => {
       return send(201, read('/analytics/sites/ui-site', url.searchParams));
     }
     if (path === '/analytics/sites/ui-site') {
+      if ((site as { managed?: boolean }).managed)
+        return send(409, {
+          code: 'MANAGED_SITE_READ_ONLY',
+          message: 'Управляемый сайт настраивается в «Маркетинг → Сайт и SEO»',
+          statusCode: 409,
+        });
       if (req.method === 'DELETE') {
         siteDeleted = true;
         return send(200, { deleted: true });

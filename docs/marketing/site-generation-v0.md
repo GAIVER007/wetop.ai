@@ -132,7 +132,7 @@ GET /marketing/site/generations/:id  статус без документа
 - `site.vertical = HOSPITALITY`; `site.locales` ровно `targetLocales` (подсказки языков продавца без повторов, иначе
   `ru`), `site.defaultLocale` первый;
 - `categoryCode` карточек и `pricing.categoryCodes` только из `briefInput.accommodations`;
-- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (до MKT8);
+- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (MKT8 это не меняет: модель картинки не выбирает, это MKT9);
 - телефон и почта только как в брифе; адрес (`site.contacts.address`) только если он есть в брифе и на каждом языке
   совпадает с ним без учёта пробелов по краям, повторов пробелов и регистра, иначе `invented_contact`; `whatsapp`,
   `geo`, `social`, `site.legal` нет; внешняя ссылка только на сайт гостиницы из брифа;

@@ -10,12 +10,15 @@ import { parseMarketingSlug, siteSpecHash, validateSiteSpec } from '@pms/domain'
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { publicationView } from './publication.service';
+import { assetUnavailable, checkSpecAssets } from './asset-refs';
 import { siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
  * Ядро управляемого сайта (MKT3, `DATA_MODEL.md` §29.2–§29.3). Сайт филиала и его неизменяемые версии `SiteSpec`:
  * правка не меняет версию, а дописывает следующую по ревизии; устаревшая ревизия даёт 409, а не перезапись чужой
- * правки. Публикации, превью, доменов, ассетов и генерации здесь нет (MKT6–MKT8).
+ * правки. Публикации, превью, доменов и генерации здесь нет (MKT6, MKT7); картинки документа проверяются по библиотеке
+ * филиала (MKT8, `asset-refs.ts`).
  */
 const SITE_SELECT = {
   id: true,
@@ -27,13 +30,23 @@ const SITE_SELECT = {
   latestVersion: {
     select: { id: true, revision: true, specHash: true, schemaVersion: true, source: true, createdAt: true },
   },
+  // MKT7: опубликованная ревизия и живой домен для страницы публикации (документа в ответе нет)
+  publishedVersion: { select: { id: true, revision: true } },
+  domains: { where: { status: { not: 'REMOVED' } }, select: { host: true, status: true, isPrimary: true } },
 } as const;
 
 type SiteRow = Prisma.MarketingSiteGetPayload<{ select: typeof SITE_SELECT }>;
 
 function siteView(site: SiteRow) {
-  const { latestVersion, ...rest } = site;
-  return { ...rest, latest: latestVersion ? versionMeta(latestVersion) : null };
+  const { latestVersion, publishedVersion, domains, ...rest } = site;
+  const publication = publicationView({ ...site, latestVersion: latestVersion ?? null, publishedVersion: publishedVersion ?? null, domains });
+  return {
+    ...rest,
+    latest: latestVersion ? { id: latestVersion.id, ...versionMeta(latestVersion) } : null,
+    published: publication.published,
+    url: publication.url,
+    proposedUrl: publication.proposedUrl,
+  };
 }
 
 function versionMeta(v: NonNullable<SiteRow['latestVersion']>) {
@@ -145,6 +158,9 @@ export class MarketingSiteService {
         const latest = site?.latestVersion ?? null;
         if ((latest?.revision ?? 0) !== baseRevision)
           throw new ConflictException('Сайт уже изменён в другой вкладке: обновите черновик и повторите');
+        // MKT8: каждая картинка документа это готовый ассет этого филиала нужного вида; чужой и несуществующий неотличимы
+        const assets = await checkSpecAssets(tx, scope.locationId, checked.spec, { historical: false, lock: true });
+        if (assets.problems.length) throw assetUnavailable(assets.problems);
         const version = await tx.marketingSiteVersion.create({
           data: {
             id: randomUUID(),

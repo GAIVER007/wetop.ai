@@ -1,0 +1,167 @@
+# Модульные (unit) · 07.10.2026 21:13 Алматы · vm
+# коммит 40003ac (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-13-04Z-unit-117c.json' 'packages/domain/src/marketing/assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/assets.test.ts (10 tests | 10 failed) 21ms
+   ❯ MKT8: ссылки документа на ассеты (4)
+     × пример SiteSpec: все ссылки с ожидаемым видом и путём 6ms
+     × картинка в cta, id в верхнем регистре приводится к нижнему 1ms
+     × только известные места схемы: тот же ключ в чужом месте не ссылка 1ms
+     × документ без картинок и мусор на входе: пусто 1ms
+   ❯ MKT8: тип файла по содержимому (2)
+     × JPEG, PNG, WebP по сигнатуре 1ms
+     × SVG, GIF, AVIF, HEIC, TIFF, BMP, PDF, HTML, XML, случайное и пустое: не картинка 1ms
+   ❯ MKT8: вид ассета, ALT и ключ объекта (4)
+     × вид только из трёх 1ms
+     × ALT: ru, kk, en, до 150 знаков, обычный текст; пустой объект и null снимают подсказку 1ms
+     × ключ объекта: филиал, id, sha256; фавиконка PNG, остальное WebP 1ms
+     × пределы ТЗ: 10 МиБ, 40 млн точек, сторона 12 000, выход 2400 / 1600 / 512, WebP 82 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: ссылки документа на ассеты > пример SiteSpec: все ссылки с ожидаемым видом и путём
+TypeError: siteSpecAssetRefs is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:22:12
+     20| describe('MKT8: ссылки документа на ассеты', () => {
+     21|   it('пример SiteSpec: все ссылки с ожидаемым видом и путём', () => {
+     22|     expect(siteSpecAssetRefs(EXAMPLE)).toEqual([
+       |            ^
+     23|       { assetId: '6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b', expectedKind:…
+     24|       { assetId: '7a2d3b01-4c5e-4f60-9b7c-8d9e0f1a2b3c', expectedKind:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: ссылки документа на ассеты > картинка в cta, id в верхнем регистре приводится к нижнему
+TypeError: siteSpecAssetRefs is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:42:12
+     40|       pages: [{ seo: {}, sections: [{ type: 'cta', image: { assetId: i…
+     41|     };
+     42|     expect(siteSpecAssetRefs(spec)).toEqual([
+       |            ^
+     43|       { assetId: id.toLowerCase(), expectedKind: 'IMAGE', path: 'pages…
+     44|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: ссылки документа на ассеты > только известные места схемы: тот же ключ в чужом месте не ссылка
+TypeError: siteSpecAssetRefs is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:52:12
+     50|       pages: [{ sections: [{ type: 'faq', image: { assetId: '0a1b2c3d-…
+     51|     };
+     52|     expect(siteSpecAssetRefs(spec)).toEqual([]);
+       |            ^
+     53|   });
+     54|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: ссылки документа на ассеты > документ без картинок и мусор на входе: пусто
+TypeError: siteSpecAssetRefs is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:56:12
+     54|
+     55|   it('документ без картинок и мусор на входе: пусто', () => {
+     56|     expect(siteSpecAssetRefs({ site: {}, pages: [] })).toEqual([]);
+       |            ^
+     57|     expect(siteSpecAssetRefs(null)).toEqual([]);
+     58|     expect(siteSpecAssetRefs({ pages: 'x' })).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: тип файла по содержимому > JPEG, PNG, WebP по сигнатуре
+TypeError: sniffImageType is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:64:12
+     62| describe('MKT8: тип файла по содержимому', () => {
+     63|   it('JPEG, PNG, WebP по сигнатуре', () => {
+     64|     expect(sniffImageType(bytes([0xff, 0xd8, 0xff, 0xe0, 0, 0x10]))).t…
+       |            ^
+     65|     expect(sniffImageType(bytes([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0…
+     66|     expect(sniffImageType(bytes('RIFF', [0x24, 0, 0, 0], 'WEBPVP8 ')))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: тип файла по содержимому > SVG, GIF, AVIF, HEIC, TIFF, BMP, PDF, HTML, XML, случайное и пустое: не картинка
+TypeError: sniffImageType is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:86:38
+     84|       new Uint8Array(0),
+     85|     ];
+     86|     for (const b of rejected) expect(sniffImageType(b)).toBeNull();
+       |                                      ^
+     87|   });
+     88| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: вид ассета, ALT и ключ объекта > вид только из трёх
+TypeError: parseAssetKind is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:92:12
+     90| describe('MKT8: вид ассета, ALT и ключ объекта', () => {
+     91|   it('вид только из трёх', () => {
+     92|     expect(parseAssetKind('IMAGE')).toBe('IMAGE');
+       |            ^
+     93|     expect(parseAssetKind('LOGO')).toBe('LOGO');
+     94|     expect(parseAssetKind('FAVICON')).toBe('FAVICON');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: вид ассета, ALT и ключ объекта > ALT: ru, kk, en, до 150 знаков, обычный текст; пустой объект и null снимают подсказку
+TypeError: parseDefaultAlt is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:99:12
+     97|
+     98|   it('ALT: ru, kk, en, до 150 знаков, обычный текст; пустой объект и n…
+     99|     expect(parseDefaultAlt({ ru: ' Фасад ', en: 'Facade' })).toEqual({…
+       |            ^
+    100|     expect(parseDefaultAlt(null)).toEqual({ ok: true, value: null });
+    101|     expect(parseDefaultAlt({})).toEqual({ ok: true, value: null });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: вид ассета, ALT и ключ объекта > ключ объекта: филиал, id, sha256; фавиконка PNG, остальное WebP
+TypeError: siteAssetStorageKey is not a function
+ ❯ packages/domain/src/marketing/assets.test.ts:121:12
+    119|     const id = '22222222-2222-4222-8222-222222222222';
+    120|     const sha = 'c'.repeat(64);
+    121|     expect(siteAssetStorageKey(loc, id, sha, 'IMAGE')).toBe(`site-asse…
+       |            ^
+    122|     expect(siteAssetStorageKey(loc, id, sha, 'LOGO')).toBe(`site-asset…
+    123|     expect(siteAssetStorageKey(loc, id, sha, 'FAVICON')).toBe(`site-as…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/assets.test.ts > MKT8: вид ассета, ALT и ключ объекта > пределы ТЗ: 10 МиБ, 40 млн точек, сторона 12 000, выход 2400 / 1600 / 512, WebP 82
+AssertionError: expected undefined to deeply equal { maxUploadBytes: 10485760, …(6) }
+
+- Expected:
+{
+  "faviconSide": 512,
+  "imageMaxSide": 2400,
+  "logoMaxSide": 1600,
+  "maxInputPixels": 40000000,
+  "maxInputSide": 12000,
+  "maxUploadBytes": 10485760,
+  "webpQuality": 82,
+}
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/marketing/assets.test.ts:127:31
+    125|
+    126|   it('пределы ТЗ: 10 МиБ, 40 млн точек, сторона 12 000, выход 2400 / 1…
+    127|     expect(SITE_ASSET_LIMITS).toEqual({
+       |                               ^
+    128|       maxUploadBytes: 10 * 1024 * 1024,
+    129|       maxInputPixels: 40_000_000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed (10)
+   Start at  16:13:06
+   Duration  894ms (transform 86%, import 9%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-13-04Z-unit-117c.json
+
+# код выхода 1 · 3 с

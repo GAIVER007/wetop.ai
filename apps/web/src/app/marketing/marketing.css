@@ -101,3 +101,101 @@
     }
   }
 }
+
+/* Публикация сайта (MKT7, DESIGN.md §8): факты сайта списком и ряд действий. Только управление, не редактор */
+.publication-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.publication-facts dt {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.publication-facts dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+.publication-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+/* Журнал публикаций (MKT7): четыре узкие колонки, общий `min-width: 520px` уводил таблицу в прокрутку на телефоне;
+   скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки, те же грабли, что в finance.css */
+.publication-history .table-scroll {
+  position: relative;
+}
+.publication-history .table-scroll > .tbl {
+  min-width: 0;
+}
+
+/* Изображения сайта (MKT8, DESIGN.md §8): загрузка строкой полей, библиотека карточками с картинкой 3:2, импорт
+   фото менеджера каналов списком с флажками. Выбора картинки для секции здесь нет (MKT9) */
+.asset-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+.asset-upload .field {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.asset-upload__file {
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-2);
+  border-style: dashed;
+}
+.asset-card {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-width: 0;
+}
+.asset-card__image {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--surface-muted);
+}
+.asset-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.asset-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+.asset-card__alt {
+  display: grid;
+  gap: var(--space-2);
+}
+.asset-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.asset-import {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.asset-import__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+}

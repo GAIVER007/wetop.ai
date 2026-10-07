@@ -381,7 +381,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       ] as const) {
         await setScope(page, scope);
         await page.goto('/today');
-        await expect(page.getByTestId(testId), JSON.stringify(control)).toBeVisible();
+        const screen = page.getByRole('main').getByTestId(testId);
+        await expect(screen, JSON.stringify(control)).toHaveCount(1);
+        await expect(screen, JSON.stringify(control)).toBeVisible();
         await expect(page.getByTestId('today-error')).toHaveCount(0);
       }
     }

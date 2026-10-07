@@ -4,7 +4,7 @@ Status: implementation candidate. This document records local evidence at the ca
 
 ## Scope and baseline
 
-Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e adds marketing publication migrations 64 and 65, so the unpublished BAR migration is now `20261007000068_bar_financial_replay`, making 72 directories. Existing BAR 55-57 are preserved.
+Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. At the next historical checkpoint main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e added marketing publication migrations 64/65; BAR was renumbered to 66, making 72 directories. Current main 791adad02a5955102f32ffa9c6533a29bc4f3757 adds Site Assets 66/67; the final BAR migration is `20261007000068_bar_financial_replay`, making 74 directories. Existing BAR 55-57 are preserved.
 
 ## Approved behavior
 
@@ -91,3 +91,6 @@ CI 37658200209 on 3499bd067: all nine real-session BAR browser cases PASS, with 
 
 
 Fresh-main impact during final CI: PR285 Site Assets advanced main to 791adad02a5955102f32ffa9c6533a29bc4f3757 and occupies 66/67. No BAR/Finance changes. The unpublished BAR migration is now 68; final inventory 74 directories. The prior pending exact-head run was cancelled. Sync the new schema/RLS/marketing routes and require a new full exact-head CI. Earlier 70/72-migration evidence is historical.
+
+
+Post-Site-Assets local verification: npm ci/client generation PASS; root/API/web typecheck PASS; lint/diff check PASS. Fresh private pmsbar_assets applies all 74 migrations. Critical financial suite: 42 PASS/1 OWNER auth 5000ms timeout; isolated actual-session auth repeat: all 4 PASS (39 remaining financial cases passed in the first run). No timeout, skip or assertion changes. Final full CI must prove the synced candidate as a whole.

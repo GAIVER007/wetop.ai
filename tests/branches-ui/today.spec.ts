@@ -14,7 +14,7 @@ import { instantOf } from '../../apps/web/src/app/beauty/time';
  * изолированная PostgreSQL. Синтетические только вход и строки базы; ответы домена не подменяются. Ожидаемые числа
  * тест считает из ответа того же API за тот же день филиала.
  */
-const api = 'http://127.0.0.1:55864';
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
 const shots = 'reports/mv8-vertical-today-2026-10-06/screenshots';
 type Fixture = {
   business: string;

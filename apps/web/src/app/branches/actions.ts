@@ -14,7 +14,10 @@ export async function selectBranch(form: FormData) {
   await setScopeCookie(`business=${branch.location.businessId};location=${branch.locationId}`);
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
-  if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
+  if (branch.vertical !== 'HOSPITALITY') {
+    const destination = branchDestination(String(form.get('returnTo') ?? ''));
+    redirect(destination === '/management/analytics' ? destination : landingForVertical(branch.vertical));
+  }
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))

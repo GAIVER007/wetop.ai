@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-const api = 'http://127.0.0.1:55864';
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
 type Fixture = {
   business: string;
   otherBusiness: string;
@@ -32,6 +32,16 @@ async function choose(page: Page, name: string) {
     .filter({ hasText: name })
     .click();
 }
+// Match the accepted MV8 setup: switching is tested independently of the Hospitality training modal.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    const get = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      const value = get.call(this, key);
+      return value === null && key.startsWith('wetop.tour.v1:') ? 'done' : value;
+    };
+  });
+});
 test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
   test('несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается', async ({
     page,
@@ -123,6 +133,10 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
     await expect(page).toHaveURL(/\/today$/);
+    // The shared URL is already /today: wait for the actual selected branch before opening its switcher.
+    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText('Тестовый отель');
+    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toBeEnabled();
+    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
     await choose(page, 'Гостиница Б');
     // у второго отеля ещё нет номеров: выбор ведёт в его настройку (MV3: владелец с выбранным филиалом попадает в общий
     // экран настройки)

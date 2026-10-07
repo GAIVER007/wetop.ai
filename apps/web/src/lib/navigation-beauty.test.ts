@@ -43,6 +43,7 @@ describe('меню салона', () => {
       '/employees',
       '/services',
       '/staff',
+      '/management/analytics',
       '/journal',
       '/help',
       '/profile',

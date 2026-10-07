@@ -7301,3 +7301,4 @@
 | 07.10.2026 19:58 | unit | ❌ упало 29 из 3831, пропущено 4 | 4 мин 41 с | 50f04c5 +50 | [лог](logs/2026-10-07T14-58-25Z-unit-7b95.log) | scripts/ops/auto-deploy.sh новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает |
 | 07.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 130 | 5 мин 13 с | 50f04c5 +50 | [лог](logs/2026-10-07T14-59-27Z-e2e-3608.log) |  |
 | 07.10.2026 20:06 | unit (частично: tests/unit/repo-sync.test.ts tests/unit/shift-check-wrapper.test.ts tests/unit/css-foundation.test.ts --maxWorkers=1) | ✅ 39 из 39 | 2 мин 55 с | 50f04c5 +50 | [лог](logs/2026-10-07T15-06-00Z-unit-bb38.log) |  |
+| 07.10.2026 20:15 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ❌ упало 10 из 10 | 4 мин 5 с | 3b2f01d | [лог](logs/2026-10-07T15-15-22Z-e2e-e618.log) | empty setup through real UI, persisted appointment, move, confirm, complete |

@@ -198,7 +198,6 @@
   } /* строка истории ведёт в бронь: период — ссылка цветом текста, как имя гостя в списке (21.09) */
   a.dir-period {
     color: inherit;
-    font-weight: var(--weight-semibold);
     text-decoration: none;
   }
   a.dir-period:hover,

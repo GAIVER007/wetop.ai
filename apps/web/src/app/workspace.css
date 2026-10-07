@@ -297,9 +297,6 @@
     overflow: auto;
     border-radius: var(--radius);
   }
-  .table-scroll > .tbl {
-    min-width: 520px;
-  }
   .tbl-wrap .table-scroll > .tbl {
     border: 0;
   }
@@ -857,5 +854,9 @@
 
   .workspace-content:not([hidden]) {
     display: contents;
+  }
+  /* полоса отборов с подписанными полями: поля по нижнему краю (до DS0b жило в management/hotel.css) */
+  .row.toolbar {
+    align-items: flex-end;
   }
 }

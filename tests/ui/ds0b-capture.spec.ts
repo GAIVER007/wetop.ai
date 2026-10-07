@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { FIXTURE_API, test } from './fixtures';
 
 /**
@@ -18,7 +18,7 @@ const out = `reports/mv8-5-ds0b-2026-10-07/${phase}`;
 const stylesOut = `${process.env['DS0B_STYLES_DIR'] ?? 'reports/mv8-5-ds0b-2026-10-07/styles'}/${phase}`;
 
 const SCREENS = ['/today', '/chessboard', '/reservations', '/guests'];
-const STYLE_ROUTES = [
+const DEFAULT_STYLE_ROUTES = [
   '/today',
   '/chessboard',
   '/reservations',
@@ -47,6 +47,10 @@ const STYLE_ROUTES = [
   '/website/booking',
   '/website/settings',
 ];
+// DS0B_ROUTES_FILE: JSON-список маршрутов вместо основного (дополнительный проход по остальным экранам)
+const STYLE_ROUTES: string[] = process.env['DS0B_ROUTES_FILE']
+  ? (JSON.parse(readFileSync(process.env['DS0B_ROUTES_FILE'], 'utf8')) as string[])
+  : DEFAULT_STYLE_ROUTES;
 const PROPS = [
   'display',
   'position',
@@ -107,7 +111,8 @@ for (const theme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       for (const route of SCREENS) {
-        await page.goto(route);
+        // переадресация обрывает первый переход (ERR_ABORTED), страница всё равно открывается
+        await page.goto(route).catch(() => undefined);
         await page.waitForLoadState('networkidle').catch(() => undefined);
         await page.mouse.move(0, 0);
         const name = route.slice(1).replace(/\//g, '-');
@@ -124,15 +129,16 @@ for (const [width, theme] of [
   [1440, 'dark'],
 ] as const) {
   test(`вычисленные стили маршрутов гостиницы, ${width} ${theme}`, async ({ page }) => {
-    test.setTimeout(600_000);
+    test.setTimeout(1_800_000);
     const dir = width === 1440 && theme === 'light' ? stylesOut : `${stylesOut}-${width}-${theme}`;
     mkdirSync(dir, { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     // прогрев: холодный next dev отдаёт содержимое потоком, первый заход ловит экран загрузки
-    for (const route of STYLE_ROUTES) await page.goto(route);
+    for (const route of STYLE_ROUTES) await page.goto(route).catch(() => undefined);
     for (const route of STYLE_ROUTES) {
-      await page.goto(route);
+      // переадресация обрывает первый переход (ERR_ABORTED), страница всё равно открывается
+      await page.goto(route).catch(() => undefined);
       await page.waitForLoadState('networkidle').catch(() => undefined);
       await page
         .waitForFunction('!document.querySelector(".skeleton, [aria-busy=\\"true\\"]")', null, {
@@ -199,9 +205,9 @@ test('наведение на примитивы маршрутов гостин
   mkdirSync(dir, { recursive: true });
   await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
-  for (const route of STYLE_ROUTES) await page.goto(route);
+  for (const route of STYLE_ROUTES) await page.goto(route).catch(() => undefined);
   for (const route of STYLE_ROUTES) {
-    await page.goto(route);
+    await page.goto(route).catch(() => undefined);
     await page.waitForLoadState('networkidle').catch(() => undefined);
     const out: Record<string, Record<string, string>> = {};
     for (const sel of HOVER_TARGETS) {

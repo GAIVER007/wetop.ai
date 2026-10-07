@@ -66,9 +66,6 @@
   .settings-table--services tr.is-archived td {
     color: var(--muted);
   } /* подстрока под названием — только на телефоне, где колонки группы и статуса скрыты */
-  .settings-service-sub {
-    display: none;
-  }
   .settings-service-help h2 {
     font-size: var(--text-xl);
     margin: 0;

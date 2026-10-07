@@ -306,8 +306,11 @@
   .channel-list__sub {
     display: block;
     margin-top: 4px;
-    color: var(--muted);
     font-size: var(--text-xs);
+  }
+  /* приглушённый цвет только у подписи-текста: ссылку в таблице красит .tbl a (цвет ячейки) */
+  span.channel-list__sub {
+    color: var(--muted);
   }
   .channel-list__actions {
     text-align: right;

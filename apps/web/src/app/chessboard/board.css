@@ -2034,6 +2034,12 @@
   .board-toolbar .field--inline > span {
     white-space: nowrap;
   }
+  /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
+  .board-toolbar .board-category,
+  .board-toolbar .board-state,
+  .board-toolbar .board-view {
+    flex: 0 0 auto;
+  }
   .board th.board__unit-head {
     padding: var(--space-1) var(--space-2);
   }

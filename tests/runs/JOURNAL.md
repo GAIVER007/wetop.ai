@@ -7372,3 +7372,17 @@
 | 07.10.2026 18:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 5 из 14 | 3 мин 3 с | fc4c3de +11 | [лог](logs/2026-10-07T13-16-36Z-e2e-ada4.log) | предпросмотр открывается в новой вкладке, токен на странице не виден |
 | 07.10.2026 18:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts --workers=1) | ❌ упало 2 из 7 | 43 с | fc4c3de +11 | [лог](logs/2026-10-07T13-20-04Z-e2e-712c.log) | страница на компьютере и телефоне, доступность: light |
 | 07.10.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 14 из 14 | 1 мин 25 с | fc4c3de +11 | [лог](logs/2026-10-07T13-21-09Z-e2e-1325.log) |  |
+| 07.10.2026 18:26 | typecheck | ❌ ошибок: 6 | 1 мин 16 с | 60827ae | [лог](logs/2026-10-07T13-26-40Z-typecheck-6a2b.log) | TS2531 |
+| 07.10.2026 18:27 | lint | ❌ ошибок: 1 | 48 с | 60827ae | [лог](logs/2026-10-07T13-27-56Z-lint-9bed.log) | @typescript-eslint/no-explicit-any |
+| 07.10.2026 18:29 | typecheck | ❌ ошибок: 2 | 51 с | 60827ae +1 | [лог](logs/2026-10-07T13-29-14Z-typecheck-95b8.log) | TS2352 |
+| 07.10.2026 18:30 | typecheck | ✅ без ошибок | 53 с | 60827ae +1 | [лог](logs/2026-10-07T13-30-14Z-typecheck-1517.log) |  |
+| 07.10.2026 18:31 | lint | ✅ без ошибок | 51 с | 60827ae +1 | [лог](logs/2026-10-07T13-31-11Z-lint-0d7b.log) |  |
+| 07.10.2026 18:32 | unit | ✅ 3840 из 3843, пропущено 3 | 2 мин 23 с | 60827ae | [лог](logs/2026-10-07T13-32-03Z-unit-5492.log) |  |
+| 07.10.2026 18:34 | integration | ❌ упало 1 из 891 | 3 мин 16 с | 60827ae +1 | [лог](logs/2026-10-07T13-34-31Z-integration-ce41.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 07.10.2026 18:38 | integration | ❌ упало 1 из 891 | 3 мин 21 с | 60827ae +1 | [лог](logs/2026-10-07T13-38-02Z-integration-4708.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
+| 07.10.2026 18:42 | integration | ✅ 891 из 891 | 3 мин 9 с | 60827ae +1 | [лог](logs/2026-10-07T13-42-00Z-integration-60ae.log) |  |
+| 07.10.2026 18:54 | unit (частично: apps/sites) | ✅ 166 из 166 | 4 с | 60827ae | [лог](logs/2026-10-07T13-54-10Z-unit-eb00.log) |  |
+| 07.10.2026 18:54 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ код выхода 1 | 1 мин 2 с | 60827ae | [лог](logs/2026-10-07T13-54-15Z-e2e-c850.log) | (ошибка вне тестов) |
+| 07.10.2026 18:56 | e2e (частично: --config tests/sites/playwright.config.ts) | ❌ упало 1 из 11 | 19 с | 60827ae | [лог](logs/2026-10-07T13-56-05Z-e2e-4784.log) | цена «от» (Q-276) › в исходном HTML числа нет: место под цену скрыто до ответа API |
+| 07.10.2026 18:56 | e2e (частично: --config tests/sites/playwright.config.ts) | ✅ 11 из 11 | 16 с | 60827ae | [лог](logs/2026-10-07T13-56-41Z-e2e-b8e1.log) |  |
+| 07.10.2026 18:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts tests/ui/requests.spec.ts tests/ui/website.spec | ✅ 65 из 65 | 5 мин 27 с | 60827ae | [лог](logs/2026-10-07T13-57-04Z-e2e-9162.log) |  |

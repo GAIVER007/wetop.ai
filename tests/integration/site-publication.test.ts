@@ -26,6 +26,8 @@ const schema = process.env.DATABASE_SCHEMA || 'public';
 const BASE_DOMAIN = 'sites.test';
 const PREVIEW_SECRET = 'mkt7-preview-secret-integration-0123456789';
 
+// документ правится в тестах вглубь (страницы, секции): точный тип SiteSpec здесь только мешает
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Spec = Record<string, any>;
 /** Документ без медиа: тексты, номера по кодам категорий объекта, цены «от» и бронь */
 function specFor(name: string, codes: string[], booking: 'WETOP_WIDGET' | 'NONE' = 'WETOP_WIDGET'): Spec {
@@ -103,16 +105,16 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
   }
   async function current(host: string) {
     try {
-      return { status: 200, body: await runtime.current({ host }) };
+      return { status: 200, body: (await runtime.current({ host })) as Partial<Awaited<ReturnType<typeof runtime.current>>> };
     } catch (error) {
-      return { status: (error as { getStatus?: () => number }).getStatus?.() ?? 500, body: null };
+      return { status: (error as { getStatus?: () => number }).getStatus?.() ?? 500, body: {} as Partial<Awaited<ReturnType<typeof runtime.current>>> };
     }
   }
   async function previewOf(token: string) {
     try {
-      return { status: 200, body: await runtime.preview({ token }) };
+      return { status: 200, body: (await runtime.preview({ token })) as Partial<Awaited<ReturnType<typeof runtime.preview>>> };
     } catch (error) {
-      return { status: (error as { getStatus?: () => number }).getStatus?.() ?? 500, body: null };
+      return { status: (error as { getStatus?: () => number }).getStatus?.() ?? 500, body: {} as Partial<Awaited<ReturnType<typeof runtime.preview>>> };
     }
   }
   const tokenOf = (previewUrl: string) => new URL(previewUrl).searchParams.get('token')!;
@@ -172,7 +174,7 @@ describe.skipIf(!url)('MKT7 публикация управляемого сай
     ];
     for (const [key, locationId, businessId, organizationId] of all) {
       await db.location.create({
-        data: { id: locationId, businessId, name: `Loc ${key}`, timezone: 'Asia/Almaty', currency: 'KZT' },
+        data: { id: locationId, businessId, name: `MKT7 ${key}`, timezone: 'Asia/Almaty', currency: 'KZT' },
       });
       P[key] = randomUUID();
       await db.property.create({

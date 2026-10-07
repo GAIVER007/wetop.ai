@@ -7411,3 +7411,17 @@
 | 07.10.2026 21:11 | integration (частично: tests/integration/site-assets-db.test.ts) | ✅ 5 из 5 | 7 с | b9744a4 +7 | [лог](logs/2026-10-07T16-11-43Z-integration-22dc.log) | MKT8 green: миграции 066/067 |
 | 07.10.2026 21:11 | integration (частично: tests/integration/site-assets-db.test.ts) | ❌ упало 2 из 5 | 7 с | b9744a4 +7 | [лог](logs/2026-10-07T16-11-59Z-integration-7543.log) | MKT8 мутация: без индекса повтора и без триггера |
 | 07.10.2026 21:12 | integration (частично: tests/integration/site-assets-db.test.ts) | ✅ 5 из 5 | 6 с | b9744a4 +7 | [лог](logs/2026-10-07T16-12-06Z-integration-7f92.log) | MKT8 после мутации восстановлено |
+| 07.10.2026 21:13 | unit (частично: packages/domain/src/marketing/assets.test.ts) | ❌ упало 10 из 10 | 3 с | 40003ac +1 | [лог](logs/2026-10-07T16-13-04Z-unit-117c.log) | MKT8 red: модуля ассетов нет |
+| 07.10.2026 21:13 | unit (частично: packages/domain/src/marketing/) | ✅ 141 из 141 | 3 с | 40003ac +6 | [лог](logs/2026-10-07T16-13-46Z-unit-52b6.log) | MKT8 green: домен ассетов |
+| 07.10.2026 21:15 | unit (частично: apps/api/src/marketing-site/asset-image.test.ts) | ❌ код выхода 1 | 2 с | 40003ac +7 | [лог](logs/2026-10-07T16-15-05Z-unit-8455.log) | MKT8 red: обработки картинки нет |
+| 07.10.2026 21:15 | unit (частично: apps/api/src/marketing-site/asset-image.test.ts) | ❌ упало 2 из 9 | 4 с | 40003ac +8 | [лог](logs/2026-10-07T16-15-29Z-unit-c963.log) | MKT8 green: обработка картинки |
+| 07.10.2026 21:16 | unit (частично: apps/api/src/marketing-site/asset-image.test.ts) | ✅ 9 из 9 | 4 с | 40003ac +8 | [лог](logs/2026-10-07T16-16-31Z-unit-9749.log) | MKT8 green: обработка картинки |
+| 07.10.2026 21:16 | unit (частично: apps/api/src/marketing-site/asset-image.test.ts) | ❌ упало 2 из 9 | 4 с | 40003ac +8 | [лог](logs/2026-10-07T16-16-43Z-unit-a6e8.log) | MKT8 мутация: метаданные на выходе и без проверки кадров |
+| 07.10.2026 21:17 | unit (частично: apps/api/src/marketing-site/asset-storage.test.ts) | ✅ 8 из 8 | 2 с | 40003ac +10 | [лог](logs/2026-10-07T16-17-55Z-unit-310e.log) | MKT8: адаптер хранилища |
+| 07.10.2026 21:18 | unit (частично: apps/api/src/marketing-site/asset-storage.test.ts) | ❌ упало 2 из 8 | 2 с | 40003ac +10 | [лог](logs/2026-10-07T16-18-05Z-unit-2aed.log) | MKT8 мутация: http и публичный ACL |
+| 07.10.2026 21:19 | unit (частично: apps/api/src/marketing-site/asset-fetch.test.ts) | ✅ 50 из 50 | 2 с | 40003ac +12 | [лог](logs/2026-10-07T16-19-26Z-unit-54e5.log) | MKT8: загрузчик с защитой от SSRF |
+| 07.10.2026 21:19 | unit (частично: apps/api/src/marketing-site/asset-fetch.test.ts) | ❌ упало 2 из 50 | 2 с | 40003ac +12 | [лог](logs/2026-10-07T16-19-34Z-unit-5615.log) | MKT8 мутация: без проверки адресов и переадресации |
+| 07.10.2026 21:24 | unit (частично: apps/api/src/sites-runtime/) | ✅ 29 из 29 | 5 с | 40003ac +21 | [лог](logs/2026-10-07T16-24-34Z-unit-cbda.log) | MKT8: карта ассетов рантайма |
+| 07.10.2026 21:24 | unit (частично: apps/api/src/sites-runtime/) | ❌ упало 2 из 29 | 5 с | 40003ac +21 | [лог](logs/2026-10-07T16-24-47Z-unit-0dc8.log) | MKT8 мутация: без проверки вида и превью всегда историческое |
+| 07.10.2026 21:25 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 3 | 8 с | 40003ac +22 | [лог](logs/2026-10-07T16-25-01Z-unit-176e.log) | MKT8: права маршрутов библиотеки |
+| 07.10.2026 21:25 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 3 из 3 | 9 с | 40003ac +22 | [лог](logs/2026-10-07T16-25-20Z-unit-359d.log) | MKT8: права маршрутов библиотеки |

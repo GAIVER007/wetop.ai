@@ -1,11 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { normalizeSiteHost, parseSitesBaseDomain, platformHost, previewHost, siteSpecMediaPaths } from './index';
-
-const EXAMPLE = JSON.parse(
-  readFileSync(resolve(__dirname, '../../../../docs/marketing/sitespec-v0.example.json'), 'utf8'),
-) as Record<string, unknown>;
+import { normalizeSiteHost, parseSitesBaseDomain, platformHost, previewHost } from './index';
 
 describe('MKT7: один нормализатор хоста для API, рантайма и Worker', () => {
   it.each([
@@ -54,25 +48,5 @@ describe('MKT7: SITES_BASE_DOMAIN (Q-271)', () => {
   it('адрес сайта и превью строит только сервер из slug и базы', () => {
     expect(platformHost('luxx-aparts', 'sites.test')).toBe('luxx-aparts.sites.test');
     expect(previewHost('sites.test')).toBe('preview.sites.test');
-  });
-});
-
-describe('MKT7: медиа в документе до MKT8', () => {
-  it('пример SiteSpec с галереей и картинками: пути всех ссылок', () => {
-    const paths = siteSpecMediaPaths(EXAMPLE);
-    expect(paths.length).toBeGreaterThan(0);
-    expect(paths.some((p) => p.endsWith('assetId') || p.endsWith('AssetId'))).toBe(true);
-  });
-
-  it('документ без картинок и галереи: пусто', () => {
-    const spec = {
-      site: { brand: { name: 'x' } },
-      pages: [{ sections: [{ type: 'hero', variant: 'TEXT_ONLY' }, { type: 'faq', items: [] }] }],
-    };
-    expect(siteSpecMediaPaths(spec)).toEqual([]);
-  });
-
-  it('галерея без картинок всё равно медиа', () => {
-    expect(siteSpecMediaPaths({ pages: [{ sections: [{ type: 'gallery', items: [] }] }] })).toEqual(['pages[0].sections[0]']);
   });
 });

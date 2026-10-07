@@ -14,7 +14,6 @@ import {
   SITE_SPEC_SCHEMA_VERSION,
   siteSpecCategoryCodes,
   siteSpecHash,
-  siteSpecMediaPaths,
   validateSiteSpec,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
@@ -22,6 +21,8 @@ import { currentUserId } from '../auth/request-context';
 import { newSiteKey } from '../analytics/analytics.service';
 import { PrismaService } from '../database/prisma.provider';
 import { PREVIEW_TTL_SECONDS, previewSecretFromEnv, signPreviewToken } from './preview-token';
+import { assertSpecAssetsPublishable, versionIsHistorical } from './asset-refs';
+import { SITE_ASSET_STORAGE, type SiteAssetStorage } from './asset-storage';
 import { siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
@@ -74,7 +75,10 @@ export function sitesBaseDomain(env: NodeJS.ProcessEnv = process.env): string {
 
 @Injectable()
 export class SitePublicationService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
+  ) {}
 
   // ---------- превью ----------
 
@@ -89,9 +93,16 @@ export class SitePublicationService {
     const found = await siteTransaction(this.prisma, scope, false, async (tx) => {
       const site = await this.activeSite(tx, scope);
       if (!site) throw new NotFoundException('Версия не найдена');
-      return tx.marketingSiteVersion.findFirst({ where: { id: versionId, siteId: site.id }, select: { id: true, siteId: true } });
+      const version = await tx.marketingSiteVersion.findFirst({
+        where: { id: versionId, siteId: site.id },
+        select: { id: true, siteId: true, spec: true },
+      });
+      if (!version) throw new NotFoundException('Версия не найдена');
+      // MKT8: обычная версия только с готовыми картинками своего филиала; уже публиковавшаяся и с удержанными удалёнными
+      const historical = await versionIsHistorical(tx, site.id, version.id);
+      await assertSpecAssetsPublishable(tx, this.storage, scope.locationId, version.spec, { historical, lock: false });
+      return version;
     });
-    if (!found) throw new NotFoundException('Версия не найдена');
     const exp = Math.floor(Date.now() / 1000) + PREVIEW_TTL_SECONDS;
     const token = signPreviewToken({ siteId: found.siteId, versionId: found.id, exp }, secret);
     return { url: `https://${previewHost(base)}/?token=${token}`, expiresAt: new Date(exp * 1000).toISOString() };
@@ -114,7 +125,7 @@ export class SitePublicationService {
       if (site.publishedVersionId === expected && site.state !== 'DRAFT')
         return { site: await this.view(tx, site.id), changed: false };
       const propertyId = await this.propertyOf(tx, scope);
-      const checked = await this.checkVersion(tx, site.id, expected, propertyId);
+      const checked = await this.checkVersion(tx, site.id, expected, propertyId, scope.locationId);
       if (checked.mode !== 'WETOP_WIDGET' && explicitPlan !== undefined)
         throw new BadRequestException('bookingRatePlanId: только при бронировании WETOP на сайте');
       const location = await tx.location.findUniqueOrThrow({
@@ -189,7 +200,7 @@ export class SitePublicationService {
       if (site.state !== 'PAUSED' || !site.publishedVersionId)
         throw conflict('NOT_PAUSED', 'Возобновить можно только приостановленный сайт');
       const propertyId = await this.propertyOf(tx, scope);
-      const checked = await this.checkVersion(tx, site.id, site.publishedVersionId, propertyId);
+      const checked = await this.checkVersion(tx, site.id, site.publishedVersionId, propertyId, scope.locationId);
       const domain = await tx.siteDomain.findFirst({ where: { siteId: site.id, status: 'ACTIVE', isPrimary: true }, select: { host: true } });
       if (!domain || !site.trackedSiteId) throw conflict('DOMAIN_MISSING', 'У сайта нет действующего адреса: опубликуйте заново');
       const managed = await tx.trackedSite.findUniqueOrThrow({ where: { id: site.trackedSiteId }, select: { bookingRatePlanId: true } });
@@ -229,7 +240,7 @@ export class SitePublicationService {
       });
       if (!evidence) throw conflict('NEVER_PUBLISHED', 'Откатить можно только на версию, которая уже была опубликована');
       const propertyId = await this.propertyOf(tx, scope);
-      const checked = await this.checkVersion(tx, site.id, target, propertyId);
+      const checked = await this.checkVersion(tx, site.id, target, propertyId, scope.locationId);
       if (!site.trackedSiteId) throw conflict('DOMAIN_MISSING', 'У сайта нет сайта счётчика: опубликуйте заново');
       const managed = await tx.trackedSite.findUniqueOrThrow({ where: { id: site.trackedSiteId }, select: { bookingRatePlanId: true } });
       const plan = await this.planForMode(tx, scope, propertyId, checked.mode, managed.bookingRatePlanId);
@@ -420,9 +431,17 @@ export class SitePublicationService {
 
   /**
    * Проверка версии перед публикацией, откатом и возобновлением (§45–§47): своя версия, тот же валидатор, версия схемы и
-   * хэш, ни одной ссылки на медиа до MKT8, все категории документа есть у объекта филиала и активны
+   * хэш, все категории документа есть у объекта филиала и активны. Картинки (MKT8): ассеты своего филиала нужного вида,
+   * у новой версии только `READY`, у уже публиковавшейся (откат, возобновление) и удержанные `DELETED`, объект которых
+   * лежит в хранилище. Строки ассетов берутся `FOR SHARE`: удаление не проскочит между проверкой и записью
    */
-  private async checkVersion(tx: DbTx, siteId: string, versionId: string, propertyId: string): Promise<{ mode: BookingMode }> {
+  private async checkVersion(
+    tx: DbTx,
+    siteId: string,
+    versionId: string,
+    propertyId: string,
+    locationId: string,
+  ): Promise<{ mode: BookingMode }> {
     const version = await tx.marketingSiteVersion.findFirst({
       where: { id: versionId, siteId },
       select: { spec: true, specHash: true, schemaVersion: true },
@@ -434,11 +453,8 @@ export class SitePublicationService {
       throw conflict('SPEC_INVALID', 'Документ сайта не прошёл проверку', {
         errors: valid.ok ? [] : valid.errors.slice(0, 20).map((e) => ({ path: e.path, code: e.code })),
       });
-    const media = siteSpecMediaPaths(spec);
-    if (media.length)
-      throw conflict('MEDIA_NOT_READY', 'Фото и логотип станут доступны с загрузкой изображений: уберите их из версии', {
-        paths: media.slice(0, 20),
-      });
+    const historical = await versionIsHistorical(tx, siteId, versionId);
+    await assertSpecAssetsPublishable(tx, this.storage, locationId, spec, { historical, lock: true });
     const codes = siteSpecCategoryCodes(spec);
     if (codes.length) {
       const active = await tx.accommodationType.findMany({

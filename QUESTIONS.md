@@ -1278,3 +1278,26 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 ## A4b: архивный объект в `propertyRef` и его кэш (2026-10-06, OPEN, технический долг)
 
 Найдено при SCOPE-HARDENING, в тот PR намеренно не включено (решение владельца). `organizationPropertyRef` (`apps/api/src/database/property-ref.ts`) при scope ORGANIZATION и BUSINESS не фильтрует ACTIVE Location и Business, а найденный объект живёт в кэше процесса до перезапуска. После архивирования первого отеля запросы без выбранного филиала продолжат указывать на него. Одного условия `status: 'ACTIVE'` мало: уже закэшированный объект останется. Нужно отдельно решить семантику инвалидации кэша (сброс при архивировании, срок жизни или отказ от кэша) и оценить влияние на число запросов. До решения кэш не меняется.
+
+## BAR operational acceptance, 2026-10-07: outstanding policy gates
+
+Owner approval is pending for these financial/access decisions; acceptance and
+minimal status-response repair do not approve changing them:
+
+- C10: how to recognize the 132000 minor-unit cost of a reversed retail sale when
+  its goods are not returned. Current reporting excludes it from COGS and WRITE_OFF.
+- C12: permitted reversal path for closed, partly paid and fully paid Folios, with
+  treatment of existing payments and any guest refund. Not accepted yet.
+- C04: should Finance void of supplier expense restore BAR supplier debt? Real
+  Finance void succeeds but BAR supplierPaid and debt remain unchanged.
+- C14: confirm OWNER/STAFF/read-only matrix. Current STAFF can reverse BAR through
+  desk while Finance cash void requires refunds and denies STAFF. No new role or
+  permission has been introduced.
+- C13: approve replay identity for supplier payments and write-offs, and stable
+  client intent keys for sale forms. Repeating a committed payment or write-off
+  currently produces two effects. A sale retry with the same key but changed
+  quantity returns the original sale without a conflict. No financial/schema fix
+  has been made for these observations.
+
+Operational readiness remains limited until these decisions and all required
+variants are accepted. Production, release, merge and deploy remain untouched.

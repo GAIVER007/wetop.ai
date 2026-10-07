@@ -6071,3 +6071,18 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+## ADR-BAR-OPERATIONAL-REPLAY (2026-10-07)
+
+Problem: retrying an existing retail or Folio sale after its reversal returned
+POSTED while the persisted sale was REVERSED. Real HTTP/PostgreSQL tests reproduced
+both channels before the fix.
+
+Options: keep the hardcoded response, deny every replay, or return the existing
+record's actual status. Decision: return its persisted status and widen the typed
+web response to POSTED | REVERSED. This preserves the existing operation identity,
+amounts and replay behavior without creating new financial effects.
+
+Consequences: no schema, migration, permission or accounting change. Stable UI
+intent keys, payment/write-off replay contracts and changed-payload handling remain
+separate questions requiring an approved contract.

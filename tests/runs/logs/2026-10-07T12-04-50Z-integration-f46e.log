@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 07.10.2026 17:04 Алматы · MacBook-Air-Urij.local
+# коммит e0089a2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-04-50Z-integration-f46e.json' 'tests/integration/bar-operational.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-operational.test.ts (7 tests) 1295ms
+   ✓ BAR operational acceptance: real HTTP and PostgreSQL (7)
+     ✓ C01-C08 reconciles drafts, FIFO, cash, Folio, write-off and shortage in minor units 314ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  16:04:52
+   Duration  3.62s (tests 46%, import 32%, transform 21%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-04-50Z-integration-f46e.json
+
+# код выхода 0 · 5 с

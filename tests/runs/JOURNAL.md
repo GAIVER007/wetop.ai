@@ -7188,3 +7188,21 @@
 | 07.10.2026 15:52 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 400f5c1 +3 | [лог](logs/2026-10-07T10-52-09Z-unit-f1f8.log) |  |
 | 07.10.2026 15:52 | typecheck | ✅ без ошибок | 51 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-52-11Z-typecheck-f590.log) |  |
 | 07.10.2026 15:53 | lint | ✅ без ошибок | 29 с | 400f5c1 +7 | [лог](logs/2026-10-07T10-53-03Z-lint-7f84.log) |  |
+| 07.10.2026 17:03 | integration (частично: tests/integration/bar-operational.test.ts) | ❌ упало 3 из 7 | 6 с | e0089a2 +1 | [лог](logs/2026-10-07T12-03-57Z-integration-332d.log) | BAR operational C01-C15 real HTTP PostgreSQL, first reproduction on approved base |
+| 07.10.2026 17:04 | integration (частично: tests/integration/bar-operational.test.ts) | ✅ 7 из 7 | 5 с | e0089a2 +2 | [лог](logs/2026-10-07T12-04-50Z-integration-f46e.log) | BAR operational GREEN actual persisted sale status on replay after reverse |
+| 07.10.2026 17:08 | integration (частично: tests/integration/bar-operational.test.ts) | ❌ упало 4 из 11 | 28 с | e0089a2 +2 | [лог](logs/2026-10-07T12-08-42Z-integration-53be.log) | BAR controlled concurrency acceptance |
+| 07.10.2026 17:09 | integration (частично: tests/integration/bar-operational.test.ts) | ✅ 11 из 11 | 4 с | e0089a2 +2 | [лог](logs/2026-10-07T12-09-19Z-integration-b5f6.log) | BAR concurrency with refreshed PostgreSQL statistics snapshot |
+| 07.10.2026 17:10 | e2e (частично: --config tests/bar-operational-ui/playwright.config.ts) | ❌ код выхода 1 | 1 мин 3 с | e0089a2 +2 | [лог](logs/2026-10-07T12-10-38Z-e2e-913a.log) | Real BAR browser persistence cycle |
+| 07.10.2026 17:11 | e2e (частично: --config tests/bar-operational-ui/playwright.config.ts) | ❌ упало 1 из 1 | 26 с | e0089a2 +2 | [лог](logs/2026-10-07T12-11-52Z-e2e-0acf.log) | Real BAR browser persistence cycle: registered fixture routes |
+| 07.10.2026 17:12 | e2e (частично: --config tests/bar-operational-ui/playwright.config.ts) | ✅ 1 из 1 | 18 с | e0089a2 +2 | [лог](logs/2026-10-07T12-12-34Z-e2e-bb0b.log) | Real BAR browser persistence cycle: fixture metadata access |
+| 07.10.2026 17:13 | integration (частично: tests/integration/bar-operational.test.ts tests/integration/bar-property-guard.test.ts tests/integration/bar-ownership.test.ts tests/inte | ❌ код выхода 1 | 14 с | e0089a2 +2 | [лог](logs/2026-10-07T12-13-44Z-integration-fbd1.log) | BAR operational cycle and all security guards |
+| 07.10.2026 17:14 | integration (частично: tests/integration/bar-operational.test.ts) | ✅ 13 из 13 | 7 с | e0089a2 +2 | [лог](logs/2026-10-07T12-14-11Z-integration-1d59.log) | BAR operation evidence and marker-guarded cleanup without audit purge |
+| 07.10.2026 17:15 | typecheck | ✅ без ошибок | 31 с | e0089a2 +8 | [лог](logs/2026-10-07T12-15-46Z-typecheck-bb84.log) | BAR acceptance final root API web types |
+| 07.10.2026 17:16 | lint | ✅ без ошибок | 54 с | e0089a2 +8 | [лог](logs/2026-10-07T12-16-20Z-lint-a96e.log) | BAR acceptance final lint |
+| 07.10.2026 17:16 | unit | ❌ упало 29 из 3758, пропущено 4 | 2 мин 37 с | e0089a2 +4 | [лог](logs/2026-10-07T12-16-28Z-unit-5f76.log) | BAR acceptance full unit regression |
+| 07.10.2026 17:17 | integration | ✅ 852 из 857, пропущено 5 | 3 мин 6 с | e0089a2 +2 | [лог](logs/2026-10-07T12-17-02Z-integration-c407.log) | BAR acceptance full integration regression |
+| 07.10.2026 17:21 | e2e | ❌ упало 2 из 26 | 1 мин 48 с | e0089a2 +2 | [лог](logs/2026-10-07T12-21-36Z-e2e-b167.log) | BAR acceptance full isolated browser regression |
+| 07.10.2026 17:20 | unit | ✅ 3769 из 3773, пропущено 4 | 4 мин 14 с | e0089a2 +4 | [лог](logs/2026-10-07T12-20-24Z-unit-881e.log) | Full unit: restored tracked design files, direct Git binary and C locale, limited workers |
+| 07.10.2026 17:24 | e2e (частично: --config tests/bar-operational-ui/playwright.config.ts) | ✅ 1 из 1 | 23 с | e0089a2 +2 | [лог](logs/2026-10-07T12-24-59Z-e2e-20ee.log) | Final BAR browser cycle including snapshot and cleanup |
+| 07.10.2026 17:26 | e2e | ✅ 26 из 26 | 1 мин 18 с | e0089a2 +2 | [лог](logs/2026-10-07T12-26-25Z-e2e-67c7.log) | Full isolated browser regression on separate fresh database pmsbar_e2e |
+| 07.10.2026 17:26 | typecheck | ✅ без ошибок | 1 мин 18 с | e0089a2 +8 | [лог](logs/2026-10-07T12-26-38Z-typecheck-4234.log) | Final BAR source after restoring generated next-env |

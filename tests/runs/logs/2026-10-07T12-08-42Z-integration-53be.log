@@ -1,0 +1,223 @@
+# Интеграционные (integration) · 07.10.2026 17:08 Алматы · MacBook-Air-Urij.local
+# коммит e0089a2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-08-42Z-integration-53be.json' 'tests/integration/bar-operational.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[Nest] 14696  - 10/07/2026, 4:08:52 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barStockLot.findMany()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5009 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:210:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:103:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarStockLot',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5009
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:08:52 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barStockLot.findMany()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5017 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:210:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:103:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarStockLot',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5017
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:08:57 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barReceipt.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5011 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:344:23
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.payReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:186:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarReceipt',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5011
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:08:57 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barReceipt.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5017 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:344:23
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.payReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:186:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarReceipt',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5017
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:09:02 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barReceipt.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5003 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:326:23
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.postReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:177:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarReceipt',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5003
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:09:02 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barReceipt.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5007 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:326:23
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.postReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:177:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarReceipt',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5007
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:09:07 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5009 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:261:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.reverseSale (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:129:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarSale',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5009
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 14696  - 10/07/2026, 4:09:07 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.findFirst()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5012 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:261:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.reverseSale (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:129:20) {
+  code: 'P2028',
+  meta: {
+    modelName: 'BarSale',
+    operation: 'query',
+    timeout: 5000,
+    timeTaken: 5012
+  },
+  clientVersion: '7.10.0'
+}
+ ❯ |integration| tests/integration/bar-operational.test.ts (11 tests | 4 failed) 24512ms
+   ❯ BAR operational acceptance: real HTTP and PostgreSQL (11)
+     ✓ C01-C08 reconciles drafts, FIFO, cash, Folio, write-off and shortage in minor units 282ms
+     ✓ C09/C10 reversal restock=true preserves exact stock and cash, repeat denies 85ms
+     ✓ C09/C10 reversal restock=false preserves exact stock and cash, repeat denies 76ms
+     ✓ C13 replay after void returns actual REVERSED status for retail without new effects 68ms
+     ✓ C13 replay after void returns actual REVERSED status for folio without new effects 69ms
+     ✓ C11 invalid inputs and insufficient stock leave no partial effects 62ms
+     ✓ C15 foreign product, receipt, sale and Folio are denied without cross-property writes 84ms
+     × C16 controlled row-lock race: last-unit 5007ms
+     × C16 controlled row-lock race: supplier-balance 5003ms
+     × C16 controlled row-lock race: receipt-post 5002ms
+     × C16 controlled row-lock race: sale-reverse 5001ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C16 controlled row-lock race: last-unit
+ FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C16 controlled row-lock race: supplier-balance
+ FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C16 controlled row-lock race: receipt-post
+ FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C16 controlled row-lock race: sale-reverse
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/bar-operational.test.ts:122:77
+    120|     expect(await effects(other.side.property)).toEqual(foreign);
+    121|   });
+    122|   it.each(['last-unit', 'supplier-balance', 'receipt-post', 'sale-reve…
+       |                                                                             ^
+    123|     const d = await stocked();
+    124|     let table: string, id: string, path: string, body: Record<string, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 7 passed (11)
+   Start at  16:08:44
+   Duration  26.44s (tests 96%, transform 2%, import 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-08-42Z-integration-53be.json
+
+# код выхода 1 · 28 с

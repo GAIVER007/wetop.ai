@@ -62,8 +62,8 @@ export interface BarRepository {
   folios(): Promise<unknown[]>;
   movements(): Promise<unknown[]>;
   report(): Promise<unknown>;
-  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>;
-  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>;
+  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>;
+  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
   writeOff(input: BarWriteOffInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; movementsCreated: number; costMinor: string }>;
   payReceipt(id: string, input: BarSupplierPaymentInput): Promise<{ kind: 'not_found' | 'not_posted' } | { kind: 'overpayment'; dueAmount: bigint } | { kind: 'paid'; id: string; receiptId: string; paidAmount: string; dueAmount: string }>;
@@ -203,7 +203,7 @@ export class PrismaBarRepository implements BarRepository {
     const propertyId = await this.propertyId();
     return this.prisma.db.$transaction(async (tx) => {
       const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+      if (replay) return { kind: 'posted' as const, id: replay.id, status: replay.status as 'POSTED' | 'REVERSED', revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
       if (!product) return { kind: 'not_found' as const };
       await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
@@ -229,7 +229,7 @@ export class PrismaBarRepository implements BarRepository {
     const propertyId = await this.propertyId();
     return this.prisma.db.$transaction(async (tx) => {
       const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
-      if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
+      if (replay) return { kind: 'posted' as const, id: replay.id, status: replay.status as 'POSTED' | 'REVERSED', chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
       await tx.$queryRaw`SELECT f.id FROM folios f JOIN reservation_items i ON i.id = f.reservation_item_id JOIN reservations r ON r.id = i.reservation_id WHERE f.id = ${input.folioId}::uuid AND r.property_id = ${propertyId}::uuid AND f.status = 'OPEN' FOR UPDATE OF f`;
       const folio = await (tx as any).folio.findFirst({ where: { id: input.folioId, status: 'OPEN', reservationItem: { reservation: { propertyId } } } });
       if (!folio) return { kind: 'folio_not_found' as const };

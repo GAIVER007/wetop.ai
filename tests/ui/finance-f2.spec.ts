@@ -190,7 +190,14 @@ test('F2: «Аннулировать» у платежа в ленте — во�
   await page.goto(`${url}&op=payment#operations`);
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
-  const row = main.getByTestId('op-row').filter({ has: page.getByTestId('payment-void') }).first();
+  // строка по индексу, а не «первая с кнопкой»: после аннулирования кнопка уходит, и такой отбор указал бы на соседа
+  const rows = main.getByTestId('op-row');
+  await expect(rows.first()).toBeVisible();
+  const index = await rows.evaluateAll((xs) =>
+    xs.findIndex((x) => x.querySelector('[data-testid="payment-void"]')),
+  );
+  expect(index).toBeGreaterThanOrEqual(0);
+  const row = rows.nth(index);
   await expect(row).toHaveAttribute('data-kind', 'PAYMENT');
   const amount = (await row.getByTestId('op-amount').innerText()).trim();
   await row.getByTestId('payment-void').click();

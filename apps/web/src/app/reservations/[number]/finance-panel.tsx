@@ -173,7 +173,7 @@ function FolioPanel({
   const done = payState.message ?? chargeState.message ?? other.message;
   const stayCharge = folio.charges.find((c) => c.kind === 'ACCOMMODATION' && !c.voidedAt) ?? null;
   return (
-    <Panel data-testid="folio-panel" style={{ gap: 10 }}>
+    <Panel className="folio-panel" data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
         <b className="panel__title panel__title--lg">
           Счёт — {folio.stay.accommodationTypeName},{' '}
@@ -213,14 +213,17 @@ function FolioPanel({
       <b className="folio-form__title" data-testid="folio-charges-title">
         Проживание и услуги
       </b>
-      <Table plain>
+      <Table plain aria-label="Проживание и услуги">
         <thead>
           <tr>
-            {['Начисление', 'Дата', 'Кол-во × цена', 'Сумма', ''].map((h) => (
+            {['Начисление', 'Дата', 'Кол-во × цена', 'Сумма'].map((h) => (
               <th key={h} className={h === 'Сумма' ? 'num' : undefined}>
                 {h}
               </th>
             ))}
+            <th>
+              <span className="sr-only">Действия</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -430,7 +433,7 @@ function FolioPanel({
           <b className="folio-form__title" data-testid="folio-payments-title">
             Оплаты
           </b>
-          <Table plain>
+          <Table plain aria-label="Оплаты">
             <thead>
               <tr>
                 {[

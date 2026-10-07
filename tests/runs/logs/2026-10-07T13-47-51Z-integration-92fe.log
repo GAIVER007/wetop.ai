@@ -1,0 +1,70 @@
+# Интеграционные (integration) · 07.10.2026 18:47 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-47-51Z-integration-92fe.json' 'tests/integration/bar-replay-repair.test.ts' 'tests/integration/bar-financial-rls.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[Nest] 15638  - 10/07/2026, 5:48:13 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:108:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+ ✓ |integration| tests/integration/bar-replay-repair.test.ts (12 tests) 10367ms
+   ✓ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (12)
+     ✓ T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 1039ms
+     ✓ T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds 373ms
+     ✓ T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 684ms
+     ✓ T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds 500ms
+     ✓ T10 linked Finance void restores debt and replay returns VOIDED without paying again 394ms
+     ✓ T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 353ms
+     ✓ T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 717ms
+     ✓ T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 956ms
+     ✓ T02 registry failure rolls back all ledger effects and the original key remains retryable 349ms
+ ✓ |integration| tests/integration/bar-financial-rls.test.ts (7 tests) 5092ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  17:47:54
+   Duration  37.20s (tests 47%, import 33%, transform 20%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-47-51Z-integration-92fe.json
+
+# код выхода 0 · 41 с

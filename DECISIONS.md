@@ -6081,3 +6081,64 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+## ADR-BAR-OPERATIONAL-REPLAY (2026-10-07)
+
+Problem: retrying an existing retail or Folio sale after its reversal returned
+POSTED while the persisted sale was REVERSED. Real HTTP/PostgreSQL tests reproduced
+both channels before the fix.
+
+Options: keep the hardcoded response, deny every replay, or return the existing
+record's actual status. Decision: return its persisted status and widen the typed
+web response to POSTED | REVERSED. This preserves the existing operation identity,
+amounts and replay behavior without creating new financial effects.
+
+Consequences: no schema, migration, permission or accounting change. Stable UI
+intent keys, payment/write-off replay contracts and changed-payload handling remain
+separate questions requiring an approved contract.
+
+## ADR-BAR-OPERATIONAL-REPAIR-NEXT (2026-10-07)
+
+Status: ACCEPTED by owner on 2026-10-07 for D1/D2, separate FIFO loss and refunds matrix. The subsequent T11 decision below also authorizes the paid/closed Folio denial policy.
+Problem: payment/write-off retries duplicate effects, Finance void does not restore
+supplier debt, and no-restock reversal drops sold goods cost from the summary.
+
+Options: volatile deduplication or persistent transactional operation identity;
+remove supplier payment on void or retain history and derive effective paid from
+cash status; fold lost goods into WRITE_OFF or expose a distinct non-restocked loss.
+
+Recommendation: permanent Property-scoped operation identity with payload checks,
+retained payment/audit history and cash-status-based debt, distinct loss from saved
+FIFO cost, explicit persisted reversal restock choice. Proposed refunds requirement
+for BAR reversal and real organization READ_ONLY acceptance, without adding roles.
+
+Reason: one intent causes one transaction, preserved audit, no second inventory
+write-off and no hidden goods cost. Consequences: approved model/API/report changes,
+forward migration and rollback rehearsal are needed. Implement the confirmed choices in plans/bar-operational-repair-next-2026-10-07.md, including linked append-only compensation records for supplier void and cost loss.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
+
+## BAR D1 key scope implementation, 2026-10-07
+
+Problem: retaining the legacy sale key uniqueness across both channels contradicts the owner's approved Property + kind + key scope. Options: reject cross-kind reuse, prefix stored keys, or make the persistent registry authoritative. Decision: retain the original client keys and make the legacy sale lookup index non-unique; BarOperationIntent enforces uniqueness and transactional replay for each kind. Consequence: independent RETAIL/FOLIO intentions may share a key; rollback refuses collisions instead of discarding valid financial history.
+
+2026-10-07, BAR durable evidence: table default privileges granted DELETE, which could forget an accepted operation key. The restore rehearsal proved that generic rights migrations regrant DELETE. Enforce the approved permanent-journal contract with immutable DELETE triggers for wetop_app and wetop_service on intent, payment reversal and cost loss records. Only another table-owning administrative role may delete derived records during synthetic cleanup or separately authorized rollback. This survives the existing rights replay without a new permission migration; no production action is authorized.
+
+## BAR real-session browser CI gate, 2026-10-07
+
+Problem: the full financial acceptance must identify the exact tested SHA, while concurrent work on the developer host makes local Next.js response/compile timings variable. Options: raise test timeouts, use local focused logs as the final proof, or run the unchanged-limit complete real-session BAR browser matrix as an additional job in the already authorized release-checks workflow. Decision: the existing workflow gains a mandatory bar-acceptance job on Ubuntu 24.04 with a separate disposable PostgreSQL 16 service and synthetic schema. Existing fast/bot/db/UI jobs and production permissions remain unchanged. The new job waits for fast checks, retains all nine assertions/cases and uploads screenshots without authentication traces. Server-action tests wait for completion of the actual HTTP response before asserting UI state; neither global test deadlines nor existing result assertions change. Reason: exact-SHA evidence and real API/session behavior without weakening the acceptance bar. Consequence: a failed BAR browser job prevents the complete workflow from being GREEN; this does not authorize release or deployment.
+
+
+### BAR migration numbering after MKT7 sync (2026-10-07)
+
+Fresh main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e occupies canonical numbers 64 and 65 with marketing publication migrations. The unpublished BAR financial replay migration moves from 64 to 66; historical local evidence retains its original number. BAR and Finance source behavior is unchanged upstream. Rehearse the complete merged migration set before readiness.
+
+
+### BAR migration numbering after Site Assets sync (2026-10-07)
+
+Fresh main 791adad02a5955102f32ffa9c6533a29bc4f3757 occupies canonical 66/67 with Site Assets. Move the unpublished BAR financial replay migration from 66 to free 68. Retain earlier run numbers as historical evidence; require the full 74-migration chain on the merged candidate. Site Assets changes have no BAR/Finance semantic changes. Existing BAR migrations remain untouched.
+
+
+### BAR replay UUID canonicalization (2026-10-07)
+
+Problem: the existing API accepts uppercase UUID references, while financial replay guards compare request references with canonical PostgreSQL UUID text. Actual HTTP tests reproduce four first-request 500 failures and four opposite-case replay 409 failures. Normalize only validated UUID reference fields in the registry payload; keep the operation key, method, note and reason unchanged. This restores the existing UUID contract and D1 normalized-payload replay without changing money, permissions, schema or SQL guards.

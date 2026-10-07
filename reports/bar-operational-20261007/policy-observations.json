@@ -1,0 +1,168 @@
+{
+  "fixture": {
+    "org": "614ccc7f-de29-4567-bd6b-73395a939427",
+    "property": "d657f8f7-d922-4e94-ad07-d1bb4e0ffebd",
+    "business": "158c78be-d351-4d4c-a95b-016b65f79245",
+    "location": "7a89cdf4-ab8c-4237-9c20-17b3525a8db1",
+    "folio": "c20026e7-0130-4dfb-9cc6-f0187cadbdd3"
+  },
+  "replay": {
+    "status": 201,
+    "body": {
+      "kind": "posted",
+      "id": "4b093cd3-b573-4c59-91c8-2cdfb778bdbc",
+      "status": "POSTED",
+      "revenueMinor": "32000",
+      "costMinor": "10000"
+    }
+  },
+  "changedPayload": {
+    "status": 201,
+    "body": {
+      "kind": "posted",
+      "id": "4b093cd3-b573-4c59-91c8-2cdfb778bdbc",
+      "status": "POSTED",
+      "revenueMinor": "32000",
+      "costMinor": "10000"
+    }
+  },
+  "duplicatePaymentCount": 2,
+  "writeOffCount": 2,
+  "beforeVoid": {
+    "status": 200,
+    "body": {
+      "purchasesMinor": "280000",
+      "supplierPaidMinor": "20000",
+      "revenueMinor": "32000",
+      "costMinor": "10000",
+      "grossProfitMinor": "22000",
+      "writeOffMinor": "0",
+      "stockCostMinor": "270000",
+      "supplierDebtMinor": "260000"
+    }
+  },
+  "voidResult": {
+    "status": 200,
+    "body": {
+      "currency": "KZT",
+      "totalMinor": "22000",
+      "balances": [
+        {
+          "method": "CASH",
+          "balanceMinor": "22000"
+        },
+        {
+          "method": "KASPI",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "HALYK",
+          "balanceMinor": "0"
+        },
+        {
+          "method": "CARD_TERMINAL",
+          "balanceMinor": "0"
+        }
+      ],
+      "categories": [
+        {
+          "id": "3b1c38f4-0d5a-4030-ac7c-547c9f225381",
+          "kind": "INCOME",
+          "name": "Начальный остаток",
+          "active": true
+        },
+        {
+          "id": "acb37aba-545b-4e52-953d-c41547818e0e",
+          "kind": "INCOME",
+          "name": "Прочее поступление",
+          "active": true
+        },
+        {
+          "id": "16a57a12-416e-4903-b443-ff3154635767",
+          "kind": "EXPENSE",
+          "name": "Зарплата",
+          "active": true
+        },
+        {
+          "id": "0ad7c115-2b1e-40fe-9b2e-44f4f83deede",
+          "kind": "EXPENSE",
+          "name": "Мероприятия",
+          "active": true
+        },
+        {
+          "id": "a2cca3ce-f6db-4e52-9c43-270680e94e55",
+          "kind": "EXPENSE",
+          "name": "Минибар",
+          "active": true
+        },
+        {
+          "id": "478719cc-415f-47bf-9e56-04f3ee4b6bda",
+          "kind": "EXPENSE",
+          "name": "Бытовая химия",
+          "active": true
+        },
+        {
+          "id": "7d082603-cee2-42c7-b513-eb85d75d8877",
+          "kind": "EXPENSE",
+          "name": "Бытовые расходы",
+          "active": true
+        },
+        {
+          "id": "d7286aa6-6ee6-460f-9920-3f2cebee08ad",
+          "kind": "EXPENSE",
+          "name": "Комиссия банка",
+          "active": true
+        },
+        {
+          "id": "52bb45e7-e644-488d-be58-3be816d8f1dc",
+          "kind": "EXPENSE",
+          "name": "Ремонтные работы",
+          "active": true
+        },
+        {
+          "id": "5c7caaa4-4fc5-43f3-94eb-d3007cb279e3",
+          "kind": "EXPENSE",
+          "name": "Таргет/СММ/Инстаграм",
+          "active": true
+        },
+        {
+          "id": "907cf2fa-0eba-451c-bc4b-e1314ab5861f",
+          "kind": "EXPENSE",
+          "name": "Чай/вода/сахар",
+          "active": true
+        }
+      ],
+      "reconciliations": []
+    }
+  },
+  "afterVoid": {
+    "status": 200,
+    "body": {
+      "purchasesMinor": "280000",
+      "supplierPaidMinor": "20000",
+      "revenueMinor": "32000",
+      "costMinor": "10000",
+      "grossProfitMinor": "22000",
+      "writeOffMinor": "0",
+      "stockCostMinor": "270000",
+      "supplierDebtMinor": "260000"
+    }
+  },
+  "staffReverse": {
+    "status": 201,
+    "body": {
+      "kind": "reversed",
+      "id": "4b093cd3-b573-4c59-91c8-2cdfb778bdbc",
+      "status": "REVERSED",
+      "restocked": true
+    }
+  },
+  "staffFinanceVoid": {
+    "status": 403,
+    "body": {
+      "message": "«Возврат оплаты и сторно»: доступ есть у владельца и управляющего.",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}

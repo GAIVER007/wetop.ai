@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 07.10.2026 19:33 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-33-58Z-integration-52ac.json' 'tests/integration/bar-financial-rls.test.ts' 'tests/integration/db-restore-prod.test.ts' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-financial-rls.test.ts (9 tests) 530ms
+ ✓ |integration| tests/integration/db-restore-prod.test.ts (2 tests) 4929ms
+   ✓ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     ✓ после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 1602ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 917ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 124ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  18:33:59
+   Duration  7.74s (tests 80%, transform 11%, import 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-33-58Z-integration-52ac.json
+
+# код выхода 0 · 9 с

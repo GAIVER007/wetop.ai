@@ -1,0 +1,265 @@
+# Интеграционные (integration) · 07.10.2026 23:20 Алматы · MacBook-Air-Urij.local
+# коммит 7316061 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T18-20-36Z-integration-dd69.json' 'tests/integration/bar-replay-repair.test.ts' '--testNamePattern' 'UUID reference case'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[Nest] 65909  - 10/07/2026, 10:20:40 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `BAR supplier replay ownership mismatch`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.payReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:191:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: BAR supplier replay ownership mismatch
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'BAR supplier replay ownership mismatch',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'BAR supplier replay ownership mismatch',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 65909  - 10/07/2026, 10:20:40 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `BAR write-off replay ownership mismatch`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.writeOff (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:145:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: BAR write-off replay ownership mismatch
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'BAR write-off replay ownership mismatch',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'BAR write-off replay ownership mismatch',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 65909  - 10/07/2026, 10:20:40 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `BAR sale replay ownership mismatch`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:108:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: BAR sale replay ownership mismatch
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'BAR sale replay ownership mismatch',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'BAR sale replay ownership mismatch',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 65909  - 10/07/2026, 10:20:40 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `BAR sale replay ownership mismatch`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellToFolio (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:123:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: BAR sale replay ownership mismatch
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'BAR sale replay ownership mismatch',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'BAR sale replay ownership mismatch',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+ ❯ |integration| tests/integration/bar-replay-repair.test.ts (29 tests | 8 failed | 21 skipped) 1076ms
+   ❯ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (29)
+     ↓ T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     × T03 payment upper-first: UUID reference case is canonical while the operation key remains opaque 201ms
+     × T03 payment lower-first: UUID reference case is canonical while the operation key remains opaque 70ms
+     × T03 write-off upper-first: UUID reference case is canonical while the operation key remains opaque 66ms
+     × T03 write-off lower-first: UUID reference case is canonical while the operation key remains opaque 61ms
+     × T03 retail upper-first: UUID reference case is canonical while the operation key remains opaque 64ms
+     × T03 retail lower-first: UUID reference case is canonical while the operation key remains opaque 58ms
+     × T03 folio upper-first: UUID reference case is canonical while the operation key remains opaque 62ms
+     × T03 folio lower-first: UUID reference case is canonical while the operation key remains opaque 59ms
+     ↓ T10 linked Finance void restores debt and replay returns VOIDED without paying again
+     ↓ T10 no-restock loss retains FIFO cost once without a second warehouse decrement
+     ↓ T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T02 payment registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 write-off registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 retail registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 folio registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T04 payment client abort before late commit preserves one retry result
+     ↓ T04 write-off client abort before late commit preserves one retry result
+     ↓ T04 retail client abort before late commit preserves one retry result
+     ↓ T04 folio client abort before late commit preserves one retry result
+     ↓ T08 retail persisted replay after reversal returns the same REVERSED sale without new effects
+     ↓ T08 folio persisted replay after reversal returns the same REVERSED sale without new effects
+     ↓ T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 payment upper-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 write-off upper-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 retail upper-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 folio upper-first: UUID reference case is canonical while the operation key remains opaque
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/bar-replay-repair.test.ts:49:26
+     47|     const upper = kind === 'payment' ? lower : { ...lower, productId: …
+     48|     const first = await f.request(order === 'upper-first' ? upperPath …
+     49|     expect(first.status).toBe(201);
+       |                          ^
+     50|     const before = await effects(d.side.property);
+     51|     const replay = await f.request(order === 'upper-first' ? lowerPath…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 payment lower-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 write-off lower-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 retail lower-first: UUID reference case is canonical while the operation key remains opaque
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03 folio lower-first: UUID reference case is canonical while the operation key remains opaque
+AssertionError: expected 409 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 409
+
+ ❯ tests/integration/bar-replay-repair.test.ts:52:27
+     50|     const before = await effects(d.side.property);
+     51|     const replay = await f.request(order === 'upper-first' ? lowerPath…
+     52|     expect(replay.status).toBe(201);
+       |                           ^
+     53|     expect(replay.body.id).toBe(first.body.id);
+     54|     expect(await effects(d.side.property)).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 21 skipped (29)
+   Start at  22:20:37
+   Duration  3.12s (tests 43%, transform 33%, import 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T18-20-36Z-integration-dd69.json
+
+# код выхода 1 · 4 с

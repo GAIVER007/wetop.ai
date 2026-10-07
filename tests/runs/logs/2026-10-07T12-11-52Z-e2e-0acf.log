@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 07.10.2026 17:11 Алматы · MacBook-Air-Urij.local
+# коммит e0089a2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational-ui/playwright.config.ts'
+[WebServer] (node:15632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:15728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational-ui/cycle.spec.ts:2:1 › real BAR cycle persists across browser reloads and reconciles API totals (7.7s)
+
+
+  1) tests/bar-operational-ui/cycle.spec.ts:2:1 › real BAR cycle persists across browser reloads and reconciles API totals 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      11 |   };
+      12 |   await page.goto('/bar');
+    > 13 |   for (const id of [data.r1.id, data.r2.id]) {
+         |                             ^
+      14 |     const form = page.locator('form').filter({ has: page.locator(`input[name="id"][value="${id}"]`) });
+      15 |     await form.getByRole('button', { name: 'Провести', exact: true }).click();
+      16 |     await expect(page.locator(`input[name="id"][value="${id}"]`)).toHaveCount(0);
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/tests/bar-operational-ui/cycle.spec.ts:13:29
+
+    Error Context: test-results/cycle-real-BAR-cycle-persi-3778e-s-and-reconciles-API-totals/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cycle-real-BAR-cycle-persi-3778e-s-and-reconciles-API-totals/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cycle-real-BAR-cycle-persi-3778e-s-and-reconciles-API-totals/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/bar-operational-ui/cycle.spec.ts:2:1 › real BAR cycle persists across browser reloads and reconciles API totals 
+
+# код выхода 1 · 26 с

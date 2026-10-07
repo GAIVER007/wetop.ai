@@ -32,6 +32,7 @@ export class BarController {
   @Get('report') report() { return this.service.report(); }
   @Post('sales/retail') sellRetail(@Body() body: unknown) { return this.service.sellRetail(body); }
   @Post('sales/folio') sellToFolio(@Body() body: unknown) { return this.service.sellToFolio(body); }
+  @Access('refunds')
   @Post('sales/:id/reverse') reverseSale(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.reverseSale(id, body); }
   @Post('write-offs') writeOff(@Body() body: unknown) { return this.service.writeOff(body); }
   @Post('inventory-counts') inventoryCount(@Body() body: unknown) { return this.service.inventoryCount(body); }

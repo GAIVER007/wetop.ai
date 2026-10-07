@@ -1,0 +1,439 @@
+# Интеграционные (integration) · 07.10.2026 19:27 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-27-58Z-integration-8780.json'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[pms_test] миграций применено 70; данные на месте
+ ❯ |integration| tests/integration/db-restore-prod.test.ts (2 tests | 1 failed) 4628ms
+   ❯ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     × после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 1558ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 933ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 2809ms
+[Nest] 57023  - 10/07/2026, 6:28:10 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.payReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:191:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 57023  - 10/07/2026, 6:28:10 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.writeOff (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:145:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 57023  - 10/07/2026, 6:28:10 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:108:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 57023  - 10/07/2026, 6:28:10 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellToFolio (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:123:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+ ✓ |integration| tests/integration/bar-replay-repair.test.ts (19 tests) 1588ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 357ms
+ ✓ |integration| tests/integration/bar-operational.test.ts (13 tests) 1124ms
+(node:58189) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 1032ms
+(node:58749) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/payment-void.test.ts (4 tests) 1199ms
+   ✓ аннулирование платежа под блокировкой (integration) (4)
+     ✓ возврат и аннулирование наперегонки: проходит ровно одно 1011ms
+ ✓ |integration| tests/integration/site-generation.test.ts (16 tests) 824ms
+ ✓ |integration| tests/integration/bar-real-auth.test.ts (4 tests) 878ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 657ms
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 654ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 653ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 505ms
+(node:60512) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 445ms
+ ✓ |integration| tests/integration/category-price.test.ts (1 test) 499ms
+   ✓ category price and removal (1)
+     ✓ sets one price for a year and every occupancy, shows it, deletes empty and archives used 498ms
+(node:60594) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 389ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 369ms
+(node:60619) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 404ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 629ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 452ms
+ ✓ |integration| tests/integration/bar-financial-rls.test.ts (9 tests) 445ms
+ ✓ |integration| tests/integration/rates-empty-batch-api.test.ts (1 test) 328ms
+   ✓ real API: authenticated empty rate batches return 400 without changing rates, restrictions, audit or outbox 328ms
+ ✓ |integration| tests/integration/bar-reversal-policy.test.ts (5 tests) 541ms
+ ✓ |integration| tests/integration/from-prices.test.ts (9 tests) 428ms
+[Nest] 60825  - 10/07/2026, 6:28:29 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/raw-body/index.js:116:12)
+    at read (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:342:13)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:297:9
+    at processParams (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:582:12)
+    at next (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 60825  - 10/07/2026, 6:28:29 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/raw-body/index.js:116:12)
+    at read (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:342:13)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:297:9
+    at processParams (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:582:12)
+    at next (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/router/index.js:291:5) {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (37 tests) 487ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 130ms
+ ✓ |integration| tests/integration/inventory-room-ari.test.ts (1 test) 286ms
+(node:61043) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (5 tests) 532ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 313ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 313ms
+ ✓ |integration| tests/integration/mv2-registration.test.ts (5 tests) 350ms
+(node:61056) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 536ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 432ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 507ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 407ms
+ ✓ |integration| tests/integration/site-brief.test.ts (11 tests) 358ms
+ ✓ |integration| tests/integration/channex-multi-property.test.ts (1 test) 130ms
+(node:61198) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 399ms
+ ✓ |integration| tests/integration/sites-runtime.test.ts (13 tests) 287ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 173ms
+ ✓ |integration| tests/integration/outbox-enqueue.test.ts (2 tests) 121ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 253ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 126ms
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 326ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 132ms
+ ✓ |integration| tests/integration/payment-requests.test.ts (3 tests) 182ms
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 204ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 283ms
+ ✓ |integration| tests/integration/property-chain.test.ts (3 tests) 139ms
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (13 tests) 255ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 240ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (6 tests) 222ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 113ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 262ms
+ ✓ |integration| tests/integration/seller-scope-precheck.test.ts (9 tests) 275ms
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 270ms
+ ✓ |integration| tests/integration/owner-journal.test.ts (5 tests) 208ms
+(node:61700) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/booking-existing-guest.test.ts (1 test) 188ms
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 231ms
+ ✓ |integration| tests/integration/derived-rate-plans.test.ts (1 test) 235ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 300ms
+ ✓ |integration| tests/integration/guest-directory.test.ts (1 test) 188ms
+ ✓ |integration| tests/integration/seller-booking-intents.test.ts (7 tests) 192ms
+ ✓ |integration| tests/integration/desk-tasks.test.ts (3 tests) 188ms
+ ✓ |integration| tests/integration/rate-plan-penalty.test.ts (1 test) 208ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 227ms
+ ✓ |integration| tests/integration/assistant-diagnostics.test.ts (4 tests) 204ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 253ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 197ms
+ ✓ |integration| tests/integration/market-occupancy.test.ts (4 tests) 213ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 298ms
+[Nest] 62703  - 10/07/2026, 6:28:49 PM    WARN [InboundBookingsService] ревизия role-q225-muy7dr5x (BDC-role-q225-muy7dr5x) отклонена: Комната 1 брони BDC-role-q225-muy7dr5x: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 62703  - 10/07/2026, 6:28:49 PM    WARN [InboundBookingsService] ревизия role-q225-muy7dr5x (BDC-role-q225-muy7dr5x) отклонена: Комната 1 брони BDC-role-q225-muy7dr5x: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 232ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 293ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 143ms
+ ✓ |integration| tests/integration/seller-agent-profiles.test.ts (7 tests) 236ms
+ ✓ |integration| tests/integration/cash-operations.test.ts (4 tests) 264ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 172ms
+ ✓ |integration| tests/integration/requester-context.test.ts (6 tests) 165ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 303ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 302ms
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (7 tests) 242ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 267ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 229ms
+ ✓ |integration| tests/integration/mv3-onboarding.test.ts (6 tests) 247ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 179ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 136ms
+(node:64959) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/derived-rates-booking.test.ts (1 test) 246ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 232ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 183ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 130ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 135ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 129ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 173ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 113ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 148ms
+ ✓ |integration| tests/integration/chessboard-unassigned.test.ts (1 test) 130ms
+ ✓ |integration| tests/integration/integration-scope.test.ts (4 tests) 128ms
+ ✓ |integration| tests/integration/fiscal-receipts.test.ts (3 tests) 179ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 178ms
+ ✓ |integration| tests/integration/request-scope.test.ts (1 test) 161ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 115ms
+(node:65491) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 142ms
+ ✓ |integration| tests/integration/website-reservations.test.ts (1 test) 142ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 169ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 147ms
+ ✓ |integration| tests/integration/seller-agents-migrated.test.ts (3 tests) 150ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 146ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 136ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 145ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 133ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 116ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 83ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 89ms
+ ✓ |integration| tests/integration/generation-runs-db.test.ts (9 tests) 77ms
+ ✓ |integration| tests/integration/integration-tables-privileges.test.ts (17 tests) 40ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 44ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 36ms
+ ↓ |integration| tests/integration/wizard-claim.test.ts (1 test | 1 skipped)
+ ↓ |integration| tests/integration/wizard-drafts.test.ts (1 test | 1 skipped)
+ ↓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests | 2 skipped)
+ ↓ |integration| tests/integration/wizard-retention.test.ts (1 test | 1 skipped)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/db-restore-prod.test.ts > db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были > после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними
+AssertionError: права до порчи, которых нет после восстановления: expected [ …(6) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "T|bar_cost_losses|wetop_app|DELETE|false",
++   "T|bar_cost_losses|wetop_service|DELETE|false",
++   "T|bar_operation_intents|wetop_app|DELETE|false",
++   "T|bar_operation_intents|wetop_service|DELETE|false",
++   "T|bar_supplier_payment_reversals|wetop_app|DELETE|false",
++   "T|bar_supplier_payment_reversals|wetop_service|DELETE|false",
++ ]
+
+ ❯ tests/integration/db-restore-prod.test.ts:122:70
+    120|       .filter((line) => !after.includes(line))
+    121|       .slice(0, 10);
+    122|     expect(diff, 'права до порчи, которых нет после восстановления').t…
+       |                                                                      ^
+    123|     expect(after).toBe(before);
+    124|   }, 240_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 109 passed | 4 skipped (114)
+      Tests  1 failed | 913 passed | 5 skipped (919)
+   Start at  18:27:59
+   Duration  66.45s (tests 68%, import 29%, transform 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-27-58Z-integration-8780.json
+
+# код выхода 1 · 1 мин 7 с

@@ -112,6 +112,19 @@ describe('свой раннер CI', () => {
     expect(vertical).toContain('npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts');
   });
 
+  it('BAR real HTTP browser acceptance belongs to the full exact-SHA gate on isolated PostgreSQL', () => {
+    const bar = withoutComments(job('bar-acceptance'));
+    expect(bar).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(bar).toMatch(/needs: fast/);
+    expect(bar).toMatch(/image: postgres:16/);
+    expect(bar).toContain('npm run test:schema');
+    expect(bar).toContain('npx playwright test --config tests/bar-operational-ui/playwright.config.ts');
+    expect(bar).toContain('actions/upload-artifact@v4');
+    expect(bar).toContain('if: always()');
+    expect(bar).not.toContain('continue-on-error');
+    expect(read('tests/bar-operational-ui/playwright.config.ts')).toContain("trace: 'off'");
+  });
+
   it('сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)', () => {
     const db = withoutComments(job('db'));
     const step = db.slice(db.indexOf('name: Сквозные тесты'));

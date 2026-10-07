@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 07.10.2026 18:18 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-18-28Z-integration-06cd.json' 'tests/integration/bar-reversal-policy.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-reversal-policy.test.ts (5 tests) 2904ms
+   ✓ BAR approved reversal policy on real HTTP and PostgreSQL (5)
+     ✓ T09 STAFF cannot reverse a BAR sale 548ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  17:18:30
+   Duration  7.96s (tests 48%, transform 37%, import 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-18-28Z-integration-06cd.json
+
+# код выхода 0 · 10 с

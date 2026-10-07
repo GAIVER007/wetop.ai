@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 07.10.2026 20:16 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-16-13Z-integration-b77c.json' 'tests/integration/bar-payment-void-race.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-payment-void-race.test.ts (2 tests | 2 failed) 22012ms
+   × T10 shared receipt lock serializes void-first without overpayment or duplicate compensation 2623ms
+   × T10 shared receipt lock serializes pay-first without overpayment or duplicate compensation 2144ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-payment-void-race.test.ts > T10 shared receipt lock serializes void-first without overpayment or duplicate compensation
+AssertionError: requests observed waiting on the shared receipt lock: expected 0 to be greater than or equal to 1
+ ❯ waiting tests/integration/bar-payment-void-race.test.ts:35:78
+     33|       await new Promise(resolve => setTimeout(resolve, 10));
+     34|     }
+     35|     expect(observed, 'requests observed waiting on the shared receipt …
+       |                                                                              ^
+     36|   };
+     37|   const pay = () => f.request(`receipts/${d.r1.id}/payments`, { amount…
+ ❯ tests/integration/bar-payment-void-race.test.ts:43:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-void-race.test.ts > T10 shared receipt lock serializes pay-first without overpayment or duplicate compensation
+AssertionError: requests observed waiting on the shared receipt lock: expected 1 to be greater than or equal to 2
+ ❯ waiting tests/integration/bar-payment-void-race.test.ts:35:78
+     33|       await new Promise(resolve => setTimeout(resolve, 10));
+     34|     }
+     35|     expect(observed, 'requests observed waiting on the shared receipt …
+       |                                                                              ^
+     36|   };
+     37|   const pay = () => f.request(`receipts/${d.r1.id}/payments`, { amount…
+ ❯ tests/integration/bar-payment-void-race.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  19:16:34
+   Duration  94.55s (transform 52%, tests 28%, import 20%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-16-13Z-integration-b77c.json
+
+# код выхода 1 · 2 мин

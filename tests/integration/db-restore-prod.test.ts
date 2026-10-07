@@ -131,7 +131,10 @@ describe.skipIf(!url || pgMajor === null)('db-restore-prod.sh на настоя�
       // папка миграций, где последняя миграция прав ссылается на несуществующую таблицу
       const name = readdirSync(MIGRATIONS)
         .sort()
-        .filter((n) => /\b(GRANT|REVOKE)\b/.test(readFileSync(join(MIGRATIONS, n, 'migration.sql'), 'utf8')))
+        .filter((n) => {
+          const body = readFileSync(join(MIGRATIONS, n, 'migration.sql'), 'utf8').replace(/^\s*--.*$/gm, '');
+          return /\b(GRANT|REVOKE)\b/.test(body) && !/^(CREATE|ALTER|DROP|TRUNCATE|INSERT|UPDATE|DELETE)\s/m.test(body);
+        })
         .pop()!;
       spawnSync('cp', ['-R', MIGRATIONS, join(broken, 'migrations')]);
       spawnSync('sh', [

@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 07.10.2026 19:16 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-16-45Z-integration-0454.json' 'tests/integration/bar-financial-rls.test.ts' 'tests/integration/finance-operations.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-financial-rls.test.ts (9 tests) 623ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 254ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  18:16:47
+   Duration  3.41s (import 35%, transform 33%, tests 32%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-16-45Z-integration-0454.json
+
+# код выхода 0 · 5 с

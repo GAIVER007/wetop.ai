@@ -6762,6 +6762,7 @@ createServer(async (req, res) => {
         costMinor: '0',
         grossProfitMinor: '0',
         writeOffMinor: '0',
+        nonRestockedLossMinor: '0',
         stockCostMinor: '0',
         supplierDebtMinor: '0',
       });

@@ -1,0 +1,25 @@
+# Интеграционные (integration) · 07.10.2026 18:24 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-24-12Z-integration-2848.json' 'tests/integration/bar-replay-repair.test.ts' 'tests/integration/bar-reversal-policy.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/bar-replay-repair.test.ts (6 tests) 5119ms
+   ✓ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (6)
+     ✓ T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 609ms
+     ✓ T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 474ms
+     ✓ T10 linked Finance void restores debt and replay returns VOIDED without paying again 688ms
+     ✓ T10 no-restock loss retains FIFO cost once without a second warehouse decrement 403ms
+ ✓ |integration| tests/integration/bar-reversal-policy.test.ts (5 tests) 4145ms
+   ✓ BAR approved reversal policy on real HTTP and PostgreSQL (5)
+     ✓ T09 STAFF cannot reverse a BAR sale 477ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  17:24:14
+   Duration  22.37s (tests 48%, import 34%, transform 18%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-24-12Z-integration-2848.json
+
+# код выхода 0 · 27 с

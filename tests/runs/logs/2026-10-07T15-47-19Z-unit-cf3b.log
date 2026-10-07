@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 20:47 Алматы · MacBook-Air-Urij.local
+# коммит ebbaae6 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-47-19Z-unit-cf3b.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (23 tests) 4330ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 3319ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 583ms
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  19:47:27
+   Duration  5.06s (tests 96%, transform 2%, import 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-47-19Z-unit-cf3b.json
+
+# код выхода 0 · 15 с

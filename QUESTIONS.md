@@ -1280,6 +1280,42 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 
 Найдено при SCOPE-HARDENING, в тот PR намеренно не включено (решение владельца). `organizationPropertyRef` (`apps/api/src/database/property-ref.ts`) при scope ORGANIZATION и BUSINESS не фильтрует ACTIVE Location и Business, а найденный объект живёт в кэше процесса до перезапуска. После архивирования первого отеля запросы без выбранного филиала продолжат указывать на него. Одного условия `status: 'ACTIVE'` мало: уже закэшированный объект останется. Нужно отдельно решить семантику инвалидации кэша (сброс при архивировании, срок жизни или отказ от кэша) и оценить влияние на число запросов. До решения кэш не меняется.
 
+## BAR operational acceptance, 2026-10-07: outstanding policy gates
+
+Owner approval is pending for these financial/access decisions; acceptance and
+minimal status-response repair do not approve changing them:
+
+- C10: how to recognize the 132000 minor-unit cost of a reversed retail sale when
+  its goods are not returned. Current reporting excludes it from COGS and WRITE_OFF.
+- C12: permitted reversal path for closed, partly paid and fully paid Folios, with
+  treatment of existing payments and any guest refund. Not accepted yet.
+- C04: should Finance void of supplier expense restore BAR supplier debt? Real
+  Finance void succeeds but BAR supplierPaid and debt remain unchanged.
+- C14: confirm OWNER/STAFF/read-only matrix. Current STAFF can reverse BAR through
+  desk while Finance cash void requires refunds and denies STAFF. No new role or
+  permission has been introduced.
+- C13: approve replay identity for supplier payments and write-offs, and stable
+  client intent keys for sale forms. Repeating a committed payment or write-off
+  currently produces two effects. A sale retry with the same key but changed
+  quantity returns the original sale without a conflict. No financial/schema fix
+  has been made for these observations.
+
+Operational readiness remains limited until these decisions and all required
+variants are accepted. Production, release, merge and deploy remain untouched.
+
+## BAR continuation decisions, 2026-10-07
+
+Concrete proposal: plans/bar-operational-repair-next-2026-10-07.md.
+Confirm D1 persistent operation registry and forward model/migration changes;
+D2 Finance void restores supplier debt without deleting payment/audit history;
+D3 distinct non-restocked loss metric versus changing WRITE_OFF semantics;
+D4 STAFF desk operations with reverse restricted to refunds, real READ_ONLY org.
+Paid/closed Folio C12 remains a separate unresolved acceptance requirement.
+No financial, permission, schema or migration code changed while awaiting decisions.
+
+Owner response received: D1/D2 approved, distinct FIFO cost loss selected, D4 refunds matrix approved. Compensation records required by the supplied next-stage specification are included in the accepted plan. C12 paid/closed Folio remains BLOCKED. Fresh-main selection867a3914 and prior localhost55893 QA contour recorded in execution block.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
 
 ## MV9: определения производных показателей (07.10.2026)
 
@@ -1287,3 +1323,5 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 |---|---|---|---|
 | Q-280 | Каков знаменатель no-show rate Beauty/Food, включаются ли отмены и ещё не завершённые записи, по какой дате выбирать период? | OPEN | MV9 показывает абсолютное NO_SHOW; процент до решения не вычисляется. |
 | Q-281 | Повторный клиент: сколько состоявшихся посещений, какое окно истории и scope Business или Organization? | OPEN | MV9 не классифицирует клиентов как повторных и не показывает repeat rate. |
+
+BAR gates final status, 2026-10-07: C10/C12/C14 and D1-D4 above are RESOLVED by the owner responses and the T11 decision. Earlier pending/BLOCKED paragraphs record the historical approval sequence, not the current authorization. Implementation follows the accepted plan; merge/release/production still require a separate exact-SHA approval.

@@ -33,3 +33,5 @@
 @media (max-width: 900px) { .bar-product-form { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .bar-form-grid, .bar-line, .bar-sale-form, .bar-folio-form, .bar-payment-form, .bar-catalogs, .bar-product-form { grid-template-columns: 1fr; } .bar-products-catalog { grid-column: auto; } .bar-receipt-form > .btn, .bar-line .btn, .bar-sale-form .btn, .bar-folio-form .btn, .bar-payment-form .btn { width: 100%; min-height: 44px; } }
 @media (prefers-reduced-motion: reduce) { .bar-receipt-form *, .bar-line * { scroll-behavior: auto; transition-duration: 0.01ms !important; } }
+
+.bar-intent-fields { border: 0; padding: 0; margin: 0; display: contents; }

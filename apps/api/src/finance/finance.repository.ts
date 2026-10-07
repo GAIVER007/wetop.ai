@@ -1346,6 +1346,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     await this.locked(
       audit,
       async (tx) => {
+        const linked = await tx.barSupplierPayment.findUnique({ where: { cashOperationId: id } });
+        if (linked) await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${linked.receiptId}::uuid FOR UPDATE`;
         const rows = await tx.$queryRaw<Array<{ status: string }>>`
           SELECT "status"::text AS status FROM "cash_operations" WHERE "id" = ${id}::uuid FOR UPDATE`;
         if (rows[0]?.status !== 'COMPLETED')
@@ -1356,6 +1358,17 @@ export class PrismaFinanceRepository implements FinanceRepository {
           where: { OR: [{ id }, { relatedId: id }] },
           data: { status: 'VOIDED' },
         });
+        const linked = await tx.barSupplierPayment.findUnique({ where: { cashOperationId: id }, include: { receipt: true } });
+        if (linked) {
+          const reversal = await tx.barSupplierPaymentReversal.create({ data: {
+            propertyId: linked.receipt.propertyId, paymentId: linked.id, amountMinor: linked.amount,
+            createdById: auditUserId(),
+          } });
+          await tx.auditLog.create({ data: {
+            userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: linked.id,
+            action: 'bar.supplier_payment.reversed', after: { reversalId: reversal.id, cashOperationId: id, receiptId: linked.receiptId, amountMinor: linked.amount.toString() },
+          } });
+        }
       },
     );
   }

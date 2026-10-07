@@ -61,7 +61,8 @@ test('MV9 Beauty numbers reconcile with API and independent database aggregates 
       .filter((a) => a.status === 'DONE')
       .reduce((sum, a) => sum + (a._sum.price ?? 0n), 0n),
   ).toBe(apiMoney);
-  await expect(page.getByTestId('revenue-KZT')).toContainText('12');
+  expect(apiMoney).toBe(1200000n);
+  await expect(page.getByTestId('revenue-KZT')).toHaveText(/^12\s000,00 KZT$/);
   await page.reload();
   await expect(page.getByTestId('period-DONE')).toHaveText('1');
 });

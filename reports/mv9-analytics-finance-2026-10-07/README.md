@@ -1,6 +1,6 @@
 # MV9: отдельная аналитика Beauty и Food
 
-Дата: 07.10.2026. База реализации: main `c7e63d76a2687fdec387d89b1c718c3387a009e3` (MV8, PR #259).
+Дата: 07.10.2026. Исходная база: main `c7e63d76a2687fdec387d89b1c718c3387a009e3` (MV8, PR #259). Перед финальной проверкой ветка перебазирована на main `012c06d8` (включая MKT4 и планы MV8.5). Код реализации после rebase: `42fec3d7`.
 Ветка: `codex/mv9-analytics-finance-20261007`. План: `plans/mv9-analytics-finance-2026-10-07.md`, подтверждён владельцем сообщением «да».
 
 ## Результат
@@ -49,11 +49,33 @@
 
 ## Проверки и reconciliation
 
-Итоговые результаты будут внесены после завершения всех согласованных прогонов.
+Проверки обновлённой ветки на main `012c06d8`:
+
+| Набор | Результат | Лог в tests/runs/logs/ |
+|---|---|---|
+| Реальный API, БД и браузер: MV9 + branches + MV8 Today | 37/37 passed | `2026-10-07T09-29-00Z-e2e-13fd.log` |
+| Усиленная точная сверка UI/API/SQL денег Beauty | 1/1 passed | `2026-10-07T09-31-33Z-e2e-ea44.log` |
+| Гостиничные analytics/navigation/branches | 40 passed, один ENOSPC при записи trace; этот сценарий затем 1/1 passed | `2026-10-07T09-31-58Z-e2e-844a.log`, `2026-10-07T09-37-28Z-e2e-34bc.log` |
+| Beauty: реальные операции и UI | 10/10 passed | `2026-10-07T09-38-06Z-e2e-106e.log` |
+| Food: реальные операции и UI | 13/13 passed | `2026-10-07T09-39-32Z-e2e-c319.log` |
+
+Общие проверки обновлённой ветки:
+
+| Набор | Результат | Лог |
+|---|---|---|
+| Полный unit | 3731 passed, 4 штатных skipped | `tests/runs/logs/2026-10-07T09-41-32Z-unit-2faf.log` |
+| Полный integration | 813 passed, 16 штатных skipped | `tests/runs/logs/2026-10-07T09-45-28Z-integration-a6e0.log` |
+| Typecheck: корень, API, web | Все три passed | `tests/runs/logs/2026-10-07T09-47-48Z-typecheck-2147.log` |
+| Lint | Passed | `tests/runs/logs/2026-10-07T09-47-48Z-lint-a84e.log` |
+| Production build apps/web | Passed, Next 16.3.6 | `reports/mv9-analytics-finance-2026-10-07/web-build.log` |
+
+Пропуски существовали до MV9: unit offsite/server bootstrap gates; integration public-schema introspection и backup/restore/wizard environment gates. Новых skip нет. Сборка выполнена локально, выкладка не выполнялась.
 
 Новый браузерный набор `tests/branches-ui/analytics.spec.ts` независимо считает Beauty/Food статусы через Prisma groupBy, сравнивает с полным API и видимыми карточками, затем проверяет reload. Food fixture содержит 105 записей на двух страницах (53 BOOKED, 52 CONFIRMED), текущие SEATED/COMPLETED и бронь через полночь. Проверяются смешанная организация, частичный отказ Food API, read-only и STAFF, смена направления, невозможность открытия гостиничной вкладки другой вертикалью.
 
 Восемь снимков в `screenshots/`: Beauty/Food, 1440/390, светлая/тёмная темы. Проверяются axe, клавиатура и отсутствие горизонтального overflow.
+
+Гостиничный UI использует существующие specs и synthetic loopback API, не является доказательством реальной БД. Копия точного временного конфига: `hospitality-playwright-config.txt`. Он повторяет timeout/expect/browser стандартного UI-стенда, задаёт отдельные свободные порты :55933/:55934; сервер маркетингового сайта не нужен выбранным спекам. При повторении заменить пути checkout на локальные и сохранить конфиг как `.mts`. Реальные UI/API/SQL числа доказаны отдельным branches-ui набором.
 
 ## Промежуточные сбои, сохранённые в журнале
 
@@ -67,8 +89,28 @@
 
 Прогон `09-22-29Z-integration-a38d` дал 790 passed / 1 failed / 16 skipped. Проверка Platform P1 backfill встретила ARCHIVED филиал, оставшийся после браузерного сценария в той же тестовой схеме. Следующий полный integration запущен в новой отдельной локальной базе, где тот же тест прошёл без изменения assertions.
 
+Гостиничный UI-прогон `09-31-58Z-e2e-844a`: 40 passed / 1 failed. Последняя dark navigation проверка завершилась ENOSPC при сохранении trace, Next также сообщил ENOSPC в своём кэше. Удалены только сгенерированные dev/cache этого рабочего дерева (около 1.3 GiB), ни чужие процессы, ни исходники не затронуты. Тот же сценарий прошёл 1/1 в `09-37-28Z-e2e-34bc`.
+
 ## Review и границы доставки
 
 Проверены scope headers, `reports` permission до получения данных, дата начала и полная pagination, integer money и валюты, отсутствие общего hotel-only KPI, ошибки без фиктивных нулей, bounded request fan-out. Архитектура записана в ADR-MV9-REPORTS.
 
 Доставка этого среза: commit/push и отдельный PR, затем STOP. Merge, production/release, MV10 и MV11 не выполняются.
+
+## Команды итоговой проверки
+
+В собственной копии репозитория, PATH включает `/usr/local/bin` и CommandLineTools. URL ниже относится только к localhost без внешних учётных данных. Для своего запуска заменить локальные порт и имя базы.
+
+```sh
+LC_ALL=C npm run test:record -- unit --maxWorkers=2 --testTimeout=15000
+DATABASE_URL=postgresql://postgres@127.0.0.1:55793/mv9_integration TEST_DATA=seed DATABASE_POOL_MAX=2 LC_ALL=C npm run test:record -- integration --testTimeout=15000
+DATABASE_URL=postgresql://postgres@127.0.0.1:55793/mv9_local DATABASE_POOL_MAX=2 BRANCHES_UI_WEB_PORT=55963 BRANCHES_UI_API_PORT=55964 LC_ALL=C npm run test:record -- e2e --config tests/branches-ui/playwright.config.ts --workers=1
+DATABASE_URL=postgresql://postgres@127.0.0.1:55793/mv9_local DATABASE_POOL_MAX=2 BEAUTY_UI_WEB_PORT=55913 BEAUTY_UI_API_PORT=55914 LC_ALL=C npm run test:record -- e2e --config tests/beauty-ui/playwright.config.ts --workers=1
+DATABASE_URL=postgresql://postgres@127.0.0.1:55793/mv9_local DATABASE_POOL_MAX=2 LC_ALL=C npm run test:record -- e2e --config tests/food-ui/playwright.config.ts --workers=1
+UI_FIXTURE_API=http://127.0.0.1:55934 FIXTURE_PORT=55934 LC_ALL=C npm run test:record -- e2e --config /tmp/wetop-mv9-ui.config.mts analytics-v2.spec.ts analytics-occupancy.spec.ts analytics-units.spec.ts analytics-channels.spec.ts analytics-design.spec.ts navigation.spec.ts branches.spec.ts --workers=1
+LC_ALL=C npm run test:record -- typecheck
+LC_ALL=C npm run test:record -- lint
+LC_ALL=C APP_API_URL=http://127.0.0.1:55964 npm run build -w apps/web
+```
+
+Перед запуском проверить свободные loopback порты; integration и e2e запускать последовательно. Общий Supabase не использовать. Для branches-ui после полного прогона дополнительно повторён усиленный Beauty reconciliation сценарий; точная команда есть в логе.

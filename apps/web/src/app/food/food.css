@@ -23,10 +23,6 @@
   .food-toolbar .field {
     min-width: 0;
   }
-  .food-toolbar input,
-  .food-toolbar select {
-    max-width: 220px;
-  }
   .food-date {
     display: flex;
     align-items: center;

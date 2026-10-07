@@ -167,3 +167,73 @@ for (const [width, theme] of [
     }
   });
 }
+
+// Наведение: статический снимок состояний не видит, а слои могли развернуть правило раздела против
+// `.inp:hover`, `.tbl tr:hover td` и подобных. Наводим на первые элементы примитивов и пишем их вид.
+const HOVER_TARGETS = [
+  '.tbl tbody tr',
+  '.inp',
+  'select.inp',
+  '.btn',
+  '.btn--secondary',
+  '.chips a',
+  '.chips button',
+  '.seg a',
+  '.tbl td a',
+  '.facts a',
+  '.topmenu__tab',
+];
+const HOVER_PROPS = [
+  'background-color',
+  'background-image',
+  'color',
+  'border-top-width',
+  'border-top-color',
+  'box-shadow',
+  'text-decoration-line',
+  'filter',
+];
+test('наведение на примитивы маршрутов гостиницы, 1440 светлая', async ({ page }) => {
+  test.setTimeout(900_000);
+  const dir = `${stylesOut}-hover`;
+  mkdirSync(dir, { recursive: true });
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const route of STYLE_ROUTES) await page.goto(route);
+  for (const route of STYLE_ROUTES) {
+    await page.goto(route);
+    await page.waitForLoadState('networkidle').catch(() => undefined);
+    const out: Record<string, Record<string, string>> = {};
+    for (const sel of HOVER_TARGETS) {
+      const all = await page.locator(sel).all();
+      let n = 0;
+      for (const el of all) {
+        if (n >= 2) break;
+        if (!(await el.isVisible().catch(() => false))) continue;
+        await el.hover({ timeout: 2_000 }).catch(() => undefined);
+        // строка таблицы красит ячейки, поэтому берём первую ячейку
+        // в корневом tsconfig нет библиотеки DOM: узкие типы вместо Element
+        type Node = {
+          matches(s: string): boolean;
+          querySelector(s: string): Node | null;
+          getAttribute(n: string): string | null;
+        };
+        type Styles = { getPropertyValue(p: string): string };
+        const row = await el.evaluate((node: Node, props: string[]) => {
+          const t = node.matches('tr') ? node.querySelector('td') || node : node;
+          const cs = (
+            globalThis as unknown as { getComputedStyle(n: Node): Styles }
+          ).getComputedStyle(t);
+          const r: Record<string, string> = {};
+          for (const p of props) r[p] = cs.getPropertyValue(p);
+          r['class'] = t.getAttribute('class') || '';
+          return r;
+        }, HOVER_PROPS);
+        out[`${sel}#${n}`] = row as Record<string, string>;
+        n++;
+      }
+    }
+    await page.mouse.move(0, 0);
+    writeFileSync(`${dir}/${route.slice(1).replace(/\//g, '-')}.json`, JSON.stringify(out));
+  }
+});

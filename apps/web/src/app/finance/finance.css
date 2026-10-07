@@ -672,7 +672,7 @@
     width: 100%;
     border-color: var(--border);
     box-shadow: none;
-    background: var(--surface);
+    background-image: none;
   }
   .page:has(.cash-summary) .finance-toolbar .inp:focus-visible {
     outline: 2px solid var(--primary);

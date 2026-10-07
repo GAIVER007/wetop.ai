@@ -760,8 +760,9 @@
     padding: 12px 16px;
   }
   .board-toolbar .inp {
-    background: var(--success-soft);
     border-color: var(--border);
+    /* стрелки select на этой полосе нет: до DS0b её гасило сокращение background в premium.css */
+    background-image: none;
   }
   .board thead th {
     height: 82px;

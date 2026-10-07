@@ -377,7 +377,6 @@
     min-width: 0;
     width: 100%;
     border-color: var(--border-input);
-    background-color: var(--surface);
   }
   .board-toolbar .field > span {
     flex: none;

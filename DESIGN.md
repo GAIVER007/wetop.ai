@@ -1037,7 +1037,7 @@ Hospitality», «Следующее направление», плашки со�
 `--shadow-glass`, радиус `--radius-lg`) — блоки страницы:
 
 ```
-.panel  .stat  .kpi  .attention-card  .section-card  .facts--card
+.panel  .stat  .kpi  .attention-card  .section-card
 .chart  .chain__card  .empty-state  .tbl-wrap  .table-scroll
 .room-card  .incident  .incident-history  .inventory-summary
 .inventory-card  .feature-pending  .onboarding__section

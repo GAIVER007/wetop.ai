@@ -30,10 +30,9 @@ test('одинарный клик — предпросмотр без ухода
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
   await expect(preview).not.toContainText(number!);
-  await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
-    'href',
-    `/reservations/${number}#booking-actions`,
-  );
+  await expect(
+    preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
   await page.keyboard.press('Escape');
   await expect(preview).toBeHidden();
   await expect(stay).toBeFocused();
@@ -52,14 +51,12 @@ test('действия по статусу: подтверждённой — з�
   await page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
-  await expect(preview.getByRole('link', { name: 'Принять оплату', exact: true })).toHaveAttribute(
-    'href',
-    /#booking-finance$/,
-  );
-  await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
-    'href',
-    /#booking-actions$/,
-  );
+  await expect(
+    preview.getByRole('button', { name: 'Оплата / возврат', exact: true }),
+  ).toBeVisible();
+  await expect(
+    preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', /#booking-actions$/);
   await expect(preview.locator('.stay-preview__actions > *')).toHaveCount(3);
   await page.keyboard.press('Escape');
 
@@ -102,7 +99,8 @@ test('«Заселить» из предпросмотра выполняет с
   const debt = page.locator('dialog[open]');
   const checkedOut = preview.locator('[data-testid="preview-status"][data-status="CHECKED_OUT"]');
   await expect(debt.or(checkedOut)).toBeVisible();
-  if (await debt.isVisible()) await debt.getByRole('button', { name: 'Выселить с долгом', exact: true }).click();
+  if (await debt.isVisible())
+    await debt.getByRole('button', { name: 'Выселить с долгом', exact: true }).click();
   await expect(preview.getByTestId('preview-status')).toContainText('Выселен');
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
   const saved = await request.get(`${fixture}/reservations/${number}`, {
@@ -212,8 +210,7 @@ test('служебный код скрыт на плашке, источник �
   await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
   await stay.click();
   await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
-  await expect(page.getByRole('link', { name: 'Редактировать бронь', exact: true })).toHaveAttribute(
-    'href',
-    `/reservations/${number}#booking-actions`,
-  );
+  await expect(
+    page.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
 });

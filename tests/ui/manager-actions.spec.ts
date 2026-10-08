@@ -150,7 +150,7 @@ test('карточка: отмена, незаезд и выселение с д
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await commands(page)).toEqual([]);
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить отмену' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 
@@ -158,17 +158,18 @@ test('карточка: отмена, незаезд и выселение с д
   await request.post(`${fixture}/__test/reset`);
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
-  await page.getByRole('main').getByTestId('no-show-ui-item').click();
-  dialog = page.getByRole('dialog', { name: 'Отметить незаезд по R01?' });
+  await page.getByRole('main').getByTestId('cancel-stay-ui-item').click();
+  dialog = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
+  await dialog.getByLabel('Причина отмены').selectOption('no_show');
   await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
     'Штраф 8 000 ₸ останется на счёте',
   );
-  await dialog.getByRole('button', { name: 'Отметить незаезд' }).click();
+  await dialog.getByRole('button', { name: 'Подтвердить незаезд' }).click();
   // Вкладку меняем после ответа действия: клик по «Обзору» в ту же сотню миллисекунд, когда ответ приходит,
   // перебивается адресом, с которым действие стартовало, и карточка возвращается на «Действия» — ячейки
   // «Обзора» скрыты (полный UI-набор 28.09.2026, лог 2026-09-28T18-08-55Z-e2e-4673.log). Кнопка незаезда
   // исчезает, когда ответ применён.
-  await expect(page.getByRole('main').getByTestId('no-show-ui-item')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('cancel-stay-ui-item')).toHaveCount(0);
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
   await expect(

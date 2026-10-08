@@ -62,13 +62,15 @@ test('отказ оплаты сохраняет введённую сумму, 
   await form.locator('[name=amount]').fill('3456.78');
   await form.locator('[name=method]').selectOption('KASPI');
   await form.locator('[name=note]').fill('Не терять при отказе');
-  await form.getByRole('button', { name: 'Принять оплату' }).click();
+  await form.getByRole('button', { name: 'Проверить оплату' }).click();
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toBeVisible();
   await expect(form.locator('[name=amount]')).toHaveValue('3456.78');
   await expect(form.locator('[name=method]')).toHaveValue('KASPI');
   await expect(form.locator('[name=note]')).toHaveValue('Не терять при отказе');
   await request.post(`${fixture}/__test/control`, { data: {} });
-  await form.getByRole('button', { name: 'Принять оплату' }).click();
+  await form.getByRole('button', { name: 'Проверить оплату' }).click();
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(
     page.getByTestId('payment-row').filter({ hasText: 'Не терять при отказе' }),
   ).toHaveCount(1);
@@ -115,7 +117,9 @@ test('медленная финансовая команда блокирует 
     const extra = page.getByTestId('early-check-in-ui-folio');
     await extra.click();
     await expect(extra).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Принять оплату', exact: true })).toBeDisabled();
+    await expect(
+      page.getByRole('button', { name: 'Проверить оплату', exact: true }),
+    ).toBeDisabled();
   } finally {
     release();
     await page.unrouteAll({ behavior: 'wait' });

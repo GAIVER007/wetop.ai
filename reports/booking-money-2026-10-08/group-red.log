@@ -1,0 +1,60 @@
+[WebServer] (node:7355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7387) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:7427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (2.0m)
+
+
+  1) tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание ─
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByTestId('group-payment-form').getByRole('button', { name: 'Проверить общий платёж' })
+
+
+      25 |     await group.getByLabel('На счёт 1', { exact: true }).fill('1000');
+      26 |     await group.getByLabel('На счёт 2', { exact: true }).fill('1000');
+    > 27 |     await group.getByRole('button', { name: 'Проверить общий платёж' }).click();
+         |                                                                         ^
+      28 |     const beforeConfirm = await (await request.get(`${fixture}/__test/commands`)).json();
+      29 |     expect(beforeConfirm.filter((c: { path: string }) => c.path === '/finance/payments')).toEqual([]);
+      30 |     await group.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/payment-draft.spec.ts:27:73
+
+    Error Context: test-results/payment-draft-обновление-с-e843a-ведённые-сумму-и-примечание/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/payment-draft-обновление-с-e843a-ведённые-сумму-и-примечание/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/payment-draft-обновление-с-e843a-ведённые-сумму-и-примечание/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание ──

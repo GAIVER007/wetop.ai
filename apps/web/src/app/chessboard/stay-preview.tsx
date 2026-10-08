@@ -70,17 +70,23 @@ export function StayPreview({
   const [financeDirty, setFinanceDirty] = useState(false);
   const [financePending, setFinancePending] = useState(false);
   const { ask, dialog } = useConfirm();
-  const requestClose = useCallback(async (restoreFocus: boolean) => {
-    if (pending || financePending) return;
-    if (financeDirty && !(await ask({
-      title: 'Закрыть без проведения?',
-      body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
-      confirmLabel: 'Закрыть без проведения',
-      cancelLabel: 'Продолжить ввод',
-    }))) return;
-    onClose(restoreFocus);
-  }, [pending, financePending, financeDirty, ask, onClose]);
-
+  const requestClose = useCallback(
+    async (restoreFocus: boolean) => {
+      if (pending || financePending) return;
+      if (
+        financeDirty &&
+        !(await ask({
+          title: 'Закрыть без проведения?',
+          body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
+          confirmLabel: 'Закрыть без проведения',
+          cancelLabel: 'Продолжить ввод',
+        }))
+      )
+        return;
+      onClose(restoreFocus);
+    },
+    [pending, financePending, financeDirty, ask, onClose],
+  );
 
   useEffect(() => {
     let alive = true;
@@ -131,7 +137,10 @@ export function StayPreview({
       if (pending || financePending || (event.target as Element).closest?.('dialog[open]')) return;
       const node = event.target as Node;
       if (ref.current?.contains(node) || target.anchor.contains(node)) return;
-      if (financeDirty) { event.preventDefault(); event.stopPropagation(); }
+      if (financeDirty) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       void requestClose(false);
     };
     // Событие scroll приходит кадром позже: прокрутка к плашке перед щелчком закрыла бы только что
@@ -139,11 +148,20 @@ export function StayPreview({
     const onMove = () => {
       const box = target.anchor.getBoundingClientRect();
       const was = placed.current;
-      if (!financeDirty && !financePending && (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2))
+      if (
+        !financeDirty &&
+        !financePending &&
+        (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2)
+      )
         void requestClose(false);
     };
     const onClick = (event: MouseEvent) => {
-      if (!financeDirty || (event.target as Element).closest?.('dialog[open]') || ref.current?.contains(event.target as Node)) return;
+      if (
+        !financeDirty ||
+        (event.target as Element).closest?.('dialog[open]') ||
+        ref.current?.contains(event.target as Node)
+      )
+        return;
       event.preventDefault();
       event.stopPropagation();
       if (!document.querySelector('dialog[open]')) void requestClose(false);
@@ -201,7 +219,12 @@ export function StayPreview({
           <Icon name="close" />
         </button>
       </div>
-      <p className="stay-preview__status" data-testid="preview-status" data-status={target.status} role="status">
+      <p
+        className="stay-preview__status"
+        data-testid="preview-status"
+        data-status={target.status}
+        role="status"
+      >
         {STATUS_WORD[target.status] ?? target.status}
         {today && `, ${today}`}
       </p>
@@ -279,37 +302,62 @@ export function StayPreview({
       {dialog}
       {financeOpen ? (
         <>
-          <PreviewFinance readOnly={readOnly} number={target.number} itemId={target.itemId} onDraftChange={setFinanceDirty} onPendingChange={setFinancePending} onComplete={() => { void stayPreviewAction(target.number, target.itemId).then(setData); }} />
-          <Button type="button" tone="secondary" disabled={financeDirty || financePending} onClick={() => setFinanceOpen(false)}>Назад к брони</Button>
+          <PreviewFinance
+            readOnly={readOnly}
+            number={target.number}
+            itemId={target.itemId}
+            onDraftChange={setFinanceDirty}
+            onPendingChange={setFinancePending}
+            onComplete={() => {
+              void stayPreviewAction(target.number, target.itemId).then(setData);
+            }}
+          />
+          <Button
+            type="button"
+            tone="secondary"
+            disabled={financeDirty || financePending}
+            onClick={() => setFinanceOpen(false)}
+          >
+            Назад к брони
+          </Button>
         </>
-      ) : <div className="stay-preview__actions" aria-busy={pending}>
-        {!readOnly && expected && (
-          <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
-            {pending ? 'Выполняется…' : 'Заселить'}
-          </Button>
-        )}
-        {!readOnly && target.status === 'CHECKED_IN' && (
-          <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
-            {pending ? 'Выполняется…' : 'Выселить'}
-          </Button>
-        )}
-        {!readOnly && live && (
-          <>
-            <Button type="button" tone="secondary" disabled={pending} onClick={() => setFinanceOpen(true)}>
+      ) : (
+        <div className="stay-preview__actions" aria-busy={pending}>
+          {!readOnly && expected && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
+              {pending ? 'Выполняется…' : 'Заселить'}
+            </Button>
+          )}
+          {!readOnly && target.status === 'CHECKED_IN' && (
+            <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
+              {pending ? 'Выполняется…' : 'Выселить'}
+            </Button>
+          )}
+          {!readOnly && live && (
+            <>
+              <Button
+                type="button"
+                tone="secondary"
+                disabled={pending}
+                onClick={() => setFinanceOpen(true)}
+              >
+                Оплата / возврат
+              </Button>
+            </>
+          )}
+          {target.status === 'CHECKED_OUT' && (
+            <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>
               Оплата / возврат
             </Button>
-          </>
-        )}
-        {target.status === 'CHECKED_OUT' && (
-          <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>Оплата / возврат</Button>
-        )}
-        <Link
-          className="btn btn--secondary"
-          href={!readOnly && live ? `${card}#booking-actions` : card}
-        >
-          {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
-        </Link>
-      </div>}
+          )}
+          <Link
+            className="btn btn--secondary"
+            href={!readOnly && live ? `${card}#booking-actions` : card}
+          >
+            {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

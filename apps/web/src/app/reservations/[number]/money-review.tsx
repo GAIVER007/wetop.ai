@@ -18,7 +18,11 @@ export function useMoneyReview(pending: boolean, onDraftChange?: (dirty: boolean
     }
     if (!review) {
       event.preventDefault();
-      setReview(Object.fromEntries(Array.from(new FormData(event.currentTarget), ([key, value]) => [key, String(value)])));
+      setReview(
+        Object.fromEntries(
+          Array.from(new FormData(event.currentTarget), ([key, value]) => [key, String(value)]),
+        ),
+      );
       onDraftChange?.(true);
       return;
     }

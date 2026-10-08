@@ -67,7 +67,11 @@ test('drawer: бронь открывается поверх доски, вкл�
   );
   await drawer
     .getByTestId('payment-form')
-    .getByRole('button', { name: 'Принять оплату', exact: true })
+    .getByRole('button', { name: 'Проверить оплату', exact: true })
+    .click();
+  await drawer
+    .getByTestId('payment-form')
+    .getByRole('button', { name: 'Подтвердить оплату' })
     .click();
   await expect(drawer.getByTestId('folio-balance')).toHaveText('0 ₸ · оплачено');
   await page.keyboard.press('Escape');

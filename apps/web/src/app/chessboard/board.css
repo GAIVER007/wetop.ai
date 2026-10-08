@@ -2389,3 +2389,38 @@ body:has(.calendar-workspace[data-expanded='true']) {
 @media (min-width: 601px) {
   .page.calendar-page { padding-bottom: 0; }
 }
+
+/* Fit the month to the workspace, including the vertical scrollbar. */
+@media (min-width: 760px) and (max-width: 1279px) {
+  .calendar-page:has(.board--month) {
+    padding-inline: var(--space-2);
+  }
+  .calendar-page .board.board--month {
+    min-width: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .calendar-workspace__summary .board-day-panel {
+    padding: var(--space-2);
+  }
+  .calendar-workspace__summary .board-day-panel__title {
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-2);
+  }
+  .calendar-workspace__summary .board-day-panel__columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .calendar-workspace__summary .board-day-panel__col + .board-day-panel__col {
+    border-top: 0;
+    padding: 0;
+  }
+  .calendar-workspace__summary .board-day-panel__row {
+    font-size: var(--text-xs);
+    gap: var(--space-1);
+  }
+  .calendar-workspace__summary .board-day-panel__row > b {
+    font-size: var(--text-sm);
+  }
+}

@@ -1,0 +1,100 @@
+# Сквозные (e2e) · 08.10.2026 11:03 Алматы · MacBook-Air-Urij.local
+# коммит 1d9aefe (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/reservation-fixed-occupancy.spec.ts' '--grep' 'сводка дня карточкой|статусы шахматки|все 31 день|предлагают редактировать'
+[WebServer] (node:81730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1524ms. If /Users/urijzapojnov/wetop-unified-acceptance-20261007/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:82354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева (36.8s)
+(node:82632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (52.9s)
+(node:83042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (20.1s)
+[WebServer] (node:83356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  4 tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони предлагают редактировать количество гостей (28.3s)
+[WebServer] (node:83407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 190
+    Received:    310
+
+      34 |   const c = (await page.locator('.calendar-workspace__main > .board-controls').boundingBox())!;
+      35 |   // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
+    > 36 |   expect(p.height).toBeLessThanOrEqual(190);
+         |                    ^
+      37 |   expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
+      38 |   await expect(panel.getByTestId('day-free')).toBeVisible();
+      39 |   await expect(panel.getByTestId('day-units')).toHaveCount(0);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/booking-price-nights.spec.ts:36:20
+
+    Error Context: test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 
+    tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ─────
+  2 passed (5.6m)
+
+# код выхода 1 · 5 мин 56 с

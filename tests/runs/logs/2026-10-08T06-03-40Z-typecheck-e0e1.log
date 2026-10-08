@@ -1,0 +1,9 @@
+# Типы (typecheck) · 08.10.2026 11:03 Алматы · MacBook-Air-Urij.local
+# коммит 1d9aefe (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 5
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+# код выхода —, сигнал SIGTERM · 11 мин 3 с

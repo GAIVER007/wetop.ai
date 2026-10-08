@@ -271,7 +271,8 @@ export default async function ChessboardPage({
         />
       </CalendarWorkspace>
       <div className="board-footer">
-        <div className="board-legend-details" aria-label="Цвета и статусы календаря">
+        <details className="board-legend-details" aria-label="Цвета и статусы календаря">
+          <summary>Обозначения</summary>
           <Legend
             data-testid="board-legend"
             items={[
@@ -286,7 +287,7 @@ export default async function ChessboardPage({
               { label: 'без значка: проверена, доступна' },
             ]}
           />
-        </div>
+        </details>
         <span className="board-gesture-hint">
           Плашка: переселить. Правый край: продлить. Пустые клетки: выделить даты для брони.
         </span>

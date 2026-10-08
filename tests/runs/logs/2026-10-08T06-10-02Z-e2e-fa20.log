@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 08.10.2026 11:10 Алматы · MacBook-Air-Urij.local
+# коммит 1d9aefe (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/reservation-fixed-occupancy.spec.ts' '--grep' 'сводка дня карточкой|статусы шахматки|все 31 день|предлагают редактировать'
+[WebServer] (node:84102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 2416ms. If /Users/urijzapojnov/wetop-unified-acceptance-20261007/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:84314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева (18.0s)
+  ✓  2 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (45.4s)
+  ✓  3 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (18.3s)
+[WebServer] (node:85161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони предлагают редактировать количество гостей (25.2s)
+[WebServer] (node:85296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+  4 passed (3.3m)
+
+# код выхода 0 · 3 мин 26 с

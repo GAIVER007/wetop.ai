@@ -31,7 +31,7 @@ test('календарь: сводка дня карточкой справа, �
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
-  const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
+  const c = (await page.locator('.calendar-workspace__main > .board-controls').boundingBox())!;
   // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
   expect(p.height).toBeLessThanOrEqual(190);
   expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);

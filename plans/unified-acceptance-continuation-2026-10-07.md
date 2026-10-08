@@ -8,3 +8,7 @@ Authority: owner continuation specification in this chat. Existing owned tree an
 4. Document supplier payment/write-off current repeat risks without changing financial policy; publish explicit C01-C16 variants.
 5. Review allowlisted code, confirm PR279 preservation and excluded work. Commit owned branch, full SHA and diff. Run all release-checks jobs including PostgreSQL16 guarded BAR. No merge or production actions.
 6. Destroy owned synthetic stand with path/uid/port proof. Report CI and review, unresolved policy/503 variants, actual production SHA/migrations if read-only access works. Unknown remains unknown.
+
+## Continuation approved 2026-10-08
+
+Owner approved restoring the stay guest-count form using the existing updateStayGuestsAction and guarded PATCH contract, correcting calendar layout/legend/month fit, preserving result assertions, then RED/GREEN and full exact-SHA CI. The imported fixed-occupancy UI expectation is superseded by this explicit approval. No schema, capacity rules, financial policies, release or production changes. CI 37658089761 is retained as failed evidence: desk-edit plus three calendar scenarios.

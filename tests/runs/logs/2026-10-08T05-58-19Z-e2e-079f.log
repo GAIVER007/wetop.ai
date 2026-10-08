@@ -1,0 +1,133 @@
+# Сквозные (e2e) · 08.10.2026 10:58 Алматы · MacBook-Air-Urij.local
+# коммит 1d9aefe (codex/unified-acceptance-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-month.spec.ts' '--grep' 'сводка дня карточкой|статусы шахматки|все 31 день'
+[WebServer] (node:80059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 798ms. If /Users/urijzapojnov/wetop-unified-acceptance-20261007/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 2 workers
+
+(node:80300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева (51.3s)
+  ✘  1 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (51.7s)
+(node:80639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (14.5s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:56181/chessboard", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/fixtures.ts:111:30)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/booking-price-nights.spec.ts:30:14
+
+    Error Context: test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:56181/chessboard", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/fixtures.ts:111:30)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/chessboard-design.spec.ts:13:14
+
+    Error Context: test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна ────────────────
+
+    Error: 768px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    10
+
+      35 |       return box.scrollWidth - box.clientWidth;
+      36 |     });
+    > 37 |     expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+         |                                    ^
+      38 |     await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+      39 |     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      40 |   }
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/chessboard-month.spec.ts:37:36
+
+    Error Context: test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 
+    tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ─────
+    tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна ─────────────────
+
+# код выхода 1 · 4 мин 8 с

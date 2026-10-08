@@ -1,0 +1,103 @@
+# Сквозные (e2e) · 08.10.2026 11:18 Алматы · MacBook-Air-Urij.local
+# коммит 1d9aefe (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/reservation-fixed-occupancy.spec.ts'
+[WebServer] (node:88681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:88747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони предлагают редактировать количество гостей (4.1s)
+[WebServer] (node:88933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 390px (3.7s)
+(node:89178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89198) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 320px (2.7s)
+
+
+  1) tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 390px ─
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 391
+    Received:    438
+
+      26 |       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width + 1);
+      27 |     }
+    > 28 |     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+         |                                                                             ^
+      29 |   });
+      30 | }
+      31 |
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/reservation-fixed-occupancy.spec.ts:28:77
+
+    Error Context: test-results/reservation-fixed-occupanc-bf233-омещается-на-телефоне-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-fixed-occupanc-bf233-омещается-на-телефоне-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-fixed-occupanc-bf233-омещается-на-телефоне-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 320px ─
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 321
+    Received:    438
+
+      26 |       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width + 1);
+      27 |     }
+    > 28 |     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+         |                                                                             ^
+      29 |   });
+      30 | }
+      31 |
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/reservation-fixed-occupancy.spec.ts:28:77
+
+    Error Context: test-results/reservation-fixed-occupanc-3328d-омещается-на-телефоне-320px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-fixed-occupanc-3328d-омещается-на-телефоне-320px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-fixed-occupanc-3328d-омещается-на-телефоне-320px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 390px ──
+    tests/ui/reservation-fixed-occupancy.spec.ts:14:3 › форма гостей помещается на телефоне 320px ──
+  1 passed (29.8s)
+
+# код выхода 1 · 32 с

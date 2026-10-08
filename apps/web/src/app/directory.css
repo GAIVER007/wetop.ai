@@ -1240,3 +1240,14 @@ a.dir-number:hover {
     min-width: 0;
   }
 }
+
+/* Action panels must shrink around long accommodation labels and select options. */
+.reservation-actions .panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+.reservation-actions .row {
+  min-width: 0;
+}
+.reservation-actions select {
+  max-width: 100%;
+}

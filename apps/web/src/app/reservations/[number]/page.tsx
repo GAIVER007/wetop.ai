@@ -19,24 +19,8 @@ import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
-
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'стойка',
-  PHONE: 'телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'с улицы',
-  INSTAGRAM: 'Instagram',
-  OTA: 'OTA',
-  WEBSITE: 'сайт',
-};
+import { sourceStatus } from '../../../lib/status/source';
+import { statusLabel } from '../../../lib/status/types';
 
 /**
  * Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение.
@@ -121,9 +105,9 @@ export default async function ReservationPage({
       }
       subtitle={
         <>
-          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
+          <StatusBadge kind="hospitality" value={r.status} />{' '}
           <span>
-            {SOURCE_RU[r.source] ?? r.source}
+            {statusLabel(sourceStatus, r.source)}
             {r.channel ? `, ${r.channel}` : ''}
           </span>
         </>
@@ -294,10 +278,7 @@ export default async function ReservationPage({
                           <time dateTime={it.departureDate}>{displayDate(it.departureDate)}</time>
                         </td>
                         <td>
-                          <StatusBadge
-                            status={it.status}
-                            label={STATUS_RU[it.status] ?? it.status}
-                          />
+                          <StatusBadge kind="hospitality" value={it.status} />
                         </td>
                         <td className="num">{formatMoney(it.priceMinor, r.currency)}</td>
                         <td>

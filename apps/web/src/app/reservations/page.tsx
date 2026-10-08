@@ -41,7 +41,6 @@ import {
   validDate,
   sourceNames,
   reservationStatuses,
-  reservationStatusWords,
 } from '../../lib/hotel-api';
 
 export default async function ReservationsPage({
@@ -489,10 +488,7 @@ export default async function ReservationsPage({
                           <FinanceLine row={r} />
                         </td>
                         <td>
-                          <StatusBadge
-                            status={r.status}
-                            label={reservationStatusWords[r.status] || r.status}
-                          />
+                          <StatusBadge kind="hospitality" value={r.status} />
                         </td>
                       </tr>
                     );

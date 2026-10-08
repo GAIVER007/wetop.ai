@@ -12,11 +12,12 @@ import {
   Select,
   Table,
 } from '../../components/ui';
-import { foodStatusLabels, occupiedAt } from '../../lib/food-data';
+import { occupiedAt } from '../../lib/food-data';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { ReservationDrawer, type ReservationDraft } from './reservation-drawer';
 import { DayToolbar } from './day-toolbar';
+import { foodStatus } from '../../lib/status/food';
 export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: boolean }) {
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [period, setPeriod] = useState('');
@@ -145,7 +146,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                               key={t.id}
                               className="food-table-card"
                               data-status={r?.status ?? 'FREE'}
-                              aria-label={`${t.name}, ${r ? foodStatusLabels[r.status] : 'Свободен'}`}
+                              aria-label={`${t.name}, ${r ? foodStatus[r.status].label : 'Свободен'}`}
                               onClick={() =>
                                 r
                                   ? open(r)
@@ -169,7 +170,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                                 <span>Свободен</span>
                               )}
                               <Badge tone={r?.status === 'SEATED' ? 'ok' : r ? 'info' : 'neutral'}>
-                                {r ? foodStatusLabels[r.status] : 'Свободен'}
+                                {r ? foodStatus[r.status].label : 'Свободен'}
                               </Badge>
                             </button>
                           );
@@ -205,7 +206,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
             <Field label="Статус">
               <Select value={status} onChange={(e) => setStatus(e.target.value)}>
                 <option value="">Все</option>
-                {Object.entries(foodStatusLabels).map(([s, l]) => (
+                {Object.entries(foodStatus).map(([s, { label: l }]) => (
                   <option key={s} value={s}>
                     {l}
                   </option>
@@ -277,7 +278,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                         <td>{r.servicePeriod.name}</td>
                         <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
                         <td>
-                          <Badge>{foodStatusLabels[r.status]}</Badge>
+                          <Badge>{foodStatus[r.status].label}</Badge>
                         </td>
                         <td>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</td>
                       </tr>
@@ -292,7 +293,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                       <strong>
                         {clock(r.startsAt)}–{clock(r.endsAt)}
                       </strong>
-                      <Badge>{foodStatusLabels[r.status]}</Badge>
+                      <Badge>{foodStatus[r.status].label}</Badge>
                     </div>
                     <strong>{customer(r)}</strong>
                     <span>{r.partySize} гостя</span>

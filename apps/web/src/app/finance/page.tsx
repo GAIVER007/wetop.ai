@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
-import { hotelToday, reservationStatusWords, validDate } from '../../lib/hotel-api';
+import { hotelToday, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { can } from '@pms/domain';
@@ -908,10 +908,7 @@ function DebtList({
                     )}
                   </td>
                   <td>
-                    <StatusBadge
-                      status={x.status}
-                      label={reservationStatusWords[x.status] || x.status}
-                    />
+                    <StatusBadge kind="hospitality" value={x.status} />
                   </td>
                   <td className="finance-debts__actions">
                     {canPay && (

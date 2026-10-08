@@ -7,6 +7,8 @@ import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { stayPreviewAction, type StayPreviewData } from './actions';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusLabel } from '../../lib/status/types';
 
 /** Что предпросмотр знает из клетки сетки ещё до ответа сервера */
 export interface PreviewTarget {
@@ -25,12 +27,6 @@ export interface PreviewTarget {
 }
 export type PreviewCommand = 'check-in' | 'check-out' | 'extend';
 
-const STATUS_WORD: Record<string, string> = {
-  TENTATIVE: 'Не подтверждена',
-  CONFIRMED: 'Подтверждена',
-  CHECKED_IN: 'Заселён',
-  CHECKED_OUT: 'Выселен',
-};
 const EXPECTED = new Set(['TENTATIVE', 'CONFIRMED']);
 const GAP = 6;
 const EDGE = 8;
@@ -163,7 +159,7 @@ export function StayPreview({
         </button>
       </div>
       <p className="stay-preview__status">
-        {STATUS_WORD[target.status] ?? target.status}
+        {statusLabel(hospitalityStatus, target.status)}
         {today && `, ${today}`}
       </p>
       <dl className="stay-preview__facts">

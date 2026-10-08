@@ -4,7 +4,7 @@ import { countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { RecordTabs } from '../../../components/record-tabs';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, guestsApi, messengerLinks, type GuestCard } from '../../../lib/api';
-import { hotelToday, reservationStatusWords, sourceNames } from '../../../lib/hotel-api';
+import { hotelToday, sourceNames } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { displayDate } from '../../../lib/display-date';
 import { formatMoney } from '../../../lib/money';
@@ -94,7 +94,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
               )}
             </td>
             <td>
-              <StatusBadge status={s.status} label={reservationStatusWords[s.status] ?? s.status} />
+              <StatusBadge kind="hospitality" value={s.status} />
             </td>
           </tr>
         ))}
@@ -225,10 +225,7 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
                 <span className="dir-sub mono">{s.confirmationNumber}</span>
               </td>
               <td>
-                <StatusBadge
-                  status={s.status}
-                  label={reservationStatusWords[s.status] ?? s.status}
-                />
+                <StatusBadge kind="hospitality" value={s.status} />
               </td>
               <td className="num">{formatMoney(s.chargedMinor!, s.currency)}</td>
               <td className="num">{formatMoney(s.paidMinor ?? '0', s.currency)}</td>
@@ -324,10 +321,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
               <span className="dir-sub">{next.accommodationTypeName}</span>
             </p>
             {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-202) */}
-            <StatusBadge
-              status={next.status}
-              label={reservationStatusWords[next.status] ?? next.status}
-            />
+            <StatusBadge kind="hospitality" value={next.status} />
             <Link className="btn btn--secondary btn--sm" href={reservationHref(next)}>
               Открыть бронь
             </Link>

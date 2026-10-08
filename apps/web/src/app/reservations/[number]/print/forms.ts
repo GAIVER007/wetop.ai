@@ -38,7 +38,9 @@ export interface StoredProperty {
  * Реквизиты объекта для печати — из записи объекта, пустое — прочерком. До 24.09.2026 они были зашиты сюда, и ИИН/БИН
  * (ИИН физлица-ИП — персональные данные) напечатался бы в договоре любой организации (проверка SECURITY.md, Н12).
  */
-export function propertyParty(p: StoredProperty): Required<{ [K in keyof StoredProperty]: string }> {
+export function propertyParty(
+  p: StoredProperty,
+): Required<{ [K in keyof StoredProperty]: string }> {
   const or = (v: string | null | undefined) => (v && v.trim() ? v : '___');
   return {
     name: p.name,
@@ -131,6 +133,7 @@ export const CONTRACT_T = {
   },
 } as const;
 
+/** status-hint: подписи полей печатного счёта на двух языках, а не статусы оплаты */
 export const INVOICE_T = {
   ru: {
     title: 'Счёт на оплату',
@@ -162,6 +165,7 @@ export const INVOICE_T = {
     signature: 'Администратор',
     printedAt: 'Сформировано',
   },
+  // status-hint: подписи полей печатного счёта на казахском
   kz: {
     title: 'Төлем шоты',
     number: 'Шот №',

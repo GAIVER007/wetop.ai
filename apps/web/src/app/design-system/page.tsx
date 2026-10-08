@@ -34,6 +34,8 @@ import {
   TooltipDemo,
 } from './demos';
 import './kit.css';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusText } from '../../lib/status/types';
 
 /**
  * Страница компонентов (DESIGN.md, план шаг 4). Только при разработке: в production-сборке — 404.
@@ -80,10 +82,10 @@ const COLOR_TOKENS = [
   ['focus', 'кольцо фокуса'],
 ] as const;
 const STATUS_TOKENS = [
-  ['st-confirmed', 'подтверждена', '•'],
-  ['st-checked-in', 'заселён', '✓'],
-  ['st-checked-out', 'выселен', '✕'],
-  ['st-tentative', 'предварительная', '?'],
+  ['st-confirmed', statusText(hospitalityStatus, 'CONFIRMED'), '•'],
+  ['st-checked-in', statusText(hospitalityStatus, 'CHECKED_IN'), '✓'],
+  ['st-checked-out', statusText(hospitalityStatus, 'CHECKED_OUT'), '✕'],
+  ['st-tentative', statusText(hospitalityStatus, 'TENTATIVE'), '?'],
   ['st-blocked', 'блокировка', '▨'],
 ] as const;
 
@@ -339,12 +341,12 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
       >
         <State name="default">
           <div className="row">
-            <StatusBadge status="TENTATIVE" label="предварительная" />
-            <StatusBadge status="CONFIRMED" label="подтверждена" />
-            <StatusBadge status="CHECKED_IN" label="заселён" />
-            <StatusBadge status="CHECKED_OUT" label="выселен" />
-            <StatusBadge status="CANCELLED" label="отменена" />
-            <StatusBadge status="NO_SHOW" label="незаезд" />
+            <StatusBadge kind="hospitality" value="TENTATIVE" />
+            <StatusBadge kind="hospitality" value="CONFIRMED" />
+            <StatusBadge kind="hospitality" value="CHECKED_IN" />
+            <StatusBadge kind="hospitality" value="CHECKED_OUT" />
+            <StatusBadge kind="hospitality" value="CANCELLED" />
+            <StatusBadge kind="hospitality" value="NO_SHOW" />
             <Badge>стойка</Badge>
             <Badge tone="info">Booking.com</Badge>
           </div>
@@ -425,7 +427,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>17 сент. → 20 сент. · 3 ночи</td>
                 <td>
-                  <StatusBadge status="TENTATIVE" label="предварительная" />
+                  <StatusBadge kind="hospitality" value="TENTATIVE" />
                 </td>
                 <td className="num">
                   <AmountChip minor="3600000" tone="due" />
@@ -437,7 +439,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>15 сент. → 17 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CHECKED_IN" label="заселён" />
+                  <StatusBadge kind="hospitality" value="CHECKED_IN" />
                 </td>
                 <td className="num">
                   <AmountChip minor="0" tone="paid" label="оплачено" />
@@ -449,7 +451,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>16 сент. → 18 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CANCELLED" label="отменена" />
+                  <StatusBadge kind="hospitality" value="CANCELLED" />
                 </td>
                 <td className="num">—</td>
               </tr>
@@ -958,10 +960,13 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         <State name="default">
           <Legend
             items={[
-              { color: 'var(--st-confirmed)', label: 'подтверждена' },
-              { color: 'var(--st-checked-in)', label: 'заселён' },
-              { color: 'var(--st-checked-out)', label: 'выселен' },
-              { color: 'var(--st-tentative)', label: 'предварительная' },
+              { color: 'var(--st-confirmed)', label: statusText(hospitalityStatus, 'CONFIRMED') },
+              { color: 'var(--st-checked-in)', label: statusText(hospitalityStatus, 'CHECKED_IN') },
+              {
+                color: 'var(--st-checked-out)',
+                label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+              },
+              { color: 'var(--st-tentative)', label: statusText(hospitalityStatus, 'TENTATIVE') },
               { color: 'var(--st-blocked)', label: 'блокировка' },
             ]}
           />

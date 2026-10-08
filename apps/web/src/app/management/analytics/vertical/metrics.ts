@@ -1,3 +1,6 @@
+import { beautyStatus } from '../../../../lib/status/beauty';
+import { foodStatus } from '../../../../lib/status/food';
+import type { StatusRegistry } from '../../../../lib/status/types';
 /** MV9: local date enumeration, status counts and approved DONE price snapshots. */
 export const MAX_PERIOD_DAYS = 31;
 const DAY = 86400000;
@@ -13,21 +16,27 @@ export function periodDates(from: string, to: string): string[] {
     new Date(Date.parse(from) + i * DAY).toISOString().slice(0, 10),
   );
 }
-export const BEAUTY_LABELS = {
-  BOOKED: 'Запланировано',
-  CONFIRMED: 'Подтверждено',
-  DONE: 'Завершено',
-  NO_SHOW: 'Не пришли',
-  CANCELLED: 'Отменено',
-};
-export const FOOD_LABELS = {
-  BOOKED: 'Запланировано',
-  CONFIRMED: 'Подтверждено',
-  SEATED: 'Посажены',
-  COMPLETED: 'Завершено',
-  CANCELLED: 'Отменено',
-  NO_SHOW: 'Не пришли',
-};
+const groups = <K extends string>(registry: StatusRegistry<K>, order: readonly K[]) =>
+  Object.fromEntries(order.map((k) => [k, registry[k].groupLabel ?? registry[k].label])) as Record<
+    K,
+    string
+  >;
+/** Счётчики аналитики: группы из реестров салона и ресторана (DS1a), порядок колонок прежний */
+export const BEAUTY_LABELS = groups(beautyStatus, [
+  'BOOKED',
+  'CONFIRMED',
+  'DONE',
+  'NO_SHOW',
+  'CANCELLED',
+]);
+export const FOOD_LABELS = groups(foodStatus, [
+  'BOOKED',
+  'CONFIRMED',
+  'SEATED',
+  'COMPLETED',
+  'CANCELLED',
+  'NO_SHOW',
+]);
 function counters<T extends string>(
   labels: Record<T, string>,
   rows: Array<{ id: string; status: string }>,

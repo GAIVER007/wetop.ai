@@ -90,7 +90,7 @@ test('виджет: цены на завтра, бронь одноместно�
   await expect(page.getByRole('heading', { name: `Бронь ${number}` })).toBeVisible();
   // источник — в подзаголовке карточки; искать «сайт» по всей странице нельзя: с 20.09 в боковом
   // меню есть «Аналитика сайта», она стоит раньше в DOM и скрыта в свёрнутой группе (ADR-057)
-  await expect(page.getByRole('main').locator('.page__subtitle')).toContainText('сайт');
+  await expect(page.getByRole('main').locator('.page__subtitle')).toContainText('Сайт');
   await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
     'E2E-АВТОТЕСТ: бронь из виджета',
   );

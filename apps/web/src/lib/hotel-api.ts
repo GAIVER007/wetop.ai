@@ -2,6 +2,8 @@ import { ApiError, getJsonPublic } from './api';
 import { FALLBACK_TIMEZONE, propertyClock, type PropertyClock } from './property-time';
 import type { DataConnection } from '@pms/shared';
 import { cache } from 'react';
+import { hospitalityStatus } from './status/hospitality';
+import { sourceStatus } from './status/source';
 
 export interface HotelSettings {
   property: {
@@ -136,34 +138,17 @@ export const validDate = (date: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(date) &&
   Number.isFinite(Date.parse(date)) &&
   new Date(date).toISOString().slice(0, 10) === date;
+/** Отбор по статусу: «Все статусы» и группы реестра гостиницы во множественном числе (DS1a) */
 export const reservationStatuses: Record<string, string> = {
   ALL: 'Все статусы',
-  TENTATIVE: 'Предварительные',
-  CONFIRMED: 'Подтверждены',
-  CHECKED_IN: 'Проживают',
-  CHECKED_OUT: 'Завершены',
-  CANCELLED: 'Отменены',
-  NO_SHOW: 'Незаезды',
+  ...Object.fromEntries(
+    Object.entries(hospitalityStatus).map(([k, s]) => [k, s.groupLabel ?? s.label]),
+  ),
 };
-/** Слово о брони в единственном числе для строки списка (DESIGN.md §9, Q-135; ADR-106) —
- * как у списка гостей: «Проживают» — имя фильтра, «проживает» — состояние одной брони */
-export const reservationStatusWords: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'проживает',
-  CHECKED_OUT: 'завершена',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
-export const sourceNames: Record<string, string> = {
-  OTA: 'Канал продаж',
-  DESK: 'Стойка',
-  PHONE: 'Телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'Без предварительной брони',
-  INSTAGRAM: 'Instagram',
-  WEBSITE: 'Сайт',
-};
+/** Подписи источников брони из реестра `lib/status/source` */
+export const sourceNames: Record<string, string> = Object.fromEntries(
+  Object.entries(sourceStatus).map(([k, s]) => [k, s.label]),
+);
 
 /** Read-only list projection, backed by existing reservations/folios. */
 export interface ReservationListRow {

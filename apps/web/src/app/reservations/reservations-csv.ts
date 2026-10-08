@@ -1,4 +1,6 @@
-import { reservationStatusWords, sourceNames, type ReservationListRow } from '../../lib/hotel-api';
+import { sourceNames, type ReservationListRow } from '../../lib/hotel-api';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusLabel } from '../../lib/status/types';
 import { csvField, csvTenge } from '../finance/csv';
 
 const dmy = (isoDate: string) => {
@@ -34,7 +36,7 @@ export function reservationsCsv(rows: ReservationListRow[]): string {
   const lines = rows.map((x) =>
     [
       x.confirmationNumber,
-      reservationStatusWords[x.status] || x.status,
+      statusLabel(hospitalityStatus, x.status),
       sourceNames[x.source] || x.source,
       x.channel ?? '',
       dmy(x.arrivalDate),

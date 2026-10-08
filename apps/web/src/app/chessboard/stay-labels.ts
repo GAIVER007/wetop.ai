@@ -1,5 +1,6 @@
 import type { ChessboardCell } from '../../lib/api';
 import { SOURCES } from '../reservations/sources';
+import { sourceStatus } from '../../lib/status/source';
 
 /** Линейный проход: подпись на каждом видимом отрезке, включая проживание до начала окна. */
 export function stayLabels(
@@ -35,6 +36,7 @@ export function guestNames(
   channel?: string | null,
 ): { full: string; short: string; initials: string } {
   if (isGuestPseudonym(label)) {
+    // status-hint: откуда бронь без имени гостя, фраза для подписи плашки, а не имя источника
     const titles: Record<string, string> = {
       DESK: 'со стойки',
       WALK_IN: 'со стойки',
@@ -76,15 +78,10 @@ const CHANNEL_CODES: Record<string, string> = {
   OneTwoTrip: '12',
   Airbnb: 'AB',
 };
-const DIRECT_CODES: Record<string, string> = {
-  DESK: 'Стойка',
-  WALK_IN: 'Стойка',
-  PHONE: 'Тел.',
-  WHATSAPP: 'WA',
-  INSTAGRAM: 'IG',
-  WEBSITE: 'Сайт',
-  OTA: 'OTA',
-};
+/** Короткое имя прямого источника на плашке: из реестра `lib/status/source` (DS1a) */
+const DIRECT_CODES: Record<string, string> = Object.fromEntries(
+  Object.entries(sourceStatus).map(([k, s]) => [k, s.short ?? s.label]),
+);
 
 /**
  * Источник брони маленьким бейджем (ТЗ v2 §21): карточку не красим под канал — цвет занят статусом

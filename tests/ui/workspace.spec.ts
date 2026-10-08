@@ -131,7 +131,9 @@ test('вложенные разделы: раскрытие, один актив
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  await expect(
+    sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }),
+  ).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -420,7 +422,7 @@ test('карточка: профиль гостя и заселение прох
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
-  await expect(page.getByTestId('stay-row')).toContainText('заселён');
+  await expect(page.getByTestId('stay-row')).toContainText('Проживает');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { path: string }) => c.path)).toContain(
     `/reservations/${booking}/items/ui-item/check-in`,
@@ -1431,7 +1433,7 @@ test('новая бронь: резюме выбора обновляется п
   await expect(summary).toContainText(`ячейка ${unitCode}`);
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
-  await expect(summary).toContainText('телефон');
+  await expect(summary).toContainText('Телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
   // §14: «Фамилия Имя»

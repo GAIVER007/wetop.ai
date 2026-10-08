@@ -6,6 +6,7 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Notice, StateBar, StateFact, Stack } from '../../components/ui';
 import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from './parts';
+import './website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Обзор» (ADR-117, WEB1): как сайт объекта связан с WETOP — одним взглядом.

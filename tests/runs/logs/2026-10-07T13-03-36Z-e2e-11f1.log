@@ -1,0 +1,94 @@
+# Сквозные (e2e) · 07.10.2026 18:03 Алматы · MacBook-Air-Urij.local
+# коммит 15ff587 (codex/mv9-acceptance-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:98450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+(node:98544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (3.9s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (3.7s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (5.4s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (2.8s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (4.3s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (3.5s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (3.4s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (2.8s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 light: accessibility, keyboard and screenshot (2.7s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (3.3s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (2.6s)
+  ✓  12 tests/branches-ui/branches.spec.ts:46:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (5.7s)
+  ✓  13 tests/branches-ui/branches.spec.ts:62:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (7.6s)
+  ✓  14 tests/branches-ui/branches.spec.ts:74:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (17.8s)
+  ✓  15 tests/branches-ui/branches.spec.ts:86:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (21.9s)
+  ✓  16 tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (17.8s)
+  ✓  17 tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (15.3s)
+  ✓  18 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (2.1s)
+  ✓  19 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (2.7s)
+  ✓  20 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (2.8s)
+  ✓  21 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (14.5s)
+  ✓  22 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (7.7s)
+  ✓  23 tests/branches-ui/today.spec.ts:322:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (5.7s)
+  ✓  24 tests/branches-ui/today.spec.ts:371:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (17.1s)
+  ✓  25 tests/branches-ui/today.spec.ts:391:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (4.4s)
+  ✓  26 tests/branches-ui/today.spec.ts:403:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (8.1s)
+[WebServer] Compaction failed: [WebServer] Failed to compact database
+[WebServer]
+[WebServer] Caused by:
+[WebServer]     0: Failed to merge database files for family 2
+[WebServer]     1: Failed to write small value block
+[WebServer]     2: Failed to write block data
+[WebServer]     3: failed to write to file `/Users/urijzapojnov/wetop-mv9-acceptance-20261007/apps/web/.next/dev/cache/turbopack/v16.3.6-a758ffcf/00000080.sst`: [WebServer] No space left on device (os error 28)
+[WebServer] Persisting is disabled for this session due to an unrecoverable error. Stopping the background persisting process.
+  ✘  27 tests/branches-ui/today.spec.ts:435:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (16.1s)
+(node:328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  29 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (2.3s)
+  ✓  30 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (2.0s)
+  ✓  31 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (2.3s)
+  ✓  32 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (2.4s)
+  ✓  33 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (7.5s)
+  ✓  34 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✓  35 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  36 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (6.6s)
+  ✓  37 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (3.4s)
+  ✓  38 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (3.3s)
+  ✓  39 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+
+
+  1) tests/branches-ui/today.spec.ts:435:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет
+
+    Error: browserContext.close: ENOSPC: no space left on device, write
+
+    Error: ENOSPC: no space left on device, mkdir '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет'
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, open '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/test-results/.playwright-artifacts-0/traces/c8b80ff69ace547c725f-6b0e0cedbf1954280974-recording81.network'
+
+    Error: ENOSPC: no space left on device, mkdir '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет'
+
+    Error: ENOSPC: no space left on device, open '/Users/urijzapojnov/wetop-mv9-acceptance-20261007/test-results/.playwright-artifacts-0/892186037e3afd30671a074aa1263082.zip'
+
+  1 failed
+    tests/branches-ui/today.spec.ts:435:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет
+  38 passed (4.4m)
+
+# код выхода 1 · 4 мин 27 с

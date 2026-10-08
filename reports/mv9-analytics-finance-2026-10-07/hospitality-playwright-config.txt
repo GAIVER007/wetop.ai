@@ -1,0 +1,9 @@
+import { defineConfig } from '/Users/urijzapojnov/wetop-mv8-20261007/node_modules/@playwright/test/index.mjs';
+export default defineConfig({
+ testDir: '/Users/urijzapojnov/wetop-mv8-20261007/tests/ui', workers: 1, fullyParallel: false, timeout: 45000, expect: { timeout: 15000 },
+ use: { baseURL: 'http://127.0.0.1:55933', channel: 'chrome', viewport: { width: 1440, height: 1000 }, trace: 'retain-on-failure' },
+ webServer: [
+ { command: 'npx tsx tests/ui/fixture-api.ts', cwd: '/Users/urijzapojnov/wetop-mv8-20261007', url: 'http://127.0.0.1:55934/__test/health', reuseExistingServer: false, env: { FIXTURE_PORT: '55934' } },
+ { command: 'npm exec -w apps/web -- next dev --port 55933 --hostname 127.0.0.1', cwd: '/Users/urijzapojnov/wetop-mv8-20261007', url: 'http://127.0.0.1:55933/today', reuseExistingServer: false, timeout: 120000, env: { APP_UI_TEST: '1', APP_API_URL: 'http://127.0.0.1:55934', APP_ALLOW_TEST_DATA: '1', APP_URL: 'http://127.0.0.1:55933' } }
+ ]
+});

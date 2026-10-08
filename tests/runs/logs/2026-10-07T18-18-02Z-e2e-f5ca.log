@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 07.10.2026 23:18 Алматы · vm
+# коммит cdf986e (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/site-editor.spec.ts:21:1 › открыть голову, править героя, «изменено», сохранить: ревизия растёт, история и разница словами (4.7s)
+  ✓   2 tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку (2.9s)
+  ✓   3 tests/ui/site-editor.spec.ts:64:1 › восстановить старую версию как новый черновик (3.6s)
+  ✓   4 tests/ui/site-editor.spec.ts:75:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (3.4s)
+  ✓   5 tests/ui/site-editor.spec.ts:92:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (5.0s)
+  ✘   6 tests/ui/site-editor.spec.ts:110:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (18.9s)
+  ✓   7 tests/ui/site-editor.spec.ts:128:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (5.3s)
+  ✓   8 tests/ui/site-editor.spec.ts:146:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (2.7s)
+  ✓   9 tests/ui/site-editor.spec.ts:155:1 › добавить секцию, переставить и сделать копию с клавиатуры (3.2s)
+  ✓  10 tests/ui/site-editor.spec.ts:172:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (2.9s)
+  ✓  11 tests/ui/site-editor.spec.ts:184:1 › ИИ всего сайта: в очереди → готово, новая версия, разница; команда как данные (6.9s)
+  ✓  12 tests/ui/site-editor.spec.ts:198:1 › ИИ одной секции: цель выбранная секция, команда необязательна (6.2s)
+  ✓  13 tests/ui/site-editor.spec.ts:208:1 › ИИ с несохранёнными правками недоступен; ошибка ИИ словами, команда на месте (6.5s)
+  ✓  14 tests/ui/site-editor.spec.ts:223:1 › сайт без версий: первая версия ИИ существующим потоком (6.2s)
+  ✓  15 tests/ui/site-editor.spec.ts:234:3 › редактор на компьютере, доступность и снимки: light (20.3s)
+  ✓  16 tests/ui/site-editor.spec.ts:279:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light (7.2s)
+  ✓  17 tests/ui/site-editor.spec.ts:234:3 › редактор на компьютере, доступность и снимки: dark (7.1s)
+  ✓  18 tests/ui/site-editor.spec.ts:279:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark (7.6s)
+
+
+  1) tests/ui/site-editor.spec.ts:110:1 › ошибка проверки: ввод на месте, сводка ведёт к полю ──────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').visible().getByLabel('Заголовок секции', { exact: true })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').visible().getByLabel('Заголовок секции', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByLabel('Заголовок секции', { exact: true })
+
+
+      118 |   await expect(m.getByTestId('ed-errors')).toContainText('Страница «Главная», о гостинице: Обязательное поле');
+      119 |   // ошибка и у самого поля, связана с ним (aria-invalid)
+    > 120 |   await expect(m.getByLabel('Заголовок секции', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+          |                                                                   ^
+      121 |   await expect(m.getByLabel('Абзацы: 1')).toHaveValue('Мой новый текст о гостинице');
+      122 |   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
+      123 |   await structure(page).getByRole('button', { name: 'Настройки сайта' }).click();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:120:67
+
+    Error Context: test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-ошибка-проверк-7e0a8-а-месте-сводка-ведёт-к-полю/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/site-editor.spec.ts:110:1 › ошибка проверки: ввод на месте, сводка ведёт к полю ───────
+  17 passed (2.3m)
+
+# код выхода 1 · 2 мин 20 с

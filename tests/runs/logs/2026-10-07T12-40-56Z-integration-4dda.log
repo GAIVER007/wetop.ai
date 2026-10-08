@@ -1,0 +1,183 @@
+# Интеграционные (integration) · 07.10.2026 17:40 Алматы · vm
+# коммит 867a391 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T12-40-56Z-integration-4dda.json' 'tests/integration/marketing-publication-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/marketing-publication-db.test.ts (9 tests | 9 failed) 705ms
+   ❯ MKT7 публикации, домены и сайт брони: инварианты базы (9)
+     × журнал: форма действия, версии только своего сайта 44ms
+     × журнал только дописывается; удаление сотрудника обнуляет автора 6ms
+     × домен: принадлежит своему сайту, хост и вид не меняются, переходы по §29.8 3ms
+     × домен: хост в нормальном виде, у платформы нет проверки владения 11ms
+     × домен: один живой владелец хоста, REMOVED освобождает; один основной на сайт 4ms
+     × сайт брони филиала: только сайт объекта этого филиала 16ms
+     × перенос Q-275: ровно один подходящий сайт ставится, ноль или два оставляют NULL 12ms
+     × перенос не трогает уже выбранный указатель 3ms
+     × RLS: организация видит только свои публикации и домены; права приложения 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > журнал: форма действия, версии только своего сайта
+error: relation "marketing_site_publications" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:146:7
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:143:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > журнал только дописывается; удаление сотрудника обнуляет автора
+error: relation "marketing_site_publications" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:163:18
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:161:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > домен: принадлежит своему сайту, хост и вид не меняются, переходы по §29.8
+error: relation "site_domains" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:175:17
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:174:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > домен: хост в нормальном виде, у платформы нет проверки владения
+AssertionError: expected [Function] to throw error matching /site_domains_host_format/ but got 'relation "site_domains" does not exist'
+
+- Expected:
+/site_domains_host_format/
+
++ Received:
+"relation \"site_domains\" does not exist"
+
+ ❯ tests/integration/marketing-publication-db.test.ts:191:51
+    189|     await probe(async (attempt) => {
+    190|       for (const bad of ['MKT7.Sites.Test', 'mkt7.sites.test.', 'mkt7.…
+    191|         await expect(domain(attempt, siteA1, bad)).rejects.toThrow(/si…
+       |                                                   ^
+    192|       await expect(domain(attempt, siteA1, 'mkt7-v.sites.test', { veri…
+    193|         /site_domains_platform_unverified/,
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:13
+ ❯ tests/integration/marketing-publication-db.test.ts:189:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > домен: один живой владелец хоста, REMOVED освобождает; один основной на сайт
+error: relation "site_domains" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:200:17
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:199:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > сайт брони филиала: только сайт объекта этого филиала
+AssertionError: expected [Function] to throw error matching /объекта другого филиала/ but got 'column "booking_tracked_site_id" of r…'
+
+- Expected:
+/объекта другого филиала/
+
++ Received:
+"column \"booking_tracked_site_id\" of relation \"locations\" does not exist"
+
+ ❯ tests/integration/marketing-publication-db.test.ts:213:113
+    211|       const own = await trackedSite(attempt, propA1);
+    212|       const foreign = await trackedSite(attempt, propA2);
+    213|       await expect(attempt(`UPDATE locations SET booking_tracked_site_…
+       |                                                                                                                 ^
+    214|         /объекта другого филиала/,
+    215|       );
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:210:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > перенос Q-275: ровно один подходящий сайт ставится, ноль или два оставляют NULL
+error: function location_booking_backfill() does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:236:7
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:225:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > перенос не трогает уже выбранный указатель
+error: column "booking_tracked_site_id" of relation "locations" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:248:7
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:246:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > RLS: организация видит только свои публикации и домены; права приложения
+error: relation "marketing_site_publications" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/marketing-publication-db.test.ts:41:21
+     39|         await sql.query('SAVEPOINT probe');
+     40|         try {
+     41|           const r = await sql.query(q, params);
+       |                     ^
+     42|           await sql.query('RELEASE SAVEPOINT probe');
+     43|           return r;
+ ❯ tests/integration/marketing-publication-db.test.ts:260:20
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:257:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  12:40:58
+   Duration  6.57s (transform 59%, tests 22%, import 19%)
+
+JSON report written to /tmp/pms-test-2026-10-07T12-40-56Z-integration-4dda.json
+
+# код выхода 1 · 9 с

@@ -1,0 +1,23 @@
+# Модульные (unit) · 07.10.2026 18:09 Алматы · vm
+# коммит 1b4215e (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-09-29Z-unit-ff37.json' 'apps/sites'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 89ms
+ ✓ |unit| apps/sites/src/render/from-price.test.ts (22 tests) 62ms
+ ✓ |unit| apps/sites/src/worker.test.ts (21 tests) 151ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 23ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 20ms
+ ✓ |unit| apps/sites/src/headers.test.ts (14 tests) 9ms
+ ✓ |unit| apps/sites/src/render/variants.test.ts (23 tests) 33ms
+ ✓ |unit| apps/sites/src/render/sections.test.ts (30 tests) 36ms
+
+ Test Files  8 passed (8)
+      Tests  166 passed (166)
+   Start at  13:09:31
+   Duration  2.55s (transform 79%, import 11%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-09-29Z-unit-ff37.json
+
+# код выхода 0 · 4 с

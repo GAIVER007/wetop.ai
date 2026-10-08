@@ -147,3 +147,27 @@ test('проведённая оплата остаётся видна при о�
   const commands = await (await request.get(`${FIXTURE_API}/__test/commands`)).json();
   expect(commands.filter((c: { path: string }) => c.path === '/finance/payments')).toHaveLength(1);
 });
+
+test('полный возврат убирает платёж из выбора и освобождает окно после отправки', async ({
+  page,
+  request,
+}) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByRole('button', { name: 'Возврат', exact: true }).click();
+  const form = preview.getByTestId('refund-form');
+  await form.getByLabel('Сумма возврата', { exact: true }).fill('8000');
+  await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+  await form.getByRole('button', { name: 'Подтвердить возврат', exact: true }).click();
+  await expect(preview.getByTestId('preview-finance-result')).toContainText('Возврат проведён');
+  await expect(preview.getByText('Нет платежей с доступной суммой возврата.')).toBeVisible();
+  await expect(preview.getByRole('button', { name: 'Закрыть предпросмотр' })).toBeEnabled();
+  await expect(preview.getByRole('button', { name: 'Оплата', exact: true })).toBeEnabled();
+  await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+  await expect(preview).toBeHidden();
+});

@@ -895,6 +895,7 @@ export function RefundForm({
   );
   useEffect(() => {
     onPendingChange?.(pending);
+    return () => onPendingChange?.(false);
   }, [pending, onPendingChange]);
   const { review, onSubmit, onChange } = useMoneyReview(pending, onDraftChange);
   return (

@@ -277,6 +277,10 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
 test('stale token refreshes drawer without automatic mutation retry', async ({ page, request }) => {
   const { headers } = await seed(page, request);
   const d = await create(page);
+  // After creation the form calls router.refresh(). The status must change out of band only after
+  // that refresh lands: a late refresh would show the new status before the click, and the stale
+  // token would never be tested.
+  await expect(page.getByLabel('Состояние столов')).toContainText('Без стола 1');
   const rows = await (
     await request.get(`${api}/food-service/reservations?date=${date}`, { headers })
   ).json();

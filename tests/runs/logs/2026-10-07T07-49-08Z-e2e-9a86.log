@@ -1,0 +1,83 @@
+# Сквозные (e2e) · 07.10.2026 12:49 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'analytics.spec.ts' '--workers=1'
+[WebServer] (node:96320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+(node:199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/branches-ui/analytics.spec.ts:29:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (14.9s)
+  ✘   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (9.9s)
+(node:2957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/branches-ui/analytics.spec.ts:96:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (19.2s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:137:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (5.9s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:137:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (5.1s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:137:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (4.3s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:137:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (4.4s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:137:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (4.1s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:137:7 › MV9 food 390 light: accessibility, keyboard and screenshot (3.9s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:137:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (4.0s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:137:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (4.6s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('period-BOOKED')
+    Expected: "105"
+    Received: "53"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('period-BOOKED') with timeout 5000ms
+      - waiting for getByTestId('period-BOOKED')
+        13 × locator resolved to <div class="stat__value" data-testid="period-BOOKED">53</div>
+           - unexpected value "53"
+
+
+      75 |   await setScope(page, f.business, f.food);
+      76 |   await page.goto(`/management/analytics?from=${f.localDay}&to=${f.localDay}`);
+    > 77 |   await expect(page.getByTestId('period-BOOKED')).toHaveText('105');
+         |                                                   ^
+      78 |   await expect(page.getByTestId('food-finance-unavailable')).toBeVisible();
+      79 |   await expect(page.locator('[data-testid^="revenue-"]')).toHaveCount(0);
+      80 |   await page.getByRole('link', { name: 'Все филиалы', exact: true }).click();
+        at /Users/urijzapojnov/wetop-mv8-20261007/tests/branches-ui/analytics.spec.ts:77:51
+
+    Error Context: test-results/analytics-MV9-Food-paginat-5a6a5-ups-and-unavailable-finance/error-context.md
+
+    Error Context: test-results/analytics-MV9-Food-paginat-5a6a5-ups-and-unavailable-finance/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-Food-paginat-5a6a5-ups-and-unavailable-finance/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-Food-paginat-5a6a5-ups-and-unavailable-finance/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance 
+  10 passed (3.0m)
+
+# код выхода 1 · 3 мин 24 с

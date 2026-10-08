@@ -936,13 +936,22 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   // Без ответа авторизации новый контур филиалов закрывает рабочие экраны.
-  for (const route of ['/chessboard', '/inventory', '/channels', '/finance', '/today']) {
+  for (const route of [
+    '/chessboard',
+    '/inventory',
+    '/channels',
+    '/finance',
+    '/today',
+    '/management/analytics',
+    '/management/analytics/occupancy',
+  ]) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
     await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
     await expect(page.getByTestId('owner-paid')).toHaveCount(0);
+    await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
   }
   // Частичные сбои данных при доступной авторизации сохраняют экран и явную ошибку отчёта.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
@@ -962,14 +971,15 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
+  // Авторизация доступна, отказ данных отчёта называется на обеих вкладках аналитики.
   await page.goto('/management/analytics');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(page.getByTestId('pa-error')).toBeVisible();
   await page.goto('/management/analytics/occupancy');
   await expect(page.getByTestId('statistics-error')).toBeVisible();
   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');

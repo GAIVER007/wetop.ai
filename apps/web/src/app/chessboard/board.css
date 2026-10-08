@@ -1,4 +1,145 @@
-/*
+@layer sections {
+  /*
+ Сетка календаря (до DS0b жила в globals.css)
+ */
+  .board {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--text-xs);
+    min-width: 700px;
+  }
+  .board th {
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-head);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--text-2);
+    text-align: center;
+    background: var(--surface-muted);
+  }
+  .board th.board__unit-head {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 190px;
+    text-align: left;
+  }
+  .board__wd {
+    font-weight: 400;
+    color: var(--muted-2);
+  }
+  .board td {
+    padding: 3px 6px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .board td.board__unit {
+    position: sticky;
+    left: 0;
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .board tr.is-over {
+    background: var(--st-confirmed);
+  }
+  .board td.board__cell {
+    padding: 2px;
+    min-width: 44px;
+    position: relative;
+  }
+  .board__stay {
+    display: block;
+    height: 22px;
+    line-height: 22px;
+    color: var(--text);
+    text-decoration: none;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: var(--text-xs);
+  }
+  .board__stay:hover {
+    text-decoration: none;
+    filter: brightness(0.96);
+  }
+  .board__free {
+    height: 22px;
+    border-radius: 4px;
+  }
+  .board__wa {
+    position: absolute;
+    right: 2px;
+    top: 3px;
+    font-size: var(--text-xs);
+    line-height: 10px;
+  }
+  .board thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--surface);
+  }
+  .board th.board__unit-head {
+    z-index: 4;
+  }
+  .board__d {
+    font-weight: 700;
+    font-size: var(--text-sm);
+    color: var(--text);
+  }
+  .board th.is-today {
+    background: var(--primary-soft);
+  }
+  .board th.is-today .board__d {
+    color: var(--primary);
+  }
+  .board td.is-today {
+    box-shadow:
+      inset 1px 0 0 var(--primary-soft),
+      inset -1px 0 0 var(--primary-soft);
+  }
+  .board th.is-we:not(.is-today),
+  .board td.is-we:not(.is-today) {
+    background: var(--primary-soft);
+  }
+  .board tr.board__group td {
+    background: var(--surface-muted);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 5px 6px;
+  }
+  .board td.board__group-name {
+    font-weight: 600;
+    font-size: var(--text-xs);
+    color: var(--text);
+    background: var(--surface-muted);
+  }
+  .board td.board__group-free {
+    text-align: center;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .board td.board__group-free.is-full {
+    color: var(--danger);
+  }
+  .board__free--link {
+    display: block;
+    height: 22px;
+    border-radius: 4px;
+  }
+  .board__free--link:hover {
+    background: var(--primary-soft);
+    box-shadow: inset 0 0 0 1px var(--primary);
+  }
+  .board,
+  .board thead th {
+    background: var(--surface-solid);
+  }
+  /* Шапка колонки номеров приглушена, как строки групп (до DS0b её держало правило с important в premium.css) */
+  .board thead th.board__unit-head {
+    background: var(--surface-muted);
+  } /*
  * Шахматка: правки по замечанию владельца 15.09.2026 «сделай максимально удобно, чтобы всё было видно».
  * Файл грузится после globals/workspace/premium и переопределяет только то, что мешало видеть:
  *  — над сеткой было ~230 px шапки (период, легенда, баннер «без ячейки», два ряда фильтров) и на
@@ -8,827 +149,114 @@
  *  — название категории обрезалось многоточием, выходные красились «зелёным» (цвет свободного).
  */
 
-/* C1: короткая планка периода, подписанные фильтры, инструкции по запросу. */
-.page:has(> .board-wrap) > .page__head {
-  margin-bottom: 8px;
-}
-.board-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin: 0 0 10px;
-}
-.board-bar .board-range-form {
-  margin: 0;
-  gap: 8px;
-}
-.board-range-form .field {
-  margin: 0;
-  gap: 6px;
-}
-.board-bar .board-range-form .inp {
-  width: 140px;
-  min-height: 34px;
-}
-.board-bar .legend {
-  margin: 0;
-  gap: 10px;
-  font-size: var(--text-xs);
-}
-.board-bar .legend__swatch {
-  width: 10px;
-  height: 10px;
-}
-.board-bar .board-help {
-  margin: 0 0 0 auto;
-}
-.board-bar .board-help summary {
-  color: var(--primary);
-}
-/* Раскрытая подсказка занимает свою строку планки. Поверх соседей (`position: absolute`) она
+  /* C1: короткая планка периода, подписанные фильтры, инструкции по запросу. */
+  .page:has(> .board-wrap) > .page__head {
+    margin-bottom: 8px;
+  }
+  .board-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 0 0 10px;
+  }
+  .board-bar .board-range-form {
+    margin: 0;
+    gap: 8px;
+  }
+  .board-range-form .field {
+    margin: 0;
+    gap: 6px;
+  }
+  .board-bar .board-range-form .inp {
+    width: 140px;
+    min-height: 34px;
+  }
+  .board-bar .legend {
+    margin: 0;
+    gap: 10px;
+    font-size: var(--text-xs);
+  }
+  .board-bar .legend__swatch {
+    width: 10px;
+    height: 10px;
+  }
+  .board-bar .board-help {
+    margin: 0 0 0 auto;
+  }
+  .board-bar .board-help summary {
+    color: var(--primary);
+  }
+  /* Раскрытая подсказка занимает свою строку планки. Поверх соседей (`position: absolute`) она
    накрывала переключатель «Номера / Койки» и фильтры: щелчок по ним уходил в подсказку, а не в
    кнопку (17.09 и 20.09.2026). */
-.board-bar .board-help[open] {
-  flex: 1 1 100%;
-  margin-left: 0;
-}
-.board-bar .board-help-content {
-  width: 100%;
-  margin-top: 8px;
-  padding: 12px 14px;
-  background: var(--surface-elevated, var(--surface));
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-2);
-}
-.board-help-content .note {
-  margin-bottom: 0;
-}
-.board-bar .board-help summary {
-  display: flex;
-  align-items: center;
-  min-height: var(--control-h);
-}
-.board-bar .board-help summary::before {
-  content: '?';
-  margin-right: 6px;
-}
-
-/* 20.09: период отделён от действий страницы; строка дат не отнимает экран телефона. */
-.board-controls {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  flex: none;
-  margin-bottom: var(--space-2);
-}
-.board-controls .board-period {
-  display: contents;
-}
-.board-controls .board-date-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-.board-period-label {
-  color: var(--text);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  text-align: center;
-  padding: 0 var(--space-2);
-  font-variant-numeric: tabular-nums;
-}
-.board-period-short {
-  display: none;
-}
-.board-controls .board-date-nav > .btn {
-  margin-left: var(--space-2);
-}
-.board-controls .board-period > .seg {
-  padding: var(--space-1);
-}
-.board-controls .board-period > .seg a {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-}
-.board-controls .board-bar {
-  margin-bottom: 0;
-  margin-left: auto;
-}
-.board-controls .board-custom-range {
-  display: contents;
-}
-.board-custom-range-toggle.btn {
-  display: inline-flex;
-}
-.board-controls .board-range-form {
-  display: none;
-  gap: var(--space-2);
-}
-.board-controls .board-custom-range[data-open='true'] .board-range-form {
-  display: flex;
-  flex: 1 1 100%;
-  order: 1;
-}
-.board-controls:has(.board-custom-range[data-open='true'], .board-help[open]) .board-bar {
-  flex: 1 1 100%;
-  margin-left: 0;
-}
-.board-controls .board-range-form .field {
-  gap: var(--space-2);
-}
-.board-controls .board-range-form .inp {
-  min-height: var(--control-h);
-  height: var(--control-h);
-}
-.board-controls .board-help summary {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.board-controls .board-help-content {
-  padding: var(--space-4);
-}
-.board-footer {
-  display: flex;
-  flex: none;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  padding-top: var(--space-2);
-}
-.board-footer .legend {
-  margin: 0;
-  gap: var(--space-2) var(--space-4);
-  color: var(--text-2);
-  font-size: var(--text-xs);
-}
-.board-footer .legend__swatch {
-  width: var(--space-4);
-  height: var(--space-4);
-}
-.board-bar .board-help[open] summary::before {
-  content: '−';
-}
-
-/* Брони без ячейки — одна строка (ТЗ «Шахматка v2» §11): «⚠ 2 брони без назначенного места» и
-   «Разместить», открывающее ящик (§12, unassigned-drawer.tsx). Без таких броней строки нет вовсе;
-   тон warning, при проданном сверх мест — critical. */
-.board-unassigned {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-h);
-  margin: 0 0 var(--space-2);
-  padding: 0 var(--space-2) 0 var(--space-4);
-  border-radius: var(--radius);
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-.board-unassigned-text {
-  font-weight: 500;
-}
-.board-unassigned-open {
-  margin-left: auto;
-}
-.board-unassigned[data-tone='critical'] {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-/* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
-.board-range-form .btn[aria-current='true'] {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-/* ── поиск, категория, места, «Фильтры», вид в одну строку (ТЗ v2 §8) ── */
-.board-toolbar {
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-2) var(--space-4);
-  background: var(--glass-panel);
-  border: 1px solid var(--border);
-  border-bottom: 0;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  flex: none;
-}
-.board-toolbar .field {
-  margin: 0;
-  min-width: 0;
-  gap: var(--space-2);
-}
-.board-search {
-  flex: 1 1 220px;
-}
-.board-category {
-  flex: 0 1 260px;
-}
-.board-state {
-  flex: 0 1 240px;
-}
-.board-view {
-  flex: 0 0 auto;
-}
-.board-search-label {
-  display: none;
-}
-.board-toolbar .field > .inp {
-  min-width: 0;
-  width: 100%;
-  border-color: var(--border-input);
-  background-color: var(--surface);
-}
-.board-toolbar .field > span {
-  flex: none;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.board-filters-open {
-  flex: none;
-  gap: var(--space-2);
-}
-/* число заданных условий на кнопке «Фильтры N» */
-.board-filters-count {
-  min-width: var(--space-6);
-  padding: 0 var(--space-1);
-  border-radius: 9999px;
-  background: var(--primary);
-  color: var(--on-primary);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  line-height: 20px;
-  text-align: center;
-}
-/* вторая строка: условия чипами, «Показано N из M», «Сбросить» — только когда что-то отобрано */
-.board-toolbar-status {
-  display: flex;
-  flex: 1 1 100%;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-/* без отбора строка не занимает места, но живая область счётчика остаётся для читалки */
-.board-toolbar-status[data-idle='true'] {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.board-toolbar .board-result {
-  margin-left: auto;
-}
-/* снятые условия: чип со словом и крестиком, щелчок убирает условие */
-.board-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-.board-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: 28px;
-  padding: 0 var(--space-2);
-  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
-  border-radius: 9999px;
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-}
-.board-chip:hover {
-  border-color: var(--primary);
-}
-.board-chip:focus-visible {
-  outline: var(--focus-ring-w, 2px) solid var(--focus);
-  outline-offset: var(--focus-ring-offset, 2px);
-}
-.board-chip svg {
-  width: 14px;
-  height: 14px;
-}
-/* категория и места стоят в строке полями — чипы им нужны только на телефоне */
-.board-chip--narrow {
-  display: none;
-}
-/* ничего не найдено (§37): под строкой фильтров, на месте сетки */
-.board-empty {
-  flex: none;
-  border: 1px solid var(--border);
-  border-top: 0;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  background: var(--glass-panel);
-}
-
-/* окошко «Фильтры» (§9): верхний слой, место считает board-filters-popover.tsx */
-.board-filters-pop {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  width: min(420px, calc(100vw - var(--space-4)));
-  max-height: calc(100dvh - var(--space-4));
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  background: var(--surface-solid, var(--surface));
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-floating);
-}
-.board-filters-pop:not(:popover-open) {
-  display: none;
-}
-.board-filters-pop:focus-visible {
-  outline: var(--focus-ring-w, 2px) solid var(--focus);
-  outline-offset: var(--focus-ring-offset, 2px);
-}
-.board-filters-pop__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--border-soft);
-}
-.board-filters-pop__title {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-}
-.board-filters-pop__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  overflow-y: auto;
-}
-.board-filters-pop__group .chips {
-  margin: 0;
-}
-/* в окошке пункты — переключатели с рамкой: без неё невыбранный читается как простой текст */
-.board-filters-pop__group .chips button {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--border);
-}
-.board-filters-pop__group .chips button[aria-pressed='true'] {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
-}
-.board-filters-pop__group .chips svg {
-  width: 14px;
-  height: 14px;
-}
-.board-filters-pop__label {
-  margin: 0 0 var(--space-2);
-  color: var(--muted);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-}
-/* категория и места — в окошке только на телефоне, на широком экране они в строке */
-.board-filters-pop__narrow {
-  display: none;
-}
-.board-filters-pop__unassigned {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-}
-.board-filters-pop__unassigned svg {
-  width: 16px;
-  height: 16px;
-  color: var(--warning);
-}
-.board-filters-pop__foot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--border-soft);
-}
-.board-filters-pop__preview {
-  margin-right: auto;
-  color: var(--muted);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-}
-.board-wrap {
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  box-shadow: none;
-  /* фактическая высота шапки дат: по умолчанию токен, точнее — замер из board-grid
-     (ResizeObserver пишет inline-значение на эту же обёртку и перекрывает это) */
-  --board-head-real: var(--board-head-h);
-}
-
-/* ── сетка: больше строк на экране ── */
-/*
- * Высота сетки — остаток окна, а не константа. Константа (100dvh − 330px) верна только на широком
- * экране: на узком шапка страницы переносится на несколько строк, занимает 488 px вместо ~330,
- * и выходило худшее из двух — сетка не достаёт до низа, а страница всё равно прокручивается на 125 px.
- * Прокрутка страницы тут опасна: уехавшую под липкую верхнюю панель клетку не нажать (проверено
- * 16.09.2026 через elementFromPoint — клик попадал в шапку). Колонка страницы с растущей сеткой
- * убирает и то, и другое.
- */
-.page:has(> .board-wrap) {
-  display: flex;
-  flex-direction: column;
-  /* высота, а не min-height: иначе колонка растёт под содержимое и страница снова прокручивается */
-  height: calc(100dvh - var(--header-h, 72px));
-  padding-bottom: 16px;
-  overflow: hidden;
-}
-.page:has(> .board-wrap) > .board-wrap {
-  /* min-height: 0 обязателен — без него flex-элемент не сжимается ниже своего содержимого */
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: none;
-}
-/* Браузер без :has() — прежняя константа, лучше, чем ничего */
-@supports not selector(:has(*)) {
-  .board-wrap {
-    max-height: calc(100dvh - var(--header-h, 72px) - 330px);
-    min-height: 360px;
+  .board-bar .board-help[open] {
+    flex: 1 1 100%;
+    margin-left: 0;
   }
-}
-.board thead th {
-  height: var(--board-head-h);
-  padding: var(--space-2) var(--space-1);
-  /* шапка дат выше липкой колонки ячеек и липкой строки категории,
-     иначе строки просвечивают сквозь неё при прокрутке */
-  z-index: 7;
-}
-.board th.board__unit-head {
-  z-index: 8;
-  min-width: 200px;
-  padding: 10px 14px;
-}
-.board td.board__unit {
-  z-index: 5;
-  height: var(--board-row-h);
-  padding: var(--space-1) var(--space-2);
-}
-.board td.board__cell {
-  height: var(--board-row-h);
-  padding: var(--space-1) 0;
-  border-right-color: var(--border-soft);
-}
-.board .board__stay,
-.board .board__free {
-  height: var(--board-stay-h);
-  line-height: var(--board-stay-h);
-  margin: 0;
-}
-/* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
-   расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
-   гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
-   занято, загрузка), значения жирно столбцом. На компьютере карточка справа, управление календарём
-   слева (владелец 06.10: «с компа сделай это справа»); до 1199 px карточка на всю ширину, управление под ней. */
-.board-top {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  margin-bottom: 0;
-}
-.board-top > .board-controls {
-  flex: 1 1 auto;
-  min-width: 0;
-  justify-content: flex-start;
-  margin-bottom: 0;
-}
-.board-top > .board-controls .board-bar {
-  margin-left: 0;
-}
-.board-top > .board-controls .board-period > .seg {
-  margin-left: 0;
-}
-.board-day-panel {
-  order: 1;
-  flex: 0 1 560px;
-  min-width: 0;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-  /* сетка должна начинаться до 384 px на 1440 (контракт C1), а цели ссылок — от 24 px (axe):
-     строки 24 px, заголовок без отступа, рамка вплотную */
-  padding: 0 var(--space-4);
-}
-.board-day-panel__title {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  font-variant-numeric: tabular-nums;
-}
-.board-day-panel__columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  gap: 0 var(--space-4);
-}
-.board-day-panel__col + .board-day-panel__col {
-  border-left: 1px solid var(--border-soft);
-  padding-left: var(--space-4);
-}
-.board-day-panel__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  min-height: 24px;
-  font-size: var(--text-sm);
-}
-.board-day-panel__row > a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  color: var(--text);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.board-day-panel__row > a:hover {
-  color: var(--primary);
-}
-.board-day-panel__row > span {
-  color: var(--text-2);
-}
-.board-day-panel__row > b {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.board-day-panel__row--occupancy > b {
-  color: var(--primary);
-}
-@media (max-width: 1199px) {
-  .board-top {
-    flex-direction: column;
-    align-items: stretch;
+  .board-bar .board-help-content {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: var(--surface-elevated, var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-2);
   }
-  .board-day-panel {
-    order: 0;
-    flex: none;
+  .board-help-content .note {
+    margin-bottom: 0;
   }
-}
-@media (max-width: 600px) {
-  .board-day-panel {
-    padding: var(--space-2);
+  .board-bar .board-help summary {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-h);
   }
-  .board-day-panel__title {
-    font-size: var(--text-sm);
+  .board-bar .board-help summary::before {
+    content: '?';
+    margin-right: 6px;
   }
-  .board-day-panel__columns {
-    gap: 0 var(--space-2);
-  }
-  .board-day-panel__col + .board-day-panel__col {
-    padding-left: var(--space-2);
-  }
-  .board-day-panel__row {
-    font-size: var(--text-xs);
-    min-height: 24px;
-  }
-  /* «81 (13 + 68 коек)» на 360 px не влезает в колонку — разбивка переносится, страница вбок не едет */
-  .board-day-panel__row > b {
-    white-space: normal;
-    text-align: right;
-  }
-}
-.board-stay-caption {
-  top: 0;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.board-stay-glyph {
-  flex: none;
-  font-weight: 700;
-  opacity: 0.9;
-}
-.board-stay-nights {
-  flex: none;
-  font-weight: 400;
-  /* тем же цветом, что имя: серый на цветной плашке в тёмной теме не проходил контраст (axe) */
-  color: inherit;
-}
-.board td[data-status='CHECKED_IN'] .board-stay-glyph {
-  color: var(--success);
-}
-.board td[data-status='TENTATIVE'] .board-stay-glyph {
-  color: var(--warning);
-}
 
-/* Шапка даты: только число и день недели. Сводка фонда показана один раз над календарём. */
-.board .board__d {
-  width: var(--space-8);
-  height: var(--space-8);
-  font-size: var(--text-xl);
-  font-weight: 600;
-}
-.board-day-date {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-}
-.board .board__d {
-  display: inline-grid;
-  place-items: center;
-  margin: 0;
-  border-radius: var(--radius-control);
-}
-.board th.is-today .board__d {
-  background: var(--primary);
-  color: var(--on-primary);
-}
-.board .board__wd {
-  margin-top: 1px;
-  font-size: var(--text-xs);
-}
-
-/* выходные — нейтральная подложка, а не цвет «свободно» */
-.board th.is-we:not(.is-today),
-.board td.is-we:not(.is-today) {
-  background: var(--surface-muted);
-}
-.board th.is-we:not(.is-today) {
-  background: color-mix(in srgb, var(--surface-muted) 70%, var(--surface));
-}
-
-/* ТЗ v2 §59 (просьба владельца к стоп-гейту): сегодня — выделенная шапка, очень лёгкий фон
-   колонки и тонкие кромки слева/справа, а не сплошная насыщенная заливка всей высоты
-   (прежний вид — premium.css). Кромки — inset-тенью: она не двигает раскладку таблицы. */
-.board td.is-today {
-  background: color-mix(in srgb, var(--primary-soft) 45%, var(--surface));
-}
-.board th.is-today,
-.board td.is-today {
-  box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent),
-    inset -1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent);
-}
-
-/* §56: наведение различимо — строка места подсвечивается вся, свободные клетки чуть заметнее */
-.board tbody tr:hover td.board__unit {
-  background: var(--row-hover);
-}
-.board tbody tr:not(.board__group):hover td.board__cell {
-  background: color-mix(in srgb, var(--row-hover) 55%, transparent);
-}
-
-/* строка категории: полное название, число мест жирно, свободно на ночь — зелёным, нет — красным */
-.board tr.board__group td,
-.board .board__group td,
-.board .board__group-name {
-  height: 30px;
-  padding: 4px 8px;
-}
-/* ТЗ v2 §13/§15: строка категории прилипает под шапкой дат. Фон непрозрачный и своим тоном
-   отличается от строк мест (§56); правило стоит после is-we/is-today и потому ровняет их тоже. */
-.board tr.board__group td {
-  position: sticky;
-  /* фактическая высота шапки — замер из board-grid; токен — запас до гидрации */
-  top: var(--board-head-real, var(--board-head-h));
-  z-index: calc(var(--layer-sticky) - 1);
-  background: var(--surface-muted);
-  border-bottom: 1px solid var(--border);
-}
-/* угловая клетка липнет и влево, и вниз от шапки: выше клеток мест (5), ниже шапки дат (7/8) */
-.board tr.board__group td.board__group-name {
-  z-index: calc(var(--layer-sticky) + 1);
-}
-/* «0 св.» у категории — предупреждение, как «мест нет» в шапке (§15) */
-.board td.board__group-free.is-full {
-  color: var(--danger);
-}
-.board .board-group-toggle {
-  min-height: 26px;
-  font-weight: 600;
-  color: var(--text);
-}
-.board .board-group-toggle > .muted {
-  flex-shrink: 0;
-}
-.board .board-group-name-text,
-.board--week .board-group-name-text,
-.board--month .board-group-name-text {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-.board td.board__group-free,
-.board--week tr.board__group td.board__group-free {
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  color: var(--success);
-}
-.board td.board__group-free.is-full,
-.board .board__group-free.is-full {
-  color: var(--danger);
-}
-
-/* колонка ячеек: номер крупнее, вид места — тише */
-.board-unit-link {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  gap: 6px;
-}
-.board__unit > .muted-2 {
-  font-size: var(--text-xs);
-}
-
-/* Месяц и неделя: колонка 24 px, у шапки нет боковых отступов, числа мельче.
-   Иначе последняя дата вылезала за контейнер на 768 px (tests/ui/chessboard-month.spec.ts). */
-.board--month thead th,
-.board--week thead th {
-  padding-left: 0;
-  padding-right: 0;
-}
-.board--month .board__d,
-.board--week .board__d {
-  max-width: 100%;
-}
-.board--month .board-day-date {
-  flex-direction: column;
-  gap: 0;
-}
-.board--month .board__d {
-  width: var(--space-6);
-  height: var(--space-6);
-  font-size: var(--text-md);
-}
-.board--month {
-  --board-caption-end: 8px;
-}
-/* Подпись на плашке не шире самой плашки: «N ночей» не должна вылезать за последнюю колонку (320 px) */
-.board-stay-caption {
-  overflow: hidden;
-}
-.board-stay-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 600px) {
-  /* Одна строка управления вместо двух: период, сегмент, «Даты» и «Помощь» — элементы одного
-   * переносящегося ряда (у .board-period и .board-bar на телефоне своей рамки нет). */
+  /* 20.09: период отделён от действий страницы; строка дат не отнимает экран телефона. */
   .board-controls {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-2) var(--space-4);
+    flex: none;
+    margin-bottom: var(--space-2);
   }
   .board-controls .board-period {
     display: contents;
   }
-  /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
-   * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
-  .page:has(> .board-wrap) > .page__head {
-    align-items: center;
-    gap: var(--space-2);
-  }
-  /* на телефоне календарь — про сетку: вторые кнопки — в меню и в «Фильтрах»
-     (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
-  .page:has(> .board-wrap) > .page__head .btn--secondary {
-    display: none;
-  }
-  /* «Новая бронь» осталась одна — ставим её рядом с заголовком: общее правило телефона
-   * (.page__actions width:100%) уводило кнопку на свою строку и отнимало у сетки 34 px. */
-  .page:has(> .board-wrap) > .page__head .page__actions {
-    width: auto;
-    margin-left: auto;
-  }
-  /* «Даты» и «Помощь» встают в ряд к сегменту 7/14/30, а не отдельной строкой: своей рамки
-   * у .board-bar на телефоне нет, раскрытые формы по-прежнему берут строку целиком (order ниже). */
-  .board-controls .board-bar {
-    display: contents;
-  }
-  /* Подсказка остаётся в первой строке рядом со стрелками дат (контракт chessboard-week C1
-   * «не выходит за экран на телефоне»), а сегмент и «Даты» идут во вторую: две строки вместо трёх. */
-  .board-controls .board-period > .seg,
-  .board-controls .board-custom-range > .btn {
-    order: 1;
-  }
   .board-controls .board-date-nav {
-    display: grid;
-    grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target) auto;
-    flex: 1 1 auto;
-    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
   }
   .board-period-label {
-    font-size: var(--text-sm);
-    padding: 0;
-  }
-  .board-period-full {
-    display: none;
+    color: var(--text);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    text-align: center;
+    padding: 0 var(--space-2);
+    font-variant-numeric: tabular-nums;
   }
   .board-period-short {
-    display: inline;
+    display: none;
   }
   .board-controls .board-date-nav > .btn {
-    margin-left: 0;
-    padding-left: var(--space-2);
-    padding-right: var(--space-2);
+    margin-left: var(--space-2);
+  }
+  .board-controls .board-period > .seg {
+    padding: var(--space-1);
+  }
+  .board-controls .board-period > .seg a {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .board-controls .board-bar {
+    margin-bottom: 0;
+    margin-left: auto;
   }
   .board-controls .board-custom-range {
     display: contents;
@@ -838,1583 +266,2316 @@
   }
   .board-controls .board-range-form {
     display: none;
-  }
-  .board-controls .board-custom-range[data-open='true'] .board-range-form {
-    display: grid;
-    flex: 1 1 100%;
-    order: 2;
-  }
-  .board-controls .board-bar > .board-help {
-    width: auto;
-    margin-left: auto;
-  }
-  .board-controls .board-bar > .board-help[open] {
-    flex-basis: 100%;
-    order: 3;
-  }
-  .board-controls .board-range-form .inp {
-    height: var(--touch-target);
-  }
-  .board-toolbar {
-    padding: var(--space-2);
     gap: var(--space-2);
   }
-  .board-toolbar .board-search {
-    flex: 1 1 160px;
+  .board-controls .board-custom-range[data-open='true'] .board-range-form {
+    display: flex;
+    flex: 1 1 100%;
+    order: 1;
+  }
+  .board-controls:has(.board-custom-range[data-open='true'], .board-help[open]) .board-bar {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .board-controls .board-range-form .field {
+    gap: var(--space-2);
+  }
+  .board-controls .board-range-form .inp {
+    min-height: var(--control-h);
+    height: var(--control-h);
+  }
+  .board-controls .board-help summary {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .board-controls .board-help-content {
+    padding: var(--space-4);
+  }
+  .board-footer {
+    display: flex;
+    flex: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding-top: var(--space-2);
+  }
+  .board-footer .legend {
+    margin: 0;
+    gap: var(--space-2) var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .board-footer .legend__swatch {
+    width: var(--space-4);
+    height: var(--space-4);
+  }
+  .board-bar .board-help[open] summary::before {
+    content: '−';
+  }
+
+  /* Брони без ячейки — одна строка (ТЗ «Шахматка v2» §11): «⚠ 2 брони без назначенного места» и
+   «Разместить», открывающее ящик (§12, unassigned-drawer.tsx). Без таких броней строки нет вовсе;
+   тон warning, при проданном сверх мест — critical. */
+  .board-unassigned {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2) 0 var(--space-4);
+    border-radius: var(--radius);
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .board-unassigned-text {
+    font-weight: 500;
+  }
+  .board-unassigned-open {
+    margin-left: auto;
+  }
+  .board-unassigned[data-tone='critical'] {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  /* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
+  .board-range-form .btn[aria-current='true'] {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* ── поиск, категория, места, «Фильтры», вид в одну строку (ТЗ v2 §8) ── */
+  .board-toolbar {
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    background: var(--glass-panel);
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    flex: none;
+  }
+  .board-toolbar .field {
+    margin: 0;
     min-width: 0;
+    gap: var(--space-2);
   }
-  .board--week {
-    --board-caption-end: 8px;
+  .board-search {
+    flex: 1 1 220px;
   }
-  .board--week .board-day-date {
+  .board-category {
+    flex: 0 1 260px;
+  }
+  .board-state {
+    flex: 0 1 240px;
+  }
+  .board-view {
+    flex: 0 0 auto;
+  }
+  .board-search-label {
+    display: none;
+  }
+  .board-toolbar .field > .inp {
+    min-width: 0;
+    width: 100%;
+    border-color: var(--border-input);
+  }
+  .board-toolbar .field > span {
+    flex: none;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .board-filters-open {
+    flex: none;
+    gap: var(--space-2);
+  }
+  /* число заданных условий на кнопке «Фильтры N» */
+  .board-filters-count {
+    min-width: var(--space-6);
+    padding: 0 var(--space-1);
+    border-radius: 9999px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    line-height: 20px;
+    text-align: center;
+  }
+  /* вторая строка: условия чипами, «Показано N из M», «Сбросить» — только когда что-то отобрано */
+  .board-toolbar-status {
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* без отбора строка не занимает места, но живая область счётчика остаётся для читалки */
+  .board-toolbar-status[data-idle='true'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .board-toolbar .board-result {
+    margin-left: auto;
+  }
+  /* снятые условия: чип со словом и крестиком, щелчок убирает условие */
+  .board-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .board-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
+    border-radius: 9999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .board-chip:hover {
+    border-color: var(--primary);
+  }
+  .board-chip:focus-visible {
+    outline: var(--focus-ring-w, 2px) solid var(--focus);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+  .board-chip svg {
+    width: 14px;
+    height: 14px;
+  }
+  /* категория и места стоят в строке полями — чипы им нужны только на телефоне */
+  .board-chip--narrow {
+    display: none;
+  }
+  /* ничего не найдено (§37): под строкой фильтров, на месте сетки */
+  .board-empty {
+    flex: none;
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    background: var(--glass-panel);
+  }
+
+  /* окошко «Фильтры» (§9): верхний слой, место считает board-filters-popover.tsx */
+  .board-filters-pop {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    width: min(420px, calc(100vw - var(--space-4)));
+    max-height: calc(100dvh - var(--space-4));
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: var(--surface-solid, var(--surface));
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-floating);
+  }
+  .board-filters-pop:not(:popover-open) {
+    display: none;
+  }
+  .board-filters-pop:focus-visible {
+    outline: var(--focus-ring-w, 2px) solid var(--focus);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+  .board-filters-pop__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .board-filters-pop__title {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .board-filters-pop__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    overflow-y: auto;
+  }
+  .board-filters-pop__group .chips {
+    margin: 0;
+  }
+  /* в окошке пункты — переключатели с рамкой: без неё невыбранный читается как простой текст */
+  .board-filters-pop__group .chips button {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+  }
+  .board-filters-pop__group .chips button[aria-pressed='true'] {
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  }
+  .board-filters-pop__group .chips svg {
+    width: 14px;
+    height: 14px;
+  }
+  .board-filters-pop__label {
+    margin: 0 0 var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  /* категория и места — в окошке только на телефоне, на широком экране они в строке */
+  .board-filters-pop__narrow {
+    display: none;
+  }
+  .board-filters-pop__unassigned {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .board-filters-pop__unassigned svg {
+    width: 16px;
+    height: 16px;
+    color: var(--warning);
+  }
+  .board-filters-pop__foot {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--border-soft);
+  }
+  .board-filters-pop__preview {
+    margin-right: auto;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+  .board-wrap {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    box-shadow: none;
+    /* фактическая высота шапки дат: по умолчанию токен, точнее — замер из board-grid
+     (ResizeObserver пишет inline-значение на эту же обёртку и перекрывает это) */
+    --board-head-real: var(--board-head-h);
+  }
+
+  /* ── сетка: больше строк на экране ── */
+  /*
+ * Высота сетки — остаток окна, а не константа. Константа (100dvh − 330px) верна только на широком
+ * экране: на узком шапка страницы переносится на несколько строк, занимает 488 px вместо ~330,
+ * и выходило худшее из двух — сетка не достаёт до низа, а страница всё равно прокручивается на 125 px.
+ * Прокрутка страницы тут опасна: уехавшую под липкую верхнюю панель клетку не нажать (проверено
+ * 16.09.2026 через elementFromPoint — клик попадал в шапку). Колонка страницы с растущей сеткой
+ * убирает и то, и другое.
+ */
+  .page:has(> .board-wrap) {
+    display: flex;
+    flex-direction: column;
+    /* высота, а не min-height: иначе колонка растёт под содержимое и страница снова прокручивается */
+    height: calc(100dvh - var(--header-h, 72px));
+    padding-bottom: 16px;
+    overflow: hidden;
+  }
+  .page:has(> .board-wrap) > .board-wrap {
+    /* min-height: 0 обязателен — без него flex-элемент не сжимается ниже своего содержимого */
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+  }
+  /* Браузер без :has() — прежняя константа, лучше, чем ничего */
+  @supports not selector(:has(*)) {
+    .board-wrap {
+      max-height: calc(100dvh - var(--header-h, 72px) - 330px);
+      min-height: 360px;
+    }
+  }
+  .board thead th {
+    height: var(--board-head-h);
+    padding: var(--space-2) var(--space-1);
+    /* шапка дат выше липкой колонки ячеек и липкой строки категории,
+     иначе строки просвечивают сквозь неё при прокрутке */
+    z-index: 7;
+  }
+  .board th.board__unit-head {
+    z-index: 8;
+    min-width: 200px;
+    padding: 10px 14px;
+  }
+  .board td.board__unit {
+    z-index: 5;
+    height: var(--board-row-h);
+    padding: var(--space-1) var(--space-2);
+  }
+  .board td.board__cell {
+    height: var(--board-row-h);
+    padding: var(--space-1) 0;
+    border-right-color: var(--border-soft);
+  }
+  .board .board__stay,
+  .board .board__free {
+    height: var(--board-stay-h);
+    line-height: var(--board-stay-h);
+    margin: 0;
+  }
+  /* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
+   расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
+   гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
+   занято, загрузка), значения жирно столбцом. На компьютере карточка справа, управление календарём
+   слева (владелец 06.10: «с компа сделай это справа»); до 1199 px карточка на всю ширину, управление под ней. */
+  .board-top {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: 0;
+  }
+  .board-top > .board-controls {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+  .board-top > .board-controls .board-bar {
+    margin-left: 0;
+  }
+  .board-top > .board-controls .board-period > .seg {
+    margin-left: 0;
+  }
+  .board-day-panel {
+    order: 1;
+    flex: 0 1 560px;
+    min-width: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    /* сетка должна начинаться до 384 px на 1440 (контракт C1), а цели ссылок — от 24 px (axe):
+     строки 24 px, заголовок без отступа, рамка вплотную */
+    padding: 0 var(--space-4);
+  }
+  .board-day-panel__title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .board-day-panel__columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 0 var(--space-4);
+  }
+  .board-day-panel__col + .board-day-panel__col {
+    border-left: 1px solid var(--border-soft);
+    padding-left: var(--space-4);
+  }
+  .board-day-panel__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 24px;
+    font-size: var(--text-sm);
+  }
+  .board-day-panel__row > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .board-day-panel__row > a:hover {
+    color: var(--primary);
+  }
+  .board-day-panel__row > span {
+    color: var(--text-2);
+  }
+  .board-day-panel__row > b {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .board-day-panel__row--occupancy > b {
+    color: var(--primary);
+  }
+  @media (max-width: 1199px) {
+    .board-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .board-day-panel {
+      order: 0;
+      flex: none;
+    }
+  }
+  @media (max-width: 600px) {
+    .board-day-panel {
+      padding: var(--space-2);
+    }
+    .board-day-panel__title {
+      font-size: var(--text-sm);
+    }
+    .board-day-panel__columns {
+      gap: 0 var(--space-2);
+    }
+    .board-day-panel__col + .board-day-panel__col {
+      padding-left: var(--space-2);
+    }
+    .board-day-panel__row {
+      font-size: var(--text-xs);
+      min-height: 24px;
+    }
+    /* «81 (13 + 68 коек)» на 360 px не влезает в колонку — разбивка переносится, страница вбок не едет */
+    .board-day-panel__row > b {
+      white-space: normal;
+      text-align: right;
+    }
+  }
+  .board-stay-caption {
+    top: 0;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .board-stay-glyph {
+    flex: none;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+  .board-stay-nights {
+    flex: none;
+    font-weight: 400;
+    /* тем же цветом, что имя: серый на цветной плашке в тёмной теме не проходил контраст (axe) */
+    color: inherit;
+  }
+  .board td[data-status='CHECKED_IN'] .board-stay-glyph {
+    color: var(--success);
+  }
+  .board td[data-status='TENTATIVE'] .board-stay-glyph {
+    color: var(--warning);
+  }
+
+  /* Шапка даты: только число и день недели. Сводка фонда показана один раз над календарём. */
+  .board .board__d {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
+  .board-day-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+  .board .board__d {
+    display: inline-grid;
+    place-items: center;
+    margin: 0;
+    border-radius: var(--radius-control);
+  }
+  .board th.is-today .board__d {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .board .board__wd {
+    margin-top: 1px;
+    font-size: var(--text-xs);
+  }
+
+  /* выходные — нейтральная подложка, а не цвет «свободно» */
+  .board th.is-we:not(.is-today),
+  .board td.is-we:not(.is-today) {
+    background: var(--surface-muted);
+  }
+  .board th.is-we:not(.is-today) {
+    background: color-mix(in srgb, var(--surface-muted) 70%, var(--surface));
+  }
+
+  /* ТЗ v2 §59 (просьба владельца к стоп-гейту): сегодня — выделенная шапка, очень лёгкий фон
+   колонки и тонкие кромки слева/справа, а не сплошная насыщенная заливка всей высоты
+   (прежний вид — premium.css). Кромки — inset-тенью: она не двигает раскладку таблицы. */
+  .board td.is-today {
+    background: color-mix(in srgb, var(--primary-soft) 45%, var(--surface));
+  }
+  .board th.is-today,
+  .board td.is-today {
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent),
+      inset -1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  /* §56: наведение различимо — строка места подсвечивается вся, свободные клетки чуть заметнее */
+  .board tbody tr:not(.board__group):hover td.board__cell {
+    background: color-mix(in srgb, var(--row-hover) 55%, transparent);
+  }
+
+  /* строка категории: полное название, число мест жирно, свободно на ночь — зелёным, нет — красным */
+  .board tr.board__group td,
+  .board .board__group td,
+  .board .board__group-name {
+    height: 30px;
+    padding: 4px 8px;
+  }
+  /* ТЗ v2 §13/§15: строка категории прилипает под шапкой дат. Фон непрозрачный и своим тоном
+   отличается от строк мест (§56); правило стоит после is-we/is-today и потому ровняет их тоже. */
+  .board tr.board__group td {
+    position: sticky;
+    /* фактическая высота шапки — замер из board-grid; токен — запас до гидрации */
+    top: var(--board-head-real, var(--board-head-h));
+    z-index: calc(var(--layer-sticky) - 1);
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  /* угловая клетка липнет и влево, и вниз от шапки: выше клеток мест (5), ниже шапки дат (7/8) */
+  .board tr.board__group td.board__group-name {
+    z-index: calc(var(--layer-sticky) + 1);
+  }
+  /* «0 св.» у категории — предупреждение, как «мест нет» в шапке (§15) */
+  .board td.board__group-free.is-full {
+    color: var(--danger);
+  }
+  .board .board-group-toggle {
+    min-height: 26px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .board .board-group-toggle > .muted {
+    flex-shrink: 0;
+  }
+  .board .board-group-name-text,
+  .board--week .board-group-name-text,
+  .board--month .board-group-name-text {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .board td.board__group-free,
+  .board--week tr.board__group td.board__group-free {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--success);
+  }
+  .board td.board__group-free.is-full,
+  .board .board__group-free.is-full {
+    color: var(--danger);
+  }
+
+  /* колонка ячеек: номер крупнее, вид места — тише */
+  .board-unit-link {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    gap: 6px;
+  }
+  .board__unit > .muted-2 {
+    font-size: var(--text-xs);
+  }
+
+  /* Месяц и неделя: колонка 24 px, у шапки нет боковых отступов, числа мельче.
+   Иначе последняя дата вылезала за контейнер на 768 px (tests/ui/chessboard-month.spec.ts). */
+  .board--month thead th,
+  .board--week thead th {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .board--month .board__d,
+  .board--week .board__d {
+    max-width: 100%;
+  }
+  .board--month .board-day-date {
     flex-direction: column;
     gap: 0;
   }
-  .board--week .board__d {
+  .board--month .board__d {
     width: var(--space-6);
     height: var(--space-6);
     font-size: var(--text-md);
   }
-  .board-footer .board-unassigned--empty {
-    margin-left: 0;
+  .board--month {
+    --board-caption-end: 8px;
   }
-
-  .board--week .board-stay-nights {
-    display: none;
-  }
-}
-
-/* строка под курсором — видно, куда тянешь и на что смотришь */
-.board tbody tr:hover td.board__cell {
-  background: color-mix(in srgb, var(--primary-soft) 45%, transparent);
-}
-
-@media (max-width: 960px) {
-  /* На узком экране контролы переносятся. Фиксированная высота страницы обрезала низ сетки:
-     даже прокрутка до F36 оставляла последнюю строку вне доступной области. */
-  .page:has(> .board-wrap) {
-    height: auto;
-    overflow: visible;
-  }
-  .page:has(> .board-wrap) > .board-wrap {
-    flex: none;
-    height: 60dvh;
-    min-height: 60dvh;
-    scroll-margin-top: calc(var(--header-h) + 16px);
-  }
-  .board-bar .board-help {
-    width: 100%;
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .board--week .board-group-name-text {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+  /* Подпись на плашке не шире самой плашки: «N ночей» не должна вылезать за последнюю колонку (320 px) */
+  .board-stay-caption {
     overflow: hidden;
-    overflow-wrap: anywhere;
   }
-  .board--week .board-group-toggle > .muted {
-    flex-shrink: 0;
+  .board-stay-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .page:has(> .board-wrap) {
-    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  @media (max-width: 600px) {
+    /* Одна строка управления вместо двух: период, сегмент, «Даты» и «Помощь» — элементы одного
+   * переносящегося ряда (у .board-period и .board-bar на телефоне своей рамки нет). */
+    .board-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .board-controls .board-period {
+      display: contents;
+    }
+    /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
+   * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
+    .page:has(> .board-wrap) > .page__head {
+      align-items: center;
+      gap: var(--space-2);
+    }
+    /* на телефоне календарь — про сетку: вторые кнопки — в меню и в «Фильтрах»
+     (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
+    .page:has(> .board-wrap) > .page__head .btn--secondary {
+      display: none;
+    }
+    /* «Новая бронь» осталась одна — ставим её рядом с заголовком: общее правило телефона
+   * (.page__actions width:100%) уводило кнопку на свою строку и отнимало у сетки 34 px. */
+    .page:has(> .board-wrap) > .page__head .page__actions {
+      width: auto;
+      margin-left: auto;
+    }
+    /* «Даты» и «Помощь» встают в ряд к сегменту 7/14/30, а не отдельной строкой: своей рамки
+   * у .board-bar на телефоне нет, раскрытые формы по-прежнему берут строку целиком (order ниже). */
+    .board-controls .board-bar {
+      display: contents;
+    }
+    /* Подсказка остаётся в первой строке рядом со стрелками дат (контракт chessboard-week C1
+   * «не выходит за экран на телефоне»), а сегмент и «Даты» идут во вторую: две строки вместо трёх. */
+    .board-controls .board-period > .seg,
+    .board-controls .board-custom-range > .btn {
+      order: 1;
+    }
+    .board-controls .board-date-nav {
+      display: grid;
+      grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target) auto;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .board-period-label {
+      font-size: var(--text-sm);
+      padding: 0;
+    }
+    .board-period-full {
+      display: none;
+    }
+    .board-period-short {
+      display: inline;
+    }
+    .board-controls .board-date-nav > .btn {
+      margin-left: 0;
+      padding-left: var(--space-2);
+      padding-right: var(--space-2);
+    }
+    .board-controls .board-custom-range {
+      display: contents;
+    }
+    .board-custom-range-toggle.btn {
+      display: inline-flex;
+    }
+    .board-controls .board-range-form {
+      display: none;
+    }
+    .board-controls .board-custom-range[data-open='true'] .board-range-form {
+      display: grid;
+      flex: 1 1 100%;
+      order: 2;
+    }
+    .board-controls .board-bar > .board-help {
+      width: auto;
+      margin-left: auto;
+    }
+    .board-controls .board-bar > .board-help[open] {
+      flex-basis: 100%;
+      order: 3;
+    }
+    .board-controls .board-range-form .inp {
+      height: var(--touch-target);
+    }
+    .board-toolbar {
+      padding: var(--space-2);
+      gap: var(--space-2);
+    }
+    .board-toolbar .board-search {
+      flex: 1 1 160px;
+      min-width: 0;
+    }
+    .board--week {
+      --board-caption-end: 8px;
+    }
+    .board--week .board-day-date {
+      flex-direction: column;
+      gap: 0;
+    }
+    .board--week .board__d {
+      width: var(--space-6);
+      height: var(--space-6);
+      font-size: var(--text-md);
+    }
+
+    .board--week .board-stay-nights {
+      display: none;
+    }
   }
-  .board-bar .board-range-form {
-    width: 100%;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  /* строка под курсором — видно, куда тянешь и на что смотришь */
+  .board tbody tr:hover td.board__cell {
+    background: color-mix(in srgb, var(--primary-soft) 45%, transparent);
   }
-  .board-bar .board-range-form .inp {
-    width: 100%;
-    min-height: var(--touch-target);
+
+  @media (max-width: 960px) {
+    /* На узком экране контролы переносятся. Фиксированная высота страницы обрезала низ сетки:
+     даже прокрутка до F36 оставляла последнюю строку вне доступной области. */
+    .page:has(> .board-wrap) {
+      height: auto;
+      overflow: visible;
+    }
+    .page:has(> .board-wrap) > .board-wrap {
+      flex: none;
+      height: 60dvh;
+      min-height: 60dvh;
+      scroll-margin-top: calc(var(--header-h) + 16px);
+    }
+    .board-bar .board-help {
+      width: 100%;
+      margin-left: 0;
+    }
   }
-  .board-range-form > .btn {
-    grid-column: 1 / -1;
-  }
-  /* Ширина по содержимому: своей строки сегменту больше не нужно, рядом встают «Даты» (03.10).
+
+  @media (max-width: 600px) {
+    .board--week .board-group-name-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+    .board--week .board-group-toggle > .muted {
+      flex-shrink: 0;
+    }
+    .page:has(> .board-wrap) {
+      padding-bottom: calc(90px + env(safe-area-inset-bottom));
+    }
+    .board-bar .board-range-form {
+      width: 100%;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .board-bar .board-range-form .inp {
+      width: 100%;
+      min-height: var(--touch-target);
+    }
+    .board-range-form > .btn {
+      grid-column: 1 / -1;
+    }
+    /* Ширина по содержимому: своей строки сегменту больше не нужно, рядом встают «Даты» (03.10).
      basis 0 по-прежнему нельзя: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` переключатель
      сжимался до 13 px, а ссылки оставались с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
-  .board-period .seg {
-    flex: 0 1 auto;
-    min-width: 0;
+    .board-period .seg {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+    .board-period .seg a {
+      display: inline-flex;
+      white-space: nowrap;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: var(--touch-target);
+    }
+    .board-date-nav .icon-button {
+      width: var(--touch-target);
+      height: var(--touch-target);
+    }
+    /* телефон (§45): в строке поиск, «Фильтры», вид; категория и места — в окошке */
+    .board-search {
+      flex: 1 1 100%;
+    }
+    .board-toolbar .board-category,
+    .board-toolbar .board-state {
+      display: none;
+    }
+    .board-view > span {
+      display: none;
+    }
+    .board-toolbar .inp,
+    .board-toolbar .btn,
+    .board-chip,
+    .board-bar .board-help summary {
+      min-height: var(--touch-target);
+      min-width: var(--touch-target);
+    }
+    .board-chip--narrow {
+      display: inline-flex;
+    }
+    .board-filters-pop__narrow {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .board-filters-pop .inp,
+    .board-filters-pop .btn,
+    .board-filters-pop .icon-button,
+    .board-filters-pop__group .chips button {
+      min-height: var(--touch-target);
+      min-width: var(--touch-target);
+    }
+    .board-filters-pop__foot {
+      flex-wrap: wrap;
+    }
+    .board-filters-pop__preview {
+      flex-basis: 100%;
+    }
+    .board-filters-pop__foot .btn {
+      flex: 1;
+    }
   }
-  .board-period .seg a {
-    display: inline-flex;
-    white-space: nowrap;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    min-height: var(--touch-target);
-  }
-  .board-date-nav .icon-button {
-    width: var(--touch-target);
-    height: var(--touch-target);
-  }
-  /* телефон (§45): в строке поиск, «Фильтры», вид; категория и места — в окошке */
-  .board-search {
-    flex: 1 1 100%;
-  }
-  .board-toolbar .board-category,
-  .board-toolbar .board-state {
-    display: none;
-  }
-  .board-view > span {
-    display: none;
-  }
-  .board-toolbar .inp,
-  .board-toolbar .btn,
-  .board-chip,
-  .board-bar .board-help summary {
-    min-height: var(--touch-target);
-    min-width: var(--touch-target);
-  }
-  .board-chip--narrow {
-    display: inline-flex;
-  }
-  .board-filters-pop__narrow {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-  .board-filters-pop .inp,
-  .board-filters-pop .btn,
-  .board-filters-pop .icon-button,
-  .board-filters-pop__group .chips button {
-    min-height: var(--touch-target);
-    min-width: var(--touch-target);
-  }
-  .board-filters-pop__foot {
-    flex-wrap: wrap;
-  }
-  .board-filters-pop__preview {
-    flex-basis: 100%;
-  }
-  .board-filters-pop__foot .btn {
-    flex: 1;
-  }
-}
 
-/*
+  /*
  * ── срез 7.1: канал, долг и уборка прямо на сетке ──
  * Плашка брони узкая, поэтому порядок важен: имя, канал, долг, ночи. Имя ужимается первым, но не
  * ниже 4,5 em; что не влезло — обрезает сама подпись (overflow: hidden выше), и справа пропадает
  * менее важное, а не гость. Цвет плашки уже занят статусом брони, поэтому канал и сумма — словами
  * (DESIGN.md §9), без своей заливки: на цветной плашке она ломала бы контраст.
  */
-.board-stay-name {
-  min-width: 4.5em;
-}
-.board-stay-channel,
-.board .board-stay-due {
-  flex: none;
-  /* --text-xs: мельче 12 px в системе нет (DESIGN.md §6) */
-  font-size: var(--text-xs);
-  line-height: 16px;
-  white-space: nowrap;
-  color: inherit;
-}
-.board-stay-channel {
-  font-weight: var(--weight-semibold, 600);
-}
-.board .board-stay-due {
-  gap: var(--space-1);
-  padding: 0;
-  background: transparent;
-}
-.board .board-stay-due .amount-chip__value {
-  color: inherit;
-  font-weight: 700;
-}
-/* Месяц: колонка 24 px — на плашке помещается только имя, а в строке ячейки скрыт даже вид места */
-.board--month .board-stay-channel,
-.board--month .board-stay-due,
-.board--month .board-hk {
-  display: none;
-}
-@media (max-width: 600px) {
-  .board--week .board-stay-channel,
-  .board--week .board-stay-due {
+  .board-stay-name {
+    min-width: 4.5em;
+  }
+  .board-stay-channel,
+  .board .board-stay-due {
+    flex: none;
+    /* --text-xs: мельче 12 px в системе нет (DESIGN.md §6) */
+    font-size: var(--text-xs);
+    line-height: 16px;
+    white-space: nowrap;
+    color: inherit;
+  }
+  .board .board-stay-due {
+    gap: var(--space-1);
+    padding: 0;
+    background: transparent;
+  }
+  .board .board-stay-due .amount-chip__value {
+    color: inherit;
+    font-weight: 700;
+  }
+  /* Месяц: колонка 24 px — на плашке помещается только имя, а в строке ячейки скрыт даже вид места */
+  .board--month .board-stay-channel,
+  .board--month .board-stay-due,
+  .board--month .board-hk {
     display: none;
   }
-}
-/*
+  @media (max-width: 600px) {
+    .board--week .board-stay-channel,
+    .board--week .board-stay-due {
+      display: none;
+    }
+  }
+  /*
  * Уборка в строке ячейки (21.09.2026): значок щётки тоном внимания вместо слова «грязно» в каждой
  * строке. Кнопка меню — 26 px: строка шахматки 38 px, и обычные 30 px её распирают; цель нажатия
  * остаётся больше 24 px (DESIGN.md §1 п. 3), на телефоне и планшете — 44 px.
  */
-.board .board-hk {
-  display: inline-flex;
-  vertical-align: middle;
-}
-/*
+  .board .board-hk {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  /*
  * Открытое меню уборки должно лежать выше соседних строк: у закреплённой первой колонки `z-index: 5`,
  * и при равном слое строка ниже по документу перекрывала список — клик по «Убрано» уходил в ссылку R02
  * (поймано тестом 21.09, тот же класс, что подсказка шахматки 20.09).
  */
-.board td.board__unit:has(.action-menu__button[aria-expanded='true']) {
-  /* на ступень выше закреплённой колонки (--layer-sticky) и ниже липкой шапки дат */
-  z-index: calc(var(--layer-sticky) + 1);
-}
-.board .board-hk__menu .action-menu__button {
-  width: 26px;
-  min-height: 26px;
-  padding: 0;
-  color: var(--warning);
-  border-color: transparent;
-  background: var(--warning-bg);
-}
-.board .board-hk__menu .action-menu__button:hover {
-  border-color: currentColor;
-}
-/* «Убрано, ждёт проверки» (22.09): тон акцента — ждём следующего шага, как «подтверждена, ждём» (§9) */
-.board .board-hk--clean .action-menu__button {
-  color: var(--primary);
-  background: var(--primary-soft);
-}
-/* Список открывается вправо, внутрь таблицы: у кнопки в левой колонке `right: 0` уводил его за край */
-.board .board-hk__menu .action-menu__list {
-  right: auto;
-  left: 0;
-}
-.board .board-hk__menu svg {
-  width: 16px;
-  height: 16px;
-}
-@media (pointer: coarse) {
-  .board .board-hk__menu .action-menu__button {
-    width: var(--touch-target);
-    min-height: var(--touch-target);
+  .board td.board__unit:has(.action-menu__button[aria-expanded='true']) {
+    /* на ступень выше закреплённой колонки (--layer-sticky) и ниже липкой шапки дат */
+    z-index: calc(var(--layer-sticky) + 1);
   }
-}
+  .board .board-hk__menu .action-menu__button {
+    width: 26px;
+    min-height: 26px;
+    padding: 0;
+    color: var(--warning);
+    border-color: transparent;
+    background: var(--warning-bg);
+  }
+  .board .board-hk__menu .action-menu__button:hover {
+    border-color: currentColor;
+  }
+  /* «Убрано, ждёт проверки» (22.09): тон акцента — ждём следующего шага, как «подтверждена, ждём» (§9) */
+  .board .board-hk--clean .action-menu__button {
+    color: var(--primary);
+    background: var(--primary-soft);
+  }
+  /* Список открывается вправо, внутрь таблицы: у кнопки в левой колонке `right: 0` уводил его за край */
+  .board .board-hk__menu .action-menu__list {
+    right: auto;
+    left: 0;
+  }
+  .board .board-hk__menu svg {
+    width: 16px;
+    height: 16px;
+  }
+  @media (pointer: coarse) {
+    .board .board-hk__menu .action-menu__button {
+      width: var(--touch-target);
+      min-height: var(--touch-target);
+    }
+  }
 
-/* Штриховка блокировки. Селектор сильнее `.board__free` из premium.css (там сокращение `background`
+  /* Штриховка блокировки. Селектор сильнее `.board__free` из premium.css (там сокращение `background`
  * сбрасывало background-image, и блокировка выглядела ровной заливкой — план дизайн-системы §10 п. 3);
  * инлайн-цвет клетки идёт через backgroundColor и штриховку не трогает. */
-.board .board__free.board-block {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 5px,
-    var(--danger-soft) 5px,
-    var(--danger-soft) 7px
-  );
-}
+  .board .board__free.board-block {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 5px,
+      var(--danger-soft) 5px,
+      var(--danger-soft) 7px
+    );
+  }
 
-/* Ящик «Брони без размещения» (ТЗ v2 §12): карточка на проживание — гость, даты, категория,
+  /* Ящик «Брони без размещения» (ТЗ v2 §12): карточка на проживание — гость, даты, категория,
    свободные места чипами и «Назначить R07»; выбранная карточка — рамкой `--primary` */
-.unassigned-drawer__lead {
-  margin: 0 0 var(--space-2);
-  color: var(--text-2);
-}
-.unassigned-drawer__done {
-  margin: 0 0 var(--space-2);
-  color: var(--success);
-  font-weight: 500;
-}
-.unassigned-drawer__list {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.unassigned-card {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-.unassigned-card[data-selected='true'] {
-  border-color: var(--primary);
-}
-.unassigned-card p {
-  margin: 0;
-}
-.unassigned-card__guest {
-  font-size: var(--text-lg);
-  font-weight: 600;
-}
-.unassigned-card__dates {
-  font-weight: 600;
-}
-.unassigned-card__meta {
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
-.unassigned-card__free {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
-.unassigned-card__label {
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
-.unassigned-card__problem {
-  color: var(--warning);
-  font-weight: 500;
-}
-.unassigned-card__units {
-  flex-wrap: wrap;
-}
-.unassigned-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
+  .unassigned-drawer__lead {
+    margin: 0 0 var(--space-2);
+    color: var(--text-2);
+  }
+  .unassigned-drawer__done {
+    margin: 0 0 var(--space-2);
+    color: var(--success);
+    font-weight: 500;
+  }
+  .unassigned-drawer__list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .unassigned-card {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .unassigned-card[data-selected='true'] {
+    border-color: var(--primary);
+  }
+  .unassigned-card p {
+    margin: 0;
+  }
+  .unassigned-card__guest {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+  .unassigned-card__dates {
+    font-weight: 600;
+  }
+  .unassigned-card__meta {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .unassigned-card__free {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .unassigned-card__label {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .unassigned-card__problem {
+    color: var(--warning);
+    font-weight: 500;
+  }
+  .unassigned-card__units {
+    flex-wrap: wrap;
+  }
+  .unassigned-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
 
-/* C2: меню действий на плашке — кнопка «⋯» у правого края первой видимой клетки проживания,
+  /* C2: меню действий на плашке — кнопка «⋯» у правого края первой видимой клетки проживания,
    брат ссылки-плашки (перетаскивание и клик по плашке не задеты); цель 24 px (DESIGN.md §11) */
-.board td.board__cell {
-  position: relative;
-}
-.board-stay-menu {
-  position: absolute;
-  top: 6px;
-  z-index: var(--layer-base);
-}
-.board-stay-menu .action-menu__button {
-  width: 24px;
-  height: 24px;
-  min-width: 0;
-  padding: 0;
-  border-color: transparent;
-  background: transparent;
-  color: inherit;
-}
-.board-stay-menu .action-menu__button:hover,
-.board-stay-menu .action-menu__button[aria-expanded='true'] {
-  background: var(--surface);
-  border-color: var(--border);
-}
-/* месяц (колонка 24 px) и телефон: на плашке нет места — действия остаются в карточке брони */
-.board--month .board-stay-menu {
-  display: none;
-}
-@media (max-width: 600px) {
+  .board td.board__cell {
+    position: relative;
+  }
   .board-stay-menu {
+    position: absolute;
+    top: 6px;
+    z-index: var(--layer-base);
+  }
+  .board-stay-menu .action-menu__button {
+    width: 24px;
+    height: 24px;
+    min-width: 0;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: inherit;
+  }
+  .board-stay-menu .action-menu__button:hover,
+  .board-stay-menu .action-menu__button[aria-expanded='true'] {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  /* месяц (колонка 24 px) и телефон: на плашке нет места — действия остаются в карточке брони */
+  .board--month .board-stay-menu {
     display: none;
   }
-}
+  @media (max-width: 600px) {
+    .board-stay-menu {
+      display: none;
+    }
+  }
 
-/* 24.09: имя — главный уровень плашки, подробности — второй. */
-.board-stay-caption {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  align-items: center;
-  gap: 0 var(--space-1);
-  height: 100%;
-  padding-right: var(--space-1);
-}
-.board-stay-caption .board-stay-name {
-  flex: 1 0 calc(100% - 20px);
-  min-width: 0;
-  font-weight: var(--weight-semibold);
-  line-height: 18px;
-}
-.board-stay-caption .board-stay-glyph {
-  flex: 0 0 12px;
-}
-.board td.board__cell {
-  height: 44px;
-}
-.board .board__stay {
-  top: 0;
-  height: 36px;
-}
-.board-stay-resize {
-  position: absolute;
-  right: 0;
-  top: 3px;
-  bottom: 3px;
-  width: 24px;
-  z-index: 3; /* slop-allow: z-index-literal — внутренняя шкала слоёв сетки 1–8 (§13, долг 7.4): над плашкой, под закреплённой колонкой (5) */
-  border: 0;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 0;
-  background: transparent;
-  color: var(--text);
-  cursor: ew-resize;
-  touch-action: none;
-  opacity: 0.65;
-}
-.board-stay-resize:hover,
-.board-stay-resize:focus-visible {
-  opacity: 1;
-  background: var(--primary-soft);
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-.board-resize-preview {
-  position: absolute;
-  z-index: 8; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): подсказка продления выше закреплённой колонки, как меню уборки */
-  right: 0;
-  bottom: 100%;
-  white-space: nowrap;
-  padding: var(--space-2) var(--space-2);
-  border-radius: var(--radius-sm, 6px);
-  border: 1px solid var(--primary);
-  background: var(--surface);
-  color: var(--text);
-  pointer-events: none;
-  font-size: var(--text-xs);
-}
-.board-legend-details {
-  font-size: var(--text-xs);
-  color: var(--text-2);
-}
-.board-legend-details summary {
-  cursor: pointer;
-  padding: var(--space-2) 0;
-}
-.board-legend-details[open] {
-  flex-basis: 100%;
-}
-.board-legend-details .legend {
-  padding: var(--space-2) 0;
-}
-.board-gesture-hint {
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-@media (min-width: 1024px) {
-  .board-controls .board-period-label {
-    font-size: var(--text-md);
+  /* 24.09: имя — главный уровень плашки, подробности — второй. */
+  .board-stay-caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    gap: 0 var(--space-1);
+    height: 100%;
+    padding-right: var(--space-1);
   }
-  .board-toolbar {
-    padding: var(--space-2) var(--space-2);
-    gap: var(--space-2);
+  .board-stay-caption .board-stay-name {
+    flex: 1 0 calc(100% - 20px);
+    min-width: 0;
+    font-weight: var(--weight-semibold);
+    line-height: 18px;
   }
-  .board-toolbar .inp,
-  .board-toolbar select {
-    min-height: 36px;
+  .board-stay-caption .board-stay-glyph {
+    flex: 0 0 12px;
+  }
+  .board td.board__cell {
+    height: 44px;
+  }
+  .board .board__stay {
+    top: 0;
     height: 36px;
   }
-  .board-controls .board-period > .seg a {
-    padding: var(--space-2) var(--space-2);
-  }
-  .board .board__date {
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
-  }
-  .board-stay-menu {
-    top: 9px;
-  }
-}
-@media (max-width: 600px) {
-  .board-gesture-hint {
-    display: none;
-  }
   .board-stay-resize {
+    position: absolute;
+    right: 0;
+    top: 3px;
+    bottom: 3px;
     width: 24px;
+    z-index: 3; /* slop-allow: z-index-literal — внутренняя шкала слоёв сетки 1–8 (§13, долг 7.4): над плашкой, под закреплённой колонкой (5) */
+    border: 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 0;
+    background: transparent;
+    color: var(--text);
+    cursor: ew-resize;
+    touch-action: none;
+    opacity: 0.65;
   }
+  .board-stay-resize:hover,
+  .board-stay-resize:focus-visible {
+    opacity: 1;
+    background: var(--primary-soft);
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .board-resize-preview {
+    position: absolute;
+    z-index: 8; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): подсказка продления выше закреплённой колонки, как меню уборки */
+    right: 0;
+    bottom: 100%;
+    white-space: nowrap;
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-sm, 6px);
+    border: 1px solid var(--primary);
+    background: var(--surface);
+    color: var(--text);
+    pointer-events: none;
+    font-size: var(--text-xs);
+  }
+  .board-legend-details {
+    font-size: var(--text-xs);
+    color: var(--text-2);
+  }
+  .board-legend-details summary {
+    cursor: pointer;
+    padding: var(--space-2) 0;
+  }
+  .board-legend-details[open] {
+    flex-basis: 100%;
+  }
+  .board-legend-details .legend {
+    padding: var(--space-2) 0;
+  }
+  .board-gesture-hint {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  @media (min-width: 1024px) {
+    .board-controls .board-period-label {
+      font-size: var(--text-md);
+    }
+    .board-toolbar {
+      padding: var(--space-2) var(--space-2);
+      gap: var(--space-2);
+    }
+    .board-toolbar .inp,
+    .board-toolbar select {
+      min-height: 36px;
+      height: 36px;
+    }
+    .board-controls .board-period > .seg a {
+      padding: var(--space-2) var(--space-2);
+    }
+    .board-stay-menu {
+      top: 9px;
+    }
+  }
+  @media (max-width: 600px) {
+    .board-gesture-hint {
+      display: none;
+    }
+    .board-stay-resize {
+      width: 24px;
+    }
+    .board--month .board-stay-resize {
+      display: none;
+    }
+  }
+
+  .board {
+    --board-caption-end: 64px;
+  }
+  /* В узкой сетке управление сроком доступно из карточки: ручка не перекрывает ссылку брони. */
   .board--month .board-stay-resize {
     display: none;
   }
-}
-
-.board {
-  --board-caption-end: 64px;
-}
-/* В узкой сетке управление сроком доступно из карточки: ручка не перекрывает ссылку брони. */
-.board--month .board-stay-resize {
-  display: none;
-}
-@media (max-width: 600px) {
-  .board-stay-resize {
-    display: none;
+  @media (max-width: 600px) {
+    .board-stay-resize {
+      display: none;
+    }
   }
-}
 
-.board-stay-caption .board-stay-glyph,
-.board-stay-caption .board-stay-nights {
-  line-height: 16px;
-}
-.board-resize-range {
-  position: absolute;
-  left: 100%;
-  top: 3px;
-  height: 36px;
-  z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): рамка продления над плашкой-соседом, под колонкой (5) */
-  pointer-events: none;
-  border: 2px dashed var(--primary);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  background: var(--primary-soft);
-}
-.board--month {
-  --board-caption-end: 8px;
-}
-@media (max-width: 600px) {
-  .board {
+  .board-stay-caption .board-stay-glyph,
+  .board-stay-caption .board-stay-nights {
+    line-height: 16px;
+  }
+  .board-resize-range {
+    position: absolute;
+    left: 100%;
+    top: 3px;
+    height: 36px;
+    z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): рамка продления над плашкой-соседом, под колонкой (5) */
+    pointer-events: none;
+    border: 2px dashed var(--primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--primary-soft);
+  }
+  .board--month {
     --board-caption-end: 8px;
   }
-}
+  @media (max-width: 600px) {
+    .board {
+      --board-caption-end: 8px;
+    }
+  }
 
-/*
+  /*
  * ТЗ «Шахматка v2», PR 3 — карточка брони (§18–22, §58). Подпись — контейнер: уровень содержимого
  * выбирает её собственная ширина, а не режим сетки, поэтому одна и та же бронь читается и в неделе,
  * и в 30 днях, и в месяце. Уровни: ≥ 170 px — имя, источник, ночи, долг суммой; 120–169 — имя и
  * источник, долг точкой; 52–119 — «Имя Ф.» и точка, без глифа статуса (статус — цветом плашки
  * и словом в подсказке); < 52 — инициалы. Полное имя всегда в подсказке плашки.
  */
-.board-stay-caption {
-  container: stay-caption / inline-size;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0;
-  /* clip, а не hidden: hidden делает подпись областью прокрутки, и липкое имя ниже не работало бы */
-  overflow: clip;
-}
-.board-stay-caption .board-stay-line {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  width: fit-content;
-  max-width: 100%;
-  min-width: 0;
-  /* длинное проживание: при прокрутке вбок имя держится у правого края колонки мест */
-  position: sticky;
-  left: calc(var(--board-unit-real, 190px) + var(--space-1));
-  white-space: nowrap;
-}
-.board-stay-caption .board-stay-name,
-.board-stay-caption .board-stay-name-short {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: var(--weight-semibold);
-  line-height: 18px;
-}
-.board-stay-caption .board-stay-initials {
-  font-weight: var(--weight-semibold);
-  line-height: 18px;
-  letter-spacing: 0.02em;
-}
-.board-stay-name-short,
-.board-stay-initials,
-.board-stay-due-dot,
-.board-stay-caption .board-stay-due {
-  display: none;
-}
-.board-stay-line--meta {
-  font-size: var(--text-xs);
-  font-weight: var(--weight-regular);
-  line-height: 16px;
-}
-/* источник — маленький бейдж словом (§21); плашку под канал не красим — цвет занят статусом */
-.board-stay-source {
-  flex: none;
-  padding: 0 var(--space-1);
-  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
-  border-radius: var(--radius-xs);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  line-height: 14px;
-}
-.board-stay-today {
-  flex: none;
-  font-weight: var(--weight-semibold);
-}
-/* долг на узкой плашке — точка тоном «к оплате»; сумма — в предпросмотре и на широкой плашке (§22) */
-.board-stay-due-dot {
-  flex: none;
-  width: var(--space-2);
-  height: var(--space-2);
-  border-radius: 50%;
-  background: var(--danger);
-}
-@container stay-caption (width >= 170px) {
-  .board-stay-caption .board-stay-due {
-    display: inline-flex;
+  .board-stay-caption {
+    container: stay-caption / inline-size;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    /* clip, а не hidden: hidden делает подпись областью прокрутки, и липкое имя ниже не работало бы */
+    overflow: clip;
   }
-}
-@container stay-caption (width < 170px) {
-  .board-stay-due-dot {
-    display: inline-block;
+  .board-stay-caption .board-stay-line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    /* длинное проживание: при прокрутке вбок имя держится у правого края колонки мест */
+    position: sticky;
+    left: calc(var(--board-unit-real, 190px) + var(--space-1));
+    white-space: nowrap;
   }
-  .board-stay-line--meta .board-stay-nights {
-    display: none;
-  }
-}
-@container stay-caption (width < 120px) {
-  /* та же специфичность, что у .board-stay-caption .board-stay-line — иначе строка не прячется */
-  .board-stay-caption .board-stay-line--meta,
   .board-stay-caption .board-stay-name,
-  .board-stay-caption .board-stay-glyph {
+  .board-stay-caption .board-stay-name-short {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: var(--weight-semibold);
+    line-height: 18px;
+  }
+  .board-stay-caption .board-stay-initials {
+    font-weight: var(--weight-semibold);
+    line-height: 18px;
+    letter-spacing: 0.02em;
+  }
+  .board-stay-name-short,
+  .board-stay-initials,
+  .board-stay-due-dot,
+  .board-stay-caption .board-stay-due {
     display: none;
   }
-  .board-stay-caption .board-stay-name-short {
-    display: inline;
+  .board-stay-line--meta {
     font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    line-height: 16px;
   }
-}
-@container stay-caption (width < 52px) {
-  .board-stay-caption .board-stay-name-short {
-    display: none;
+  /* источник — маленький бейдж словом (§21); плашку под канал не красим — цвет занят статусом */
+  .board-stay-source {
+    flex: none;
+    padding: 0 var(--space-1);
+    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    line-height: 14px;
   }
-  .board-stay-initials {
-    display: inline;
+  .board-stay-today {
+    flex: none;
+    font-weight: var(--weight-semibold);
   }
-}
+  /* долг на узкой плашке — точка тоном «к оплате»; сумма — в предпросмотре и на широкой плашке (§22) */
+  .board-stay-due-dot {
+    flex: none;
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: 50%;
+    background: var(--danger);
+  }
+  @container stay-caption (width >= 170px) {
+    .board-stay-caption .board-stay-due {
+      display: inline-flex;
+    }
+  }
+  @container stay-caption (width < 170px) {
+    .board-stay-due-dot {
+      display: inline-block;
+    }
+    .board-stay-line--meta .board-stay-nights {
+      display: none;
+    }
+  }
+  @container stay-caption (width < 120px) {
+    /* та же специфичность, что у .board-stay-caption .board-stay-line — иначе строка не прячется */
+    .board-stay-caption .board-stay-line--meta,
+    .board-stay-caption .board-stay-name,
+    .board-stay-caption .board-stay-glyph {
+      display: none;
+    }
+    .board-stay-caption .board-stay-name-short {
+      display: inline;
+      font-size: var(--text-xs);
+    }
+  }
+  @container stay-caption (width < 52px) {
+    .board-stay-caption .board-stay-name-short {
+      display: none;
+    }
+    .board-stay-initials {
+      display: inline;
+    }
+  }
 
-/* Предпросмотр брони (§23): окно верхнего слоя, место считает stay-preview.tsx */
-.stay-preview {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  width: min(340px, calc(100vw - var(--space-4)));
-  padding: var(--space-4);
-  background: var(--surface-solid, var(--surface));
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-floating);
-}
-.stay-preview:focus-visible {
-  outline: var(--focus-ring-w, 2px) solid var(--focus);
-  outline-offset: var(--focus-ring-offset, 2px);
-}
-.stay-preview__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-.stay-preview__guest {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-}
-.stay-preview__status {
-  margin: var(--space-1) 0 var(--space-2);
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
-.stay-preview__facts,
-.stay-preview__sums {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-sm);
-}
-.stay-preview__facts > div,
-.stay-preview__sums > div {
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: var(--space-2);
-}
-.stay-preview dt {
-  color: var(--muted);
-}
-.stay-preview dd {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.stay-preview__sums {
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-}
-.stay-preview__sums dd {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.stay-preview__sums .is-due dt,
-.stay-preview__sums .is-due dd {
-  color: var(--danger);
-  font-weight: var(--weight-semibold);
-}
-.stay-preview__warn {
-  margin: 0 0 var(--space-2);
-  color: var(--warning);
-  font-size: var(--text-sm);
-}
-.stay-preview__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
+  /* Предпросмотр брони (§23): окно верхнего слоя, место считает stay-preview.tsx */
+  .stay-preview {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    width: min(340px, calc(100vw - var(--space-4)));
+    padding: var(--space-4);
+    background: var(--surface-solid, var(--surface));
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-floating);
+  }
+  .stay-preview:focus-visible {
+    outline: var(--focus-ring-w, 2px) solid var(--focus);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+  .stay-preview__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .stay-preview__guest {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .stay-preview__status {
+    margin: var(--space-1) 0 var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .stay-preview__facts,
+  .stay-preview__sums {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .stay-preview__facts > div,
+  .stay-preview__sums > div {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: var(--space-2);
+  }
+  .stay-preview dt {
+    color: var(--muted);
+  }
+  .stay-preview dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .stay-preview__sums {
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+  .stay-preview__sums dd {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .stay-preview__sums .is-due dt,
+  .stay-preview__sums .is-due dd {
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
+  }
+  .stay-preview__warn {
+    margin: 0 0 var(--space-2);
+    color: var(--warning);
+    font-size: var(--text-sm);
+  }
+  .stay-preview__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
 
-/*
+  /*
  * ТЗ «Шахматка v2», PR 4 — перетаскивание и продление (§26–29, §49).
  * Пока бронь в руке: у строки, куда можно бросить, акцентная черта у колонки мест; строка, куда
  * нельзя, приглушена. Над строкой под курсором — призрак: имя гостя пунктиром акцента или причина
  * тоном опасности; после подтверждения — «Сохраняем…», пока сервер не ответил. Плашка на старом
  * месте бледнеет. Продление поверх занятой ночи — рамка и подпись тоном опасности.
  */
-.board tr[data-drop='ok'] > td.board__unit {
-  box-shadow: inset 3px 0 0 var(--primary);
-}
-.board tr[data-drop='blocked'] > td.board__unit {
-  color: var(--muted);
-}
-/* прежняя заливка строки под курсором цветом статуса (globals.css) — лишняя рядом с призраком */
-.board tr[data-drop].is-over,
-.board tr[data-drop].is-over td.board__unit {
-  background: var(--surface);
-}
-.board .board__stay.is-lifted {
-  opacity: 0.45;
-}
-.board-drop-ghost {
-  position: absolute;
-  top: 3px;
-  left: 2px;
-  height: 36px;
-  z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): призрак над плашками, под закреплённой колонкой (5), как рамка продления */
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-2);
-  border: 2px dashed var(--primary);
-  border-radius: var(--radius-sm);
-  background: var(--primary-soft);
-  color: var(--text);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-}
-.board-drop-ghost[data-tone='blocked'] {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-.board-drop-ghost[data-tone='saving'] {
-  border-style: solid;
-}
-.board-resize-range[data-conflict='true'] {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-}
-.board-resize-preview[data-conflict='true'] {
-  border-color: var(--danger);
-  color: var(--danger);
-}
+  .board tr[data-drop='ok'] > td.board__unit {
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .board tr[data-drop='blocked'] > td.board__unit {
+    color: var(--muted);
+  }
+  /* прежняя заливка строки под курсором цветом статуса (globals.css) — лишняя рядом с призраком */
+  .board tr[data-drop].is-over {
+    background: var(--surface);
+  }
+  .board .board__stay.is-lifted {
+    opacity: 0.45;
+  }
+  .board-drop-ghost {
+    position: absolute;
+    top: 3px;
+    left: 2px;
+    height: 36px;
+    z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): призрак над плашками, под закреплённой колонкой (5), как рамка продления */
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+  .board-drop-ghost[data-tone='blocked'] {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .board-drop-ghost[data-tone='saving'] {
+    border-style: solid;
+  }
+  .board-resize-range[data-conflict='true'] {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+  }
+  .board-resize-preview[data-conflict='true'] {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
 
-/* Окно переселения (§27): гость главным, маршрут кодами ячеек, деньги отдельной строкой */
-.move-question {
-  display: grid;
-  gap: var(--space-1);
-}
-.move-question p {
-  margin: 0;
-}
-.move-question__guest {
-  color: var(--text);
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-}
-.move-question__route {
-  font-family: var(--font-mono);
-}
-.move-question__money {
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-}
-.move-question__note {
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
+  /* Окно переселения (§27): гость главным, маршрут кодами ячеек, деньги отдельной строкой */
+  .move-question {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .move-question p {
+    margin: 0;
+  }
+  .move-question__guest {
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .move-question__route {
+    font-family: var(--font-mono);
+  }
+  .move-question__money {
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .move-question__note {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
 
-/*
+  /*
  * ТЗ «Шахматка v2», PR 5 — создание брони выделением (§31–32). Пока тянут по свободным ночам и пока
  * открыто окошко периода, выделение — тот же призрак, что при переселении, с «N ночей». Окошко —
  * оболочка предпросмотра брони (.stay-preview): номер, категория, даты, у одной клетки «Свободен».
  */
-.board .board__free--link {
-  user-select: none;
-}
-.free-menu__dates {
-  margin: 0;
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-}
-.free-menu__state {
-  margin: var(--space-1) 0 0;
-  color: var(--success);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-}
+  .board .board__free--link {
+    user-select: none;
+  }
+  .free-menu__dates {
+    margin: 0;
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .free-menu__state {
+    margin: var(--space-1) 0 0;
+    color: var(--success);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
 
-/*
+  /*
  * §41: поиск и условия по броням. Совпавшая плашка обведена цветом акцента, неподходящие приглушены —
  * они остаются на месте, чтобы не терять, что место занято. Нашлось само место (код или категория) —
  * выделена его колонка.
  */
-.board .board__stay[data-match='dim'] {
-  opacity: 0.35;
-}
-/* рамка — внутренними тенями по краям видимого отрезка: у каждой ночи своя ссылка, и обводка
+  .board .board__stay[data-match='dim'] {
+    opacity: 0.35;
+  }
+  /* рамка — внутренними тенями по краям видимого отрезка: у каждой ночи своя ссылка, и обводка
    каждой рисовала бы перегородки между ночами */
-.board .board__stay[data-match='hit'] {
-  box-shadow:
-    inset 0 2px 0 var(--primary),
-    inset 0 -2px 0 var(--primary);
-}
-.board .board__stay[data-match='hit'][data-plate-start] {
-  box-shadow:
-    inset 2px 0 0 var(--primary),
-    inset 0 2px 0 var(--primary),
-    inset 0 -2px 0 var(--primary);
-}
-.board .board__stay[data-match='hit'][data-plate-end] {
-  box-shadow:
-    inset -2px 0 0 var(--primary),
-    inset 0 2px 0 var(--primary),
-    inset 0 -2px 0 var(--primary);
-}
-.board .board__stay[data-match='hit'][data-plate-start][data-plate-end] {
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
-.board td.board__unit[data-match='hit'] {
-  background: var(--primary-soft);
-}
+  .board .board__stay[data-match='hit'] {
+    box-shadow:
+      inset 0 2px 0 var(--primary),
+      inset 0 -2px 0 var(--primary);
+  }
+  .board .board__stay[data-match='hit'][data-plate-start] {
+    box-shadow:
+      inset 2px 0 0 var(--primary),
+      inset 0 2px 0 var(--primary),
+      inset 0 -2px 0 var(--primary);
+  }
+  .board .board__stay[data-match='hit'][data-plate-end] {
+    box-shadow:
+      inset -2px 0 0 var(--primary),
+      inset 0 2px 0 var(--primary),
+      inset 0 -2px 0 var(--primary);
+  }
+  .board .board__stay[data-match='hit'][data-plate-start][data-plate-end] {
+    box-shadow: inset 0 0 0 2px var(--primary);
+  }
 
-/*
+  /*
  * §38: вид строк. «Обычный» — вид, принятый на гейтах PR 2–3, и правил не имеет. «Компактный» — строки
  * ниже и только имя: больше мест на экране. «Подробный» — строки выше, и вторая строка плашки
  * (источник, ночи, долг) не прячется на узких плашках.
  */
-.board-wrap[data-density='compact'] .board td.board__cell,
-.board-wrap[data-density='compact'] .board td.board__unit {
-  height: 32px;
-}
-.board-wrap[data-density='compact'] .board .board__stay,
-.board-wrap[data-density='compact'] .board .board__free {
-  height: 26px;
-  line-height: 26px;
-}
-.board-wrap[data-density='compact'] .board-stay-caption .board-stay-line--meta {
-  display: none;
-}
-/* меню «⋯» — посередине плашки любой высоты */
-.board-wrap[data-density='compact'] .board-stay-menu {
-  top: 4px;
-}
-.board-wrap[data-density='detailed'] .board-stay-menu {
-  top: 16px;
-}
-.board-wrap[data-density='detailed'] .board td.board__cell,
-.board-wrap[data-density='detailed'] .board td.board__unit {
-  height: 56px;
-}
-.board-wrap[data-density='detailed'] .board .board__stay {
-  height: 48px;
-}
-@container stay-caption (width < 170px) {
-  .board-wrap[data-density='detailed'] .board-stay-line--meta .board-stay-nights {
-    display: inline;
-  }
-}
-@container stay-caption (width < 120px) {
-  .board-wrap[data-density='detailed'] .board-stay-caption .board-stay-line--meta {
-    display: flex;
-  }
-}
-
-/* Компактный рабочий экран: одна область прокрутки, управление не конкурирует с сеткой. */
-.page:has(> .board-wrap) {
-  padding: var(--space-4);
-  gap: 0;
-}
-/* Месяц на узком десктопе: колонка мест схлопнута, 31 день по 24px помещаются только с полями 8px
-   (premium.css задаёт те же 8px, но это правило стоит ниже в каскаде и перебивало их 16px) */
-@media (min-width: 760px) and (max-width: 1279px) {
-  .page:has(> .board-wrap):has(.board--month) {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-}
-.page:has(> .board-wrap) > .page__head {
-  margin-bottom: var(--space-2);
-  flex-shrink: 0;
-}
-.page:has(> .board-wrap) .page__title {
-  font-size: var(--text-2xl);
-  line-height: 1.2;
-}
-.board-overview-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: none;
-  gap: var(--space-2);
-  color: var(--muted);
-  font-size: var(--text-xs);
-  margin-bottom: var(--space-1);
-}
-.board-overview-controls .btn {
-  min-height: var(--space-8);
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--text-xs);
-}
-@media (min-width: 1024px) {
-  .board-controls {
-    gap: var(--space-2);
-  }
-  .board-controls .board-date-nav > .btn,
-  .board-controls .board-custom-range-toggle,
-  .page:has(> .board-wrap) .page__actions .btn {
-    min-height: var(--space-8);
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-  }
-  .board-toolbar .board-search {
-    flex: 1 1 160px;
-  }
-  .board-toolbar .board-category {
-    flex: 0 1 200px;
-  }
-  .board-toolbar .board-state {
-    flex: 0 1 200px;
-  }
-  .board-toolbar .field--inline {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-1);
-  }
-  .board-toolbar .field > span {
-    font-size: var(--text-xs);
-  }
-  .board-toolbar {
-    align-items: end;
-  }
-  .board-search-label {
-    display: block;
-  }
-  .board-footer {
-    margin-top: var(--space-1);
-    flex: none;
-  }
-  .board-controls .board-period-full {
-    display: none;
-  }
-  .board-controls .board-period-short {
-    display: inline;
-  }
-}
-@media (max-width: 600px) {
-  .page:has(> .board-wrap) {
-    padding: var(--space-2) var(--space-2) calc(96px + env(safe-area-inset-bottom));
-  }
-  .board-overview-controls .btn {
-    min-height: var(--touch-target);
-  }
-}
-.board__unit-head .board-overview-controls {
-  margin: var(--space-1) 0 0;
-}
-.board__unit-head .board-overview-controls .btn {
-  color: var(--primary);
-  padding: 0;
-  min-height: var(--space-6);
-  white-space: normal;
-  text-align: left;
-}
-@media (max-width: 600px) {
-  .board__unit-head .board-overview-controls .btn {
-    min-height: var(--touch-target);
-  }
-}
-
-/* Separate compact facts without repeating the booking source. */
-.board-stay-line--meta > :not(:first-child)::before {
-  content: '·';
-  margin-inline-end: 5px;
-  color: var(--muted);
-  font-weight: normal;
-}
-
-.free-menu__period {
-  display: none;
-}
-
-/* Телефон: свайп прокручивает даты, касание открывает действия. */
-@media (max-width: 600px) {
-  .page:has(> .board-wrap) > .board-wrap {
-    overflow: auto;
-    overscroll-behavior-x: contain;
-    touch-action: pan-x pan-y;
-  }
-  .board.board--week,
-  .board.board--month,
-  .board {
-    --week-unit-width: 144px;
-    --month-unit-width: 144px;
-    width: var(--mobile-board-width) !important;
-    min-width: var(--mobile-board-width);
-    table-layout: fixed;
-  }
-  .board col:first-child {
-    width: 144px !important;
-  }
-  .board col:not(:first-child) {
-    width: 104px !important;
-  }
-  .board td.board__cell,
-  .board td.board__unit,
   .board-wrap[data-density='compact'] .board td.board__cell,
   .board-wrap[data-density='compact'] .board td.board__unit {
-    height: 52px;
-  }
-  .board .board__stay,
-  .board-wrap[data-density='compact'] .board .board__stay {
-    height: 44px;
-    top: 4px;
-    touch-action: pan-x pan-y;
-  }
-  .board .board__free {
-    min-height: 44px;
-  }
-  .board .board__d {
-    font-size: var(--text-lg);
-    width: 32px;
     height: 32px;
-    max-width: none;
   }
-  .board .board-day-date,
-  .board .board-day-metrics {
-    flex-direction: row;
-    justify-content: center;
-    gap: var(--space-1);
-  }
-  .board .board-stay-resize,
-  .board .board-stay-menu {
-    display: none;
-  }
-  .board-toolbar .inp {
-    font-size: 16px;
-  }
-  .stay-preview {
-    inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important;
-    width: calc(100% - 16px);
-    max-height: calc(85dvh - env(safe-area-inset-bottom));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
-  }
-  .stay-preview__close,
-  .stay-preview__actions .btn {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  .stay-preview__actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-2);
-  }
-  .free-menu__period {
-    display: flex;
-    margin-block: var(--space-4);
-  }
-  .free-menu__period .inp {
-    min-height: 48px;
-    width: 100%;
-    font-size: 16px;
-  }
-}
-
-.free-menu__arrival,
-.free-menu__summary {
-  display: none;
-}
-@media (max-width: 600px) {
-  .free-menu__arrival {
-    display: flex;
-    margin-block: var(--space-4);
-  }
-  .free-menu__arrival .inp {
-    min-height: 48px;
-    width: 100%;
-    font-size: 16px;
-  }
-  .free-menu__summary {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
-    margin-block: var(--space-4);
-  }
-  .free-menu__summary dt {
-    color: var(--muted);
-  }
-  .free-menu__summary dd {
-    margin: 0;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-  .stay-preview__guest,
-  .stay-preview__facts dd {
-    overflow-wrap: anywhere;
-    min-width: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .free-menu__dates {
-    display: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .board .board-group-toggle {
-    display: grid;
-    grid-template-columns: 10px minmax(0, 1fr);
-    column-gap: 4px;
-    min-height: 44px;
-  }
-  .board .board-group-toggle > .muted {
-    display: none;
-  }
-  .board .board-group-name-text {
-    display: block;
-    overflow: visible;
-    overflow-wrap: normal;
-    word-break: normal;
-    -webkit-line-clamp: unset;
-    line-height: 1.35;
-    min-width: 0;
-  }
-  .board td.board__unit {
-    padding-inline: 8px;
-  }
-  .board td.board__unit > .muted-2 {
-    display: none;
-  }
-  .board .board-unit-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    max-width: calc(100% - 48px);
-  }
-  .board .board-unit-link > svg {
-    display: none;
-  }
-  .board .board-hk__menu {
-    float: right;
-    margin-left: 0;
-  }
-  .board .board-hk__menu .action-menu__button {
-    width: 44px;
-    min-height: 44px;
-  }
-}
-
-/* Calendar workspace: fixed controls, one scrolling grid, today's figures beside it. */
-.page.calendar-page {
-  display: flex;
-  flex-direction: column;
-  height: calc(100dvh - var(--header-h));
-  min-height: 0;
-  overflow: hidden;
-  padding: var(--space-2) var(--space-4);
-  gap: var(--space-2);
-}
-.calendar-page > .page__head {
-  flex: none;
-  margin: 0;
-  align-items: center;
-}
-.calendar-page .page__title {
-  font-size: var(--text-xl);
-  line-height: 1.2;
-}
-.calendar-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 232px;
-  gap: var(--space-2);
-  flex: 1;
-  min-height: 0;
-}
-.calendar-workspace:not(:has(> .calendar-workspace__summary)) {
-  grid-template-columns: minmax(0, 1fr);
-}
-.calendar-workspace__main {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-}
-.calendar-workspace__main > .board-wrap {
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: none;
-  height: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-}
-.calendar-workspace__summary {
-  min-width: 0;
-  overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-}
-.calendar-workspace__summary > summary {
-  display: none;
-}
-.calendar-workspace__summary .board-day-panel {
-  border: 0;
-  padding: var(--space-4);
-  border-radius: 0;
-}
-.calendar-workspace__summary .board-day-panel__title {
-  margin-bottom: var(--space-4);
-  font-size: var(--text-md);
-  line-height: 1.5;
-}
-.calendar-workspace__summary .board-day-panel__columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
-}
-.calendar-workspace__summary .board-day-panel__col + .board-day-panel__col {
-  border-left: 0;
-  border-top: 1px solid var(--border);
-  padding: var(--space-2) 0 0;
-}
-.calendar-workspace__summary .board-day-panel__row {
-  min-height: var(--space-8);
-  font-size: var(--text-sm);
-  gap: var(--space-2);
-}
-.calendar-workspace__summary .board-day-panel__row > b {
-  font-size: var(--text-md);
-}
-.calendar-page .board-controls {
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.calendar-page .board-controls .board-bar {
-  margin-left: auto;
-  gap: var(--space-2);
-}
-.calendar-page .board-controls .board-period-label {
-  font-size: var(--text-md);
-  padding: 0 var(--space-1);
-}
-.calendar-page .board-period-full {
-  display: none;
-}
-.calendar-page .board-period-short {
-  display: inline;
-}
-.calendar-page .btn,
-.calendar-page .board-toolbar .inp {
-  min-height: var(--space-8);
-  font-size: var(--text-sm);
-}
-.calendar-page .btn {
-  padding: var(--space-1) var(--space-2);
-}
-.calendar-page .board-controls .seg a {
-  padding: var(--space-1) var(--space-2);
-}
-.calendar-page .board-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  border-radius: var(--radius-control) var(--radius-control) 0 0;
-}
-.calendar-page .board-toolbar .field--inline {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-1);
-}
-.calendar-page .board-toolbar .field > span {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-.calendar-page .board-search {
-  flex: 1 1 180px;
-}
-.calendar-page .board-category,
-.calendar-page .board-state {
-  flex: 0 1 160px;
-}
-.calendar-page .board-view {
-  flex: 0 1 128px;
-}
-.calendar-page .board-wrap .board thead th {
-  height: 48px;
-  padding: var(--space-1);
-}
-.calendar-page .board th.board__unit-head {
-  min-width: 0;
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--text-xs);
-}
-.calendar-page .board__unit-head .board-overview-controls {
-  margin: 0;
-}
-.calendar-page .board__unit-head .board-overview-controls .btn {
-  padding: 0;
-  min-height: var(--space-6);
-  font-size: var(--text-xs);
-}
-.calendar-page .board .board__d {
-  font-size: var(--text-lg);
-}
-.calendar-page .board .board__group td {
-  padding-block: var(--space-1);
-}
-.calendar-page .board-footer {
-  flex: none;
-  font-size: var(--text-xs);
-  padding-top: var(--space-1);
-  margin: 0;
-}
-.calendar-page:has(.calendar-workspace[data-expanded='true']) {
-  position: fixed;
-  inset: 0;
-  height: 100dvh;
-  z-index: var(--layer-sidebar);
-  background: var(--bg);
-}
-@media (max-width: 1280px) {
-  .calendar-workspace {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .calendar-workspace__summary {
-    grid-row: 1;
-    flex: none;
-    overflow: visible;
-  }
-  .calendar-workspace__summary > summary {
-    display: list-item;
-    padding: var(--space-2) var(--space-4);
-    cursor: pointer;
-    font-weight: var(--weight-semibold);
-  }
-  .calendar-workspace__summary .board-day-panel {
-    padding: var(--space-2) var(--space-4);
-  }
-  .calendar-workspace__summary .board-day-panel__title {
-    margin-bottom: var(--space-1);
-    font-size: var(--text-sm);
-  }
-  .calendar-workspace__summary .board-day-panel__columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
-  }
-  .calendar-workspace__summary .board-day-panel__col + .board-day-panel__col {
-    border-top: 0;
-    border-left: 1px solid var(--border);
-    padding: 0 0 0 var(--space-2);
-  }
-  .calendar-workspace {
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-}
-@media (max-width: 600px) {
-  .page.calendar-page {
-    height: auto;
-    overflow: visible;
-    padding: var(--space-2) var(--space-2) calc(88px + env(safe-area-inset-bottom));
-  }
-  .calendar-page > .page__head {
-    align-items: flex-start;
-  }
-  .calendar-page .page__actions {
-    flex-wrap: wrap;
-  }
-  .calendar-page .btn,
-  .calendar-page .board-toolbar .inp,
-  .calendar-page .board-controls .seg a {
-    min-height: var(--touch-target);
-  }
-  .calendar-page .board-controls .board-bar {
-    margin-left: 0;
-    width: auto;
-  }
-  .calendar-page .board-help {
-    width: auto;
-  }
-  .calendar-page .board-category,
-  .calendar-page .board-state {
-    flex: 1 1 40%;
-  }
-  .calendar-page .board-toolbar .inp {
-    font-size: 16px;
-  }
-  .calendar-workspace__main > .board-wrap {
-    flex: none;
-    height: 60dvh;
-    min-height: 360px;
-  }
-  .calendar-page .board-wrap .board thead th {
-    height: 56px;
-  }
-  .calendar-page:has(.calendar-workspace[data-expanded='true']) {
-    overflow-y: auto;
-    padding-bottom: var(--space-2);
-  }
-}
-@media (min-width: 601px) {
-  .calendar-page .board-toolbar .field > .inp {
-    height: var(--space-8);
-    min-height: var(--space-8);
-    padding-block: var(--space-1);
-  }
-  .calendar-page .board-wrap[data-density='compact'] .board td.board__cell,
-  .calendar-page .board-wrap[data-density='compact'] .board td.board__unit {
-    height: 32px;
-    min-height: 32px;
-    padding-block: 0;
-  }
-  .calendar-page .board-wrap[data-density='compact'] .board .board__stay,
-  .calendar-page .board-wrap[data-density='compact'] .board .board__free {
+  .board-wrap[data-density='compact'] .board .board__stay,
+  .board-wrap[data-density='compact'] .board .board__free {
     height: 26px;
     line-height: 26px;
   }
-  .calendar-page .board-footer {
+  .board-wrap[data-density='compact'] .board-stay-caption .board-stay-line--meta {
+    display: none;
+  }
+  /* меню «⋯» — посередине плашки любой высоты */
+  .board-wrap[data-density='compact'] .board-stay-menu {
+    top: 4px;
+  }
+  .board-wrap[data-density='detailed'] .board-stay-menu {
+    top: 16px;
+  }
+  .board-wrap[data-density='detailed'] .board td.board__cell,
+  .board-wrap[data-density='detailed'] .board td.board__unit {
+    height: 56px;
+  }
+  .board-wrap[data-density='detailed'] .board .board__stay {
+    height: 48px;
+  }
+  @container stay-caption (width < 170px) {
+    .board-wrap[data-density='detailed'] .board-stay-line--meta .board-stay-nights {
+      display: inline;
+    }
+  }
+  @container stay-caption (width < 120px) {
+    .board-wrap[data-density='detailed'] .board-stay-caption .board-stay-line--meta {
+      display: flex;
+    }
+  }
+
+  /* Компактный рабочий экран: одна область прокрутки, управление не конкурирует с сеткой. */
+  .page:has(> .board-wrap) {
+    padding: var(--space-4);
+    gap: 0;
+  }
+  /* Месяц на узком десктопе: колонка мест схлопнута, 31 день по 24px помещаются только с полями 8px
+   (premium.css задаёт те же 8px, но это правило стоит ниже в каскаде и перебивало их 16px) */
+  @media (min-width: 760px) and (max-width: 1279px) {
+    .page:has(> .board-wrap):has(.board--month) {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+  .page:has(> .board-wrap) > .page__head {
+    margin-bottom: var(--space-2);
+    flex-shrink: 0;
+  }
+  .page:has(> .board-wrap) .page__title {
+    font-size: var(--text-2xl);
+    line-height: 1.2;
+  }
+  .board-overview-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
     gap: var(--space-2);
-    padding-top: var(--space-1);
-    min-height: 24px;
-  }
-  .calendar-page .board-gesture-hint {
+    color: var(--muted);
     font-size: var(--text-xs);
-    line-height: 1.4;
+    margin-bottom: var(--space-1);
   }
-}
+  .board-overview-controls .btn {
+    min-height: var(--space-8);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+  }
+  @media (min-width: 1024px) {
+    .board-controls {
+      gap: var(--space-2);
+    }
+    .board-controls .board-date-nav > .btn,
+    .board-controls .board-custom-range-toggle,
+    .page:has(> .board-wrap) .page__actions .btn {
+      min-height: var(--space-8);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+    }
+    .board-toolbar .board-search {
+      flex: 1 1 160px;
+    }
+    .board-toolbar .board-category {
+      flex: 0 1 200px;
+    }
+    .board-toolbar .board-state {
+      flex: 0 1 200px;
+    }
+    .board-toolbar .field--inline {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-1);
+    }
+    .board-toolbar .field > span {
+      font-size: var(--text-xs);
+    }
+    .board-toolbar {
+      align-items: end;
+    }
+    .board-search-label {
+      display: block;
+    }
+    .board-footer {
+      margin-top: var(--space-1);
+      flex: none;
+    }
+    .board-controls .board-period-full {
+      display: none;
+    }
+    .board-controls .board-period-short {
+      display: inline;
+    }
+  }
+  @media (max-width: 600px) {
+    .page:has(> .board-wrap) {
+      padding: var(--space-2) var(--space-2) calc(96px + env(safe-area-inset-bottom));
+    }
+    .board-overview-controls .btn {
+      min-height: var(--touch-target);
+    }
+  }
+  .board__unit-head .board-overview-controls {
+    margin: var(--space-1) 0 0;
+  }
+  .board__unit-head .board-overview-controls .btn {
+    color: var(--primary);
+    padding: 0;
+    min-height: var(--space-6);
+    white-space: normal;
+    text-align: left;
+  }
+  @media (max-width: 600px) {
+    .board__unit-head .board-overview-controls .btn {
+      min-height: var(--touch-target);
+    }
+  }
 
-body:has(.calendar-workspace[data-expanded='true']) {
-  overflow: hidden;
-}
+  /* Separate compact facts without repeating the booking source. */
+  .board-stay-line--meta > :not(:first-child)::before {
+    content: '·';
+    margin-inline-end: 5px;
+    color: var(--muted);
+    font-weight: normal;
+  }
 
-/* Результат команды остаётся видимым в предпросмотре. */
-.stay-preview__status[data-status] {
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--text);
-}
-.stay-preview__status[data-status='CONFIRMED'] { background: var(--st-confirmed); }
-.stay-preview__status[data-status='CHECKED_IN'] { background: var(--st-checked-in); }
-.stay-preview__status[data-status='CHECKED_OUT'] { background: var(--st-checked-out); }
-.stay-preview__status[data-status='TENTATIVE'] { background: var(--st-tentative); }
-.calendar-page .board-legend-details summary { padding-block: 0; }
-.calendar-page .board-legend-details .legend { padding-block: var(--space-1); }
-.calendar-page .board-gesture-hint { display: none; }
+  .free-menu__period {
+    display: none;
+  }
 
-.calendar-page .board-legend-details .legend {
-  padding: 0;
-  gap: var(--space-1) var(--space-2);
-}
-.calendar-page .board-footer .legend__swatch {
-  width: 12px;
-  height: 12px;
-}
+  /* Телефон: свайп прокручивает даты, касание открывает действия. */
+  @media (max-width: 600px) {
+    .page:has(> .board-wrap) > .board-wrap {
+      overflow: auto;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
+    }
+    .board.board--week,
+    .board.board--month,
+    .board {
+      --week-unit-width: 144px;
+      --month-unit-width: 144px;
+      width: var(
+        --mobile-board-width
+      ) !important; /* slop-allow: important перебивает ширину таблицы, которую board-grid.tsx ставит инлайн для компьютера */
+      min-width: var(--mobile-board-width);
+      table-layout: fixed;
+    }
+    .board col:first-child {
+      width: 144px !important; /* slop-allow: important перебивает инлайн-ширину колонки номеров из board-grid.tsx */
+    }
+    .board col:not(:first-child) {
+      width: 104px !important; /* slop-allow: important перебивает инлайн-ширину колонки дня из board-grid.tsx */
+    }
+    .board td.board__cell,
+    .board td.board__unit,
+    .board-wrap[data-density='compact'] .board td.board__cell,
+    .board-wrap[data-density='compact'] .board td.board__unit {
+      height: 52px;
+    }
+    .board .board__stay,
+    .board-wrap[data-density='compact'] .board .board__stay {
+      height: 44px;
+      top: 4px;
+      touch-action: pan-x pan-y;
+    }
+    .board .board__free {
+      min-height: 44px;
+    }
+    .board .board__d {
+      font-size: var(--text-lg);
+      width: 32px;
+      height: 32px;
+      max-width: none;
+    }
+    .board .board-day-date,
+    .board .board-day-metrics {
+      flex-direction: row;
+      justify-content: center;
+      gap: var(--space-1);
+    }
+    .board .board-stay-resize,
+    .board .board-stay-menu {
+      display: none;
+    }
+    .board-toolbar .inp {
+      font-size: 16px;
+    }
+    .stay-preview {
+      inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important; /* slop-allow: important на телефоне карточка внизу экрана, а stay-preview.tsx ставит left и top из JS */
+      width: calc(100% - 16px);
+      max-height: calc(85dvh - env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+    .stay-preview__close,
+    .stay-preview__actions .btn {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .stay-preview__actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    .free-menu__period {
+      display: flex;
+      margin-block: var(--space-4);
+    }
+    .free-menu__period .inp {
+      min-height: 48px;
+      width: 100%;
+      font-size: 16px;
+    }
+  }
 
-@media (min-width: 601px) {
-  .page.calendar-page { padding-bottom: 0; }
-}
+  .free-menu__arrival,
+  .free-menu__summary {
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .free-menu__arrival {
+      display: flex;
+      margin-block: var(--space-4);
+    }
+    .free-menu__arrival .inp {
+      min-height: 48px;
+      width: 100%;
+      font-size: 16px;
+    }
+    .free-menu__summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+      margin-block: var(--space-4);
+    }
+    .free-menu__summary dt {
+      color: var(--muted);
+    }
+    .free-menu__summary dd {
+      margin: 0;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stay-preview__guest,
+    .stay-preview__facts dd {
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+    .free-menu__dates {
+      display: none;
+    }
+    .board .board-group-toggle {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr);
+      column-gap: 4px;
+      min-height: 44px;
+    }
+    .board .board-group-toggle > .muted {
+      display: none;
+    }
+    .board .board-group-name-text {
+      display: block;
+      overflow: visible;
+      overflow-wrap: normal;
+      word-break: normal;
+      -webkit-line-clamp: unset;
+      line-height: 1.35;
+      min-width: 0;
+    }
+    .board td.board__unit {
+      padding-inline: 8px;
+    }
+    .board td.board__unit > .muted-2 {
+      display: none;
+    }
+    .board .board-unit-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      max-width: calc(100% - 48px);
+    }
+    .board .board-unit-link > svg {
+      display: none;
+    }
+    .board .board-hk__menu {
+      float: right;
+      margin-left: 0;
+    }
+    .board .board-hk__menu .action-menu__button {
+      width: 44px;
+      min-height: 44px;
+    }
+  }
 
-.stay-preview-finance {
-  display: grid;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.stay-preview-finance .folio-form,
-.stay-preview-finance .row {
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.stay-preview-finance input,
-.stay-preview-finance select {
-  max-width: 100%;
-}
-.stay-preview:has(.stay-preview-finance) {
-  width: min(460px, calc(100vw - var(--space-4)));
-  max-height: calc(100dvh - var(--space-4));
-  overflow: auto;
-}
-
-/*
+  /*
  * Рабочий экран на компьютере (baseline B, решение владельца 07.10.2026): на ноутбуке 1366×768 внутри сетки
  * целиком видно не меньше восьми строк мест. Текст не мельчает: место дают подписи фильтров слева от полей,
  * шапка дат без переноса подписи «Свернуть категории», «Компактный» вид без лишних полей у клеток и подвал
  * в одну строку. На телефоне и планшете правила прежние, цели нажатия там 44 px.
  */
-@media (min-width: 961px) {
-  .board-toolbar {
-    align-items: center;
-    padding-block: var(--space-1);
-  }
-  .board-toolbar .field--inline {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  .board-toolbar .field--inline > span {
-    white-space: nowrap;
-  }
-  /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
-  .board-toolbar .board-category,
-  .board-toolbar .board-state,
-  .board-toolbar .board-view {
-    flex: 0 0 auto;
-  }
-  .board th.board__unit-head {
-    padding: var(--space-1) var(--space-2);
-  }
-  .board th.board__unit-head .board-overview-controls .btn {
-    height: var(--space-6);
-    min-height: var(--space-6);
-    white-space: nowrap;
-  }
-  .board-wrap[data-density='compact'] .board td.board__cell,
-  .board-wrap[data-density='compact'] .board td.board__unit,
-  .board-wrap[data-density='compact'] .board .board__group td {
-    padding-block: 0;
-  }
-  .board-wrap[data-density='compact'] .board .board-unit-link {
-    padding-block: 0;
-  }
-  .board-wrap[data-density='compact'] .board .board-hk__menu .action-menu__button {
-    width: var(--space-6);
-    height: var(--space-6);
-    min-height: var(--space-6);
-  }
-  .board-footer {
-    margin-top: 0;
-    padding-top: 0;
-  }
-  /* «Обозначения» строкой в 24 px: цель нажатия на компьютере (DESIGN.md §1 п. 3) */
-  .board-legend-details > summary {
-    padding-block: 0;
-    line-height: var(--space-6);
-  }
-  .page:has(> .board-wrap) {
-    padding-bottom: var(--space-1);
+  @media (min-width: 961px) {
+    .board-toolbar {
+      align-items: center;
+      padding-block: var(--space-1);
+    }
+    .board-toolbar .field--inline {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .board-toolbar .field--inline > span {
+      white-space: nowrap;
+    }
+    /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
+    .board-toolbar .board-category,
+    .board-toolbar .board-state,
+    .board-toolbar .board-view {
+      flex: 0 0 auto;
+    }
+    .board th.board__unit-head {
+      padding: var(--space-1) var(--space-2);
+    }
+    .board th.board__unit-head .board-overview-controls .btn {
+      height: var(--space-6);
+      min-height: var(--space-6);
+      white-space: nowrap;
+    }
+    .board-wrap[data-density='compact'] .board td.board__cell,
+    .board-wrap[data-density='compact'] .board td.board__unit,
+    .board-wrap[data-density='compact'] .board .board__group td {
+      padding-block: 0;
+    }
+    .board-wrap[data-density='compact'] .board .board-unit-link {
+      padding-block: 0;
+    }
+    .board-wrap[data-density='compact'] .board .board-hk__menu .action-menu__button {
+      width: var(--space-6);
+      height: var(--space-6);
+      min-height: var(--space-6);
+    }
+    .board-footer {
+      margin-top: 0;
+      padding-top: 0;
+    }
+    /* «Обозначения» строкой в 24 px: цель нажатия на компьютере (DESIGN.md §1 п. 3) */
+    .board-legend-details > summary {
+      padding-block: 0;
+      line-height: var(--space-6);
+    }
+    .page:has(> .board-wrap) {
+      padding-bottom: var(--space-1);
+    }
   }
 }
 
-.stay-preview-finance .panel {
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-2);
-}
-.stay-preview-finance .panel p {
-  margin: 0;
+@layer sections {
+  .stay-preview__status {
+    margin: var(--space-1) 0 var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .stay-preview__status[data-status] {
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+  }
+  .stay-preview__status[data-status='CONFIRMED'] {
+    background: var(--st-confirmed);
+  }
+  .stay-preview__status[data-status='CHECKED_IN'] {
+    background: var(--st-checked-in);
+  }
+  .stay-preview__status[data-status='CHECKED_OUT'] {
+    background: var(--st-checked-out);
+  }
+  .stay-preview__status[data-status='TENTATIVE'] {
+    background: var(--st-tentative);
+  }
+  /* Calendar workspace: fixed controls, one scrolling grid, today's figures beside it. */
+  .page.calendar-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--header-h));
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--space-2) var(--space-4);
+    gap: var(--space-2);
+  }
+  .calendar-page > .page__head {
+    flex: none;
+    margin: 0;
+    align-items: center;
+  }
+  .calendar-page .page__title {
+    font-size: var(--text-xl);
+    line-height: 1.2;
+  }
+  .calendar-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 232px;
+    gap: var(--space-2);
+    flex: 1;
+    min-height: 0;
+  }
+  .calendar-workspace:not(:has(> .calendar-workspace__summary)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .calendar-workspace__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+  .calendar-workspace__main > .board-wrap {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    height: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+  .calendar-workspace__summary {
+    min-width: 0;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .calendar-workspace__summary > summary {
+    display: none;
+  }
+  .calendar-workspace__summary .board-day-panel {
+    border: 0;
+    padding: var(--space-4);
+    border-radius: 0;
+  }
+  .calendar-workspace__summary .board-day-panel__title {
+    margin-bottom: var(--space-4);
+    font-size: var(--text-md);
+    line-height: 1.5;
+  }
+  .calendar-workspace__summary .board-day-panel__columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .calendar-workspace__summary .board-day-panel__col + .board-day-panel__col {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: var(--space-2) 0 0;
+  }
+  .calendar-workspace__summary .board-day-panel__row {
+    min-height: var(--space-8);
+    font-size: var(--text-sm);
+    gap: var(--space-2);
+  }
+  .calendar-workspace__summary .board-day-panel__row > b {
+    font-size: var(--text-md);
+  }
+  .calendar-page .board-controls {
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .calendar-page .board-controls .board-bar {
+    margin-left: auto;
+    gap: var(--space-2);
+  }
+  .calendar-page .board-controls .board-period-label {
+    font-size: var(--text-md);
+    padding: 0 var(--space-1);
+  }
+  .calendar-page .board-period-full {
+    display: none;
+  }
+  .calendar-page .board-period-short {
+    display: inline;
+  }
+  .calendar-page .btn,
+  .calendar-page .board-toolbar .inp {
+    min-height: var(--space-8);
+    font-size: var(--text-sm);
+  }
+  .calendar-page .btn {
+    padding: var(--space-1) var(--space-2);
+  }
+  .calendar-page .board-controls .seg a {
+    padding: var(--space-1) var(--space-2);
+  }
+  .calendar-page .board-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+  }
+  .calendar-page .board-toolbar .field--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .calendar-page .board-toolbar .field > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .calendar-page .board-search {
+    flex: 1 1 180px;
+  }
+  .calendar-page .board-category,
+  .calendar-page .board-state {
+    flex: 0 1 160px;
+  }
+  .calendar-page .board-view {
+    flex: 0 1 128px;
+  }
+  .calendar-page .board-wrap .board thead th {
+    height: 48px;
+    padding: var(--space-1);
+  }
+  .calendar-page .board th.board__unit-head {
+    min-width: 0;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .calendar-page .board__unit-head .board-overview-controls {
+    margin: 0;
+  }
+  .calendar-page .board__unit-head .board-overview-controls .btn {
+    padding: 0;
+    min-height: var(--space-6);
+    font-size: var(--text-xs);
+  }
+  .calendar-page .board .board__d {
+    font-size: var(--text-lg);
+  }
+  .calendar-page .board .board__group td {
+    padding-block: var(--space-1);
+  }
+  .calendar-page .board-footer {
+    flex: none;
+    font-size: var(--text-xs);
+    padding-top: var(--space-1);
+    margin: 0;
+  }
+  .calendar-page:has(.calendar-workspace[data-expanded='true']) {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    z-index: var(--layer-sidebar);
+    background: var(--bg);
+  }
+  @media (max-width: 1280px) {
+    .calendar-workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .calendar-workspace__summary {
+      grid-row: 1;
+      flex: none;
+      overflow: visible;
+    }
+    .calendar-workspace__summary > summary {
+      display: list-item;
+      padding: var(--space-2) var(--space-4);
+      cursor: pointer;
+      font-weight: var(--weight-semibold);
+    }
+    .calendar-workspace__summary .board-day-panel {
+      padding: var(--space-2) var(--space-4);
+    }
+    .calendar-workspace__summary .board-day-panel__title {
+      margin-bottom: var(--space-1);
+      font-size: var(--text-sm);
+    }
+    .calendar-workspace__summary .board-day-panel__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+    .calendar-workspace__summary .board-day-panel__col + .board-day-panel__col {
+      border-top: 0;
+      border-left: 1px solid var(--border);
+      padding: 0 0 0 var(--space-2);
+    }
+    .calendar-workspace {
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .page.calendar-page {
+      height: auto;
+      overflow: visible;
+      padding: var(--space-2) var(--space-2) calc(88px + env(safe-area-inset-bottom));
+    }
+    .calendar-page > .page__head {
+      align-items: flex-start;
+    }
+    .calendar-page .page__actions {
+      flex-wrap: wrap;
+    }
+    .calendar-page .btn,
+    .calendar-page .board-toolbar .inp,
+    .calendar-page .board-controls .seg a {
+      min-height: var(--touch-target);
+    }
+    .calendar-page .board-controls .board-bar {
+      margin-left: 0;
+      width: auto;
+    }
+    .calendar-page .board-help {
+      width: auto;
+    }
+    .calendar-page .board-category,
+    .calendar-page .board-state {
+      flex: 1 1 40%;
+    }
+    .calendar-page .board-toolbar .inp {
+      font-size: 16px;
+    }
+    .calendar-workspace__main > .board-wrap {
+      flex: none;
+      height: 60dvh;
+      min-height: 360px;
+    }
+    .calendar-page .board-wrap .board thead th {
+      height: 56px;
+    }
+    .calendar-page:has(.calendar-workspace[data-expanded='true']) {
+      overflow-y: auto;
+      padding-bottom: var(--space-2);
+    }
+  }
+  @media (min-width: 601px) {
+    .calendar-page .board-toolbar .field > .inp {
+      height: var(--space-8);
+      min-height: var(--space-8);
+      padding-block: var(--space-1);
+    }
+    .calendar-page .board-wrap[data-density='compact'] .board td.board__cell,
+    .calendar-page .board-wrap[data-density='compact'] .board td.board__unit {
+      height: 32px;
+      min-height: 32px;
+      padding-block: 0;
+    }
+    .calendar-page .board-wrap[data-density='compact'] .board .board__stay,
+    .calendar-page .board-wrap[data-density='compact'] .board .board__free {
+      height: 26px;
+      line-height: 26px;
+    }
+    .calendar-page .board-footer {
+      gap: var(--space-2);
+      padding-top: var(--space-1);
+      min-height: 24px;
+    }
+    .calendar-page .board-gesture-hint {
+      font-size: var(--text-xs);
+      line-height: 1.4;
+    }
+  }
+
+  body:has(.calendar-workspace[data-expanded='true']) {
+    overflow: hidden;
+  }
+
+  /* Результат команды остаётся видимым в предпросмотре. */
+  .stay-preview__status[data-status] {
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+  }
+  .stay-preview__status[data-status='CONFIRMED'] {
+    background: var(--st-confirmed);
+  }
+  .stay-preview__status[data-status='CHECKED_IN'] {
+    background: var(--st-checked-in);
+  }
+  .stay-preview__status[data-status='CHECKED_OUT'] {
+    background: var(--st-checked-out);
+  }
+  .stay-preview__status[data-status='TENTATIVE'] {
+    background: var(--st-tentative);
+  }
+  .calendar-page .board-legend-details summary {
+    padding-block: 0;
+  }
+  .calendar-page .board-legend-details .legend {
+    padding-block: var(--space-1);
+  }
+  .calendar-page .board-gesture-hint {
+    display: none;
+  }
+
+  .calendar-page .board-legend-details .legend {
+    padding: 0;
+    gap: var(--space-1) var(--space-2);
+  }
+  .calendar-page .board-footer .legend__swatch {
+    width: 12px;
+    height: 12px;
+  }
+
+  @media (min-width: 601px) {
+    .page.calendar-page {
+      padding-bottom: 0;
+    }
+  }
+
+  .stay-preview-finance {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .stay-preview-finance .folio-form,
+  .stay-preview-finance .row {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .stay-preview-finance input,
+  .stay-preview-finance select {
+    max-width: 100%;
+  }
+  .stay-preview:has(.stay-preview-finance) {
+    width: min(460px, calc(100vw - var(--space-4)));
+    max-height: calc(100dvh - var(--space-4));
+    overflow: auto;
+  }
+
+  .stay-preview-finance .panel {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+  .stay-preview-finance .panel p {
+    margin: 0;
+  }
 }

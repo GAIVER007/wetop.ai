@@ -1,0 +1,526 @@
+# Сквозные (e2e) · 08.10.2026 04:41 Алматы · vm
+# коммит fd51888 (claude/mv8-5-ds0b-css-foundation), незакоммиченных файлов набора: 127
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/marketing.spec.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/site-assets.spec.ts' 'tests/ui/website.spec.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/analytics-design.spec.ts' 'tests/ui/analytics-channels.spec.ts' 'tests/ui/analytics-units.spec.ts' 'tests/ui/analytics-occupancy.spec.ts' 'tests/ui/market.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 103 tests using 1 worker
+
+  ✓    1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (3.2s)
+  ✓    2 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение: из полосы отбора (6.4s)
+  ✓    3 tests/ui/analytics-channels.spec.ts:119:1 › CSV: те же строки и итог, с разделителем «;» и BOM (2.3s)
+  ✓    4 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API: словами, не падение страницы (3.5s)
+  ✓    5 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (1.5s)
+  ✓    6 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (5.6s)
+  ✓    7 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (5.2s)
+  ✓    8 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт: из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (4.6s)
+  ✓    9 tests/ui/analytics-design.spec.ts:20:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (4.4s)
+  ✓   10 tests/ui/analytics-design.spec.ts:50:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (2.3s)
+  ✓   11 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (2.5s)
+  ✓   12 tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки (2.2s)
+  ✓   13 tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (1.8s)
+  ✓   14 tests/ui/analytics-occupancy.spec.ts:147:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (5.0s)
+  ✓   15 tests/ui/analytics-occupancy.spec.ts:182:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (4.7s)
+  ✓   16 tests/ui/analytics-occupancy.spec.ts:210:1 › старые адреса: «Статистика» с датой и некорректная дата (5.0s)
+  ✓   17 tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день (2.6s)
+  ✓   18 tests/ui/analytics-occupancy.spec.ts:239:1 › телефон: без прокрутки вбок, строка категории — карточкой (3.9s)
+  ✓   19 tests/ui/analytics-occupancy.spec.ts:268:1 › снимки для визуального гейта AN2 (28.4s)
+  ✓   20 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (3.6s)
+  ✓   21 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (4.3s)
+  ✓   22 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (3.4s)
+  ✓   23 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (2.3s)
+  ✓   24 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (8.7s)
+  ✓   25 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (8.1s)
+  ✓   26 tests/ui/analytics-v2.spec.ts:58:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (5.1s)
+  ✓   27 tests/ui/analytics-v2.spec.ts:77:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (2.4s)
+  ✓   28 tests/ui/analytics-v2.spec.ts:113:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (6.2s)
+  ✓   29 tests/ui/analytics-v2.spec.ts:138:1 › рост отмен — красный, падение — зелёный; сравнение выключается (2.7s)
+  ✓   30 tests/ui/analytics-v2.spec.ts:151:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (3.7s)
+  ✓   31 tests/ui/analytics-v2.spec.ts:174:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (2.9s)
+  ✓   32 tests/ui/analytics-v2.spec.ts:191:1 › телефон: без прокрутки вбок, плитки в две колонки (2.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-08" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-08"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-08" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-08"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   33 tests/ui/analytics-v2.spec.ts:202:1 › снимки для визуального гейта AN1 (29.0s)
+  ✓   34 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (6.6s)
+  ✓   35 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (7.6s)
+  ✓   36 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (4.5s)
+  ✓   37 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (8.6s)
+  ✓   38 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (8.3s)
+  ✓   39 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (3.8s)
+  ✓   40 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (5.6s)
+  ✓   41 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.4s)
+  ✓   42 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.9s)
+  ✓   43 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (5.0s)
+  ✓   44 tests/ui/marketing-site.spec.ts:87:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (2.2s)
+  ✓   45 tests/ui/marketing-site.spec.ts:99:1 › источник брони выбирается явно; архив с вопросом (2.6s)
+  ✓   46 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: light (7.3s)
+  ✓   47 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: dark (7.1s)
+  ✓   48 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.7s)
+  ✓   49 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (8.5s)
+  ✓   50 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (2.4s)
+  ✓   51 tests/ui/marketing.spec.ts:137:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.0s)
+  ✓   52 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: light (6.0s)
+  ✓   53 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: dark (6.2s)
+  ✓   54 tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (8.2s)
+  ✓   55 tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (2.4s)
+  ✓   56 tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (5.2s)
+  ✓   57 tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (3.0s)
+  ✓   58 tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (3.9s)
+  ✓   59 tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (1.7s)
+  ✓   60 tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (2.0s)
+  ✓   61 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (6.7s)
+  ✓   62 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (7.0s)
+  ✓   63 tests/ui/site-editor.spec.ts:21:1 › открыть голову, править героя, «изменено», сохранить: ревизия растёт, история и разница словами (4.0s)
+  ✓   64 tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку (2.7s)
+  ✓   65 tests/ui/site-editor.spec.ts:64:1 › восстановить старую версию как новый черновик (3.1s)
+  ✓   66 tests/ui/site-editor.spec.ts:75:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (2.6s)
+  ✓   67 tests/ui/site-editor.spec.ts:92:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (3.1s)
+  ✓   68 tests/ui/site-editor.spec.ts:110:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.3s)
+  ✓   69 tests/ui/site-editor.spec.ts:129:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (3.3s)
+  ✓   70 tests/ui/site-editor.spec.ts:147:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (1.9s)
+  ✓   71 tests/ui/site-editor.spec.ts:156:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.2s)
+  ✓   72 tests/ui/site-editor.spec.ts:173:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (2.1s)
+  ✓   73 tests/ui/site-editor.spec.ts:185:1 › ИИ всего сайта: в очереди → готово, новая версия, разница; команда как данные (5.7s)
+  ✓   74 tests/ui/site-editor.spec.ts:199:1 › ИИ одной секции: цель выбранная секция, команда необязательна (5.6s)
+  ✓   75 tests/ui/site-editor.spec.ts:209:1 › ИИ с несохранёнными правками недоступен; ошибка ИИ словами, команда на месте (6.0s)
+  ✓   76 tests/ui/site-editor.spec.ts:224:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор (6.4s)
+  ✓   77 tests/ui/site-editor.spec.ts:246:1 › окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте (5.4s)
+  ✓   78 tests/ui/site-editor.spec.ts:259:3 › окно «Создать сайт»: снимки и доступность, light (5.4s)
+  ✓   79 tests/ui/site-editor.spec.ts:259:3 › окно «Создать сайт»: снимки и доступность, dark (5.1s)
+  ✓   80 tests/ui/site-editor.spec.ts:279:3 › редактор на компьютере, доступность и снимки: light (16.5s)
+  ✓   81 tests/ui/site-editor.spec.ts:324:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light (6.3s)
+  ✓   82 tests/ui/site-editor.spec.ts:279:3 › редактор на компьютере, доступность и снимки: dark (5.9s)
+  ✓   83 tests/ui/site-editor.spec.ts:324:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark (6.7s)
+  ✓   84 tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (3.4s)
+  ✓   85 tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (3.5s)
+  ✓   86 tests/ui/website.spec.ts:73:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (3.6s)
+  ✓   87 tests/ui/website.spec.ts:96:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (3.5s)
+  ✓   88 tests/ui/website.spec.ts:127:1 › «Интеграции» больше не показывают сайт (2.4s)
+  ✓   89 tests/ui/website.spec.ts:135:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (1.9s)
+  ✓   90 tests/ui/website.spec.ts:148:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (2.6s)
+  ✓   91 tests/ui/website.spec.ts:171:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (33.5s)
+  ✓   92 tests/ui/website.spec.ts:202:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (3.6s)
+  ✓   93 tests/ui/website.spec.ts:245:1 › WEB2 · счётчик: состояние словами и одно действие (5.9s)
+  ✓   94 tests/ui/website.spec.ts:280:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (4.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+  ✓   95 tests/ui/website.spec.ts:305:1 › снимки WEB2 (15.5s)
+  ✓   96 tests/ui/website.spec.ts:355:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (3.5s)
+  ✓   97 tests/ui/website.spec.ts:387:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (1.8s)
+  ✓   98 tests/ui/website.spec.ts:401:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.8s)
+  ✓   99 tests/ui/website.spec.ts:419:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (4.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  100 tests/ui/website.spec.ts:445:1 › снимки WEB3 (13.7s)
+  ✓  101 tests/ui/website.spec.ts:494:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (2.4s)
+  ✓  102 tests/ui/website.spec.ts:517:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (2.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="analytics/" loading={[...]}>
+[WebServer]         <Suspense name="analytics/" fallback={<Fragment>}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/website/a..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="website/an...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <AnalyticsPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <nav>
+[WebServer]                           <div>
+[WebServer]                           <PeriodForm>
+[WebServer]                             <form method="get" className="row row--l...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="site"
+[WebServer]                                 value="ui-site"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: с" name="from" defaultValue="2026-10-02">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: с"
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-02"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput aria-label="Аналитика: по" name="to" rangeFromName="from" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-label="Аналитика: по"
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-08"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]  
+  ✓  103 tests/ui/website.spec.ts:539:1 › снимки WEB4 (8.3s)
+
+  103 passed (9.5m)
+
+# код выхода 0 · 9 мин 31 с

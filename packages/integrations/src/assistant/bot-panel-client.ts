@@ -14,6 +14,11 @@ import { createHmac } from 'node:crypto';
 const TIMEOUT_MS = 15_000;
 /** Ход в песочнице — каскад моделей, до минуты (ТЗ §3 бота); ждём с запасом */
 const SANDBOX_TIMEOUT_MS = 90_000;
+/**
+ * Генерация сайта (MKT6): до трёх ступеней по 70 с у бота. Меньше аренды воркера (5 минут): ответ, не дождавшийся
+ * этого срока, считается потерянным, и платформа ставит неизвестный расход, а не повтор.
+ */
+export const SITE_GENERATION_TIMEOUT_MS = 250_000;
 
 /** Как бот называется в словах ошибок: «ИИ-продавец не ответил», «нет связи с ИИ-помощником» */
 export interface BotNames {
@@ -148,6 +153,10 @@ function rejectionOf(
 
 /** Песочница у бота — в корне экземпляра (`/internal/sandbox`), а не под путём панели: путь зафиксирован его планом */
 const SANDBOX_PATH = '/internal/sandbox';
+/** Генерация сайта (MKT6) тоже в корне экземпляра, только по служебному ключу */
+const SITE_GENERATION_PATH = '/internal/site-generation';
+/** ИИ-правка готового сайта (MKT9, контракт `site-edit/0`): тот же вход по служебному ключу, свой путь */
+const SITE_EDIT_PATH = '/internal/site-edit';
 
 export class BotPanelClient {
   private readonly base: string;
@@ -284,6 +293,23 @@ export class BotPanelClient {
       SANDBOX_TIMEOUT_MS,
       this.origin,
     );
+  }
+
+  /**
+   * Генерация первой версии сайта (MKT6, контракт `site-generation/0`). Клиент для неё создаётся без организации и
+   * агента: ключ модели только платформы, и бот организацию на этом входе не принимает. Исходы модели бот отдаёт
+   * ответом 200; нет связи, таймаут и 5xx здесь `BotUnavailableError`, их расход неизвестен.
+   */
+  siteGeneration(body: Json): Promise<Json> {
+    return this.request('POST', SITE_GENERATION_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * ИИ-правка версии сайта (MKT9, `site-edit/0`): PATCH всего документа или SECTION одной секции. Как и генерация,
+   * без организации и агента: ключ модели только платформы
+   */
+  siteEdit(body: Json): Promise<Json> {
+    return this.request('POST', SITE_EDIT_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
   }
 
   /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */

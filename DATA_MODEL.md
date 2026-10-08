@@ -47,6 +47,7 @@ v2.8 (29.09.2026; **утверждено владельцем 30.09.2026 с по
 v2.9 (30.09.2026; **SEC-1b, стадия B — по решению владельца 30.09.2026 (Q-222 вариант (б\*), Q-225 вариант (а\*))**, ADR-124, `plans/sec1b-stage-b-2026-09-30.md`): §17.2–17.3 — права роли `wetop_app` на три оставшиеся таблицы без RLS. Миграция `20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox` оставляет только `INSERT` (без `RETURNING`: постановка изменения остатков в очередь остаётся в транзакции команды человека и откатывается вместе с ней). Права `wetop_service` не меняются. Таблицы, колонки, связи и политики не меняются. `down.sql` возвращает полный доступ обеим ролям. **На рабочей базе применяет владелец — после выкладки кода** (PR #188, #189, #198: все обращения через `integrationTables(db)` и интеграционную команду на служебной роли)
 v2.10 (03.10.2026; **утверждено владельцем 03.10.2026 ответом «да нужны» на Q-244**, TEAM2, `plans/team-contacts-2026-10-03.md`): §13.3: `memberships.phone` и `memberships.position`, обе необязательные; телефон и должность принадлежат членству, а не человеку (у двух организаций свои); миграция `20261003000050_membership_contacts` (в сессии была 044, при слиянии 044-049 заняли другие срезы; ADR-052)
 v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A, ADR-149): §29 «Маркетинг: управляемый сайт», кандидаты `MarketingSite`, `MarketingSiteVersion`, `MarketingSitePublication`, `SiteAsset`, `SiteDomain`, `GenerationRun`. Владелец сайта `Location` и раздельность с `TrackedSite` утверждены ADR-149; поля, таблицы и ограничения ждут отдельного «да». Prisma и миграций нет
+v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -2882,6 +2883,20 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 > `primaryHost` в ответе `null`. Цена «от» (`B-FROMPRICE`, Q-276 RESOLVED OWNER 07.10.2026) не хранится нигде: её
 > считает `GET /w/from-prices` по `tracked_sites.booking_rate_plan_id`, `daily_rates` и `restrictions.stop_sell` за 30 ночей
 > при `capacity_adults`; это подсказка тарифа, а не обещание мест. План: `plans/mkt4-public-site-runtime-2026-10-06.md`.
+>
+> **Публикация, превью и домены (MKT7, 07.10.2026; Q-271 и Q-275 RESOLVED OWNER 07.10.2026):** миграции
+> `20261007000064_marketing_publication_domains` (таблицы `marketing_site_publications` §29.4 и `site_domains` §29.6,
+> колонка `locations.booking_tracked_site_id` §29.11, начальное заполнение указателя) и
+> `20261007000065_marketing_publication_grants` (только права, для восстановления копии), обе с `down.sql`. Хост сайта
+> строится от `SITES_BASE_DOMAIN` (отдельный registrable domain, не `wetop.ai`); боевое разрешение хоста в рантайме идёт
+> через строку `site_domains` в `ACTIVE`, `primaryHost` в ответе рантайма настоящий. Свои домены (`CUSTOM`) есть только в
+> схеме, их проверка и сертификаты в MKT10. Контракт: `docs/marketing/site-publication-v0.md`, план
+> `plans/mkt7-publication-preview-domains-2026-10-07.md`.
+>
+> **Изображения (MKT8, 07.10.2026; Q-270 RESOLVED OWNER 07.10.2026):** миграции `20261007000066_site_assets` (таблица
+> `site_assets` §29.5, CHECK, частичный UNIQUE повтора, триггер `site_asset_guard`, RLS FORCE) и
+> `20261007000067_site_asset_grants` (только права, без `DELETE`), обе с `down.sql`. Хранилище приватный S3 в Казахстане;
+> в базе только ключ объекта. Контракт `docs/marketing/site-assets-v0.md`, план `plans/mkt8-site-assets-2026-10-07.md`.
 
 ### 29.1 Что уже есть и не дублируется
 
@@ -2935,8 +2950,8 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0`; CHECK `(spec ->> 'schemaVersion') IS NOT DISTINCT FROM schema_version` |
 | `spec` | JSONB NOT NULL | документ `SiteSpec`, объект. Допустимый размер один: 256 КБ канонической записи, держит проверка документа и API. CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ) только грубая страховка, не второй допустимый размер: `jsonb::text` не каноническая запись и выходит до полутора раз длиннее |
 | `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
-| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). Enum целевой и полный уже в MKT3, но **база в MKT3 временно разрешает только `MANUAL`** (CHECK `source = 'MANUAL'`): MKT6 вместе с `generation_runs` и `generation_run_id` снимает или заменяет его правилом «AI требует `generation_run_id`», `IMPORT` открывается в срезе, где появится путь импорта |
-| `generation_run_id` | UUID NULL FK → `generation_runs` | **появляется в MKT6** вместе с таблицей; обязателен при `source = 'AI'`. В MKT3 колонки нет, сохранение пишет только `MANUAL` |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). С MKT6 (миграция `…062`) CHECK `marketing_site_versions_source_provenance`: `MANUAL` только без `generation_run_id`, `AI` только с ним; `IMPORT` по-прежнему не проходит и откроется в срезе, где появится путь импорта |
+| `generation_run_id` | UUID NULL UNIQUE FK → `generation_runs` ON DELETE RESTRICT | в базе с MKT6: обязателен при `source = 'AI'`, запрещён при `MANUAL`; задача только своего сайта (триггер `marketing_site_version_run_guard`); одна задача создаёт не больше одной версии |
 | `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
 | `created_at` | timestamptz | |
 
@@ -2971,7 +2986,7 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 `marketing_site_guard`); зарезервированные адреса запрещены CHECK; `schema_version` совпадает с `schemaVersion`
 документа; источник версии пока только `MANUAL`.
 
-### 29.4 `MarketingSitePublication` (кандидат, добавлен к списку ADR-149 с обоснованием)
+### 29.4 `MarketingSitePublication` (утверждено, в базе с MKT7)
 
 Журнал переключений, только дописывается. Нужен для отката (список ранее опубликованных версий) и для разбора
 инцидентов; хранить это полем в неизменяемой версии нельзя.
@@ -2990,31 +3005,42 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 Откат и история публикаций это данные предметной области, они не должны зависеть от разбора JSON общего журнала
 `audit_logs`; запись в `audit_logs` при этом тоже делается, как у любого действия.
 
-### 29.5 `SiteAsset` (кандидат, хранилище не выбрано)
+Что держит база (MKT7): CHECK `marketing_site_publications_shape` (у `PUBLISH`, `ROLLBACK`, `RESUME` версия есть, у
+`PAUSE` и `ARCHIVE` её нет); версия и прежняя версия только своего сайта (триггер `marketing_site_publication_guard`);
+журнал только дописывается (триггер `marketing_site_publication_immutable`, единственное исключение: `actor_id`
+становится NULL при удалении человека); `wetop_app` и `wetop_service` получают только SELECT и INSERT.
 
-Логический контракт медиафайла. Поставщик хранилища, бакеты и CDN не выбраны (Q-270); полей конкретного поставщика нет.
+### 29.5 `SiteAsset` (утверждено, в базе с MKT8; Q-270 RESOLVED OWNER 07.10.2026)
+
+Изображение управляемого сайта. Хранилище: приватный S3-совместимый бакет физически в Казахстане (PS Cloud после
+письменного подтверждения, иначе Cloud24); полей поставщика, бакета и адреса в модели нет.
 
 | Поле | Тип | Правило |
 |---|---|---|
 | `id` | UUID PK | ссылка из `SiteSpec` (`assetId`) |
-| `location_id` | UUID NOT NULL FK → `locations` | владелец; ассет чужого Location в `SiteSpec` отклоняется |
-| `kind` | enum `IMAGE`, `LOGO`, `FAVICON` | |
-| `mime_type` | VARCHAR(40) | allowlist: `image/jpeg`, `image/png`, `image/webp`; SVG запрещён (может нести скрипт) |
-| `storage_ref` | VARCHAR(500) | непрозрачная ссылка на объект в хранилище; не URL и не секрет |
-| `byte_size` | INT | предел кандидат 10 МБ на оригинал |
-| `width`, `height` | INT NULL | известны после обработки |
-| `sha256` | CHAR(64) | повторная загрузка того же файла в Location даёт тот же ассет |
-| `status` | enum `UPLOADING`, `PROCESSING`, `READY`, `REJECTED`, `DELETED` | в `SiteSpec` годится только `READY` |
-| `default_alt` | JSONB NULL | `LocalizedText`, подсказка ALT; ALT в секции главнее |
-| `source` | enum `UPLOAD`, `CHANNEX_IMPORT` | изображения, созданные ИИ, вне v0 |
-| `created_by_id` | UUID NULL FK → `users` | |
-| `created_at`, `updated_at`, `deleted_at` | timestamptz | |
+| `location_id` | UUID NOT NULL FK → `locations` RESTRICT | владелец, не меняется; ассет чужого Location в `SiteSpec` отклоняется |
+| `kind` | enum `IMAGE`, `LOGO`, `FAVICON` | не меняется после `READY` |
+| `status` | enum `UPLOADING`, `PROCESSING`, `READY`, `REJECTED`, `DELETED` | v0 заводит строку сразу `READY` (обработка синхронная); `DELETED` конечный |
+| `source` | enum `UPLOAD`, `CHANNEX_IMPORT` | не меняется; изображения, созданные ИИ, вне v0 |
+| `mime_type` | VARCHAR(40) | тип **хранимой** копии: `image/webp` у картинки и логотипа, `image/png` у фавиконки (CHECK) |
+| `storage_ref` | VARCHAR(500) UNIQUE | ровно `site-assets/<location_id>/<id>/<sha256>.webp|png` (CHECK); не URL и не секрет |
+| `byte_size` | INT | от 1 до 10 МиБ |
+| `width`, `height` | INT NOT NULL | после обработки: картинка до 2400, логотип до 1600, фавиконка ровно 512×512 (CHECK) |
+| `sha256` | CHAR(64) | hex в нижнем регистре, от готовых байтов; повтор той же картинки того же вида в Location даёт тот же ассет |
+| `default_alt` | JSONB NULL | объект `LocalizedText` (ru, kk, en, до 150 знаков), подсказка ALT; ALT в секции главнее |
+| `created_by_id` | UUID NULL FK → `users` SET NULL | |
+| `created_at`, `updated_at`, `deleted_at` | timestamptz | `deleted_at` задан тогда и только тогда, когда `DELETED` |
 
-Удаление: ассет, на который ссылается опубликованная версия, физически не удаляется, пока ссылка жива (иначе откат
-сломается); `DELETED` скрывает его из библиотеки. Тип файла проверяется по содержимому, не по расширению; при
-обработке метаданные EXIF снимаются (геометка телефона владельца).
+Индексы: UNIQUE `storage_ref`; частичный UNIQUE `(location_id, kind, sha256) WHERE status <> 'DELETED'`;
+`(location_id, status)`. Триггер `site_asset_guard`: вставка без `DELETED`; владелец, источник и время создания не
+меняются; вид, байты, ключ и размеры не меняются после `READY`; переходы `UPLOADING → PROCESSING | READY | REJECTED`,
+`PROCESSING → READY | REJECTED`, `READY → DELETED`, `REJECTED → DELETED`.
 
-### 29.6 `SiteDomain` (кандидат)
+Удаление: только переходом в `DELETED` (у ролей приложения нет `DELETE`). Ассет хоть раз опубликованной версии остаётся
+в хранилище: библиотека его прячет, текущий сайт и откат видят; ассет только из черновиков удаляется и из хранилища. Тип
+файла проверяется по содержимому, EXIF и GPS снимаются, сырой файл не хранится нигде (`docs/marketing/site-assets-v0.md`).
+
+### 29.6 `SiteDomain` (утверждено, в базе с MKT7; `CUSTOM` только в схеме до MKT10)
 
 Хост сайта и жизненный цикл владения им. Отдельно от `TrackedSite.hosts`: там allowlist для счётчика и виджета, здесь
 право сайта отвечать на хост.
@@ -3039,9 +3065,18 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 убирается. Родительский домен платформенных поддоменов в `hosts` не кладётся никогда: `hostMatches` пускает любой
 поддомен (`packages/domain/src/web-analytics/source.ts:84-91`).
 
-### 29.7 `GenerationRun` (кандидат)
+Что держит база (MKT7): вставка только в `PENDING`; сайт, хост и вид не меняются; переходы §29.8 по виду (триггер
+`site_domain_guard`; у платформенного поддомена только `PENDING → ACTIVE` и `→ REMOVED`, проверка владения ему не
+нужна, CHECK `site_domains_platform_unverified`); формат хоста CHECK `site_domains_host_format`; частичные UNIQUE
+`site_domains_host_live_key` (живой хост один на всю установку, `REMOVED` и `FAILED` хост освобождают) и
+`site_domains_primary_key` (один основной на сайт среди неснятых); `activated_at` и `removed_at` обязательны в своих
+состояниях. Строку создаёт публикация: хост `<slug>.<SITES_BASE_DOMAIN>`, DNS и маршрут Worker это заранее заведённая
+wildcard-инфраструктура, API Cloudflare при публикации не вызывается. Архив переводит домены сайта в `REMOVED`.
 
-Сохранённая задача генерации ИИ.
+### 29.7 `GenerationRun` (утверждено, в базе с MKT6)
+
+Сохранённая задача генерации ИИ, она же очередь в Postgres (миграции `20261007000062_generation_run_core`, права
+`…063_generation_run_grants`; контракт `docs/marketing/site-generation-v0.md`). MKT6 ставит только `INITIAL`.
 
 | Поле | Тип | Правило |
 |---|---|---|
@@ -3058,12 +3093,29 @@ CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED`
 | `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
 | `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274 закрыт 07.10): агрегат по всем фактическим вызовам модели в run, включая неудачные и повторы; расход `tokens_input + tokens_output`, `tokens_cached` входит в input |
 | `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
-| `next_attempt_at` | timestamptz NULL | |
-| `error_code` | VARCHAR(40) NULL | словарь: `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT` |
+| `next_attempt_at` | timestamptz NULL | в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут) |
+| `dispatched_at` | timestamptz NULL | **добавлено в MKT6**: запрос к ИИ ушёл, расход ещё не записан; падение воркера в это время даёт `USAGE_UNAVAILABLE`, а не повтор (Q-274: неизвестный расход не считается нулём) |
+| `error_code` | VARCHAR(40) NULL | словарь (CHECK): `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT`, `USAGE_UNAVAILABLE`, `BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, `BUDGET_DAY_CHANGED` |
 | `error_message` | VARCHAR(500) NULL | замаскированный текст для человека |
 | `created_at`, `started_at`, `finished_at` | timestamptz | |
 
 Не хранится: собранный промпт целиком, ответ модели целиком (только принятая версия), ключи, адреса поставщика.
+
+**MKT9 (07.10.2026, без миграции).** API ставит `PATCH` и `SECTION` (`docs/marketing/site-editor-v0.md` §6).
+`base_version_id` равен голове сайта при постановке; `brief_hash` сервер собирает сам. `instruction` у `PATCH` это текст
+человека (обрезан, без управляющих символов кроме перевода строки, до 1800 знаков); у `SECTION` версионированный конверт:
+первая строка канонический JSON `{"pageId":"…","sectionId":"…","v":1}`, после перевода строки текст человека как есть
+(до 1500 знаков, пусто значит команда по умолчанию). Текст не экранируется, поэтому конверт гарантированно не длиннее
+`VARCHAR(2000)`; разбирают его только `encodeSectionInstruction` и `decodeSectionInstruction` домена. Текст команды
+наружу не отдаётся и в журнал не пишется. Успешная правка даёт версию `base.revision + 1` с родителем `base`, только если
+голова всё ещё `base` (иначе `BASE_VERSION_CHANGED`).
+
+Что держит база (MKT6): вставка только `QUEUED`; переходы §29.8 (триггер `generation_run_guard`); форма состояния
+(CHECK `generation_runs_status_shape`: `QUEUED` без версии и конца, `RUNNING` с началом, `SUCCEEDED` с версией, концом и без
+ошибки, `FAILED` с концом и кодом, `CANCELLED` с концом); токены целые, не меньше нуля, `tokens_cached <= tokens_input`,
+сумма только растёт; `attempts` от 0 до 3 и только растёт; сайт, вид, ключ, бриф, команда, база, автор и первое начало
+не меняются; `base_version_id` и `output_version_id` только версии своего сайта, итоговая ссылается на эту задачу.
+UNIQUE (`site_id`, `request_key`), UNIQUE `output_version_id`.
 Образец исполнения: очередь в Postgres с воркером, как `channel_outbox` (`apps/api/src/channels/outbox.worker.ts:35-70`).
 Таблица `wizard_jobs` (`schema.prisma:1985-2000`) не переиспользуется: она про мастер продавца и кодом не используется.
 
@@ -3081,21 +3133,39 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 продолжает получать новые черновые версии; рантайм их не видит до следующей публикации.
 
 `GenerationRun.status`: `QUEUED → RUNNING → SUCCEEDED | FAILED`; `RUNNING → QUEUED` при повторной попытке;
-`QUEUED → CANCELLED`. Конечные: `SUCCEEDED`, `FAILED`, `CANCELLED`.
+`QUEUED → CANCELLED | FAILED` (`FAILED` без вызова модели, например при восстановлении). Конечные: `SUCCEEDED`, `FAILED`,
+`CANCELLED`; переходы держит триггер `generation_run_guard`.
 
 `SiteDomain.status`: платформенный поддомен `PENDING → ACTIVE` при публикации; свой домен
 `PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
 `ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
 
-### 29.9 Изоляция (для двух таблиц MKT3 сделано, для остальных кандидат)
+### 29.9 Изоляция (MKT3, MKT6, MKT7 и MKT8 сделано)
 
-Все шесть таблиц в `RLS_TENANT_TABLES`. Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
+Все шесть таблиц в `RLS_TENANT_TABLES` (с MKT8 и `site_assets`). Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
 `EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;
 для дочерних таблиц через `marketing_sites`. Функции триггеров закрепляют `search_path` (`current_schema(), public, pg_temp`).
+`marketing_site_publications` и `site_domains` (MKT7): политика через свой сайт, FORCE; журнал без UPDATE и DELETE,
+домены без DELETE (снятие только переходом в `REMOVED`).
+`site_assets` (MKT8): политика по цепочке Location → Business → организация, как у сайта, FORCE; `wetop_app` и
+`wetop_service` без `DELETE`. Рантайм читает служебным путём только строки по id ссылок текущей или превью-версии.
+`generation_runs` (MKT6): политика через свой сайт, FORCE; `wetop_app` только читает и ставит задачу (SELECT, INSERT),
+состояние, расход и результат меняет воркер служебным путём; `wetop_service` без `DELETE`.
 Публичному рантайму роль `wetop_app` не выдаётся: он читает через узкий служебный путь API только **текущую**
 опубликованную версию сайта, разрешённого по хосту, и безопасные публичные факты его Location
 (`docs/marketing/README.md` §4.2, §4.4). Чтения версии по `id`, в том числе ранее опубликованной, у служебного ключа
 рантайма нет; откат переставляет `published_version_id` только через управление.
+
+### 29.11 Канонический сайт брони филиала (Q-275, вариант Б; в базе с MKT7)
+
+`locations.booking_tracked_site_id` UUID NULL FK → `tracked_sites` ON DELETE SET NULL, индекс. Один явный сайт брони
+на филиал гостиницы; ИИ-продавец (`bookingSiteForAgent`) берёт только его и проверяет, что сайт принадлежит именно
+объекту этого филиала, `ACTIVE`, с включённой бронью и тарифом брони; запасного пути «самый ранний сайт» нет, пустой
+или негодный указатель значит «котировки нет». Триггер `location_booking_site_guard` не даёт указать сайт объекта
+другого филиала. Начальное заполнение `location_booking_backfill()` ставит указатель только филиалу, у которого ровно
+один подходящий сайт; ноль или несколько оставляют NULL. Первая публикация управляемого сайта занимает указатель, только
+если он пуст и других подходящих сайтов у объекта нет; уже выбранный сайт (даже приостановленный) она не заменяет. Выбор вручную: страница
+«Маркетинг → Публикация сайта» (`PUT /marketing/site/booking-source`).
 
 ### 29.10 Чего в модели нет
 

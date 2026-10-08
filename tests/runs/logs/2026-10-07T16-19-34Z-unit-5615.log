@@ -1,0 +1,98 @@
+# Модульные (unit) · 07.10.2026 21:19 Алматы · vm
+# коммит 40003ac (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-19-34Z-unit-5615.json' 'apps/api/src/marketing-site/asset-fetch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests | 2 failed) 33ms
+   ✓ MKT8: публичный ли адрес (28)
+     ✓ 127.0.0.1 → false 2ms
+     ✓ 10.1.2.3 → false 0ms
+     ✓ 172.16.0.1 → false 0ms
+     ✓ 172.31.255.255 → false 0ms
+     ✓ 192.168.1.1 → false 0ms
+     ✓ 169.254.169.254 → false 0ms
+     ✓ 100.64.0.1 → false 0ms
+     ✓ 0.0.0.0 → false 0ms
+     ✓ 224.0.0.1 → false 1ms
+     ✓ 255.255.255.255 → false 0ms
+     ✓ 198.18.0.1 → false 0ms
+     ✓ ::1 → false 5ms
+     ✓ :: → false 1ms
+     ✓ fe80::1 → false 0ms
+     ✓ fd00::1 → false 0ms
+     ✓ fc00::1 → false 0ms
+     ✓ ff02::1 → false 0ms
+     ✓ ::ffff:127.0.0.1 → false 0ms
+     ✓ ::ffff:10.0.0.1 → false 0ms
+     ✓ 2001:db8::1 → false 0ms
+     ✓ 2002:7f00:1:: → false 0ms
+     ✓ 64:ff9b::7f00:1 → false 0ms
+     ✓ 8.8.8.8 → true 0ms
+     ✓ 93.184.216.34 → true 0ms
+     ✓ 172.32.0.1 → true 0ms
+     ✓ ::ffff:8.8.8.8 → true 0ms
+     ✓ 2a00:1450:4001:80b::200e → true 0ms
+     ✓ not-an-ip → false 3ms
+   ✓ MKT8: адрес фото (15)
+     ✓ отклоняется до DNS: http://img.channex.io/a.jpg 1ms
+     ✓ отклоняется до DNS: https://user:***@img.channex.io/a.jpg 0ms
+     ✓ отклоняется до DNS: https://img.channex.io:8443/a.jpg 0ms
+     ✓ отклоняется до DNS: https://127.0.0.1/a.jpg 0ms
+     ✓ отклоняется до DNS: https://[::1]/a.jpg 0ms
+     ✓ отклоняется до DNS: https://169.254.169.254/latest/meta-data 0ms
+     ✓ отклоняется до DNS: https://10.0.0.5/a.jpg 0ms
+     ✓ отклоняется до DNS: https://2130706433/a.jpg 0ms
+     ✓ отклоняется до DNS: https://localhost/a.jpg 0ms
+     ✓ отклоняется до DNS: https://foo.localhost/a.jpg 0ms
+     ✓ отклоняется до DNS: https://intranet/a.jpg 0ms
+     ✓ отклоняется до DNS: ftp://img.channex.io/a.jpg 0ms
+     ✓ отклоняется до DNS: javascript:alert(1) 0ms
+     ✓ отклоняется до DNS: not a url 0ms
+     ✓ официальный img.channex.io и порт 443 проходят 0ms
+   ❯ MKT8: скачивание с защитой от SSRF (7)
+     ✓ img.channex.io с публичным адресом: байты, соединение ровно на проверенный адрес 1ms
+     × имя разрешается во внутренний адрес (или хоть один из адресов внутренний): соединения нет 5ms
+     × переадресация публичный → внутренний и публичный → http: отказ, второго запроса нет 1ms
+     ✓ переадресации: до 3 можно, четвёртая отклоняется 1ms
+     ✓ слишком большой ответ: по заголовку длины и по потоку без заголовка 1ms
+     ✓ ошибка сервера и неизвестное имя: код без тела ответа 1ms
+     ✓ сокет получает только проверенный адрес, какое бы имя ни спросили 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-fetch.test.ts > MKT8: скачивание с защитой от SSRF > имя разрешается во внутренний адрес (или хоть один из адресов внутренний): соединения нет
+Error: ожидался отказ
+ ❯ code apps/api/src/marketing-site/asset-fetch.test.ts:52:9
+     50|     return (error as SafeFetchError).code;
+     51|   }
+     52|   throw new Error('ожидался отказ');
+       |         ^
+     53| }
+     54|
+ ❯ apps/api/src/marketing-site/asset-fetch.test.ts:130:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-fetch.test.ts > MKT8: скачивание с защитой от SSRF > переадресация публичный → внутренний и публичный → http: отказ, второго запроса нет
+Error: ожидался отказ
+ ❯ code apps/api/src/marketing-site/asset-fetch.test.ts:52:9
+     50|     return (error as SafeFetchError).code;
+     51|   }
+     52|   throw new Error('ожидался отказ');
+       |         ^
+     53| }
+     54|
+ ❯ apps/api/src/marketing-site/asset-fetch.test.ts:143:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 48 passed (50)
+   Start at  16:19:35
+   Duration  495ms (transform 71%, import 16%, tests 11%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-19-34Z-unit-5615.json
+
+# код выхода 1 · 2 с

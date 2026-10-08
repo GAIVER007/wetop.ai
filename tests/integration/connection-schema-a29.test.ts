@@ -310,4 +310,48 @@ describe.skipIf(!enabled)('A29 connection schema startup options', () => {
       await db.$disconnect();
     }
   });
+
+  it('rechecks schema USAGE when a reused physical connection loses permission', async () => {
+    const pool = connectionPool(
+      {
+        connectionString: utcConnectionString(
+          urlWithOptions(serviceUrl!, '-c application_name=a29-revoked-schema-reuse'),
+          `-c search_path=${firstSchema},public`,
+          '',
+        ),
+        max: 1,
+      },
+      firstSchema,
+    );
+    try {
+      const first = (
+        await pool.query<Context & { marker: string }>(
+          `${contextSql}, marker FROM ${table} WHERE id='seed'`,
+        )
+      ).rows[0]!;
+      expect(first).toMatchObject({ schema: firstSchema, marker: firstSchema });
+
+      await admin.query(
+        `REVOKE USAGE ON SCHEMA ${pg.escapeIdentifier(firstSchema)} FROM a29_service`,
+      );
+      const attempt = await pool
+        .query<Context & { marker: string }>(
+          `${contextSql}, marker FROM ${table} WHERE id='seed'`,
+        )
+        .then(
+          (result) => ({ status: 'resolved' as const, row: result.rows[0]! }),
+          (error: Error) => ({ status: 'rejected' as const, message: error.message }),
+        );
+      if (attempt.status === 'resolved') expect(attempt.row.pid).toBe(first.pid);
+      expect(attempt).toEqual({
+        status: 'rejected',
+        message: `Database schema "${firstSchema}" is unavailable to the connection role`,
+      });
+    } finally {
+      await admin.query(
+        `GRANT USAGE ON SCHEMA ${pg.escapeIdentifier(firstSchema)} TO a29_service`,
+      );
+      await pool.end();
+    }
+  });
 });

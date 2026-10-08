@@ -107,7 +107,6 @@ type QueryCallback = (error: Error | undefined, result?: unknown) => void;
 
 /** Fails before an application query if PostgreSQL skipped the selected schema in search_path. */
 export class SchemaCheckedPool extends pg.Pool {
-  private readonly checked = new WeakSet<pg.PoolClient>();
   private readonly forwardPoolError = (error: Error, client: pg.PoolClient) => {
     this.emit('error', error, client);
   };
@@ -122,7 +121,6 @@ export class SchemaCheckedPool extends pg.Pool {
 
   private async checkout(): Promise<pg.PoolClient> {
     const client = await this.pool.connect();
-    if (this.checked.has(client)) return client;
     try {
       const result = await client.query<{
         exists: boolean;
@@ -139,7 +137,6 @@ export class SchemaCheckedPool extends pg.Pool {
       const row = result.rows[0];
       if (!row?.exists || !row.usable || row.currentSchema !== this.schema)
         throw new Error(`Database schema "${this.schema}" is unavailable to the connection role`);
-      this.checked.add(client);
       return client;
     } catch (error) {
       client.release(error as Error);

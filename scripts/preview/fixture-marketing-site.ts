@@ -3,10 +3,13 @@ import {
   diffSiteSpecs,
   findSection,
   parseExtensionChange,
+  parsePlanAnswers,
+  planFollowUpText,
   siteBuilderAccess,
   siteSpecAssetRefs,
   siteSpecHash,
   validateSiteSpec,
+  type AssistantPayload,
   type DesignDirection,
   type ExtensionChange,
 } from '@pms/domain';
@@ -595,10 +598,23 @@ function assistantRoute(path: string, method: string, body: Record<string, unkno
     const mode = body['mode'] as AiRun['mode'];
     if (!['CHAT', 'PLAN', 'DESIGN'].includes(mode)) return { status: 400, data: { message: 'mode: CHAT, PLAN или DESIGN' } };
     if (aiBusy()) return conflict('AI_BUSY', 'ИИ уже работает над этим сайтом: дождитесь результата');
-    const answers = Array.isArray(body['answers']) ? (body['answers'] as Array<{ questionId: string; answer: string }>) : null;
-    const text = [typeof body['text'] === 'string' ? body['text'].trim() : '', answers ? `Ответы на вопросы:\n${answers.map((a) => `${a.questionId}: ${a.answer}`).join('\n')}` : '']
-      .filter(Boolean)
-      .join('\n\n');
+    // как API (доводка MKT9.2): ответы только вместе с replyToRunId успешного плана с вопросами этого сайта
+    const replying = body['answers'] !== undefined || body['replyToRunId'] !== undefined;
+    const typed = typeof body['text'] === 'string' ? body['text'].trim() : '';
+    let text = typed;
+    if (replying) {
+      if (mode !== 'PLAN' || body['answers'] === undefined || typeof body['replyToRunId'] !== 'string')
+        return { status: 400, data: { message: 'Ответ на вопросы плана: нужны и replyToRunId, и answers' } };
+      const parent = aiRuns.find((r) => r.id === body['replyToRunId']);
+      if (!parent) return { status: 404, data: { message: 'Вопросы плана не найдены' } };
+      const asked = parent.payload as unknown as AssistantPayload | null;
+      if (parent.mode !== 'PLAN' || parent.status !== 'SUCCEEDED' || asked?.kind !== 'QUESTIONS')
+        return { status: 400, data: { message: 'Отвечать можно только на вопросы плана, который ждёт ответов' } };
+      const parsed = parsePlanAnswers(body['answers'], asked.questions);
+      if (!parsed.ok) return { status: 400, data: { message: parsed.message } };
+      text = planFollowUpText(parent.userText, asked.questions, parsed.answers, typed || null);
+    }
+    const answers = replying;
     clock += 1000;
     const run: AiRun = {
       id: `ai-${aiRuns.length + 1}`,
@@ -606,7 +622,7 @@ function assistantRoute(path: string, method: string, body: Record<string, unkno
       status: 'QUEUED',
       requestKey: key,
       userText: text || 'Предложи три варианта оформления по данным гостиницы.',
-      answered: !!answers,
+      answered: answers,
       baseVersionId: latest()?.id ?? null,
       assistantText: null,
       payload: null,

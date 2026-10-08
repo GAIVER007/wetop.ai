@@ -9,8 +9,11 @@ import {
 import { randomUUID } from 'node:crypto';
 import {
   PATCH_INSTRUCTION_MAX,
+  SITE_AI_USER_TEXT_MAX,
   parseAssistantText,
   parseEditInstruction,
+  parsePlanAnswers,
+  planFollowUpText,
   siteGenerationBudget,
   type AssistantPayload,
   type SiteAiMode,
@@ -31,7 +34,6 @@ import { assertSiteBuilderWrite, siteScope, siteTransaction, type SiteScope } fr
  * одна активная задача ИИ на сайт и предел часа общие со сборкой. Ответ модели проверяет воркер до записи.
  */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ID_RE = /^[a-z0-9][a-z0-9-]{0,47}$/;
 export const CONVERSATION_LIMIT = 100;
 
 export const AI_RUN_SELECT = {
@@ -67,21 +69,6 @@ function strictBody(body: unknown, allowed: string[]): Record<string, unknown> {
   return body as Record<string, unknown>;
 }
 
-/** Ответы на вопросы плана: до четырёх пар «вопрос → ответ», дописываются к запросу человека словами */
-function answersText(raw: unknown): string | null {
-  if (raw === undefined) return null;
-  if (!Array.isArray(raw) || raw.length < 1 || raw.length > 4) throw new BadRequestException('answers: от 1 до 4 ответов');
-  const lines = raw.map((a, i) => {
-    if (!a || typeof a !== 'object' || Array.isArray(a)) throw new BadRequestException(`answers[${i}]: объект`);
-    const { questionId, answer } = a as Record<string, unknown>;
-    if (typeof questionId !== 'string' || !ID_RE.test(questionId)) throw new BadRequestException(`answers[${i}].questionId: id вопроса`);
-    const text = parseAssistantText(answer, false);
-    if (!text.ok || [...(text.value ?? '')].length > 400) throw new BadRequestException(`answers[${i}].answer: от 1 до 400 знаков`);
-    return `${questionId}: ${text.value}`;
-  });
-  return `Ответы на вопросы:\n${lines.join('\n')}`;
-}
-
 @Injectable()
 export class SiteAssistantService {
   constructor(
@@ -101,25 +88,46 @@ export class SiteAssistantService {
   /** Новый запрос к ассистенту: 202 новая задача, 200 повтор того же ключа (та же задача, лимит не тратится) */
   async request(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
-    const input = strictBody(body, ['requestKey', 'mode', 'text', 'answers']);
+    const input = strictBody(body, ['requestKey', 'mode', 'text', 'answers', 'replyToRunId']);
     const requestKey = input['requestKey'];
     if (typeof requestKey !== 'string' || !UUID_RE.test(requestKey)) throw new BadRequestException('requestKey: UUID');
     const mode = input['mode'];
     if (mode !== 'CHAT' && mode !== 'PLAN' && mode !== 'DESIGN') throw new BadRequestException('mode: CHAT, PLAN или DESIGN');
-    if (input['answers'] !== undefined && mode !== 'PLAN') throw new BadRequestException('answers: только у плана');
-    // оформление можно попросить без слов: тогда ИИ опирается только на данные филиала
-    const text = parseAssistantText(input['text'], mode === 'DESIGN' || input['answers'] !== undefined);
+    // Ответ на вопросы плана (доводка MKT9.2): родительская задача и ответы приходят вместе и только у плана
+    const replying = input['answers'] !== undefined || input['replyToRunId'] !== undefined;
+    if (replying && mode !== 'PLAN') throw new BadRequestException('answers и replyToRunId: только у плана');
+    if (replying && (input['answers'] === undefined || input['replyToRunId'] === undefined))
+      throw new BadRequestException('Ответ на вопросы плана: нужны и replyToRunId, и answers');
+    const replyTo = input['replyToRunId'];
+    if (replying && (typeof replyTo !== 'string' || !UUID_RE.test(replyTo))) throw new BadRequestException('replyToRunId: UUID');
+    // оформление можно попросить без слов: тогда ИИ опирается только на данные филиала; ответ на вопросы без дополнения
+    const text = parseAssistantText(input['text'], mode === 'DESIGN' || replying);
     if (!text.ok) throw new BadRequestException(text.message);
-    const answers = answersText(input['answers']);
-    const userText = [text.value, answers].filter(Boolean).join('\n\n') || 'Предложи три варианта оформления по данным гостиницы.';
-    if ([...userText].length > 4000) throw new BadRequestException('Запрос вместе с ответами длиннее 4000 знаков');
 
-    const existing = await siteTransaction(this.prisma, scope, false, async (tx) => {
+    const read = await siteTransaction(this.prisma, scope, false, async (tx) => {
       const site = await this.activeSite(tx, scope);
       if (!site) throw new ConflictException('Сначала создайте сайт');
-      return tx.siteAiRun.findUnique({ where: { siteId_requestKey: { siteId: site.id, requestKey } }, select: AI_RUN_SELECT });
+      const existing = await tx.siteAiRun.findUnique({ where: { siteId_requestKey: { siteId: site.id, requestKey } }, select: AI_RUN_SELECT });
+      // родитель ищется только в этом сайте: чужой филиал получает тот же 404, что и несуществующий id
+      const parent = replying
+        ? await tx.siteAiRun.findFirst({ where: { id: replyTo as string, siteId: site.id }, select: { mode: true, status: true, payload: true, userText: true } })
+        : null;
+      return { existing, parent };
     });
-    if (existing) return { created: false, run: aiRunView(existing) };
+    if (read.existing) return { created: false, run: aiRunView(read.existing) };
+
+    let userText: string;
+    if (replying) {
+      if (!read.parent) throw new NotFoundException('Вопросы плана не найдены');
+      const payload = read.parent.payload as AssistantPayload | null;
+      if (read.parent.mode !== 'PLAN' || read.parent.status !== 'SUCCEEDED' || payload?.kind !== 'QUESTIONS')
+        throw new BadRequestException('Отвечать можно только на вопросы плана, который ждёт ответов');
+      const answers = parsePlanAnswers(input['answers'], payload.questions);
+      if (!answers.ok) throw new BadRequestException(answers.message);
+      userText = planFollowUpText(read.parent.userText, payload.questions, answers.answers, text.value);
+    } else userText = text.value ?? 'Предложи три варианта оформления по данным гостиницы.';
+    if ([...userText].length > SITE_AI_USER_TEXT_MAX)
+      throw new BadRequestException(`Запрос вместе с вопросами и ответами длиннее ${SITE_AI_USER_TEXT_MAX} знаков`);
 
     await assertSiteBuilderWrite(this.prisma, scope);
     if (!this.bot) throw new ServiceUnavailableException('ИИ сайта не подключён');

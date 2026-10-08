@@ -7561,3 +7561,16 @@
 | 08.10.2026 13:16 | integration | ❌ упало 1 из 951 | 2 мин 45 с | e3fc13f +6 | [лог](logs/2026-10-08T08-16-18Z-integration-4412.log) | (файл не выполнился) |
 | 08.10.2026 13:19 | integration | ✅ 951 из 951 | 2 мин 45 с | e3fc13f +6 | [лог](logs/2026-10-08T08-19-44Z-integration-7742.log) |  |
 | 08.10.2026 13:29 | e2e (частично: --config tests/sites/playwright.config.ts --workers=1) | ✅ 11 из 11 | 12 с | e3fc13f +4 | [лог](logs/2026-10-08T08-29-38Z-e2e-b343.log) |  |
+| 08.10.2026 14:33 | unit (частично: packages/domain/src/marketing/conversation.test.ts) | ❌ код выхода 1 | 1 с | 616c25b +3 | [лог](logs/2026-10-08T09-33-25Z-unit-7283.log) | (файл не выполнился) |
+| 08.10.2026 14:33 | unit (частично: packages/domain/src/marketing/conversation.test.ts) | ✅ 9 из 9 | 2 с | 616c25b +5 | [лог](logs/2026-10-08T09-33-47Z-unit-5c57.log) |  |
+| 08.10.2026 14:35 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ❌ код выхода 1 | 3 с | 616c25b +5 | [лог](logs/2026-10-08T09-35-15Z-integration-a56b.log) |  |
+| 08.10.2026 14:35 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ❌ упало 8 из 24 | 13 с | 616c25b +5 | [лог](logs/2026-10-08T09-35-34Z-integration-52d2.log) | MKT9.2 licensed site builder разговор с ИИ: Чат, План, Оформление План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт  |
+| 08.10.2026 14:36 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ❌ упало 1 из 24 | 12 с | 616c25b +8 | [лог](logs/2026-10-08T09-36-50Z-integration-5aad.log) | MKT9.2 licensed site builder разговор с ИИ: Чат, План, Оформление Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разгов |
+| 08.10.2026 14:37 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ✅ 24 из 24 | 12 с | 616c25b +8 | [лог](logs/2026-10-08T09-37-10Z-integration-4c07.log) |  |
+| 08.10.2026 14:38 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts -g План --workers=1) | ❌ упало 1 из 1 | 35 с | 616c25b +11 | [лог](logs/2026-10-08T09-38-55Z-e2e-090c.log) | режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз |
+| 08.10.2026 14:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts -g План --workers=1) | ✅ 1 из 1 | 27 с | 616c25b +13 | [лог](logs/2026-10-08T09-39-45Z-e2e-e83f.log) |  |
+| 08.10.2026 14:41 | typecheck | ✅ без ошибок | 54 с | 616c25b +15 | [лог](logs/2026-10-08T09-41-50Z-typecheck-5ebd.log) |  |
+| 08.10.2026 14:42 | lint | ✅ без ошибок | 32 с | 616c25b +15 | [лог](logs/2026-10-08T09-42-45Z-lint-0034.log) |  |
+| 08.10.2026 14:43 | unit | ✅ 4092 из 4095, пропущено 3 | 1 мин 56 с | 616c25b +13 | [лог](logs/2026-10-08T09-43-17Z-unit-c081.log) |  |
+| 08.10.2026 14:45 | integration | ✅ 960 из 960 | 2 мин 34 с | 616c25b +10 | [лог](logs/2026-10-08T09-45-18Z-integration-ae12.log) |  |
+| 08.10.2026 14:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts tests/ui/ma | ✅ 66 из 66 | 6 мин 2 с | 616c25b +14 | [лог](logs/2026-10-08T09-59-36Z-e2e-2617.log) |  |

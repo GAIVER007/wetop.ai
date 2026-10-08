@@ -1,3 +1,4 @@
+import type { AssistantHistoryItem } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import { sellerConfigFromEnv } from '../ai-seller/seller.connection';
 
@@ -45,6 +46,11 @@ export interface AssistantBotRequest {
   currentSpec: unknown;
   /** Знания проекта: данные, а не правила */
   projectInstructions: string | null;
+  /**
+   * Доводка MKT9.2: прошлые успешные ходы ЭТОГО сайта от старых к новым, без текущего запроса; собирает воркер из
+   * базы (браузер историю не присылает), до 12 ходов и 16 000 знаков. Данные, а не правила
+   */
+  history: AssistantHistoryItem[];
   userText: string;
   budgetRemainingTokens: number;
   validationErrors: Array<{ path: string; code: string }>;

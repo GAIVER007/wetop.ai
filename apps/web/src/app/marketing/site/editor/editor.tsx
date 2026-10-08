@@ -372,9 +372,9 @@ export function SiteEditor({
     job.start(reply.data.run);
     void refreshConversation();
   };
-  const answerPlan = async (answers: Array<{ questionId: string; answer: string }>) => {
+  const answerPlan = async (runId: string, answers: Array<{ questionId: string; answer: string }>) => {
     setAiError(null);
-    const reply = await assistantAction({ mode: 'PLAN', text: '', answers });
+    const reply = await assistantAction({ mode: 'PLAN', text: '', reply: { runId, answers } });
     if (!reply.ok) return setAiError(reply.message);
     talk.start(reply.data.run);
     void refreshConversation();
@@ -700,7 +700,7 @@ export function SiteEditor({
                   readOnly={readOnly}
                   busy={aiBusy || saving}
                   onSend={(text) => void sendAi(text)}
-                  onAnswer={(_, answers) => void answerPlan(answers)}
+                  onAnswer={(runId, answers) => void answerPlan(runId, answers)}
                   onApprove={(planId, instruction) => void approvePlan(planId, instruction)}
                   onApplyDesign={applyDesign}
                   onShowChanges={(item) => void showChanges(item)}

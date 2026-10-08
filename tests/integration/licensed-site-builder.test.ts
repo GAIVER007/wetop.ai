@@ -16,6 +16,7 @@ import { GENERATION_BOT, type AssistantBotRequest } from '../../apps/api/src/mar
 import { SiteGenerationWorker } from '../../apps/api/src/marketing-site/generation.worker';
 import { MemorySiteAssetStorage, SITE_ASSET_STORAGE } from '../../apps/api/src/marketing-site/asset-storage';
 import { PlatformModule } from '../../apps/api/src/platform/platform.module';
+import { SiteBuilderLicenses } from '../../apps/api/src/platform/site-builder-licenses';
 import { useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
@@ -355,6 +356,20 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       expect(await db.marketingSite.count({ where: { locationId: w.location } })).toBe(1);
     });
 
+    it('bootstrap одновременно: ровно одна строка; два филиала дают два разных сайта', async () => {
+      const w = await world();
+      await grantSiteBuilder(db, w.other);
+      const otherScope = { scope: `business=${w.business};location=${w.other}` };
+      const results = await Promise.all(Array.from({ length: 5 }, () => call(w, 'POST', '/marketing/site/bootstrap', {}, otherScope)));
+      expect(results.map((r) => r.status).sort()).toEqual([200, 200, 200, 200, 201]);
+      expect(new Set(results.map((r) => r.body.site.id)).size).toBe(1);
+      expect(await db.marketingSite.count({ where: { locationId: w.other } })).toBe(1);
+      const own = await call(w, 'POST', '/marketing/site/bootstrap', {});
+      expect(own.status).toBe(201);
+      expect(own.body.site.id).not.toBe(results[0]!.body.site.id);
+      expect(await db.marketingSite.count({ where: { locationId: { in: [w.location, w.other] } } })).toBe(2);
+    });
+
     it('знания проекта: чтение, правка, предел 5000, в журнале только длина', async () => {
       const w = await world();
       await call(w, 'POST', '/marketing/site/bootstrap', {});
@@ -386,7 +401,7 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       expect(sent).toMatchObject({ schemaVersion: 'site-assistant/0', mode: 'CHAT', projectInstructions: 'Тон спокойный', userText: 'Что можно улучшить на первом экране?' });
       expect((sent.currentSpec as Spec).pages[0].sections[0].heading.ru).toBe('Первый экран');
       expect(Object.keys(sent).sort()).toEqual(
-        ['briefInput', 'budgetRemainingTokens', 'currentSpec', 'mode', 'projectInstructions', 'requestId', 'schemaVersion', 'siteSpecSchemaVersion', 'userText', 'validationErrors'].sort(),
+        ['briefInput', 'budgetRemainingTokens', 'currentSpec', 'history', 'mode', 'projectInstructions', 'requestId', 'schemaVersion', 'siteSpecSchemaVersion', 'userText', 'validationErrors'].sort(),
       );
       const done = await aiRun(r.body.run.id);
       expect(done).toMatchObject({ status: 'SUCCEEDED', assistantText: 'Сделайте заголовок короче.', tokensInput: 400, tokensOutput: 100 });
@@ -427,7 +442,7 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       expect((await aiRun(q.body.run.id)).payload).toMatchObject({ kind: 'QUESTIONS' });
       expect((await call(w, 'POST', `/marketing/site/assistant/${q.body.run.id}/approve`, {})).status).toBe(404);
 
-      const p = await ask(w, 'PLAN', undefined, randomUUID(), { answers: [{ questionId: 'tone', answer: 'Тёплый' }] });
+      const p = await ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: q.body.run.id, answers: [{ questionId: 'tone', answer: 'Тёплый' }] });
       expect(p.status, p.text).toBe(202);
       fake.state.replies.push({
         status: 'ok',
@@ -505,6 +520,229 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
     });
   });
 
+  describe('разговор помнит контекст: история только этого сайта и ответы на вопросы плана', () => {
+    const chatReply = (answer: string) => ({ status: 'ok' as const, result: { answer, suggestBuild: false }, model: 'openai/a', usage: usage(100, 50) });
+    const QUESTIONS = [
+      { id: 'tone', question: 'Какой тон?', options: ['Спокойный', 'Яркий'], allowCustom: false },
+      { id: 'audience', question: 'Для кого сайт?', options: ['Туристы', 'Бизнес-путешественники'], allowCustom: true },
+    ];
+    async function questionsRun(w: World, text = 'Сделай сайт более премиальным') {
+      const q = await ask(w, 'PLAN', text);
+      expect(q.status, q.text).toBe(202);
+      fake.state.replies.push({ status: 'ok', result: { kind: 'QUESTIONS', questions: QUESTIONS }, model: 'openai/a', usage: usage(100, 50) });
+      await worker.tick();
+      expect((await aiRun(q.body.run.id)).status).toBe('SUCCEEDED');
+      return q.body.run.id as string;
+    }
+
+    it('Чат: второй ход видит первый (вопрос и ответ), текущий запрос в историю не попадает', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      await ask(w, 'CHAT', 'Предложи два варианта первого экрана');
+      fake.state.replies.push(chatReply('1. Спокойный. 2. Более городской.'));
+      await worker.tick();
+      await ask(w, 'CHAT', 'Второй вариант сделай короче');
+      fake.state.replies.push(chatReply('Короче: город рядом.'));
+      await worker.tick();
+      expect(fake.state.assistant[0]!.history).toEqual([]);
+      expect(fake.state.assistant[1]!.history).toEqual([
+        { mode: 'CHAT', userText: 'Предложи два варианта первого экрана', assistantText: '1. Спокойный. 2. Более городской.', payload: { kind: 'CHAT', suggestBuild: false, suggestPublish: false } },
+      ]);
+      expect(fake.state.assistant[1]!.userText).toBe('Второй вариант сделай короче');
+    });
+
+    it('три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает', async () => {
+      const w = await world();
+      const { version } = await siteWithVersion(w);
+      await ask(w, 'CHAT', 'Первый');
+      fake.state.replies.push(chatReply('Ответ первый'));
+      await worker.tick();
+      await ask(w, 'CHAT', 'Упадёт');
+      fake.state.replies.push({ status: 'error', errorCode: 'REJECTED_CONTENT', model: null, usage: usage(10, 0) });
+      await worker.tick();
+      const bad = await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), type: 'PATCH', baseVersionId: version.id, instruction: 'Сборка, которая упадёт' });
+      expect(bad.status, bad.text).toBe(202);
+      fake.state.replies.push({ status: 'error', errorCode: 'REJECTED_CONTENT', model: null, usage: usage(10, 0) });
+      await worker.tick();
+      const good = await call(w, 'POST', '/marketing/site/generations', { requestKey: randomUUID(), type: 'PATCH', baseVersionId: version.id, instruction: 'Заголовок короче' });
+      expect(good.status, good.text).toBe(202);
+      const b = await brief(w);
+      fake.state.replies.push({ status: 'ok', spec: specFor(b.input, 'Короткий'), model: 'openai/a', usage: usage(100, 50) });
+      await worker.tick();
+      expect((await genRun(good.body.run.id)).status).toBe('SUCCEEDED');
+      await ask(w, 'CHAT', 'Второй');
+      fake.state.replies.push(chatReply('Ответ второй'));
+      await worker.tick();
+      await ask(w, 'PLAN', 'Третий');
+      fake.state.replies.push({ status: 'ok', result: { kind: 'QUESTIONS', questions: QUESTIONS }, model: 'openai/a', usage: usage(100, 50) });
+      await worker.tick();
+      const third = fake.state.assistant.at(-1)!;
+      expect(third.userText).toBe('Третий');
+      expect(third.history.map((h) => [h.mode, h.userText, h.assistantText])).toEqual([
+        ['CHAT', 'Первый', 'Ответ первый'],
+        ['BUILD', 'Заголовок короче', 'Изменение применено к сайту'],
+        ['CHAT', 'Второй', 'Ответ второй'],
+      ]);
+      expect(JSON.stringify(third.history)).not.toMatch(/Упадёт|Сборка, которая упадёт/);
+    });
+
+    it('граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      await grantSiteBuilder(db, w.other);
+      const otherScope = { scope: `business=${w.business};location=${w.other}` };
+      expect((await call(w, 'POST', '/marketing/site/bootstrap', {}, otherScope)).status).toBe(201);
+      const stranger = await world();
+      await siteWithVersion(stranger);
+      await ask(w, 'CHAT', 'SENTINEL-SITE-A');
+      fake.state.replies.push(chatReply('ответ A'));
+      await worker.tick();
+      await call(w, 'POST', '/marketing/site/assistant', { requestKey: randomUUID(), mode: 'CHAT', text: 'SENTINEL-SITE-B' }, otherScope);
+      fake.state.replies.push(chatReply('ответ B'));
+      await worker.tick();
+      await ask(stranger, 'CHAT', 'SENTINEL-OTHER-ORG');
+      fake.state.replies.push(chatReply('ответ C'));
+      await worker.tick();
+      await db.auditLog.create({ data: { organizationId: w.org, userId: w.user, entityType: 'marketing_site', entityId: w.location, action: 'test.sentinel', after: { note: 'SENTINEL-AUDIT' } } });
+      await ask(w, 'CHAT', 'Продолжим');
+      fake.state.replies.push(chatReply('ок'));
+      await worker.tick();
+      const sent = JSON.stringify(fake.state.assistant.at(-1));
+      expect(sent).toContain('SENTINEL-SITE-A');
+      expect(sent).not.toMatch(/SENTINEL-SITE-B|SENTINEL-OTHER-ORG|SENTINEL-AUDIT/);
+      // а сайт B видит только себя
+      await call(w, 'POST', '/marketing/site/assistant', { requestKey: randomUUID(), mode: 'CHAT', text: 'Продолжим B' }, otherScope);
+      fake.state.replies.push(chatReply('ок B'));
+      await worker.tick();
+      const sentB = JSON.stringify(fake.state.assistant.at(-1));
+      expect(sentB).toContain('SENTINEL-SITE-B');
+      expect(sentB).not.toMatch(/SENTINEL-SITE-A|SENTINEL-OTHER-ORG/);
+    });
+
+    it('история ограничена 12 последними ходами', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      const site = await db.marketingSite.findFirstOrThrow({ where: { locationId: w.location }, select: { id: true, latestVersionId: true } });
+      const b = await brief(w);
+      // прошлые ходы двухчасовой давности: предел часа на них не распространяется
+      for (let i = 1; i <= 14; i += 1) {
+        const id = randomUUID();
+        const at = new Date(Date.now() - 2 * 3600_000 + i * 1000);
+        await sql.query(
+          `INSERT INTO site_ai_runs (id, site_id, mode, status, request_key, requested_by_id, base_version_id, brief_hash, user_text, created_at)
+           VALUES ($1, $2, 'CHAT', 'QUEUED', $3, $4, $5, $6, $7, $8)`,
+          [id, site.id, randomUUID(), w.user, site.latestVersionId, b.briefHash, `старый ход ${i}`, at],
+        );
+        await sql.query(`UPDATE site_ai_runs SET status = 'RUNNING', started_at = $2, attempts = 1 WHERE id = $1`, [id, at]);
+        await sql.query(
+          `UPDATE site_ai_runs SET status = 'SUCCEEDED', finished_at = $2, assistant_text = $3, payload = '{"kind":"CHAT","suggestBuild":false,"suggestPublish":false}'::jsonb WHERE id = $1`,
+          [id, at, `ответ ${i}`],
+        );
+      }
+      await ask(w, 'CHAT', 'Новый');
+      fake.state.replies.push(chatReply('ок'));
+      await worker.tick();
+      const history = fake.state.assistant.at(-1)!.history;
+      expect(history).toHaveLength(12);
+      expect(history[0]!.userText).toBe('старый ход 3');
+      expect(history.at(-1)!.userText).toBe('старый ход 14');
+    });
+
+    it('ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      const parent = await questionsRun(w);
+      const p = await ask(w, 'PLAN', undefined, randomUUID(), {
+        replyToRunId: parent,
+        answers: [
+          { questionId: 'tone', answer: 'Спокойный' },
+          { questionId: 'audience', answer: 'Бизнес-путешественники' },
+        ],
+      });
+      expect(p.status, p.text).toBe(202);
+      fake.state.replies.push({
+        status: 'ok',
+        result: { kind: 'PLAN', summary: 'Спокойнее', affectedPages: [], affectedSections: [], steps: ['Тон'], tradeoffs: [], buildInstruction: 'Сделай спокойнее.' },
+        model: 'openai/a',
+        usage: usage(100, 50),
+      });
+      await worker.tick();
+      expect((await aiRun(p.body.run.id)).status).toBe('SUCCEEDED');
+      const sent = fake.state.assistant.at(-1)!;
+      for (const piece of ['Сделай сайт более премиальным', 'tone: Какой тон?', 'audience: Для кого сайт?', 'tone: Спокойный', 'audience: Бизнес-путешественники'])
+        expect(sent.userText).toContain(piece);
+      // ход с вопросами в историю не идёт: его содержимое уже в запросе, повторов нет
+      expect(JSON.stringify(sent).split('Сделай сайт более премиальным')).toHaveLength(2);
+      expect(sent.history).toEqual([]);
+      // запрос самодостаточен и в базе
+      expect((await aiRun(p.body.run.id)).userText).toContain('Уточняющие вопросы:');
+    });
+
+    it('ответы проверяются по вопросам родителя: незнакомый, пропуск, повтор, чужой вариант 400; свой при allowCustom проходит; модель не зовётся', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      const parent = await questionsRun(w);
+      const calls = fake.state.assistant.length;
+      const runs = await db.siteAiRun.count({ where: { site: { locationId: w.location } } });
+      const reply = (answers: unknown) => ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: parent, answers });
+      for (const answers of [
+        [{ questionId: 'budget', answer: 'Мало' }, { questionId: 'tone', answer: 'Яркий' }],
+        [{ questionId: 'tone', answer: 'Яркий' }],
+        [{ questionId: 'tone', answer: 'Яркий' }, { questionId: 'tone', answer: 'Спокойный' }],
+        [{ questionId: 'tone', answer: 'Космический' }, { questionId: 'audience', answer: 'Туристы' }],
+      ]) {
+        const r = await reply(answers);
+        expect(r.status, r.text).toBe(400);
+      }
+      expect(fake.state.assistant.length).toBe(calls);
+      expect(await db.siteAiRun.count({ where: { site: { locationId: w.location } } })).toBe(runs);
+      const custom = await reply([{ questionId: 'tone', answer: 'Яркий' }, { questionId: 'audience', answer: 'Семьи с детьми' }]);
+      expect(custom.status, custom.text).toBe(202);
+    });
+
+    it('отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов', async () => {
+      const w = await world();
+      await siteWithVersion(w);
+      const parent = await questionsRun(w);
+      const answers = [{ questionId: 'tone', answer: 'Яркий' }, { questionId: 'audience', answer: 'Туристы' }];
+      // без родителя ответы не принимаются, родитель без ответов тоже
+      expect((await ask(w, 'PLAN', undefined, randomUUID(), { answers })).status).toBe(400);
+      expect((await ask(w, 'PLAN', 'Текст', randomUUID(), { replyToRunId: parent })).status).toBe(400);
+      expect((await ask(w, 'CHAT', 'Текст', randomUUID(), { replyToRunId: parent, answers })).status).toBe(400);
+      // чат вместо плана
+      await ask(w, 'CHAT', 'Привет');
+      fake.state.replies.push(chatReply('Привет'));
+      await worker.tick();
+      const chat = await db.siteAiRun.findFirstOrThrow({ where: { site: { locationId: w.location }, mode: 'CHAT' }, select: { id: true } });
+      expect((await ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: chat.id, answers })).status).toBe(400);
+      // план, который сразу дал план
+      await ask(w, 'PLAN', 'Сразу план');
+      fake.state.replies.push({
+        status: 'ok',
+        result: { kind: 'PLAN', summary: 'План', affectedPages: [], affectedSections: [], steps: ['Шаг'], tradeoffs: [], buildInstruction: 'Сделай.' },
+        model: 'openai/a',
+        usage: usage(10, 10),
+      });
+      await worker.tick();
+      const direct = await db.siteAiRun.findFirstOrThrow({ where: { site: { locationId: w.location }, userText: 'Сразу план' }, select: { id: true } });
+      expect((await ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: direct.id, answers })).status).toBe(400);
+      // упавший план
+      await ask(w, 'PLAN', 'Упавший');
+      fake.state.replies.push({ status: 'error', errorCode: 'REJECTED_CONTENT', model: null, usage: usage(10, 0) });
+      await worker.tick();
+      const failed = await db.siteAiRun.findFirstOrThrow({ where: { site: { locationId: w.location }, userText: 'Упавший' }, select: { id: true } });
+      expect((await ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: failed.id, answers })).status).toBe(400);
+      // чужой филиал знает id задачи
+      await grantSiteBuilder(db, w.other);
+      const otherScope = { scope: `business=${w.business};location=${w.other}` };
+      expect((await call(w, 'POST', '/marketing/site/bootstrap', {}, otherScope)).status).toBe(201);
+      const foreign = await call(w, 'POST', '/marketing/site/assistant', { requestKey: randomUUID(), mode: 'PLAN', replyToRunId: parent, answers }, otherScope);
+      expect(foreign.status).toBe(404);
+      expect(foreign.text).not.toMatch(/Какой тон|Для кого|премиальн/);
+      expect((await ask(w, 'PLAN', undefined, randomUUID(), { replyToRunId: randomUUID(), answers })).status).toBe(404);
+    });
+  });
+
   describe('общие правила ИИ сайта по обеим таблицам', () => {
     it('одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот', async () => {
       const w = await world();
@@ -544,6 +782,19 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       fake.state.replies.push({ status: 'error', errorCode: 'BUDGET_EXCEEDED', model: null, usage: usage(0, 0) });
       await worker.tick();
       expect(fake.state.edit[0]!['budgetRemainingTokens']).toBe(150_000 - 50_000);
+    });
+
+    it('воркер: лицензия действует только при точной цепочке организация, бизнес, филиал', async () => {
+      const w = await world();
+      const stranger = await world();
+      const check = (run: { organizationId: string; businessId: string; locationId: string }) =>
+        (worker as unknown as { licenseActive(r: typeof run): Promise<boolean> }).licenseActive(run);
+      expect(await check({ organizationId: w.org, businessId: w.business, locationId: w.location })).toBe(true);
+      // бизнес чужой организации
+      expect(await check({ organizationId: stranger.org, businessId: w.business, locationId: w.location })).toBe(false);
+      // филиал другого бизнеса
+      expect(await check({ organizationId: stranger.org, businessId: stranger.business, locationId: w.location })).toBe(false);
+      expect(await check({ organizationId: w.org, businessId: stranger.business, locationId: stranger.location })).toBe(false);
     });
 
     it('воркер: лицензию выключили, пока задача ждала, и сборка, и разговор падают LICENSE_UNAVAILABLE без вызова модели', async () => {
@@ -628,6 +879,18 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       // филиал другой организации и не гостиничный: 404
       const stranger = await world('none');
       expect((await admin('PUT', `/platform/organizations/${w.org}/site-builder/${stranger.location}`, { status: 'ACTIVE' })).status).toBe(404);
+    });
+
+    it('сохранение лицензии само перепроверяет филиал в своей транзакции: чужая организация или не гостиница, ничего не записано', async () => {
+      const w = await world('none');
+      const stranger = await world('none');
+      const licenses = platform.get(SiteBuilderLicenses);
+      const change = { status: 'ACTIVE' as const, activeUntil: null, note: null };
+      await expect(licenses.save({ organizationId: stranger.org, locationId: w.location, change, by: adminId, now: new Date() })).rejects.toThrow(/филиал/);
+      expect(await db.siteBuilderEntitlement.count({ where: { locationId: w.location } })).toBe(0);
+      expect(await db.auditLog.count({ where: { organizationId: stranger.org, action: 'site_builder.entitlement_updated' } })).toBe(0);
+      await licenses.save({ organizationId: w.org, locationId: w.location, change, by: adminId, now: new Date() });
+      expect(await db.siteBuilderEntitlement.count({ where: { locationId: w.location } })).toBe(1);
     });
 
     it('партнёр (владелец организации) лицензию не видит через платформу и не выдаёт', async () => {

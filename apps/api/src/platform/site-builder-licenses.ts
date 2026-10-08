@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { siteBuilderAccess, type ExtensionChange } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
@@ -67,6 +67,13 @@ export class SiteBuilderLicenses {
   /** Изменение и строка журнала одной транзакцией: без записи в журнале лицензия не меняется */
   async save(input: { organizationId: string; locationId: string; change: ExtensionChange; by: string | null; now: Date }): Promise<void> {
     await this.prisma.db.$transaction(async (tx) => {
+      // перепроверка в той же транзакции, что запись: проверки контроллера до неё мало (филиал могли перенести)
+      await tx.$queryRaw`SELECT id FROM locations WHERE id = ${input.locationId}::uuid FOR UPDATE`;
+      const owned = await tx.location.findFirst({
+        where: { id: input.locationId, business: { organizationId: input.organizationId, vertical: 'HOSPITALITY' } },
+        select: { id: true },
+      });
+      if (!owned) throw new NotFoundException('Такого гостиничного филиала у организации нет');
       const before = await tx.siteBuilderEntitlement.findUnique({
         where: { locationId: input.locationId },
         select: { status: true, activeUntil: true, note: true },

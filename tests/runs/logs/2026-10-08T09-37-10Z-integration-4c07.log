@@ -1,0 +1,29 @@
+# Интеграционные (integration) · 08.10.2026 14:37 Алматы · vm
+# коммит 616c25b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T09-37-10Z-integration-4c07.json' 'tests/integration/licensed-site-builder.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:20802) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/licensed-site-builder.test.ts (24 tests) 6906ms
+   ✓ MKT9.2 licensed site builder (24)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 878ms
+     ✓ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       ✓ три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 574ms
+       ✓ граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 542ms
+       ✓ отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 374ms
+     ✓ общие правила ИИ сайта по обеим таблицам (4)
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 473ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 809ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  09:37:11
+   Duration  11.41s (tests 73%, transform 18%, import 9%)
+
+JSON report written to /tmp/pms-test-2026-10-08T09-37-10Z-integration-4c07.json
+
+# код выхода 0 · 12 с

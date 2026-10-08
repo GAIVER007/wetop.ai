@@ -38,6 +38,7 @@ import {
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { assistant } from '@pms/integrations';
+import { siteAssistantHistory } from './assistant-history';
 import { PrismaService } from '../database/prisma.provider';
 import { SiteBriefService } from './brief.service';
 import { GENERATION_BOT, type GenerationBot } from './generation.bot';
@@ -84,6 +85,7 @@ interface ClaimedAssistant {
   briefHash: string | null;
   baseVersionId: string | null;
   userText: string;
+  createdAt: Date;
 }
 
 interface BotReply {
@@ -268,6 +270,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
               briefHash: true,
               baseVersionId: true,
               userText: true,
+              createdAt: true,
               site: { select: { location: { select: { id: true, businessId: true } } } },
             },
           });
@@ -284,6 +287,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
             briefHash: run.briefHash,
             baseVersionId: run.baseVersionId,
             userText: run.userText,
+            createdAt: run.createdAt,
           };
         }
         const before = await tx.generationRun.findUniqueOrThrow({ where: { id: candidate.id }, select: { startedAt: true, attempts: true } });
@@ -343,8 +347,12 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
     const [entitlement, org, business, location] = await Promise.all([
       this.prisma.db.siteBuilderEntitlement.findUnique({ where: { locationId: run.locationId }, select: { status: true, activeUntil: true } }),
       this.prisma.db.organization.findUnique({ where: { id: run.organizationId }, select: { status: true, trialEndsAt: true } }),
-      this.prisma.db.business.findFirst({ where: { id: run.businessId, status: 'ACTIVE', vertical: 'HOSPITALITY' }, select: { id: true } }),
-      this.prisma.db.location.findFirst({ where: { id: run.locationId, status: 'ACTIVE' }, select: { id: true } }),
+      // точная цепочка, а не каждая строка по отдельности: бизнес этой организации, филиал этого бизнеса
+      this.prisma.db.business.findFirst({
+        where: { id: run.businessId, organizationId: run.organizationId, status: 'ACTIVE', vertical: 'HOSPITALITY' },
+        select: { id: true },
+      }),
+      this.prisma.db.location.findFirst({ where: { id: run.locationId, businessId: run.businessId, status: 'ACTIVE' }, select: { id: true } }),
     ]);
     return siteBuilderAccess(entitlement, now) === 'active' && !!org && canWrite(org.status, org.trialEndsAt, now) && !!business && !!location;
   }
@@ -644,6 +652,9 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       ? await this.prisma.db.marketingSiteVersion.findFirst({ where: { id: run.baseVersionId, siteId: run.siteId }, select: { spec: true } })
       : null;
 
+    // история разговора только этого сайта и только из базы (не из браузера), до текущей задачи
+    const history = await siteAssistantHistory(this.prisma.db, run);
+
     const marked = await this.prisma.db.siteAiRun.updateMany({ where: { id: run.id, status: 'RUNNING' }, data: { dispatchedAt: this.now() } });
     if (marked.count === 0) return;
     let raw: unknown;
@@ -656,6 +667,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
         briefInput: brief.input,
         currentSpec: base?.spec ?? null,
         projectInstructions: site.builderInstructions,
+        history,
         userText: run.userText,
         budgetRemainingTokens: remaining,
         validationErrors: [],

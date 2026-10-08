@@ -105,11 +105,23 @@ export async function designFirstAction(instruction: string) {
   return safe(() => siteEditorApi.assistant({ requestKey: randomUUID(), mode: 'DESIGN', ...(text ? { text } : {}) }));
 }
 
-/** MKT9.2: Чат, План и Оформление; ответы на вопросы плана уходят тем же путём */
-export async function assistantAction(input: { mode: 'CHAT' | 'PLAN' | 'DESIGN'; text: string; answers?: Array<{ questionId: string; answer: string }> }) {
+/**
+ * MKT9.2: Чат, План и Оформление. Ответ на вопросы плана уходит с id задачи вопросов (`replyToRunId`): исходную просьбу и
+ * точные вопросы сервер берёт из своей базы, а не из браузера
+ */
+export async function assistantAction(input: {
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  text: string;
+  reply?: { runId: string; answers: Array<{ questionId: string; answer: string }> };
+}) {
   const text = input.text.trim();
   return safe(() =>
-    siteEditorApi.assistant({ requestKey: randomUUID(), mode: input.mode, ...(text ? { text } : {}), ...(input.answers ? { answers: input.answers } : {}) }),
+    siteEditorApi.assistant({
+      requestKey: randomUUID(),
+      mode: input.mode,
+      ...(text ? { text } : {}),
+      ...(input.reply ? { replyToRunId: input.reply.runId, answers: input.reply.answers } : {}),
+    }),
   );
 }
 

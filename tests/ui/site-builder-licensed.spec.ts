@@ -85,6 +85,10 @@ test('режим «План»: вопросы с вариантами, план 
   await expect(questions).toContainText('Какой тон сайта?');
   await questions.getByRole('radio', { name: 'Тёплый' }).check();
   await questions.getByTestId('ed-questions-send').click();
+  // ответ уходит с id задачи вопросов: сервер сам собирает исходную просьбу, вопросы и ответы
+  await expect(ai(page).getByTestId('ed-feed')).toContainText('Исходный запрос:');
+  await expect(ai(page).getByTestId('ed-feed')).toContainText('tone: Какой тон сайта?');
+  await expect(ai(page).getByTestId('ed-feed')).toContainText('tone: Тёплый');
   const plan = ai(page).getByTestId('ed-plan');
   await expect(plan).toContainText('Короче первый экран и номера выше');
   await expect(plan).toContainText('Раздел «О нас» опустится ниже');

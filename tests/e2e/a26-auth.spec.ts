@@ -21,8 +21,12 @@ test('real browser login, protected page, logout and expired session with LA dat
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Почта').fill(data.email);
     await dialog.getByLabel('Пароль', { exact: true }).fill(data.password);
-    await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`^${regex(web)}/(today|branches)`));
+    const destination = new RegExp(`^${regex(web)}/(today|branches)`);
+    await Promise.all([
+      page.waitForURL(destination, { waitUntil: 'domcontentloaded' }),
+      dialog.getByRole('button', { name: 'Войти', exact: true }).click(),
+    ]);
+    await expect(page).toHaveURL(destination);
   };
   await login();
   await page.goto('/profile/access');

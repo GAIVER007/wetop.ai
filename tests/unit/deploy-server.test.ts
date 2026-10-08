@@ -232,7 +232,10 @@ describe('deploy/compose.yml', () => {
         for (const allowed of [undefined, '0', '1']) {
           vi.stubEnv('APP_ALLOW_TEST_DATA', allowed);
           vi.resetModules();
-          const { default: config } = await import('../../apps/web/next.config');
+          const configPath = join(ROOT, 'apps/web/next.config.ts');
+          const { default: config } = (await import(configPath)) as {
+            default: { turbopack?: { root?: string } };
+          };
           expect(config.turbopack?.root).toBe(allowed === '1' ? '/test-only-runtime' : undefined);
         }
       } finally {

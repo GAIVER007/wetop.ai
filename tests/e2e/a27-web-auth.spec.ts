@@ -263,10 +263,14 @@ async function loginThroughSite(page: Page, next = '/today') {
     (response) =>
       response.url().includes('/api/site-auth/login') && response.request().method() === 'POST',
   );
-  await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-  const response = await responsePromise;
+  const destination = new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`);
+  const [response] = await Promise.all([
+    responsePromise,
+    page.waitForURL(destination, { waitUntil: 'domcontentloaded' }),
+    dialog.getByRole('button', { name: 'Войти', exact: true }).click(),
+  ]);
   expect(response.status()).toBe(200);
-  await expect(page).toHaveURL(new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`));
+  await expect(page).toHaveURL(destination);
   return response;
 }
 
@@ -280,8 +284,12 @@ async function loginFixtureThroughSite(
   await expect(dialog).toBeVisible();
   await dialog.getByLabel('Почта').fill(credentials.email);
   await dialog.getByLabel('Пароль', { exact: true }).fill(credentials.password);
-  await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`));
+  const destination = new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`);
+  await Promise.all([
+    page.waitForURL(destination, { waitUntil: 'domcontentloaded' }),
+    dialog.getByRole('button', { name: 'Войти', exact: true }).click(),
+  ]);
+  await expect(page).toHaveURL(destination);
 }
 
 async function openAccess(page: Page) {
@@ -1129,14 +1137,17 @@ test('owner can open and reload protected routes through the real branch and nav
     ['/chessboard', 'Календарь'],
     ['/reservations', 'Брони'],
   ] as const) {
-    await page.goto(`${web}${route}`);
+    await page.goto(`${web}${route}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(new RegExp(`${route.replace('/', '\\/')}(?:[?#]|$)`));
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
 
-  await page.goto(`${web}/today?period=week&a27Return=owner-positive`);
+  await page.goto(`${web}/today?period=week&a27Return=owner-positive`, {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
   const sameIdentityScope = await selectedScope(context);
   const sameIdentitySentinel = 'a27-same-identity-document';
   const sameIdentityQuery = new URL(page.url()).search;
@@ -1509,8 +1520,12 @@ for (const width of [1440, 390]) {
 
       await email.fill(privateData.email);
       await dialog.getByLabel('Пароль', { exact: true }).fill(privateData.password);
-      await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-      await expect(page).toHaveURL(new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`));
+      const destination = new RegExp(`^${web.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`);
+      await Promise.all([
+        page.waitForURL(destination, { waitUntil: 'domcontentloaded' }),
+        dialog.getByRole('button', { name: 'Войти', exact: true }).click(),
+      ]);
+      await expect(page).toHaveURL(destination);
       await openAccess(page);
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       await page.getByRole('button', { name: 'Выйти', exact: true }).click();

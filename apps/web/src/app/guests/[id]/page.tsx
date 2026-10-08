@@ -1,7 +1,7 @@
 import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { countGuestNights, summarizeGuestStays } from '@pms/domain';
-import { RecordTabs } from '../../../components/record-tabs';
+import { Tabs } from '../../../components/tabs';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, guestsApi, messengerLinks, type GuestCard } from '../../../lib/api';
 import { hotelToday, sourceNames } from '../../../lib/hotel-api';
@@ -338,7 +338,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
           <StaysTable stays={stays.slice(0, OVERVIEW_STAYS)} />
           {stays.length > OVERVIEW_STAYS && (
             <p className="guest-overview-more">
-              {/* ссылка на вкладку: RecordTabs переключает её без перехода */}
+              {/* ссылка на вкладку: вкладки (Tabs) переключают её без перехода */}
               <a href="#guest-stays">Все проживания ({stays.length})</a>
             </p>
           )}
@@ -364,7 +364,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
         // «Только чтение» (ADR-102): действия, которых нельзя, не рисуются — как «Новая бронь» на «Бронях»
         readOnly ? undefined : (
           <>
-            {/* обычная ссылка-якорь: смена адреса после # переключает вкладку (RecordTabs слушает hashchange) */}
+            {/* обычная ссылка-якорь: смена адреса после # переключает вкладку (Tabs слушает hashchange) */}
             <a className="btn btn--secondary" href="#guest-profile">
               Редактировать
             </a>
@@ -411,9 +411,9 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
           </dd>
         </div>
       </dl>
-      <RecordTabs
+      <Tabs
         label="Разделы карточки гостя"
-        tabs={[
+        panels={[
           { id: 'guest-overview', label: 'Обзор', content: overview },
           {
             id: 'guest-stays',

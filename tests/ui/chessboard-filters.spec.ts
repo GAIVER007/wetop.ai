@@ -253,21 +253,23 @@ test('§38: вид «Компактный / Обычный / Подробный�
 }) => {
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
-  const view = main.getByLabel('Вид строк календаря');
+  // переключатель (DS1b): кнопки с aria-pressed вместо выпадающего списка
+  const view = main.getByRole('group', { name: 'Вид строк календаря' });
+  const pick = (name: string) => view.getByRole('button', { name, exact: true });
   // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
-  await expect(view).toHaveValue('compact');
+  await expect(pick('Компактный')).toHaveAttribute('aria-pressed', 'true');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
   const compact = await height();
-  await view.selectOption('normal');
+  await pick('Обычный').click();
   const normal = await height();
-  await view.selectOption('detailed');
+  await pick('Подробный').click();
   const detailed = await height();
   expect(compact).toBeLessThan(normal);
   expect(detailed).toBeGreaterThan(normal);
-  await view.selectOption('normal');
+  await pick('Обычный').click();
   await page.reload();
-  await expect(main.getByLabel('Вид строк календаря')).toHaveValue('normal');
+  await expect(pick('Обычный')).toHaveAttribute('aria-pressed', 'true');
   expect(await height()).toBe(normal);
 });
 

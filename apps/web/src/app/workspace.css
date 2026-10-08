@@ -300,7 +300,8 @@
   .tbl-wrap .table-scroll > .tbl {
     border: 0;
   }
-  .toolbar {
+  /* Прежняя полоса отбора карточкой (до DS1b `.toolbar`); осталась у отчёта каналов до DS4–DS7 */
+  .filter-bar {
     padding: 16px;
     border: 1px solid var(--border);
     margin-bottom: 20px;
@@ -443,10 +444,10 @@
     .workspace textarea {
       font-size: var(--text-lg);
     }
-    .toolbar {
+    .filter-bar {
       gap: 12px;
     }
-    .toolbar .field {
+    .filter-bar .field {
       flex: 1 1 140px;
     }
   }
@@ -856,7 +857,7 @@
     display: contents;
   }
   /* полоса отборов с подписанными полями: поля по нижнему краю (до DS0b жило в management/hotel.css) */
-  .row.toolbar {
+  .row.filter-bar {
     align-items: flex-end;
   }
 }

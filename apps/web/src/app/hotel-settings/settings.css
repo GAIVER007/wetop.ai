@@ -151,16 +151,6 @@
   .object-settings .page__subtitle {
     font-size: var(--text-sm);
   }
-  .object-settings .settings-tabs {
-    margin-bottom: var(--space-6);
-    width: fit-content;
-    max-width: 100%;
-    border: 0;
-    background: var(--surface-muted);
-  }
-  .object-settings .settings-tabs a {
-    min-height: var(--touch-target);
-  }
   .object-settings .settings-form,
   .object-settings .settings-stack {
     max-width: none;
@@ -203,13 +193,6 @@
     }
     .object-settings .settings-block {
       padding: var(--space-4);
-    }
-    .object-settings .settings-tabs {
-      width: 100%;
-    }
-    .object-settings .settings-tabs a {
-      flex: 1;
-      justify-content: center;
     }
   } /* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.
    Телефон, роль и дата входа строками под именем: только на телефоне, где их колонки скрыты. */ /* шесть колонок: имени хватает трети, выбору роли нужна ширина под «Управляющий» */

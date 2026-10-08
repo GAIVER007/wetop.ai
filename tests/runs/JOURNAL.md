@@ -7584,3 +7584,34 @@
 | 08.10.2026 19:48 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/design-slop.test.ts tests/ | ✅ 44 из 44 | 2 с | bfef9af | [лог](logs/2026-10-08T14-48-40Z-unit-fadb.log) |  |
 | 08.10.2026 20:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/mobile-adaptation.spec.ts --workers=1 --repeat-each=2) | ✅ 14 из 14 | 2 мин 12 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-29-39Z-e2e-4754.log) |  |
 | 08.10.2026 20:32 | typecheck | ✅ без ошибок | 40 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-32-01Z-typecheck-5076.log) |  |
+| 08.10.2026 13:35 | unit (частично: apps/web/src/components/primitives.test.ts) | ❌ код выхода 1 | 3 с | 5c2ed16 +1 | [лог](logs/2026-10-08T08-35-27Z-unit-e76c.log) | (файл не выполнился) |
+| 08.10.2026 13:36 | unit (частично: apps/web/src/components/primitives.test.ts) | ❌ код выхода 1 | 2 с | 5c2ed16 +5 | [лог](logs/2026-10-08T08-36-52Z-unit-9518.log) | (файл не выполнился) |
+| 08.10.2026 13:37 | unit (частично: apps/web/src/components/primitives.test.ts) | ✅ 19 из 19 | 1 с | 5c2ed16 +6 | [лог](logs/2026-10-08T08-37-05Z-unit-4a3b.log) |  |
+| 08.10.2026 13:43 | typecheck | ✅ без ошибок | 49 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-43-07Z-typecheck-79fc.log) |  |
+| 08.10.2026 13:43 | lint | ❌ ошибок: 1 | 36 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-43-57Z-lint-7224.log) | no-unexpected-multiline |
+| 08.10.2026 13:45 | lint | ✅ без ошибок | 40 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-45-06Z-lint-c724.log) |  |
+| 08.10.2026 13:45 | unit | ✅ 4077 из 4080, пропущено 3 | 2 мин 1 с | 5c2ed16 +27 | [лог](logs/2026-10-08T08-45-48Z-unit-1309.log) |  |
+| 08.10.2026 13:49 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 5c2ed16 +30 | [лог](logs/2026-10-08T08-49-25Z-e2e-99cf.log) |  |
+| 08.10.2026 13:50 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ✅ 350 из 350 | 35 мин 42 с | df0cc01 | [лог](logs/2026-10-08T08-50-49Z-e2e-1281.log) |  |
+| 08.10.2026 14:26 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 3 из 351, пропущено 16 | 28 мин 20 с | 6439663 | [лог](logs/2026-10-08T09-26-32Z-e2e-487f.log) | axe и эталонные снимки секций: light |
+| 08.10.2026 14:54 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ упало 1 из 349 | 24 мин 56 с | 1195291 | [лог](logs/2026-10-08T09-54-53Z-e2e-b5c1.log) | создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик |
+| 08.10.2026 15:20 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts tests/ui/loading-performance.spec.ts --workers=1) | ✅ 18 из 18 | 1 мин 28 с | ebf6e88 | [лог](logs/2026-10-08T10-20-01Z-e2e-d536.log) |  |
+| 08.10.2026 15:23 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/reservations-design.spec.ts tests/ui/re | ❌ упало 2 из 60 | 4 мин 19 с | ebf6e88 +1 | [лог](logs/2026-10-08T10-23-59Z-e2e-c5a2.log) | axe и эталонные снимки секций: light |
+| 08.10.2026 18:26 | typecheck | ✅ без ошибок | 39 с | aec176c | [лог](logs/2026-10-08T13-26-27Z-typecheck-0773.log) |  |
+| 08.10.2026 18:27 | lint | ✅ без ошибок | 31 с | aec176c | [лог](logs/2026-10-08T13-27-06Z-lint-503e.log) |  |
+| 08.10.2026 18:27 | unit | ✅ 4111 из 4114, пропущено 3 | 1 мин 54 с | aec176c | [лог](logs/2026-10-08T13-27-39Z-unit-fc1b.log) |  |
+| 08.10.2026 18:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/reservations-compact.spec.ts tests/ui/reservations-design.spec.ts test | ✅ 170 из 170 | 16 мин 22 с | aec176c | [лог](logs/2026-10-08T13-30-41Z-e2e-f44e.log) |  |
+| 08.10.2026 18:53 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ✅ 357 из 357 | 37 мин 48 с | 3d41f63 | [лог](logs/2026-10-08T13-53-24Z-e2e-0b79.log) |  |
+| 08.10.2026 19:31 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 2 из 357, пропущено 16 | 28 мин 54 с | a7f0cbb | [лог](logs/2026-10-08T14-31-13Z-e2e-b36a.log) | axe и эталонные снимки секций: light |
+| 08.10.2026 20:00 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ упало 1 из 347 | 24 мин 37 с | 9ae57c4 | [лог](logs/2026-10-08T15-00-09Z-e2e-76a9.log) | создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик |
+| 08.10.2026 20:25 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts --workers=1 --repeat-each=3) | ✅ 36 из 36 | 2 мин 41 с | 9d2135f | [лог](logs/2026-10-08T15-25-19Z-e2e-bef8.log) |  |
+| 08.10.2026 20:29 | typecheck | ✅ без ошибок | 40 с | 620c54c | [лог](logs/2026-10-08T15-29-03Z-typecheck-ce8e.log) |  |
+| 08.10.2026 20:29 | lint | ✅ без ошибок | 33 с | 620c54c | [лог](logs/2026-10-08T15-29-43Z-lint-6754.log) |  |
+| 08.10.2026 20:30 | unit (частично: apps/web/src/components tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/de | ✅ 90 из 90 | 3 с | 620c54c | [лог](logs/2026-10-08T15-30-17Z-unit-2fa2.log) |  |
+| 08.10.2026 20:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 620c54c | [лог](logs/2026-10-08T15-30-26Z-e2e-4f81.log) |  |
+| 08.10.2026 20:47 | typecheck | ❌ ошибок: 98 | 1 мин 34 с | 1e27513 | [лог](logs/2026-10-08T15-47-14Z-typecheck-636f.log) | TS2339 |
+| 08.10.2026 20:48 | lint | ✅ без ошибок | 1 мин | 1e27513 | [лог](logs/2026-10-08T15-48-50Z-lint-36a5.log) |  |
+| 08.10.2026 20:50 | typecheck | ✅ без ошибок | 1 мин 5 с | 1e27513 | [лог](logs/2026-10-08T15-50-06Z-typecheck-5ac2.log) |  |
+| 08.10.2026 20:51 | unit (частично: apps/web/src/components/primitives.test.ts tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.te | ✅ 61 из 61 | 6 с | 1e27513 | [лог](logs/2026-10-08T15-51-17Z-unit-5470.log) |  |
+| 08.10.2026 20:51 | e2e (частично: tests/ui/ds1b-primitives.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ❌ код выхода 1 | 12 с | 1e27513 | [лог](logs/2026-10-08T15-51-29Z-e2e-82f3.log) | (ошибка вне тестов) |
+| 08.10.2026 20:51 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ✅ 14 из 14 | 3 мин 12 с | 1e27513 | [лог](logs/2026-10-08T15-51-50Z-e2e-7e42.log) |  |

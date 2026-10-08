@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 08.10.2026 20:25 Алматы · vm
+# коммит 9d2135f (claude/mv8-5-ds1b-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/support-kb.spec.ts' '--workers=1' '--repeat-each=3'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 36 tests using 1 worker
+
+  ✓   1 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (5.9s)
+  ✓   2 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.1s)
+  ✓   3 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (3.8s)
+  ✓   4 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (2.9s)
+  ✓   5 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (3.5s)
+  ✓   6 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (4.8s)
+  ✓   7 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.4s)
+  ✓   8 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (5.3s)
+  ✓   9 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (5.4s)
+  ✓  10 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (5.7s)
+  ✓  11 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (5.1s)
+  ✓  12 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (3.6s)
+  ✓  13 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (2.9s)
+  ✓  14 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.0s)
+  ✓  15 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (3.9s)
+  ✓  16 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (2.9s)
+  ✓  17 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (4.0s)
+  ✓  18 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (4.5s)
+  ✓  19 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.0s)
+  ✓  20 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (5.3s)
+  ✓  21 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (5.1s)
+  ✓  22 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (5.8s)
+  ✓  23 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (5.3s)
+  ✓  24 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (3.3s)
+  ✓  25 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (3.1s)
+  ✓  26 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.0s)
+  ✓  27 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (4.2s)
+  ✓  28 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (3.0s)
+  ✓  29 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (3.6s)
+  ✓  30 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (4.4s)
+  ✓  31 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.0s)
+  ✓  32 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (5.3s)
+  ✓  33 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (5.6s)
+  ✓  34 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (5.5s)
+  ✓  35 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (5.5s)
+  ✓  36 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (3.5s)
+
+  36 passed (2.7m)
+
+# код выхода 0 · 2 мин 41 с

@@ -8,6 +8,7 @@ import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
+import { Tabs } from '../../../components/tabs';
 import { loadErrorProps } from '../../../lib/load-error';
 import { Notice, Panel } from '../../../components/ui';
 import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
@@ -85,18 +86,10 @@ export default async function HotelSettingsPage({
           subtitle={loaded.ok ? loaded.value.property.name : undefined}
           actions={actions}
         >
-          <nav className="settings-tabs" aria-label="Настройки объекта">
-            {tabs.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch={false}
-                aria-current={item.view === view ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <Tabs
+            label="Настройки объекта"
+            items={tabs.map((item) => ({ ...item, current: item.view === view }))}
+          />
           {view === 'services' ? (
             <Suspense
               fallback={

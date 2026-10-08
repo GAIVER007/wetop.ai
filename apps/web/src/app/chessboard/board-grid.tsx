@@ -64,6 +64,7 @@ import {
   type MoveQuestion,
 } from './drag-plan';
 import { Icon } from '../../components/icon';
+import { Segmented, type SegmentOption } from '../../components/segmented';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
@@ -79,10 +80,10 @@ const COLLAPSED_KEY = 'chessboard.collapsed-categories';
 /** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере */
 const VIEW_KEY = 'wetop.chessboard.view';
 type BoardView = 'compact' | 'normal' | 'detailed';
-const VIEWS: ReadonlyArray<readonly [BoardView, string]> = [
-  ['compact', 'Компактный'],
-  ['normal', 'Обычный'],
-  ['detailed', 'Подробный'],
+const VIEWS: ReadonlyArray<SegmentOption<BoardView>> = [
+  { value: 'compact', label: 'Компактный' },
+  { value: 'normal', label: 'Обычный' },
+  { value: 'detailed', label: 'Подробный' },
 ];
 /** Совпадение плашки с поиском и условиями по броням (ТЗ v2 §41): подсвечена, приглушена или как есть */
 type Match = 'hit' | 'dim' | undefined;
@@ -902,20 +903,10 @@ export function ChessboardGrid({
           Фильтры{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
-        <label className="board-view field field--inline">
-          <span>Вид</span>
-          <Select
-            aria-label="Вид строк календаря"
-            value={view}
-            onChange={(e) => pickView(e.target.value as BoardView)}
-          >
-            {VIEWS.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </label>
+        <div className="board-view field field--inline">
+          <span aria-hidden="true">Вид</span>
+          <Segmented label="Вид строк календаря" value={view} options={VIEWS} onChange={pickView} />
+        </div>
         {/*
           Вторая строка — только когда что-то отобрано: снятые условия чипами, «Показано N из M» и
           «Сбросить». Без отбора строка схлопнута, но остаётся в дереве доступности: живая область

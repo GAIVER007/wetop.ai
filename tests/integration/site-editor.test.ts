@@ -18,6 +18,7 @@ import { SiteGenerationWorker } from '../../apps/api/src/marketing-site/generati
 import { useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
+import { grantSiteBuilder, purgeSiteBuilderRows } from '../tools/site-builder';
 import { seedSpecAssets } from '../tools/site-assets';
 
 /**
@@ -119,6 +120,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     await db.business.create({ data: { id: business, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
     // имя филиала равно имени объекта: соседний набор Platform P1 сверяет их у всех объектов базы
     await db.location.create({ data: { id: location, businessId: business, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, location);
     await db.property.create({ data: { id: property, organizationId: org, locationId: location, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', checkInTime: '14:00', checkOutTime: '12:00' } });
     const cat = await db.accommodationType.create({ data: { propertyId: property, code: 'cat-a', name: 'Номер', kind: 'PRIVATE_ROOM', capacityAdults: 2 } });
     const building = await db.building.create({ data: { propertyId: property, name: 'К' } });
@@ -195,6 +197,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     vi.unstubAllEnvs();
     await app?.close();
     if (sql) {
+      await purgeSiteBuilderRows(sql, orgs);
       const sites = `SELECT s.id FROM marketing_sites s JOIN locations l ON l.id = s.location_id
         JOIN businesses b ON b.id = l.business_id WHERE b.organization_id = ANY($1::uuid[])`;
       await sql.query('BEGIN');
@@ -255,7 +258,8 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     expect(list.status).toBe(200);
     expect(list.body.versions.map((v: { revision: number }) => v.revision)).toEqual([2, 1]);
     expect(Object.keys(list.body.versions[0]).sort()).toEqual(
-      ['createdAt', 'createdById', 'generationRunId', 'id', 'isLatest', 'isPublished', 'parentVersionId', 'revision', 'source', 'specHash'].sort(),
+      // MKT9.2: у версии ещё подпись закладки (или null); документа по-прежнему нет
+      ['bookmark', 'createdAt', 'createdById', 'generationRunId', 'id', 'isLatest', 'isPublished', 'parentVersionId', 'revision', 'source', 'specHash'].sort(),
     );
     expect(list.body.versions[0]).toMatchObject({ id: v2.id, isLatest: true, isPublished: false, parentVersionId: v1.id, source: 'MANUAL', createdById: w.user });
 

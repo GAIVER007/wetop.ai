@@ -9,6 +9,7 @@ import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
 import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
+import { SiteBuilderLicenses } from './site-builder-licenses';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
@@ -21,6 +22,7 @@ import { SupportService } from './support.service';
     { provide: SUPPORT_AUDIT, useClass: PrismaSupportAudit },
     SupportService,
     SupportKnowledgeService,
+    SiteBuilderLicenses,
   ],
   exports: [ExtensionsService],
 })

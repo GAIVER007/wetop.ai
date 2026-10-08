@@ -25,7 +25,7 @@ import { safeDownload, SafeFetchError, type SafeFetchDeps } from './asset-fetch'
 import { assetStorageUnavailable, assetUsedByPublishedHistory } from './asset-refs';
 import { SITE_ASSET_STORAGE, signedUrlTtl, type SiteAssetStorage } from './asset-storage';
 import { BRIEF_CHANNEX_READER } from './brief.service';
-import { siteScope, siteTransaction, type SiteScope } from './scope';
+import { assertSiteBuilderWrite, siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
  * Библиотека изображений управляемого сайта (MKT8, `docs/marketing/site-assets-v0.md`). Всё под строгим scope MKT3 и
@@ -144,6 +144,8 @@ export class SiteAssetsService {
     if (!kind) throw new BadRequestException('kind: IMAGE, LOGO или FAVICON');
     const alt = altFrom(input['defaultAlt']);
     if (!file?.buffer?.length) throw new BadRequestException('Нужен файл изображения');
+    // MKT9.2: без лицензии конструктора файл не обрабатывается и не кладётся в хранилище
+    await assertSiteBuilderWrite(this.prisma, scope);
     const storage = this.requireStorage();
     this.limit(scope);
     let processed: ProcessedImage;
@@ -243,6 +245,7 @@ export class SiteAssetsService {
    */
   async importChannex(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
+    await assertSiteBuilderWrite(this.prisma, scope);
     const input = strictFields(body, ['photoIds']);
     const ids = input['photoIds'];
     if (!Array.isArray(ids) || !ids.length || ids.length > CHANNEX_IMPORT_MAX || !ids.every((id) => typeof id === 'string' && PHOTO_ID_RE.test(id)))

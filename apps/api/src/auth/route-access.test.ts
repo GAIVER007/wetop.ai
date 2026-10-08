@@ -95,7 +95,16 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // MV6 Food Service: explicit Business and Location on every route.
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
   'GET /marketing/site': 'settings',
-  'POST /marketing/site': 'settings',
+  // MKT9.2: заведение сайта с пустым телом вместо прежнего POST с названием и адресом
+  'POST /marketing/site/bootstrap': 'settings',
+  'GET /marketing/site/context': 'settings',
+  'PATCH /marketing/site/context': 'settings',
+  'GET /marketing/site/conversation': 'settings',
+  'POST /marketing/site/assistant': 'settings',
+  'GET /marketing/site/assistant/:id': 'settings',
+  'POST /marketing/site/assistant/:id/approve': 'settings',
+  'PUT /marketing/site/versions/:id/bookmark': 'settings',
+  'DELETE /marketing/site/versions/:id/bookmark': 'settings',
   'GET /marketing/site/brief': 'settings',
   'POST /marketing/site/generations': 'settings',
   'GET /marketing/site/generations/:id': 'settings',
@@ -362,6 +371,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
+  'GET /platform/organizations/:id/site-builder': 'platform',
+  'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',
   'GET /platform/support/status': 'platform',
   'GET /platform/support/conversations': 'platform',
   'GET /platform/support/queue': 'platform',
@@ -474,6 +486,11 @@ describe('права маршрутов API (ADR-107)', () => {
       'GET /marketing/site/versions/:id',
       'GET /marketing/site/versions/:id/diff',
       'POST /marketing/site/versions/:id/restore',
+      // MKT9.2: разговорная задача читается и план одобряется по id; закладка ставится и снимается у версии этого сайта
+      'GET /marketing/site/assistant/:id',
+      'POST /marketing/site/assistant/:id/approve',
+      'PUT /marketing/site/versions/:id/bookmark',
+      'DELETE /marketing/site/versions/:id/bookmark',
     ];
     const byId = Object.keys(actual).filter(
       (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),

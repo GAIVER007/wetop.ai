@@ -23,7 +23,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { PREVIEW_TTL_SECONDS, previewSecretFromEnv, signPreviewToken } from './preview-token';
 import { assertSpecAssetsPublishable, versionIsHistorical } from './asset-refs';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from './asset-storage';
-import { siteScope, siteTransaction, type SiteScope } from './scope';
+import { assertSiteBuilderWrite, siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
  * Публикация управляемого сайта (MKT7, `docs/marketing/site-publication-v0.md`): превью, публикация, пауза,
@@ -112,6 +112,8 @@ export class SitePublicationService {
 
   async publish(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
+    // MKT9.2: лицензия раньше настройки доменов и проверки документа: без неё ответ один и тот же
+    await assertSiteBuilderWrite(this.prisma, scope);
     const input = strictBody(body, ['expectedVersionId', 'bookingRatePlanId']);
     const expected = uuidField(input['expectedVersionId'], 'expectedVersionId');
     const explicitPlan =
@@ -189,11 +191,13 @@ export class SitePublicationService {
       await tx.marketingSite.update({ where: { id: site.id }, data: { state: 'PAUSED' } });
       await this.record(tx, scope, site.id, 'PAUSE', null, site.publishedVersionId, { trackedSiteId: site.trackedSiteId });
       return { site: await this.view(tx, site.id) };
-    });
+    }, { license: false });
   }
 
   async resume(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
+    // MKT9.2: лицензия раньше настройки доменов и проверки документа: без неё ответ один и тот же
+    await assertSiteBuilderWrite(this.prisma, scope);
     strictBody(body, []);
     return siteTransaction(this.prisma, scope, true, async (tx) => {
       const site = await this.lockedSite(tx, scope);
@@ -225,6 +229,8 @@ export class SitePublicationService {
    */
   async rollback(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
+    // MKT9.2: лицензия раньше настройки доменов и проверки документа: без неё ответ один и тот же
+    await assertSiteBuilderWrite(this.prisma, scope);
     const input = strictBody(body, ['versionId']);
     const target = uuidField(input['versionId'], 'versionId');
     return siteTransaction(this.prisma, scope, true, async (tx) => {
@@ -284,7 +290,7 @@ export class SitePublicationService {
         canonicalBookingChanged: canonicalChanged,
       });
       return { site: { id: site.id, state: 'ARCHIVED' as const } };
-    });
+    }, { license: false });
   }
 
   /** Журнал без документа: действие, версия и её ревизия, автор, время */
@@ -362,7 +368,7 @@ export class SitePublicationService {
         });
       }
       return this.bookingSourceView(tx, scope);
-    });
+    }, { license: false });
   }
 
   private async bookingSourceView(tx: DbTx, scope: SiteScope) {

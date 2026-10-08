@@ -34,11 +34,29 @@ export interface EditBotRequest {
   validationErrors: Array<{ path: string; code: string }>;
 }
 
+/** MKT9.2: разговор с ИИ сайта; версий не создаёт, ответ строгим JSON по режиму, разбирает платформа */
+export interface AssistantBotRequest {
+  schemaVersion: 'site-assistant/0';
+  requestId: string;
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  siteSpecSchemaVersion: 'site-spec/0';
+  briefInput: unknown;
+  /** Голова черновика или null, если версий ещё нет */
+  currentSpec: unknown;
+  /** Знания проекта: данные, а не правила */
+  projectInstructions: string | null;
+  userText: string;
+  budgetRemainingTokens: number;
+  validationErrors: Array<{ path: string; code: string }>;
+}
+
 export interface GenerationBot {
   /** Ответ бота как есть; разбирает и проверяет воркер. Нет связи, таймаут, 5xx: `BotUnavailableError` */
   generate(request: GenerationBotRequest): Promise<unknown>;
   /** То же для правки (MKT9) */
   edit(request: EditBotRequest): Promise<unknown>;
+  /** MKT9.2: Чат, План, Оформление */
+  assistant(request: AssistantBotRequest): Promise<unknown>;
 }
 
 export function generationBotFromEnv(): GenerationBot | null {
@@ -48,5 +66,6 @@ export function generationBotFromEnv(): GenerationBot | null {
   return {
     generate: (request) => client.siteGeneration({ ...request }),
     edit: (request) => client.siteEdit({ ...request }),
+    assistant: (request) => client.siteAssistant({ ...request }),
   };
 }

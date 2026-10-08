@@ -21,6 +21,7 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService, aiSellerView } from './extensions.service';
+import { SiteBuilderLicenses, licenseLocationView } from './site-builder-licenses';
 import { Access } from '../auth/access.decorator';
 
 export { PLATFORM_ADMIN_ONLY } from './admin';
@@ -40,6 +41,7 @@ export class PlatformController {
   constructor(
     @Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Inject(SiteBuilderLicenses) private readonly licenses: SiteBuilderLicenses,
   ) {}
 
   @Get('organizations')
@@ -69,6 +71,33 @@ export class PlatformController {
     this.extensions.notifyAiSellerChanged(id);
     const saved = await this.repo.organization(id);
     return organizationJson(saved!, now);
+  }
+
+  /** MKT9.2: гостиничные филиалы организации с лицензией конструктора сайта */
+  @Get('organizations/:id/site-builder')
+  @Header('Cache-Control', 'no-store')
+  async siteBuilder(@Param('id') id: string) {
+    requirePlatformAdmin();
+    if (!UUID.test(id)) throw new BadRequestException('Организация: ожидается идентификатор');
+    if (!(await this.repo.organization(id))) throw new NotFoundException(PLATFORM_NO_ORGANIZATION);
+    const now = new Date();
+    return { items: (await this.licenses.locations(id)).map((row) => licenseLocationView(row, now)) };
+  }
+
+  /**
+   * MKT9.2: пробный, активировать, продлить или выключить конструктор сайта филиала: статус, дата «до» по Алматы и
+   * заметка (номер счёта). Только главный администратор; филиал только гостиничный и только этой организации
+   */
+  @Put('organizations/:id/site-builder/:locationId')
+  async changeSiteBuilder(@Param('id') id: string, @Param('locationId') locationId: string, @Body() body: unknown) {
+    requirePlatformAdmin();
+    if (!UUID.test(id) || !UUID.test(locationId)) throw new BadRequestException('Ожидается идентификатор');
+    const now = new Date();
+    const parsed = parseExtensionChange(body, now);
+    if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
+    if (!(await this.licenses.location(id, locationId))) throw new NotFoundException('Такого гостиничного филиала у организации нет');
+    await this.licenses.save({ organizationId: id, locationId, change: parsed.value, by: currentUserId(), now });
+    return licenseLocationView((await this.licenses.location(id, locationId))!, now);
   }
 
   /**

@@ -18,6 +18,7 @@ import { SiteGenerationWorker } from '../../apps/api/src/marketing-site/generati
 import { useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
+import { grantSiteBuilder, purgeSiteBuilderRows } from '../tools/site-builder';
 
 /**
  * MKT6 на настоящей базе: постановка задачи, очередь и воркер, бюджет Q-274, неизвестный расход, повторы, смена брифа
@@ -43,6 +44,10 @@ function fakeBot() {
       // MKT9: правка в этом наборе не ожидается, INITIAL правку не зовёт
       async edit(): Promise<unknown> {
         throw new Error('fake bot: edit не ожидается в MKT6');
+      },
+      // MKT9.2: разговор в этом наборе не ожидается
+      async assistant(): Promise<unknown> {
+        throw new Error('fake bot: assistant не ожидается в MKT6');
       },
     },
   };
@@ -134,6 +139,8 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     await db.location.create({
       data: { id: location, businessId: business, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', address: 'ул. Тестовая 1', phone: '+7 701 111 11 11', email: 'a@example.invalid' },
     });
+    // MKT9.2: ИИ сайта только при действующей лицензии филиала
+    await grantSiteBuilder(db, location);
     if (options.property !== false) {
       const property = randomUUID();
       await db.property.create({ data: { id: property, organizationId: org, locationId: location, name: 'Объект', timezone: 'Asia/Almaty', currency: 'KZT', checkInTime: '14:00', checkOutTime: '12:00' } });
@@ -213,6 +220,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
   afterAll(async () => {
     await app?.close();
     if (sql) {
+      await purgeSiteBuilderRows(sql, orgs);
       // Версии неизменяемы, задачи не удаляются ролями приложения: уборка правами владельца таблиц, как в MKT3
       const sites = `SELECT s.id FROM marketing_sites s JOIN locations l ON l.id = s.location_id
         JOIN businesses b ON b.id = l.business_id WHERE b.organization_id = ANY($1::uuid[])`;
@@ -432,6 +440,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     const site2 = randomUUID();
     const loc2 = randomUUID();
     await db.location.create({ data: { id: loc2, businessId: w.business, name: 'Второй', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, loc2);
     await db.marketingSite.create({ data: { id: site2, locationId: loc2, name: 'Сайт 2', slug: `g-${site2.slice(0, 12)}` } });
     const w2: World = { ...w, location: loc2, site: site2, scope: `business=${w.business};location=${loc2}` };
     const second = await queued(w2);
@@ -443,6 +452,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     // 5 250 >= 5 000: третья задача падает без вызова модели
     const loc3 = randomUUID(), site3 = randomUUID();
     await db.location.create({ data: { id: loc3, businessId: w.business, name: 'Третий', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, loc3);
     await db.marketingSite.create({ data: { id: site3, locationId: loc3, name: 'Сайт 3', slug: `g-${site3.slice(0, 12)}` } });
     const third = await queued({ ...w, location: loc3, site: site3, scope: `business=${w.business};location=${loc3}` });
     const calls = fake.state.requests.length;
@@ -462,20 +472,35 @@ describe.skipIf(!url)('MKT6 site generation', () => {
   it('неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC', async () => {
     const w = await world();
     const lost = await queued(w);
+    // MKT9.2: задача второго филиала той же организации поставлена до потери расхода и ждёт в очереди
+    const loc2 = randomUUID(), site2 = randomUUID();
+    await db.location.create({ data: { id: loc2, businessId: w.business, name: 'Второй', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, loc2);
+    await db.marketingSite.create({ data: { id: site2, locationId: loc2, name: 'Сайт 2', slug: `g-${site2.slice(0, 12)}` } });
+    const w2: World = { ...w, location: loc2, site: site2, scope: `business=${w.business};location=${loc2}` };
+    const blocked = await queued(w2);
     fake.state.replies.push(new assistant.BotUnavailableError('ИИ-продавец не ответил вовремя'));
     await worker.tick();
     expect(await run(lost.id)).toMatchObject({ status: 'FAILED', errorCode: 'USAGE_UNAVAILABLE', outputVersionId: null });
 
-    const blocked = await queued(w);
+    // поставленная раньше задача падает без вызова модели
     const calls = fake.state.requests.length;
     await worker.tick();
     expect(await run(blocked.id)).toMatchObject({ status: 'FAILED', errorCode: 'USAGE_UNAVAILABLE' });
     expect(fake.state.requests.length).toBe(calls);
 
-    // следующие сутки UTC: бюджет снова доступен
+    // MKT9.2: и новая постановка в эти сутки отклоняется сразу, задача не заводится
+    const brief = await briefOf(w);
+    const refused = await request(w, brief.briefHash);
+    expect(refused.status).toBe(409);
+    expect(refused.body.code).toBe('USAGE_UNAVAILABLE');
+
+    // следующие сутки UTC: бюджет снова доступен (задача ставится прямо в базу: часы API настоящие, часы воркера тестовые)
     clock = new Date(Date.UTC(clock.getUTCFullYear(), clock.getUTCMonth(), clock.getUTCDate() + 1, 0, 5));
-    const tomorrow = await queued(w);
-    fake.state.replies.push(okReply(tomorrow.input));
+    const tomorrow = await db.generationRun.create({
+      data: { id: randomUUID(), siteId: w.site, type: 'INITIAL', requestKey: randomUUID(), requestedById: w.user, briefHash: brief.briefHash },
+    });
+    fake.state.replies.push(okReply(brief.input));
     await worker.tick();
     expect((await run(tomorrow.id)).status).toBe('SUCCEEDED');
   });
@@ -529,6 +554,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     const xRun = await queued(x);
     const loc2 = randomUUID(), site2 = randomUUID();
     await db.location.create({ data: { id: loc2, businessId: x.business, name: 'Второй', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, loc2);
     await db.marketingSite.create({ data: { id: site2, locationId: loc2, name: 'Сайт 2', slug: `g-${site2.slice(0, 12)}` } });
     const xRun2 = await queued({ ...x, location: loc2, site: site2, scope: `business=${x.business};location=${loc2}` });
     const y = await world();

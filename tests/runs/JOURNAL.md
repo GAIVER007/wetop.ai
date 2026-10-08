@@ -7604,3 +7604,4 @@
 | 08.10.2026 18:53 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ✅ 357 из 357 | 37 мин 48 с | 3d41f63 | [лог](logs/2026-10-08T13-53-24Z-e2e-0b79.log) |  |
 | 08.10.2026 19:31 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 2 из 357, пропущено 16 | 28 мин 54 с | a7f0cbb | [лог](logs/2026-10-08T14-31-13Z-e2e-b36a.log) | axe и эталонные снимки секций: light |
 | 08.10.2026 20:00 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ упало 1 из 347 | 24 мин 37 с | 9ae57c4 | [лог](logs/2026-10-08T15-00-09Z-e2e-76a9.log) | создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик |
+| 08.10.2026 20:25 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts --workers=1 --repeat-each=3) | ✅ 36 из 36 | 2 мин 41 с | 9d2135f | [лог](logs/2026-10-08T15-25-19Z-e2e-bef8.log) |  |

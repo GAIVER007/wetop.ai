@@ -2395,7 +2395,7 @@
     z-index: var(--layer-sidebar);
     background: var(--bg);
   }
-  @media (max-width: 1280px) {
+  @media (max-width: 1279px) {
     .calendar-workspace {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -2459,7 +2459,7 @@
       flex: 1 1 40%;
     }
     .calendar-page .board-toolbar .inp {
-      font-size: 16px;
+      font-size: var(--text-lg);
     }
     .calendar-workspace__main > .board-wrap {
       flex: none;

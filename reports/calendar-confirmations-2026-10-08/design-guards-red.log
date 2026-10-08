@@ -1,0 +1,58 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008
+
+ ❯ |unit| tests/unit/design-slop.test.ts (18 tests | 2 failed) 48ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (18)
+     × font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 24ms
+     × breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 3 → 4",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 4 → 5",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 16 passed (18)
+   Start at  12:38:27
+   Duration  2.36s (import 87%, transform 10%, tests 3%, worker 1%)
+

@@ -1,0 +1,16 @@
+# Модульные (unit) · 08.10.2026 11:27 Алматы · MacBook-Air-Urij.local
+# коммит 7c0d61e (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T06-27-17Z-unit-b206.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  10:27:19
+   Duration  438ms (import 84%, transform 13%, worker 1%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T06-27-17Z-unit-b206.json
+
+# код выхода 0 · 2 с

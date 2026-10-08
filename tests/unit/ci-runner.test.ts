@@ -80,15 +80,20 @@ describe('свой раннер CI', () => {
     const triggers = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '');
     expect(triggers).toContain('workflow_dispatch:');
     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate\]/);
-    for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui'])
+    for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));
     for (const step of ['npm run lint', 'npm run typecheck', 'vitest run --project unit', 'npm run site:check'])
       expect(fast, step).toContain(step);
     expect(withoutComments(job('ui-shard'))).toMatch(/shard: \[1, 2, 3\]/);
     const summary = withoutComments(job('ui'));
-    expect(summary).toContain('needs: ui-shard');
-    expect(summary).toContain('test "$UI_RESULT" = success');
+    expect(summary).toContain('needs: [ui-shard, ui-vertical, ui-auth]');
+    for (const result of ['UI_RESULT', 'VERTICAL_RESULT', 'AUTH_RESULT'])
+      expect(summary).toContain(`test "$${result}" = success`);
+    const auth = withoutComments(job('ui-auth'));
+    expect(auth).toMatch(/needs: fast/);
+    expect(auth).toContain('tests/ui/playwright.auth.config.ts --workers=2');
+    expect(withoutComments(job('ui-shard'))).toContain('--workers=2');
     // новый кандидат заменяет прежний: его итог уже никому не нужен, а минуты тратятся
     const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '';
     expect(withoutComments(block)).toMatch(/cancel-in-progress: true/);

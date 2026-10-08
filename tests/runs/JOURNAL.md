@@ -7523,3 +7523,6 @@
 | 08.10.2026 10:49 | lint | ✅ без ошибок | 31 с | 10f23ca +50 | [лог](logs/2026-10-08T05-49-29Z-lint-4fe0.log) |  |
 | 08.10.2026 10:50 | unit (частично: tests/unit/fixture-demo.test.ts) | ✅ 1 из 1 | 2 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-07Z-unit-0c01.log) | одиночный повтор после таймаута 5 с под нагрузкой полного набора |
 | 08.10.2026 10:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 29 из 29 | 2 мин 37 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-13Z-e2e-c59d.log) |  |
+| 08.10.2026 11:53 | typecheck | ✅ без ошибок | 38 с | 0ffbdab | [лог](logs/2026-10-08T06-53-21Z-typecheck-55af.log) | DS1a после слияния main 22c6e317 |
+| 08.10.2026 11:54 | lint | ✅ без ошибок | 33 с | 0ffbdab | [лог](logs/2026-10-08T06-54-00Z-lint-7a71.log) | DS1a после слияния |
+| 08.10.2026 11:54 | unit | ✅ 4057 из 4060, пропущено 3 | 1 мин 50 с | 0ffbdab | [лог](logs/2026-10-08T06-54-34Z-unit-2c3c.log) | DS1a после слияния main 22c6e317 |

@@ -1,7 +1,9 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Button } from '../../components/ui';
+import { PreviewFinance } from './preview-finance';
+import { useConfirm } from '../../components/use-confirm';
 import { Icon } from '../../components/icon';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
@@ -64,6 +66,21 @@ export function StayPreview({
   // где стояла плашка, когда окно встало на место: закрываемся по её сдвигу, а не по факту scroll
   const placed = useRef<{ top: number; left: number } | null>(null);
   const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
+  const [financeOpen, setFinanceOpen] = useState(false);
+  const [financeDirty, setFinanceDirty] = useState(false);
+  const [financePending, setFinancePending] = useState(false);
+  const { ask, dialog } = useConfirm();
+  const requestClose = useCallback(async (restoreFocus: boolean) => {
+    if (pending || financePending) return;
+    if (financeDirty && !(await ask({
+      title: 'Закрыть без проведения?',
+      body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
+      confirmLabel: 'Закрыть без проведения',
+      cancelLabel: 'Продолжить ввод',
+    }))) return;
+    onClose(restoreFocus);
+  }, [pending, financePending, financeDirty, ask, onClose]);
+
 
   useEffect(() => {
     let alive = true;
@@ -84,51 +101,67 @@ export function StayPreview({
       el.showPopover();
       el.focus({ preventScroll: true });
     }
-    const box = target.anchor.getBoundingClientRect();
-    placed.current = { top: box.top, left: box.left };
-    const left = Math.min(Math.max(box.left, EDGE), window.innerWidth - el.offsetWidth - EDGE);
-    const below = box.bottom + GAP;
-    const top =
-      below + el.offsetHeight <= window.innerHeight - EDGE
-        ? below
-        : Math.max(EDGE, box.top - GAP - el.offsetHeight);
-    el.style.left = `${Math.max(EDGE, left)}px`;
-    el.style.top = `${top}px`;
+    const place = () => {
+      const box = target.anchor.getBoundingClientRect();
+      placed.current = { top: box.top, left: box.left };
+      const left = Math.min(Math.max(box.left, EDGE), window.innerWidth - el.offsetWidth - EDGE);
+      const below = box.bottom + GAP;
+      const top =
+        below + el.offsetHeight <= window.innerHeight - EDGE
+          ? below
+          : Math.max(EDGE, box.top - GAP - el.offsetHeight);
+      el.style.left = `${Math.max(EDGE, left)}px`;
+      el.style.top = `${top}px`;
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [target, data]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose(true);
+        void requestClose(true);
       }
     };
     const onPointer = (event: PointerEvent) => {
-      if (pending) return;
+      if (pending || financePending || (event.target as Element).closest?.('dialog[open]')) return;
       const node = event.target as Node;
       if (ref.current?.contains(node) || target.anchor.contains(node)) return;
-      onClose(false);
+      if (financeDirty) { event.preventDefault(); event.stopPropagation(); }
+      void requestClose(false);
     };
     // Событие scroll приходит кадром позже: прокрутка к плашке перед щелчком закрыла бы только что
     // открытое окно. Закрываемся, только если плашка правда уехала (TESTING.md §4, поле даты 21.09)
     const onMove = () => {
       const box = target.anchor.getBoundingClientRect();
       const was = placed.current;
-      if (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2)
-        onClose(false);
+      if (!financeDirty && !financePending && (!was || Math.abs(box.top - was.top) > 2 || Math.abs(box.left - was.left) > 2))
+        void requestClose(false);
+    };
+    const onClick = (event: MouseEvent) => {
+      if (!financeDirty || (event.target as Element).closest?.('dialog[open]') || ref.current?.contains(event.target as Node)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!document.querySelector('dialog[open]')) void requestClose(false);
     };
     const wrap = target.anchor.closest('.board-wrap');
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer, true);
+    document.addEventListener('click', onClick, true);
     wrap?.addEventListener('scroll', onMove, { passive: true });
     window.addEventListener('resize', onMove);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer, true);
+      document.removeEventListener('click', onClick, true);
       wrap?.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
-  }, [target, onClose, pending]);
+  }, [target, requestClose, pending, financePending, financeDirty]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
   const expected = EXPECTED.has(target.status);
@@ -162,7 +195,8 @@ export function StayPreview({
           type="button"
           className="icon-button stay-preview__close"
           aria-label="Закрыть предпросмотр"
-          onClick={() => onClose(true)}
+          disabled={pending || financePending}
+          onClick={() => void requestClose(true)}
         >
           <Icon name="close" />
         </button>
@@ -242,7 +276,13 @@ export function StayPreview({
         </p>
       )}
       {error && <Alert data-testid="preview-error">{error}</Alert>}
-      <div className="stay-preview__actions" aria-busy={pending}>
+      {dialog}
+      {financeOpen ? (
+        <>
+          <PreviewFinance readOnly={readOnly} number={target.number} itemId={target.itemId} onDraftChange={setFinanceDirty} onPendingChange={setFinancePending} onComplete={() => { void stayPreviewAction(target.number, target.itemId).then(setData); }} />
+          <Button type="button" tone="secondary" disabled={financeDirty || financePending} onClick={() => setFinanceOpen(false)}>Назад к брони</Button>
+        </>
+      ) : <div className="stay-preview__actions" aria-busy={pending}>
         {!readOnly && expected && (
           <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
             {pending ? 'Выполняется…' : 'Заселить'}
@@ -255,15 +295,13 @@ export function StayPreview({
         )}
         {!readOnly && live && (
           <>
-            <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
-              Принять оплату
-            </Link>
+            <Button type="button" tone="secondary" disabled={pending} onClick={() => setFinanceOpen(true)}>
+              Оплата / возврат
+            </Button>
           </>
         )}
         {target.status === 'CHECKED_OUT' && (
-          <Link className="btn btn--secondary" href={`${card}#booking-finance`}>
-            Счёт
-          </Link>
+          <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>Оплата / возврат</Button>
         )}
         <Link
           className="btn btn--secondary"
@@ -271,7 +309,7 @@ export function StayPreview({
         >
           {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
         </Link>
-      </div>
+      </div>}
     </div>
   );
 }

@@ -2329,3 +2329,23 @@ body:has(.calendar-workspace[data-expanded='true']) {
 @media (min-width: 601px) {
   .page.calendar-page { padding-bottom: 0; }
 }
+
+.stay-preview-finance {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.stay-preview-finance .folio-form,
+.stay-preview-finance .row {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.stay-preview-finance input,
+.stay-preview-finance select {
+  max-width: 100%;
+}
+.stay-preview:has(.stay-preview-finance) {
+  width: min(460px, calc(100vw - var(--space-4)));
+  max-height: calc(100dvh - var(--space-4));
+  overflow: auto;
+}

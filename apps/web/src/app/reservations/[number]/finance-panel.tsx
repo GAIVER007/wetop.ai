@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { useMoneyReview } from './money-review';
 import { GroupPayment } from './group-payment';
@@ -51,7 +51,7 @@ const METHODS: Array<[string, string]> = [
   ['CARD_GUARANTEE', 'гарантия картой'],
   ['EXTERNAL', 'внешний канал'],
 ];
-const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
+export const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 /** «1.25» / «1,25» / «12000» → тиыны строкой; иначе null — сумма ещё не число */
 export const decimalToMinor = (raw: string): string | null => {
@@ -489,7 +489,7 @@ export function PaymentForm({
   onDraftChange,
 }: {
   number: string;
-  folio: FinanceFolio;
+  folio: Pick<FinanceFolio, 'id' | 'balanceMinor' | 'currency'> & { stay: Pick<FinanceFolio['stay'], 'accommodationTypeName'> };
   action: (fd: FormData) => void;
   values: Record<string, string> | undefined;
   busy: boolean;
@@ -613,12 +613,14 @@ export function RefundForm({
   folioId,
   onResult,
   onDraftChange,
+  onPendingChange,
 }: {
   number: string;
   paymentId: string;
   folioId: string;
   onResult: (r: FinanceActionResult) => void;
   onDraftChange?: (dirty: boolean) => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
@@ -628,6 +630,7 @@ export function RefundForm({
     },
     INIT,
   );
+  useEffect(() => { onPendingChange?.(pending); }, [pending, onPendingChange]);
   const { review, onSubmit, onChange } = useMoneyReview(pending, onDraftChange);
   return (
     <form
@@ -639,6 +642,7 @@ export function RefundForm({
       className="row row--xs"
     >
       <Input
+        disabled={pending}
         name="amount"
         aria-label="Сумма"
         defaultValue={state.values?.amount ?? ''}
@@ -647,6 +651,7 @@ export function RefundForm({
         className="inp--w90 inp--sm"
       />
       <Input
+        disabled={pending}
         name="reason"
         aria-label="Причина возврата"
         defaultValue={state.values?.reason ?? ''}

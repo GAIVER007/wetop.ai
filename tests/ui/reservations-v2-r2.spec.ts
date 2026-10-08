@@ -74,13 +74,13 @@ test('R2: быстрые виды отбирают на сервере и жив
   await expect(main.getByTestId('directory-meta')).toContainText('в виде «Будущие»');
   for (const r of await rows(page).locator('.reservations-stay-dates time').first().all())
     expect((await r.getAttribute('datetime'))! > today).toBe(true);
-  await expect(rows(page).filter({ hasText: 'отменена' })).toHaveCount(0);
+  await expect(rows(page).filter({ hasText: 'Отменена' })).toHaveCount(0);
 
   await views.getByRole('link', { name: 'Проживают', exact: true }).click();
   await expect(page).toHaveURL(/view=inhouse/);
   const statuses = await rows(page).locator('.badge').allTextContents();
   expect(statuses.length).toBeGreaterThan(0);
-  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['проживает']));
+  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['Проживает']));
 
   await views.getByRole('link', { name: 'Требуют внимания', exact: true }).click();
   await expect(page).toHaveURL(/view=attention/);

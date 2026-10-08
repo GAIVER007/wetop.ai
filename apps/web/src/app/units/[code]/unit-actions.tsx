@@ -1,4 +1,5 @@
 'use client';
+import { housekeeping } from '../../../lib/status/housekeeping';
 import { useActionState, useState, useTransition } from 'react';
 import {
   HOUSEKEEPING_FLOW,
@@ -18,7 +19,7 @@ import {
   type UnitActionResult,
 } from './actions';
 import { BLOCK_TYPE_RU } from '../../../lib/block-types';
-import { Icon, type IconName } from '../../../components/icon';
+import { Icon } from '../../../components/icon';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 /**
@@ -29,17 +30,6 @@ const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
  * через API (`@pms/domain`). Команда та же, что в строке шахматки.
  */
 type HkStatus = UnitCard['housekeepingStatus'];
-const HK_ICON: Record<HkStatus, IconName> = {
-  DIRTY: 'dirty',
-  CLEAN: 'clean',
-  INSPECTED: 'inspected',
-};
-/** Кнопка названа результатом: нажал «Убрано» — ячейка убрана (§14) */
-const HK_BUTTON: Record<HkStatus, string> = {
-  DIRTY: 'Требует уборки',
-  CLEAN: 'Убрано',
-  INSPECTED: 'Проверено',
-};
 /** Что делать дальше — одной фразой под шагами */
 const HK_NEXT: Record<HkStatus, string> = {
   DIRTY: 'Когда горничная закончит — «Убрано». Доступной ячейка станет после проверки.',
@@ -69,7 +59,7 @@ export function UnitActions({
       {other.error && <Alert>{other.error}</Alert>}
       <Panel title="Уборка" data-testid="housekeeping-panel">
         <p className="sub hk-now">
-          <Icon name={HK_ICON[unit.housekeepingStatus]} />
+          <Icon name={housekeeping[unit.housekeepingStatus].icon} />
           Сейчас {HOUSEKEEPING_RU[unit.housekeepingStatus]}
         </p>
         <ol className="hk-flow" aria-label="Порядок уборки">
@@ -92,8 +82,8 @@ export function UnitActions({
               disabled={pending || blockPending}
               onClick={() => start(async () => setOther(await housekeepingAction(unit.code, k)))}
             >
-              <Icon name={HK_ICON[k]} />
-              {HK_BUTTON[k]}
+              <Icon name={housekeeping[k].icon} />
+              {housekeeping[k].label}
             </Button>
           ))}
         </Row>

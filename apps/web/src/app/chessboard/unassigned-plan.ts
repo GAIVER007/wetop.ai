@@ -1,3 +1,4 @@
+import { hospitalityWords as STATUS } from '../../lib/status/hospitality';
 import type { ActionPreview, StayAvailability, UnassignedStay } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
@@ -10,14 +11,6 @@ import { nightsBetween, pluralRu } from '../../lib/plural';
  */
 
 /** Слово о брони в единственном числе, как в строке «Без ячейки» и на «Бронях» */
-const STATUS: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
 
 export interface UnassignedSummary {
   reservations: number;

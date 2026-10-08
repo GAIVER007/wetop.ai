@@ -1,3 +1,5 @@
+import { foodLabels as foodStatusLabels } from './status/food';
+export { foodLabels as foodStatusLabels } from './status/food';
 import type { FoodPage } from './food-types';
 /** A truncated dataset must never imply that the remaining tables are free. */
 export async function completeFoodList<T extends { id: string }>(
@@ -50,14 +52,6 @@ export function shiftDate(date: string, days: number): string {
   at.setUTCDate(at.getUTCDate() + days);
   return at.toISOString().slice(0, 10);
 }
-export const foodStatusLabels = {
-  BOOKED: 'Бронь',
-  CONFIRMED: 'Подтверждено',
-  SEATED: 'За столом',
-  COMPLETED: 'Завершено',
-  NO_SHOW: 'Не пришли',
-  CANCELLED: 'Отменено',
-} as const;
 export const foodStatusActions = {
   BOOKED: 'Бронь',
   CONFIRMED: 'Подтвердить',

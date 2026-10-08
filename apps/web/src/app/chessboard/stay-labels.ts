@@ -1,3 +1,8 @@
+import {
+  sourceOrigins as titles,
+  sourceCodes as DIRECT_CODES,
+  channelCodes as CHANNEL_CODES,
+} from '../../lib/status/source';
 import type { ChessboardCell } from '../../lib/api';
 import { SOURCES } from '../reservations/sources';
 
@@ -35,15 +40,6 @@ export function guestNames(
   channel?: string | null,
 ): { full: string; short: string; initials: string } {
   if (isGuestPseudonym(label)) {
-    const titles: Record<string, string> = {
-      DESK: 'со стойки',
-      WALK_IN: 'со стойки',
-      PHONE: 'по телефону',
-      WEBSITE: 'с сайта',
-      WHATSAPP: 'из WhatsApp',
-      INSTAGRAM: 'из Instagram',
-      OTA: 'из канала',
-    };
     const origin = channel ? `· ${channel}` : (titles[source ?? ''] ?? 'без имени');
     return {
       full: `Бронь ${origin}`,
@@ -63,28 +59,6 @@ export function guestNames(
     initials: letter(first) + (second ? letter(second) : ''),
   };
 }
-
-const CHANNEL_CODES: Record<string, string> = {
-  'Booking.com': 'B',
-  Agoda: 'A',
-  'Trip.com': 'T',
-  Expedia: 'E',
-  Hostelworld: 'HW',
-  'Ostrovok.ru': 'O',
-  Ostrovok: 'O',
-  'Bronevik.com': 'BR',
-  OneTwoTrip: '12',
-  Airbnb: 'AB',
-};
-const DIRECT_CODES: Record<string, string> = {
-  DESK: 'Стойка',
-  WALK_IN: 'Стойка',
-  PHONE: 'Тел.',
-  WHATSAPP: 'WA',
-  INSTAGRAM: 'IG',
-  WEBSITE: 'Сайт',
-  OTA: 'OTA',
-};
 
 /**
  * Источник брони маленьким бейджем (ТЗ v2 §21): карточку не красим под канал — цвет занят статусом

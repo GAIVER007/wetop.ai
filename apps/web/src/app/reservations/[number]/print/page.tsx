@@ -1,3 +1,4 @@
+import { sourcePrintLabels as SOURCE_RU } from '../../../../lib/status/source';
 import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { api, chessboardApi, formatMinor, guestsApi } from '../../../../lib/api';
 import { hotelClock } from '../../../../lib/hotel-api';
@@ -56,15 +57,6 @@ const T = {
     printedAt: 'Қалыптастырылды',
   },
 } as const;
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'стойка',
-  PHONE: 'телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'без брони',
-  INSTAGRAM: 'Instagram',
-  OTA: 'OTA',
-  WEBSITE: 'сайт',
-};
 const nights = (a: string, d: string) => Math.round((Date.parse(d) - Date.parse(a)) / 86_400_000);
 
 export default async function PrintRegistrationCard({

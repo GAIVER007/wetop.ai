@@ -1,3 +1,5 @@
+import { statusPresentation, type StatusKind } from '../lib/status';
+import { badgeTone } from '../lib/status/types';
 import type {
   ButtonHTMLAttributes,
   CSSProperties,
@@ -99,7 +101,8 @@ export function Field({
     ? cloneElement(children, {
         id: children.props.id ?? controlId,
         'aria-describedby':
-          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') || undefined,
+          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') ||
+          undefined,
         'aria-invalid': error ? true : children.props['aria-invalid'],
       })
     : children;
@@ -268,24 +271,16 @@ export function Badge({
   );
 }
 
-const STATUS_TONE: Record<string, BadgeTone> = {
-  TENTATIVE: 'warn',
-  CONFIRMED: 'info',
-  CHECKED_IN: 'ok',
-  CHECKED_OUT: 'neutral',
-  CANCELLED: 'danger',
-  NO_SHOW: 'danger',
-};
-
-/** Статус брони/проживания. Подпись даёт страница (у стойки свои слова: «ждём», «живёт»). */
+/** Label and tone come from the domain presentation registry. */
 export function StatusBadge({
-  status,
-  label,
+  kind,
+  value,
   ...rest
-}: HTMLAttributes<HTMLSpanElement> & { status: string; label: string }) {
+}: HTMLAttributes<HTMLSpanElement> & { kind: StatusKind; value: string }) {
+  const entry = statusPresentation(kind, value);
   return (
-    <Badge tone={STATUS_TONE[status] ?? 'neutral'} {...rest}>
-      {label}
+    <Badge tone={badgeTone(entry.tone)} {...rest}>
+      {entry.label}
     </Badge>
   );
 }

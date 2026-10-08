@@ -84,7 +84,7 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await expect(pop.getByRole('group', { name: 'Статус брони' }).getByRole('button')).toHaveText([
     'Не подтверждена',
     'Подтверждена',
-    'Заселён',
+    'Проживает',
   ]);
   await expect(pop.getByText(/Брони без назначенного места/)).toHaveCount(0);
   // Escape — без применения
@@ -127,7 +127,7 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await sources.getByRole('button', { name: 'Booking.com', exact: true }).click();
   await pop
     .getByRole('group', { name: 'Статус брони' })
-    .getByRole('button', { name: 'Заселён', exact: true })
+    .getByRole('button', { name: 'Проживает', exact: true })
     .click();
   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
   expect(await codes(page)).toEqual(['F01', 'M01', 'R04']);

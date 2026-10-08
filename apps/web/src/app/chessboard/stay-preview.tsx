@@ -1,4 +1,6 @@
 'use client';
+import { payment } from '../../lib/status/payment';
+import { hospitalityLabels as STATUS_WORD } from '../../lib/status/hospitality';
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui';
@@ -25,12 +27,6 @@ export interface PreviewTarget {
 }
 export type PreviewCommand = 'check-in' | 'check-out' | 'extend';
 
-const STATUS_WORD: Record<string, string> = {
-  TENTATIVE: 'Не подтверждена',
-  CONFIRMED: 'Подтверждена',
-  CHECKED_IN: 'Заселён',
-  CHECKED_OUT: 'Выселен',
-};
 const EXPECTED = new Set(['TENTATIVE', 'CONFIRMED']);
 const GAP = 6;
 const EDGE = 8;
@@ -216,7 +212,9 @@ export function StayPreview({
               </div>
             )}
             <div className={balance > 0n ? 'is-due' : undefined}>
-              <dt>{balance > 0n ? 'Долг' : balance < 0n ? 'К возврату' : 'Остаток'}</dt>
+              <dt>
+                {balance > 0n ? payment.due.label : balance < 0n ? payment.refund.label : 'Остаток'}
+              </dt>
               <dd>
                 {balance === 0n
                   ? 'оплачено полностью'

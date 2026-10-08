@@ -97,9 +97,9 @@ test('R1: панель в две строки, таблица в первом э
 
   // статус — слово о брони в единственном числе (Q-135); чипы фильтра остаются во множественном
   const rowOf = (number: string) => table.locator('tbody tr').filter({ hasText: number });
-  await expect(rowOf('20260913-TEST2')).toContainText('не подтверждена');
-  await expect(rowOf('DSG-CANC')).toContainText('отменена');
-  await expect(rowOf('DSG-NOSH')).toContainText('незаезд');
+  await expect(rowOf('20260913-TEST2')).toContainText('Не подтверждена');
+  await expect(rowOf('DSG-CANC')).toContainText('Отменена');
+  await expect(rowOf('DSG-NOSH')).toContainText('Незаезд');
   await expect(main.getByLabel('Статус брони').locator('option[value="CANCELLED"]')).toContainText(
     'Отменены',
   );

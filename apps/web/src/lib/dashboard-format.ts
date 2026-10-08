@@ -1,3 +1,4 @@
+import { sourceDashboardLabels as SOURCE_RU } from './status/source';
 /** Представление чисел дашборда. Деньги приходят строкой в тиынах (ADR-008) — float здесь нет. */
 
 const percentFormat = new Intl.NumberFormat('ru-RU', {
@@ -48,15 +49,6 @@ export function deltaPercent(current: bigint | number, previous: bigint | number
   };
 }
 
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'Стойка',
-  PHONE: 'Телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'С улицы',
-  INSTAGRAM: 'Instagram',
-  OTA: 'Канал',
-  WEBSITE: 'Сайт',
-};
 /** Канал важнее источника: «Booking.com», иначе «Стойка» */
 export const sourceLabel = (source: string, channel: string | null) =>
   channel || SOURCE_RU[source] || source;

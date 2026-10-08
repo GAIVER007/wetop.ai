@@ -1,11 +1,5 @@
+export { beautyLabels as STATUS_WORD } from '../../lib/status/beauty';
 import type { BeautyAppointmentRow } from '../../lib/api';
-export const STATUS_WORD: Record<BeautyAppointmentRow['status'], string> = {
-  BOOKED: 'Записан',
-  CONFIRMED: 'Подтверждена',
-  DONE: 'Завершена',
-  NO_SHOW: 'Не пришёл',
-  CANCELLED: 'Отменена',
-};
 
 export const ACTION_WORD: Record<BeautyAppointmentRow['status'], string> = {
   BOOKED: 'Вернуть в записанные',

@@ -6081,3 +6081,17 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+
+## ADR-DS1A-STATUS (2026-10-08): единая подача статусов
+
+Проблема: экраны называют одно состояние разными словами, локальные словари расходятся.
+Варианты: синхронизировать копии или хранить типизированные реестры в web/lib/status.
+Решение: отдельные реестры гостиницы, уборки, оплаты, салона, ресторана и источников.
+Контракт label/tone/icon, семантические тона neutral/info/success/warning/danger.
+Существующий Badge сохраняет CSS-классы, адаптер отображает success в ok, warning в warn.
+StatusBadge получает kind/value; неизвестные строковые значения API показываются как есть
+нейтральным тоном. Контекстные строчные подписи выводятся из label, формы фильтров заданы
+полем groupLabel. Пояснения действий уборки остаются у действий.
+Причина: одинаковый смысл на всех экранах без изменения доменных правил и CSS.
+Последствия: API, данные, переходы статусов и расчёты не меняются; DS1a проверяется отдельно.

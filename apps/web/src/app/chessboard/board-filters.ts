@@ -1,3 +1,4 @@
+import { hospitality } from '../../lib/status/hospitality';
 import type { ChessboardCell, ChessboardRow } from '../../lib/api';
 import { CHANNELS, SOURCES } from '../reservations/sources';
 
@@ -38,10 +39,10 @@ export const STAY_FLAGS: ReadonlyArray<readonly [StayFlag, string]> = [
 
 /** Статусы, которые бывают на сетке: отменённых и незаездов там нет (решение владельца не принято) */
 const STATUS_ORDER: ReadonlyArray<readonly [string, string]> = [
-  ['TENTATIVE', 'Не подтверждена'],
-  ['CONFIRMED', 'Подтверждена'],
-  ['CHECKED_IN', 'Заселён'],
-  ['CHECKED_OUT', 'Выселен'],
+  ['TENTATIVE', hospitality.TENTATIVE.label],
+  ['CONFIRMED', hospitality.CONFIRMED.label],
+  ['CHECKED_IN', hospitality.CHECKED_IN.label],
+  ['CHECKED_OUT', hospitality.CHECKED_OUT.label],
 ];
 
 /**

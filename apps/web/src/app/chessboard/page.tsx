@@ -1,3 +1,4 @@
+import { hospitality } from '../../lib/status/hospitality';
 import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
@@ -272,10 +273,22 @@ export default async function ChessboardPage({
           <Legend
             data-testid="board-legend"
             items={[
-              { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-              { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-              { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-              { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+              {
+                ...hospitality.CONFIRMED,
+                label: hospitality.CONFIRMED.label.toLocaleLowerCase('ru'),
+              },
+              {
+                ...hospitality.CHECKED_IN,
+                label: hospitality.CHECKED_IN.label.toLocaleLowerCase('ru'),
+              },
+              {
+                ...hospitality.CHECKED_OUT,
+                label: hospitality.CHECKED_OUT.label.toLocaleLowerCase('ru'),
+              },
+              {
+                ...hospitality.TENTATIVE,
+                label: hospitality.TENTATIVE.label.toLocaleLowerCase('ru'),
+              },
               { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
               // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
               { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },

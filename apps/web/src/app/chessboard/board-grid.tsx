@@ -1,4 +1,9 @@
 'use client';
+import {
+  hospitalityGlyphs as STATUS_GLYPH,
+  hospitalityColors as STATUS_BG,
+} from '../../lib/status/hospitality';
+import { hospitalityWords as STATUS_RU } from '../../lib/status/hospitality';
 import Link from 'next/link';
 import {
   Fragment,
@@ -72,12 +77,6 @@ import { displayDate } from '../../lib/display-date';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена, ждём',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-};
 /** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
 const COLLAPSED_KEY = 'chessboard.collapsed-categories';
 /** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере */
@@ -1617,13 +1616,6 @@ const nextDay = (d: string) => {
   x.setUTCDate(x.getUTCDate() + 1);
   return x.toISOString().slice(0, 10);
 };
-/** Статус видно и без легенды: ✓ заселён, • ждём, ? предварительная, ✕ выселен */
-const STATUS_GLYPH: Record<string, string> = {
-  CONFIRMED: '•',
-  CHECKED_IN: '✓',
-  CHECKED_OUT: '✕',
-  TENTATIVE: '?',
-};
 /** «3 ночи» по видимому отрезку; отрезок, начавшийся до окна, помечен «+» — ночей больше */
 function nights(span: number, continues: boolean): string {
   const d = span % 10;
@@ -1632,9 +1624,3 @@ function nights(span: number, continues: boolean): string {
     h >= 11 && h <= 14 ? 'ночей' : d === 1 ? 'ночь' : d >= 2 && d <= 4 ? 'ночи' : 'ночей';
   return `${span}${continues ? '+' : ''} ${word}`;
 }
-const STATUS_BG: Record<string, string> = {
-  CONFIRMED: 'var(--st-confirmed)',
-  CHECKED_IN: 'var(--st-checked-in)',
-  CHECKED_OUT: 'var(--st-checked-out)',
-  TENTATIVE: 'var(--st-tentative)',
-};

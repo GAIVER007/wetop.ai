@@ -1,3 +1,4 @@
+import { paymentWords } from '../../lib/status/payment';
 import { AmountChip } from '../../components/amount-chip';
 import { financeState } from './finance-state';
 
@@ -24,7 +25,7 @@ export function FinanceLine({
     case 'unpaid':
       return (
         <span className="warn-text reservations-fin" data-testid={testId}>
-          не оплачено
+          {paymentWords.unpaid}
         </span>
       );
     case 'due':
@@ -42,7 +43,7 @@ export function FinanceLine({
         <AmountChip
           className="reservations-fin"
           tone="refund"
-          label="к возврату"
+          label={paymentWords.refund}
           minor={state.minor}
           currency={row.currency}
           data-testid={testId}
@@ -51,13 +52,13 @@ export function FinanceLine({
     case 'refunded':
       return (
         <span className="muted reservations-fin" data-testid={testId}>
-          возвращено
+          {paymentWords.refunded}
         </span>
       );
     case 'paid':
       return (
         <span className="dir-paid reservations-fin" data-testid={testId}>
-          оплачено
+          {paymentWords.paid}
         </span>
       );
     default:

@@ -1,5 +1,8 @@
+import { paymentLabels } from '../../lib/status/payment';
 import { sourceNames } from '../../lib/hotel-api';
 import { CHANNELS } from './sources';
+
+export const paymentFilters: Record<string, string> = { '': 'Любая оплата', ...paymentLabels };
 
 /**
  * Отбор «Броней» в адресе (ADR-106, срез R2). Значения совпадают с параметрами GET /hotel/reservations:
@@ -17,15 +20,6 @@ export const dateBases: Record<string, string> = {
   arrival: 'заезд',
   departure: 'выезд',
   created: 'дата создания',
-};
-export const paymentFilters: Record<string, string> = {
-  '': 'Любая оплата',
-  paid: 'Оплачено',
-  partial: 'Оплачено частично',
-  unpaid: 'Не оплачено',
-  due: 'Есть долг',
-  refund: 'К возврату',
-  refunded: 'Возвращено',
 };
 export const allocationFilters: Record<string, string> = {
   '': 'Любое размещение',

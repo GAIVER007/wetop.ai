@@ -420,7 +420,7 @@ test('карточка: профиль гостя и заселение прох
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
-  await expect(page.getByTestId('stay-row')).toContainText('заселён');
+  await expect(page.getByTestId('stay-row')).toContainText('Проживает');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { path: string }) => c.path)).toContain(
     `/reservations/${booking}/items/ui-item/check-in`,

@@ -339,12 +339,12 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
       >
         <State name="default">
           <div className="row">
-            <StatusBadge status="TENTATIVE" label="предварительная" />
-            <StatusBadge status="CONFIRMED" label="подтверждена" />
-            <StatusBadge status="CHECKED_IN" label="заселён" />
-            <StatusBadge status="CHECKED_OUT" label="выселен" />
-            <StatusBadge status="CANCELLED" label="отменена" />
-            <StatusBadge status="NO_SHOW" label="незаезд" />
+            <StatusBadge kind="hospitality" value="TENTATIVE" />
+            <StatusBadge kind="hospitality" value="CONFIRMED" />
+            <StatusBadge kind="hospitality" value="CHECKED_IN" />
+            <StatusBadge kind="hospitality" value="CHECKED_OUT" />
+            <StatusBadge kind="hospitality" value="CANCELLED" />
+            <StatusBadge kind="hospitality" value="NO_SHOW" />
             <Badge>стойка</Badge>
             <Badge tone="info">Booking.com</Badge>
           </div>
@@ -425,7 +425,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>17 сент. → 20 сент. · 3 ночи</td>
                 <td>
-                  <StatusBadge status="TENTATIVE" label="предварительная" />
+                  <StatusBadge kind="hospitality" value="TENTATIVE" />
                 </td>
                 <td className="num">
                   <AmountChip minor="3600000" tone="due" />
@@ -437,7 +437,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>15 сент. → 17 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CHECKED_IN" label="заселён" />
+                  <StatusBadge kind="hospitality" value="CHECKED_IN" />
                 </td>
                 <td className="num">
                   <AmountChip minor="0" tone="paid" label="оплачено" />
@@ -449,7 +449,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>16 сент. → 18 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CANCELLED" label="отменена" />
+                  <StatusBadge kind="hospitality" value="CANCELLED" />
                 </td>
                 <td className="num">—</td>
               </tr>

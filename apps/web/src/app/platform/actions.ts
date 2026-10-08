@@ -95,3 +95,37 @@ export async function changeStatusAction(
     };
   }
 }
+
+/**
+ * MKT9.2: лицензия конструктора сайта одного гостиничного филиала: «Пробный» (нужен срок), «Активировать» (пустой срок:
+ * бессрочно), «Продлить» (тот же статус, новый срок), «Выключить». Только главный администратор; проверяет API
+ */
+export interface SiteBuilderFormResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+export async function changeSiteBuilderAction(
+  organizationId: string,
+  locationId: string,
+  current: 'TRIAL' | 'ACTIVE' | 'OFF' | null,
+  prev: SiteBuilderFormResult | null,
+  form: FormData,
+): Promise<SiteBuilderFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const action = String(form.get('action') ?? '');
+  const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : action === 'extend' && current === 'TRIAL' ? 'TRIAL' : 'ACTIVE';
+  try {
+    const saved = await platformApi.changeSiteBuilder(organizationId, locationId, {
+      status,
+      activeUntil: status === 'OFF' ? '' : String(form.get('activeUntil') ?? '').trim(),
+      note: String(form.get('note') ?? '').trim(),
+    });
+    revalidatePath('/platform');
+    const word = saved.license.access === 'active' ? 'действует' : saved.license.access === 'expired' ? 'срок вышел' : 'выключен';
+    return { error: null, message: `Сохранено: конструктор сайта филиала «${saved.name}» ${word}`, attempt };
+  } catch (e) {
+    return { error: e instanceof ApiError || e instanceof Error ? e.message : 'Не удалось сохранить', message: null, attempt };
+  }
+}

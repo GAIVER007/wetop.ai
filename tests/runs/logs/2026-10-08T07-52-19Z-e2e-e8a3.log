@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 08.10.2026 12:52 Алматы · vm
+# коммит 2f32e84 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-builder-licensed.spec.ts' '--workers=1' '-g' 'Выбор|Платформа'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/site-builder-licensed.spec.ts:102:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (11.5s)
+  ✓  2 tests/ui/site-builder-licensed.spec.ts:124:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (3.6s)
+  ✘  3 tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (6.9s)
+
+
+  1) tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('platform-site-builder-result')
+    Expected substring: "Luxx Aparts» выключен"
+    Error: strict mode violation: getByTestId('platform-site-builder-result') resolved to 2 elements:
+        1) <div class="notice" data-testid="platform-site-builder-result">Сохранено: конструктор сайта филиала «Luxx Aparts…</div> aka getByText('Сохранено: конструктор сайта филиала «Luxx Aparts» выключен')
+        2) <div class="notice" data-testid="platform-site-builder-result">Сохранено: конструктор сайта филиала «Marina» дей…</div> aka getByText('Сохранено: конструктор сайта филиала «Marina» действует')
+
+    Call log:
+      - Expect "toContainText" getByTestId('platform-site-builder-result') with timeout 15000ms
+      - waiting for getByTestId('platform-site-builder-result')
+        3 × locator resolved to <div class="notice" data-testid="platform-site-builder-result">Сохранено: конструктор сайта филиала «Marina» дей…</div>
+          - unexpected value "Сохранено: конструктор сайта филиала «Marina» действует"
+
+
+      212 |   await shot(page, 'platform-licenses-light-1440');
+      213 |   await list.getByTestId('platform-site-builder-form').nth(0).getByTestId('platform-site-builder-off').click();
+    > 214 |   await expect(page.getByTestId('platform-site-builder-result')).toContainText('Luxx Aparts» выключен');
+          |                                                                  ^
+      215 |   // филиал сразу видит сайт только для чтения
+      216 |   await page.goto('/marketing/site/editor');
+      217 |   await expect(main(page).getByTestId('ed-license')).toHaveText('Конструктор не подключён');
+        at /home/user/wetop.ai/tests/ui/site-builder-licensed.spec.ts:214:66
+
+    Error Context: test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала 
+  2 passed (33.9s)
+
+# код выхода 1 · 35 с

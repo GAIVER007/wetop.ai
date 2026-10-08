@@ -26,6 +26,8 @@ export const GENERATION_ERROR_CODES = [
   'BASE_VERSION_CHANGED',
   /** Повтор дожил до следующих суток UTC: вчерашний run не тратит сегодняшний бюджет */
   'BUDGET_DAY_CHANGED',
+  /** MKT9.2: лицензия конструктора филиала кончилась или выключена до платного вызова; не повторяется */
+  'LICENSE_UNAVAILABLE',
 ] as const;
 export type GenerationErrorCode = (typeof GENERATION_ERROR_CODES)[number];
 
@@ -42,6 +44,7 @@ export const GENERATION_ERROR_TEXT: Record<GenerationErrorCode, string> = {
   BRIEF_CHANGED: 'Данные филиала изменились: запустите генерацию заново',
   BASE_VERSION_CHANGED: 'Сайт уже изменили: генерация не применена',
   BUDGET_DAY_CHANGED: 'Повтор перешёл на следующие сутки: запустите генерацию заново',
+  LICENSE_UNAVAILABLE: 'Конструктор сайта не активен для этого филиала: ИИ не запускался',
 };
 
 export function isGenerationErrorCode(value: unknown): value is GenerationErrorCode {

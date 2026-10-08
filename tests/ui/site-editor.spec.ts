@@ -244,7 +244,7 @@ test('ИИ всего сайта: запрос в ленте, в очереди 
   await expect(ai.getByTestId('ed-ai-send')).toBeDisabled();
   await ai.getByLabel('Что изменить на сайте?').fill('Сделай первый экран короче');
   await ai.getByTestId('ed-ai-send').click();
-  await expect(ai.getByRole('list', { name: 'Запросы к ИИ' })).toContainText('Сделай первый экран короче');
+  await expect(ai.getByRole('list', { name: 'Разговор с ИИ' })).toContainText('Сделай первый экран короче');
   await expect(ai.getByLabel('Что изменить на сайте?')).toHaveValue('');
   await expect(m.getByTestId('ed-ai-state')).toContainText('Если сохранить изменения сейчас, результат ИИ не применится.');
   await expect(m.getByTestId('ed-ai-done')).toContainText('Готово: ИИ создал версию 3');
@@ -257,7 +257,7 @@ test('ИИ всего сайта: запрос в ленте, в очереди 
   await page.getByRole('dialog').getByRole('button', { name: 'Вернуть', exact: true }).click();
   await expect(m.getByTestId('ed-message')).toHaveText('Версия 2 восстановлена как черновик: версия 4');
   await expect(frame(page).locator('#sec-hero')).toContainText('Версия 2');
-  // лента живёт в браузере и переживает обновление вкладки
+  // MKT9.2: разговор хранится на сервере и виден после обновления вкладки
   await page.reload();
   await expect(main(page).getByTestId('ed-ai')).toContainText('Сделай первый экран короче');
 });
@@ -297,37 +297,36 @@ test('ИИ с несохранёнными правками: «Сохранит�
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toHaveValue('Ярче');
 });
 
-test('окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор', async ({ page, request }) => {
+test('первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
   await control(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const m = main(page);
   const win = m.getByTestId('create-site');
-  await expect(win.getByRole('heading', { name: 'Какой сайт сделать?' })).toBeVisible();
-  await expect(win.getByLabel('Адрес сайта')).toHaveValue('luxx-aparts');
-  // Готовых примеров под полем нет (слово владельца 07.10): только строка ввода и «Создать сайт».
+  await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
+  // проект это филиал: ни названия, ни адреса сайта не спрашиваем, готовых примеров нет
+  await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
+  await expect(win.getByLabel('Название сайта')).toHaveCount(0);
   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
-  await expect(win.getByRole('button')).toHaveText(['Создать сайт']);
-  await win.getByLabel('Опишите сайт').fill('Спокойный сайт у вокзала');
-  await win.getByLabel('Адрес сайта').fill('busy-hotel');
+  await expect(win.getByRole('button')).toHaveText(['Показать варианты оформления', 'Создать сайт']);
+  await expect(win.getByTestId('create-site-facts')).toContainText('Номера: Стандарт, Койка в общем номере');
+  await expect(win.getByTestId('create-site-facts')).toContainText('Адрес: ул. Вымышленная, 1');
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
   await win.getByTestId('create-site-start').click();
-  await expect(win.getByText('Адрес «busy-hotel» уже занят: выберите другой')).toBeVisible();
-  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Спокойный сайт у вокзала');
-  await win.getByLabel('Адрес сайта').fill('luxx-center');
-  await win.getByTestId('create-site-start').click();
-  await expect(win.getByTestId('create-site-steps')).toContainText('ИИ пишет сайт');
+  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
   await expect(m.getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await expect(frame(page).locator('#sec-hero')).toContainText('Первая версия от ИИ');
+  await expect(m.getByTestId('ed-project')).toContainText('Luxx Aparts / Сайт филиала');
 });
 
-test('окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
+test('первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
   await control(request, { noVersions: true, aiFail: 'TIMEOUT' });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
-  await win.getByLabel('Опишите сайт').fill('Коротко и по делу');
-  await win.getByLabel('Опишите сайт').press('Control+Enter');
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Коротко и по делу');
+  await win.getByLabel('Опишите, каким должен быть сайт').press('Control+Enter');
   await expect(win.getByTestId('create-site-error')).toHaveText('ИИ не ответил вовремя');
-  await expect(win.getByLabel('Опишите сайт')).toHaveValue('Коротко и по делу');
+  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Коротко и по делу');
   await expect(win.getByTestId('create-site-start')).toBeEnabled();
 });
 

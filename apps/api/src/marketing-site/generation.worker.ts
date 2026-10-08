@@ -10,7 +10,14 @@ import {
   SITE_GENERATION_SCHEMA_VERSION,
   SITE_SPEC_SCHEMA_VERSION,
   addUsage,
+  applyDesignDirection,
+  canWrite,
   checkEditedSpec,
+  decodeDesignInstruction,
+  designInstructionText,
+  parseAssistantResult,
+  siteBuilderAccess,
+  SITE_ASSISTANT_SCHEMA_VERSION,
   checkGeneratedSpec,
   decodeSectionInstruction,
   findSection,
@@ -23,18 +30,20 @@ import {
   sameUtcDay,
   siteGenerationBudget,
   siteSpecHash,
-  utcDayStart,
   type GenerationErrorCode,
   type EditMode,
+  type SiteAiMode,
   type SiteBrief,
   type TokenUsage,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { assistant } from '@pms/integrations';
+import { siteAssistantHistory } from './assistant-history';
 import { PrismaService } from '../database/prisma.provider';
 import { SiteBriefService } from './brief.service';
 import { GENERATION_BOT, type GenerationBot } from './generation.bot';
 import { checkSpecAssets } from './asset-refs';
+import { siteAiDay } from './ai-guards';
 
 /**
  * Воркер генерации сайта (MKT6, `docs/marketing/site-generation-v0.md`). `generation_runs` и есть очередь в Postgres,
@@ -45,6 +54,7 @@ import { checkSpecAssets } from './asset-refs';
 const POLL_MS = 3_000;
 
 interface Claimed {
+  kind: 'BUILD';
   id: string;
   type: 'INITIAL' | 'SECTION' | 'PATCH' | 'SEO';
   baseVersionId: string | null;
@@ -61,9 +71,28 @@ interface Claimed {
   requestedById: string | null;
 }
 
+/** MKT9.2: разговорная задача (Чат, План, Оформление), взятая воркером */
+interface ClaimedAssistant {
+  kind: 'ASSISTANT';
+  id: string;
+  mode: SiteAiMode;
+  siteId: string;
+  organizationId: string;
+  businessId: string;
+  locationId: string;
+  attempts: number;
+  startedAt: Date;
+  briefHash: string | null;
+  baseVersionId: string | null;
+  userText: string;
+  createdAt: Date;
+}
+
 interface BotReply {
   status: 'ok' | 'error';
   spec: unknown;
+  /** MKT9.2: ответ ассистента по режиму */
+  result: unknown;
   errorCode: string | null;
   model: string | null;
   usage: TokenUsage & { complete: boolean; paidCalls: number };
@@ -84,6 +113,7 @@ export function parseBotReply(raw: unknown): BotReply | null {
   return {
     status: r['status'],
     spec: r['spec'],
+    result: r['result'],
     errorCode: typeof r['errorCode'] === 'string' ? r['errorCode'] : null,
     model,
     usage: {
@@ -127,7 +157,8 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
     try {
       await this.recover();
       const run = await this.claim();
-      if (run) await this.process(run);
+      if (run?.kind === 'BUILD') await this.process(run);
+      else if (run?.kind === 'ASSISTANT') await this.processAssistant(run);
       return run?.id ?? null;
     } finally {
       this.busy = false;
@@ -154,7 +185,18 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           });
         else await this.failTx(tx, run.id, run.siteId, 'TIMEOUT', now);
       }
-      return lost.length;
+      // MKT9.2: разговорные задачи по тем же правилам аренды
+      const lostAi = await tx.siteAiRun.findMany({
+        where: { status: 'RUNNING', nextAttemptAt: { lte: now } },
+        select: { id: true, siteId: true, attempts: true, dispatchedAt: true },
+      });
+      for (const run of lostAi) {
+        if (run.dispatchedAt) await this.aiFailTx(tx, run.id, run.siteId, 'USAGE_UNAVAILABLE', now);
+        else if (run.attempts < SITE_GENERATION_MAX_ATTEMPTS)
+          await tx.siteAiRun.updateMany({ where: { id: run.id, status: 'RUNNING' }, data: { status: 'QUEUED', nextAttemptAt: now } });
+        else await this.aiFailTx(tx, run.id, run.siteId, 'TIMEOUT', now);
+      }
+      return lost.length + lostAi.length;
     });
   }
 
@@ -163,34 +205,91 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
    * у неё нет другой `RUNNING`: платные вызовы одной организации идут по одному, иначе два воркера потратили бы бюджет
    * дважды. Разные организации идут параллельно.
    */
-  async claim(): Promise<Claimed | null> {
+  async claim(): Promise<Claimed | ClaimedAssistant | null> {
     const now = this.now();
     return this.prisma.db.$transaction(async (tx) => {
-      const candidates = await tx.$queryRaw<Array<{ id: string; organization_id: string }>>`
-        SELECT r.id, b.organization_id
-          FROM generation_runs r
-          JOIN marketing_sites s ON s.id = r.site_id
+      // MKT9.2: одна очередь на сборку и разговор, по времени постановки
+      const candidates = await tx.$queryRaw<Array<{ id: string; kind: 'BUILD' | 'ASSISTANT'; organization_id: string }>>`
+        SELECT q.id, q.kind, b.organization_id
+          FROM (
+            SELECT id, 'BUILD'::text AS kind, site_id, created_at FROM generation_runs
+             WHERE status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
+            UNION ALL
+            SELECT id, 'ASSISTANT'::text AS kind, site_id, created_at FROM site_ai_runs
+             WHERE status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
+          ) q
+          JOIN marketing_sites s ON s.id = q.site_id
           JOIN locations l ON l.id = s.location_id
           JOIN businesses b ON b.id = l.business_id
-         WHERE r.status = 'QUEUED' AND (r.next_attempt_at IS NULL OR r.next_attempt_at <= ${now})
-         ORDER BY r.created_at, r.id
+         ORDER BY q.created_at, q.id
          LIMIT 20`;
       for (const candidate of candidates) {
         // Замок по одной строке: замок сразу на всех кандидатов спрятал бы задачи других организаций от соседнего
         // воркера. Состояние проверяется ещё раз под замком: сосед мог уже взять задачу и зафиксировать
-        const locked = await tx.$queryRaw<Array<{ id: string }>>`
-          SELECT id FROM generation_runs
-           WHERE id = ${candidate.id}::uuid AND status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
-             FOR UPDATE SKIP LOCKED`;
+        const locked =
+          candidate.kind === 'BUILD'
+            ? await tx.$queryRaw<Array<{ id: string }>>`
+                SELECT id FROM generation_runs
+                 WHERE id = ${candidate.id}::uuid AND status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
+                   FOR UPDATE SKIP LOCKED`
+            : await tx.$queryRaw<Array<{ id: string }>>`
+                SELECT id FROM site_ai_runs
+                 WHERE id = ${candidate.id}::uuid AND status = 'QUEUED' AND (next_attempt_at IS NULL OR next_attempt_at <= ${now})
+                   FOR UPDATE SKIP LOCKED`;
         if (locked.length === 0) continue;
         await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${candidate.organization_id}::uuid FOR UPDATE`;
+        // платные вызовы одной организации по одному, какой бы ни был вид задачи
         const busy = await tx.$queryRaw<Array<{ n: number }>>`
-          SELECT count(*)::int AS n FROM generation_runs r
-            JOIN marketing_sites s ON s.id = r.site_id
+          SELECT count(*)::int AS n FROM (
+            SELECT site_id FROM generation_runs WHERE status = 'RUNNING'
+            UNION ALL
+            SELECT site_id FROM site_ai_runs WHERE status = 'RUNNING'
+          ) q
+            JOIN marketing_sites s ON s.id = q.site_id
             JOIN locations l ON l.id = s.location_id
             JOIN businesses b ON b.id = l.business_id
-           WHERE r.status = 'RUNNING' AND b.organization_id = ${candidate.organization_id}::uuid`;
+           WHERE b.organization_id = ${candidate.organization_id}::uuid`;
         if ((busy[0]?.n ?? 0) > 0) continue;
+        if (candidate.kind === 'ASSISTANT') {
+          const before = await tx.siteAiRun.findUniqueOrThrow({ where: { id: candidate.id }, select: { startedAt: true, attempts: true } });
+          const run = await tx.siteAiRun.update({
+            where: { id: candidate.id },
+            data: {
+              status: 'RUNNING',
+              attempts: before.attempts + 1,
+              startedAt: before.startedAt ?? now,
+              nextAttemptAt: new Date(now.getTime() + SITE_GENERATION_LEASE_MS),
+              dispatchedAt: null,
+            },
+            select: {
+              id: true,
+              mode: true,
+              siteId: true,
+              attempts: true,
+              startedAt: true,
+              briefHash: true,
+              baseVersionId: true,
+              userText: true,
+              createdAt: true,
+              site: { select: { location: { select: { id: true, businessId: true } } } },
+            },
+          });
+          return {
+            kind: 'ASSISTANT' as const,
+            id: run.id,
+            mode: run.mode,
+            siteId: run.siteId,
+            organizationId: candidate.organization_id,
+            businessId: run.site.location.businessId,
+            locationId: run.site.location.id,
+            attempts: run.attempts,
+            startedAt: run.startedAt!,
+            briefHash: run.briefHash,
+            baseVersionId: run.baseVersionId,
+            userText: run.userText,
+            createdAt: run.createdAt,
+          };
+        }
         const before = await tx.generationRun.findUniqueOrThrow({ where: { id: candidate.id }, select: { startedAt: true, attempts: true } });
         const run = await tx.generationRun.update({
           where: { id: candidate.id },
@@ -217,6 +316,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           },
         });
         return {
+          kind: 'BUILD' as const,
           id: run.id,
           type: run.type,
           baseVersionId: run.baseVersionId,
@@ -235,6 +335,26 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       }
       return null;
     });
+  }
+
+  /**
+   * MKT9.2: лицензия конструктора филиала перед каждым платным вызовом (воркер работает служебным путём, мимо
+   * транзакции записи API): лицензия действует, организация пишет, бизнес и филиал ещё действуют. Иначе
+   * `LICENSE_UNAVAILABLE` без вызова модели
+   */
+  private async licenseActive(run: { organizationId: string; businessId: string; locationId: string }): Promise<boolean> {
+    const now = this.now();
+    const [entitlement, org, business, location] = await Promise.all([
+      this.prisma.db.siteBuilderEntitlement.findUnique({ where: { locationId: run.locationId }, select: { status: true, activeUntil: true } }),
+      this.prisma.db.organization.findUnique({ where: { id: run.organizationId }, select: { status: true, trialEndsAt: true } }),
+      // точная цепочка, а не каждая строка по отдельности: бизнес этой организации, филиал этого бизнеса
+      this.prisma.db.business.findFirst({
+        where: { id: run.businessId, organizationId: run.organizationId, status: 'ACTIVE', vertical: 'HOSPITALITY' },
+        select: { id: true },
+      }),
+      this.prisma.db.location.findFirst({ where: { id: run.locationId, businessId: run.businessId, status: 'ACTIVE' }, select: { id: true } }),
+    ]);
+    return siteBuilderAccess(entitlement, now) === 'active' && !!org && canWrite(org.status, org.trialEndsAt, now) && !!business && !!location;
   }
 
   /**
@@ -285,11 +405,16 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
 
     const config = siteGenerationBudget(process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET);
     if (!config.enabled || !this.bot) return this.fail(run, config.enabled ? 'MODEL_UNAVAILABLE' : 'BUDGET_EXCEEDED');
-    const day = await this.budgetDay(run.organizationId, run.startedAt);
+    const day = await siteAiDay(this.prisma.db, run.organizationId, run.startedAt);
     if (day.unknown) return this.fail(run, 'USAGE_UNAVAILABLE');
     const remaining = config.budget - day.spent;
     if (remaining <= 0) return this.fail(run, 'BUDGET_EXCEEDED');
+    // MKT9.2: лицензия кончилась или выключена, пока задача ждала: модель не зовём
+    if (!(await this.licenseActive(run))) return this.fail(run, 'LICENSE_UNAVAILABLE');
 
+    // MKT9.2: первая сборка с выбранным оформлением: модели уходит описание словами, тема ставится платформой
+    const design = run.type === 'INITIAL' ? decodeDesignInstruction(run.instruction) : null;
+    const initialText = design ? designInstructionText(design) : run.instruction;
     const targetLocales = generationTargetLocales(brief.input);
     const validationErrors = run.errorCode === 'SCHEMA_INVALID' ? decodeValidationErrors(run.errorMessage) : [];
     // Отметка «запрос ушёл»: падение процесса до записи расхода даст USAGE_UNAVAILABLE, а не бесплатный повтор
@@ -322,7 +447,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
             targetLocales,
             budgetRemainingTokens: remaining,
             validationErrors,
-            ...(run.instruction ? { instruction: run.instruction } : {}),
+            ...(initialText ? { instruction: initialText } : {}),
           });
     } catch (error) {
       if (error instanceof assistant.BotRejectedError) {
@@ -346,29 +471,17 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
           : 'MODEL_UNAVAILABLE';
       return this.retryOrFail(run, code);
     }
+    // выбранное оформление ставится детерминированно поверх ответа модели и проверяется тем же валидатором
+    const generated =
+      design && reply.spec && typeof reply.spec === 'object' && !Array.isArray(reply.spec) ? applyDesignDirection(reply.spec, design.design) : reply.spec;
     const checked = edit
       ? checkEditedSpec(reply.spec, edit.baseSpec, brief.input, edit.mode)
-      : checkGeneratedSpec(reply.spec, brief.input, targetLocales);
+      : checkGeneratedSpec(generated, brief.input, targetLocales);
     if (!checked.ok) {
       this.logger.warn(`Генерация ${run.id}: документ не прошёл проверку (${checked.errors.length} ошибок)`);
       return this.retryOrFail(run, 'SCHEMA_INVALID', encodeValidationErrors(checked.errors));
     }
     await this.succeed(run, checked.spec, checked.schemaVersion, reply.model);
-  }
-
-  /** Расход дня бюджета: задачи организации, начатые в эти сутки UTC; и был ли за сутки неизвестный расход */
-  private async budgetDay(organizationId: string, startedAt: Date): Promise<{ spent: number; unknown: boolean }> {
-    const from = utcDayStart(startedAt);
-    const to = new Date(from.getTime() + 86_400_000);
-    const rows = await this.prisma.db.$queryRaw<Array<{ spent: bigint | number | null; unknown: boolean }>>`
-      SELECT COALESCE(SUM(COALESCE(r.tokens_input, 0) + COALESCE(r.tokens_output, 0)), 0) AS spent,
-             COALESCE(bool_or(r.error_code = 'USAGE_UNAVAILABLE'), false) AS unknown
-        FROM generation_runs r
-        JOIN marketing_sites s ON s.id = r.site_id
-        JOIN locations l ON l.id = s.location_id
-        JOIN businesses b ON b.id = l.business_id
-       WHERE b.organization_id = ${organizationId}::uuid AND r.started_at >= ${from} AND r.started_at < ${to}`;
-    return { spent: Number(rows[0]?.spent ?? 0), unknown: rows[0]?.unknown === true };
   }
 
   /** Прибавить расход попытки к сумме задачи и снять отметку «запрос ушёл» */
@@ -506,6 +619,167 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       return 'ok' as const;
     });
     this.logger.log(`Генерация ${run.id}: ${outcome === 'ok' ? 'SUCCEEDED' : outcome}`);
+  }
+
+  /**
+   * MKT9.2: одна попытка разговорной задачи (Чат, План, Оформление). Всё, что решается без модели, решается до вызова:
+   * сутки бюджета, сайт и его голова (сменилась: `BASE_VERSION_CHANGED`), бриф, бюджет, лицензия. Версий не создаёт:
+   * успех это проверенный текст и структура ответа в строке задачи
+   */
+  async processAssistant(run: ClaimedAssistant): Promise<void> {
+    const now = this.now();
+    if (!sameUtcDay(run.startedAt, now)) return this.aiFail(run, 'BUDGET_DAY_CHANGED');
+    const site = await this.prisma.db.marketingSite.findUnique({
+      where: { id: run.siteId },
+      select: { state: true, latestVersionId: true, builderInstructions: true },
+    });
+    if (!site || site.state === 'ARCHIVED' || (site.latestVersionId ?? null) !== run.baseVersionId) return this.aiFail(run, 'BASE_VERSION_CHANGED');
+    let brief: SiteBrief;
+    try {
+      brief = await this.briefs.briefFor({ organizationId: run.organizationId, businessId: run.businessId, locationId: run.locationId }, false, now.getTime());
+    } catch {
+      return this.aiFail(run, 'BRIEF_CHANGED');
+    }
+    if (brief.briefHash !== run.briefHash) return this.aiFail(run, 'BRIEF_CHANGED');
+    const config = siteGenerationBudget(process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET);
+    if (!config.enabled || !this.bot) return this.aiFail(run, config.enabled ? 'MODEL_UNAVAILABLE' : 'BUDGET_EXCEEDED');
+    const day = await siteAiDay(this.prisma.db, run.organizationId, run.startedAt);
+    if (day.unknown) return this.aiFail(run, 'USAGE_UNAVAILABLE');
+    const remaining = config.budget - day.spent;
+    if (remaining <= 0) return this.aiFail(run, 'BUDGET_EXCEEDED');
+    if (!(await this.licenseActive(run))) return this.aiFail(run, 'LICENSE_UNAVAILABLE');
+    const base = run.baseVersionId
+      ? await this.prisma.db.marketingSiteVersion.findFirst({ where: { id: run.baseVersionId, siteId: run.siteId }, select: { spec: true } })
+      : null;
+
+    // история разговора только этого сайта и только из базы (не из браузера), до текущей задачи
+    const history = await siteAssistantHistory(this.prisma.db, run);
+
+    const marked = await this.prisma.db.siteAiRun.updateMany({ where: { id: run.id, status: 'RUNNING' }, data: { dispatchedAt: this.now() } });
+    if (marked.count === 0) return;
+    let raw: unknown;
+    try {
+      raw = await this.bot.assistant({
+        schemaVersion: SITE_ASSISTANT_SCHEMA_VERSION,
+        requestId: run.id,
+        mode: run.mode,
+        siteSpecSchemaVersion: SITE_SPEC_SCHEMA_VERSION,
+        briefInput: brief.input,
+        currentSpec: base?.spec ?? null,
+        projectInstructions: site.builderInstructions,
+        history,
+        userText: run.userText,
+        budgetRemainingTokens: remaining,
+        validationErrors: [],
+      });
+    } catch (error) {
+      if (error instanceof assistant.BotRejectedError) {
+        await this.aiRecordUsage(run, null, null);
+        return this.aiRetryOrFail(run, 'MODEL_UNAVAILABLE');
+      }
+      this.logger.warn(`Разговор ${run.id}: ответ ИИ потерян (${(error as Error).name})`);
+      return this.aiFail(run, 'USAGE_UNAVAILABLE');
+    }
+    const reply = parseBotReply(raw);
+    await this.aiRecordUsage(run, reply?.usage ?? null, reply?.model ?? null);
+    if (!reply || !reply.usage.complete) return this.aiFail(run, 'USAGE_UNAVAILABLE');
+    if (reply.status === 'error') {
+      const code: GenerationErrorCode =
+        isGenerationErrorCode(reply.errorCode) && reply.errorCode !== 'BRIEF_CHANGED' && reply.errorCode !== 'BASE_VERSION_CHANGED' && reply.errorCode !== 'LICENSE_UNAVAILABLE'
+          ? reply.errorCode
+          : 'MODEL_UNAVAILABLE';
+      return this.aiRetryOrFail(run, code);
+    }
+    const parsed = parseAssistantResult(run.mode, reply.result);
+    if (!parsed.ok) {
+      this.logger.warn(`Разговор ${run.id}: ответ не прошёл проверку (${parsed.errors.length} ошибок)`);
+      return this.aiRetryOrFail(run, 'SCHEMA_INVALID');
+    }
+    await this.prisma.db.$transaction(async (tx) => {
+      const done = await tx.siteAiRun.updateMany({
+        where: { id: run.id, status: 'RUNNING' },
+        data: {
+          status: 'SUCCEEDED',
+          assistantText: parsed.assistantText,
+          payload: parsed.payload as unknown as Prisma.InputJsonObject,
+          finishedAt: this.now(),
+          nextAttemptAt: null,
+          dispatchedAt: null,
+          errorCode: null,
+          errorMessage: null,
+          ...(reply.model ? { model: reply.model } : {}),
+        },
+      });
+      if (done.count === 0) return;
+      const row = await tx.siteAiRun.findUniqueOrThrow({ where: { id: run.id }, select: { tokensInput: true, tokensOutput: true, tokensCached: true } });
+      await this.aiAudit(tx, run.id, run.siteId, 'marketing.site.assistant.succeeded', {
+        mode: run.mode,
+        kind: parsed.payload.kind,
+        model: reply.model,
+        tokensInput: row.tokensInput,
+        tokensOutput: row.tokensOutput,
+        tokensCached: row.tokensCached,
+      });
+    });
+    this.logger.log(`Разговор ${run.id}: SUCCEEDED`);
+  }
+
+  private async aiRecordUsage(run: ClaimedAssistant, usage: TokenUsage | null, model: string | null): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      const current = await tx.siteAiRun.findUniqueOrThrow({
+        where: { id: run.id },
+        select: { tokensInput: true, tokensOutput: true, tokensCached: true, status: true },
+      });
+      if (current.status !== 'RUNNING') return;
+      const total = usage
+        ? addUsage({ input: current.tokensInput, cached: current.tokensCached, output: current.tokensOutput }, usage)
+        : { input: current.tokensInput, cached: current.tokensCached, output: current.tokensOutput };
+      await tx.siteAiRun.update({
+        where: { id: run.id },
+        data: { tokensInput: total.input, tokensOutput: total.output, tokensCached: total.cached, dispatchedAt: null, ...(model ? { model } : {}) },
+      });
+    });
+  }
+
+  private async aiRetryOrFail(run: ClaimedAssistant, code: GenerationErrorCode): Promise<void> {
+    const retry = generationRetry(code, run.attempts, this.now());
+    if (!retry.retry) return this.aiFail(run, code);
+    await this.prisma.db.siteAiRun.updateMany({
+      where: { id: run.id, status: 'RUNNING' },
+      data: { status: 'QUEUED', nextAttemptAt: retry.at, dispatchedAt: null, errorCode: code, errorMessage: GENERATION_ERROR_TEXT[code] },
+    });
+  }
+
+  private async aiFail(run: ClaimedAssistant, code: GenerationErrorCode): Promise<void> {
+    await this.prisma.db.$transaction((tx) => this.aiFailTx(tx, run.id, run.siteId, code, this.now()));
+    this.logger.log(`Разговор ${run.id}: ${code}`);
+  }
+
+  private async aiFailTx(tx: DbTx, id: string, siteId: string, code: GenerationErrorCode, now: Date): Promise<void> {
+    const done = await tx.siteAiRun.updateMany({
+      where: { id, status: 'RUNNING' },
+      data: { status: 'FAILED', finishedAt: now, nextAttemptAt: null, errorCode: code, errorMessage: GENERATION_ERROR_TEXT[code] },
+    });
+    if (done.count > 0) await this.aiAudit(tx, id, siteId, 'marketing.site.assistant.failed', { errorCode: code });
+  }
+
+  /** Журнал разговора без запроса, ответа и промпта: задача, сайт, режим, код ошибки, модель и счётчики */
+  private async aiAudit(tx: DbTx, runId: string, siteId: string, action: string, extra: Record<string, unknown>): Promise<void> {
+    const owner = await tx.$queryRaw<Array<{ organization_id: string }>>`
+      SELECT b.organization_id FROM marketing_sites s
+        JOIN locations l ON l.id = s.location_id
+        JOIN businesses b ON b.id = l.business_id
+       WHERE s.id = ${siteId}::uuid`;
+    await tx.auditLog.create({
+      data: {
+        organizationId: owner[0]!.organization_id,
+        userId: null,
+        entityType: 'marketing_site',
+        entityId: siteId,
+        action,
+        after: { runId, siteId, ...extra } as Prisma.InputJsonObject,
+      },
+    });
   }
 
   /** Журнал без брифа, промпта и документа: задача, сайт, версия, код ошибки, модель и счётчики токенов */

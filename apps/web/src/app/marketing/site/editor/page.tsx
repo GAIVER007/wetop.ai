@@ -3,9 +3,9 @@ import { unstable_rethrow } from 'next/navigation';
 import { requireVertical } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
+import { Alert } from '../../../../components/ui';
 import { loadErrorProps } from '../../../../lib/load-error';
-import { suggestMarketingSlug } from '@pms/domain';
-import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView } from '../../../../lib/api';
+import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView, type SiteConversationItem } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
 import { MarketingCrumb } from '../../../website/parts';
 import { SiteEditor } from './editor';
@@ -13,10 +13,10 @@ import { CreateSite } from './create-site';
 import '../../marketing.css';
 
 /**
- * «Маркетинг → Редактор сайта» (MKT9, `docs/marketing/site-editor-v0.md`). Голова черновика правится формами в
- * браузере и сохраняется новой неизменяемой версией; публикация не меняется (её делает страница публикации MKT7).
- * Право `settings` и строгий scope филиала проверяет API. Категории берутся из брифа точного объекта, картинки из
- * библиотеки MKT8; если они не загрузились, редактор всё равно открывается, только без выбора.
+ * «Маркетинг → Редактор сайта» (MKT9, MKT9.1; MKT9.2 лицензированный конструктор, `docs/marketing/licensed-site-builder-v0.md`).
+ * Проект это филиал: один сайт навсегда, без названий и адресов на входе. Без действующей лицензии филиала всё видно,
+ * но менять, просить ИИ и публиковать нельзя; проверяет это API, экран только не предлагает недоступное. Голова
+ * черновика правится в браузере и сохраняется новой неизменяемой версией; публикация на своей странице (MKT7).
  */
 export default async function SiteEditorPage() {
   await requireVertical(['HOSPITALITY']);
@@ -30,10 +30,11 @@ export default async function SiteEditorPage() {
   const loaded = await marketingSiteApi
     .current()
     .then(async (current) => {
-      if (!current.site) return { ok: true as const, current, draft: null, versions: [], brief: await brief(), assets: [] as SiteAssetView[] };
-      const [draft, versions, briefView, assets] = await Promise.all([
+      if (!current.site)
+        return { ok: true as const, current, draft: null, versions: [], bookmarks: [], conversation: [] as SiteConversationItem[], brief: await brief(), assets: [] as SiteAssetView[] };
+      const [draft, versions, briefView, assets, conversation] = await Promise.all([
         siteEditorApi.draft(),
-        siteEditorApi.versions().then((r) => r.versions),
+        siteEditorApi.versions(),
         brief(),
         siteAssetsApi
           .list()
@@ -42,8 +43,9 @@ export default async function SiteEditorPage() {
             unstable_rethrow(e);
             return [] as SiteAssetView[];
           }),
+        siteEditorApi.conversation().then((r) => (r.ok ? r.data.items : [])),
       ]);
-      return { ok: true as const, current, draft, versions, brief: briefView, assets };
+      return { ok: true as const, current, draft, versions: versions.versions, bookmarks: versions.bookmarks ?? [], conversation, brief: briefView, assets };
     })
     .catch((error: unknown) => {
       unstable_rethrow(error);
@@ -55,40 +57,58 @@ export default async function SiteEditorPage() {
         <LoadError testId="site-editor-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
-  const links = (
-    <>
-      <Link className="btn btn--secondary" href="/marketing/site" data-testid="editor-publication-link">
-        Публикация
-      </Link>
-      <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="editor-assets-link">
-        Изображения
-      </Link>
-    </>
-  );
-  const site = loaded.current.site;
-  const name = loaded.brief?.input.identity.displayNameCandidate ?? '';
-  if (!site || !loaded.draft?.version || !site.latest)
+  const { current } = loaded;
+  const licensed = current.builder.access === 'active';
+  const readOnly = shell.readOnly || !licensed;
+  const site = current.site;
+  const locationName = current.locationName ?? loaded.brief?.input.identity.displayNameCandidate ?? 'филиала';
+
+  if (current.archived && !site)
     return (
-      <Page crumbs={<MarketingCrumb />} title={title} actions={site ? links : undefined}>
-        <CreateSite
-          hasSite={!!site}
-          name={name || 'Сайт гостиницы'}
-          suggestedSlug={suggestMarketingSlug(name)}
-          briefHash={loaded.brief?.briefHash ?? null}
-          readOnly={shell.readOnly}
-        />
+      <Page crumbs={<MarketingCrumb />} title={title}>
+        <Alert boxed data-testid="site-archived">
+          Сайт этого филиала в архиве. У филиала один сайт навсегда, нового не будет. История публикаций на странице{' '}
+          <Link href="/marketing/site">«Публикация»</Link>.
+        </Alert>
       </Page>
     );
+
+  if (!site || !loaded.draft?.version || !site.latest) {
+    const input = loaded.brief?.input;
+    const facts = input
+      ? [
+          input.accommodations.length ? `Номера: ${input.accommodations.map((a) => a.name).join(', ')}` : null,
+          input.identity.address ? `Адрес: ${input.identity.address}` : null,
+          input.identity.phone ? `Телефон: ${input.identity.phone}` : null,
+          input.identity.email ? `Почта: ${input.identity.email}` : null,
+          input.stay?.checkInTime ? `Заезд с ${input.stay.checkInTime}` : null,
+        ].filter((f): f is string => !!f)
+      : [];
+    return (
+      <Page crumbs={<MarketingCrumb />} title={title}>
+        {!licensed && (
+          <Alert boxed data-testid="ed-license-off">
+            <b>Конструктор сайта не активен для этого филиала.</b> Создать сайт и просить ИИ нельзя. Подключить конструктор может главный
+            администратор WETOP.
+          </Alert>
+        )}
+        <CreateSite locationName={locationName} briefHash={loaded.brief?.briefHash ?? null} facts={facts} readOnly={readOnly} />
+      </Page>
+    );
+  }
   return (
-    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Попросите ИИ или поправьте блок сами: сайт меняется сразу. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации." actions={links}>
+    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Попросите ИИ или поправьте сайт сами: он меняется сразу. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации.">
       <SiteEditor
         siteId={site.id}
         base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}
         published={site.published}
         versions={loaded.versions}
+        bookmarks={loaded.bookmarks}
+        conversation={loaded.conversation}
+        project={{ locationName, builder: current.builder, instructions: current.instructions }}
         categories={loaded.brief?.input.accommodations.map((a) => ({ code: a.categoryCode, name: a.name })) ?? []}
         assets={loaded.assets}
-        readOnly={shell.readOnly}
+        readOnly={readOnly}
       />
     </Page>
   );

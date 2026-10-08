@@ -1,129 +1,145 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { PATCH_INSTRUCTION_MAX } from '@pms/domain';
-import { Alert, Button, Field, Input, cx } from '../../../../components/ui';
-import { createSiteAction } from './actions';
-import { runErrorText, useGenerationRun } from './run';
+import type { DesignDirectionView } from '../../../../lib/api';
+import { Alert, Button, cx } from '../../../../components/ui';
+import { createSiteAction, designFirstAction } from './actions';
+import { BuildProgress, DesignCards, errorText } from './ai-chat';
+import { runErrorText, useAssistantRun, useGenerationRun } from './run';
 
 /**
- * Окно «Какой сайт сделать?» (MKT9, слово владельца 07.10: одно понятное окно, как у конструкторов): человек пишет
- * словами, какой сайт нужен, и жмёт «Создать сайт». Нет сайта: он заводится с адресом из названия филиала (адрес
- * видно и можно поменять, занятый молча не меняется); затем первая версия ИИ существующим потоком MKT6, текст
- * человека уходит пожеланием. Факты (название, адрес, номера, контакты) ИИ берёт только из данных филиала.
+ * Первый экран конструктора (MKT9.2): проект это филиал, поэтому ни названия, ни адреса сайта не спрашиваем. Человек
+ * пишет, каким должен быть сайт, и жмёт «Создать сайт» или сначала смотрит три варианта оформления. Сайт заводится
+ * пустым запросом (имя и адрес из филиала), факты ИИ берёт только из данных филиала; список «WETOP уже знает» это
+ * то, что уже найдено, без выдумок.
  */
-type Phase = 'idle' | 'creating' | 'running' | 'done' | 'failed';
+type Phase = 'idle' | 'starting' | 'building' | 'designing' | 'choosing' | 'done';
 
 export function CreateSite({
-  hasSite,
-  name,
-  suggestedSlug,
+  locationName,
   briefHash,
+  facts,
   readOnly,
 }: {
-  hasSite: boolean;
-  name: string;
-  suggestedSlug: string;
+  locationName: string;
   briefHash: string | null;
+  facts: string[];
   readOnly: boolean;
 }) {
   const router = useRouter();
   const [text, setText] = useState('');
-  const [slug, setSlug] = useState(suggestedSlug);
-  const [siteMade, setSiteMade] = useState(hasSite);
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [slugError, setSlugError] = useState<string | null>(null);
-  const box = useRef<HTMLTextAreaElement>(null);
+  const [startedAt, setStartedAt] = useState(0);
+  const [directions, setDirections] = useState<{ runId: string; items: DesignDirectionView[] } | null>(null);
   const job = useGenerationRun((run) => {
     if (run.status === 'SUCCEEDED') {
       setPhase('done');
       router.refresh();
     } else {
-      setPhase('failed');
+      setPhase(directions ? 'choosing' : 'idle');
       setError(runErrorText(run));
     }
   });
-  const busy = phase === 'creating' || phase === 'running' || phase === 'done';
+  const design = useAssistantRun((run) => {
+    if (run.status === 'SUCCEEDED' && run.payload?.kind === 'DESIGN') {
+      setDirections({ runId: run.id, items: run.payload.directions });
+      setPhase('choosing');
+    } else {
+      setPhase('idle');
+      setError(errorText(run.errorCode));
+    }
+  });
+  const busy = phase === 'starting' || phase === 'building' || phase === 'designing' || phase === 'done';
   const blocked = readOnly ? 'Только чтение' : !briefHash ? 'Данные филиала сейчас недоступны: обновите страницу позже' : null;
 
-  const start = async () => {
+  const build = async (chosen?: DesignDirectionView) => {
     if (blocked || busy) return;
     setError(null);
-    setSlugError(null);
-    setPhase('creating');
-    const reply = await createSiteAction({ createSite: !siteMade, name, slug, briefHash: briefHash!, instruction: text });
-    if (reply.siteCreated) setSiteMade(true);
+    setPhase('starting');
+    const reply = await createSiteAction({
+      briefHash: briefHash!,
+      instruction: text,
+      ...(chosen && directions ? { design: { runId: directions.runId, id: chosen.id } } : {}),
+    });
     if (!reply.ok) {
-      setPhase('failed');
-      if (reply.field === 'slug') setSlugError(reply.message);
-      else setError(reply.message);
+      setPhase(directions ? 'choosing' : 'idle');
+      setError(reply.message);
       return;
     }
-    setPhase('running');
+    setStartedAt(Date.now());
+    setPhase('building');
     job.start(reply.run);
   };
-
-  const steps: Array<[string, boolean, boolean]> = [
-    ['Сайт заведён', siteMade, phase === 'creating' && !siteMade],
-    ['Собираем данные гостиницы', phase === 'running' || phase === 'done', phase === 'creating' && siteMade],
-    ['ИИ пишет сайт', phase === 'done', phase === 'running'],
-    ['Открываем редактор', false, phase === 'done'],
-  ];
+  const showDesigns = async () => {
+    if (blocked || busy) return;
+    setError(null);
+    setPhase('designing');
+    const reply = await designFirstAction(text);
+    if (!reply.ok) {
+      setPhase('idle');
+      setError(reply.message);
+      return;
+    }
+    design.start(reply.data.run);
+  };
 
   return (
     <section className="create-site" aria-labelledby="create-site-title" data-testid="create-site">
       <h2 id="create-site-title" className="create-site__title">
-        Какой сайт сделать?
+        Сайт для {locationName}
       </h2>
-      <p className="create-site__lead">
-        Опишите словами. ИИ соберёт сайт из данных гостиницы: номера, адрес, контакты. Цены и контакты он не придумывает, а
-        готовый сайт можно поправить в редакторе.
-      </p>
       <form
         className={cx('create-site__box', busy && 'is-busy')}
         onSubmit={(e) => {
           e.preventDefault();
-          void start();
+          void build();
         }}
       >
-        <label htmlFor="create-site-text" className="sr-only">
-          Опишите сайт
+        <label htmlFor="create-site-text" className="create-site__label">
+          Опишите, каким должен быть сайт
         </label>
         <textarea
           id="create-site-text"
-          ref={box}
           rows={4}
           maxLength={PATCH_INSTRUCTION_MAX}
           className="inp create-site__text"
-          placeholder="Например: спокойный сайт для хостела у вокзала, акцент на чистоту и тишину, дружелюбный тон"
+          placeholder="Например: спокойный сайт, акцент на тишину и чистоту, дружелюбный тон"
           value={text}
           disabled={busy || readOnly}
           onChange={(e) => setText(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
               e.preventDefault();
-              void start();
+              void build();
             }
           }}
         />
         <div className="create-site__bar">
-          <span className="muted">Можно оставить пустым: сайт соберётся из данных гостиницы.</span>
-          <Button type="submit" disabled={!!blocked || busy} data-testid="create-site-start">
-            {busy ? 'Создаём…' : 'Создать сайт'}
-          </Button>
+          <span className="muted">Можно оставить пустым: сайт соберётся из данных филиала.</span>
+          <div className="ed-row">
+            <Button type="button" tone="secondary" disabled={!!blocked || busy} onClick={() => void showDesigns()} data-testid="create-site-designs">
+              Показать варианты оформления
+            </Button>
+            <Button type="submit" disabled={!!blocked || busy} data-testid="create-site-start">
+              {phase === 'starting' || phase === 'building' ? 'Создаём…' : 'Создать сайт'}
+            </Button>
+          </div>
         </div>
       </form>
-      {!siteMade && (
-        <Field
-          label="Адрес сайта"
-          controlId="create-site-slug"
-          className="create-site__slug"
-          hint="Латинские буквы, цифры и дефис; станет адресом сайта при публикации"
-          error={slugError}
-        >
-          <Input value={slug} disabled={busy || readOnly} onChange={(e) => setSlug(e.currentTarget.value.toLowerCase())} />
-        </Field>
+      {facts.length > 0 && (
+        <div className="create-site__facts" data-testid="create-site-facts">
+          <p className="muted">WETOP уже знает:</p>
+          <ul>
+            {facts.map((f) => (
+              <li key={f}>
+                <span aria-hidden="true">✓ </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {blocked && <p className="muted">{blocked}</p>}
       {error && (
@@ -131,17 +147,21 @@ export function CreateSite({
           {error}
         </Alert>
       )}
-      {phase !== 'idle' && phase !== 'failed' && (
-        <ol className="create-site__steps" aria-live="polite" data-testid="create-site-steps">
-          {steps.map(([label, done, active]) => (
-            <li key={label} className={cx('create-site__step', done && 'is-done', active && 'is-active')}>
-              {label}
-              {done ? ': готово' : active ? ': идёт' : ''}
-            </li>
-          ))}
-        </ol>
+      {phase === 'designing' && (
+        <p role="status" className="muted" data-testid="create-site-designing">
+          ИИ подбирает три варианта оформления
+        </p>
       )}
-      {job.lost && <Alert boxed>{job.lost}</Alert>}
+      {phase === 'choosing' && directions && (
+        <DesignCards directions={directions.items} actionLabel="Создать с этим оформлением" disabled={!!blocked} onChoose={(d) => void build(d)} />
+      )}
+      {(phase === 'building' || phase === 'done') && (
+        <div role="status" aria-live="polite" data-testid="create-site-steps">
+          <BuildProgress startedAt={startedAt} />
+          {phase === 'done' && <p className="muted">Открываем редактор</p>}
+        </div>
+      )}
+      {(job.lost || design.lost) && <Alert boxed>{job.lost ?? design.lost}</Alert>}
     </section>
   );
 }

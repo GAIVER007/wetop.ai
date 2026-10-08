@@ -1,0 +1,133 @@
+# Сквозные (e2e) · 08.10.2026 14:59 Алматы · vm
+# коммит 616c25b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/site-assets.spec.ts' 'tests/ui/platform-access.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 66 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.2s)
+  ✓   2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.5s)
+  ✓   3 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (3.7s)
+  ✓   4 tests/ui/marketing-site.spec.ts:87:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (1.6s)
+  ✓   5 tests/ui/marketing-site.spec.ts:99:1 › источник брони выбирается явно; архив с вопросом (2.0s)
+  ✓   6 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: light (5.6s)
+  ✓   7 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: dark (5.3s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (2.7s)
+  ✓   9 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.2s)
+  ✓  10 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (1.9s)
+  ✓  11 tests/ui/marketing.spec.ts:137:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.4s)
+  ✓  12 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: light (4.5s)
+  ✓  13 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: dark (4.4s)
+  ✓  14 tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (5.3s)
+  ✓  15 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.3s)
+  ✓  16 tests/ui/platform-access.spec.ts:82:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.2s)
+  ✓  17 tests/ui/platform-access.spec.ts:104:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (4.9s)
+  ✓  18 tests/ui/platform-access.spec.ts:143:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.3s)
+  ✓  19 tests/ui/platform-access.spec.ts:171:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  20 tests/ui/platform-access.spec.ts:191:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (6.2s)
+  ✓  21 tests/ui/platform-access.spec.ts:214:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.6s)
+  ✓  22 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, light, 1440px (12.7s)
+  ✓  23 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, dark, 1440px (12.3s)
+  ✓  24 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, light, 390px (12.4s)
+  ✓  25 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, dark, 390px (12.4s)
+  ✓  26 tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (1.6s)
+  ✓  27 tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (5.1s)
+  ✓  28 tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (2.4s)
+  ✓  29 tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (2.9s)
+  ✓  30 tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (1.3s)
+  ✓  31 tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (1.5s)
+  ✓  32 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (5.5s)
+  ✓  33 tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (5.0s)
+  ✓  34 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (3.8s)
+  ✓  35 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (1.7s)
+  ✓  36 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (6.1s)
+  ✓  37 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.1s)
+  ✓  38 tests/ui/site-builder-licensed.spec.ts:106:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (9.9s)
+  ✓  39 tests/ui/site-builder-licensed.spec.ts:128:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (3.6s)
+  ✓  40 tests/ui/site-builder-licensed.spec.ts:160:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (3.9s)
+  ✓  41 tests/ui/site-builder-licensed.spec.ts:176:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (3.1s)
+  ✓  42 tests/ui/site-builder-licensed.spec.ts:197:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (7.0s)
+  ✓  43 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light (18.6s)
+  ✓  44 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark (19.5s)
+  ✓  45 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (2.8s)
+  ✓  46 tests/ui/site-editor.spec.ts:75:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (2.4s)
+  ✓  47 tests/ui/site-editor.spec.ts:93:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (2.2s)
+  ✓  48 tests/ui/site-editor.spec.ts:108:1 › восстановить старую версию как новый черновик (2.8s)
+  ✓  49 tests/ui/site-editor.spec.ts:121:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (2.1s)
+  ✓  50 tests/ui/site-editor.spec.ts:139:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (2.8s)
+  ✓  51 tests/ui/site-editor.spec.ts:157:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.7s)
+  ✓  52 tests/ui/site-editor.spec.ts:176:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (2.8s)
+  ✓  53 tests/ui/site-editor.spec.ts:194:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (1.7s)
+  ✓  54 tests/ui/site-editor.spec.ts:204:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.2s)
+  ✓  55 tests/ui/site-editor.spec.ts:226:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (1.7s)
+  ✓  56 tests/ui/site-editor.spec.ts:239:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (6.6s)
+  ✓  57 tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (5.3s)
+  ✓  58 tests/ui/site-editor.spec.ts:283:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (5.5s)
+  ✓  59 tests/ui/site-editor.spec.ts:300:1 › первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор (5.0s)
+  ✓  60 tests/ui/site-editor.spec.ts:321:1 › первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте (4.8s)
+  ✓  61 tests/ui/site-editor.spec.ts:334:3 › окно «Создать сайт»: снимки и доступность, light (4.0s)
+  ✓  62 tests/ui/site-editor.spec.ts:334:3 › окно «Создать сайт»: снимки и доступность, dark (4.1s)
+  ✓  63 tests/ui/site-editor.spec.ts:354:3 › редактор на компьютере, доступность и снимки: light (14.0s)
+  ✓  64 tests/ui/site-editor.spec.ts:407:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (5.9s)
+  ✓  65 tests/ui/site-editor.spec.ts:354:3 › редактор на компьютере, доступность и снимки: dark (5.0s)
+  ✓  66 tests/ui/site-editor.spec.ts:407:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (6.1s)
+
+  66 passed (6.0m)
+
+# код выхода 0 · 6 мин 2 с

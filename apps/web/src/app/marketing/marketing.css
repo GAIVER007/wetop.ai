@@ -746,25 +746,191 @@
     gap: var(--space-2);
     font-size: var(--text-sm);
   }
-  .create-site__slug {
-    max-width: 420px;
-    margin: 0 auto;
+  .create-site__label {
+    font-weight: 600;
     text-align: left;
   }
-  .create-site__steps {
-    display: grid;
-    gap: var(--space-2);
-    max-width: 420px;
+  .create-site__facts {
+    max-width: 640px;
     margin: 0 auto;
-    padding-left: var(--space-6);
     text-align: left;
+    font-size: var(--text-sm);
+  }
+  .create-site__facts ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* MKT9.2: полоса проекта, лицензия, режимы ИИ, ход сборки, план, оформление, «Выбор / Текст», закладки */
+  .ed-top__project {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .ed-top__name {
+    margin: 0;
+  }
+  .ed-license {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-sm);
     color: var(--text-2);
   }
-  .create-site__step.is-active {
+  .ed-license__dot {
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: 50%;
+    background: var(--warning);
+  }
+  .ed-license.is-active .ed-license__dot {
+    background: var(--success);
+  }
+  .ed-modes {
+    display: flex;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+  }
+  .ed-modes__btn {
+    flex: 1;
+    min-height: var(--touch-target);
+    border: 0;
+    background: var(--surface);
+    color: var(--text-2);
+    font: inherit;
+    cursor: pointer;
+  }
+  .ed-modes__btn + .ed-modes__btn {
+    border-left: 1px solid var(--border-input);
+  }
+  .ed-modes__btn.is-on {
+    background: var(--primary);
+    color: var(--surface);
+  }
+  .ed-chat__mode {
+    margin-right: var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .ed-steps {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: var(--space-6);
+    color: var(--text-2);
+  }
+  .ed-steps__item.is-done {
+    color: var(--text);
+  }
+  .ed-steps__item.is-active {
     color: var(--text);
     font-weight: 600;
   }
-  .create-site__step.is-done {
-    color: var(--text);
+  .ed-plan,
+  .ed-questions {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .ed-plan p {
+    margin: 0;
+  }
+  .ed-plan__steps {
+    margin: 0;
+    padding-left: var(--space-6);
+  }
+  .ed-questions__q {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-2) 0;
+    border: 0;
+  }
+  .ed-questions__q legend {
+    font-weight: 600;
+  }
+  .ed-questions__option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+  }
+  .ed-design {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .ed-design__legend {
+    font-weight: 600;
+  }
+  .ed-design__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-2);
+  }
+  .ed-design__card {
+    position: relative;
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    cursor: pointer;
+    text-align: left;
+  }
+  .ed-design__card.is-on {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .ed-design__card:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .ed-design__radio {
+    position: absolute;
+    opacity: 0;
+  }
+  .ed-design__swatch {
+    height: var(--space-6);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .ed-design__swatch.is-calm {
+    background: var(--success-soft);
+  }
+  .ed-design__swatch.is-warm {
+    background: var(--warning-soft);
+  }
+  .ed-design__swatch.is-night {
+    background: var(--text);
+  }
+  .ed-design__swatch.is-coast {
+    background: var(--primary);
+  }
+  .ed-preview__tools {
+    display: flex;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+  }
+  .ed-preview__tools kbd {
+    font: inherit;
+    font-size: var(--text-sm);
+    color: inherit;
+    opacity: 0.8;
+  }
+  .ed-history__title {
+    margin: var(--space-2) 0;
+    font-size: var(--text-md);
+  }
+  .ed-history__pinned {
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border);
   }
 }

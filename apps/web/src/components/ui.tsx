@@ -11,6 +11,12 @@ import type {
 } from 'react';
 import { cloneElement, isValidElement } from 'react';
 import { Icon, type IconName } from './icon';
+import { beautyStatus } from '../lib/status/beauty';
+import { foodStatus } from '../lib/status/food';
+import { hospitalityStatus } from '../lib/status/hospitality';
+import { housekeepingStatus } from '../lib/status/housekeeping';
+import { paymentStatus } from '../lib/status/payment';
+import { statusLabel, statusTone, type StatusRegistry, type StatusTone } from '../lib/status/types';
 
 /**
  * Примитивы интерфейса стойки (срез 10, ADR-027). Без клиентского JS: годятся и серверным, и
@@ -99,7 +105,8 @@ export function Field({
     ? cloneElement(children, {
         id: children.props.id ?? controlId,
         'aria-describedby':
-          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') || undefined,
+          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') ||
+          undefined,
         'aria-invalid': error ? true : children.props['aria-invalid'],
       })
     : children;
@@ -268,24 +275,33 @@ export function Badge({
   );
 }
 
-const STATUS_TONE: Record<string, BadgeTone> = {
-  TENTATIVE: 'warn',
-  CONFIRMED: 'info',
-  CHECKED_IN: 'ok',
-  CHECKED_OUT: 'neutral',
-  CANCELLED: 'danger',
-  NO_SHOW: 'danger',
+/** Тон договора статусов в тон бейджа: success и warning у бейджа называются ok и warn */
+export const BADGE_TONE: Record<StatusTone, BadgeTone> = {
+  neutral: 'neutral',
+  info: 'info',
+  success: 'ok',
+  warning: 'warn',
+  danger: 'danger',
 };
+const STATUS_REGISTRY = {
+  hospitality: hospitalityStatus,
+  housekeeping: housekeepingStatus,
+  payment: paymentStatus,
+  beauty: beautyStatus,
+  food: foodStatus,
+} as const satisfies Record<string, StatusRegistry<string>>;
+export type StatusKind = keyof typeof STATUS_REGISTRY;
 
-/** Статус брони/проживания. Подпись даёт страница (у стойки свои слова: «ждём», «живёт»). */
+/** Статус словом и тоном из реестра домена (`lib/status`, MV8.5 DS1a): страница своих слов не держит */
 export function StatusBadge({
-  status,
-  label,
+  kind,
+  value,
   ...rest
-}: HTMLAttributes<HTMLSpanElement> & { status: string; label: string }) {
+}: HTMLAttributes<HTMLSpanElement> & { kind: StatusKind; value: string }) {
+  const registry: StatusRegistry<string> = STATUS_REGISTRY[kind];
   return (
-    <Badge tone={STATUS_TONE[status] ?? 'neutral'} {...rest}>
-      {label}
+    <Badge tone={BADGE_TONE[statusTone(registry, value)]} {...rest}>
+      {statusLabel(registry, value)}
     </Badge>
   );
 }

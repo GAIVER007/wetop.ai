@@ -20,6 +20,9 @@ import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
 import { weekPeriod } from './week-period';
 import './board.css';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { housekeepingStatus } from '../../lib/status/housekeeping';
+import { statusText } from '../../lib/status/types';
 
 /**
  * Slice 2, шаг 2.7: шахматка — 88 ячеек × даты. Страница остаётся server component; сетка вынесена
@@ -272,14 +275,38 @@ export default async function ChessboardPage({
           <Legend
             data-testid="board-legend"
             items={[
-              { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-              { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-              { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-              { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+              {
+                color: 'var(--st-confirmed)',
+                label: statusText(hospitalityStatus, 'CONFIRMED'),
+                glyph: '•',
+              },
+              {
+                color: 'var(--st-checked-in)',
+                label: statusText(hospitalityStatus, 'CHECKED_IN'),
+                glyph: '✓',
+              },
+              {
+                color: 'var(--st-checked-out)',
+                label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+                glyph: '✕',
+              },
+              {
+                color: 'var(--st-tentative)',
+                label: statusText(hospitalityStatus, 'TENTATIVE'),
+                glyph: '?',
+              },
               { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
               // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
-              { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
-              { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
+              {
+                color: 'var(--warning-bg)',
+                label: statusText(housekeepingStatus, 'DIRTY'),
+                icon: 'dirty',
+              },
+              {
+                color: 'var(--primary-soft)',
+                label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
+                icon: 'clean',
+              },
               { label: 'без значка — проверена, доступна' },
             ]}
           />

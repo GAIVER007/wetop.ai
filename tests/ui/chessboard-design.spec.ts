@@ -29,7 +29,7 @@ test('статусы шахматки понятны без открытия и�
   await page.getByText('Обозначения', { exact: true }).click();
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
-  await expect(page.getByTestId('board-legend')).toContainText('заселён');
+  await expect(page.getByTestId('board-legend')).toContainText('проживает');
   await expect(page.locator('.board-help-content')).toBeHidden();
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
 });

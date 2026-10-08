@@ -7511,8 +7511,25 @@
 | 08.10.2026 04:37 | typecheck | ✅ без ошибок | 1 мин 17 с | fd51888 +50 | [лог](logs/2026-10-07T23-37-17Z-typecheck-505c.log) |  |
 | 08.10.2026 04:38 | unit | ✅ 4037 из 4040, пропущено 3 | 2 мин 24 с | fd51888 +50 | [лог](logs/2026-10-07T23-38-35Z-unit-097a.log) |  |
 | 08.10.2026 04:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/marketing-site.spec.ts tests/ui/site-editor.spec.ts tests/ | ✅ 103 из 103 | 9 мин 31 с | fd51888 +50 | [лог](logs/2026-10-07T23-41-05Z-e2e-2b0c.log) |  |
+| 08.10.2026 10:55 | unit (частично: tests/unit/status-dictionary-guard.test.ts apps/web/src/lib/status/status.test.ts) | ❌ упало 1 из 2 | 10 с | 5073ac2 +2 | [лог](logs/2026-10-08T05-55-10Z-unit-d186.log) | DS1a RED: реестров нет, локальные словари есть |
+| 08.10.2026 11:05 | typecheck | ❌ ошибок: 1 | 41 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-05-11Z-typecheck-ddb4.log) | DS1a |
+| 08.10.2026 11:06 | typecheck | ✅ без ошибок | 36 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-19Z-typecheck-bf8c.log) | DS1a |
+| 08.10.2026 11:06 | lint | ✅ без ошибок | 31 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-56Z-lint-3ab6.log) | DS1a |
+| 08.10.2026 11:07 | unit | ✅ 4051 из 4054, пропущено 3 | 2 мин 21 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-07-31Z-unit-f998.log) | DS1a: реестры статусов, сторож, экраны на реестрах |
+| 08.10.2026 11:11 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/booking-compact.spec.ts tests/ui/booking-dates.spec.ts tests/ui/booking-price-nights.spec.ts tests/ui/b | ❌ упало 5 из 412 | 32 мин 2 с | 7e29ddd | [лог](logs/2026-10-08T06-11-36Z-e2e-e81a.log) | DS1a: затронутые экраны статусов |
+| 08.10.2026 11:45 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-export.spec.ts tests/ui/reservations-v2-r2.spec.ts --workers=1) | ✅ 8 из 8 | 58 с | 7e29ddd +2 | [лог](logs/2026-10-08T06-45-13Z-e2e-d2ca.log) | DS1a: CSV и отбор на словах реестра |
 | 08.10.2026 10:46 | unit (частично: tests/unit apps/sites packages/domain/src/marketing) | ❌ упало 1 из 809, пропущено 3 | 2 мин 26 с | 10f23ca +50 | [лог](logs/2026-10-08T05-46-16Z-unit-b586.log) | local demo preview starts its synthetic API without a database or providers |
 | 08.10.2026 10:48 | typecheck | ✅ без ошибок | 46 с | 10f23ca +50 | [лог](logs/2026-10-08T05-48-42Z-typecheck-ac30.log) |  |
 | 08.10.2026 10:49 | lint | ✅ без ошибок | 31 с | 10f23ca +50 | [лог](logs/2026-10-08T05-49-29Z-lint-4fe0.log) |  |
 | 08.10.2026 10:50 | unit (частично: tests/unit/fixture-demo.test.ts) | ✅ 1 из 1 | 2 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-07Z-unit-0c01.log) | одиночный повтор после таймаута 5 с под нагрузкой полного набора |
 | 08.10.2026 10:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 29 из 29 | 2 мин 37 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-13Z-e2e-c59d.log) |  |
+| 08.10.2026 11:53 | typecheck | ✅ без ошибок | 38 с | 0ffbdab | [лог](logs/2026-10-08T06-53-21Z-typecheck-55af.log) | DS1a после слияния main 22c6e317 |
+| 08.10.2026 11:54 | lint | ✅ без ошибок | 33 с | 0ffbdab | [лог](logs/2026-10-08T06-54-00Z-lint-7a71.log) | DS1a после слияния |
+| 08.10.2026 11:54 | unit | ✅ 4057 из 4060, пропущено 3 | 1 мин 50 с | 0ffbdab | [лог](logs/2026-10-08T06-54-34Z-unit-2c3c.log) | DS1a после слияния main 22c6e317 |
+| 08.10.2026 12:29 | unit (частично: apps/web/src/lib/status/status.test.ts) | ✅ 12 из 12 | 4 с | 433fcc3 +2 | [лог](logs/2026-10-08T07-29-54Z-unit-91c4.log) | DS1a правки: RED тоны салона и ресторана, короткое имя WALK_IN |
+| 08.10.2026 12:30 | unit (частично: apps/web/src/lib/status/status.test.ts) | ❌ упало 3 из 13 | 2 с | 433fcc3 +3 | [лог](logs/2026-10-08T07-30-14Z-unit-a2ae.log) | DS1a правки: RED тоны салона и ресторана, короткое имя WALK_IN |
+| 08.10.2026 12:30 | unit (частично: apps/web/src/lib/status/status.test.ts tests/unit/status-dictionary-guard.test.ts) | ✅ 15 из 15 | 1 с | 433fcc3 +6 | [лог](logs/2026-10-08T07-30-17Z-unit-e936.log) | DS1a правки: GREEN реестры на типах домена, тоны, короткие имена |
+| 08.10.2026 12:30 | typecheck | ✅ без ошибок | 57 с | e68dafb | [лог](logs/2026-10-08T07-30-51Z-typecheck-f3fb.log) | DS1a правки после слияния main e57447d3 |
+| 08.10.2026 12:31 | lint | ✅ без ошибок | 34 с | e68dafb | [лог](logs/2026-10-08T07-31-48Z-lint-aa75.log) | DS1a правки после слияния |
+| 08.10.2026 12:32 | unit | ✅ 4058 из 4061, пропущено 3 | 1 мин 54 с | e68dafb | [лог](logs/2026-10-08T07-32-23Z-unit-87a6.log) | DS1a правки после слияния main e57447d3 |
+| 08.10.2026 12:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/booking-compact.spec.ts tests/ui/booking-dates.spec.ts tests/ui/booking-pric | ✅ 291 из 291 | 26 мин 33 с | e68dafb | [лог](logs/2026-10-08T07-34-29Z-e2e-1816.log) | DS1a правки: затронутые экраны после слияния main e57447d3 |

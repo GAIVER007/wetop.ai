@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { deltaPercent, deltaPoints, formatPercent, sourceLabel, wholeTenge } from './dashboard-format';
+import {
+  deltaPercent,
+  deltaPoints,
+  formatPercent,
+  sourceLabel,
+  wholeTenge,
+} from './dashboard-format';
 
 describe('dashboard-format', () => {
   it('целые тенге: тиыны округляются, отрицательное со знаком минус', () => {
@@ -21,6 +27,6 @@ describe('dashboard-format', () => {
   });
   it('подпись источника: канал важнее источника', () => {
     expect(sourceLabel('OTA', 'Booking.com')).toBe('Booking.com');
-    expect(sourceLabel('WALK_IN', null)).toBe('С улицы');
+    expect(sourceLabel('WALK_IN', null)).toBe('Без предварительной брони');
   });
 });

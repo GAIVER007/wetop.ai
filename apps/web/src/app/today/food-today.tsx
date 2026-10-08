@@ -3,11 +3,11 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { displayDate } from '../../lib/display-date';
-import { foodStatusLabels } from '../../lib/food-data';
 import { localInput } from '../beauty/time';
 import { pluralRu } from '../../lib/plural';
 import { loadFoodToday } from './vertical-load';
 import { VerticalDay, type DayAttention } from './vertical-day';
+import { foodStatus } from '../../lib/status/food';
 
 /** «Сегодня» ресторана (MV8): залы, столы и брони дня филиала, плюс вчерашние брони через полночь */
 export async function FoodToday() {
@@ -71,7 +71,7 @@ export async function FoodToday() {
         time: localInput(u.startsAt, timezone).slice(11, 16),
         title: u.guest,
         detail: `${pluralRu(u.partySize, ['гость', 'гостя', 'гостей'])}, ${u.table ? `стол ${u.table}` : 'без стола'}`,
-        status: foodStatusLabels[u.status],
+        status: foodStatus[u.status].label,
       }))}
       empty="Броней впереди на сегодня нет."
     />

@@ -114,5 +114,5 @@ test('групповая бронь на 2 койки → две клетки ш
   await page.getByRole('main').getByTestId('cancel-reservation').click();
   await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

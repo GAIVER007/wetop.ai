@@ -237,8 +237,8 @@ test('список броней: выборка названа, пустой р�
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
   await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
-  // слово о брони в единственном числе (ADR-106, Q-135); «Подтверждены» осталось именем фильтра
-  await expect(row).toContainText('подтверждена');
+  // слово статуса из реестра (DS1a); группа «Подтверждённые» осталась именем отбора
+  await expect(row).toContainText('Подтверждена');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
   const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();

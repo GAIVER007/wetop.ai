@@ -1,0 +1,16 @@
+# Модульные (unit) · 08.10.2026 12:29 Алматы · vm
+# коммит 433fcc3 (claude/mv8-5-ds1a-status-registries), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-29-54Z-unit-91c4.json' 'apps/web/src/lib/status/status.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (12 tests) 25ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  07:29:57
+   Duration  446ms (transform 71%, import 15%, tests 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-29-54Z-unit-91c4.json
+
+# код выхода 0 · 4 с

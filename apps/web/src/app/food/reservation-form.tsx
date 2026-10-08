@@ -2,10 +2,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../components/ui';
-import { foodStatusLabels, weekdays } from '../../lib/food-data';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
+import { foodStatus } from '../../lib/status/food';
+import { weekdays } from '../../lib/food-data';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -227,7 +228,7 @@ export function ReservationForm({
         {pending ? 'Сохраняем…' : reservation ? 'Сохранить' : walkIn ? 'Посадить' : 'Создать бронь'}
       </Button>
       {reservation && (
-        <p className="muted">Текущий статус: {foodStatusLabels[reservation.status]}</p>
+        <p className="muted">Текущий статус: {foodStatus[reservation.status].label}</p>
       )}
     </form>
   );

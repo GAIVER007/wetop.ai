@@ -39,10 +39,10 @@ test('гости: одна строка — один гость, разделы-
   ] as const) {
     await expect(chips.getByRole('link', { name: `${label} ${count}` })).toBeVisible();
   }
-  // слово о госте, не статус брони: «Завершены» и «Проживают» из словаря броней в строках нет
+  // слово о госте, не статус брони: группы отбора броней («Выехавшие», «Проживают») в строках нет
   await expect(main.getByTestId('guests-table')).toContainText('живёт');
   await expect(main.getByTestId('guests-table')).toContainText('ожидается');
-  await expect(main.getByText('Завершены', { exact: true })).toHaveCount(0);
+  await expect(main.getByText('Выехавшие', { exact: true })).toHaveCount(0);
 
   // раздел фильтрует и назван в выборке; бейджи строк совпадают с разделом
   await page.goto('/guests?state=inhouse');
@@ -189,7 +189,7 @@ test('гости: полная карточка — обзор, вся исто�
   // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-202)
   const next = main.getByTestId('guest-stay-next');
   await expect(next).toContainText('R12');
-  await expect(next).toContainText('подтверждена');
+  await expect(next).toContainText('Подтверждена');
   await expect(next).not.toContainText('к оплате');
   await expect(next.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
@@ -210,11 +210,11 @@ test('гости: полная карточка — обзор, вся исто�
   // история (ТЗ §21): свежие сверху; источник брони, сумма по счёту и слово о брони
   const rows = main.getByRole('tabpanel').getByTestId('guest-stay-row');
   await expect(rows).toHaveCount(4);
-  await expect(rows.nth(0)).toContainText('подтверждена');
-  await expect(rows.nth(1)).toContainText('проживает');
+  await expect(rows.nth(0)).toContainText('Подтверждена');
+  await expect(rows.nth(1)).toContainText('Проживает');
   await expect(rows.nth(2)).toContainText('Сайт');
   await expect(rows.nth(3)).toContainText('Booking.com');
-  await expect(rows.nth(3)).toContainText('завершена');
+  await expect(rows.nth(3)).toContainText('Выехал');
   await expect(rows.nth(3)).toContainText('12 000 ₸');
   // строка ведёт в бронь
   await rows.nth(3).getByRole('link').first().click();
@@ -227,7 +227,7 @@ test('гости: полная карточка — обзор, вся исто�
   await expect(main.getByTestId('guest-visits')).toHaveText('0 визитов · 0 ночей');
   const cancelled = main.getByRole('tabpanel').getByTestId('guest-stay-row');
   await expect(cancelled).toHaveCount(1);
-  await expect(cancelled).toContainText('отменена');
+  await expect(cancelled).toContainText('Отменена');
   await expect(cancelled.locator('td').nth(3)).toHaveText('—');
 
   // «Редактировать» — профиль и документы на вкладке «Данные гостя», адрес помнит вкладку
@@ -264,7 +264,7 @@ test('гости: документы и финансовый свод гостя
   await expect(main.getByRole('tabpanel')).toContainText('включая будущие брони');
   const rows = main.getByRole('tabpanel').getByTestId('guest-finance-row');
   await expect(rows).toHaveCount(4);
-  await expect(rows.first()).toContainText('подтверждена');
+  await expect(rows.first()).toContainText('Подтверждена');
   await expect(rows.first()).toContainText('к оплате');
   await expect(rows.first().getByRole('link').first()).toHaveAttribute(
     'href',
@@ -366,7 +366,9 @@ test('гости: новая бронь этому же гостю — из ка
     .analyze();
   expect(audit.violations).toEqual([]);
   await form.getByText('Дополнительно', { exact: true }).click();
-  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
+  await form.locator('details.booking-create__extras').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

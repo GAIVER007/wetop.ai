@@ -69,15 +69,11 @@ import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
 import { blockTypeLabel } from '../../lib/block-types';
 import { displayDate } from '../../lib/display-date';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusText } from '../../lib/status/types';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена, ждём',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-};
 /** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
 const COLLAPSED_KEY = 'chessboard.collapsed-categories';
 /** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере */
@@ -1301,8 +1297,11 @@ function Cell({
   const names = guestNames(cell.guestLabel ?? '', cell.source, cell.channel);
   const title =
     cell.state === 'OCCUPIED'
-      ? `${names.full || 'Бронь без имени'} · ${cell.confirmationNumber} · ${
-          STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
+      ? `${names.full || 'Бронь без имени'} · ${cell.confirmationNumber} · ${statusText(
+          hospitalityStatus,
+          cell.itemStatus ?? '',
+        )}${
+          cell.itemStatus === 'CONFIRMED' ? ', ждём' : ''
         }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
         ? `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`

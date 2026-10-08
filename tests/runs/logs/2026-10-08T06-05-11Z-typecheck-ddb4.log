@@ -1,0 +1,18 @@
+# Типы (typecheck) · 08.10.2026 11:05 Алматы · vm
+# коммит 5073ac2 (claude/mv8-5-ds1a-status-registries), незакоммиченных файлов набора: 69
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/web/src/lib/status/types.ts(1,31): error TS6142: Module '../../components/icon' was resolved to '/home/user/wetop.ai/apps/web/src/components/icon.tsx', but '--jsx' is not set.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 41 с

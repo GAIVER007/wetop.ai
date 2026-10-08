@@ -1,4 +1,5 @@
 import type { FoodPage } from './food-types';
+import { foodStatus } from './status/food';
 /** A truncated dataset must never imply that the remaining tables are free. */
 export async function completeFoodList<T extends { id: string }>(
   load: (cursor?: string) => Promise<FoodPage<T> | unknown>,
@@ -50,14 +51,7 @@ export function shiftDate(date: string, days: number): string {
   at.setUTCDate(at.getUTCDate() + days);
   return at.toISOString().slice(0, 10);
 }
-export const foodStatusLabels = {
-  BOOKED: 'Бронь',
-  CONFIRMED: 'Подтверждено',
-  SEATED: 'За столом',
-  COMPLETED: 'Завершено',
-  NO_SHOW: 'Не пришли',
-  CANCELLED: 'Отменено',
-} as const;
+/** status-hint: глагол кнопки перехода, а не слово статуса; статусы в `lib/status/food` */
 export const foodStatusActions = {
   BOOKED: 'Бронь',
   CONFIRMED: 'Подтвердить',
@@ -74,7 +68,7 @@ export function validFoodReservation(value: unknown): boolean {
   return (
     typeof r.id === 'string' &&
     typeof r.status === 'string' &&
-    Object.hasOwn(foodStatusLabels, r.status) &&
+    Object.hasOwn(foodStatus, r.status) &&
     typeof r.startsAt === 'string' &&
     typeof r.endsAt === 'string' &&
     Number.isFinite(Date.parse(r.startsAt)) &&
@@ -101,7 +95,7 @@ export function validFoodReservation(value: unknown): boolean {
     Number.isFinite(Date.parse(r.updatedAt)) &&
     Array.isArray(r.nextStatuses) &&
     r.nextStatuses.every(
-      (status) => typeof status === 'string' && Object.hasOwn(foodStatusLabels, status),
+      (status) => typeof status === 'string' && Object.hasOwn(foodStatus, status),
     )
   );
 }

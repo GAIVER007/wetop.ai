@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 02.10.2026 15:15 Алматы · vm
+# коммит 58e04a7 (claude/great-cannon-41n7h4)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[pms_test] миграций применено 0 из 42; данные от 2026-10-02T10:13:46.065Z (сид)
+
+Running 25 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (53ms)
+  ✘   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (2.0m)
+  ✘   3 [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (4.0m)
+  ✘   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (3.0m)
+
+# код выхода —, сигнал SIGTERM · 11 мин 34 с

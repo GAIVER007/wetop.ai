@@ -1,0 +1,54 @@
+[WebServer] (node:28923) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:29004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-money-confirmation.spec.ts:73:1 › синтетический API: общий платёж возвращается по выбранному счёту с отдельным лимитом (67ms)
+
+
+  1) tests/ui/booking-money-confirmation.spec.ts:73:1 › синтетический API: общий платёж возвращается по выбранному счёту с отдельным лимитом 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      85 |   for (const folioId of ids) {
+      86 |     const refund = await request.post(`${FIXTURE_API}/finance/payments/${paymentId}/refunds`, { headers, data: { folioId, amount: '80', reason: 'Синтетический возврат' } });
+    > 87 |     expect(refund.status()).toBe(201);
+         |                             ^
+      88 |   }
+      89 |   const over = await request.post(`${FIXTURE_API}/finance/payments/${paymentId}/refunds`, { headers, data: { folioId: ids[0], amount: '30' } });
+      90 |   expect(over.status()).toBe(400);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-money-confirmation.spec.ts:87:29
+
+    Error Context: test-results/booking-money-confirmation-b00be-у-счёту-с-отдельным-лимитом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-money-confirmation-b00be-у-счёту-с-отдельным-лимитом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-money-confirmation-b00be-у-счёту-с-отдельным-лимитом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-money-confirmation.spec.ts:73:1 › синтетический API: общий платёж возвращается по выбранному счёту с отдельным лимитом 

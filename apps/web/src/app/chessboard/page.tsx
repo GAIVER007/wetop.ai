@@ -269,28 +269,28 @@ export default async function ChessboardPage({
           fitMonth={isMonth}
           readOnly={shell?.readOnly ?? false}
         />
-        <div className="board-footer">
-          <div className="board-legend-details" aria-label="Цвета и статусы календаря">
-            <Legend
-              data-testid="board-legend"
-              items={[
-                { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-                { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-                { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-                { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
-                { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-                // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
-                { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
-                { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
-                { label: 'без значка — проверена, доступна' },
-              ]}
-            />
-          </div>
-          <span className="board-gesture-hint">
-            Плашка: переселить. Правый край: продлить. Пустые клетки: выделить даты для брони.
-          </span>
-        </div>
       </CalendarWorkspace>
+      <div className="board-footer">
+        <div className="board-legend-details" aria-label="Цвета и статусы календаря">
+          <Legend
+            data-testid="board-legend"
+            items={[
+              { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+              { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+              { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+              { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+              { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+              // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
+              { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
+              { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
+              { label: 'без значка: проверена, доступна' },
+            ]}
+          />
+        </div>
+        <span className="board-gesture-hint">
+          Плашка: переселить. Правый край: продлить. Пустые клетки: выделить даты для брони.
+        </span>
+      </div>
     </Page>
   );
 }

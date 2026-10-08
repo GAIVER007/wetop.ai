@@ -680,6 +680,27 @@ active
 > разнесения и возврата держит база: `CHECK (amount > 0)` на `payments`, `payment_allocations`, `refunds` —
 > ноль и минус не запишутся даже ошибкой кода. Начисления (`charges`) без CHECK намеренно: сторно — минус.
 
+> **v2.12 (07.10.2026, поручение владельца, ADR-151; план `plans/finance-payments-direct-2026-10-07.md`).
+> Схема и миграции не менялись: правила поверх полей, которые уже были.**
+> - **Аннулирование платежа.** `Payment.status = VOIDED` ставит команда `POST /finance/payments/:id/void`
+>   (право `refunds`): только проведённый платёж без возвратов и без фискального чека (§26), все его счета
+>   открыты. Аннулированный платёж из баланса счёта, остатков кассы (§21) и сумм отчётов выпадает, строка
+>   остаётся в ленте со статусом «аннулирован». Запрос оплаты (§24), закрытый этим платежом, снова ждёт оплаты.
+> - **Замена платежа.** `POST /finance/payments/:id/replace`: старый `VOIDED`, новый `COMPLETED` с тем же
+>   `paid_at` одной транзакцией под блокировкой строки платежа и счетов; без `allocations` сумма ложится на
+>   единственный счёт старого платежа, групповой платёж без распределения отклоняется словами. Запрос оплаты
+>   переводится на новый платёж. Журнал: `finance.payment.void`, `finance.payment.replaced`.
+> - **Цена проживания вручную.** `PATCH /reservations/:number/items/:itemId` с `price` пишет
+>   `ReservationItem.price`; начисление `ACCOMMODATION` переписывает система тем же `ensureFolioWithAccommodation`,
+>   что при смене дат, `Reservation.total_amount` пересчитывается по неотменённым проживаниям. Вниз только с
+>   правом `refunds` (как корректировка на уменьшение, ADR-107); отменённое, незаезд и выехавшее не меняются.
+>   При смене дат или категории цена снова считается по тарифу: ручная цена не закрепляется. Журнал
+>   `reservation.item.price`.
+> - **Скидка** это `ADJUSTMENT` со знаком минус и подписью «Скидка N% на проживание» или «Скидка: причина»;
+>   процент считается от действующего начисления за проживание целыми тиынами с отбрасыванием остатка
+>   (`discountMinor` в домене). Отдельной сущности у скидки нет.
+> - Возврат (`Refund`) по-прежнему не аннулируется (Q-278); дата платежа при замене не меняется (Q-277).
+
 ## 7. Channel Manager
 
 > **Назначение ячейки броням из каналов (Q-094, 10.09.2026):** при приёме ревизии `new` проживание получает
@@ -2672,6 +2693,10 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
    отметка оплаты по уведомлению банка) появятся после документации в `/docs` (Q-262), без изменения таблицы:
    у запроса добавится только внешний идентификатор.
 6. Журнал: `finance.payment_request.created`, `.paid`, `.cancelled`.
+7. **Запрос это второстепенный путь (07.10.2026, ADR-151).** Оплату на месте, на терминале и переводом стойка
+   принимает без запроса, одним шагом; запрос нужен, когда гостю отправляют счёт заранее (5–6 раз в период).
+   Аннулирование платежа по запросу (§6 v2.12) возвращает запрос в `PENDING` (`payment_id = null`,
+   `closed_at = null`), замена платежа переводит `payment_id` на новый платёж, статус `PAID` остаётся.
 
 **Миграция** `20261003000046_payment_requests` с `down.sql`; на рабочей базе применяет владелец.
 
@@ -2835,14 +2860,28 @@ Assignment requires active same-Location table/area, capacity >= partySize, no i
 
 All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.
 
-## 29. Маркетинг: управляемый сайт (v2.11, ПРЕДЛОЖЕНИЕ 06.10.2026, НЕ УТВЕРЖДЕНО; MKT1A, ADR-149)
+## 29. Маркетинг: управляемый сайт (v2.11, УТВЕРЖДЕНО владельцем 06.10.2026 как целевая архитектура, поэтапное внедрение; ADR-149, Q-272)
 
-> **Статус.** Утверждено ADR-149: владелец сайта `Location`; `TrackedSite` остаётся идентичностью аналитики и брони
-> и не становится CMS; содержимое версионируется, публичный рантайм читает только опубликованную неизменяемую
-> версию; Option B (`SiteSpec`). **Не утверждено:** таблицы, поля, типы, ограничения и RLS ниже. Это кандидаты для
-> среза MKT3. Prisma, миграции и код по этому разделу начинаются только после отдельного «да» владельца
-> (AGENTS.md §2). Формат содержимого версии: `docs/marketing/sitespec-v0.md`. Архитектура и жизненные циклы:
-> `docs/marketing/README.md`.
+> **Статус (Q-272 закрыт владельцем 06.10.2026).** §29 утверждён как целевая архитектура и вводится по срезам.
+> Владелец сайта `Location`, не более одного неархивного сайта на Location; `TrackedSite` остаётся идентичностью
+> аналитики и брони и не становится CMS; версии неизменяемы; `latest_version_id` это голова черновика,
+> `published_version_id` это опубликованная версия; журнал публикаций отдельной таблицей только на дописывание (MKT7);
+> v0 только `HOSPITALITY`. Хранение: опубликованные версии навсегда, неопубликованные черновые можно удалять старше
+> 90 дней, сохраняя не меньше 50 последних версий сайта; очистка не реализована и появится отдельным срезом.
+>
+> **Что уже в базе (MKT3, миграции `20261006000060_marketing_site_core` и `20261006000061_marketing_site_grants`):** только `marketing_sites` (§29.2) и
+> `marketing_site_versions` (§29.3, без `generation_run_id`). Остальные таблицы приходят своими срезами:
+> `marketing_site_publications` и `site_domains` в MKT7, `generation_runs` и колонка `generation_run_id` в MKT6,
+> `site_assets` в MKT8. Временных заменителей нет. Формат содержимого версии: `docs/marketing/sitespec-v0.md`.
+> Архитектура и жизненные циклы: `docs/marketing/README.md`.
+>
+> **Публичный рантайм (MKT4, 06.10.2026, таблиц и миграций нет):** `GET /sites-runtime/current` читает сайт только в
+> `PUBLISHED` и версию только по `published_version_id`, одним запросом с цепочкой Location `ACTIVE` → Business `ACTIVE`
+> `HOSPITALITY` → объект этого Location той же организации; `latest_version_id`, история и чтение версии по id
+> рантайму недоступны. Хосты до `site_domains` (MKT7) разрешает только карта dev и test, боевое разрешение выключено;
+> `primaryHost` в ответе `null`. Цена «от» (`B-FROMPRICE`, Q-276 RESOLVED OWNER 07.10.2026) не хранится нигде: её
+> считает `GET /w/from-prices` по `tracked_sites.booking_rate_plan_id`, `daily_rates` и `restrictions.stop_sell` за 30 ночей
+> при `capacity_adults`; это подсказка тарифа, а не обещание мест. План: `plans/mkt4-public-site-runtime-2026-10-06.md`.
 
 ### 29.1 Что уже есть и не дублируется
 
@@ -2856,7 +2895,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 `MarketingSite` не хранит копий `public_key`, `booking_enabled`, `booking_rate_plan_id`, хостов аналитики, сессий и
 событий. Публичный ключ рантайм получает через связь `tracked_site_id` в момент разрешения хоста.
 
-### 29.2 `MarketingSite` (кандидат)
+### 29.2 `MarketingSite` (утверждено, в базе с MKT3)
 
 Управляемый сайт WETOP одного филиала.
 
@@ -2866,7 +2905,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `location_id` | UUID NOT NULL FK → `locations` ON DELETE RESTRICT | владелец; берётся из проверенного scope, не из тела запроса |
 | `tracked_site_id` | UUID NULL UNIQUE FK → `tracked_sites` ON DELETE SET NULL | заводится или привязывается при первой публикации Hospitality; для вертикали без `Property` остаётся NULL, пока `TrackedSite` не научится владению через Location (будущий срез) |
 | `name` | VARCHAR(120) NOT NULL | внутреннее имя в стойке |
-| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; список зарезервированных слов в `docs/marketing/README.md` §6 |
+| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; зарезервированные слова (`RESERVED_SITE_SLUGS`, `docs/marketing/README.md` §6) запрещает и база, CHECK `marketing_sites_slug_reserved` |
 | `state` | enum `MarketingSiteState` | `DRAFT`, `PUBLISHED`, `PAUSED`, `ARCHIVED` (§29.8) |
 | `latest_version_id` | UUID NULL FK → `marketing_site_versions` | голова черновика, последняя сохранённая версия |
 | `published_version_id` | UUID NULL FK → `marketing_site_versions` | то, что видит рантайм; NULL у ни разу не опубликованного |
@@ -2879,10 +2918,11 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
   если владелец захочет несколько сайтов филиала;
 - версии по указателям принадлежат этому же сайту (триггер или составной FK);
 - для Hospitality: `tracked_sites.property_id` связанного `TrackedSite` это `Property` того же `Location`
-  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных;
+  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных; **сделано в MKT3** в
+  `marketing_site_guard`, хотя связь MKT3 ещё не ставит: MKT7 берёт уже безопасную колонку;
 - `published_version_id` NOT NULL при `state IN ('PUBLISHED','PAUSED')`.
 
-### 29.3 `MarketingSiteVersion` (кандидат)
+### 29.3 `MarketingSiteVersion` (утверждено, в базе с MKT3)
 
 Неизменяемый снимок `SiteSpec`.
 
@@ -2892,11 +2932,11 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `site_id` | UUID NOT NULL FK → `marketing_sites` ON DELETE RESTRICT | |
 | `revision` | INT NOT NULL | 1, 2, 3… внутри сайта; UNIQUE (`site_id`, `revision`) |
 | `parent_version_id` | UUID NULL FK → эта же таблица | от какой версии сделана правка |
-| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0` |
-| `spec` | JSONB NOT NULL | документ `SiteSpec`; предел 256 КБ (CHECK по `octet_length(spec::text)`) |
+| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0`; CHECK `(spec ->> 'schemaVersion') IS NOT DISTINCT FROM schema_version` |
+| `spec` | JSONB NOT NULL | документ `SiteSpec`, объект. Допустимый размер один: 256 КБ канонической записи, держит проверка документа и API. CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ) только грубая страховка, не второй допустимый размер: `jsonb::text` не каноническая запись и выходит до полутора раз длиннее |
 | `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
-| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы) |
-| `generation_run_id` | UUID NULL FK → `generation_runs` | обязателен при `source = 'AI'` |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). Enum целевой и полный уже в MKT3, но **база в MKT3 временно разрешает только `MANUAL`** (CHECK `source = 'MANUAL'`): MKT6 вместе с `generation_runs` и `generation_run_id` снимает или заменяет его правилом «AI требует `generation_run_id`», `IMPORT` открывается в срезе, где появится путь импорта |
+| `generation_run_id` | UUID NULL FK → `generation_runs` | **появляется в MKT6** вместе с таблицей; обязателен при `source = 'AI'`. В MKT3 колонки нет, сохранение пишет только `MANUAL` |
 | `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
 | `created_at` | timestamptz | |
 
@@ -2915,8 +2955,21 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 только на версию того же сайта, которая раньше была опубликована (есть в журнале), и только после повторной проверки
 схемы и ссылок; рантайм видит её лишь после перестановки указателя.
 
-Хранение: версии, которые хоть раз были опубликованы, хранятся всегда; остальные черновые можно чистить по сроку
-(кандидат: старше 90 дней и не последние 50). Решение о сроке: вместе с MKT3.
+Хранение (Q-272, решение владельца 06.10.2026): версии, которые хоть раз были опубликованы, хранятся всегда;
+неопубликованные черновые можно удалять старше 90 дней, сохраняя не меньше 50 последних версий сайта. Очистки в
+MKT3 нет, и сторож неизменяемости исключения для неё не делает: способ удаления решается срезом очистки.
+
+**Как это держит база (MKT3).** Триггер `marketing_site_version_immutable` отклоняет `UPDATE` и `DELETE` версии
+(пропускает только обнуление `created_by_id` по `ON DELETE SET NULL`), у ролей `wetop_app` и `wetop_service` на версиях
+отозваны `UPDATE` и `DELETE`, на сайтах `DELETE` (отдельной миграцией прав 061, как Food 059: восстановление копии
+повторяет только миграции без DDL). Триггер `marketing_site_version_guard`: версия без родителя только
+с `revision = 1`, родитель того же сайта, `revision` ровно на 1 больше родителя. Триггер `marketing_site_guard`:
+`latest_version_id` и `published_version_id` указывают только на версии этого сайта, `location_id` не меняется.
+CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED` и `PAUSED`, `archived_at` задан ровно при
+`ARCHIVED`. Частичные UNIQUE: один неархивный сайт на `location_id`, неархивный `slug` глобально. После ревью владельца
+(06.10.2026) добавлено: `tracked_site_id`, если задан, ведёт на `TrackedSite` объекта того же филиала (триггер
+`marketing_site_guard`); зарезервированные адреса запрещены CHECK; `schema_version` совпадает с `schemaVersion`
+документа; источник версии пока только `MANUAL`.
 
 ### 29.4 `MarketingSitePublication` (кандидат, добавлен к списку ADR-149 с обоснованием)
 
@@ -3003,7 +3056,7 @@ All five tables have RLS through verified ownership chains and are in RLS_TENANT
 | `brief_hash` | CHAR(64) NULL | хэш собранного брифа; сам бриф строится заново из данных |
 | `instruction` | VARCHAR(2000) NULL | текст команды человека (данные, не инструкция системе); срок хранения как у черновиков |
 | `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
-| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274) |
+| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274 закрыт 07.10): агрегат по всем фактическим вызовам модели в run, включая неудачные и повторы; расход `tokens_input + tokens_output`, `tokens_cached` входит в input |
 | `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
 | `next_attempt_at` | timestamptz NULL | |
 | `error_code` | VARCHAR(40) NULL | словарь: `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT` |
@@ -3034,7 +3087,7 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 `PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
 `ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
 
-### 29.9 Изоляция (кандидат)
+### 29.9 Изоляция (для двух таблиц MKT3 сделано, для остальных кандидат)
 
 Все шесть таблиц в `RLS_TENANT_TABLES`. Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
 `EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;

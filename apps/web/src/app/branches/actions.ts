@@ -1,27 +1,16 @@
 'use server';
 import { landingForVertical } from '../../lib/vertical-landing';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { branchDestination } from '../../lib/branch-destination';
-import { hotelApi } from '../../lib/hotel-api';
-import { SCOPE_COOKIE } from '../../lib/scope-pointer';
+import { setScopeCookie } from '../../lib/session';
 
 export async function selectBranch(form: FormData) {
   const { items } = await branchesApi.list();
   const branch = items.find((item) => item.id === String(form.get('id')));
   if (!branch) throw new Error('Филиал недоступен. Обновите список.');
-  (await cookies()).set(
-    SCOPE_COOKIE,
-    `business=${branch.location.businessId};location=${branch.locationId}`,
-    {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-    },
-  );
+  await setScopeCookie(`business=${branch.location.businessId};location=${branch.locationId}`);
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
   if (branch.vertical !== 'HOSPITALITY') redirect(landingForVertical(branch.vertical));
@@ -69,8 +58,7 @@ export async function branchChoices() {
         item.locationId === me.context?.locationId &&
         item.location.businessId === me.context?.businessId,
     );
-    const currentId =
-      selected?.id ?? (me.context?.businessId ? null : (await hotelApi.settings()).property.id);
+    const currentId = selected?.id ?? null;
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
       currentId,

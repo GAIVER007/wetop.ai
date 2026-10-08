@@ -118,6 +118,8 @@ test('подпись подстраивается под ширину: полн�
 }) => {
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
+  // подпись в две строки (имя, затем долг) живёт в «Обычном» виде; «Компактный» по умолчанию прячет вторую строку
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   // неделя: широкая плашка — полное имя и плашка суммы долга
   await expect(

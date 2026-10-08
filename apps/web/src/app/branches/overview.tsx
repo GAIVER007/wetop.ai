@@ -7,9 +7,9 @@ export async function BranchOverview({ from, to }: { from: string; to: string })
   const { guests, percent, currencies } = summarizeBranches(rows);
   return (
     <Panel>
-      <h2>Все филиалы</h2>
+      <h2>Сводка по гостиничным филиалам</h2>
       <p>
-        {rows.length} филиалов, {guests} гостей в заездах, загрузка{' '}
+        {rows.length} гостиничных филиалов, {guests} гостей в заездах, загрузка{' '}
         {percent}%
       </p>
       {[...currencies].map(([currency, total]) => (
@@ -48,7 +48,7 @@ export async function BranchOverview({ from, to }: { from: string; to: string })
       <p className="muted">
         Календарные даты считаются по часовому поясу каждого филиала. Гости в заездах могут
         повторяться между филиалами. Начисления и поступления не равны прибыли. Валюты не
-        конвертируются.
+        конвертируются. Салоны и рестораны в гостиничную сводку не входят.
       </p>
     </Panel>
   );

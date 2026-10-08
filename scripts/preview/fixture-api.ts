@@ -6,7 +6,6 @@ import {
   parseMoney,
   parseReceiptNumber,
   assertAllocationsMatch,
-  assertRefundWithin,
   buildDashboard,
   buildUnitStats,
   buildChannelEfficiency,
@@ -40,6 +39,10 @@ import {
   RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
+  ADJUSTMENT_DOWN_MESSAGE,
+  assertPaymentReversible,
+  assertRefundWithin,
+  FinanceRuleError,
   canInvite,
   canEditMemberDetails,
   canManageStaff,
@@ -423,11 +426,19 @@ interface FixtureTask {
 const taskStore = new Map<string, FixtureTask>();
 const tasksList = () => {
   const rows = [...taskStore.values()].sort(
-    (a, b) => a.dueDate.localeCompare(b.dueDate) || (a.dueTime ?? '').localeCompare(b.dueTime ?? ''),
+    (a, b) =>
+      a.dueDate.localeCompare(b.dueDate) || (a.dueTime ?? '').localeCompare(b.dueTime ?? ''),
   );
-  const tasks = rows.map((r) => ({ ...r, bucket: taskBucket({ dueDate: r.dueDate, done: r.doneAt !== null }, today) }));
+  const tasks = rows.map((r) => ({
+    ...r,
+    bucket: taskBucket({ dueDate: r.dueDate, done: r.doneAt !== null }, today),
+  }));
   const n = (b: string) => tasks.filter((x) => x.bucket === b).length;
-  return { today, tasks, counts: { overdue: n('overdue'), today: n('today'), upcoming: n('upcoming'), done: n('done') } };
+  return {
+    today,
+    tasks,
+    counts: { overdue: n('overdue'), today: n('today'), upcoming: n('upcoming'), done: n('done') },
+  };
 };
 /** Порядок появления карточек — «новые брони» (R2): у карточек подставного API нет момента создания */
 const cardSeen = new Map<string, number>();
@@ -883,12 +894,24 @@ let hotelOverrides: Record<string, string | null> = {};
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
  */
-type FixtureService = { code: string; name: string; group: string | null; priceMinor: string; active: boolean };
+type FixtureService = {
+  code: string;
+  name: string;
+  group: string | null;
+  priceMinor: string;
+  active: boolean;
+};
 const serviceSeed: FixtureService[] = [
   { code: 'LAUNDRY', name: 'Стирка', group: null, priceMinor: '150000', active: true },
   { code: 'WATER', name: 'Вода 0,5', group: 'Минибар', priceMinor: '70000', active: true },
   { code: 'BAIKAL', name: 'Байкал в стекле', group: 'Минибар', priceMinor: '70000', active: true },
-  { code: 'TRANSFER-OLD', name: 'Трансфер (старая цена)', group: 'Трансфер', priceMinor: '600000', active: false },
+  {
+    code: 'TRANSFER-OLD',
+    name: 'Трансфер (старая цена)',
+    group: 'Трансфер',
+    priceMinor: '600000',
+    active: false,
+  },
 ];
 let serviceCatalog: FixtureService[] = structuredClone(serviceSeed);
 const catalogOrder = (a: FixtureService, b: FixtureService) =>
@@ -1255,7 +1278,8 @@ function applyChannelShowcase() {
       status: 'FAILED',
       attempts: 3,
       taskId: null,
-      lastError: 'Менеджер каналов ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
+      lastError:
+        'Менеджер каналов ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
       createdAt: `${today}T03:58:30Z`,
       sentAt: null,
       dateFrom: t(1),
@@ -1289,7 +1313,29 @@ let paymentLines: Array<{
   note: string | null;
   id: string;
 }> = [];
-let refundLines: Array<{ id: string; folioId: string; paymentId: string; amountMinor: string; reason: string | null; createdAt: string }> = [];
+// ── аннулирование и замена платежа, возвраты, ручные начисления (план finance-payments-direct 07.10.2026) ──
+let voidedPayments = new Set<string>();
+let refundLines: Array<{
+  id: string;
+  folioId: string;
+  paymentId: string;
+  amountMinor: string;
+  reason: string | null;
+  createdAt: string;
+}> = [];
+let extraCharges: Array<{
+  id: string;
+  folioId: string;
+  kind: 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
+  serviceCode: string | null;
+  description: string;
+  quantity: number;
+  unitPriceMinor: string;
+  amountMinor: string;
+  serviceDate: string | null;
+  createdAt: string;
+  voidedAt: string | null;
+}> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 // ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
 let receipts = new Map<string, { number: string; issuedAt: string }>();
@@ -1357,7 +1403,10 @@ function fixtureCashBalances(): Map<string, bigint> {
         add(p.method, BigInt(p.paymentAmountMinor));
       }
       for (const x of f.refunds)
-        add(f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH', -BigInt(x.amountMinor));
+        add(
+          f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH',
+          -BigInt(x.amountMinor),
+        );
     }
   for (const o of cashOps) {
     if (o.status !== 'COMPLETED') continue;
@@ -1678,7 +1727,9 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
   const opts = {
     ...(q.get('channel') ? { channel: q.get('channel')! } : {}),
     sort: (q.get('sort') || 'revenue') as ChannelEfficiencySort,
-    ...(q.get('empty') === '1' ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] } : {}),
+    ...(q.get('empty') === '1'
+      ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] }
+      : {}),
   };
   const cf = q.get('compareFrom'),
     ct = q.get('compareTo');
@@ -1782,36 +1833,52 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
             : /TEST[1357]$/.test(reservation.confirmationNumber)
               ? BigInt(it.priceMinor)
               : 800000n;
-    const extraRefunds = refundLines.filter((line) => line.folioId === id);
-    const refunded = (showcase === 'RETD' ? BigInt(it.priceMinor) : 0n) + extraRefunds.reduce((sum, line) => sum + BigInt(line.amountMinor), 0n);
     const amount = BigInt(it.priceMinor);
+    const refundedOf = (paymentId: string) =>
+      refundLines
+        .filter((x) => x.folioId === id && x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const statusOf = (paymentId: string) =>
+      voidedPayments.has(paymentId) ? ('VOIDED' as const) : ('COMPLETED' as const);
     const payments = paymentLines
       .filter((p) => p.folioId === id)
       .map((p) => ({
         paymentId: p.id,
         method: p.method,
-        status: 'COMPLETED' as const,
+        status: statusOf(p.id),
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
         receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
-        refundedMinor: extraRefunds.filter((line) => line.paymentId === p.id).reduce((sum, line) => sum + BigInt(line.amountMinor), 0n).toString(),
+        refundedMinor: refundedOf(p.id).toString(),
       }));
     if (prepaid)
       payments.unshift({
         paymentId: `prepaid-${id}`,
         method: 'CASH',
-        status: 'COMPLETED',
+        status: statusOf(`prepaid-${id}`),
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
         receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
-        refundedMinor: ((showcase === 'RETD' ? prepaid : 0n) + extraRefunds.filter((line) => line.paymentId === `prepaid-${id}`).reduce((sum, line) => sum + BigInt(line.amountMinor), 0n)).toString(),
+        refundedMinor: refundedOf(`prepaid-${id}`).toString(),
       });
+    // возвраты витрины плюс сделанные тестом; оплачено — только проведённые платежи (как folioView API)
+    const liveRefunds = refundLines.filter((x) => x.folioId === id);
+    const refunded =
+      (showcase === 'RETD' ? BigInt(it.priceMinor) : 0n) +
+      liveRefunds.reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const paidLive = payments
+      .filter((p) => p.status === 'COMPLETED')
+      .reduce((acc, p) => acc + BigInt(p.allocatedMinor), 0n);
+    const manual = extraCharges.filter((c) => c.folioId === id);
+    const chargedLive =
+      (voided ? 0n : amount) +
+      manual.filter((c) => !c.voidedAt).reduce((acc, c) => acc + BigInt(c.amountMinor), 0n);
     return {
       id,
       reservationItemId: it.id,
@@ -1836,23 +1903,44 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
           createdAt: `${today}T07:00:00Z`,
           voidedAt: voided ? `${today}T09:00:00Z` : null,
         },
+        ...manual.map((c) => ({
+          id: c.id,
+          kind: c.kind,
+          serviceCode: c.serviceCode,
+          description: c.description,
+          quantity: c.quantity,
+          unitPriceMinor: c.unitPriceMinor,
+          amountMinor: c.amountMinor,
+          serviceDate: c.serviceDate,
+          createdAt: c.createdAt,
+          voidedAt: c.voidedAt,
+        })),
       ],
       payments,
-      refunds: [...(showcase === 'RETD'
-        ? [
-            {
-              id: `refund-${id}`,
-              paymentId: `prepaid-${id}`,
-              amountMinor: refunded.toString(),
-              reason: 'Отмена брони',
-              createdAt: `${today}T09:30:00Z`,
-            },
-          ]
-        : []), ...extraRefunds],
-      chargedMinor: (voided ? 0n : amount).toString(),
-      paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
+      refunds: [
+        ...(showcase === 'RETD'
+          ? [
+              {
+                id: `refund-${id}`,
+                paymentId: `prepaid-${id}`,
+                amountMinor: it.priceMinor,
+                reason: 'Отмена брони',
+                createdAt: `${today}T09:30:00Z`,
+              },
+            ]
+          : []),
+        ...liveRefunds.map((x) => ({
+          id: x.id,
+          paymentId: x.paymentId,
+          amountMinor: x.amountMinor,
+          reason: x.reason,
+          createdAt: x.createdAt,
+        })),
+      ],
+      chargedMinor: chargedLive.toString(),
+      paidMinor: paidLive.toString(),
       refundedMinor: refunded.toString(),
-      balanceMinor: ((voided ? 0n : amount) - prepaid - (paid.get(id) ?? 0n) + refunded).toString(),
+      balanceMinor: (chargedLive - paidLive + refunded).toString(),
     };
   });
   if (groupFixture && reservation === card) {
@@ -2021,7 +2109,10 @@ interface FixtureInvite {
 }
 let uiTeam: FixtureMember[] = [];
 /** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
-let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
+let uiMyDetails: { phone: string | null; position: string | null } = {
+  phone: null,
+  position: null,
+};
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiMyDetails = { phone: null, position: null };
@@ -2392,7 +2483,16 @@ interface KbFixture {
   updatedAt: string;
   versions: Array<{ version: number; title: string; content: string; savedAt: string }>;
 }
-const KB_CATEGORIES_UI = ['PRODUCT', 'HOW_TO', 'TROUBLESHOOTING', 'BILLING', 'INTEGRATIONS', 'SECURITY', 'KNOWN_ISSUE', 'RUNBOOK'];
+const KB_CATEGORIES_UI = [
+  'PRODUCT',
+  'HOW_TO',
+  'TROUBLESHOOTING',
+  'BILLING',
+  'INTEGRATIONS',
+  'SECURITY',
+  'KNOWN_ISSUE',
+  'RUNBOOK',
+];
 const KB_VISIBILITIES_UI = ['PUBLIC_SUPPORT', 'INTERNAL_SUPPORT', 'PLATFORM_ADMIN_ONLY'];
 const KB_ADMIN_ID = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
 const KB_ENTRY_A = '11111111-aaaa-4aaa-8aaa-000000000001';
@@ -2411,8 +2511,18 @@ const supportKbSeed = (): KbFixture[] => [
     createdAt: '2026-09-27T10:00:00.000Z',
     updatedAt: '2026-09-28T10:00:00.000Z',
     versions: [
-      { version: 2, title: 'Как изменить время заезда', content: 'Настройки объекта → Проживание: время заезда и выезда.', savedAt: '2026-09-28T10:00:00.000Z' },
-      { version: 1, title: 'Как изменить время заезда', content: 'Настройки объекта.', savedAt: '2026-09-27T10:00:00.000Z' },
+      {
+        version: 2,
+        title: 'Как изменить время заезда',
+        content: 'Настройки объекта → Проживание: время заезда и выезда.',
+        savedAt: '2026-09-28T10:00:00.000Z',
+      },
+      {
+        version: 1,
+        title: 'Как изменить время заезда',
+        content: 'Настройки объекта.',
+        savedAt: '2026-09-27T10:00:00.000Z',
+      },
     ],
   },
   {
@@ -2423,12 +2533,20 @@ const supportKbSeed = (): KbFixture[] => [
     status: 'DRAFT',
     version: 1,
     source: 'manual',
-    content: 'Симптом: нельзя создать бронь.\n\nПричина: пробный период закончился.\n\nЧто делать: оплатить счёт.',
+    content:
+      'Симптом: нельзя создать бронь.\n\nПричина: пробный период закончился.\n\nЧто делать: оплатить счёт.',
     approvedBy: null,
     approvedAt: null,
     createdAt: '2026-09-29T08:00:00.000Z',
     updatedAt: '2026-09-29T08:00:00.000Z',
-    versions: [{ version: 1, title: 'Режим «только чтение»', content: 'Симптом…', savedAt: '2026-09-29T08:00:00.000Z' }],
+    versions: [
+      {
+        version: 1,
+        title: 'Режим «только чтение»',
+        content: 'Симптом…',
+        savedAt: '2026-09-29T08:00:00.000Z',
+      },
+    ],
   },
   {
     id: '11111111-aaaa-4aaa-8aaa-000000000003',
@@ -2443,7 +2561,14 @@ const supportKbSeed = (): KbFixture[] => [
     approvedAt: '2026-09-26T10:00:00.000Z',
     createdAt: '2026-09-26T10:00:00.000Z',
     updatedAt: '2026-09-26T10:00:00.000Z',
-    versions: [{ version: 1, title: 'Восстановление базы после сбоя', content: 'Закрытый регламент.', savedAt: '2026-09-26T10:00:00.000Z' }],
+    versions: [
+      {
+        version: 1,
+        title: 'Восстановление базы после сбоя',
+        content: 'Закрытый регламент.',
+        savedAt: '2026-09-26T10:00:00.000Z',
+      },
+    ],
   },
 ];
 let supportKb = supportKbSeed();
@@ -2658,7 +2783,9 @@ const agentInstructions = new Map<string, string>();
 let sellerAgents: Array<{ id: string; name: string; locationId: string; lifecycle: string }> = [];
 /** Филиалы стенда для агентов: «Алматы» всегда занят рабочим продавцом, «Астана» — по команде теста */
 function agentLocations() {
-  return sellerExtraLocation ? [AGENT_LOCATION_LEGACY, AGENT_LOCATION_EXTRA] : [AGENT_LOCATION_LEGACY];
+  return sellerExtraLocation
+    ? [AGENT_LOCATION_LEGACY, AGENT_LOCATION_EXTRA]
+    : [AGENT_LOCATION_LEGACY];
 }
 function agentLocationTaken(locationId: string) {
   return (
@@ -2668,9 +2795,12 @@ function agentLocationTaken(locationId: string) {
 }
 /** Кнопка «+ Подключить AI-продавца»: те же слова и тот же порядок причин, что у сервера (`createAgentAvailability`) */
 function agentCreateState(access: string, canManage: boolean) {
-  if (access === 'off') return { enabled: false, reason: 'Расширение «ИИ-продавец» не подключено.' };
-  if (access === 'expired') return { enabled: false, reason: 'Срок расширения «ИИ-продавец» вышел.' };
-  if (!canManage) return { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' };
+  if (access === 'off')
+    return { enabled: false, reason: 'Расширение «ИИ-продавец» не подключено.' };
+  if (access === 'expired')
+    return { enabled: false, reason: 'Срок расширения «ИИ-продавец» вышел.' };
+  if (!canManage)
+    return { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' };
   const locations = agentLocations();
   const free = locations.filter((l) => !agentLocationTaken(l.id)).length;
   if (free > 0) return { enabled: true, reason: null };
@@ -2837,7 +2967,13 @@ function read(path: string, q: URLSearchParams): unknown {
         truncated: false,
       };
     if (path === '/finance/cash')
-      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [], reconciliations: [] };
+      return {
+        currency: 'KZT',
+        totalMinor: '0',
+        balances: [],
+        categories: [],
+        reconciliations: [],
+      };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -3425,9 +3561,13 @@ function read(path: string, q: URLSearchParams): unknown {
     const sort = q.get('sort') || 'name';
     const tail = '9999-12-31';
     if (sort === 'next')
-      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+      filtered.sort((a, b) =>
+        (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail),
+      );
     else if (sort === 'last')
-      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
+      filtered.sort((a, b) =>
+        (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''),
+      );
     else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
     const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
     for (const g of filtered) counts[g.state] += 1;
@@ -3563,7 +3703,13 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/finance/services')
     return serviceCatalog
       .filter((x) => x.active)
-      .map((x) => ({ code: x.code, nameRu: x.name, nameKz: null, priceMinor: x.priceMinor, group: x.group }));
+      .map((x) => ({
+        code: x.code,
+        nameRu: x.name,
+        nameKz: null,
+        priceMinor: x.priceMinor,
+        group: x.group,
+      }));
   if (path === '/hotel/services') return [...serviceCatalog].sort(catalogOrder);
   if (path === '/finance/report')
     return {
@@ -3715,7 +3861,14 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/finance/cash') {
     const by = fixtureCashBalances();
-    const order = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
+    const order = [
+      'CASH',
+      'KASPI',
+      'HALYK',
+      'CARD_TERMINAL',
+      'BANK_TRANSFER_PERSON',
+      'BANK_TRANSFER_LEGAL',
+    ];
     const defaults = new Set(order.slice(0, 4));
     const balances = order
       .filter((m) => defaults.has(m) || by.has(m))
@@ -3731,7 +3884,10 @@ function read(path: string, q: URLSearchParams): unknown {
       reconciliations: [...new Map(cashRecs.map((r) => [r.method, r])).values()].map((r) => ({
         method: r.method,
         at: r.at,
-        localAt: new Date(Date.parse(r.at) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' '),
+        localAt: new Date(Date.parse(r.at) + 5 * 3600_000)
+          .toISOString()
+          .slice(0, 16)
+          .replace('T', ' '),
         expectedMinor: r.expectedMinor.toString(),
         countedMinor: r.countedMinor.toString(),
         note: r.note,
@@ -3875,10 +4031,19 @@ function read(path: string, q: URLSearchParams): unknown {
         ? []
         : [
             conn('ui-ch-trip', 'Ctrip', 'ctrip', 'Trip.com', '132059275', 350, 'WORKING'),
-            conn('ui-ch-bdc', 'BookingCom', 'bookingcom', 'Booking.com', '14087887', 169, 'WORKING', {
-              shortCode: 'BDC',
-              actions: ['load_future_reservations'],
-            }),
+            conn(
+              'ui-ch-bdc',
+              'BookingCom',
+              'bookingcom',
+              'Booking.com',
+              '14087887',
+              169,
+              'WORKING',
+              {
+                shortCode: 'BDC',
+                actions: ['load_future_reservations'],
+              },
+            ),
             conn('ui-ch-ago', 'Agoda', 'agoda', 'Agoda', '77196946', 107, 'ERRORS', {
               failedEvents7d: 2,
               shortCode: 'AGO',
@@ -3914,10 +4079,18 @@ function read(path: string, q: URLSearchParams): unknown {
               shortCode,
               connected: connected.has(code),
             }))
-            .sort((a, b) => Number(b.connected) - Number(a.connected) || a.title.localeCompare(b.title))
+            .sort(
+              (a, b) => Number(b.connected) - Number(a.connected) || a.title.localeCompare(b.title),
+            )
         : null,
       outside: [
-        { key: 'OTA:onetwotrip', source: 'OTA', label: 'OneTwoTrip', bookings30: 3, lastBookingAt: ago(2) },
+        {
+          key: 'OTA:onetwotrip',
+          source: 'OTA',
+          label: 'OneTwoTrip',
+          bookings30: 3,
+          lastBookingAt: ago(2),
+        },
         { key: 'DESK', source: 'DESK', label: null, bookings30: 12, lastBookingAt: ago(0) },
         { key: 'WEBSITE', source: 'WEBSITE', label: null, bookings30: 4, lastBookingAt: ago(3) },
       ],
@@ -3992,19 +4165,27 @@ function read(path: string, q: URLSearchParams): unknown {
           },
         ]
       : channexLive()
-      ? [
-          { id: 'ui-map-property', localAccommodationTypeCode: null, localRatePlanId: null, localRatePlanCode: null, providerPropertyId: 'ui-property', providerRoomTypeId: null, providerRatePlanId: null },
-          ...categories.slice(0, 3).map((c) => ({
-            id: `ui-map-${c.code}`,
-            localAccommodationTypeCode: c.code,
-            localRatePlanId: null,
-            localRatePlanCode: 'BAR',
-            providerPropertyId: 'ui-property',
-            providerRoomTypeId: `ui-rt-${c.code.toLowerCase()}`,
-            providerRatePlanId: `ui-rp-${c.code.toLowerCase()}`,
-          })),
-        ]
-      : [];
+        ? [
+            {
+              id: 'ui-map-property',
+              localAccommodationTypeCode: null,
+              localRatePlanId: null,
+              localRatePlanCode: null,
+              providerPropertyId: 'ui-property',
+              providerRoomTypeId: null,
+              providerRatePlanId: null,
+            },
+            ...categories.slice(0, 3).map((c) => ({
+              id: `ui-map-${c.code}`,
+              localAccommodationTypeCode: c.code,
+              localRatePlanId: null,
+              localRatePlanCode: 'BAR',
+              providerPropertyId: 'ui-property',
+              providerRoomTypeId: `ui-rt-${c.code.toLowerCase()}`,
+              providerRatePlanId: `ui-rp-${c.code.toLowerCase()}`,
+            })),
+          ]
+        : [];
   // названия номеров и тарифов Channex (как GET content/names): только когда объект «создан»
   if (path === '/channels/channex/content/names')
     return channelMapping === 'partial'
@@ -4014,9 +4195,22 @@ function read(path: string, q: URLSearchParams): unknown {
         }
       : { roomTypes: {}, ratePlans: {} };
   if (path === '/channels/channex/outbox' && channexMode === 'stale')
-    return { pending: 5, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a', oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString() };
+    return {
+      pending: 5,
+      failed: 0,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+      oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString(),
+    };
   if (path === '/channels/channex/outbox' && channexMode === 'webhook')
-    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 12 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+    return {
+      pending: 0,
+      failed: 0,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 12 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+    };
   if (path === '/channels/channex/outbox' && channexMode === 'attention')
     return {
       pending: 0,
@@ -4141,40 +4335,47 @@ function read(path: string, q: URLSearchParams): unknown {
       },
     ];
   if (path === '/channels/channex/webhook/status') {
-    const base =
-      channexLive()
-        ? {
-            // поля как у API (`askWebhookStatus`): страница настройки Channex читает адрес и маску событий
-            registered: true,
-            id: 'ui-webhook',
-            callbackUrl: 'https://api.example.invalid/channels/channex/webhook',
-            eventMask: 'booking',
-            active: true,
-            sendData: true,
-            expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
-            secretConfigured: true,
-            callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
-            callbackCheckedAt: new Date().toISOString(),
-          }
-        : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
+    const base = channexLive()
+      ? {
+          // поля как у API (`askWebhookStatus`): страница настройки Channex читает адрес и маску событий
+          registered: true,
+          id: 'ui-webhook',
+          callbackUrl: 'https://api.example.invalid/channels/channex/webhook',
+          eventMask: 'booking',
+          active: true,
+          sendData: true,
+          expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
+          secretConfigured: true,
+          callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
+          callbackCheckedAt: new Date().toISOString(),
+        }
+      : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
     return { ...base, ...channelsOverrides.webhook };
   }
-  if (path === '/audit/actors') return [{ id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый кассир' }];
+  if (path === '/audit/actors')
+    return [{ id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый кассир' }];
   if (path === '/audit') {
     if (journalFinance) {
       const actor = '11111111-1111-4111-8111-111111111111';
       const rows = Array.from({ length: 65 }, (_, i) => ({
         id: `22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
-        at: `${today}T08:00:00.123Z`, authorId: actor, author: 'Тестовый кассир',
-        entityType: 'CashOperation', entityId: `cash-${i}`, subject: null, targetAvailable: null,
+        at: `${today}T08:00:00.123Z`,
+        authorId: actor,
+        author: 'Тестовый кассир',
+        entityType: 'CashOperation',
+        entityId: `cash-${i}`,
+        subject: null,
+        targetAvailable: null,
         action: i === 0 ? 'finance.cash.operation.void' : 'finance.cash.operation',
         before: i === 0 ? { amountMinor: '150050', method: 'CASH', kind: 'EXPENSE' } : {},
-        after: i === 0 ? { voided: true } : { amountMinor: '250000', method: 'CASH', kind: 'INCOME' },
+        after:
+          i === 0 ? { voided: true } : { amountMinor: '250000', method: 'CASH', kind: 'INCOME' },
         cursor: `${today}T08:00:00.123000Z|22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
       }));
       const cursor = q.get('cursor');
       const start = cursor ? rows.findIndex((r) => r.cursor === cursor) + 1 : 0;
-      return rows.filter((r) => !q.get('actor') || q.get('actor') === r.authorId)
+      return rows
+        .filter((r) => !q.get('actor') || q.get('actor') === r.authorId)
         .filter((r) => !q.get('action') || r.action.startsWith(q.get('action')!))
         .filter(() => !q.get('group') || q.get('group') === 'finance')
         .filter(() => !q.get('from') || today >= q.get('from')!)
@@ -4330,13 +4531,21 @@ function marketRoute(
       const date = q.get('date') ?? '';
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [400, { message: 'date: ночь YYYY-MM-DD' }];
       const active = marketCompetitors.filter((c) => c.active);
-      return [200, buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings })];
+      return [
+        200,
+        buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings }),
+      ];
     }
     if (path === '/market/competitors' && method === 'POST') {
       if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
       const input = parseCompetitorInput(body, 'create');
       if (marketCompetitors.filter((c) => c.active).length >= MARKET_MAX_COMPETITORS)
-        return [409, { message: `В списке уже ${MARKET_MAX_COMPETITORS} конкурентов: уберите одного, чтобы добавить нового` }];
+        return [
+          409,
+          {
+            message: `В списке уже ${MARKET_MAX_COMPETITORS} конкурентов: уберите одного, чтобы добавить нового`,
+          },
+        ];
       if (marketCompetitors.some((c) => c.name === input.name))
         return [400, { message: `Конкурент «${input.name}» уже есть в списке` }];
       const row: FixtureCompetitor = {
@@ -4356,22 +4565,45 @@ function marketRoute(
       if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
       const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
       if (m[2] && method === 'PUT') {
-        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
-        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!row || !row.active)
+          return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries'])
+          ? (body['entries'] as Array<Record<string, unknown>>)
+          : [];
         if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
-        const parsed = entries.map((e) => ({ date: String(e['date']), bp: parseOccupancyPercent(e['percent']) }));
+        const parsed = entries.map((e) => ({
+          date: String(e['date']),
+          bp: parseOccupancyPercent(e['percent']),
+        }));
         for (const e of parsed) {
           if (e.date < marketPlus(today, -30) || e.date > marketPlus(today, 365))
-            return [400, { message: `Ночь ${e.date}: можно от ${marketPlus(today, -30)} до ${marketPlus(today, 365)}` }];
+            return [
+              400,
+              {
+                message: `Ночь ${e.date}: можно от ${marketPlus(today, -30)} до ${marketPlus(today, 365)}`,
+              },
+            ];
         }
         for (const e of parsed) {
           marketReadings = marketReadings.filter(
             (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
           );
           if (e.bp !== null)
-            marketReadings.push({ competitorId: row.id, stayDate: e.date, observedOn: today, occupancyBp: e.bp, source: 'MANUAL' });
+            marketReadings.push({
+              competitorId: row.id,
+              stayDate: e.date,
+              observedOn: today,
+              occupancyBp: e.bp,
+              source: 'MANUAL',
+            });
         }
-        return [200, { saved: parsed.filter((e) => e.bp !== null).length, cleared: parsed.filter((e) => e.bp === null).length }];
+        return [
+          200,
+          {
+            saved: parsed.filter((e) => e.bp !== null).length,
+            cleared: parsed.filter((e) => e.bp === null).length,
+          },
+        ];
       }
       if (!m[2] && method === 'PATCH') {
         if (!row) return [404, { message: 'Конкурент не найден' }];
@@ -4391,6 +4623,21 @@ function marketRoute(
 }
 
 const fixtureBranches: Array<Record<string, unknown>> = [];
+/**
+ * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
+ * Иначе указатель, который сервер сам выбрал (`/scope/resolve`, SCOPE-HARDENING), стойка сочла бы устаревшим.
+ */
+const DEFAULT_FIXTURE_BRANCH = {
+  id: '11111111-1111-4111-8111-111111111111',
+  name: 'Тестовый центральный филиал',
+  address: null,
+  currency: 'KZT',
+  timezone: 'Asia/Almaty',
+  vertical: 'HOSPITALITY',
+  locationId: '22222222-2222-4222-8222-222222222222',
+  location: { businessId: '33333333-3333-4333-8333-333333333333' },
+  _count: { inventoryUnits: 88, accommodationTypes: 5 },
+};
 
 /** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
 interface FixtureBeautyService {
@@ -4401,7 +4648,11 @@ interface FixtureBeautyService {
   priceMinor: string;
   currency: string;
   active: boolean;
-  location: { enabled: boolean; priceOverrideMinor: string | null; durationOverrideMinutes: number | null } | null;
+  location: {
+    enabled: boolean;
+    priceOverrideMinor: string | null;
+    durationOverrideMinutes: number | null;
+  } | null;
 }
 interface FixtureBeautyEmployee {
   id: string;
@@ -4540,7 +4791,9 @@ createServer(async (req, res) => {
           note: c.note ?? null,
           active: c.active ?? true,
         });
-      marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({
+        ...r,
+      }));
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
@@ -4620,7 +4873,9 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      voidedPayments = new Set();
       refundLines = [];
+      extraCharges = [];
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
@@ -4651,7 +4906,7 @@ createServer(async (req, res) => {
       // записи мастера на даты: срез B5 их ещё не делает, а наложение отсутствия показать надо (B4)
       if (Array.isArray(body['beautyAppointments'])) {
         fixtureBeautyAppointments.length = 0;
-      fixtureAppointments.length = 0;
+        fixtureAppointments.length = 0;
         for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
           fixtureBeautyAppointments.push({
             employeeId: String(row['employeeId'] ?? ''),
@@ -4665,7 +4920,9 @@ createServer(async (req, res) => {
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
       channelCatalog =
-        body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
+        body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down'
+          ? body['channelCatalog']
+          : '';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -4730,7 +4987,9 @@ createServer(async (req, res) => {
       if (body['softPlan'] === true) softPlan = true;
       // «Удалить» категорию (план categories-price-2026-10-06): тест меняет её использование, reset возвращает засев
       if (body['categoryUsage'] && typeof body['categoryUsage'] === 'object')
-        for (const [code, patch] of Object.entries(body['categoryUsage'] as Record<string, object>)) {
+        for (const [code, patch] of Object.entries(
+          body['categoryUsage'] as Record<string, object>,
+        )) {
           const c = categories.find((item) => item.code === code);
           if (c)
             c.usage = {
@@ -4758,12 +5017,16 @@ createServer(async (req, res) => {
       sellerWhatsAppUnknown = body['sellerWhatsApp'] === 'unknown';
       sellerCatalogFails = body['sellerCatalogFails'] === true;
       sellerExtraLocation = body['sellerExtraLocation'] === true;
-      sellerDrafts = Array.isArray(body['sellerDrafts']) ? (body['sellerDrafts'] as string[]).map(String) : [];
+      sellerDrafts = Array.isArray(body['sellerDrafts'])
+        ? (body['sellerDrafts'] as string[]).map(String)
+        : [];
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
-      if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
+      if (body['branchWithInventory'] === true)
+        for (const branch of fixtureBranches)
+          branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
         body['sellerDaysLeft'],
@@ -4904,7 +5167,8 @@ createServer(async (req, res) => {
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     if (channexMode === 'foreign' && CHANNEX_FOREIGN.has(path))
       return send(403, {
-        message: 'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP.',
+        message:
+          'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP.',
       });
     if (path === failPath || failPath === '*')
       return send(
@@ -5049,7 +5313,9 @@ createServer(async (req, res) => {
           primaryGuest: r.primaryGuest
             ? {
                 ...r.primaryGuest,
-                email: (r.primaryGuest.id === guest.id ? guest : extraGuests.get(r.primaryGuest.id))?.email ?? null,
+                email:
+                  (r.primaryGuest.id === guest.id ? guest : extraGuests.get(r.primaryGuest.id))
+                    ?.email ?? null,
               }
             : null,
         };
@@ -5199,32 +5465,56 @@ createServer(async (req, res) => {
       const { organization, ...user } = signedInView(who);
       // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
       const pointer = String(req.headers['x-wetop-scope'] ?? '');
-      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
+      const scoped = [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) =>
+        pointer.endsWith(`location=${String(b.locationId)}`),
+      );
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
-          businessId: scoped ? String((scoped['location'] as { businessId: string }).businessId) : null,
+          businessId: scoped
+            ? String((scoped['location'] as { businessId: string }).businessId)
+            : null,
           locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
-          vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
+          vertical: scoped
+            ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY')
+            : null,
         },
       });
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
-      const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const selected = fixtureBranches.find((b) =>
+        String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`),
+      );
       // Филиал салона объекта не имеет (DATA_MODEL §19): настоящий API здесь отвечает 404
       if (selected && (selected as Record<string, unknown>)['vertical'] === 'BEAUTY')
         return send(404, { message: 'У этого филиала нет объекта' });
-      const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
-      return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
+      const settings = read(path, url.searchParams) as {
+        property: Record<string, unknown>;
+        needsOnboarding?: boolean;
+      };
+      return send(200, {
+        ...settings,
+        property: {
+          ...settings.property,
+          id: '11111111-1111-4111-8111-111111111111',
+          ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}),
+        },
+      });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
     if (path.startsWith('/beauty/')) {
-      const current = fixtureBranches.find((b) => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
-      const locationId = current ? String((current as Record<string, unknown>)['locationId']) : null;
-      const locationCurrency = current ? String((current as Record<string, unknown>)['currency'] ?? 'KZT') : null;
+      const current = fixtureBranches.find((b) =>
+        String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`),
+      );
+      const locationId = current
+        ? String((current as Record<string, unknown>)['locationId'])
+        : null;
+      const locationCurrency = current
+        ? String((current as Record<string, unknown>)['currency'] ?? 'KZT')
+        : null;
       const effective = (s: FixtureBeautyService) => {
         if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
         if (!locationCurrency) return null;
@@ -5269,11 +5559,14 @@ createServer(async (req, res) => {
       }
       const patchService = /^\/beauty\/services\/([^/]+)$/.exec(path);
       if (patchService && req.method === 'PATCH') {
-        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(patchService[1]!));
+        const row = fixtureBeautyServices.find(
+          (s) => s.id === decodeURIComponent(patchService[1]!),
+        );
         if (!row) return send(404, { message: 'Услуга не найдена' });
         if (body['name'] !== undefined) row.name = String(body['name']).trim();
         if (body['category'] !== undefined) row.category = String(body['category']).trim() || null;
-        if (body['durationMinutes'] !== undefined) row.durationMinutes = Number(body['durationMinutes']);
+        if (body['durationMinutes'] !== undefined)
+          row.durationMinutes = Number(body['durationMinutes']);
         if (body['priceMinor'] !== undefined) row.priceMinor = String(body['priceMinor']);
         if (body['currency'] !== undefined) row.currency = String(body['currency']);
         if (body['active'] !== undefined) row.active = Boolean(body['active']);
@@ -5281,7 +5574,9 @@ createServer(async (req, res) => {
       }
       const locationService = /^\/beauty\/services\/([^/]+)\/location$/.exec(path);
       if (locationService && req.method === 'PUT') {
-        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(locationService[1]!));
+        const row = fixtureBeautyServices.find(
+          (s) => s.id === decodeURIComponent(locationService[1]!),
+        );
         if (!row) return send(404, { message: 'Услуга не найдена' });
         if (!locationId)
           return send(400, { message: 'Выберите филиал: цену и доступность услуги задаёт он' });
@@ -5305,7 +5600,10 @@ createServer(async (req, res) => {
           id: `emp-${fixtureBeautyEmployees.length + 1}-0000-4000-8000-000000000000`,
           name,
           phone: String(body['phone'] ?? '').trim() || null,
-          email: String(body['email'] ?? '').trim().toLowerCase() || null,
+          email:
+            String(body['email'] ?? '')
+              .trim()
+              .toLowerCase() || null,
           active: body['active'] !== false,
           locationIds: locationId ? [locationId] : [],
           serviceIds: [],
@@ -5315,17 +5613,22 @@ createServer(async (req, res) => {
       }
       const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
       if (patchEmployee && req.method === 'PATCH') {
-        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(patchEmployee[1]!));
+        const row = fixtureBeautyEmployees.find(
+          (e) => e.id === decodeURIComponent(patchEmployee[1]!),
+        );
         if (!row) return send(404, { message: 'Мастер не найден' });
         if (body['name'] !== undefined) row.name = String(body['name']).trim();
         if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
-        if (body['email'] !== undefined) row.email = String(body['email']).trim().toLowerCase() || null;
+        if (body['email'] !== undefined)
+          row.email = String(body['email']).trim().toLowerCase() || null;
         if (body['active'] !== undefined) row.active = Boolean(body['active']);
         return send(200, row);
       }
       const employeeServices = /^\/beauty\/employees\/([^/]+)\/services$/.exec(path);
       if (employeeServices && req.method === 'PUT') {
-        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeServices[1]!));
+        const row = fixtureBeautyEmployees.find(
+          (e) => e.id === decodeURIComponent(employeeServices[1]!),
+        );
         if (!row) return send(404, { message: 'Мастер не найден' });
         const ids = Array.isArray(body['serviceIds']) ? (body['serviceIds'] as string[]) : [];
         if (ids.some((id) => !fixtureBeautyServices.some((s) => s.id === id)))
@@ -5338,7 +5641,10 @@ createServer(async (req, res) => {
         [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({
           weekday,
           intervals: fixtureBeautyHours
-            .filter((h) => h.employeeId === employeeId && h.locationId === locationId && h.weekday === weekday)
+            .filter(
+              (h) =>
+                h.employeeId === employeeId && h.locationId === locationId && h.weekday === weekday,
+            )
             .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom))
             .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
         }));
@@ -5360,13 +5666,19 @@ createServer(async (req, res) => {
       const scheduleView = (employeeId: string | null) => {
         const chosen = employeeId
           ? (fixtureBeautyEmployees.find((e) => e.id === employeeId) ?? null)
-          : (fixtureBeautyEmployees.find((e) => e.active && locationId !== null && e.locationIds.includes(locationId)) ??
+          : (fixtureBeautyEmployees.find(
+              (e) => e.active && locationId !== null && e.locationIds.includes(locationId),
+            ) ??
             fixtureBeautyEmployees.find((e) => e.active) ??
             fixtureBeautyEmployees[0] ??
             null);
         return {
           location: locationId
-            ? { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: String(current?.['timezone'] ?? 'Asia/Almaty') }
+            ? {
+                id: locationId,
+                name: String(current?.['name'] ?? 'Филиал'),
+                timezone: String(current?.['timezone'] ?? 'Asia/Almaty'),
+              }
             : null,
           employees: fixtureBeautyEmployees.map((e) => ({
             id: e.id,
@@ -5399,12 +5711,18 @@ createServer(async (req, res) => {
       }
       const workingHours = /^\/beauty\/employees\/([^/]+)\/working-hours$/.exec(path);
       if (workingHours && req.method === 'PUT') {
-        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(workingHours[1]!));
+        const row = fixtureBeautyEmployees.find(
+          (e) => e.id === decodeURIComponent(workingHours[1]!),
+        );
         if (!row) return send(404, { message: 'Мастер не найден' });
         if (!locationId) return send(409, { message: 'Сначала выберите филиал' });
         if (!row.locationIds.includes(locationId))
-          return send(409, { message: 'Мастер в этом филиале не работает: сначала поставьте его в филиал' });
-        const list = Array.isArray(body['intervals']) ? (body['intervals'] as Array<Record<string, unknown>>) : [];
+          return send(409, {
+            message: 'Мастер в этом филиале не работает: сначала поставьте его в филиал',
+          });
+        const list = Array.isArray(body['intervals'])
+          ? (body['intervals'] as Array<Record<string, unknown>>)
+          : [];
         const parsed = list.map((i) => ({
           weekday: Number(i['weekday']),
           timeFrom: clock(String(i['timeFrom'] ?? '')),
@@ -5414,15 +5732,22 @@ createServer(async (req, res) => {
           return send(400, { message: 'Время графика в часах и минутах, например 09:00' });
         if (parsed.some((i) => i.timeTo <= i.timeFrom))
           return send(400, { message: 'Конец рабочего времени должен быть позже начала' });
-        const sorted = [...parsed].sort((a, b) => a.weekday - b.weekday || a.timeFrom.localeCompare(b.timeFrom));
+        const sorted = [...parsed].sort(
+          (a, b) => a.weekday - b.weekday || a.timeFrom.localeCompare(b.timeFrom),
+        );
         for (let i = 1; i < sorted.length; i += 1)
-          if (sorted[i]!.weekday === sorted[i - 1]!.weekday && sorted[i]!.timeFrom < sorted[i - 1]!.timeTo)
+          if (
+            sorted[i]!.weekday === sorted[i - 1]!.weekday &&
+            sorted[i]!.timeFrom < sorted[i - 1]!.timeTo
+          )
             return send(400, { message: 'Интервалы в одном дне накладываются друг на друга' });
         for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
-          if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === locationId)
+          if (
+            fixtureBeautyHours[i]!.employeeId === row.id &&
+            fixtureBeautyHours[i]!.locationId === locationId
+          )
             fixtureBeautyHours.splice(i, 1);
-        for (const i of sorted)
-          fixtureBeautyHours.push({ employeeId: row.id, locationId, ...i });
+        for (const i of sorted) fixtureBeautyHours.push({ employeeId: row.id, locationId, ...i });
         return send(200, { week: week(row.id) });
       }
       const timeOffs = /^\/beauty\/employees\/([^/]+)\/time-offs$/.exec(path);
@@ -5450,7 +5775,9 @@ createServer(async (req, res) => {
       }
       const dropTimeOff = /^\/beauty\/employees\/([^/]+)\/time-offs\/([^/]+)$/.exec(path);
       if (dropTimeOff && req.method === 'DELETE') {
-        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(dropTimeOff[1]!));
+        const row = fixtureBeautyEmployees.find(
+          (e) => e.id === decodeURIComponent(dropTimeOff[1]!),
+        );
         if (!row) return send(404, { message: 'Мастер не найден' });
         const index = fixtureBeautyTimeOffs.findIndex(
           (t) => t.id === decodeURIComponent(dropTimeOff[2]!) && t.employeeId === row.id,
@@ -5460,7 +5787,8 @@ createServer(async (req, res) => {
         return send(200, { timeOffs: timeOffsOf(row.id) });
       }
       // Журнал записей дня (срез B5). Стенд живёт в поясе Asia/Almaty, как филиал фикстуры
-      const dayOf = (iso: string) => new Date(new Date(iso).getTime() + 5 * 3600_000).toISOString().slice(0, 10);
+      const dayOf = (iso: string) =>
+        new Date(new Date(iso).getTime() + 5 * 3600_000).toISOString().slice(0, 10);
       const minutesOfIso = (iso: string) => {
         const at = new Date(new Date(iso).getTime() + 5 * 3600_000);
         return at.getUTCHours() * 60 + at.getUTCMinutes();
@@ -5471,7 +5799,11 @@ createServer(async (req, res) => {
         const own = s.location;
         const price = own?.priceOverrideMinor ?? s.priceMinor;
         const duration = own?.durationOverrideMinutes ?? s.durationMinutes;
-        const sellable = Boolean(s.active && own?.enabled && (own.priceOverrideMinor !== null || s.currency === locationCurrency));
+        const sellable = Boolean(
+          s.active &&
+          own?.enabled &&
+          (own.priceOverrideMinor !== null || s.currency === locationCurrency),
+        );
         return { sellable, price, duration };
       };
       const dayView = (date: string) => {
@@ -5482,10 +5814,18 @@ createServer(async (req, res) => {
             id: e.id,
             name: e.name,
             intervals: fixtureBeautyHours
-              .filter((h) => h.employeeId === e.id && h.locationId === locationId && h.weekday === weekday)
+              .filter(
+                (h) =>
+                  h.employeeId === e.id && h.locationId === locationId && h.weekday === weekday,
+              )
               .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
-            timeOff: fixtureBeautyTimeOffs.some((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo),
-            timeOffReason: fixtureBeautyTimeOffs.find((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo)?.reason ?? null,
+            timeOff: fixtureBeautyTimeOffs.some(
+              (t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo,
+            ),
+            timeOffReason:
+              fixtureBeautyTimeOffs.find(
+                (t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo,
+              )?.reason ?? null,
             serviceIds: e.serviceIds,
           }));
         const rows = fixtureAppointments
@@ -5507,10 +5847,17 @@ createServer(async (req, res) => {
             currency: a.currency,
             notes: a.notes,
           }));
-        const edges = columns.flatMap((c) => c.intervals).flatMap((i) => [clockMin(i.timeFrom), clockMin(i.timeTo)]);
+        const edges = columns
+          .flatMap((c) => c.intervals)
+          .flatMap((i) => [clockMin(i.timeFrom), clockMin(i.timeTo)]);
         const spans = rows.flatMap((r) => [r.startMinutes, r.endMinutes]);
         return {
-          location: { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: 'Asia/Almaty', currency: locationCurrency },
+          location: {
+            id: locationId,
+            name: String(current?.['name'] ?? 'Филиал'),
+            timezone: 'Asia/Almaty',
+            currency: locationCurrency,
+          },
           date,
           columns,
           appointments: rows,
@@ -5533,15 +5880,35 @@ createServer(async (req, res) => {
         };
       };
       if (path === '/beauty/customers' && req.method === 'GET') {
-        const customers = new Map(fixtureAppointments.filter(a => a.locationId === locationId)
-          .map(a => [a.customer.id, { id: a.customer.id, firstName: a.customer.name,
-            lastName: null, phone: a.customer.phone, status: 'ACTIVE' }]));
+        const customers = new Map(
+          fixtureAppointments
+            .filter((a) => a.locationId === locationId)
+            .map((a) => [
+              a.customer.id,
+              {
+                id: a.customer.id,
+                firstName: a.customer.name,
+                lastName: null,
+                phone: a.customer.phone,
+                status: 'ACTIVE',
+              },
+            ]),
+        );
         return send(200, { items: [...customers.values()] });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')
-        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+        // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)
+        return send(
+          200,
+          dayView(
+            url.searchParams.get('date') ||
+              new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date()),
+          ),
+        );
       if (path === '/beauty/appointments' && req.method === 'POST') {
-        const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
+        const employee = fixtureBeautyEmployees.find(
+          (e) => e.id === String(body['employeeId'] ?? ''),
+        );
         if (!employee) return send(404, { message: 'Мастер не найден' });
         const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
         if (!svc) return send(404, { message: 'Услуга не найдена' });
@@ -5553,16 +5920,29 @@ createServer(async (req, res) => {
         const endMinutes = startMinutes + eff.duration;
         const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
         const works = fixtureBeautyHours.some(
-          (h) => h.employeeId === employee.id && h.locationId === locationId && h.weekday === weekday &&
-            clockMin(h.timeFrom) <= startMinutes && endMinutes <= clockMin(h.timeTo),
+          (h) =>
+            h.employeeId === employee.id &&
+            h.locationId === locationId &&
+            h.weekday === weekday &&
+            clockMin(h.timeFrom) <= startMinutes &&
+            endMinutes <= clockMin(h.timeTo),
         );
-        if (fixtureBeautyTimeOffs.some((t) => t.employeeId === employee.id && t.dateFrom <= date && date <= t.dateTo))
+        if (
+          fixtureBeautyTimeOffs.some(
+            (t) => t.employeeId === employee.id && t.dateFrom <= date && date <= t.dateTo,
+          )
+        )
           return send(409, { message: 'У мастера в этот день отсутствие' });
         if (!works) return send(409, { message: 'Мастер в это время не работает' });
         if (
           fixtureAppointments.some(
-            (a) => a.employeeId === employee.id && a.date === date && a.status !== 'CANCELLED' &&
-              a.status !== 'NO_SHOW' && a.startMinutes < endMinutes && startMinutes < a.endMinutes,
+            (a) =>
+              a.employeeId === employee.id &&
+              a.date === date &&
+              a.status !== 'CANCELLED' &&
+              a.status !== 'NO_SHOW' &&
+              a.startMinutes < endMinutes &&
+              startMinutes < a.endMinutes,
           )
         )
           return send(409, { message: 'Мастер в это время уже занят' });
@@ -5593,7 +5973,9 @@ createServer(async (req, res) => {
       }
       const moveAppointment = /^\/beauty\/appointments\/([^/]+)$/.exec(path);
       if (moveAppointment && req.method === 'PATCH') {
-        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(moveAppointment[1]!));
+        const row = fixtureAppointments.find(
+          (a) => a.id === decodeURIComponent(moveAppointment[1]!),
+        );
         if (!row) return send(404, { message: 'Запись не найдена' });
         if (!(NEXT_STATUS[row.status] ?? []).length)
           return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
@@ -5604,9 +5986,14 @@ createServer(async (req, res) => {
         const employeeId = String(body['employeeId'] ?? '') || row.employeeId;
         if (
           fixtureAppointments.some(
-            (a) => a.id !== row.id && a.employeeId === employeeId && a.date === nextDate &&
-              a.status !== 'CANCELLED' && a.status !== 'NO_SHOW' &&
-              a.startMinutes < nextStart + length && nextStart < a.endMinutes,
+            (a) =>
+              a.id !== row.id &&
+              a.employeeId === employeeId &&
+              a.date === nextDate &&
+              a.status !== 'CANCELLED' &&
+              a.status !== 'NO_SHOW' &&
+              a.startMinutes < nextStart + length &&
+              nextStart < a.endMinutes,
           )
         )
           return send(409, { message: 'Мастер в это время уже занят' });
@@ -5618,7 +6005,9 @@ createServer(async (req, res) => {
       }
       const appointmentStatus = /^\/beauty\/appointments\/([^/]+)\/status$/.exec(path);
       if (appointmentStatus && req.method === 'POST') {
-        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(appointmentStatus[1]!));
+        const row = fixtureAppointments.find(
+          (a) => a.id === decodeURIComponent(appointmentStatus[1]!),
+        );
         if (!row) return send(404, { message: 'Запись не найдена' });
         const to = String(body['status'] ?? '');
         if (!(NEXT_STATUS[row.status] ?? []).includes(to))
@@ -5628,7 +6017,9 @@ createServer(async (req, res) => {
       }
       const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);
       if (employeeLocations && req.method === 'PUT') {
-        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeLocations[1]!));
+        const row = fixtureBeautyEmployees.find(
+          (e) => e.id === decodeURIComponent(employeeLocations[1]!),
+        );
         if (!row) return send(404, { message: 'Мастер не найден' });
         const ids = Array.isArray(body['locationIds']) ? (body['locationIds'] as string[]) : [];
         const known = salonLocations().map((l) => l.id);
@@ -5636,7 +6027,10 @@ createServer(async (req, res) => {
           return send(400, { message: 'Среди выбранных филиалов есть чужой' });
         for (const gone of row.locationIds.filter((id) => !ids.includes(id))) {
           for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
-            if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === gone)
+            if (
+              fixtureBeautyHours[i]!.employeeId === row.id &&
+              fixtureBeautyHours[i]!.locationId === gone
+            )
               fixtureBeautyHours.splice(i, 1);
         }
         row.locationIds = [...new Set(ids)];
@@ -5645,17 +6039,40 @@ createServer(async (req, res) => {
       return send(404, { message: 'Нет такого маршрута салона' });
     }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = DEFAULT_FIXTURE_BRANCH;
       if (req.method === 'POST') {
         // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
         const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
-        const item = { ...branch, ...body, vertical, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        const item = {
+          ...branch,
+          ...body,
+          vertical,
+          locationId: String(body.id),
+          _count: { inventoryUnits: 0, accommodationTypes: 0 },
+        };
         if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
         return send(200, item);
       }
       const items = [branch, ...fixtureBranches];
-      if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
-      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
+      if (path.endsWith('/overview'))
+        return send(200, {
+          rows: items.map((b) => ({
+            branch: b,
+            stats: dashboard(
+              url.searchParams.get('from') || today,
+              url.searchParams.get('to') || today,
+            ).current,
+          })),
+        });
+      return send(200, {
+        organization: {
+          id: '44444444-4444-4444-8444-444444444444',
+          name: 'Тестовая сеть',
+          status: 'ACTIVE',
+        },
+        items,
+        canCreate: true,
+      });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
@@ -5695,7 +6112,9 @@ createServer(async (req, res) => {
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET')
           // состояние API знает только настройку: недоступный помощник для него — «ready»
-          return send(200, { state: supportState === 'not-configured' ? 'not-configured' : 'ready' });
+          return send(200, {
+            state: supportState === 'not-configured' ? 'not-configured' : 'ready',
+          });
         if (supportState === 'not-configured')
           return send(503, {
             message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа',
@@ -5704,7 +6123,9 @@ createServer(async (req, res) => {
         if (supportState === 'unavailable')
           return send(503, { message: 'ИИ-помощник недоступен: нет ответа' });
         // ── управляемая база знаний (S3) ─────────────────────────────────────────────────────────────
-        const kbRoute = /^\/platform\/support\/kb(?:\/([^/]+?)(?:\/(publish|status))?)?$/.exec(path);
+        const kbRoute = /^\/platform\/support\/kb(?:\/([^/]+?)(?:\/(publish|status))?)?$/.exec(
+          path,
+        );
         if (kbRoute) {
           const [, kbId, action] = kbRoute;
           if (!kbId && req.method === 'GET') {
@@ -5713,26 +6134,48 @@ createServer(async (req, res) => {
             const category = q.get('category');
             const visibility = q.get('visibility');
             const text = (q.get('q') ?? '').toLowerCase();
-            if (status && !['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].includes(status)) return send(400, { message: 'status: недопустимо' });
+            if (status && !['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].includes(status))
+              return send(400, { message: 'status: недопустимо' });
             const items = supportKb
-              .filter((e) => (!status || e.status === status) && (!category || e.category === category) && (!visibility || e.visibility === visibility))
+              .filter(
+                (e) =>
+                  (!status || e.status === status) &&
+                  (!category || e.category === category) &&
+                  (!visibility || e.visibility === visibility),
+              )
               .filter((e) => !text || `${e.title} ${e.content}`.toLowerCase().includes(text))
               .map((e) => kbView(e, false));
-            const counts = Object.fromEntries(['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].map((st) => [st, supportKb.filter((e) => e.status === st).length]));
+            const counts = Object.fromEntries(
+              ['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].map((st) => [
+                st,
+                supportKb.filter((e) => e.status === st).length,
+              ]),
+            );
             return send(200, { items, counts });
           }
           if (!kbId && req.method === 'POST') {
             const title = String(body['title'] ?? '').trim();
             if (!title) return send(400, { message: 'title: нужен текст' });
-            if (!KB_CATEGORIES_UI.includes(String(body['category']))) return send(400, { message: 'category: недопустимо' });
-            if (!KB_VISIBILITIES_UI.includes(String(body['visibility']))) return send(400, { message: 'visibility: недопустимо' });
+            if (!KB_CATEGORIES_UI.includes(String(body['category'])))
+              return send(400, { message: 'category: недопустимо' });
+            if (!KB_VISIBILITIES_UI.includes(String(body['visibility'])))
+              return send(400, { message: 'visibility: недопустимо' });
             const content = String(body['content'] ?? '').trim();
             if (!content) return send(400, { message: 'content: нужен текст' });
             const now = new Date().toISOString();
             const created: KbFixture = {
               id: `11111111-aaaa-4aaa-8aaa-${String(supportKb.length + 1).padStart(12, '0')}`,
-              title, category: String(body['category']), visibility: String(body['visibility']), status: 'DRAFT', version: 1,
-              source: 'manual', content, approvedBy: null, approvedAt: null, createdAt: now, updatedAt: now,
+              title,
+              category: String(body['category']),
+              visibility: String(body['visibility']),
+              status: 'DRAFT',
+              version: 1,
+              source: 'manual',
+              content,
+              approvedBy: null,
+              approvedAt: null,
+              createdAt: now,
+              updatedAt: now,
               versions: [{ version: 1, title, content, savedAt: now }],
             };
             supportKb = [created, ...supportKb];
@@ -5749,18 +6192,28 @@ createServer(async (req, res) => {
             if (typeof body['visibility'] === 'string') entry.visibility = body['visibility'];
             entry.version += 1;
             entry.updatedAt = now;
-            if (entry.status === 'ACTIVE') Object.assign(entry, { status: 'DRAFT', approvedBy: null, approvedAt: null });
-            entry.versions = [{ version: entry.version, title: entry.title, content: entry.content, savedAt: now }, ...entry.versions];
+            if (entry.status === 'ACTIVE')
+              Object.assign(entry, { status: 'DRAFT', approvedBy: null, approvedAt: null });
+            entry.versions = [
+              { version: entry.version, title: entry.title, content: entry.content, savedAt: now },
+              ...entry.versions,
+            ];
             return send(200, kbView(entry, true));
           }
           if (entry && action === 'publish' && req.method === 'POST') {
-            if (entry.status !== 'DRAFT') return send(400, { message: 'Опубликовать можно только черновик' });
-            Object.assign(entry, { status: 'ACTIVE', approvedBy: KB_ADMIN_ID, approvedAt: new Date().toISOString() });
+            if (entry.status !== 'DRAFT')
+              return send(400, { message: 'Опубликовать можно только черновик' });
+            Object.assign(entry, {
+              status: 'ACTIVE',
+              approvedBy: KB_ADMIN_ID,
+              approvedAt: new Date().toISOString(),
+            });
             return send(200, kbView(entry, true));
           }
           if (entry && action === 'status' && req.method === 'POST') {
             const next = String(body['status'] ?? '');
-            if (!['DRAFT', 'OUTDATED', 'ARCHIVED'].includes(next)) return send(400, { message: 'status: ACTIVE ставит только публикация' });
+            if (!['DRAFT', 'OUTDATED', 'ARCHIVED'].includes(next))
+              return send(400, { message: 'status: ACTIVE ставит только публикация' });
             entry.status = next;
             if (next === 'DRAFT') Object.assign(entry, { approvedBy: null, approvedAt: null });
             return send(200, kbView(entry, true));
@@ -5776,13 +6229,30 @@ createServer(async (req, res) => {
             items:
               d.id === SUPPORT_DIALOG_A
                 ? [
-                    { id: 'a1', action: 'channel_pull', actionClass: 'SAFE', status: 'DONE', result: 'ревизий получено 3, обработано 3, со сбоем 0', createdAt: at, executedAt: at },
-                    { id: 'a2', action: 'refund', actionClass: 'HUMAN_ONLY', status: 'ESCALATED', result: 'гость просит возврат за две ночи', createdAt: at, executedAt: null },
+                    {
+                      id: 'a1',
+                      action: 'channel_pull',
+                      actionClass: 'SAFE',
+                      status: 'DONE',
+                      result: 'ревизий получено 3, обработано 3, со сбоем 0',
+                      createdAt: at,
+                      executedAt: at,
+                    },
+                    {
+                      id: 'a2',
+                      action: 'refund',
+                      actionClass: 'HUMAN_ONLY',
+                      status: 'ESCALATED',
+                      result: 'гость просит возврат за две ночи',
+                      createdAt: at,
+                      executedAt: null,
+                    },
                   ]
                 : [],
           });
         }
-        const kbConv = /^\/platform\/support\/conversations\/([^/]+)\/(knowledge|knowledge-draft)$/.exec(path);
+        const kbConv =
+          /^\/platform\/support\/conversations\/([^/]+)\/(knowledge|knowledge-draft)$/.exec(path);
         if (kbConv) {
           const d = supportDialogs.find((x) => x.id === kbConv[1]);
           if (!d) return send(404, { message: 'диалог не найден' });
@@ -5790,7 +6260,16 @@ createServer(async (req, res) => {
             return send(200, {
               items:
                 d.id === SUPPORT_DIALOG_A
-                  ? [{ knowledgeId: KB_ENTRY_A, title: 'Как изменить время заезда', version: 2, visibility: 'PUBLIC_SUPPORT', score: 0.91, usedAt: new Date().toISOString() }]
+                  ? [
+                      {
+                        knowledgeId: KB_ENTRY_A,
+                        title: 'Как изменить время заезда',
+                        version: 2,
+                        visibility: 'PUBLIC_SUPPORT',
+                        score: 0.91,
+                        usedAt: new Date().toISOString(),
+                      },
+                    ]
                   : [],
             });
           if (kbConv[2] === 'knowledge-draft' && req.method === 'POST') {
@@ -5798,17 +6277,34 @@ createServer(async (req, res) => {
             const now = new Date().toISOString();
             const created: KbFixture = {
               id: `11111111-aaaa-4aaa-8aaa-${String(supportKb.length + 1).padStart(12, '0')}`,
-              title: 'Знание из обращения от 29.09.2026', category: 'TROUBLESHOOTING', visibility: 'INTERNAL_SUPPORT', status: 'DRAFT', version: 1,
-              source: `conversation:${d.id}`, content: 'Симптом:\n\nПричина:\n\nЧто делать:\n', approvedBy: null, approvedAt: null,
-              createdAt: now, updatedAt: now,
-              versions: [{ version: 1, title: 'Знание из обращения от 29.09.2026', content: 'Симптом:', savedAt: now }],
+              title: 'Знание из обращения от 29.09.2026',
+              category: 'TROUBLESHOOTING',
+              visibility: 'INTERNAL_SUPPORT',
+              status: 'DRAFT',
+              version: 1,
+              source: `conversation:${d.id}`,
+              content: 'Симптом:\n\nПричина:\n\nЧто делать:\n',
+              approvedBy: null,
+              approvedAt: null,
+              createdAt: now,
+              updatedAt: now,
+              versions: [
+                {
+                  version: 1,
+                  title: 'Знание из обращения от 29.09.2026',
+                  content: 'Симптом:',
+                  savedAt: now,
+                },
+              ],
             };
             supportKb = [created, ...supportKb];
             return send(200, kbView(created, false));
           }
         }
         const dialog =
-          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply|close))?$/.exec(path);
+          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply|close))?$/.exec(
+            path,
+          );
         if (path === '/platform/support/conversations' && req.method === 'GET') {
           const mode = url.searchParams.get('mode');
           return send(200, {
@@ -5828,8 +6324,17 @@ createServer(async (req, res) => {
         }
         if (path === '/platform/support/queue' && req.method === 'GET') {
           const queue = url.searchParams.get('queue') || 'open';
-          const QUEUES = ['open', 'new', 'waiting', 'needs_human', 'owner_takeover', 'bot_active', 'closed'];
-          if (!QUEUES.includes(queue)) return send(400, { message: `Очередь: ${QUEUES.join(', ')}` });
+          const QUEUES = [
+            'open',
+            'new',
+            'waiting',
+            'needs_human',
+            'owner_takeover',
+            'bot_active',
+            'closed',
+          ];
+          if (!QUEUES.includes(queue))
+            return send(400, { message: `Очередь: ${QUEUES.join(', ')}` });
           const category = (url.searchParams.get('category') || 'all') as SupportCategoryFilter;
           if (!(SUPPORT_CATEGORY_FILTERS as readonly string[]).includes(category))
             return send(400, { message: `Категория: ${SUPPORT_CATEGORY_FILTERS.join(', ')}` });
@@ -6101,23 +6606,29 @@ createServer(async (req, res) => {
                       locations: agentLocations().map((l) => ({
                         ...l,
                         free: !agentLocationTaken(l.id),
-                        reason: agentLocationTaken(l.id) ? 'Для этого филиала AI-продавец уже создан.' : null,
+                        reason: agentLocationTaken(l.id)
+                          ? 'Для этого филиала AI-продавец уже создан.'
+                          : null,
                       })),
                     },
                   ],
           });
         }
         if (path === '/ai-seller/agents' && req.method === 'POST') {
-          if (!sellerOwner) return send(403, { message: 'Создавать агентов могут владелец и управляющий.' });
+          if (!sellerOwner)
+            return send(403, { message: 'Создавать агентов могут владелец и управляющий.' });
           const key = String(req.headers['idempotency-key'] ?? '');
-          if (!/^[0-9a-f-]{36}$/i.test(key)) return send(400, { message: 'Обновите форму и повторите.' });
+          if (!/^[0-9a-f-]{36}$/i.test(key))
+            return send(400, { message: 'Обновите форму и повторите.' });
           if (extension.access === 'off')
             return send(403, { message: 'Расширение «ИИ-продавец» не подключено.' });
           if (extension.access === 'expired')
             return send(403, { message: 'Срок расширения «ИИ-продавец» вышел.' });
           const org = uiUser.organization;
           if (org.status === 'TRIAL' && org.trialEndsAt && Date.parse(org.trialEndsAt) < Date.now())
-            return send(403, { message: 'Организация в режиме «только чтение»: менять данные можно после оплаты.' });
+            return send(403, {
+              message: 'Организация в режиме «только чтение»: менять данные можно после оплаты.',
+            });
           const name = String(body['name'] ?? '').trim();
           if (name === '') return send(400, { message: 'Введите название агента.' });
           const location = agentLocations().find((l) => l.id === body['locationId']);
@@ -6136,12 +6647,21 @@ createServer(async (req, res) => {
         const instruction = path.match(/^\/ai-seller\/agents\/([^/]+)\/instruction(\/generate)?$/);
         if (instruction) {
           const id = instruction[1]!;
-          if (!sellerAgents.some(a => a.id === id)) return send(404, {message: 'Агент не найден'});
-          if (!sellerOwner) return send(403, {message: 'Недостаточно прав'});
-          if (req.method === 'POST' && instruction[2]) return send(200, {text: 'Ты Ася. Отвечай коротко и по делу. Проверяй стоимость через платформу.', warnings: ['Проверьте условия объекта.']});
+          if (!sellerAgents.some((a) => a.id === id))
+            return send(404, { message: 'Агент не найден' });
+          if (!sellerOwner) return send(403, { message: 'Недостаточно прав' });
+          if (req.method === 'POST' && instruction[2])
+            return send(200, {
+              text: 'Ты Ася. Отвечай коротко и по делу. Проверяй стоимость через платформу.',
+              warnings: ['Проверьте условия объекта.'],
+            });
           if (req.method === 'PUT') agentInstructions.set(id, String(body['text'] ?? ''));
           const text = agentInstructions.get(id) ?? '';
-          return send(200, {text, saved: !!text, updatedAt: text ? new Date().toISOString() : null});
+          return send(200, {
+            text,
+            saved: !!text,
+            updatedAt: text ? new Date().toISOString() : null,
+          });
         }
         const one = path.match(/^\/ai-seller\/agents\/([^/]+)$/);
         if (one) {
@@ -6547,15 +7067,27 @@ createServer(async (req, res) => {
       if (derivedRules.has(parent.code))
         return send(400, { message: 'Родитель не может сам быть производным тарифом' });
       const code = `rate-d${derivedRules.size + 1}`;
-      extraPlans.push({ code, name, currency: parent.currency, active: true, cancellationPenalty: parent.cancellationPenalty });
+      extraPlans.push({
+        code,
+        name,
+        currency: parent.currency,
+        active: true,
+        cancellationPenalty: parent.cancellationPenalty,
+      });
       derivedRules.set(code, { parentCode: parent.code, ...rule });
-      return send(201, ratePlanRows().find((p) => p.code === code));
+      return send(
+        201,
+        ratePlanRows().find((p) => p.code === code),
+      );
     }
     if (path.startsWith('/rates/plans/') && path.endsWith('/derived') && req.method === 'PATCH') {
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       const code = decodeURIComponent(path.split('/')[3]!);
       const rule = derivedRules.get(code);
-      if (!rule) return send(400, { message: 'Это не производный тариф: правило скидки у него не задаётся' });
+      if (!rule)
+        return send(400, {
+          message: 'Это не производный тариф: правило скидки у него не задаётся',
+        });
       const num = (k: string, was: number | null): number | null =>
         !(k in body) ? was : body[k] === null || body[k] === '' ? null : Number(body[k]);
       const next = {
@@ -6568,22 +7100,36 @@ createServer(async (req, res) => {
       if (problem) return send(400, { message: problem });
       derivedRules.set(code, { ...rule, ...next });
       const plan = extraPlans.find((p) => p.code === code);
-      if (plan && typeof body['name'] === 'string' && body['name'].trim()) plan.name = body['name'].trim();
+      if (plan && typeof body['name'] === 'string' && body['name'].trim())
+        plan.name = body['name'].trim();
       if (plan && typeof body['active'] === 'boolean') plan.active = body['active'];
-      return send(200, ratePlanRows().find((p) => p.code === code));
+      return send(
+        200,
+        ratePlanRows().find((p) => p.code === code),
+      );
     }
     if (path === '/rates/promo-codes' && req.method === 'POST') {
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       const code = typeof body['code'] === 'string' ? normalizePromoCode(body['code']) : null;
-      if (!code) return send(400, { message: 'Код: от 3 до 32 знаков — латинские буквы, цифры, «-» и «_»' });
+      if (!code)
+        return send(400, { message: 'Код: от 3 до 32 знаков — латинские буквы, цифры, «-» и «_»' });
       const percent = body['discountPercent'];
-      if (typeof percent !== 'number' || !Number.isInteger(percent) || percent < 1 || percent > MAX_DISCOUNT_PERCENT)
-        return send(400, { message: `Скидка — целое число от 1 до ${MAX_DISCOUNT_PERCENT} процентов` });
-      if (promoCodes.some((p) => p.code === code)) return send(409, { message: `Промокод ${code} уже есть` });
+      if (
+        typeof percent !== 'number' ||
+        !Number.isInteger(percent) ||
+        percent < 1 ||
+        percent > MAX_DISCOUNT_PERCENT
+      )
+        return send(400, {
+          message: `Скидка — целое число от 1 до ${MAX_DISCOUNT_PERCENT} процентов`,
+        });
+      if (promoCodes.some((p) => p.code === code))
+        return send(409, { message: `Промокод ${code} уже есть` });
       const row = {
         code,
         discountPercent: percent,
-        stayFrom: typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null,
+        stayFrom:
+          typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null,
         stayTo: typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null,
         maxUses: typeof body['maxUses'] === 'number' ? body['maxUses'] : null,
         active: true,
@@ -6602,13 +7148,21 @@ createServer(async (req, res) => {
     if (path.startsWith('/rates/promo-codes/') && req.method === 'PATCH') {
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       if ('discountPercent' in body)
-        return send(400, { message: 'Процент скидки после создания не меняется: заведите новый промокод' });
-      const row = promoCodes.find((p) => p.code === decodeURIComponent(path.split('/')[3]!).toUpperCase());
+        return send(400, {
+          message: 'Процент скидки после создания не меняется: заведите новый промокод',
+        });
+      const row = promoCodes.find(
+        (p) => p.code === decodeURIComponent(path.split('/')[3]!).toUpperCase(),
+      );
       if (!row) return send(404, { message: 'Промокод не найден' });
       if (typeof body['active'] === 'boolean') row.active = body['active'];
-      if ('maxUses' in body) row.maxUses = typeof body['maxUses'] === 'number' ? body['maxUses'] : null;
-      if ('stayFrom' in body) row.stayFrom = typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null;
-      if ('stayTo' in body) row.stayTo = typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null;
+      if ('maxUses' in body)
+        row.maxUses = typeof body['maxUses'] === 'number' ? body['maxUses'] : null;
+      if ('stayFrom' in body)
+        row.stayFrom =
+          typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null;
+      if ('stayTo' in body)
+        row.stayTo = typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null;
       return send(200, row);
     }
     if (path.startsWith('/rates/plans/') && req.method === 'PATCH') {
@@ -6625,7 +7179,10 @@ createServer(async (req, res) => {
       if (!ratePlanList().some((p) => p.code === code))
         return send(404, { message: 'Тариф не найден' });
       planPenalty.set(code, next);
-      return send(200, ratePlanRows().find((p) => p.code === code));
+      return send(
+        200,
+        ratePlanRows().find((p) => p.code === code),
+      );
     }
     if (path.startsWith('/hotel/services/') && req.method === 'PATCH') {
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
@@ -6696,12 +7253,16 @@ createServer(async (req, res) => {
       let businessName: string;
       try {
         businessName = registrationBusiness({
-          ...(typeof body['businessName'] === 'string' ? { businessName: body['businessName'] } : {}),
+          ...(typeof body['businessName'] === 'string'
+            ? { businessName: body['businessName'] }
+            : {}),
           ...(typeof body['hotelName'] === 'string' ? { hotelName: body['hotelName'] } : {}),
           ...(body['vertical'] !== undefined ? { vertical: body['vertical'] } : {}),
         }).name.trim();
       } catch (error) {
-        return send(400, { message: error instanceof Error ? error.message : 'Проверьте направление бизнеса' });
+        return send(400, {
+          message: error instanceof Error ? error.message : 'Проверьте направление бизнеса',
+        });
       }
       const password = String(body['password'] ?? '');
       if (!email.includes('@'))
@@ -6714,7 +7275,8 @@ createServer(async (req, res) => {
       // телефон и согласие — те же правила домена, что у настоящего API (форма 29.09.2026)
       if (!registrationPhone(String(body['phoneCountry'] ?? ''), String(body['phone'] ?? '')))
         return send(400, { message: REGISTRATION_PHONE_MESSAGE });
-      if (body['privacyAccepted'] !== true) return send(400, { message: REGISTRATION_PRIVACY_MESSAGE });
+      if (body['privacyAccepted'] !== true)
+        return send(400, { message: REGISTRATION_PRIVACY_MESSAGE });
       if (email.toLowerCase() === uiUser.email)
         return send(400, {
           message:
@@ -6780,7 +7342,8 @@ createServer(async (req, res) => {
     if (path === '/inventory/categories' && req.method === 'POST') {
       // как на настоящем API: с ценой тариф не выбирают (основной тариф объекта); без цены — прежний выбор ADR-119
       const price = fixturePrice(body.price);
-      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      if (price === null)
+        return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
       const rate = price ? { name: plans[0]!.name } : fixturePlanChoice(body);
       if (rate === undefined && body.ratePlanLater !== true)
         return send(400, { message: 'Выберите тариф или «Настроить позже»' });
@@ -6798,7 +7361,11 @@ createServer(async (req, res) => {
       });
       return send(201, { code });
     }
-    if (path.startsWith('/inventory/categories/') && path.endsWith('/rate-plan') && req.method === 'POST') {
+    if (
+      path.startsWith('/inventory/categories/') &&
+      path.endsWith('/rate-plan') &&
+      req.method === 'POST'
+    ) {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-2)!));
       if (!c) return send(404, { message: 'Категория не найдена' });
       const rate = fixturePlanChoice(body);
@@ -6813,7 +7380,8 @@ createServer(async (req, res) => {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
       if (!c) return send(404, { message: 'Категория не найдена' });
       const price = fixturePrice(body.price);
-      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      if (price === null)
+        return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
       if (body.name === undefined && price === undefined)
         return send(400, { message: 'Укажите название или цену' });
       if (price !== undefined && c.active === false)
@@ -6832,7 +7400,10 @@ createServer(async (req, res) => {
         return send(409, {
           message: `У категории ${usage.upcomingReservations} броней впереди. Дождитесь выезда или переселите гостей, затем удалите категорию.`,
         });
-      const used = units.some((u) => u.accommodationTypeCode === c.code) || usage.reservations > 0 || usage.channexMapped;
+      const used =
+        units.some((u) => u.accommodationTypeCode === c.code) ||
+        usage.reservations > 0 ||
+        usage.channexMapped;
       if (used) c.active = false;
       else categories.splice(i, 1);
       return send(200, { code: c.code, result: used ? 'archived' : 'deleted' });
@@ -6887,7 +7458,8 @@ createServer(async (req, res) => {
         // как настоящий API (units.service.ts): пустой или перевёрнутый период — 400
         if (!iso.test(from) || !iso.test(to) || to <= from)
           return send(400, {
-            message: 'dateFrom/dateTo — даты YYYY-MM-DD, dateTo > dateFrom (ночь выезда не блокируется)',
+            message:
+              'dateFrom/dateTo — даты YYYY-MM-DD, dateTo > dateFrom (ночь выезда не блокируется)',
           });
         blocks.set(code!, [
           ...blocksFor(code!),
@@ -6996,7 +7568,9 @@ createServer(async (req, res) => {
       const transfer = path.endsWith('/transfers');
       const kind = transfer ? 'TRANSFER' : String(body['kind'] ?? '');
       if (!transfer && kind !== 'INCOME' && kind !== 'EXPENSE')
-        return send(400, { message: 'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers' });
+        return send(400, {
+          message: 'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers',
+        });
       const method = String((transfer ? body['from'] : body['method']) ?? '');
       const methodTo = transfer ? String(body['to'] ?? '') : null;
       let amountMinor: bigint;
@@ -7005,25 +7579,32 @@ createServer(async (req, res) => {
       } catch {
         return send(400, { message: 'amount — сумма, например 12000 или 456.50' });
       }
-      if (amountMinor <= 0n) return send(400, { message: 'Сумма операции должна быть больше нуля' });
+      if (amountMinor <= 0n)
+        return send(400, { message: 'Сумма операции должна быть больше нуля' });
       if (transfer && methodTo === method)
         return send(400, { message: 'Перевод в тот же способ не имеет смысла' });
       const category = cashCategories.find((c) => c.id === body['categoryId']);
-      if (body['categoryId'] !== undefined && (!category || !category.active || category.kind !== kind))
+      if (
+        body['categoryId'] !== undefined &&
+        (!category || !category.active || category.kind !== kind)
+      )
         return send(400, { message: 'categoryId — действующая статья кассы своего вида' });
       const commissionBody = body['commission'] as
-        | { amount?: string; percent?: string }
-        | undefined;
+        { amount?: string; percent?: string } | undefined;
       let commission: bigint | null = null;
       if (commissionBody) {
         commission =
           commissionBody.amount !== undefined
             ? parseMoney(String(commissionBody.amount))
             : (amountMinor * BigInt(Math.round(Number(commissionBody.percent) * 100))) / 10_000n;
-        if (!(commission > 0n)) return send(400, { message: 'Комиссия должна быть больше нуля — или уберите её' });
+        if (!(commission > 0n))
+          return send(400, { message: 'Комиссия должна быть больше нуля — или уберите её' });
         const fee = cashCategories.find((c) => c.name === 'Комиссия банка' && c.active);
         if (!fee)
-          return send(400, { message: 'Статьи «Комиссия банка» нет — укажите статью комиссии (commission.categoryId)' });
+          return send(400, {
+            message:
+              'Статьи «Комиссия банка» нет — укажите статью комиссии (commission.categoryId)',
+          });
       }
       const id = `ui-cashop-${cashOps.length + 1}`;
       const at = new Date().toISOString();
@@ -7110,7 +7691,9 @@ createServer(async (req, res) => {
         if (!op) return send(404, { message: 'Операция не найдена' });
         if (op.status !== 'COMPLETED') return send(409, { message: 'Операция уже аннулирована' });
         if (op.relatedId !== null)
-          return send(409, { message: 'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней' });
+          return send(409, {
+            message: 'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней',
+          });
         for (const x of cashOps) if (x.id === op.id || x.relatedId === op.id) x.status = 'VOIDED';
         return send(200, { ok: true });
       }
@@ -7208,20 +7791,182 @@ createServer(async (req, res) => {
       receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
       return send(200, { paymentId, number: receiptNumber });
     }
-    const refundMatch = path.match(/^\/finance\/payments\/([^/]+)\/refunds$/);
-    if (refundMatch) {
-      const reservation = allCards().find((card) => finance(card).folios.some((f) => f.id === body['folioId']));
-      const folio = reservation ? finance(reservation).folios.find((f) => f.id === body['folioId']) : null;
-      const payment = folio?.payments.find((p) => p.paymentId === decodeURIComponent(refundMatch[1]!));
-      if (!reservation || !folio || !payment) return send(404, { message: 'Платёж на этом счёте не найден' });
-      try {
-        const amountMinor = parseMoney(String(body['amount']));
-        assertRefundWithin({ allocatedMinor: BigInt(payment.allocatedMinor), refundedMinor: BigInt(payment.refundedMinor), refundMinor: amountMinor });
-        refundLines.push({ id: `ui-refund-${commands.length}`, folioId: folio.id, paymentId: payment.paymentId, amountMinor: amountMinor.toString(), reason: typeof body['reason'] === 'string' ? body['reason'] : null, createdAt: `${today}T12:00:00Z` });
+    // ── счёт брони: аннулирование и замена платежа, возврат, ручные начисления, цена проживания ──
+    const paymentVerb = /^\/finance\/payments\/([^/]+)\/(void|replace|refunds)$/.exec(path);
+    if (paymentVerb) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const paymentId = decodeURIComponent(paymentVerb[1]!);
+      const verb = paymentVerb[2]!;
+      // платёж ищем по всем счетам всех карточек: предоплата витрины и платежи тестов живут в разных местах
+      let line: { folioId: string; amountMinor: string; method: string } | null = null;
+      let number = '';
+      for (const r of allCards())
+        for (const f of finance(r).folios)
+          for (const p of f.payments)
+            if (
+              p.paymentId === paymentId &&
+              (verb !== 'refunds' || !line || f.id === String(body['folioId'] ?? ''))
+            ) {
+              line = { folioId: f.id, amountMinor: p.allocatedMinor, method: p.method };
+              number = r.confirmationNumber;
+            }
+      if (!line) return send(404, { message: `Платёж ${paymentId} не найден` });
+      const refundedMinor = refundLines
+        .filter((x) => x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+      const reservation = getCard(number)!;
+      if (verb === 'refunds') {
+        if (voidedPayments.has(paymentId)) return send(409, { message: 'Платёж аннулирован' });
+        if (String(body['folioId'] ?? '') !== line.folioId)
+          return send(400, { message: 'Этот платёж на указанный счёт не распределялся' });
+        try {
+          const refundMinor = parseMoney(String(body['amount'] ?? ''));
+          assertRefundWithin({
+            allocatedMinor: BigInt(line.amountMinor),
+            refundedMinor: refundLines
+              .filter((x) => x.paymentId === paymentId && x.folioId === line!.folioId)
+              .reduce((sum, x) => sum + BigInt(x.amountMinor), 0n),
+            refundMinor,
+          });
+          refundLines.push({
+            id: `ui-refund-${commands.length}`,
+            folioId: line.folioId,
+            paymentId,
+            amountMinor: refundMinor.toString(),
+            reason: typeof body['reason'] === 'string' && body['reason'] ? body['reason'] : null,
+            createdAt: `${today}T12:00:00Z`,
+          });
+        } catch (e) {
+          return send(400, { message: (e as Error).message });
+        }
         return send(201, finance(reservation));
-      } catch {
-        return send(422, { message: 'Сумма возврата должна быть положительной и не превышать остаток платежа' });
       }
+      try {
+        assertPaymentReversible({
+          status: voidedPayments.has(paymentId) ? 'VOIDED' : 'COMPLETED',
+          refundedMinor,
+          receiptNumber: receipts.get(paymentId)?.number ?? null,
+        });
+      } catch (e) {
+        return send(409, { message: (e as Error).message });
+      }
+      voidedPayments.add(paymentId);
+      // запрос оплаты, закрытый этим платежом: при аннулировании снова ждёт оплаты, при замене переходит на новый
+      const request = paymentRequests.find((x) => x.paymentId === paymentId) ?? null;
+      if (verb === 'void') {
+        if (request) {
+          request.status = 'PENDING';
+          request.paymentId = null;
+          request.closedAt = null;
+        }
+        return send(200, finance(reservation));
+      }
+      const methodCode = String(body['method'] ?? '');
+      if (
+        ![
+          'CASH',
+          'CARD_TERMINAL',
+          'KASPI',
+          'HALYK',
+          'BANK_TRANSFER_PERSON',
+          'BANK_TRANSFER_LEGAL',
+          'DEPOSIT',
+          'CARD_GUARANTEE',
+        ].includes(methodCode)
+      ) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: 'method — один из способов оплаты' });
+      }
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? ''));
+        if (amountMinor <= 0n) throw new FinanceRuleError('amount — сумма больше нуля');
+      } catch (e) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: (e as Error).message });
+      }
+      const fresh = `ui-payment-${commands.length}`;
+      paymentLines.push({
+        folioId: line.folioId,
+        amountMinor: amountMinor.toString(),
+        method: methodCode,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+        id: fresh,
+      });
+      if (request) request.paymentId = fresh;
+      return send(200, finance(reservation));
+    }
+    const chargeFolio = /^\/finance\/folios\/([^/]+)\/charges$/.exec(path);
+    if (chargeFolio) {
+      const folioId = decodeURIComponent(chargeFolio[1]!);
+      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === folioId));
+      if (!reservation) return send(404, { message: `Счёт ${folioId} не найден` });
+      const kind = String(body['kind'] ?? '');
+      if (!['SERVICE', 'PENALTY', 'ADJUSTMENT'].includes(kind))
+        return send(400, {
+          message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)',
+        });
+      const quantity = body['quantity'] === undefined ? 1 : Number(body['quantity']);
+      if (!Number.isInteger(quantity) || quantity < 1)
+        return send(400, { message: 'quantity — целое число от 1' });
+      let description = typeof body['description'] === 'string' ? body['description'].trim() : '';
+      let serviceCode: string | null = null;
+      let unitPriceMinor: bigint;
+      try {
+        if (kind === 'SERVICE') {
+          const svc = serviceCatalog.find((x) => x.code === body['serviceCode'] && x.active);
+          if (!svc)
+            return send(400, {
+              message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике`,
+            });
+          serviceCode = svc.code;
+          if (!description) description = svc.name;
+          unitPriceMinor =
+            body['unitPrice'] === undefined
+              ? BigInt(svc.priceMinor)
+              : parseMoney(String(body['unitPrice']));
+        } else {
+          if (!description) return send(400, { message: 'description — за что начисление' });
+          unitPriceMinor = parseMoney(String(body['unitPrice'] ?? ''));
+        }
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      if (kind === 'ADJUSTMENT' ? unitPriceMinor === 0n : unitPriceMinor <= 0n)
+        return send(400, {
+          message:
+            kind === 'ADJUSTMENT'
+              ? 'Корректировка не может быть нулевой'
+              : 'Цена должна быть больше нуля',
+        });
+      if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !can(uiRole, 'refunds'))
+        return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+      extraCharges.push({
+        id: `ui-charge-${commands.length}`,
+        folioId,
+        kind: kind as 'SERVICE' | 'PENALTY' | 'ADJUSTMENT',
+        serviceCode,
+        description,
+        quantity,
+        unitPriceMinor: unitPriceMinor.toString(),
+        amountMinor: (unitPriceMinor * BigInt(quantity)).toString(),
+        serviceDate: typeof body['serviceDate'] === 'string' ? body['serviceDate'] : today,
+        createdAt: `${today}T12:00:00Z`,
+        voidedAt: null,
+      });
+      return send(201, finance(reservation));
+    }
+    const chargeVoid = /^\/finance\/charges\/([^/]+)\/void$/.exec(path);
+    if (chargeVoid) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const charge = extraCharges.find((c) => c.id === decodeURIComponent(chargeVoid[1]!));
+      if (!charge) return send(404, { message: 'Начисление не найдено' });
+      if (charge.voidedAt) return send(409, { message: 'Начисление уже сторнировано' });
+      charge.voidedAt = `${today}T12:30:00Z`;
+      const reservation = allCards().find((r) =>
+        finance(r).folios.some((f) => f.id === charge.folioId),
+      )!;
+      return send(200, finance(reservation));
     }
     if (path === '/finance/payments') {
       try {
@@ -7278,7 +8023,8 @@ createServer(async (req, res) => {
       const existingId = typeof body['guestId'] === 'string' ? body['guestId'] : null;
       if (existingId && body['guest'] !== undefined)
         return send(400, {
-          message: 'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
+          message:
+            'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
         });
       const existing = existingId
         ? existingId === guest.id
@@ -7366,10 +8112,17 @@ createServer(async (req, res) => {
       const v = parsed.value;
       const task: FixtureTask = {
         id: `00000000-0000-4000-8000-${String(taskStore.size + 1).padStart(12, '0')}`,
-        title: v.title!, note: v.note ?? null, dueDate: v.dueDate!, dueTime: v.dueTime ?? null,
-        priority: v.priority ?? 'NORMAL', assigneeUserId: v.assigneeUserId ?? null,
-        assigneeName: v.assigneeUserId ? uiUser.name : null, reservationNumber: v.reservationNumber ?? null,
-        guestId: v.guestId ?? null, doneAt: null, createdAt: new Date().toISOString(),
+        title: v.title!,
+        note: v.note ?? null,
+        dueDate: v.dueDate!,
+        dueTime: v.dueTime ?? null,
+        priority: v.priority ?? 'NORMAL',
+        assigneeUserId: v.assigneeUserId ?? null,
+        assigneeName: v.assigneeUserId ? uiUser.name : null,
+        reservationNumber: v.reservationNumber ?? null,
+        guestId: v.guestId ?? null,
+        doneAt: null,
+        createdAt: new Date().toISOString(),
       };
       taskStore.set(task.id, task);
       return send(201, task);
@@ -7380,7 +8133,11 @@ createServer(async (req, res) => {
       const parsed = parseTaskInput(body, 'update');
       if (!parsed.ok) return send(400, { message: parsed.reason });
       const { done, ...rest } = parsed.value;
-      Object.assign(task, rest, done === undefined ? {} : { doneAt: done ? new Date().toISOString() : null });
+      Object.assign(
+        task,
+        rest,
+        done === undefined ? {} : { doneAt: done ? new Date().toISOString() : null },
+      );
       return send(200, task);
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
@@ -7475,6 +8232,28 @@ createServer(async (req, res) => {
         return send(200, r);
       }
       if (item && req.method === 'PATCH') {
+        // цена проживания (план finance-payments-direct 07.10.2026, У6): как в API — строка денег больше нуля,
+        // вниз только с правом `refunds`, отменённое и незаезд не меняются
+        if (body['price'] !== undefined) {
+          let priceMinor: bigint;
+          try {
+            priceMinor = parseMoney(String(body['price']));
+          } catch (e) {
+            return send(400, { message: (e as Error).message });
+          }
+          if (priceMinor <= 0n)
+            return send(400, { message: 'price — цена проживания больше нуля' });
+          if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
+            return send(422, { message: `Проживание в статусе ${item.status}: цену не изменить` });
+          if (priceMinor < BigInt(item.priceMinor) && !can(uiRole, 'refunds'))
+            return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+          item.priceMinor = priceMinor.toString();
+          retotal(r);
+          const rest: Record<string, unknown> = { ...body };
+          delete rest['price'];
+          Object.assign(item, rest);
+          return send(200, r);
+        }
         Object.assign(item, body);
         return send(200, r);
       }

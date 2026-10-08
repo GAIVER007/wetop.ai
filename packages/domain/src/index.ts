@@ -24,3 +24,4 @@ export * from './market/index';
 export * from './verticals/registry';
 
 export * from "./food/food";
+export * from './marketing/index';

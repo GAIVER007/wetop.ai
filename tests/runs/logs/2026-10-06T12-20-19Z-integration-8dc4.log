@@ -1,0 +1,25 @@
+# Интеграционные (integration) · 06.10.2026 17:20 Алматы · vm
+# коммит 0ab33b3 (claude/blissful-newton-6pa4ky)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-20-19Z-integration-8dc4.json' 'tests/integration/scope-hardening.test.ts' 'tests/integration/mv1-vertical-boundary.test.ts' 'tests/integration/mv8-branches-contract.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:13642) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 852ms
+   ✓ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     ✓ two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 387ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 424ms
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 632ms
+   ✓ MV8 requires real branches contract to expose selected Food Location and current timezone 421ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 458ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  12:20:20
+   Duration  6.13s (tests 42%, transform 31%, import 27%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-20-19Z-integration-8dc4.json
+
+# код выхода 0 · 7 с

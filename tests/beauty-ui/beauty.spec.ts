@@ -389,7 +389,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('Beauty onboarding completion opens calendar and resumes there', async ({ page, request }) => {
+test('Beauty onboarding completion opens Today and resumes there', async ({ page, request }) => {
   await reset(page, request);
   await page.goto('/register/setup');
   const main = page.getByRole('main');
@@ -398,8 +398,12 @@ test('Beauty onboarding completion opens calendar and resumes there', async ({ p
   await main.getByLabel('Название филиала').fill('Тестовый филиал');
   await main.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await main.getByRole('button', { name: 'Завершить настройку' }).click();
-  await expect(page).toHaveURL(/\/calendar$/);
+  // MV8: рабочий экран дня один на все направления
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await expect(page.getByTestId('today-masters')).toHaveText('0');
+  await page.goto('/calendar');
   await expect(main.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
   await page.goto('/register/setup');
-  await expect(page).toHaveURL(/\/calendar$/);
+  await expect(page).toHaveURL(/\/today$/);
 });

@@ -10,7 +10,7 @@ import {
   InstallCounterButton,
   SiteDangerZone,
 } from '../forms';
-import { WebsiteTabs } from '../parts';
+import { MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
 
 /**
@@ -25,7 +25,10 @@ export default async function WebsiteSettingsPage() {
   const localOnly = !scriptUrl || /127\.0\.0\.1|localhost/.test(scriptUrl);
   const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
   return (
-    <Page title={WEBSITE_TITLE} subtitle="Домены сайта, счётчик посещений и установка кода.">
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle="Домены сайта, счётчик посещений и установка кода.">
       <WebsiteTabs current="settings" />
       <div className="settings-site">
         <Stack>

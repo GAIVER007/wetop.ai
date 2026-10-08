@@ -10,6 +10,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'finance',
     'bar',
     'sales',
+    'marketing',
     'reports',
     'inventory',
     'settings',
@@ -18,6 +19,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   // «Отчёты» — группа: хаб REP1 и «Аналитика» вместе (поручение владельца 03.10)
   expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
     'sales',
+    'marketing',
     'reports',
     'settings',
     'platform',
@@ -26,7 +28,9 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     '/market',
     '/channels',
     '/ai-agents',
-    '/website',
+  ]);
+  expect(menuSections.find((s) => s.id === 'marketing')?.items.map((i) => i.href)).toEqual([
+    '/marketing',
   ]);
   expect(
     menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),

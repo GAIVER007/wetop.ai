@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 06.10.2026 23:13 Алматы · vm
+# коммит 3d7a1b2 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-13-31Z-integration-af5b.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 1986  - 10/06/2026, 6:13:37 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 1986  - 10/06/2026, 6:13:37 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ✓ |integration| tests/integration/marketing-site.test.ts (37 tests) 1306ms
+
+ Test Files  1 passed (1)
+      Tests  37 passed (37)
+   Start at  18:13:32
+   Duration  5.17s (transform 42%, tests 39%, import 19%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-13-31Z-integration-af5b.json
+
+# код выхода 0 · 6 с

@@ -1,0 +1,834 @@
+# Сквозные (e2e) · 06.10.2026 20:55 Алматы · vm
+# коммит e454eea (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+  ✓   1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (4.0s)
+  ✓   2 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (2.3s)
+  ✓   3 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (2.0s)
+  ✓   4 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (4.2s)
+  ✓   5 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (7.1s)
+  ✓   6 tests/branches-ui/branches.spec.ts:136:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (6.1s)
+  ✘   7 tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (190ms)
+  ✘   8 tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (286ms)
+  ✘   9 tests/branches-ui/today.spec.ts:186:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (567ms)
+  ✘  10 tests/branches-ui/today.spec.ts:203:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (240ms)
+  ✘  11 tests/branches-ui/today.spec.ts:242:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (253ms)
+  ✘  12 tests/branches-ui/today.spec.ts:262:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (236ms)
+  ✘  13 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (260ms)
+  ✘  14 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (237ms)
+  ✘  15 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (248ms)
+  ✘  16 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (233ms)
+  ✘  17 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (277ms)
+  ✘  18 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (262ms)
+  ✘  19 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (253ms)
+  ✘  20 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (248ms)
+  ✘  21 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (275ms)
+  ✘  22 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (269ms)
+  ✘  23 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (280ms)
+  ✘  24 tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (283ms)
+
+
+  1) tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:116:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:156:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/today.spec.ts:186:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:190:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/today.spec.ts:203:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:207:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/branches-ui/today.spec.ts:242:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:246:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/branches-ui/today.spec.ts:262:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:263:15
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-6bd5c-запросов-салона-и-ресторана/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-6bd5c-запросов-салона-и-ресторана/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-6bd5c-запросов-салона-и-ресторана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-6bd5c-запросов-салона-и-ресторана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      35 | async function prepare(request: APIRequestContext, timezone?: string) {
+      36 |   const reset = await request.post(`${api}/__test/reset`);
+    > 37 |   expect(reset.ok()).toBe(true);
+         |                      ^
+      38 |   const f: Fixture = await reset.json();
+      39 |   const seeded = await request.post(`${api}/__test/seed-today`, { data: { timezone } });
+      40 |   expect(seeded.ok(), await seeded.text()).toBe(true);
+        at prepare (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:37:22)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:285:21
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      106 |
+      107 | test.afterAll(async ({ request }) => {
+    > 108 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      109 | });
+      110 |
+      111 | test.describe('MV8: «Сегодня» салона и ресторана на настоящем API', () => {
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:108:62
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18 failed
+    tests/branches-ui/today.spec.ts:112:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+    tests/branches-ui/today.spec.ts:152:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+    tests/branches-ui/today.spec.ts:186:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+    tests/branches-ui/today.spec.ts:203:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+    tests/branches-ui/today.spec.ts:242:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+    tests/branches-ui/today.spec.ts:262:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:281:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок 
+  6 passed (1.1m)
+
+# код выхода 1 · 1 мин 10 с

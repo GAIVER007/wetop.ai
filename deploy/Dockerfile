@@ -20,6 +20,8 @@ COPY apps/web/package.json apps/web/
 # apps/site наружу с этого сервера не выкладывается (главная живёт на Cloudflare Pages),
 # но это рабочий пакет: без его манифеста `npm ci` не сойдётся с package-lock.json.
 COPY apps/site/package.json apps/site/
+# apps/sites (MKT4) тоже не отсюда: это Cloudflare Worker, но рабочий пакет, манифест нужен `npm ci`.
+COPY apps/sites/package.json apps/sites/
 COPY packages/database/package.json packages/database/
 COPY packages/domain/package.json packages/domain/
 COPY packages/integrations/package.json packages/integrations/

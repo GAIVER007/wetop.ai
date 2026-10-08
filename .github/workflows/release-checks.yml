@@ -152,8 +152,10 @@ jobs:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
         run: npx playwright test --config tests/onboarding/playwright.config.ts
       - name: Сквозные тесты
+        # Вошедшим пользователем (решение владельца 07.10.2026): после MV8 стойка без входа не угадывает гостиницу
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          E2E_AUTH: '1'
         run: npx playwright test --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()

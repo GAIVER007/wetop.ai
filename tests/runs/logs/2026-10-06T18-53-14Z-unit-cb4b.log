@@ -1,0 +1,140 @@
+# Модульные (unit) · 06.10.2026 23:53 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-53-14Z-unit-cb4b.json' 'packages/domain/src/marketing/runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests | 20 failed) 34ms
+   ❯ MKT4: хост публичного сайта (15)
+     × Hotel.Example.KZ → hotel.example.kz 7ms
+     × hotel.example.kz:8787 → hotel.example.kz 1ms
+     × hotel.example.kz. → hotel.example.kz 1ms
+     × www.hotel.example.kz → www.hotel.example.kz 1ms
+     ×   hotel.localhost   → hotel.localhost 1ms
+     × неверный хост  → null 1ms
+     × неверный хост a → null 1ms
+     × неверный хост host with space → null 1ms
+     × неверный хост evil.kz/path → null 2ms
+     × неверный хост a..b → null 1ms
+     × неверный хост -bad.kz → null 1ms
+     × неверный хост xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx → null 5ms
+     × неверный хост <email> → null 1ms
+     × неверный хост null → null 0ms
+     × неверный хост 42 → null 0ms
+   ❯ MKT4: карта хостов dev и test (2)
+     × разбирает пары host=siteId, нормализует хост 0ms
+     × неверные пары пропускаются, пустая строка пустая карта 0ms
+   ❯ MKT4: коды категорий опубликованной версии (2)
+     × из accommodations и pricing всех страниц, без повторов 0ms
+     × документ без секций категорий: пусто 1ms
+   ❯ MKT4: реестр секций валидатора отдаётся наружу (1)
+     × 11 секций Hospitality с вариантами 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > Hotel.Example.KZ → hotel.example.kz
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > hotel.example.kz:8787 → hotel.example.kz
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > hotel.example.kz. → hotel.example.kz
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > www.hotel.example.kz → www.hotel.example.kz
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта >   hotel.localhost   → hotel.localhost
+TypeError: normalizeSiteHost is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:23:12
+     21|     ['  hotel.localhost  ', 'hotel.localhost'],
+     22|   ])('%s → %s', (raw, host) => {
+     23|     expect(normalizeSiteHost(raw)).toBe(host);
+       |            ^
+     24|   });
+     25|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост  → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост a → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост host with space → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост evil.kz/path → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост a..b → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост -bad.kz → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост <email> → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост null → null
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: хост публичного сайта > неверный хост 42 → null
+TypeError: normalizeSiteHost is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:29:14
+     27|     'неверный хост %s → null',
+     28|     (raw) => {
+     29|       expect(normalizeSiteHost(raw as unknown)).toBeNull();
+       |              ^
+     30|     },
+     31|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: карта хостов dev и test > разбирает пары host=siteId, нормализует хост
+TypeError: parseDevSiteHosts is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:37:12
+     35|   const id = '3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b';
+     36|   it('разбирает пары host=siteId, нормализует хост', () => {
+     37|     expect(parseDevSiteHosts(`Stepnoy.Localhost:8787=${id}, other.test…
+       |            ^
+     38|       new Map([
+     39|         ['stepnoy.localhost', id],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: карта хостов dev и test > неверные пары пропускаются, пустая строка пустая карта
+TypeError: parseDevSiteHosts is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:45:12
+     43|   });
+     44|   it('неверные пары пропускаются, пустая строка пустая карта', () => {
+     45|     expect(parseDevSiteHosts(`bad, x.test=not-a-uuid, =${id}, ok.test=…
+       |            ^
+     46|     expect(parseDevSiteHosts(undefined).size).toBe(0);
+     47|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: коды категорий опубликованной версии > из accommodations и pricing всех страниц, без повторов
+TypeError: siteSpecCategoryCodes is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:52:12
+     50| describe('MKT4: коды категорий опубликованной версии', () => {
+     51|   it('из accommodations и pricing всех страниц, без повторов', () => {
+     52|     expect(siteSpecCategoryCodes(EXAMPLE)).toEqual(['standard-double',…
+       |            ^
+     53|   });
+     54|   it('документ без секций категорий: пусто', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: коды категорий опубликованной версии > документ без секций категорий: пусто
+TypeError: siteSpecCategoryCodes is not a function
+ ❯ packages/domain/src/marketing/runtime.test.ts:55:12
+     53|   });
+     54|   it('документ без секций категорий: пусто', () => {
+     55|     expect(siteSpecCategoryCodes({ pages: [{ sections: [{ type: 'faq' …
+       |            ^
+     56|     expect(siteSpecCategoryCodes({})).toEqual([]);
+     57|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/20]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/runtime.test.ts > MKT4: реестр секций валидатора отдаётся наружу > 11 секций Hospitality с вариантами
+TypeError: Cannot convert undefined or null to object
+ ❯ packages/domain/src/marketing/runtime.test.ts:62:19
+     60| describe('MKT4: реестр секций валидатора отдаётся наружу', () => {
+     61|   it('11 секций Hospitality с вариантами', () => {
+     62|     expect(Object.keys(SITE_SPEC_SECTIONS).sort()).toEqual(
+       |                   ^
+     63|       ['about', 'accommodations', 'amenities', 'booking', 'contacts', …
+     64|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/20]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  20 failed (20)
+   Start at  18:53:16
+   Duration  835ms (transform 73%, import 14%, tests 11%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-53-14Z-unit-cb4b.json
+
+# код выхода 1 · 3 с

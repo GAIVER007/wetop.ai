@@ -32,7 +32,7 @@ export function CalendarWorkspace({
     if (header) observer.observe(header);
     window.addEventListener('resize', resize);
     const escape = (event: KeyboardEvent) => {
-      if (!expanded || event.defaultPrevented) return;
+      if (!expanded || event.defaultPrevented || document.querySelector('dialog[open]')) return;
       if (event.key === 'Tab' && page.contains(document.activeElement)) {
         const targets = [
           ...page.querySelectorAll<HTMLElement>(

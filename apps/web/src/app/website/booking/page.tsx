@@ -7,7 +7,7 @@ import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
 import { BookingSettings, InstallWidgetButton } from '../forms';
-import { WebsiteNotConnected, WebsiteTabs } from '../parts';
+import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -23,6 +23,7 @@ export default async function WebsiteBookingPage() {
   ]);
   return (
     <Page
+      crumbs={<MarketingCrumb />}
       title={WEBSITE_TITLE}
       subtitle="Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS."
     >

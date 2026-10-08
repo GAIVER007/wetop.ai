@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { HotelModule } from '../../apps/api/src/hotel/hotel.module';
 import { DeskModule } from '../../apps/api/src/desk/desk.module';
 import { ChessboardModule } from '../../apps/api/src/chessboard/chessboard.module';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
@@ -22,6 +22,7 @@ import {
 } from '../../apps/api/src/auth/request-context';
 import { SharedOnboardingService } from '../../apps/api/src/onboarding/onboarding.module';
 import { isLocalDatabase } from '../tools/seed-local';
+import { instantOf, localInput } from '../../apps/web/src/app/beauty/time';
 
 if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
   throw new Error('Own local database required');
@@ -29,7 +30,10 @@ const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const prisma = { db } as unknown as PrismaService;
 const onboarding = new SharedOnboardingService(prisma);
 const org = randomUUID(),
-  user = randomUUID();
+  user = randomUUID(),
+  // Вторая организация с единственным рестораном: вход «другим человеком» на том же устройстве (SCOPE-HARDENING)
+  orgB = randomUUID();
+let actorOrg = org;
 let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
@@ -41,6 +45,13 @@ await db.organization.create({
 await db.user.create({
   data: { id: user, name: 'Тестовый владелец', email: `mv8-branches-${user}@example.invalid` },
 });
+await db.organization.create({
+  data: { id: orgB, name: `MV8-branches-browser-B-${orgB}`, status: 'ACTIVE' },
+});
+// Филиал второй организации заводится в `/__test/reset`, как и данные первой: прерванный до уборки прогон не оставляет
+// в общей тестовой схеме филиалов без объекта (их считает `platform-p1-backfill`)
+let foodB: { id: string } | null = null;
+let foodBLocation: { id: string } | null = null;
 
 class FixtureController {
   async me() {
@@ -50,7 +61,7 @@ class FixtureController {
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,
-        organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
+        organization: await db.organization.findUniqueOrThrow({ where: { id: actorOrg } }),
       },
       context: {
         businessId: currentBusinessId(),
@@ -113,6 +124,44 @@ app.use(
             if (req.path === '/__test/keys') return res.json(creationKeys);
             if (req.path === '/__test/reset') {
               role = 'OWNER';
+              actorOrg = org;
+              // после `/__test/cleanup` другого файла спеков: организации и человек заводятся заново
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV8-branches-browser-${org}`, status: 'ACTIVE' },
+                update: {},
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: {
+                  id: user,
+                  name: 'Тестовый владелец',
+                  email: `mv8-branches-${user}@example.invalid`,
+                },
+                update: {},
+              });
+              await db.organization.upsert({
+                where: { id: orgB },
+                create: { id: orgB, name: `MV8-branches-browser-B-${orgB}`, status: 'ACTIVE' },
+                update: {},
+              });
+              if (!foodB) {
+                foodB = await db.business.create({
+                  data: {
+                    organizationId: orgB,
+                    name: 'Ресторан другой организации',
+                    vertical: 'FOOD_SERVICE',
+                  },
+                });
+                foodBLocation = await db.location.create({
+                  data: {
+                    businessId: foodB.id,
+                    name: 'Единственный филиал Б',
+                    timezone: 'Asia/Almaty',
+                    currency: 'KZT',
+                  },
+                });
+              }
               calls.length = 0;
               creationKeys.length = 0;
               unavailable = false;
@@ -198,6 +247,7 @@ app.use(
                 },
               });
               return res.json({
+                foodB: { business: foodB.id, location: foodBLocation!.id },
                 hotelProperty: property.id,
                 business: b1.id,
                 otherBusiness: b2.id,
@@ -206,7 +256,208 @@ app.use(
                 locations: locations.map((l) => l.id),
               });
             }
+            if (req.path === '/__test/archive') {
+              await db.location.update({
+                where: { id: String(body.location) },
+                data: { status: 'ARCHIVED' },
+              });
+              return res.json({ ok: true });
+            }
+            if (req.path === '/__test/second-hotel') {
+              const hotel = await db.business.findFirstOrThrow({
+                where: { organizationId: org, vertical: 'HOSPITALITY', status: 'ACTIVE' },
+                orderBy: { createdAt: 'desc' },
+              });
+              const location = await db.location.create({
+                data: {
+                  businessId: hotel.id,
+                  name: 'Гостиница Б',
+                  timezone: 'Asia/Almaty',
+                  currency: 'KZT',
+                },
+              });
+              const property = await db.property.create({
+                data: {
+                  organizationId: org,
+                  locationId: location.id,
+                  name: 'Гостиница Б',
+                  timezone: 'Asia/Almaty',
+                  currency: 'KZT',
+                  checkInTime: '14:00',
+                  checkOutTime: '12:00',
+                },
+              });
+              return res.json({ business: hotel.id, location: location.id, property: property.id });
+            }
+            if (req.path === '/__test/seed-today') {
+              // MV8: день салона и ресторана от текущего момента. Только данные базы; читают их настоящие контроллеры
+              const now = Date.now();
+              const at = (minutes: number) => new Date(now + minutes * 60_000);
+              const [food, , , salon] = await db.location.findMany({
+                where: { business: { organizationId: org }, status: 'ACTIVE' },
+                orderBy: { createdAt: 'asc' },
+              });
+              const timezone = typeof body.timezone === 'string' ? body.timezone : food!.timezone;
+              await db.location.update({ where: { id: food!.id }, data: { timezone } });
+              const localDay = localInput(new Date(now).toISOString(), timezone).slice(0, 10);
+              const midnight = Date.parse(instantOf(`${localDay}T00:00`, timezone));
+              const local = (minutes: number) => new Date(midnight + minutes * 60_000);
+              const salonBusiness = salon!.businessId;
+              const customer = await db.customer.create({
+                data: { organizationId: org, firstName: 'Тестовая', lastName: 'Клиентка' },
+              });
+              await db.customerBusiness.createMany({
+                data: [salonBusiness, food!.businessId].map((businessId) => ({
+                  customerId: customer.id,
+                  businessId,
+                })),
+              });
+              const service = await db.beautyService.create({
+                data: {
+                  businessId: salonBusiness,
+                  name: 'Тестовая стрижка',
+                  durationMinutes: 60,
+                  price: 1200000n,
+                  currency: 'KZT',
+                },
+              });
+              await db.locationService.create({
+                data: { locationId: salon!.id, serviceId: service.id, enabled: true },
+              });
+              const masters = [];
+              for (const name of [
+                'Тестовый мастер Анна',
+                'Тестовый мастер Вера',
+                'Тестовый мастер Ольга',
+              ]) {
+                const employee = await db.employee.create({
+                  data: { businessId: salonBusiness, name },
+                });
+                await db.employeeLocation.create({
+                  data: { employeeId: employee.id, locationId: salon!.id },
+                });
+                await db.employeeService.create({
+                  data: { employeeId: employee.id, serviceId: service.id },
+                });
+                masters.push(employee);
+              }
+              const [anna, vera, olga] = masters;
+              for (const [employee, from, to, status] of [
+                [anna, -180, -120, 'DONE'],
+                [vera, -120, -60, 'NO_SHOW'],
+                [vera, 60, 120, 'CANCELLED'],
+                [anna, 30, 90, 'BOOKED'],
+                [vera, 120, 180, 'CONFIRMED'],
+                [olga, 60, 120, 'BOOKED'],
+              ] as const)
+                await db.appointment.create({
+                  data: {
+                    locationId: salon!.id,
+                    customerId: customer.id,
+                    employeeId: employee!.id,
+                    serviceId: service.id,
+                    startsAt: at(from),
+                    endsAt: at(to),
+                    status,
+                    price: 1200000n,
+                    currency: 'KZT',
+                  },
+                });
+              // мастер ушёл из филиала: его будущая запись остаётся в дне без столбца
+              await db.employee.update({ where: { id: olga!.id }, data: { status: 'ARCHIVED' } });
+              const hall = await db.diningArea.create({
+                data: { locationId: food!.id, name: 'Основной зал', sortOrder: 0, active: true },
+              });
+              const closed = await db.diningArea.create({
+                data: {
+                  locationId: food!.id,
+                  name: 'Закрытая веранда',
+                  sortOrder: 1,
+                  active: true,
+                },
+              });
+              const tables = [];
+              for (const [areaId, name, active] of [
+                [hall.id, 'Стол 1', true],
+                [hall.id, 'Стол 2', true],
+                [hall.id, 'Стол 3', true],
+                [hall.id, 'Стол 4', true],
+                [closed.id, 'Стол 9', true],
+              ] as const)
+                tables.push(
+                  await db.diningTable.create({
+                    data: { areaId, name, capacity: 4, sortOrder: tables.length, active },
+                  }),
+                );
+              const period = await db.servicePeriod.create({
+                data: {
+                  locationId: food!.id,
+                  name: 'Весь день',
+                  weekday: new Date(`${localDay}T12:00:00Z`).getUTCDay(),
+                  timeFrom: new Date('1970-01-01T00:00:00Z'),
+                  timeTo: new Date('1970-01-01T23:59:00Z'),
+                  defaultDurationMinutes: 120,
+                },
+              });
+              const reservation = async (
+                startsAt: Date,
+                endsAt: Date,
+                status: 'BOOKED' | 'CONFIRMED' | 'SEATED' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED',
+                table?: { id: string },
+                partySize = 2,
+              ) => {
+                const key = randomUUID();
+                const row = await db.restaurantReservation.create({
+                  data: {
+                    locationId: food!.id,
+                    customerId: customer.id,
+                    servicePeriodId: period.id,
+                    startsAt,
+                    endsAt,
+                    partySize,
+                    status: status === 'SEATED' ? 'CONFIRMED' : status,
+                    creationKey: key,
+                    creationFingerprint: createHash('sha256').update(key).digest('hex'),
+                  },
+                });
+                if (table)
+                  await db.tableAssignment.create({
+                    data: { reservationId: row.id, tableId: table.id },
+                  });
+                // посадка только со столом: статус ставится после назначения, как у стойки
+                if (status === 'SEATED')
+                  await db.restaurantReservation.update({
+                    where: { id: row.id },
+                    data: { status },
+                  });
+              };
+              // через полночь: начата вчера по поясу филиала, сидит сейчас за столом 1
+              await reservation(local(-60), at(60), 'SEATED', tables[0]);
+              // сидят сейчас за столом 2: начало не раньше полуночи, чтобы бронь была сегодняшней
+              await reservation(
+                new Date(Math.max(midnight, now - 30 * 60_000)),
+                at(60),
+                'SEATED',
+                tables[1],
+              );
+              await reservation(local(1), local(1439), 'SEATED', tables[3]);
+              await reservation(local(1), local(1439), 'SEATED', tables[4]);
+              await reservation(local(2), local(3), 'COMPLETED', tables[2]);
+              await reservation(local(2), local(1439), 'NO_SHOW', undefined, 5);
+              await reservation(local(2), local(1439), 'CANCELLED', undefined, 7);
+              // больше одной страницы списка (limit 100): брони без стола на весь день
+              for (let n = 0; n < 105; n++)
+                await reservation(local(3), local(1439), n % 2 ? 'CONFIRMED' : 'BOOKED');
+              // стол выключен и зал закрыт после посадки: свободными они не считаются, даже занятые
+              await db.diningTable.update({
+                where: { id: tables[3]!.id },
+                data: { active: false },
+              });
+              await db.diningArea.update({ where: { id: closed.id }, data: { active: false } });
+              return res.json({ localDay, timezone, food: food!.id, salon: salon!.id });
+            }
             if (req.path === '/__test/control') {
+              actorOrg = body.org === 'B' ? orgB : org;
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
               unavailable = body.unavailable === true;
               failCreate = body.failCreate === true;
@@ -252,9 +503,14 @@ app.use(
                 await tx.property.deleteMany({ where: properties });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
+                await tx.location.deleteMany({ where: { business: { organizationId: orgB } } });
+                await tx.business.deleteMany({ where: { organizationId: orgB } });
+                await tx.organization.delete({ where: { id: orgB } });
                 await tx.organization.delete({ where: { id: org } });
                 await tx.user.delete({ where: { id: user } });
               });
+              foodB = null;
+              foodBLocation = null;
               return res.json({ ok: true });
             }
             res.status(404).json({ message: 'Unknown fixture route' });
@@ -279,7 +535,7 @@ app.use(
       res.status(503).json({ message: 'Тестовый сбой Food API' });
       return;
     }
-    req.user = { id: user, organizationId: org, role };
+    req.user = { id: user, organizationId: actorOrg, role };
     next();
   },
 );

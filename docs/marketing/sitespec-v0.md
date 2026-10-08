@@ -1,8 +1,19 @@
 # SiteSpec v0: контракт содержимого управляемого сайта
 
-Статус: **предложение MKT1A, 06.10.2026** (ADR-149). Принцип Option B утверждён владельцем; точные поля, пределы и
-реестр секций ниже ждут подтверждения вместе с моделью `DATA_MODEL.md` §29. Кода, схемы валидатора и компонентов
-нет: они появятся в MKT3 и MKT4.
+Статус: **контракт v0, проверка в коде с MKT3 (06.10.2026)** (ADR-149; Q-272 решён владельцем). Проверка документа:
+`packages/domain/src/marketing/site-spec.ts`; компонентов рантайма пока нет (MKT4).
+
+Цена «от» (`B-FROMPRICE`) по решению владельца Q-276 (07.10.2026): подсказка тарифа брони сайта, а не обещание мест; правило в §9.
+
+Что MKT3 проверяет не полностью: §11 п. 6 только форма `AssetId` (UUID), наличие ассета `READY` того же Location с
+MKT8, когда появится `SiteAsset`; §11 п. 8 (`categoryCode` объекта) при публикации, MKT7. Размер 256 КБ считается по
+канонической записи документа в байтах UTF-8 (ключи по возрастанию кодовых единиц UTF-16, как RFC 8785, без пробелов).
+Это единственный допустимый размер SiteSpec. В базе стоит CHECK `octet_length(spec::text) <= 393216` (384 КБ): это
+грубая страховка базы, а не второй допустимый размер документа (384 KiB is a coarse database safety ceiling, not an
+alternative allowed SiteSpec size). `jsonb::text` не каноническая запись, второй канонический сериализатор в PostgreSQL
+не делается. Транспорт: тело `POST /marketing/site/versions` принимается до 300 КБ (SiteSpec плюс конверт запроса,
+`apps/api/src/body-parsers.ts`), больше даёт 413; у остальных маршрутов API прежние 100 КБ. Итого три уровня: HTTP
+300 КБ, SiteSpec 256 КБ (400 `too_large`), база 384 КБ.
 
 Полный валидный пример: [`sitespec-v0.example.json`](sitespec-v0.example.json). Архитектура, рантайм и безопасность:
 [`README.md`](README.md).
@@ -86,7 +97,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | `contacts.email` | `Email` | нет | |
 | `contacts.address` | `LocalizedText<200>` | нет | |
 | `contacts.geo` | `{ lat: -90..90, lng: -180..180 }` | нет | до 6 знаков после точки |
-| `contacts.social` | `{ network, url }[]` | нет | до 6; `network`: `INSTAGRAM`, `FACEBOOK`, `TELEGRAM`, `TIKTOK`, `YOUTUBE`, `VK`; хост `url` обязан совпасть со списком сети (например `instagram.com`, `www.instagram.com`) |
+| `contacts.social` | `{ network, url }[]` | нет | до 6; `network`: `INSTAGRAM`, `FACEBOOK`, `TELEGRAM`, `TIKTOK`, `YOUTUBE`, `VK`; хост `url` обязан совпасть со списком сети (MKT3): `INSTAGRAM` `instagram.com`, `FACEBOOK` `facebook.com`, `TELEGRAM` `t.me`, `telegram.me`, `TIKTOK` `tiktok.com`, `YOUTUBE` `youtube.com`, `youtu.be`, `VK` `vk.com`; к каждому допустим префикс `www.` |
 | `legal.operatorName` | `LocalizedText<200>` | нет | строка в подвале; БИН и ИИН сюда не попадают |
 | `legal.privacyPageId` | `Id` | нет | страница с политикой; ссылка в подвале |
 | `seo.robots` | `"INDEX"` или `"NOINDEX"` | да | `NOINDEX` закрывает весь сайт; превью закрыто всегда, независимо от поля |
@@ -163,7 +174,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | Привязка | Что | Откуда берётся | Кто читает |
 |---|---|---|---|
 | `B-BOOK` | доступность, расчёт и бронь | существующий публичный контракт `/w/config`, `/w/availability`, `/w/book` | браузер посетителя напрямую |
-| `B-FROMPRICE` | цена «от» по категории | будущий узкий публичный контракт цены без дат (MKT4); сегодня его нет | браузер посетителя |
+| `B-FROMPRICE` | цена «от» по категории | `GET /w/from-prices?k=<ключ сайта>` (MKT4, Q-276): тот же ключ, домен и лимит, что `/w/availability`; ответ `{ currency, window: { from, to }, categories: [{ code, fromMinor }] }`, категории без цены в ответе нет | браузер посетителя (скрипт WETOP `/_wetop/prices-<хэш>.js`) |
 | `B-CATEGORY` | активность и вместимость категории | `publicFacts.categories` ответа `/sites-runtime/current` (`README.md` §4.4) | рантайм `apps/sites` при рендере |
 | `B-CHECKINOUT` | время заезда и выезда объекта | `publicFacts.checkInTime/checkOutTime` того же ответа | рантайм `apps/sites` при рендере |
 
@@ -177,7 +188,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | `features` | `GRID`, `LIST` | `heading`, `items` (2–8): `{ icon: Icon, title: LocalizedText<60>, text: LocalizedText<200> }` | | | 0 | нет | нет | H2 и H3 пунктов |
 | `accommodations` | `CARDS`, `ROWS` | `heading`, `items` (1–20): `{ categoryCode, title: LocalizedText<60>, description: LocalizedText<400> }` | `items[].images: ImageRef[]` (0–6), `items[].highlights: LocalizedText<40>[]` (0–6), `showLiveCapacity: boolean`, `showFromPrice: boolean`, `itemAction: Cta` (по умолчанию `BOOK`) | `categoryCode` уникален в секции | 0–6 на карточку | кнопка карточки ведёт в бронь этой категории | `B-CATEGORY` (неактивная или удалённая категория скрывает карточку), `B-FROMPRICE` при `showFromPrice` | H3 карточек; в JSON-LD не попадают в v0 |
 | `amenities` | `LIST`, `ICONS` | `heading`, `items` (1–24): `{ icon: Icon, label: LocalizedText<60> }` | `items[].note: LocalizedText<120>` | | 0 | нет | нет | `amenityFeature` в JSON-LD при `structuredData` |
-| `pricing` | `FROM_PRICES` | `heading`, `categoryCodes` (1–20) | `note: LocalizedText<300>` | | 0 | кнопка `BOOK` у строки | `B-FROMPRICE`, `B-CATEGORY`; цены в документе не пишутся никогда | живые цены не попадают в HTML для поисковиков в v0 и в JSON-LD |
+| `pricing` | `FROM_PRICES` | `heading`, `categoryCodes` (1–20) | `note: LocalizedText<300>` | каждый код из `categoryCodes` есть хотя бы в одной карточке `accommodations` документа (на любой странице); название строки берётся из снимка `accommodations.items[].title`, служебное имя категории PMS публично не используется | 0 | кнопка `BOOK` у строки | `B-FROMPRICE`, `B-CATEGORY`; цены в документе не пишутся никогда | живые цены не попадают в HTML для поисковиков в v0 и в JSON-LD |
 | `gallery` | `GRID`, `CAROUSEL` | `heading`, `images: ImageRef[]` (3–24) | | | 3–24 | нет | нет | ALT обязателен; ленивая загрузка |
 | `booking` | `INLINE` | `heading` | `note: LocalizedText<300>`, `showCheckInOut: boolean` | не больше одной на странице; требует `integrations.booking.mode = "WETOP_WIDGET"` | 0 | сама форма | `B-BOOK`, `B-CHECKINOUT` при `showCheckInOut` | содержимое формы не индексируется |
 | `contacts` | `PLAIN`, `WITH_MAP` | `heading` | `showPhone`, `showWhatsapp`, `showEmail`, `showAddress` (boolean), `map: { provider: "OPENSTREETMAP_LINK" }` (только `WITH_MAP`, нужна `site.contacts.geo`), `directions: LocalizedText<400>` | | 0 | `PHONE`, `WHATSAPP`, `EMAIL` из контактов сайта | нет | адрес и телефон в JSON-LD по флагам `structuredData` |
@@ -202,7 +213,7 @@ Business, Location и нет ключей. Кто владелец сайта, �
 | Названия и описания категорий на карточках | **снимок**, привязанный к `categoryCode` | маркетинговое имя («Стандарт для двоих») не обязано совпадать со служебным; виджет брони показывает своё живое имя |
 | Активность категории, вместимость | **живые** (`B-CATEGORY`, `publicFacts`) | архивная категория не должна продаваться с сайта, даже если про неё есть карточка; не загрузилось: живые поля карточки прячутся, текст снимка остаётся |
 | Доступность, бронь, её статус | **живые** (`B-BOOK`) | правда только в PMS; это существующий `/w/*` |
-| Цена «от» | **живые** (`B-FROMPRICE`) | устаревшая цена в тексте обманывает гостя; при сбое расчёта цена прячется, старое число не показывается. Публичного расчёта «от» без дат сегодня нет: `/w/availability` требует дат (`packages/domain/src/web-booking/request.ts:87-149`), это задача MKT4 |
+| Цена «от» | **живые** (`B-FROMPRICE`) | устаревшая цена в тексте обманывает гостя; при сбое число прячется, старое не показывается. Правило Q-276: Тариф: только `tracked_sites.booking_rate_plan_id` сайта (без запасного тарифа); окно: сегодня по дате объекта и ещё 29 ночей; цена: минимум одной ночи при вместимости `capacity_adults` категории; производный тариф брони со своей скидкой и окном продаж (минимум ночей не применяется); ночь со `stop_sell` не участвует; закрытие на заезд или выезд и пределы проживания не применяются; свободные места не проверяются. **B-FROMPRICE is a tariff hint, not availability guarantee.** Цена никогда не пишется в документ и в HTML страницы |
 | Время заезда и выезда | **живые** (`B-CHECKINOUT`, `publicFacts`) | это факт, а не текст; виджет уже показывает его живым (`apps/api/src/web-booking/web-booking.service.ts:72-73`), снимок противоречил бы форме брони рядом; `/w/availability` для первого рендера не годится (требует дат), поэтому факт приходит рантайму в `publicFacts`; не загрузился: строка скрывается, старое время не показывается |
 | Адрес, телефон, WhatsApp, email | **снимок** | поля `Property.phone/email` ведутся для печатных форм (`schema.prisma:107-108`); правка в стойке не должна молча менять кнопку «Позвонить»; кнопка «Обновить данными из WETOP» предлагает новые значения |
 | Услуги | **снимок** списком в `amenities` | цены услуг в v0 на сайте не показываются |
@@ -237,6 +248,9 @@ Business, Location и нет ключей. Кто владелец сайта, �
 10. `site.vertical` совпадает с вертикалью Business филиала.
 11. В документе нет полей с идентификаторами организации, Business, Location, Property, `TrackedSite`, ключами и
     секретами (их нет в схеме, и строгая схема их отвергнет).
+12. Каждый код `pricing.categoryCodes[]` есть в `categoryCode` хотя бы одной карточки `accommodations.items[]` этого же
+    документа, на любой странице; иначе отказ `pricing_category_without_card`. Строка цены берёт название из снимка
+    карточки (`accommodations.items[].title`); служебное имя категории PMS и сам `categoryCode` людям не показываются.
 
 ## 12. Будущие версии
 

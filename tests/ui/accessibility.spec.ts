@@ -35,6 +35,8 @@ const routes = [
   // страница настроек Channex (INT2, ADR-121)
   '/connections/channex',
   // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
+  // хаб «Маркетинг» (MKT2), вход в «Сайт и SEO»
+  '/marketing',
   '/website',
   '/website/booking',
   '/website/analytics',

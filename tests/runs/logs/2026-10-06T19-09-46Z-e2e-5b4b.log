@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 07.10.2026 00:09 Алматы · vm
+# коммит 32f879e (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-onboarding.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe (7.6s)
+  ✓  2 tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe (5.7s)
+  ✓  3 tests/onboarding/onboarding.spec.ts:62:1 › READ_ONLY displays data without mutation controls (741ms)
+  ✓  4 tests/onboarding/onboarding.spec.ts:68:1 › Hospitality existing categories persist on reload and provision real inventory (1.9s)
+
+  4 passed (23.9s)
+
+# код выхода 0 · 25 с

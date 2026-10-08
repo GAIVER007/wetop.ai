@@ -1,0 +1,70 @@
+# Модульные (unit) · 07.10.2026 11:01 Алматы · vm
+# коммит 7ee1d7b (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-01-25Z-unit-97d9.json' 'apps/web/src/app/today/dispatch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests | 3 failed) 45ms
+   ❯ /today: один адрес, экран только по подтверждённому направлению (10)
+     ✓ пускает все три направления: ни одно не уводится на другой адрес 7ms
+     ✓ гостиница: прежняя Главная 2ms
+     ✓ салон и ресторан с подтверждёнными Business и филиалом: свой экран, ключ по ним 1ms
+     ✓ направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING) 1ms
+     ✓ салон и ресторан без филиала или без Business: не свой экран, а выбор 1ms
+     × аноним при включённом замке входа: не гостиница 18ms
+     × аноним на открытом стенде разработки (не production, замок выключен): гостиница стенда, как до MV8 3ms
+     × production с выключенным замком (APP_AUTH_REQUIRED=0): аноним не получает гостиницу 2ms
+     ✓ вошедший без подтверждённого направления: UNRESOLVED в любом окружении 3ms
+     ✓ куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > аноним при включённом замке входа: не гостиница
+AssertionError: expected 'HOSPITALITY' to be 'UNRESOLVED' // Object.is equality
+
+Expected: "UNRESOLVED"
+Received: "HOSPITALITY"
+
+ ❯ apps/web/src/app/today/dispatch.test.ts:55:7
+     53|     expect(
+     54|       todayScreen({ user: null, context: null }, { allowAnonymousHospi…
+     55|     ).toBe('UNRESOLVED');
+       |       ^
+     56|   });
+     57|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > аноним на открытом стенде разработки (не production, замок выключен): гостиница стенда, как до MV8
+TypeError: anonymousHospitalityAllowed is not a function
+ ❯ apps/web/src/app/today/dispatch.test.ts:59:19
+     57|
+     58|   it('аноним на открытом стенде разработки (не production, замок выклю…
+     59|     const allow = anonymousHospitalityAllowed({ authRequired: false, n…
+       |                   ^
+     60|     expect(allow).toBe(true);
+     61|     expect(anonymousHospitalityAllowed({ authRequired: false, nodeEnv:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > production с выключенным замком (APP_AUTH_REQUIRED=0): аноним не получает гостиницу
+TypeError: anonymousHospitalityAllowed is not a function
+ ❯ apps/web/src/app/today/dispatch.test.ts:68:19
+     66|
+     67|   it('production с выключенным замком (APP_AUTH_REQUIRED=0): аноним не…
+     68|     const allow = anonymousHospitalityAllowed({ authRequired: false, n…
+       |                   ^
+     69|     expect(allow).toBe(false);
+     70|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 7 passed (10)
+   Start at  06:01:35
+   Duration  948ms (transform 76%, tests 11%, import 9%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-01-25Z-unit-97d9.json
+
+# код выхода 1 · 11 с

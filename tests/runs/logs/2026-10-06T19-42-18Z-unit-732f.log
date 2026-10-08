@@ -1,0 +1,17 @@
+# Модульные (unit) · 07.10.2026 00:42 Алматы · vm
+# коммит e8497b0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-42-18Z-unit-732f.json' 'packages/domain/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/web-booking/from-price.test.ts (8 tests) 22ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 27ms
+
+ Test Files  2 passed (2)
+      Tests  46 passed (46)
+   Start at  19:42:19
+   Duration  561ms (transform 77%, import 13%, tests 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-42-18Z-unit-732f.json
+
+# код выхода 0 · 2 с

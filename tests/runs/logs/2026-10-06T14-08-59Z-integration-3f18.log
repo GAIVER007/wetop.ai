@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 06.10.2026 19:08 Алматы · vm
+# коммит 4ce9e90 (claude/blissful-newton-6pa4ky)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T14-08-59Z-integration-3f18.json' 'tests/integration/scope-hardening.test.ts' 'tests/integration/web-booking-exact-property.test.ts' 'tests/integration/mv1-vertical-boundary.test.ts' 'tests/integration/mv8-branches-contract.test.ts' 'tests/integration/seller-booking-intents.test.ts' 'tests/integration/website-reservations.test.ts' 'tests/integration/reservation-create-retry.test.ts' 'tests/integration/integration-tables-role.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:32205) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/web-booking-exact-property.test.ts (9 tests) 1675ms
+(node:32216) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (5 tests) 1849ms
+   ✓ manual booking concurrency on isolated local PostgreSQL (5)
+     ✓ same-day checkout restores availability counters, extended and moved: false 554ms
+     ✓ same-day checkout restores availability counters, extended and moved: true 583ms
+(node:32227) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/scope-hardening.test.ts (2 tests) 891ms
+   ✓ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     ✓ two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 458ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 392ms
+ ✓ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests) 651ms
+   ✓ MV8 requires real branches contract to expose selected Food Location and current timezone 408ms
+[Nest] 32250  - 10/06/2026, 2:09:11 PM    WARN [InboundBookingsService] ревизия role-q225-muwr8nvs (BDC-role-q225-muwr8nvs) отклонена: Комната 1 брони BDC-role-q225-muwr8nvs: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 32250  - 10/06/2026, 2:09:11 PM    WARN [InboundBookingsService] ревизия role-q225-muwr8nvs (BDC-role-q225-muwr8nvs) отклонена: Комната 1 брони BDC-role-q225-muwr8nvs: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 436ms
+ ✓ |integration| tests/integration/mv1-vertical-boundary.test.ts (7 tests) 441ms
+ ✓ |integration| tests/integration/seller-booking-intents.test.ts (7 tests) 318ms
+ ✓ |integration| tests/integration/website-reservations.test.ts (1 test) 249ms
+
+ Test Files  8 passed (8)
+      Tests  39 passed (39)
+   Start at  14:08:59
+   Duration  14.05s (tests 57%, import 26%, transform 17%)
+
+JSON report written to /tmp/pms-test-2026-10-06T14-08-59Z-integration-3f18.json
+
+# код выхода 0 · 15 с

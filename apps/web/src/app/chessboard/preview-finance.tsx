@@ -73,7 +73,21 @@ export function PreviewFinance({
     onPendingChange(busy);
   }, [busy, onPendingChange]);
   if (folio === undefined) return <p role="status">Загружаю счёт…</p>;
-  if (!folio) return <Alert>Не удалось загрузить счёт. Закройте и откройте окно повторно.</Alert>;
+  if (!folio)
+    return (
+      <>
+        {result.ok > 0 && !result.error && (
+          <p role="status" data-testid="preview-finance-result">
+            {result.message ?? 'Возврат проведён.'}
+          </p>
+        )}
+        <Alert>
+          {result.ok > 0 && !result.error
+            ? 'Операция проведена, но не удалось обновить счёт. Закройте и откройте окно повторно для проверки суммы.'
+            : 'Не удалось загрузить счёт. Закройте и откройте окно повторно.'}
+        </Alert>
+      </>
+    );
   const payment = folio.payments.find((p) => p.paymentId === paymentId) ?? folio.payments[0];
   return (
     <section className="stay-preview-finance" aria-label="Оплата и возврат">
@@ -143,6 +157,7 @@ export function PreviewFinance({
             number={number}
             paymentId={payment.paymentId}
             folioId={folio.id}
+            currency={folio.currency}
             onResult={(next) => void completed(next)}
             onDraftChange={markDirty}
             onPendingChange={setRefundPending}

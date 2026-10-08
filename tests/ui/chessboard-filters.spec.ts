@@ -258,17 +258,17 @@ test('§38: вид «Компактный / Обычный / Подробный�
   await view.selectOption('normal');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
-  const normal = await height();
-  await view.selectOption('compact');
   const compact = await height();
+  await view.selectOption('normal');
+  const normal = await height();
   await view.selectOption('detailed');
   const detailed = await height();
   expect(compact).toBeLessThan(normal);
   expect(detailed).toBeGreaterThan(normal);
-  await view.selectOption('compact');
+  await view.selectOption('normal');
   await page.reload();
-  await expect(main.getByLabel('Вид строк календаря')).toHaveValue('compact');
-  expect(await height()).toBe(compact);
+  await expect(main.getByLabel('Вид строк календаря')).toHaveValue('normal');
+  expect(await height()).toBe(normal);
 });
 
 test('§40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр', async ({

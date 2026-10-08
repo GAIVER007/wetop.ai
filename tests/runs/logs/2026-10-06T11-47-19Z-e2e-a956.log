@@ -1,0 +1,178 @@
+# Сквозные (e2e) · 06.10.2026 16:47 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/onboarding.spec.ts' 'tests/ui/inventory-onboarding.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 40 tests using 1 worker
+
+  ✓   1 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (4.2s)
+  ✓   2 tests/ui/inventory-onboarding.spec.ts:36:1 › location and operational filters intersect and survive reload (3.5s)
+  ✓   3 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (2.3s)
+  ✓   4 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (2.6s)
+  ✓   5 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.4s)
+  ✓   6 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (1.7s)
+  ✓   7 tests/ui/onboarding.spec.ts:100:1 › у работающего отеля с бронями «Первых шагов» нет (1.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   8 tests/ui/onboarding.spec.ts:111:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (3.7s)
+  ✓   9 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.7s)
+  ✓  10 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.0s)
+  ✓  11 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓  12 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.8s)
+  ✓  13 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓  14 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.0s)
+  ✓  15 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.6s)
+  ✓  16 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (1.6s)
+  ✓  17 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (1.8s)
+  ✓  18 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.7s)
+  ✓  19 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.2s)
+  ✓  20 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (1.9s)
+  ✓  21 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (1.6s)
+  ✓  22 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.3s)
+  ✓  23 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (2.4s)
+  ✓  24 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (1.5s)
+  ✓  25 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.6s)
+  ✓  26 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (1.6s)
+  ✓  27 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (1.5s)
+  ✓  28 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓  29 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (1.6s)
+  ✓  30 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓  31 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.9s)
+  ✓  32 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.6s)
+  ✓  33 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓  34 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (1.6s)
+  ✓  35 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓  36 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (1.5s)
+  ✓  37 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (1.5s)
+  ✓  38 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  39 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓  40 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+
+  40 passed (1.4m)
+
+# код выхода 0 · 1 мин 25 с

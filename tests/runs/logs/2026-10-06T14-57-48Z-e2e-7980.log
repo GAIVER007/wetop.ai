@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 06.10.2026 19:57 Алматы · vm
+# коммит 2ae0f33 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/requests.spec.ts'
+Error: http://127.0.0.1:4311/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 2 с

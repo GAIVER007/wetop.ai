@@ -49,8 +49,8 @@ it('чужой филиал не меняет cookie', async () => {
 });
 
 it.each([
-  ['FOOD_SERVICE', '/floor-plan'],
-  ['BEAUTY', '/calendar'],
+  ['FOOD_SERVICE', '/today'],
+  ['BEAUTY', '/today'],
 ])(
   'canonical landing for verified %s branch ignores old vertical route',
   async (vertical, expected) => {

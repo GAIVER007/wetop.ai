@@ -1,0 +1,37 @@
+# Модульные (unit) · 07.10.2026 11:03 Алматы · vm
+# коммит c53ee7c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-03-17Z-unit-32d2.json' 'apps/api/src/sites-runtime' 'packages/domain/src/web-booking' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (17 tests) 1052ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 1230ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 618ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 1412ms
+   ✓ виджет бронирования /w/* (41)
+     ✓ цены: больше 60 запросов в минуту с одного адреса — 429 331ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 297ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 44ms
+ ✓ |unit| packages/domain/src/web-booking/from-price.test.ts (8 tests) 26ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 19ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 96ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 7ms
+
+ Test Files  9 passed (9)
+      Tests  166 passed (166)
+   Start at  06:03:19
+   Duration  11.85s (transform 45%, import 41%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-03-17Z-unit-32d2.json
+
+# код выхода 0 · 13 с

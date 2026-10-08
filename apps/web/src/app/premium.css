@@ -99,7 +99,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .overlay-heading h2 { font-size: var(--text-md); font-weight: 600; margin: 0; }
 .overlay-content { padding: 20px; }
 .ui-drawer { margin: 0 0 0 auto; width: min(480px,100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 20px 0 0 20px; border-right: 0; animation: drawer-in 180ms ease-out; }
-@keyframes drawer-in { from { transform: translateX(32px); opacity: .5; } to { transform: translateX(0); opacity: 1; } }
+@keyframes drawer-in { from { transform: translateX(32px); } to { transform: translateX(0); } }
 .command-input { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; color: var(--muted); }
 .command-input .inp { flex: 1; }
 .command-palette form > .btn { margin-top: 14px; width: 100%; }

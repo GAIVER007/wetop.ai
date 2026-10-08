@@ -1,0 +1,26 @@
+# Модульные (unit) · 07.10.2026 15:17 Алматы · MacBook-Air-Urij.local
+# коммит e7b1bf9 (codex/mv8-audit-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-17-01Z-unit-e5d8.json' 'packages/domain/src/marketing/brief.test.ts' 'apps/api/src/channels/content.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/app.module.test.ts' 'apps/web/src/app/today' 'apps/web/src/lib/desk-shell.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-audit-20261007
+
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 491ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 482ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 49ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 21ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 29ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 15ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 11ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 5ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 4ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 3ms
+
+ Test Files  9 passed (9)
+      Tests  81 passed (81)
+   Start at  14:17:03
+   Duration  4.96s (import 44%, transform 40%, tests 15%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T10-17-01Z-unit-e5d8.json
+
+# код выхода 0 · 7 с

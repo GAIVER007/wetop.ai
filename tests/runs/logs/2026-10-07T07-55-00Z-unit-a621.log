@@ -1,0 +1,17 @@
+# Модульные (unit) · 07.10.2026 12:55 Алматы · vm
+# коммит 33f3014 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T07-55-00Z-unit-a621.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 3787  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (55 tests) 661ms
+
+ Test Files  1 passed (1)
+      Tests  55 passed (55)
+   Start at  07:55:01
+   Duration  3.34s (transform 59%, tests 21%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-07T07-55-00Z-unit-a621.json
+
+# код выхода 0 · 4 с

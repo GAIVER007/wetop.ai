@@ -74,6 +74,19 @@ describe('меню по ролям', () => {
     expect(hrefs(CLOSED_ACCESS)).toEqual(everything.filter((h) => !h.startsWith('/platform')));
   });
 
+  it('«Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2)', () => {
+    for (const role of ['OWNER', 'MANAGER'] as const) {
+      expect(menuSectionsFor(access(role)).map((s) => s.id)).toContain('marketing');
+      expect(hrefs(access(role))).toContain('/marketing');
+    }
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).not.toContain('marketing');
+    // адрес без пункта меню не открывает страницу: право то же, что у пункта
+    expect(pageOpen(access('STAFF'), routeRule('/marketing')!.requires as 'settings')).toBe(false);
+    expect(pageOpen(access('STAFF'), routeRule('/website/booking')!.requires as 'settings')).toBe(
+      false,
+    );
+  });
+
   it('пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего', () => {
     expect(hrefs(PENDING_ACCESS)).toEqual(hrefs(access('STAFF')));
   });

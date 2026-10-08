@@ -193,17 +193,7 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of [
-      'arrivals',
-      'departures',
-      'inhouse',
-      'noshow',
-      'hot',
-      'free',
-      'units',
-      'occupied',
-      'occupancy',
-    ]) {
+    for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy']) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (
@@ -211,7 +201,6 @@ for (const width of [360, 390, 430]) {
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
     await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
-    await expect(stats.getByTestId('day-birthdays')).toHaveCount(0);
     await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);

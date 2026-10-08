@@ -303,6 +303,20 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
           'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
+    ],
+  },
+  {
+    // MKT2 (ADR-149): маркетинг отдельно от «Продаж». Право прежнее, `settings`, как у сайта: своего права «маркетинг»
+    // нет (Q-273). Хаб `/marketing` первый вход, `/website/*` его продукт «Сайт и SEO», адреса не менялись
+    label: 'Маркетинг',
+    items: [
+      {
+        href: '/marketing',
+        requires: 'settings',
+        label: 'Маркетинг',
+        icon: 'send',
+        description: 'Сайт и SEO, а дальше реклама, контент и репутация.',
+      },
       {
         // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
         href: '/website',
@@ -417,7 +431,7 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
  * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
- * экранами («Продажи», «Настройки», «Платформа») раскрывают список.
+ * экранами («Продажи», «Маркетинг», «Настройки», «Платформа») раскрывают список.
  */
 // Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
 // затем деньги дня (касса живёт в «Финансах»), продажи, отчётность; фонд и настройки — реже всего.
@@ -438,8 +452,14 @@ export const menuSections: MenuSection[] = [
       menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
-      menuItem('/website'),
     ],
+  },
+  {
+    // MKT2: «Сайт и SEO» ведёт в хаб; страницы сайта (`/website/*`) подсвечивают его же (`activeMenuRoute`)
+    id: 'marketing',
+    label: 'Маркетинг',
+    icon: 'send',
+    items: [menuItem('/marketing', 'Сайт и SEO')],
   },
   {
     // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
@@ -474,6 +494,7 @@ export const menuSections: MenuSection[] = [
 
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
 export const beautyMenuSections: MenuSection[] = [
+  direct('today', '/today', 'today', 'Сегодня'),
   direct('calendar', '/calendar', 'board'),
   direct('appointments', '/appointments', 'booking'),
   direct('customers', '/customers', 'guests'),
@@ -486,6 +507,7 @@ export const beautyMenuSections: MenuSection[] = [
 ];
 
 export const foodMenuSections: MenuSection[] = [
+  direct('today', '/today', 'today', 'Сегодня'),
   direct('floor-plan', '/floor-plan', 'board'),
   direct('table-reservations', '/table-reservations', 'booking'),
   direct('customers', '/customers', 'guests', 'Гости'),
@@ -603,7 +625,7 @@ export function deskAccessOf(
 
 /**
  * Какой пункт меню подсвечен на этом адресе: вкладки модулей не пункты меню, активен их корень
- * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112)
+ * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112, «Сайт и SEO» MKT2)
  */
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
@@ -611,6 +633,8 @@ export function activeMenuRoute(path: string): string | undefined {
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
+  // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
+  if (route === '/website') return '/marketing';
   return route;
 }
 

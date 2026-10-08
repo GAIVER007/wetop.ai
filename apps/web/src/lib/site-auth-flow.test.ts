@@ -12,14 +12,8 @@ const request = (action: string, body?: unknown) =>
     headers: { origin: 'https://wetop.ai', 'content-type': 'application/json' },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
-it('успешный вход возвращает разрешённый next, а сессию — только cookie', async () => {
-  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
-    businessId: 'synthetic-business',
-    locationId: 'synthetic-location',
-    vertical: 'HOSPITALITY',
-    businessName: 'Отель',
-    locationName: 'Филиал',
-  });
+it('успешный вход ведёт через выбор филиала и снимает указатель прошлого входа', async () => {
+  const registration = vi.spyOn(authApi, 'registrationContext');
   vi.spyOn(authApi, 'login').mockResolvedValue({
     token: 'synthetic-session',
     expiresAt: '2030-01-01T00:00:00Z',
@@ -32,8 +26,12 @@ it('успешный вход возвращает разрешённый next, 
     }),
     context('login'),
   );
-  expect(await response.json()).toEqual({ next: '/journal?page=2' });
-  expect(response.headers.get('set-cookie')).toContain('HttpOnly');
+  expect(await response.json()).toEqual({ next: '/scope/resolve?next=%2Fjournal%3Fpage%3D2' });
+  const cookies = response.headers.getSetCookie();
+  expect(cookies.find((c) => c.startsWith('wetop_session='))).toContain('HttpOnly');
+  expect(cookies.find((c) => c.startsWith('wetop_scope='))).toMatch(/^wetop_scope=;.*Max-Age=0/);
+  // регистрационный помощник не выбирает рабочий филиал обычного входа
+  expect(registration).not.toHaveBeenCalled();
 });
 it('браузер может подтвердить сохранение сессии без получения ключа', async () => {
   vi.spyOn(authApi, 'me').mockResolvedValue({ user: { id: 'synthetic-user' } } as never);
@@ -52,18 +50,11 @@ it('сбой API не выдаётся за отсутствующую сесс�
   expect(response.status).toBe(503);
 });
 
-it('pilot login preserves cookie security and avoids Hospitality no-scope destination', async () => {
+it('вход пилота Food не уводит на гостиничную страницу: выбор филиала решает сервер', async () => {
   vi.spyOn(authApi, 'login').mockResolvedValue({
     token: 'synthetic-pilot',
     expiresAt: '2030-01-01T00:00:00Z',
   } as never);
-  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
-    businessId: 'b',
-    locationId: 'l',
-    vertical: 'FOOD_SERVICE',
-    businessName: 'Пилот',
-    locationName: 'Филиал',
-  });
   const response = await POST(
     new Request('https://app.wetop.ai/api/site-auth/login', {
       method: 'POST',
@@ -76,7 +67,7 @@ it('pilot login preserves cookie security and avoids Hospitality no-scope destin
     }),
     context('login'),
   );
-  expect(await response.json()).toEqual({ next: '/register/complete' });
+  expect(await response.json()).toEqual({ next: '/scope/resolve?next=%2Ftoday' });
   expect(response.headers.get('set-cookie')).toContain('HttpOnly');
 });
 

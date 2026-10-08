@@ -127,7 +127,7 @@ test('брони: чипы видов ссылками, полоса инстр�
     );
   }
   expect(seen).toEqual(['Статус брони', 'Фильтры', 'Даты', 'Показать']);
-  // плотность — тот же переключатель
+  // плотность: тот же переключатель
   const density = page.getByRole('group', { name: 'Плотность строк' });
   await expect(density.locator('[aria-pressed="true"]')).toHaveCount(1);
 });

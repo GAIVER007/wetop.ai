@@ -21,7 +21,7 @@ export const PRIMITIVES = [
   'badge',
   'inp',
   'field',
-  // MV8.5 DS1b (DESIGN.md §8.1): вкладки, чипы и полоса инструментов; `.seg` выше — переключатель
+  // MV8.5 DS1b (DESIGN.md §8.1): вкладки, чипы и полоса инструментов; `.seg` выше: переключатель
   'tabs',
   'chip',
   'toolbar',

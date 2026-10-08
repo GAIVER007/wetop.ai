@@ -46,7 +46,7 @@ export function Chip({ selected, size = 'md', count, children, className, ...res
   );
 }
 
-/** Ряд чипов одного отбора; имя обязательно. Кнопки — `role="group"`, ссылки — `nav`. */
+/** Ряд чипов одного отбора; имя обязательно. Кнопки в `role="group"`, ссылки в `nav`. */
 export function ChipGroup({
   as = 'div',
   label,

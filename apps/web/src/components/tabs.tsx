@@ -4,9 +4,9 @@ import { useEffect, useId, useState, type ReactNode } from 'react';
 
 /**
  * Вкладки (MV8.5 DS1b, DESIGN.md §8.1). Один примитив, два режима:
- *  — маршрутами (`items`): `nav` и ссылки, у текущей `aria-current="page"`; это обычная навигация,
+ *  1) маршрутами (`items`): `nav` и ссылки, у текущей `aria-current="page"`; это обычная навигация,
  *    стрелки не перехватываются;
- *  — на странице (`panels`): `tablist` / `tab` / `tabpanel`, стрелки, Home и End выбирают вкладку сразу
+ *  2) на странице (`panels`): `tablist` / `tab` / `tabpanel`, стрелки, Home и End выбирают вкладку сразу
  *    (панель мгновенная), выбранная вкладка живёт в адресе `#id`.
  */
 export interface RouteTab {
@@ -25,7 +25,7 @@ type TabsProps = { label: string; className?: string } & (
   { items: RouteTab[]; panels?: never } | { panels: LocalTab[]; items?: never }
 );
 
-/** Следующая вкладка или сегмент по клавише: стрелки по кругу, Home, End; прочие клавиши — -1 */
+/** Следующая вкладка или сегмент по клавише: стрелки по кругу, Home, End; прочие клавиши дают -1 */
 export function rovingIndex(key: string, index: number, length: number): number {
   if (key === 'ArrowRight') return (index + 1) % length;
   if (key === 'ArrowLeft') return (index + length - 1) % length;

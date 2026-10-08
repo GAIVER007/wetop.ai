@@ -11,7 +11,7 @@ export interface SegmentOption<T extends string> {
   label: string;
 }
 
-/** Значение после клавиши; null — клавиша не наша */
+/** Значение после клавиши; null, если клавиша не наша */
 export function segmentAfterKey<T extends string>(
   options: ReadonlyArray<SegmentOption<T>>,
   value: T,

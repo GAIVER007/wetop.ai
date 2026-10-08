@@ -146,7 +146,7 @@ describe('ChipGroup', () => {
     expect(group.attrs['role']).toBe('group');
     expect(group.attrs['aria-label']).toBe('Тип места');
   });
-  it('ряд ссылок — навигация с именем', () => {
+  it('ряд ссылок: навигация с именем', () => {
     const group = doc(h(ChipGroup, { as: 'nav', labelledBy: 'views-title', children: 'x' }))
       .tags[0]!;
     expect(group.tag).toBe('nav');

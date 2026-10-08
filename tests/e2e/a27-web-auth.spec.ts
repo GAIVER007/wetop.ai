@@ -1067,8 +1067,11 @@ test('logout denies reload history existing tab new tab and old API session', as
     await alreadyOpenNavigation.locator('body').innerText(),
   );
 
-  await alreadyOpenReload.reload();
+  await alreadyOpenReload.reload({ waitUntil: 'domcontentloaded' });
   await expect(alreadyOpenReload).toHaveURL(canonicalLogin('/profile/access'));
+  await expect(
+    alreadyOpenReload.getByRole('dialog', { name: 'Вход и регистрация в WETOP' }),
+  ).toBeVisible();
   assertNoProtectedFixture(
     await alreadyOpenReload.content(),
     await alreadyOpenReload.locator('body').innerText(),

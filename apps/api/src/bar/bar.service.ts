@@ -1,23 +1,39 @@
 import 'reflect-metadata';
+import { salePriceFromMarkup } from '@pms/domain';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const date = /^\d{4}-\d{2}-\d{2}$/;
+const date = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
+const int64Max = 9_223_372_036_854_775_807n;
+const bounded = (value: bigint, field: string): bigint => {
+  if (value > int64Max) throw new BadRequestException(`${field}: превышен диапазон целого числа`);
+  return value;
+};
 const integer = (value: unknown, field: string): bigint => {
   if (typeof value !== 'string' || !/^\d+$/.test(value) || BigInt(value) <= 0n)
     throw new BadRequestException(`${field}: нужно целое число больше нуля`);
-  return BigInt(value);
+  return bounded(BigInt(value), field);
 };
 const nonnegativeInteger = (value: unknown, field: string): bigint => {
   if (typeof value !== 'string' || !/^\d+$/.test(value))
     throw new BadRequestException(`${field}: нужно целое неотрицательное число`);
-  return BigInt(value);
+  return bounded(BigInt(value), field);
 };
 const positiveNumber = (value: unknown, field: string): number => {
-  if (!Number.isInteger(value) || Number(value) <= 0)
+  if (!Number.isSafeInteger(value) || Number(value) <= 0 || Number(value) > 2_147_483_647)
     throw new BadRequestException(`${field}: нужно целое число больше нуля`);
   return Number(value);
+};
+const markupNumber = (value: unknown): number => {
+  if (typeof value === 'number' && !Number.isSafeInteger(value)) throw new BadRequestException('Наценка: нужно безопасное целое число');
+  const parsed = nonnegativeInteger(String(value), 'Наценка');
+  if (parsed > 2_147_483_647n) throw new BadRequestException('Наценка: превышен диапазон Int32');
+  return Number(parsed);
 };
 const optionalText = (value: unknown): string | null => typeof value === 'string' && value.trim() ? value.trim() : null;
 
@@ -29,7 +45,7 @@ export class BarService {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const name = optionalText(body.name);
     if (!name) throw new BadRequestException('Укажите название категории');
-    const input: BarCategoryInput = { name, defaultMarkupBasis: Number(nonnegativeInteger(String(body.defaultMarkupBasis), 'Наценка')) };
+    const input: BarCategoryInput = { name, defaultMarkupBasis: markupNumber(body.defaultMarkupBasis) };
     return this.repo.createCategory(input);
   }
   async setCategoryActive(id: string, raw: unknown) {
@@ -49,7 +65,7 @@ export class BarService {
     if (categoryId && !uuid.test(categoryId)) throw new BadRequestException('Категория указана неверно');
     const markupBasis = body.markupBasis === null || body.markupBasis === undefined
       ? null
-      : Number(nonnegativeInteger(String(body.markupBasis), 'Наценка'));
+      : markupNumber(body.markupBasis);
     const input: BarProductInput = {
       code, name, categoryId, barcode: optionalText(body.barcode),
       unitsPerPackage: positiveNumber(body.unitsPerPackage, 'Единиц в упаковке'), markupBasis,
@@ -161,16 +177,22 @@ export class BarService {
     const receivedDate = typeof body.receivedDate === 'string' ? body.receivedDate : '';
     const currency = typeof body.currency === 'string' ? body.currency : '';
     if (!uuid.test(supplierId) || !documentNumber) throw new BadRequestException('Укажите поставщика и номер документа');
-    if (!date.test(documentDate) || !date.test(receivedDate)) throw new BadRequestException('Укажите даты документа и приемки');
+    if (!date(documentDate) || !date(receivedDate)) throw new BadRequestException('Укажите даты документа и приемки');
     if (!/^[A-Z]{3}$/.test(currency)) throw new BadRequestException('Валюта: три заглавные буквы');
     if (!Array.isArray(body.lines) || body.lines.length === 0) throw new BadRequestException('Добавьте хотя бы один товар');
     const input: BarReceiptInput = { supplierId, documentNumber, documentDate, receivedDate, currency, note: typeof body.note === 'string' && body.note.trim() ? body.note.trim() : null, lines: body.lines.map((rawLine) => {
       const l = (rawLine && typeof rawLine === 'object' ? rawLine : {}) as Record<string, unknown>;
       const productId = typeof l.productId === 'string' ? l.productId : '';
       if (!uuid.test(productId)) throw new BadRequestException('Товар не выбран');
-      const markup = nonnegativeInteger(String(l.markupBasis), 'Наценка');
+      const markup = BigInt(markupNumber(l.markupBasis));
       return { productId, quantityUnits: integer(l.quantityUnits, 'Количество'), unitCostMinor: integer(l.unitCostMinor, 'Цена закупки'), markupBasis: markup };
     }) };
+    let total = 0n;
+    for (const line of input.lines) {
+      total += bounded(line.quantityUnits * line.unitCostMinor, 'Стоимость строки');
+      bounded(salePriceFromMarkup(line.unitCostMinor, line.markupBasis), 'Расчетная цена');
+    }
+    bounded(total, 'Сумма прихода');
     return this.repo.createReceipt(input);
   }
   async postReceipt(id: string) {

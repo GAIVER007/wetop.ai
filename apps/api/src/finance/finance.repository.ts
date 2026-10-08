@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import {
   FinanceRuleError,
@@ -317,7 +317,7 @@ export interface FinanceRepository {
     },
   ): Promise<{ rows: OperationRecord[]; summary: OperationsSummaryRow[] }>;
   /** Слагаемые остатков кассы по способам — за всё время (§21) */
-  cashBalanceSources(): Promise<CashBalanceSources>;
+  cashBalanceSources(): Promise<CashBalanceSources & { currency: string }>;
   /** Статьи кассы; пустой справочник заполняется стартовым набором (Q-236) */
   cashCategories(): Promise<CashCategoryRecord[]>;
   createCashCategory(
@@ -1171,8 +1171,21 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
   }
   // ── Касса (DATA_MODEL §21) ─────────────────────────────────────────────────────────────────────
-  async cashBalanceSources(): Promise<CashBalanceSources> {
+  async cashBalanceSources(): Promise<CashBalanceSources & { currency: string }> {
     const { id: propertyId } = await this.property();
+    const property = await this.prisma.db.property.findUniqueOrThrow({ where: { id: propertyId }, select: { currency: true } });
+    const incompatible = await this.prisma.db.$queryRaw<Array<{ id: string }>>`
+      SELECT p.id FROM payments p WHERE p.property_id = ${propertyId}::uuid AND p.currency <> ${property.currency}
+        AND (p.status = 'COMPLETED' OR EXISTS (SELECT 1 FROM refunds x WHERE x.payment_id = p.id))
+      UNION ALL
+      SELECT c.id FROM cash_operations c JOIN bar_supplier_payments p ON p.cash_operation_id = c.id
+        JOIN bar_receipts r ON r.id = p.receipt_id
+        WHERE c.property_id = ${propertyId}::uuid AND c.status = 'COMPLETED' AND r.currency <> ${property.currency}
+      UNION ALL
+      SELECT c.id FROM cash_operations c JOIN bar_sales s ON s.cash_operation_id = c.id
+        WHERE c.property_id = ${propertyId}::uuid AND c.status = 'COMPLETED' AND s.currency <> ${property.currency}
+      LIMIT 1`;
+    if (incompatible.length) throw new ConflictException({ code: 'CASH_MIXED_CURRENCY_HISTORY', message: 'Источники кассы содержат несовместимую валюту. Общий денежный итог требует отдельной сверки.' });
     const payments = await this.prisma.db.payment.groupBy({
       by: ['method'],
       where: { propertyId, status: 'COMPLETED' },
@@ -1191,6 +1204,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
       _sum: { amount: true },
     });
     return {
+      currency: property.currency,
       payments: payments.map((p) => ({ method: p.method, amountMinor: p._sum.amount ?? 0n })),
       refunds: refunds.map((r) => ({ method: r.method, amountMinor: BigInt(r.amount) })),
       operations: operations.map((o) => ({
@@ -1346,6 +1360,10 @@ export class PrismaFinanceRepository implements FinanceRepository {
     await this.locked(
       audit,
       async (tx) => {
+        // Supplier settlement and cancellation serialize on receipt before cash.
+        await tx.$queryRaw`SELECT r.id FROM bar_receipts r
+          JOIN bar_supplier_payments p ON p.receipt_id = r.id
+          WHERE p.cash_operation_id = ${id}::uuid FOR UPDATE OF r`;
         const rows = await tx.$queryRaw<Array<{ status: string }>>`
           SELECT "status"::text AS status FROM "cash_operations" WHERE "id" = ${id}::uuid FOR UPDATE`;
         if (rows[0]?.status !== 'COMPLETED')

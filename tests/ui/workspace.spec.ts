@@ -1,3 +1,4 @@
+import { formatMoney } from '../../apps/web/src/lib/money';
 import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -131,7 +132,9 @@ test('вложенные разделы: раскрытие, один актив
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  await expect(
+    sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }),
+  ).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -683,16 +686,36 @@ test('ошибка буфера обмена видна, код остаётся
   await expect(page.getByTestId('site-card-snippet')).toContainText('public-ui-fixture');
 });
 
-test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
+test('финансы: неверные даты можно исправить без падения страницы', async ({ page, request }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
-  // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
-  await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
-  await expect(page.getByTestId('cash-period-income')).not.toHaveText('Нет данных');
+  await expect(page).toHaveURL((url) => url.searchParams.get('to') === '2026-09-30');
+  // The active accessible region excludes Next's outgoing streamed page.
+  const summary = page.getByRole('main').getByRole('region', { name: 'Итоги кассы', exact: true });
+  await expect(summary).toBeVisible();
+  await expect(summary.getByTestId('finance-period')).toHaveText(
+    'За период с 30.09.2026 по 30.09.2026',
+  );
+  const response = await request.get(
+    `${fixture}/finance/operations?from=2026-09-30&to=2026-09-30`,
+    { headers: { 'x-wetop-test-client': '1' } },
+  );
+  expect(response.ok()).toBe(true);
+  const operations = (await response.json()) as {
+    paidMinor: string;
+    incomeMinor: string;
+    currency: string;
+  };
+  await expect(summary.getByTestId('cash-period-income')).toHaveText(
+    formatMoney(
+      (BigInt(operations.paidMinor) + BigInt(operations.incomeMinor)).toString(),
+      operations.currency,
+    ),
+  );
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {

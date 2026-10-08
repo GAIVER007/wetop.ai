@@ -160,8 +160,12 @@ test('цена проживания: «Изменить цену» у строк
   await expect(form.getByLabel('Цена проживания')).not.toHaveValue('');
   await form.getByLabel('Цена проживания').fill('55000');
   await form.getByRole('button', { name: 'Сохранить цену' }).click();
-  await expect(panel.getByTestId('finance-done')).toContainText('Цена проживания изменена: 55 000 ₸');
-  await expect(panel.getByTestId('charge-row').first().locator('td').nth(3)).toContainText('55 000 ₸');
+  await expect(panel.getByTestId('finance-done')).toContainText(
+    'Цена проживания изменена: 55 000 ₸',
+  );
+  await expect(panel.getByTestId('charge-row').first().locator('td').nth(3)).toContainText(
+    '55 000 ₸',
+  );
   await expect(page.getByTestId('booking-head')).toContainText('55 000 ₸');
   await expect(panel.getByTestId('stay-price-form')).toHaveCount(0);
 });
@@ -176,13 +180,17 @@ test('администратор: оплату принимает, но без �
   await expect(panel.getByTestId('payment-form')).toBeVisible();
   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
     await expect(panel.getByTestId(id)).toHaveCount(0);
-  await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(0);
+  await expect(
+    panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' }),
+  ).toHaveCount(0);
 
   await asRole(request, 'MANAGER');
   panel = await openAccounts(page);
   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
     await expect(panel.getByTestId(id).first()).toBeVisible();
-  await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(1);
+  await expect(
+    panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' }),
+  ).toHaveCount(1);
 });
 
 for (const scheme of ['light', 'dark'] as const)
@@ -199,6 +207,11 @@ for (const scheme of ['light', 'dark'] as const)
       expect(page1.violations).toEqual([]);
       await panel.getByTestId('payment-row').first().getByTestId('payment-edit').click();
       await expect(page.getByTestId('payment-edit-form')).toBeVisible();
+      await page.locator('dialog[open]').evaluate(async (dialog) => {
+        await Promise.all(
+          dialog.getAnimations({ subtree: true }).map((animation) => animation.finished),
+        );
+      });
       const drawer = await new AxeBuilder({ page }).include('dialog').analyze();
       expect(drawer.violations).toEqual([]);
       // страница не шире экрана на телефоне

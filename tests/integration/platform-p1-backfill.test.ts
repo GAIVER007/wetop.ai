@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import pg from 'pg';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -19,11 +22,30 @@ const url = process.env.DATABASE_URL;
  */
 describe.skipIf(!url)('Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required)', () => {
   let db: Db;
-  beforeAll(() => {
-    db = createPrismaClient(url);
+  let setup: pg.Client;
+  const schema = `backfill_${randomUUID().replaceAll('-', '')}`;
+  beforeAll(async () => {
+    setup = new pg.Client({ connectionString: url }); await setup.connect();
+    await setup.query(`CREATE SCHEMA ${schema}`); await setup.query(`SET search_path=${schema},public`);
+    const dir = resolve(import.meta.dirname, '../../packages/database/prisma/migrations');
+    const migrations = readdirSync(dir).sort().filter(n => existsSync(resolve(dir, n, 'migration.sql')));
+    const boundary = '20260927000030_platform_p1_business_location';
+    for (const name of migrations) {
+      if (name === boundary) {
+        for (const currency of ['KZT', 'USD']) {
+          const org = randomUUID(); await setup.query('INSERT INTO organizations(id,name) VALUES($1,$2)', [org, `Historical ${currency}`]);
+          await setup.query('INSERT INTO properties(id,organization_id,name,timezone,currency,check_in_time,check_out_time,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,now())', [randomUUID(),org,`Historical property ${currency}`,'Asia/Almaty',currency,'14:00','12:00']);
+        }
+      }
+      await setup.query('BEGIN');
+      try { await setup.query(readFileSync(resolve(dir,name,'migration.sql'),'utf8')); await setup.query('COMMIT'); }
+      catch (error) { await setup.query('ROLLBACK'); throw error; }
+    }
+    db = createPrismaClient(url, schema);
   });
   afterAll(async () => {
     await db?.$disconnect();
+    if (setup) { await setup.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`); await setup.end(); }
   });
 
   it('каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business', async () => {

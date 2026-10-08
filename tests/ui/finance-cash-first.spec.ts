@@ -13,13 +13,14 @@ test('касса: простой вход, фильтры применяются
   request,
 }) => {
   await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Касса', exact: true, level: 1 })).toBeVisible();
-  await expect(page.getByTestId('cash-summary')).toBeVisible();
-  await expect(page.getByTestId('finance-operations')).not.toBeVisible();
-  await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
-  await expect(page.getByTestId('finance-attention')).not.toBeVisible();
+  const screen = page.locator('main:visible');
+  await expect(screen.getByRole('heading', { name: 'Касса', exact: true, level: 1 })).toBeVisible();
+  await expect(screen.getByTestId('cash-summary')).toBeVisible();
+  await expect(screen.getByTestId('finance-operations')).not.toBeVisible();
+  await expect(screen.getByTestId('finance-kpis')).not.toBeVisible();
+  await expect(screen.getByTestId('finance-attention')).not.toBeVisible();
   const params = new URLSearchParams(
-    await page
+    await screen
       .getByTestId('period-form')
       .evaluate((form) =>
         new URLSearchParams(new FormData(form as HTMLFormElement) as never).toString(),
@@ -32,29 +33,34 @@ test('касса: простой вход, фильтры применяются
     )
   ).json();
   const money = (v: string) => formatMoney(v, 'KZT');
-  await expect(page.getByTestId('cash-period-income')).toHaveText(
+  await expect(screen.getByTestId('cash-period-income').filter({ visible: true })).toHaveText(
     money((BigInt(ops.paidMinor) + BigInt(ops.incomeMinor)).toString()),
   );
-  await expect(page.getByTestId('cash-period-expense')).toHaveText(
+  await expect(screen.getByTestId('cash-period-expense')).toHaveText(
     money((BigInt(ops.refundedMinor) + BigInt(ops.expenseMinor)).toString()),
   );
-  const before = await page.getByTestId('cash-period-income').innerText();
-  await page.getByLabel('Тип операции', { exact: true }).selectOption('expense');
-  await page.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');
-  await expect(page.getByLabel('Источник', { exact: true })).not.toBeVisible();
-  await page.getByText('Дополнительные фильтры', { exact: true }).click();
-  await page.getByLabel('Источник', { exact: true }).selectOption('cash');
-  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  const before = await screen
+    .getByTestId('cash-period-income')
+    .filter({ visible: true })
+    .innerText();
+  await screen.getByLabel('Тип операции', { exact: true }).selectOption('expense');
+  await screen.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');
+  await expect(screen.getByLabel('Источник', { exact: true })).not.toBeVisible();
+  await screen.getByText('Дополнительные фильтры', { exact: true }).click();
+  await screen.getByLabel('Источник', { exact: true }).selectOption('cash');
+  await screen.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/op=expense.*method=KASPI.*src=cash/);
-  await expect(page.getByTestId('ops-empty')).toBeVisible();
-  await expect(page.getByTestId('cash-period-income')).toHaveText(before);
-  await page.getByRole('link', { name: 'Сбросить фильтр' }).click();
-  await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('');
-  await expect(page.getByLabel('Способ оплаты', { exact: true })).toHaveValue('');
-  await expect(page.getByLabel('Источник', { exact: true })).toHaveValue('');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
-  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
-  await expect(page.getByTestId('finance-kpis')).toBeVisible();
+  await expect(screen.getByTestId('ops-empty').filter({ visible: true })).toHaveCount(1);
+  await expect(screen.getByTestId('cash-period-income').filter({ visible: true })).toHaveText(
+    before,
+  );
+  await screen.getByRole('link', { name: 'Сбросить фильтр' }).click();
+  await expect(screen.getByLabel('Тип операции', { exact: true })).toHaveValue('');
+  await expect(screen.getByLabel('Способ оплаты', { exact: true })).toHaveValue('');
+  await expect(screen.getByLabel('Источник', { exact: true })).toHaveValue('');
+  await screen.getByText('Отчёты и управление', { exact: true }).click();
+  await screen.getByRole('tab', { name: 'Обзор', exact: true }).click();
+  await expect(screen.getByTestId('finance-kpis')).toBeVisible();
 });
 
 for (const width of [1440, 390, 360]) {
@@ -109,7 +115,10 @@ test('касса: первый экран без лишних кнопок, де
 test('касса: визуальная иерархия итогов и спокойный сброс', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  const income = await page.getByTestId('cash-period-income').boundingBox();
+  const income = await page
+    .getByTestId('cash-period-income')
+    .filter({ visible: true })
+    .boundingBox();
   const expense = await page.getByTestId('cash-period-expense').boundingBox();
   expect(expense!.y).toBeGreaterThan(income!.y);
   expect(Math.abs(expense!.x + expense!.width - income!.x - income!.width)).toBeLessThanOrEqual(1);

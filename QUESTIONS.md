@@ -1287,3 +1287,12 @@ See reports/bar-repair-2/README.md. Production/release and MV6/MV7 remain untouc
 |---|---|---|---|
 | Q-280 | Каков знаменатель no-show rate Beauty/Food, включаются ли отмены и ещё не завершённые записи, по какой дате выбирать период? | OPEN | MV9 показывает абсолютное NO_SHOW; процент до решения не вычисляется. |
 | Q-281 | Повторный клиент: сколько состоявшихся посещений, какое окно истории и scope Business или Organization? | OPEN | MV9 не классифицирует клиентов как повторных и не показывает repeat rate. |
+
+
+## Q-A28-STARTUP-SCHEMA: PostgreSQL startup options and selected schema
+
+Status: OPEN, recorded 2026-10-08. Scope: frozen target main e77f8951166a90f1751bbd9674896d9d4546035a and the local A28 candidate.
+
+A read-only probe on the owned synthetic PostgreSQL 16 database reproduced an inherited defect: a nonempty URL options parameter overrides the PoolConfig search_path option. The configured test schema is then absent from the effective connection search_path. The UTC patch preserves the existing option precedence and correctly sets UTC; it did not introduce the schema omission. Evidence: a28-evidence/startup-options-independent-defect.json.
+
+Separate repair decision required: approve composing inherited URL/environment options with the explicitly configured search_path and UTC, including first-query direct/service/tenant regressions. Confirm whether any deployment intentionally uses a URL search_path different from DATABASE_SCHEMA: [ЗАПОЛНИТЬ]. No startup-schema product repair is included in Task 2.8, and no production state was inspected or changed for this finding.

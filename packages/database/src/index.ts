@@ -7,6 +7,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import { PrismaClient, type Prisma } from './generated/prisma/client';
 import { databasePoolTimeouts } from './pool';
+import { utcConnectionString } from './connection-timezone';
 import { TenantPool, type TenantOf } from './rls';
 import { resolveDatabaseSchema } from './schema';
 
@@ -44,7 +45,7 @@ export function createPrismaClient(
     throw new Error('DATABASE_URL is not set');
   }
   const config = (url: string, max: number): pg.PoolConfig => ({
-    connectionString: url,
+    connectionString: utcConnectionString(url, schema ? `-c search_path=${schema},public` : undefined),
     max,
     // ADR-043: подключение, место в пуле и ответ базы ограничены сроком — мёртвое соединение не вешает процесс
     ...databasePoolTimeouts(process.env),

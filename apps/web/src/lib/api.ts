@@ -3382,17 +3382,17 @@ export interface BarProductRow {
 }
 export interface BarSupplierRow { id: string; name: string; phone: string | null; email: string | null; active: boolean }
 export interface BarReceiptRow {
-  id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
+  id: string; currency: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
   totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
 }
-export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarStockRow extends BarProductRow { currency: string; availableUnits: string; stockCostMinor: string }
 export interface BarSaleRow {
-  id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
+  id: string; currency: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
   lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
 }
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
 export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
-export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export interface BarReport { currency: string; purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
@@ -3412,8 +3412,8 @@ export const barApi = {
   report: () => getJson<BarReport>('/bar/report'),
   createReceipt: (body: unknown) => sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
   postReceipt: (id: string) => sendJson<{ id: string; status: 'POSTED' }>('POST', `/bar/receipts/${encodeURIComponent(id)}/post`, {}),
-  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
-  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
+  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
+  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
   reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
   writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
   payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),

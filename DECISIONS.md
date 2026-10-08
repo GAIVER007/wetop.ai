@@ -6081,3 +6081,72 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+
+## ТЗ №2.3, решения владельца от 07.10.2026
+
+Утверждено в текущем чате: «Да, утверждаю ТЗ №2.3 целиком». Только независимый проверочный клон на 867a3914, без публикации и изменений схемы.
+
+D-CUR: операционная валюта гостиничного товарного учёта и кассы из Property.currency. Без FX. Несовместимые новые приходы, проведение/оплата старых документов и Folio продажи отклоняются 409 без эффекта. При неоднозначных исторических источниках отказ денежного расчёта 409; однозначные документы доступны. Не-KZT автоматическая цена не рассчитывается до отдельного правила; операции с однозначными единицами и заданной ценой допускаются. KZT rounding прежний.
+
+D-KEY: Property+idempotencyKey идентифицирует нормализованные вид продажи, productId, quantityUnits, retail method либо folioId. Сохранённые поля используются без новой колонки. Одинаковый смысл возвращает исходные суммы и действительный статус, в том числе REVERSED. Иной смысл даёт 409 без выдачи чужой операции. Цена каталога не участвует.
+
+Причина: подтверждённые ТЗ №2.2 смешение валют и ложные replay-ответы. Альтернатива FX/новая fingerprint схема не принята. Последствия: несовместимые и неоднозначные операции блокируются, реальная история не переписывается. M6/M9/N6 и Q-BAR-9 остаются открытыми. Финансовые исправления ограничены ТЗ №2.3, общий handoff UNCONFIRMED.
+
+
+## Task 2.5: currency UI and command preservation (2026-10-07)
+
+Problem: Bar labels assumed KZT, while failed submissions could reset editable drafts and replay feedback could misrepresent a reversed sale.
+
+Alternatives: a global formatter rewrite, FX, or a new financial contract. These are outside the approved scope. Decision: use the property and response currency, verify form propertyId/currency, preserve failed input, reset on successful completion and scope changes, keep a key for command retries and rotate it after completion or edits. Display the saved REVERSED status. Reuse the existing shell scope-switch protection.
+
+Authority: owner approved Task 2.5 and separately approved serialization of nested product.salePrice/minimumStockUnits in only two bar.repository.ts mappings. Actual endpoint RED was HTTP 500 on BigInt JSON; GREEN is HTTP 200 with exact decimal strings.
+
+Consequences: no schema or financial calculation change. D-CUR/D-KEY remain fixed. Changes remain in the independent audit clone, global handoff is UNCONFIRMED. A newly observed session timestamp adapter issue requires a separate proposal; no auth repair is part of this decision.
+
+
+## A26: UTC on application PostgreSQL connections (2026-10-08)
+
+Approved scope: TЗ №2.6. The installed Prisma PG adapter 7.10.0 replaces a timestamptz offset with UTC without converting the wall time. Real HTTP RED: active session returned 401 with a Los Angeles database default; SQL epoch remained correct.
+
+Decision: append timezone=UTC to the PostgreSQL startup options in the central client factory, for direct, service and tenant pools. Preserve existing URL options, schema search path and PGOPTIONS precedence; append UTC last. Startup configuration precedes the first query and covers replacement connections and transactions. Alternatives: global parser replacement or timestamp arithmetic were rejected because they broaden conversion behavior. No dependency, schema, TTL or financial logic change.
+
+Scope: PostgreSQL URL connections used by the application. Explicit SQL timezone overrides and poolers that discard startup options are outside this proof. A normal application query must not alter TimeZone. Rollback: remove the connection factory patch and restart application pools. Existing stored epochs need no update. The raw diagnostic dead-connection drill remains outside the application factory.
+
+Compatibility: installed pg 8.23.0 parses URL options after PoolConfig; URL duplicates use the last value. PostgreSQL startup options are supported by https://node-postgres.com/apis/client and https://www.postgresql.org/docs/16/libpq-connect.html .
+
+
+## A27 web session boundary (2026-10-08)
+
+Problem: four approved protected-page/logout cases remain on workspace error401 because auth/me is intentionally quiet at the generic API layer; currentMe and requireVertical propagate ApiError401 without canonical page navigation.
+Alternatives: independent per-page redirects; redirect all auth API401 responses; existing shared currentMe boundary.
+Decision: currentMe translates missing identity/401 through existing redirectToLoginIfRequired and publicAuthUrl. A locked root layout verifies the identity before the protected shell; persistent-layout navigation still relies on page/data checks and API guards. Preserve403/5xx and show safe separate failure with retry, without clearing a valid cookie by inference. Public auth and route-handler JSON responses retain their contracts.
+Reason: one shared page boundary addresses all four cases without changing API authentication, roles, RLS, TTL, refresh or money. Existing React per-render cache avoids duplicate identity requests; no new persistent auth cache.
+Consequences: protected initial shell waits for one existing identity request. Network failure does not grant access and does not revoke the session.403 offers the existing scope recovery route. Retry preserves safe existing query filters. Logout actions remain unchanged because they already revoke and clear session/scope cookies; negative old-session and cache tests prove the affected flow.
+Rollback: remove only A27 web product patch after isolating its tests; retain all inherited A26 UTC and A25 financial patches. No migrations.
+Scope: owned independent candidate only, original156 paths and production untouched. Canonical main comparison is read-only after candidate verification.
+
+Additional real RED: a mounted owner tab kept the previous identity after another tab completed logout and STAFF login, then the owner tab navigated through the real calendar Link. Next caches the root layout during client navigation, including the desk permission promise. The server denied forbidden requests independently; this is a stale identity/permission presentation defect.
+Decision: for locked workspace pathname transitions, keep the protected subtree mounted but synchronously hidden and inert while the client pathname differs from the middleware-derived serverPath. Request router.refresh(); reveal only after the fresh root payload acknowledges the current pathname and has run the existing identity check. This includes shell, permission provider, content, drawer and assistant. Public entries and unlocked stands do not mount the boundary. Query-only changes do not trigger refresh. TeamPage preserves framework redirects using unstable_rethrow.
+Alternatives: a new identity-comparison Server Action adds an internal handshake and another round trip; hard navigation remounts page state; clearing all browser storage or cache is unjustified. None is selected. Next router.refresh merges server components while preserving unaffected client state and scroll, per the installed Next16.3.6 use-router documentation.
+Tradeoff: one additional RSC refresh per protected pathname transition and a brief session-check state. Same-path/query-only interaction does not proactively refresh the persistent identity; API guards and existing page checks remain authoritative. This does not add instant cross-tab notifications or alter backend session refresh semantics.
+
+Account-change refinement: real diagnostic run 2026-10-08T09-03-49Z-e2e-bac6 found zero old markers in visible body, non-script HTML and fresh HTTP/RSC responses, but the initial owner Flight bootstrap remained in the live document (6 markers, 17 occurrences). Ignoring it would weaken the approved HTML/data guarantee. The locked root passes only the already verified user id and organization id. The boundary retains the initial pair; a changed verified pair remains hidden/inert and reloads the current URL to discard the prior account document and client state. The fresh document initializes the new pair, preventing a loop. Same-account RSC refresh preserves client state; branch/scope is excluded from this account boundary. No token/email, storage operations, new endpoint or backend session protocol is added.
+
+
+## A28: integration on frozen main and native cash filter input (2026-10-08)
+
+Authority: owner explicitly approved Task 2.8, including independent local runtime and commits. Target main e77f8951166a90f1751bbd9674896d9d4546035a is fixed for this candidate; global handoff remains UNCONFIRMED. Upstream schema, lockfile, migration SQL and CSS architecture are preserved. Publication is outside this task.
+
+Problem: FilterHistory unconditionally restored URL values during initial hydration. A real browser entered 2026-09-30 before client scripts loaded; the old effect changed it back to 2026-09-01. The GET form submitted the invalid period, so the correct server response remained unavailable. A second independent test defect queried outgoing and active income nodes together.
+
+Decision: initial restore is limited to a back_forward document navigation, where pageshow can precede listener registration. Existing pageshow/popstate restoration stays in place. Ordinary hydration preserves native user input; keyed fields already apply new URL defaults on route updates. The assertion uses the current accessible cash region and verifies applied dates plus exact integer API totals. No money, date validation, identity boundary or backend contract changes.
+
+Alternatives: a delay before interaction would conceal the user input loss; selecting the first income node would conceal an ambiguous transition. Both are rejected. Controlled browser regressions cover script-gated input, valid/invalid/valid periods and back/forward restoration. Historical full-run channel timing is tracked separately from new pinned-main outcomes; the calendar normal-view setup is already present in target main.
+
+Compatibility repairs: the real Team page unit harness ignores CSS imports only, preserving framework redirects and safe failures. Session boundary display is represented by one class in the current components CSS layer, retaining hidden/inert and mounted client state. Historical native harness endpoints accept explicit A28 loopback overrides with their original defaults retained. No schema, migration, dependency update or auth protocol is added.
+
+
+A28 test isolation and observation details: session ordering fixtures now use distinct explicit issued-at timestamps, and immediate outbox retry fixtures are due by one millisecond before database clock time. This removes timestamp precision races while retaining their original ordering and retry assertions. Supplier-payment UI checks wait for the exact existing success status before reading the unchanged API cash/debt etalon, and restore the temporary synthetic scope in finally.
+
+The two added query-only auth scenarios distinguish actual browser cache hits, captured response bodies and bodies unavailable after redirect. A missing browser response body is not treated as empty or safe; independent fresh document/RSC and old-session API denial proofs remain mandatory. Next transport normalization may redirect a STAFF RSC request to the same origin/path/business query with one empty _rsc parameter. The test follows that exact transport URL and requires a successful response without owner fixture markers, alongside STAFF identity/scope, forbidden permission and old-session 401 checks. These are harness compatibility decisions, with no changes to authentication or permission rules.

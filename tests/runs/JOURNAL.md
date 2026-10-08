@@ -7574,3 +7574,9 @@
 | 08.10.2026 14:43 | unit | ✅ 4092 из 4095, пропущено 3 | 1 мин 56 с | 616c25b +13 | [лог](logs/2026-10-08T09-43-17Z-unit-c081.log) |  |
 | 08.10.2026 14:45 | integration | ✅ 960 из 960 | 2 мин 34 с | 616c25b +10 | [лог](logs/2026-10-08T09-45-18Z-integration-ae12.log) |  |
 | 08.10.2026 14:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts tests/ui/ma | ✅ 66 из 66 | 6 мин 2 с | 616c25b +14 | [лог](logs/2026-10-08T09-59-36Z-e2e-2617.log) |  |
+| 08.10.2026 19:42 | e2e (частично: tests/e2e/chessboard-unassigned.spec.ts --workers=1) | ❌ упало 1 из 3 | 59 с | 8ad48af | [лог](logs/2026-10-08T14-42-51Z-e2e-ba10.log) | бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает |
+| 08.10.2026 19:43 | e2e (частично: tests/e2e/chessboard-unassigned.spec.ts --workers=1) | ✅ 3 из 3 | 18 с | 8ad48af +1 | [лог](logs/2026-10-08T14-43-55Z-e2e-8ac0.log) |  |
+| 08.10.2026 19:44 | typecheck | ✅ без ошибок | 44 с | 8ad48af +1 | [лог](logs/2026-10-08T14-44-19Z-typecheck-dfee.log) |  |
+| 08.10.2026 19:45 | lint | ✅ без ошибок | 33 с | 8ad48af +1 | [лог](logs/2026-10-08T14-45-03Z-lint-faec.log) |  |
+| 08.10.2026 19:45 | unit (частично: tests/unit/status-dictionary-guard.test.ts) | ✅ 2 из 2 | 3 с | 8ad48af | [лог](logs/2026-10-08T14-45-37Z-unit-4208.log) |  |
+| 08.10.2026 19:45 | e2e | ✅ 26 из 26 | 1 мин 34 с | 8ad48af +1 | [лог](logs/2026-10-08T14-45-55Z-e2e-4371.log) |  |

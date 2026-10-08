@@ -7580,3 +7580,5 @@
 | 08.10.2026 19:45 | lint | ✅ без ошибок | 33 с | 8ad48af +1 | [лог](logs/2026-10-08T14-45-03Z-lint-faec.log) |  |
 | 08.10.2026 19:45 | unit (частично: tests/unit/status-dictionary-guard.test.ts) | ✅ 2 из 2 | 3 с | 8ad48af | [лог](logs/2026-10-08T14-45-37Z-unit-4208.log) |  |
 | 08.10.2026 19:45 | e2e | ✅ 26 из 26 | 1 мин 34 с | 8ad48af +1 | [лог](logs/2026-10-08T14-45-55Z-e2e-4371.log) |  |
+| 08.10.2026 19:48 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/status-dictionary-guard.test.ts) | ✅ 20 из 20 | 1 с | bfef9af | [лог](logs/2026-10-08T14-48-35Z-unit-e44b.log) |  |
+| 08.10.2026 19:48 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/design-slop.test.ts tests/ | ✅ 44 из 44 | 2 с | bfef9af | [лог](logs/2026-10-08T14-48-40Z-unit-fadb.log) |  |

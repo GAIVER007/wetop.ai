@@ -37,7 +37,8 @@ export async function versionAction(id: string) {
 
 export async function versionsAction() {
   try {
-    return { ok: true as const, versions: (await siteEditorApi.versions()).versions };
+    const r = await siteEditorApi.versions();
+    return { ok: true as const, versions: r.versions, bookmarks: r.bookmarks ?? [] };
   } catch (e) {
     return { ok: false as const, message: e instanceof Error ? e.message : 'Не удалось загрузить историю' };
   }
@@ -75,28 +76,69 @@ export async function sectionAction(baseVersionId: string, pageId: string, secti
 }
 
 /**
- * Окно «Создать сайт»: при надобности заводит сайт (название филиала, адрес из поля), затем ставит первую версию ИИ
- * (поток MKT6) с текстом человека как пожеланием. Хэш брифа тот, что видел человек на этой странице
+ * MKT9.2, первый экран «Сайт для …»: сайт заводится пустым телом (имя и адрес из филиала, повтор отдаёт тот же),
+ * затем первая сборка ИИ с текстом человека как пожеланием или с выбранным направлением оформления. Хэш брифа тот, что
+ * видел человек на этой странице
  */
-export async function createSiteAction(input: { createSite: boolean; name: string; slug: string; briefHash: string; instruction: string }) {
-  let siteCreated = false;
-  if (input.createSite) {
-    try {
-      await marketingSiteApi.create(input.name, input.slug.trim());
-      siteCreated = true;
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Не удалось завести сайт';
-      const field = e instanceof ApiError && (e.status === 400 || e.status === 409) && /Адрес/.test(message) ? ('slug' as const) : null;
-      return { ok: false as const, siteCreated, field, message };
-    }
-  }
+export async function createSiteAction(input: { briefHash: string; instruction: string; design?: { runId: string; id: string } }) {
+  const site = await safe(() => siteEditorApi.bootstrap());
+  if (!site.ok) return { ok: false as const, siteCreated: false, message: site.message, code: site.code };
   const text = input.instruction.trim();
   const reply = await safe(() =>
-    siteEditorApi.generate({ requestKey: randomUUID(), expectedBriefHash: input.briefHash, ...(text ? { instruction: text } : {}) }),
+    siteEditorApi.generate({
+      requestKey: randomUUID(),
+      expectedBriefHash: input.briefHash,
+      ...(text ? { instruction: text } : {}),
+      ...(input.design ? { designRunId: input.design.runId, designId: input.design.id } : {}),
+    }),
   );
   revalidatePath('/marketing/site');
-  if (!reply.ok) return { ok: false as const, siteCreated: input.createSite ? siteCreated : true, field: null, message: reply.message };
+  if (!reply.ok) return { ok: false as const, siteCreated: true, message: reply.message, code: reply.code };
   return { ok: true as const, siteCreated: true, run: reply.data.run };
+}
+
+/** MKT9.2: «Показать варианты оформления» на первом экране: сайт заводится, ИИ предлагает три направления */
+export async function designFirstAction(instruction: string) {
+  const site = await safe(() => siteEditorApi.bootstrap());
+  if (!site.ok) return site;
+  const text = instruction.trim();
+  return safe(() => siteEditorApi.assistant({ requestKey: randomUUID(), mode: 'DESIGN', ...(text ? { text } : {}) }));
+}
+
+/** MKT9.2: Чат, План и Оформление; ответы на вопросы плана уходят тем же путём */
+export async function assistantAction(input: { mode: 'CHAT' | 'PLAN' | 'DESIGN'; text: string; answers?: Array<{ questionId: string; answer: string }> }) {
+  const text = input.text.trim();
+  return safe(() =>
+    siteEditorApi.assistant({ requestKey: randomUUID(), mode: input.mode, ...(text ? { text } : {}), ...(input.answers ? { answers: input.answers } : {}) }),
+  );
+}
+
+export async function assistantRunAction(id: string) {
+  return safe(() => siteEditorApi.assistantRun(id));
+}
+
+/** «Собрать по плану»: ровно одна задача сборки на план, повтор отдаёт ту же */
+export async function approvePlanAction(id: string, instruction: string) {
+  return safe(() => siteEditorApi.approve(id, instruction.trim() || undefined));
+}
+
+export async function conversationAction() {
+  return safe(() => siteEditorApi.conversation());
+}
+
+export async function saveContextAction(instructions: string) {
+  return safe(() => siteEditorApi.saveContext(instructions));
+}
+
+export async function bookmarkAction(id: string, label: string | null) {
+  return safe(async () => {
+    if (label === null) {
+      const r = await siteEditorApi.removeBookmark(id);
+      return r.ok ? { ok: true as const, data: null } : r;
+    }
+    const r = await siteEditorApi.bookmark(id, label);
+    return r.ok ? { ok: true as const, data: r.data.bookmark.label } : r;
+  });
 }
 
 export async function runAction(id: string) {

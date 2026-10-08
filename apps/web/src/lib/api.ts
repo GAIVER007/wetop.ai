@@ -1947,9 +1947,24 @@ export interface BookingSourceView {
 }
 
 /** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
+/** MKT9.2: лицензия конструктора сайта филиала глазами стойки */
+export interface SiteBuilderState {
+  access: 'active' | 'expired' | 'off';
+  status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+  activeUntil: string | null;
+}
+
+export interface MarketingSiteCurrent {
+  site: MarketingSiteSummary | null;
+  /** Сайт филиала в архиве: нового не будет (один филиал, один сайт) */
+  archived: boolean;
+  locationName: string | null;
+  builder: SiteBuilderState;
+  instructions: string | null;
+}
+
 export const marketingSiteApi = {
-  current: () => getJson<{ site: MarketingSiteSummary | null }>('/marketing/site'),
-  create: (name: string, slug: string) => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site', { name, slug }),
+  current: () => getJson<MarketingSiteCurrent>('/marketing/site'),
   publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
   bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
   preview: (versionId: string) =>
@@ -2025,6 +2040,8 @@ export const siteAssetsApi = {
 export interface SiteVersionMeta {
   id: string;
   revision: number;
+  /** MKT9.2: подпись закладки или null */
+  bookmark?: string | null;
   parentVersionId: string | null;
   source: 'MANUAL' | 'AI' | 'IMPORT';
   generationRunId: string | null;
@@ -2055,6 +2072,50 @@ export interface SiteChangeView {
   slot?: string;
 }
 
+/** MKT9.2: структура ответа ассистента по режиму (проверена платформой) */
+export interface DesignDirectionView {
+  id: string;
+  name: string;
+  shortDescription: string;
+  theme: { preset: string; accent: string; typography: string; radius: string; density: string; colorScheme: string };
+  heroVariant: string;
+  sectionOrder: string[];
+}
+export type AssistantPayloadView =
+  | { kind: 'CHAT'; suggestBuild: boolean; suggestPublish: boolean }
+  | { kind: 'QUESTIONS'; questions: Array<{ id: string; question: string; options: string[]; allowCustom: boolean }> }
+  | { kind: 'PLAN'; summary: string; affectedPages: string[]; affectedSections: string[]; steps: string[]; tradeoffs: string[]; buildInstruction: string }
+  | { kind: 'DESIGN'; directions: DesignDirectionView[] };
+
+export interface AssistantRunView {
+  id: string;
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  baseVersionId: string | null;
+  userText: string;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  errorCode: string | null;
+}
+
+/** MKT9.2: запись разговора сайта: сборка или разговорная задача */
+export interface SiteConversationItem {
+  id: string;
+  kind: 'BUILD' | 'ASSISTANT';
+  mode: string;
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  userText: string | null;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  target: { pageId: string; sectionId: string } | null;
+  fromPlanId: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+  errorCode: string | null;
+}
+
 export interface GenerationRunView {
   id: string;
   type: 'INITIAL' | 'PATCH' | 'SECTION' | 'SEO';
@@ -2078,7 +2139,7 @@ export type EditorReply<T> =
   | { ok: true; data: T }
   | { ok: false; status: number; code: string | null; message: string; errors: SiteSpecErrorView[]; paths: Array<{ path: string; code: string }> };
 
-async function editorCall<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<EditorReply<T>> {
+async function editorCall<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<EditorReply<T>> {
   const res = await backendFetch(path, {
     method,
     ...(body !== undefined ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
@@ -2104,11 +2165,15 @@ async function editorCall<T>(method: 'GET' | 'POST', path: string, body?: unknow
 /** «Маркетинг → Редактор сайта» (MKT9): черновик, история, разница, восстановление и ИИ-правки в строгом scope */
 export const siteEditorApi = {
   draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
-  versions: () => getJson<{ versions: SiteVersionMeta[] }>('/marketing/site/versions'),
+  versions: () => getJson<{ versions: SiteVersionMeta[]; bookmarks?: SiteVersionMeta[] }>('/marketing/site/versions'),
   brief: () =>
     getJson<{
       briefHash: string;
-      input: { identity: { displayNameCandidate: string }; accommodations: Array<{ categoryCode: string; name: string }> };
+      input: {
+        identity: { displayNameCandidate: string; address?: string | null; phone?: string | null; email?: string | null };
+        stay?: { checkInTime: string | null; checkOutTime: string | null };
+        accommodations: Array<{ categoryCode: string; name: string }>;
+      };
     }>('/marketing/site/brief'),
   version: (id: string) =>
     editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>('GET', `/marketing/site/versions/${encodeURIComponent(id)}`),
@@ -2127,6 +2192,18 @@ export const siteEditorApi = {
     ),
   generate: (body: Record<string, unknown>) => editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
   run: (id: string) => editorCall<{ run: GenerationRunView }>('GET', `/marketing/site/generations/${encodeURIComponent(id)}`),
+  // ── MKT9.2: лицензированный конструктор ──
+  bootstrap: () => editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/bootstrap', {}),
+  conversation: () => editorCall<{ items: SiteConversationItem[] }>('GET', '/marketing/site/conversation?limit=100'),
+  assistant: (body: Record<string, unknown>) => editorCall<{ run: AssistantRunView }>('POST', '/marketing/site/assistant', body),
+  assistantRun: (id: string) => editorCall<{ run: AssistantRunView }>('GET', `/marketing/site/assistant/${encodeURIComponent(id)}`),
+  approve: (id: string, instruction?: string) =>
+    editorCall<{ run: GenerationRunView }>('POST', `/marketing/site/assistant/${encodeURIComponent(id)}/approve`, instruction ? { instruction } : {}),
+  context: () => editorCall<{ instructions: string | null }>('GET', '/marketing/site/context'),
+  saveContext: (instructions: string) => editorCall<{ instructions: string | null }>('PATCH', '/marketing/site/context', { instructions }),
+  bookmark: (id: string, label: string) =>
+    editorCall<{ bookmark: { versionId: string; revision: number; label: string } }>('PUT', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`, { label }),
+  removeBookmark: (id: string) => editorCall<{ removed: boolean }>('DELETE', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`),
 };
 
 export const analyticsApi = {
@@ -2586,8 +2663,26 @@ export interface ExtensionChangeBody {
 }
 
 /** Раздел «Платформа» (DATA_MODEL §16, ADR-083): только главному администратору, остальным API отвечает 403 */
+/** MKT9.2: гостиничный филиал организации с лицензией конструктора сайта («Платформа → Организации») */
+export interface PlatformSiteBuilderLocation {
+  id: string;
+  name: string;
+  status: string;
+  businessName: string;
+  site: { state: string; slug: string } | null;
+  license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
+}
+
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  siteBuilder: (organizationId: string) =>
+    getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
+  changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
+    sendJson<PlatformSiteBuilderLocation>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/site-builder/${encodeURIComponent(locationId)}`,
+      body,
+    ),
   changeAiSeller: (organizationId: string, body: ExtensionChangeBody) =>
     sendJson<PlatformOrganization>(
       'PUT',

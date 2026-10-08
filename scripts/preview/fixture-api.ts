@@ -1,7 +1,7 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
-import { marketingSiteFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
+import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
 import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
@@ -5748,6 +5748,9 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      // MKT9.2: лицензии конструктора сайта по филиалам
+      const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
+      if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);
       const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
       if (change && req.method === 'PUT') {
         const org = platformOrganizations().find((o) => o.id === decodeURIComponent(change[1]!));

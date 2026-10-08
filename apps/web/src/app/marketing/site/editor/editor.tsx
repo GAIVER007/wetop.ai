@@ -1,6 +1,9 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
+  applyDesignDirection,
+  setInlineText,
   SITE_EDITOR_SECTIONS,
   SITE_SPEC_LOCALES,
   SITE_SPEC_MAX_BYTES,
@@ -11,17 +14,41 @@ import {
   localizedText,
   validateSiteSpec,
 } from '@pms/domain';
-import type { EditorReply, GenerationRunView, SiteAssetView, SiteChangeView, SiteSpecErrorView, SiteVersionMeta } from '../../../../lib/api';
+import type {
+  DesignDirectionView,
+  EditorReply,
+  GenerationRunView,
+  SiteAssetView,
+  SiteBuilderState,
+  SiteChangeView,
+  SiteConversationItem,
+  SiteSpecErrorView,
+  SiteVersionMeta,
+} from '../../../../lib/api';
 import { Alert, Button, Notice, Panel, Stack, cx } from '../../../../components/ui';
 import { useConfirm } from '../../../../components/use-confirm';
-import { diffAction, editorPreviewAction, patchAction, restoreAction, saveDraftAction, sectionAction, versionAction, versionsAction } from './actions';
-import { AiChat, useFeed, type FeedEntry } from './ai-chat';
+import {
+  approvePlanAction,
+  assistantAction,
+  bookmarkAction,
+  conversationAction,
+  diffAction,
+  editorPreviewAction,
+  patchAction,
+  restoreAction,
+  saveDraftAction,
+  sectionAction,
+  versionAction,
+  versionsAction,
+} from './actions';
+import { AiChat, type AiMode } from './ai-chat';
+import { ProjectKnowledge } from './knowledge';
 import { EditorProvider, type AssetKind, type EditorContextValue, type Spec } from './fields';
 import { PageForm, SectionForm, SiteForm } from './forms';
 import { AssetPicker, DiffOverlay, HistoryOverlay } from './overlays';
 import { pathString, setAt, type Path } from './paths';
-import { SitePreview } from './preview';
-import { RUN_STATE, runErrorText, useGenerationRun } from './run';
+import { SitePreview, type PreviewMode } from './preview';
+import { useAssistantRun, useGenerationRun } from './run';
 import { Structure, type Selection } from './structure';
 
 /**
@@ -91,11 +118,21 @@ function whereOf(spec: Spec, path: string, locale: string): string {
   return `Страница «${title}», ${label.toLowerCase()}`;
 }
 
+/** MKT9.2: полоса проекта: лицензия словами */
+const LICENSE_TEXT: Record<SiteBuilderState['access'], string> = {
+  active: 'Лицензия активна',
+  expired: 'Срок лицензии вышел',
+  off: 'Конструктор не подключён',
+};
+
 export function SiteEditor({
   siteId,
   base: initialBase,
   published,
   versions: initialVersions,
+  bookmarks: initialBookmarks,
+  conversation,
+  project,
   categories,
   assets,
   readOnly,
@@ -104,6 +141,9 @@ export function SiteEditor({
   base: Base;
   published: { id: string; revision: number } | null;
   versions: SiteVersionMeta[];
+  bookmarks: SiteVersionMeta[];
+  conversation: SiteConversationItem[];
+  project: { locationName: string; builder: SiteBuilderState; instructions: string | null };
   categories: Array<{ code: string; name: string }>;
   assets: SiteAssetView[];
   readOnly: boolean;
@@ -118,7 +158,31 @@ export function SiteEditor({
   const [tab, setTab] = useState<Tab>('ai');
   const [previewPage, setPreviewPage] = useState<string | null>(() => homeId(initialBase.spec));
   const [aiTarget, setAiTarget] = useState<AiTarget | null>(null);
-  const [aiText, setAiText] = useState('');
+  const [aiText, setAiTextState] = useState('');
+  const draftKey = `wetop.siteEditor.draft.${siteId}`;
+  // недописанный текст живёт в браузере вкладки; сам разговор хранится на сервере
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(draftKey);
+      if (saved) setAiTextState(saved);
+    } catch {
+      // приватное окно: черновик запроса просто не переживёт обновление
+    }
+  }, [draftKey]);
+  const setAiText = (text: string) => {
+    setAiTextState(text);
+    try {
+      if (text) sessionStorage.setItem(draftKey, text);
+      else sessionStorage.removeItem(draftKey);
+    } catch {
+      // хранилище закрыто: текст остаётся на экране
+    }
+  };
+  const [items, setItems] = useState<SiteConversationItem[]>(conversation);
+  const [mode, setMode] = useState<AiMode>('BUILD');
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('select');
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [bookmarks, setBookmarks] = useState(initialBookmarks);
   const [errors, setErrors] = useState<SiteSpecErrorView[]>([]);
   const [message, setMessage] = useState<Message | null>(null);
   const [conflict, setConflict] = useState(false);
@@ -129,8 +193,6 @@ export function SiteEditor({
   const [busy, setBusy] = useState(false);
   const [diff, setDiff] = useState<{ title: string; changes: SiteChangeView[] } | null>(null);
   const [picker, setPicker] = useState<{ kind: AssetKind; onPick: (a: SiteAssetView) => void } | null>(null);
-  const feed = useFeed(siteId);
-  const entryId = useRef<string | null>(null);
   const { ask, dialog } = useConfirm();
   const leaving = useRef(false);
 
@@ -191,8 +253,15 @@ export function SiteEditor({
 
   const refreshVersions = async () => {
     const r = await versionsAction();
-    if (r.ok) setVersions(r.versions);
+    if (r.ok) {
+      setVersions(r.versions);
+      setBookmarks(r.bookmarks);
+    }
     return r.ok ? r.versions : versions;
+  };
+  const refreshConversation = async () => {
+    const r = await conversationAction();
+    if (r.ok) setItems(r.data.items);
   };
   const openPreview = async (versionId: string) => {
     const r = await editorPreviewAction(versionId);
@@ -256,23 +325,36 @@ export function SiteEditor({
 
   const job = useGenerationRun(async (run) => {
     void refreshVersions();
-    const id = entryId.current;
-    if (run.status !== 'SUCCEEDED' || !run.outputVersionId) {
-      if (id) feed.update(id, { state: 'failed', error: runErrorText(run) });
-      return;
+    if (run.status === 'SUCCEEDED' && run.outputVersionId) {
+      const next = await loadAsBase(run.outputVersionId, !dirtyRef.current);
+      if (next && dirtyRef.current) setConflict(true);
     }
-    const next = await loadAsBase(run.outputVersionId, !dirtyRef.current);
-    if (!next) return;
-    if (dirtyRef.current) setConflict(true);
-    if (id) feed.update(id, { state: 'done', revision: next.revision, fromVersionId: run.baseVersionId ?? '', toVersionId: next.id });
+    void refreshConversation();
   });
-  const runStatus = job.run?.status;
+  const talk = useAssistantRun(() => void refreshConversation());
+  // задача, начатая до обновления страницы, продолжает опрашиваться
   useEffect(() => {
-    if (entryId.current && runStatus && job.active) feed.update(entryId.current, { status: RUN_STATE[runStatus] });
-  }, [runStatus]);
+    const running = conversation.find((i) => i.status === 'QUEUED' || i.status === 'RUNNING');
+    if (!running) return;
+    if (running.kind === 'BUILD') job.start({ id: running.id, type: running.mode as GenerationRunView['type'], status: running.status, baseVersionId: running.baseVersionId, outputVersionId: null, errorCode: null });
+    else talk.start({ id: running.id, mode: running.mode as 'CHAT', status: running.status === 'CANCELLED' ? 'FAILED' : running.status, baseVersionId: running.baseVersionId, userText: running.userText ?? '', assistantText: null, payload: null, errorCode: null });
+    // только при открытии страницы
+  }, []);
+  const aiBusy = job.active || talk.active;
 
-  /** Запрос к ИИ: несохранённое сначала сохраняется; метка блока даёт правку одной секции */
+  /**
+   * Запрос к ИИ по режиму. «Сборка»: несохранённое сначала сохраняется, метка блока даёт правку одной секции. «Чат» и
+   * «План»: разговорная задача, сайт не меняется
+   */
   const sendAi = async (text: string) => {
+    setAiError(null);
+    if (mode !== 'BUILD') {
+      const reply = await assistantAction({ mode, text });
+      if (!reply.ok) return setAiError(reply.message);
+      setAiText('');
+      talk.start(reply.data.run);
+      return void refreshConversation();
+    }
     let head = base;
     if (dirty) {
       const saved = await save();
@@ -282,24 +364,59 @@ export function SiteEditor({
     const where = findSection(head.spec, aiTarget);
     const page = where ? pagesOf(head.spec)[where.page] : undefined;
     const section = where ? sectionsOf(page)[where.section] : undefined;
-    const id = `${Date.now()}`;
-    feed.add({ id, text, target: section ? sectionLabel(section, defaultLocale) : null, state: 'running', status: 'Отправляем' });
     const request = (): Promise<EditorReply<{ run: GenerationRunView }>> =>
       page && section ? sectionAction(head.id, String(page['id']), String(section['id']), text) : patchAction(head.id, text);
     const reply = await request();
-    if (!reply.ok) {
-      feed.update(id, { state: 'failed', error: reply.message });
+    if (!reply.ok) return setAiError(reply.message);
+    setAiText('');
+    job.start(reply.data.run);
+    void refreshConversation();
+  };
+  const answerPlan = async (answers: Array<{ questionId: string; answer: string }>) => {
+    setAiError(null);
+    const reply = await assistantAction({ mode: 'PLAN', text: '', answers });
+    if (!reply.ok) return setAiError(reply.message);
+    talk.start(reply.data.run);
+    void refreshConversation();
+  };
+  const approvePlan = async (planId: string, instruction: string) => {
+    setAiError(null);
+    if (dirty) {
+      setAiError('Сначала сохраните черновик: план составлен по сохранённой версии');
       return;
     }
-    setAiText('');
-    entryId.current = id;
+    const reply = await approvePlanAction(planId, instruction);
+    if (!reply.ok) return setAiError(reply.message);
     job.start(reply.data.run);
+    void refreshConversation();
+  };
+  /** Оформление без ИИ: тема, первый экран и порядок блоков главной в документ на экране; сохраняет человек */
+  const applyDesign = (direction: DesignDirectionView) => {
+    setSpec((prev) => applyDesignDirection(prev, direction) as Spec);
+    setMessage({ tone: 'ok', text: `Оформление «${direction.name}» применено к черновику: сохраните, чтобы оставить его` });
+  };
+  /** Правка текста прямо на сайте: только разрешённые поля, предел поля; ИИ не зовётся */
+  const inlineEdit = (path: string, locale: string, text: string) => {
+    const r = setInlineText(spec, path, locale, text);
+    if (!r.ok) return setMessage({ tone: 'error', text: r.message });
+    setSpec(r.spec as Spec);
+  };
+  const toggleBookmark = async (v: SiteVersionMeta, label: string | null) => {
+    setHistoryError(null);
+    const r = await bookmarkAction(v.id, label);
+    if (!r.ok) {
+      setHistoryError(r.message);
+      return false;
+    }
+    await refreshVersions();
+    return true;
   };
 
-  const showChanges = async (entry: FeedEntry) => {
-    if (!entry.toVersionId || !entry.fromVersionId) return;
-    const r = await diffAction(entry.toVersionId, entry.fromVersionId);
-    if (r.ok) setDiff({ title: `Что изменил ИИ в версии ${entry.revision}`, changes: r.data.changes });
+  const showChanges = async (item: SiteConversationItem) => {
+    if (!item.outputVersionId || !item.baseVersionId) return;
+    const r = await diffAction(item.outputVersionId, item.baseVersionId);
+    const revision = versions.find((v) => v.id === item.outputVersionId)?.revision;
+    if (r.ok) setDiff({ title: `Что изменил ИИ в версии ${revision ?? ''}`, changes: r.data.changes });
     else setMessage({ tone: 'error', text: r.message });
   };
   /** Восстановление версии новой головой; `conflict`: голова уже ушла вперёд, ввод на месте */
@@ -325,9 +442,9 @@ export function SiteEditor({
     void refreshVersions();
     return 'ok';
   };
-  const undo = async (entry: FeedEntry) => {
-    if (!entry.fromVersionId) return;
-    const before = versions.find((v) => v.id === entry.fromVersionId)?.revision ?? (entry.revision ?? 1) - 1;
+  const undo = async (item: SiteConversationItem) => {
+    if (!item.baseVersionId) return;
+    const before = versions.find((v) => v.id === item.baseVersionId)?.revision ?? 1;
     const ok = await ask({
       title: 'Вернуть сайт как было до этого запроса?',
       body: dirty
@@ -335,7 +452,7 @@ export function SiteEditor({
         : `Появится новая версия черновика с содержимым версии ${before}. Опубликованный сайт не изменится.`,
       confirmLabel: 'Вернуть',
     });
-    if (ok) await restore(entry.fromVersionId, before, (text) => setMessage({ tone: 'error', text }));
+    if (ok) await restore(item.baseVersionId, before, (text) => setMessage({ tone: 'error', text }));
   };
 
   // уход со страницы с несохранёнными правками: вопрос браузера и свой вопрос для ссылок внутри стойки
@@ -426,6 +543,16 @@ export function SiteEditor({
       {dialog}
       <Stack>
         <div className="ed-top" data-testid="ed-bar">
+          <div className="ed-top__project">
+            <p className="ed-top__name" data-testid="ed-project">
+              <b>{project.locationName}</b>
+              <span className="muted"> / Сайт филиала</span>
+            </p>
+            <p className={cx('ed-license', `is-${project.builder.access}`)} data-testid="ed-license">
+              <span className="ed-license__dot" aria-hidden="true" />
+              {LICENSE_TEXT[project.builder.access]}
+            </p>
+          </div>
           <dl className="ed-top__facts">
             <div>
               <dt>Черновик</dt>
@@ -452,11 +579,24 @@ export function SiteEditor({
             >
               История
             </Button>
+            <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="editor-assets-link">
+              Изображения
+            </Link>
+            <Link className="btn btn--secondary" href="/marketing/site" data-testid="editor-publication-link">
+              Публикация
+            </Link>
             <Button type="button" disabled={readOnly || !dirty || saving} onClick={() => void save()} data-testid="ed-save">
               {saving ? 'Сохраняем…' : 'Сохранить черновик'}
             </Button>
           </div>
         </div>
+        {project.builder.access !== 'active' && (
+          <Alert boxed data-testid="ed-license-off">
+            <b>Конструктор сайта не активен для этого филиала.</b>{' '}
+            {project.builder.access === 'expired' ? 'Срок лицензии вышел. ' : ''}Сайт и история видны, но менять сайт, просить ИИ и публиковать
+            нельзя. Опубликованный сайт продолжает работать. Подключить конструктор может главный администратор WETOP.
+          </Alert>
+        )}
 
         {message &&
           (message.tone === 'ok' ? (
@@ -527,7 +667,7 @@ export function SiteEditor({
             </ul>
           </Alert>
         )}
-        {job.lost && <Alert boxed>{job.lost}</Alert>}
+        {(job.lost || talk.lost) && <Alert boxed>{job.lost ?? talk.lost}</Alert>}
 
         <div className="site-editor" data-testid="site-editor">
           <div className="ed-left">
@@ -550,17 +690,24 @@ export function SiteEditor({
             <div id="ed-pane-ai" role="tabpanel" aria-labelledby="ed-tab-ai" className={cx('site-editor__pane', tab === 'ai' && 'is-active')}>
               <Panel>
                 <AiChat
-                  entries={feed.entries}
+                  items={items}
+                  revisionOf={(id) => versions.find((v) => v.id === id)?.revision ?? null}
+                  mode={mode}
+                  setMode={setMode}
                   target={targetLabel}
                   onClearTarget={() => setAiTarget(null)}
                   dirty={dirty}
                   readOnly={readOnly}
-                  busy={job.active || saving}
+                  busy={aiBusy || saving}
                   onSend={(text) => void sendAi(text)}
-                  onShowChanges={(e) => void showChanges(e)}
-                  onUndo={(e) => void undo(e)}
+                  onAnswer={(_, answers) => void answerPlan(answers)}
+                  onApprove={(planId, instruction) => void approvePlan(planId, instruction)}
+                  onApplyDesign={applyDesign}
+                  onShowChanges={(item) => void showChanges(item)}
+                  onUndo={(item) => void undo(item)}
                   text={aiText}
                   setText={setAiText}
+                  error={aiError}
                 />
               </Panel>
             </div>
@@ -584,9 +731,14 @@ export function SiteEditor({
             <div id="ed-pane-site" role="tabpanel" aria-labelledby="ed-tab-site" className={cx('site-editor__pane', tab === 'site' && 'is-active')}>
               {/* форма сайта в разметке только на своей вкладке: иначе её поля (логотип, ALT) двоились бы с формой блока */}
               {tab === 'site' && (
-                <Panel>
-                  <SiteForm />
-                </Panel>
+                <Stack>
+                  <Panel>
+                    <ProjectKnowledge initial={project.instructions} readOnly={readOnly} />
+                  </Panel>
+                  <Panel>
+                    <SiteForm />
+                  </Panel>
+                </Stack>
               )}
             </div>
           </div>
@@ -604,6 +756,10 @@ export function SiteEditor({
               selectedSectionId={selectedSectionId}
               onPickSection={pickFromPreview}
               onOpenSeparately={() => (dirty ? setMessage({ tone: 'error', text: 'Сначала сохраните черновик.' }) : void openPreview(base.id))}
+              mode={previewMode}
+              setMode={setPreviewMode}
+              onInlineEdit={inlineEdit}
+              readOnly={readOnly}
             />
           </div>
         </div>
@@ -622,6 +778,8 @@ export function SiteEditor({
       <HistoryOverlay
         open={historyOpen}
         versions={versions}
+        bookmarks={bookmarks}
+        onBookmark={toggleBookmark}
         readOnly={readOnly}
         busy={busy}
         error={historyError}

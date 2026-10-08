@@ -51,7 +51,7 @@ export interface BusinessAgentView {
   id: string;
   name: string;
   lifecycle: string;
-  business: { id: string; name: string };
+  business: { id: string; name: string; vertical?: import('@pms/domain').BusinessVertical };
   location: { id: string; name: string };
   setup: readonly AgentSetupItem[];
   createdAt: string;
@@ -168,7 +168,7 @@ function view(agent: {
   id: string;
   name: string;
   lifecycle: string;
-  business: { id: string; name: string };
+  business: { id: string; name: string; vertical?: import('@pms/domain').BusinessVertical };
   location: { id: string; name: string };
   createdAt: Date;
   updatedAt: Date;

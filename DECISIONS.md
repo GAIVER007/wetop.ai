@@ -6081,3 +6081,15 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+## ADR-MV10-TOOLS: trusted vertical tools, 2026-10-07
+
+Проблема: seller runtime собирает общий Hotel registry, а действующий seller-quote контракт не возвращает canonical binding. Операторские Beauty/Food API требуют user identity и не подходят гостевому продавцу.
+
+Варианты: открыть operator endpoints ключу (отклонено, разглашение scope/PII); доверять Python mirror/prompt (отклонено); узкие server-to-server reads и registry текущего хода (выбрано).
+
+Решение владельца: утверждён reports/mv10-20261007/contract-impact.md. GET agent-context/beauty-services/food-service-periods по существующему seller-quote ключу; платформа проверяет agent -> Organization/Business/Location, lifecycle и entitlement. Каталоги без гостей/записей/финансов. Runtime выбирает registry для каждого generate, не меняет process-global toolset. Перед исполнением повторная проверка binding. Hospitality прежний, support отдельный.
+
+Последствия: новый узкий backend read contract без schema/migrations/env keys, отдельные vertical adapters и RED/GREEN denial tests. При отказе нет Hotel fallback. Delivery отдельный PR, STOP без merge/production/MV11.
+
+Уточнение после prompt-аудита 07.10.2026: существующий генератор инструкций org-scoped и гостиничный. Его новый vertical контракт не добавляется. Beauty/Food в общем редакторе начинают с ручной инструкции; генерация явно недоступна. Server-selected сообщение текущего хода заменяет гостиничный предмет ответа для Beauty/Food и сохраняет общие правила конфиденциальности/точности. Непроверенный контекст даёт сообщение о недоступности и пустой registry. Причина: не выдавать гостиничный шаблон за поддержку нового направления и не расширять утверждённый backend контракт.

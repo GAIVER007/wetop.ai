@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 08.10.2026 11:02 Алматы · MacBook-Air-Urij.local
+# коммит 6b601a2 (codex/mv10-vertical-ai-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' 'tests/branches-ui/vertical-ai.spec.ts' '--grep' 'FOOD_SERVICE light 1440'
+[WebServer] (node:81515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:82030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen (0ms)
+
+
+  1) tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen
+
+    TimeoutError: apiRequestContext.post: Timeout 15000ms exceeded.
+    Call log:
+      - → POST http://127.0.0.1:56094/ai-seller/agents
+        - user-agent: Playwright/1.63.0 (arm64; macOS 26.6) node/24.15
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - idempotency-key: 08481d8f-5149-4d65-9ca0-202f5b72439f
+        - x-wetop-scope: business=4148313c-c735-44e0-a7a2-8f265c3a77e6;location=6a6cb629-9d7a-41d0-a004-d6e40213c892
+        - content-type: application/json
+        - content-length: 137
+
+
+      17 |     const b = await db.business.findUniqueOrThrow({ where: { id: businessId } });
+      18 |     const l = await db.location.findFirstOrThrow({ where: { businessId }, orderBy: { name: 'asc' } });
+    > 19 |     const r = await request.post(`${api}/ai-seller/agents`, { headers: { 'idempotency-key': randomUUID(), 'x-wetop-scope': `business=${businessId};location=${l.id}` },
+         |                             ^
+      20 |       data: { name: `Агент ${b.vertical}`, businessId, locationId: l.id } });
+      21 |     expect(r.status()).toBe(201);
+      22 |     fixture.agents.push({ id: (await r.json()).id, business: businessId, location: l.id, vertical: b.vertical });
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/branches-ui/vertical-ai.spec.ts:19:29
+
+    Error Context: test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/error-context.md
+
+    Error Context: test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen
+
+# код выхода 1 · 2 мин 49 с

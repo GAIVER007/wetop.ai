@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 07.10.2026 21:05 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-05-49Z-integration-3e56.json' 'tests/integration/finance-operations.test.ts' 'tests/integration/mv10-vertical-tools.test.ts' '--pool=forks' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+[pms_test] миграций применено 69; данные на месте
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 210ms
+ ✓ |integration| tests/integration/mv10-vertical-tools.test.ts (5 tests) 416ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  20:05:50
+   Duration  3.36s (tests 38%, import 36%, transform 26%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-05-49Z-integration-3e56.json
+
+# код выхода 0 · 5 с

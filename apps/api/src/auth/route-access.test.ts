@@ -403,6 +403,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // H14 (ADR-144): страница статуса сервиса без входа
   'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
+  'GET /bot/agent-context': 'public',
+  'GET /bot/beauty-services': 'public',
+  'GET /bot/food-service-periods': 'public',
   // ADR-144, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
   'POST /bot/booking-intents': 'public',
   'POST /bot/booking-intents/confirm': 'public',

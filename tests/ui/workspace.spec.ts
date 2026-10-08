@@ -131,7 +131,9 @@ test('вложенные разделы: раскрытие, один актив
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  await expect(
+    sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }),
+  ).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -618,11 +620,13 @@ test('общий платёж: ошибка не стирает распреде
   await form.getByLabel('Общая сумма, KZT').fill('2000');
   await form.getByLabel('На счёт 1', { exact: true }).fill('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('500');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('alert')).toContainText('должны совпадать');
   await expect(form.getByLabel('На счёт 1', { exact: true })).toHaveValue('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('1000');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('status')).toContainText('Платёж принят');
   await expect(page.getByTestId('finance-total')).toContainText('30 000 ₸');
   const result = await (
@@ -1223,7 +1227,8 @@ test('счета: приём оплаты подтверждается сумм�
   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
   const payment = page.getByTestId('payment-form').filter({ visible: true }).first();
   await payment.getByLabel('Сумма', { exact: true }).fill('1200');
-  await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
   await expect(page.getByTestId('finance-done')).toContainText('1 200');
 });
@@ -1255,8 +1260,6 @@ test('деньги за период: период длиннее года об�
  * никогда.
  */
 test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
-  // канал и долг живут во второй строке подписи, а её показывает «Обычный» вид; «Компактный» по умолчанию
-  // (решение владельца 07.10.2026) вторую строку прячет: без этого в CI бейдж не находился (прогон #148)
   await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   const plate = page.getByTestId('stay-cell').first();
@@ -1361,11 +1364,12 @@ test('незаезд: окно называет штраф суммой, а не
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   await page
-    .getByTestId(/^no-show-/)
+    .getByTestId(/^cancel-stay-/)
     .first()
     .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
-  await expect(dialog).toContainText('Отметить незаезд');
+  await dialog.getByLabel('Причина отмены').selectOption('no_show');
+  await expect(dialog).toContainText('Подтвердить незаезд');
   await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
     'Штраф 8 000 ₸ останется на счёте',
   );

@@ -24,14 +24,20 @@ for (const edited of [true, false]) {
     await group.getByLabel('Общая сумма, KZT').fill('2000');
     await group.getByLabel('На счёт 1', { exact: true }).fill('1000');
     await group.getByLabel('На счёт 2', { exact: true }).fill('1000');
-    await group.getByRole('button', { name: 'Принять общий платёж' }).click();
+    await group.getByRole('button', { name: 'Проверить общий платёж' }).click();
+    const beforeConfirm = await (await request.get(`${fixture}/__test/commands`)).json();
+    expect(beforeConfirm.filter((c: { path: string }) => c.path === '/finance/payments')).toEqual(
+      [],
+    );
+    await group.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
     await expect(group.getByRole('status')).toContainText('Платёж принят');
     if (edited) {
       await expect(payment.getByLabel('Сумма', { exact: true })).toHaveValue('1.25');
       await expect(payment.getByLabel('Примечание', { exact: true })).toHaveValue(
         'Проверка сохранения ввода',
       );
-      await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+      await payment.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+      await payment.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
       await expect
         .poll(async () => {
           const commands = (await (
@@ -76,9 +82,13 @@ test('оплата D3: строка сути называет сумму, спо
   // не число — кнопка отключена, строка сути говорит почему
   await payment.getByLabel('Сумма', { exact: true }).fill('12a');
   await expect(digest).toContainText('не число');
-  await expect(payment.getByRole('button', { name: 'Принять оплату', exact: true })).toBeDisabled();
+  await expect(
+    payment.getByRole('button', { name: 'Проверить оплату', exact: true }),
+  ).toBeDisabled();
   await payment.getByLabel('Сумма', { exact: true }).fill('1000');
-  await expect(payment.getByRole('button', { name: 'Принять оплату', exact: true })).toBeEnabled();
+  await expect(
+    payment.getByRole('button', { name: 'Проверить оплату', exact: true }),
+  ).toBeEnabled();
   // подписи полей видны, не только aria-label
   // подпись — это <label> вокруг поля: его текст включает и значение, поэтому ищем по началу
   await expect(payment.locator('label.field--inline', { hasText: /^Способ/ })).toBeVisible();

@@ -1,0 +1,173 @@
+import { FIXTURE_API, expect, test } from './fixtures';
+const number = '20260913-TESTAA';
+const headers = { 'x-wetop-test-client': '1' };
+
+test.beforeEach(async ({ request }) => {
+  await request.post(`${FIXTURE_API}/__test/reset`);
+});
+
+test('календарь: оплата без перехода и отказ от незавершённого ввода', async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  const before = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  const form = preview.getByTestId('payment-form');
+  await form.getByLabel('Сумма', { exact: true }).fill('100');
+  await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+  const close = page.getByRole('dialog', { name: 'Закрыть без проведения?' });
+  await expect(close).toBeVisible();
+  await close.getByRole('button', { name: 'Продолжить ввод', exact: true }).click();
+  await form.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+  await page.screenshot({ path: 'reports/calendar-confirmations-2026-10-08/payment-review.png' });
+  const untouched = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  expect(untouched.paidMinor).toBe(before.paidMinor);
+  await expect(
+    form.getByRole('button', { name: 'Подтвердить оплату', exact: true }),
+  ).toBeInViewport({ ratio: 0.95 });
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
+  await expect(preview.getByTestId('preview-finance-result')).toContainText('Оплата принята');
+  await expect(page).toHaveURL(/\/chessboard\?/);
+  await expect
+    .poll(
+      async () =>
+        (
+          await (
+            await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+          ).json()
+        ).paidMinor,
+    )
+    .toBe((BigInt(before.paidMinor) + 10000n).toString());
+});
+
+test('телефон: возврат в календаре проверяет платёж и подтверждает сумму', async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  const before = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByRole('button', { name: 'Возврат', exact: true }).click();
+  await expect(preview.getByLabel('Платёж для возврата')).toBeVisible();
+  const form = preview.getByTestId('refund-form');
+  await form.getByLabel('Сумма возврата', { exact: true }).fill('50');
+  await form.getByLabel('Причина возврата').fill('Синтетический возврат');
+  await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+  await expect(form.getByRole('region', { name: 'Проверка возврата' })).toContainText('50 KZT');
+  const confirm = form.getByRole('button', { name: 'Подтвердить возврат', exact: true });
+  await confirm.scrollIntoViewIfNeeded();
+  await expect(confirm).toBeInViewport({ ratio: 0.95 });
+  await page.screenshot({
+    path: 'reports/calendar-confirmations-2026-10-08/refund-review-phone.png',
+  });
+  await confirm.click();
+  await expect(preview.getByTestId('preview-finance-result')).toContainText('Возврат проведён');
+  await expect
+    .poll(
+      async () =>
+        (
+          await (
+            await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+          ).json()
+        ).refundedMinor,
+    )
+    .toBe((BigInt(before.refundedMinor) + 5000n).toString());
+  await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+  await expect(preview).toBeHidden();
+});
+
+test('закрытие незавершённого ввода ничего не проводит', async ({ page, request }) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  const before = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.getByRole('button', { name: 'На весь экран', exact: true }).click();
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByTestId('payment-form').getByLabel('Сумма', { exact: true }).fill('125');
+  await page.keyboard.press('Escape');
+  const close = page.getByRole('dialog', { name: 'Закрыть без проведения?' });
+  await expect(close).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(close).toBeHidden();
+  await expect(preview).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Выйти из полного экрана', exact: true }),
+  ).toBeVisible();
+  await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+  await close.getByRole('button', { name: 'Закрыть без проведения', exact: true }).click();
+  await expect(preview).toBeHidden();
+  const after = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  expect(after.paidMinor).toBe(before.paidMinor);
+  expect(after.refundedMinor).toBe(before.refundedMinor);
+});
+
+test('проведённая оплата остаётся видна при ошибке обновления счёта', async ({ page, request }) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  const form = preview.getByTestId('payment-form');
+  await form.getByLabel('Сумма', { exact: true }).fill('100');
+  await form.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+  await request.post(`${FIXTURE_API}/__test/control`, {
+    data: { failPath: `/finance/reservations/${number}` },
+  });
+  await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
+  await expect(preview.getByTestId('preview-finance-result')).toContainText('Оплата принята');
+  await expect(preview.getByRole('alert')).toContainText('обновить счёт');
+  const commands = await (await request.get(`${FIXTURE_API}/__test/commands`)).json();
+  expect(commands.filter((c: { path: string }) => c.path === '/finance/payments')).toHaveLength(1);
+});
+
+test('полный возврат убирает платёж из выбора и освобождает окно после отправки', async ({
+  page,
+  request,
+}) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByRole('button', { name: 'Возврат', exact: true }).click();
+  const form = preview.getByTestId('refund-form');
+  await form.getByLabel('Сумма возврата', { exact: true }).fill('8000');
+  await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+  await form.getByRole('button', { name: 'Подтвердить возврат', exact: true }).click();
+  await expect(preview.getByTestId('preview-finance-result')).toContainText('Возврат проведён');
+  await expect(preview.getByText('Нет платежей с доступной суммой возврата.')).toBeVisible();
+  await expect(preview.getByRole('button', { name: 'Закрыть предпросмотр' })).toBeEnabled();
+  await expect(preview.getByRole('button', { name: 'Оплата', exact: true })).toBeEnabled();
+  await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+  await expect(preview).toBeHidden();
+});

@@ -71,3 +71,42 @@ export async function stayAvailabilityAction(
     return null;
   }
 }
+
+export interface PreviewFolio {
+  id: string;
+  status: 'OPEN' | 'CLOSED';
+  currency: string;
+  balanceMinor: string;
+  stay: { accommodationTypeName: string };
+  payments: Array<{ paymentId: string; method: string; remainingMinor: string }>;
+}
+
+/** Только выбранный счёт и доступные остатки платежей, без примечаний и документов гостей. */
+export async function stayFinanceAction(
+  number: string,
+  itemId: string,
+): Promise<PreviewFolio | null> {
+  try {
+    const finance = await financeApi.reservation(number);
+    const folio = finance.folios.find((f) => f.reservationItemId === itemId);
+    if (!folio) return null;
+    return {
+      id: folio.id,
+      status: folio.status,
+      currency: folio.currency,
+      balanceMinor: folio.balanceMinor,
+      stay: { accommodationTypeName: folio.stay.accommodationTypeName },
+      payments: folio.payments
+        .filter(
+          (p) => p.status === 'COMPLETED' && BigInt(p.allocatedMinor) > BigInt(p.refundedMinor),
+        )
+        .map((p) => ({
+          paymentId: p.paymentId,
+          method: p.method,
+          remainingMinor: (BigInt(p.allocatedMinor) - BigInt(p.refundedMinor)).toString(),
+        })),
+    };
+  } catch {
+    return null;
+  }
+}

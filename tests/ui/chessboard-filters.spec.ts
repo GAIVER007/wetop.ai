@@ -254,7 +254,6 @@ test('§38: вид «Компактный / Обычный / Подробный�
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
   const view = main.getByLabel('Вид строк календаря');
-  // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
   await expect(view).toHaveValue('compact');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;

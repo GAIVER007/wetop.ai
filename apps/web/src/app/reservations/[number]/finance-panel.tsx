@@ -1,6 +1,7 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
+import { useMoneyReview } from './money-review';
 import { GroupPayment } from './group-payment';
 import {
   type FinanceCharge,
@@ -60,7 +61,7 @@ const METHODS: Array<[string, string]> = [
   ['CARD_GUARANTEE', 'гарантия картой'],
   ['EXTERNAL', 'внешний канал'],
 ];
-const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
+export const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 /** «1.25» / «1,25» / «12000» → тиыны строкой; иначе null — сумма ещё не число */
 export const decimalToMinor = (raw: string): string | null => {
@@ -421,8 +422,8 @@ function FolioPanel({
           </div>
           {kind === 'DISCOUNT' && stayCharge && (
             <span className="hint" data-testid="discount-hint">
-              Процент считается от проживания {formatMoney(stayCharge.amountMinor, folio.currency)}
-              ; скидка ляжет в счёт отдельной строкой со знаком минус
+              Процент считается от проживания {formatMoney(stayCharge.amountMinor, folio.currency)};
+              скидка ляжет в счёт отдельной строкой со знаком минус
             </span>
           )}
         </form>
@@ -541,6 +542,7 @@ function FolioPanel({
                           number={number}
                           paymentId={p.paymentId}
                           folioId={folio.id}
+                          currency={folio.currency}
                           suggested={toDecimal(refundable(p).toString())}
                           onCancel={() => setRefunding(null)}
                           onResult={(r) => {
@@ -660,19 +662,24 @@ function FolioPanel({
  * брони уходит. Кнопка одна, на время отправки отключена: второй платёж тем же нажатием не создаётся.
  * Отказ сохраняет ввод (`values` из server action), успех перерисовывает форму заново (ключ снаружи).
  */
-function PaymentForm({
+export function PaymentForm({
   number,
   folio,
   action,
   values,
   busy,
+  onDraftChange,
 }: {
   number: string;
-  folio: FinanceFolio;
+  folio: Pick<FinanceFolio, 'id' | 'balanceMinor' | 'currency'> & {
+    stay: Pick<FinanceFolio['stay'], 'accommodationTypeName'>;
+  };
   action: (fd: FormData) => void;
   values: Record<string, string> | undefined;
   busy: boolean;
+  onDraftChange?: (dirty: boolean) => void;
 }) {
+  const { review, onSubmit, onChange } = useMoneyReview(busy, onDraftChange);
   const [method, setMethod] = useState(values?.method ?? 'CASH');
   const suggested = BigInt(folio.balanceMinor) > 0n ? toDecimal(folio.balanceMinor) : '';
   const [draft, setDraft] = useState<string | null>(values?.amount ?? null);
@@ -683,7 +690,13 @@ function PaymentForm({
       ? 'Введите сумму'
       : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodRu(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
   return (
-    <form action={action} data-testid="payment-form" className="folio-form folio-form--pay">
+    <form
+      action={action}
+      onSubmit={onSubmit}
+      onChangeCapture={onChange}
+      data-testid="payment-form"
+      className="folio-form folio-form--pay"
+    >
       <b className="folio-form__title">Принять оплату</b>
       <div className="row">
         <Field inline label="Способ">
@@ -724,12 +737,26 @@ function PaymentForm({
           />
         </Field>
       </div>
+      {review && (
+        <section className="panel" aria-label="Проверка оплаты">
+          <b>Проверьте оплату</b>
+          <p>{digest}</p>
+          {review['note'] && <p>Примечание: {review['note']}</p>}
+          <p className="hint">Оплата будет проведена после подтверждения.</p>
+        </section>
+      )}
       <div className="row folio-form__submit">
-        <span className="hint" data-testid="payment-digest">
-          {digest}
-        </span>
-        <Button type="submit" tone="success" disabled={busy || minor === null}>
-          Принять оплату
+        {!review && (
+          <span className="hint" data-testid="payment-digest">
+            {digest}
+          </span>
+        )}
+        <Button
+          type="submit"
+          tone="success"
+          disabled={busy || minor === null || BigInt(minor) <= 0n}
+        >
+          {busy ? 'Выполняется…' : review ? 'Подтвердить оплату' : 'Проверить оплату'}
         </Button>
       </div>
     </form>
@@ -837,21 +864,26 @@ function ReceiptForm({
   );
 }
 
-/** Возврат из платежа: раскрывается кнопкой «Вернуть», сумма по умолчанию — всё, что ещё не возвращено */
-function RefundForm({
+export function RefundForm({
   number,
   paymentId,
   folioId,
+  currency,
   suggested,
   onCancel,
   onResult,
+  onDraftChange,
+  onPendingChange,
 }: {
   number: string;
   paymentId: string;
   folioId: string;
-  suggested: string;
-  onCancel: () => void;
+  currency: string;
+  suggested?: string;
+  onCancel?: () => void;
   onResult: (r: FinanceActionResult) => void;
+  onDraftChange?: (dirty: boolean) => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
@@ -861,14 +893,22 @@ function RefundForm({
     },
     INIT,
   );
+  useEffect(() => {
+    onPendingChange?.(pending);
+    return () => onPendingChange?.(false);
+  }, [pending, onPendingChange]);
+  const { review, onSubmit, onChange } = useMoneyReview(pending, onDraftChange);
   return (
     <form
       key={`${state.ok}-${state.attempt ?? 0}`}
       action={action}
       data-testid="refund-form"
+      onSubmit={onSubmit}
+      onChangeCapture={onChange}
       className="row row--xs"
     >
       <Input
+        disabled={pending}
         name="amount"
         aria-label="Сумма возврата"
         defaultValue={state.values?.amount ?? suggested}
@@ -877,18 +917,30 @@ function RefundForm({
         className="inp--w90 inp--sm"
       />
       <Input
+        disabled={pending}
         name="reason"
         aria-label="Причина возврата"
         defaultValue={state.values?.reason ?? ''}
         placeholder="причина"
         className="inp--w110 inp--sm"
       />
+      {review && (
+        <section className="panel" aria-label="Проверка возврата">
+          <b>Проверьте возврат</b>
+          <p>
+            Сумма: {review['amount']} {currency}. Причина: {review['reason'] || 'не указана'}.
+          </p>
+          <p className="hint">Возврат будет проведён после подтверждения.</p>
+        </section>
+      )}
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
-        вернуть
+        {pending ? 'Выполняется…' : review ? 'Подтвердить возврат' : 'Проверить возврат'}
       </Button>
-      <Button type="button" tone="ghost" size="sm" onClick={onCancel} disabled={pending}>
-        Отмена
-      </Button>
+      {onCancel && (
+        <Button type="button" tone="ghost" size="sm" onClick={onCancel} disabled={pending}>
+          Отмена
+        </Button>
+      )}
     </form>
   );
 }

@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -97,6 +98,7 @@ test('сутки гостя целиком: заезд, услуга на счё
       )
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+    else await confirmDialog(page, 'Заселить');
   }
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
@@ -115,13 +117,15 @@ test('сутки гостя целиком: заезд, услуга на счё
   // 5. Оплата на весь баланс
   const pay = panel.getByTestId('payment-form');
   await pay.locator('select[name="method"]').selectOption('KASPI');
-  await pay.getByRole('button', { name: 'Принять оплату' }).click();
+  await pay.getByRole('button', { name: 'Проверить оплату' }).click();
+  await pay.getByRole('button', { name: 'Подтвердить оплату' }).click();
   await expect(panel.getByTestId('payment-row')).toHaveCount(1);
   expect(await balance()).toBe(0n);
 
-  // 6. Выезд: долга нет, подтверждения не спрашивают
+  // 6. Выезд: подтверждение до команды, долга нет
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
   expect(await balance()).toBe(0n);

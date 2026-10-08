@@ -193,8 +193,6 @@ export function ChessboardGrid({
     if (restoreFocus) filtersButton.current?.focus({ preventScroll: true });
   }, []);
   const activeFilters = activeFilterCount(filters);
-  // «Компактный» по умолчанию (решение владельца 07.10.2026, baseline B): на ноутбуке 1366×768 так видно
-  // не меньше восьми строк мест. Сохранённый выбор восстанавливается, «Обычный» и «Подробный» на месте.
   const [view, setView] = useState<BoardView>('compact');
   useEffect(() => {
     try {
@@ -590,8 +588,8 @@ export function ChessboardGrid({
    * — второй попыткой после ответа сервера и подтверждения (T3). Своих правил здесь нет.
    */
   const busy = useRef(false);
+  const [previewBusy, setPreviewBusy] = useState(false);
   const runCommand = async (command: PreviewCommand, t: PreviewTarget) => {
-    setPreview(null);
     const stay: StayMenuPayload = {
       number: t.number,
       itemId: t.itemId,
@@ -599,10 +597,26 @@ export function ChessboardGrid({
       guest: t.guest,
       status: t.status,
     };
-    if (command === 'extend') return extendStay(stay);
+    if (command === 'extend') {
+      setPreview(null);
+      return extendStay(stay);
+    }
     if (busy.current) return;
     busy.current = true;
+    setPreviewBusy(true);
     setError(null);
+    const completed = (status: 'CHECKED_IN' | 'CHECKED_OUT') => {
+      setPreview((current) =>
+        current?.number === t.number && current.itemId === t.itemId
+          ? { ...current, status }
+          : current,
+      );
+      toast({
+        text: `Гость ${status === 'CHECKED_IN' ? 'заселён' : 'выселен'}, ${t.unitCode}`,
+        tone: 'success',
+      });
+      router.refresh();
+    };
     try {
       if (command === 'check-in') {
         const hk = t.housekeeping as keyof typeof HOUSEKEEPING_RU | undefined;
@@ -614,12 +628,29 @@ export function ChessboardGrid({
             tone: 'primary',
           });
           if (!ok) return;
-        }
+        } else if (
+          !(await ask({
+            title: `Заселить в ${t.unitCode}?`,
+            body: `Бронь ${t.number}. После подтверждения статус изменится на «Заселён».`,
+            confirmLabel: 'Заселить',
+            tone: 'primary',
+          }))
+        )
+          return;
         const r = await stayAction(t.number, t.itemId, 'check-in');
         setError(r.error);
-        if (!r.error) toast({ text: `Гость заселён, ${t.unitCode}`, tone: 'success' });
+        if (!r.error) completed('CHECKED_IN');
         return;
       }
+      if (
+        !(await ask({
+          title: `Выселить из ${t.unitCode}?`,
+          body: `Бронь ${t.number}. После подтверждения проживание завершится. Если есть долг, его покажем отдельно до выселения.`,
+          confirmLabel: 'Выселить',
+          tone: 'primary',
+        }))
+      )
+        return;
       const r = await stayAction(t.number, t.itemId, 'check-out');
       if (r.error && r.error.includes('долг')) {
         const ok = await ask({
@@ -630,13 +661,14 @@ export function ChessboardGrid({
         if (!ok) return;
         const again = await stayAction(t.number, t.itemId, 'check-out', true);
         setError(again.error);
-        if (!again.error) toast({ text: `Гость выселен, ${t.unitCode}`, tone: 'success' });
+        if (!again.error) completed('CHECKED_OUT');
         return;
       }
       setError(r.error);
-      if (!r.error) toast({ text: `Гость выселен, ${t.unitCode}`, tone: 'success' });
+      if (!r.error) completed('CHECKED_OUT');
     } finally {
       busy.current = false;
+      setPreviewBusy(false);
     }
   };
 
@@ -1200,6 +1232,8 @@ export function ChessboardGrid({
         <StayPreview
           key={`${preview.number}:${preview.itemId}`}
           target={preview}
+          pending={previewBusy}
+          error={error}
           readOnly={readOnly}
           onClose={closePreview}
           onCommand={(command, t) => void runCommand(command, t)}

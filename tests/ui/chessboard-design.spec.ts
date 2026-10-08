@@ -26,7 +26,7 @@ test('статусы шахматки понятны без открытия и�
     });
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
-  await page.getByText('Обозначения', { exact: true }).click();
+  // Цветовая легенда видна постоянно, дополнительное раскрытие не требуется.
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
   await expect(page.getByTestId('board-legend')).toContainText('заселён');

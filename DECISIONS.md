@@ -6081,3 +6081,23 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+## ADR-CALENDAR-WORKSPACE (2026-10-07): календарь в пределах рабочего экрана
+
+Проблема: верхние панели отнимают высоту сетки, оператор постоянно прокручивает экран и теряет даты. Владелец утвердил компактную компоновку и сводку сбоку.
+
+Варианты: уменьшать масштаб всего интерфейса; использовать нативный Fullscreen API; выделить рабочую область календаря с одной прокруткой сетки и отдельной сводкой.
+
+Решение: `CalendarWorkspace` задаёт доступную высоту от положения страницы до края окна. На широком экране сводка сегодняшнего дня справа, на узком в раскрываемом блоке. Начальная плотность компактная, сохранённый выбор имеет приоритет. Развёрнутый режим реализован CSS в том же документе, Escape возвращает фокус кнопке.
+
+Причина: меню и диалоги брони, включая порталы, остаются доступны. Метрики используют существующие ответы API и пояс объекта, не меняют бизнес-правил. Числа всего фонда подписаны «мест», поскольку включают номера и койки.
+
+Последствия: схема, API, деньги и интеграции не меняются. Отдельная копия, отдельные порты и синтетический API исключают конкуренцию с исходным деревом и общей Supabase. Перед release требуется проверенный кандидат и разрешение владельца по действующему §18.
+
+## ADR-BOOKING-MONEY-CONFIRMATION (2026-10-08)
+
+Проблема: пользователь не уверен, когда оплата и возврат уже проведены, и вынужден переходить из календаря в расширенную карточку. Варианты: подтверждение при выходе после проведения либо явное подтверждение перед проведением. Решение, утверждённое владельцем: общие формы с проверкой данных перед существующей server action, доступные также в предпросмотре. Изменение полей сбрасывает проверку. Успех обновляет суммы, отказ сохраняет ввод. Причина: подтверждение после записи не предотвращает ошибочную операцию. Последствия: дополнительный шаг перед записью, финансовая модель и API сохраняются.
+
+### ADR-BOOKING-STATUS-CONFIRMATION (2026-10-08)
+
+Проблема: в проверенной ячейке заселение и выселение без долга выполнялись одним нажатием. Владелец подтвердил добавление явного подтверждения на этапах изменения брони. Варианты: спрашивать только при риске либо перед каждой сменой статуса. Решение: подтверждать заселение и выселение до команды. Существующее предупреждение об уборке одновременно подтверждает заселение; существующее окно долга остаётся после отказа сервера, до принудительного выселения. Последствие: дополнительные явные действия, прежние API и booking rules сохраняются.

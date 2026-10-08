@@ -109,7 +109,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);

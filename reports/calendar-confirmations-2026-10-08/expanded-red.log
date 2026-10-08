@@ -1,0 +1,61 @@
+[WebServer] (node:17776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:18248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/preview-money-confirmation.spec.ts:90:1 › закрытие незавершённого ввода ничего не проводит (18.0s)
+
+
+  1) tests/ui/preview-money-confirmation.spec.ts:90:1 › закрытие незавершённого ввода ничего не проводит 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Выйти из полного экрана', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Выйти из полного экрана', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Выйти из полного экрана', exact: true })
+
+
+      107 |   await expect(close).toBeHidden();
+      108 |   await expect(preview).toBeVisible();
+    > 109 |   await expect(page.getByRole('button', { name: 'Выйти из полного экрана', exact: true })).toBeVisible();
+          |                                                                                            ^
+      110 |   await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+      111 |   await close.getByRole('button', { name: 'Закрыть без проведения', exact: true }).click();
+      112 |   await expect(preview).toBeHidden();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/preview-money-confirmation.spec.ts:109:92
+
+    Error Context: test-results/preview-money-confirmation-47bcd-го-ввода-ничего-не-проводит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/preview-money-confirmation-47bcd-го-ввода-ничего-не-проводит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/preview-money-confirmation-47bcd-го-ввода-ничего-не-проводит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/preview-money-confirmation.spec.ts:90:1 › закрытие незавершённого ввода ничего не проводит 

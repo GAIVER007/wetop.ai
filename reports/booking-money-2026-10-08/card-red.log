@@ -1,0 +1,60 @@
+[WebServer] (node:80743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:80995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-money-confirmation.spec.ts:9:1 › оплата в карточке требует проверки и подтверждения (2.2m)
+
+
+  1) tests/ui/booking-money-confirmation.spec.ts:9:1 › оплата в карточке требует проверки и подтверждения 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByTestId('payment-form').first().getByRole('button', { name: 'Проверить оплату', exact: true })
+
+
+      12 |   const form = page.getByTestId('payment-form').first();
+      13 |   await form.getByLabel('Сумма', { exact: true }).fill('100');
+    > 14 |   await form.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+         |                                                                             ^
+      15 |   await expect(form.getByRole('region', { name: 'Проверка оплаты' })).toContainText('100');
+      16 |   const untouched = await (await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })).json();
+      17 |   expect(untouched.paidMinor).toBe(before.paidMinor);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-money-confirmation.spec.ts:14:77
+
+    Error Context: test-results/booking-money-confirmation-15406-ет-проверки-и-подтверждения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-money-confirmation-15406-ет-проверки-и-подтверждения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-money-confirmation-15406-ет-проверки-и-подтверждения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-money-confirmation.spec.ts:9:1 › оплата в карточке требует проверки и подтверждения 

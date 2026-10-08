@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 08.10.2026 14:02 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' 'tests/onboarding-full/scope-audit.spec.ts' '--workers=1'
+[WebServer] (node:25582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Error: Process from config.webServer exited early.
+
+
+# код выхода 130 · 6 с

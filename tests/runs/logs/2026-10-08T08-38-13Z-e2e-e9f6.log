@@ -1,0 +1,668 @@
+# Сквозные (e2e) · 08.10.2026 13:38 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:99467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:99870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:99952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="bar/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/bar" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="bar/page.tsx">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <BarPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <section>
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <fieldset className="bar-intent..." disabled={true}>
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Кол-во, шт.">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="quantityUnits" defaultValue="" inputMode="numeric" pattern="[0-9]+" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="quantityUnits"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     pattern="[0-9]+"
+[WebServer]                                     required={true}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <fieldset className="bar-intent..." disabled={true}>
+[WebServer]                             <Field>
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Кол-во, шт.">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="quantityUnits" defaultValue="" inputMode="numeric" pattern="[0-9]+" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="quantityUnits"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     pattern="[0-9]+"
+[WebServer]                                     required={true}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <tbody>
+[WebServer]                             ...
+[WebServer]                               <fieldset className="bar-intent..." disabled={false}>
+[WebServer]                                 <ProductPriceForm productId="2a055816-c..." salePrice="32000">
+[WebServer]                                   <form action={function bound dispatchActionState} className="bar-price-...">
+[WebServer]                                     <input
+[WebServer]                                       type="hidden"
+[WebServer]                                       name="id"
+[WebServer]                                       value="2a055816-cc42-4162-acd8-53e4e6fd78e9"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     <Input name="salePrice" inputMode="decimal" defaultValue="320" ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="salePrice"
+[WebServer]                                         inputMode="decimal"
+[WebServer]                                         defaultValue="320"
+[WebServer]                                         aria-label="Своя цена продажи в тенге"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                     ...
+[WebServer]                             ...
+[WebServer]                               <fieldset className="bar-intent..." disabled={false}>
+[WebServer]                                 <ProductPriceForm productId="b13a9ce2-1..." salePrice="10000">
+[WebServer]                                   <form action={function bound dispatchActionState} className="bar-price-...">
+[WebServer]                                     <input
+[WebServer]                                       type="hidden"
+[WebServer]                                       name="id"
+[WebServer]                                       value="b13a9ce2-1fa7-4664-84a9-219ef7cea805"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     <Input name="salePrice" inputMode="decimal" defaultValue="100" ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="salePrice"
+[WebServer]                                         inputMode="decimal"
+[WebServer]                                         defaultValue="100"
+[WebServer]                                         aria-label="Своя цена продажи в тенге"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                     ...
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <fieldset className="bar-intent..." disabled={true}>
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Кол-во, шт.">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="quantityUnits" defaultValue="" inputMode="numeric" pattern="[0-9]+" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="quantityUnits"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     pattern="[0-9]+"
+[WebServer]                                     required={true}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="panel bar-...">
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Факт, шт.">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="actualUnits" inputMode="numeric" pattern="[0-9]+" required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="actualUnits"
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     pattern="[0-9]+"
+[WebServer]                                     required={true}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Причина">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="reason" defaultValue="Пересчет с..." required={true} id={undefined} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="reason"
+[WebServer]                                     defaultValue="Пересчет смены"
+[WebServer]                                     required={true}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <h2>
+[WebServer]                         <section>
+[WebServer]                         <h2>
+[WebServer]                         <p>
+[WebServer]                         <fieldset className="bar-intent..." disabled={false}>
+[WebServer]                           <ReceiptForm products={[...]} suppliers={[...]} today="2026-10-08">
+[WebServer]                             <form action={function bound dispatchActionState} className="panel bar-...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="lineCount"
+[WebServer]                                 value={1}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <div className="bar-form-grid">
+[WebServer]                                 <Field>
+[WebServer]                                 <Field label="Номер счет..." controlId="bar-document">
+[WebServer]                                   <label htmlFor="bar-document" className="field">
+[WebServer]                                     <Input name="documentNu..." id="bar-document" required={true} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="documentNumber"
+[WebServer]                                         id="bar-document"
+[WebServer]                                         required={true}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Дата докум..." controlId="bar-docume...">
+[WebServer]                                   <label htmlFor="bar-docume..." className="field">
+[WebServer]                                     <Input type="date" name="documentDate" id="bar-docume..." defaultValue="2026-10-08" ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         type="date"
+[WebServer]                                         name="documentDate"
+[WebServer]                                         id="bar-document-date"
+[WebServer]                                         defaultValue="2026-10-08"
+[WebServer]                                         required={true}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Дата приемки" controlId="bar-receiv...">
+[WebServer]                                   <label htmlFor="bar-receiv..." className="field">
+[WebServer]                                     <Input type="date" name="receivedDate" id="bar-receiv..." defaultValue="2026-10-08" ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         type="date"
+[WebServer]                                         name="receivedDate"
+[WebServer]                                         id="bar-received-date"
+[WebServer]                                         defaultValue="2026-10-08"
+[WebServer]                                         required={true}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                               ...
+[WebServer]                                 <div className="bar-line">
+[WebServer]                                   <Field>
+[WebServer]                                   <Field label="Кол-во, шт.">
+[WebServer]                                     <label htmlFor={undefined} className="field">
+[WebServer]                                       <Input name="quantityUn..." inputMode="numeric" pattern="[0-9]+" value="" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="quantityUnits.0"
+[WebServer]                                           inputMode="numeric"
+[WebServer]                                           pattern="[0-9]+"
+[WebServer]                                           value=""
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           required={true}
+[WebServer]                                           id={undefined}
+[WebServer]                                           aria-describedby={undefined}
+[WebServer]                                           aria-invalid={undefined}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Закупка за...">
+[WebServer]                                     <label htmlFor={undefined} className="field">
+[WebServer]                                       <Input name="unitCost.0" inputMode="decimal" value="" onChange={function onChange} ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="unitCost.0"
+[WebServer]                                           inputMode="decimal"
+[WebServer]                                           value=""
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           required={true}
+[WebServer]                                           id={undefined}
+[WebServer]                                           aria-describedby={undefined}
+[WebServer]                                           aria-invalid={undefined}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Наценка, %">
+[WebServer]                                     <label htmlFor={undefined} className="field">
+[WebServer]                                       <Input name="markup.0" inputMode="decimal" value="0.00" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="markup.0"
+[WebServer]                                           inputMode="decimal"
+[WebServer]                                           value="0.00"
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           required={true}
+[WebServer]                                           id={undefined}
+[WebServer]                                           aria-describedby={undefined}
+[WebServer]                                           aria-invalid={undefined}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   ...
+[WebServer]                               <Button>
+[WebServer]                               <Field label="Комментарий" controlId="bar-note">
+[WebServer]                                 <label htmlFor="bar-note" className="field">
+[WebServer]                                   <Textarea name="note" id="bar-note" rows={2} aria-describedby={undefined} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="note"
+[WebServer]                                       id="bar-note"
+[WebServer]                                       rows={2}
+[WebServer]                                       aria-describedby={undefined}
+[WebServer]                                       aria-invalid={undefined}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               <label className="bar-check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   name="postNow"
+[WebServer]                                   defaultChecked={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <tbody>
+[WebServer]                             ...
+[WebServer]                               <SupplierPaymentForm scope="a78fe6ca-3..." readOnly={false} receiptId="732e849a-0..." ...>
+[WebServer]                                 <form action={function bound dispatchActionState} className="bar-paymen...">
+[WebServer]                                   <fieldset className="bar-intent..." disabled={true}>
+[WebServer]                                     <input
+[WebServer]                                       type="hidden"
+[WebServer]                                       name="receiptId"
+[WebServer]                                       value="732e849a-0aee-4b61-9b51-be7f05ad838d"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     <Field label="Сумма, ₸">
+[WebServer]                                       <label htmlFor={undefined} className="field">
+[WebServer]                                         <Input name="amount" inputMode="decimal" defaultValue="1600" required={true} ...>
+[WebServer]                                           <input
+[WebServer]                                             className="inp"
+[WebServer]                                             name="amount"
+[WebServer]                                             inputMode="decimal"
+[WebServer]                                             defaultValue="1600"
+[WebServer]                                             required={true}
+[WebServer]                                             id={undefined}
+[WebServer]                                             aria-describedby={undefined}
+[WebServer]                                             aria-invalid={undefined}
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                     ...
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <SupplierPaymentForm scope="a78fe6ca-3..." readOnly={false} receiptId="93221f97-9..." ...>
+[WebServer]                                 <form action={function bound dispatchActionState} className="bar-paymen...">
+[WebServer]                                   <fieldset className="bar-intent..." disabled={true}>
+[WebServer]                                     <input
+[WebServer]                                       type="hidden"
+[WebServer]                                       name="receiptId"
+[WebServer]                                       value="93221f97-9de2-4745-b6b5-e9789fa7b91b"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     <Field label="Сумма, ₸">
+[WebServer]                                       <label htmlFor={undefined} className="field">
+[WebServer]                                         <Input name="amount" inputMode="decimal" defaultValue="1200" required={true} ...>
+[WebServer]                                           <input
+[WebServer]                                             className="inp"
+[WebServer]                                             name="amount"
+[WebServer]                                             inputMode="decimal"
+[WebServer]                                             defaultValue="1200"
+[WebServer]                                             required={true}
+[WebServer]                                             id={undefined}
+[WebServer]                                             aria-describedby={undefined}
+[WebServer]                                             aria-invalid={undefined}
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                     ...
+[WebServer]                                   ...
+[WebServer]                         <h2>
+[WebServer]                         <div>
+[WebServer]                         <h2>
+[WebServer]                         ...
+[WebServer]                           <div className="bar-catalogs">
+[WebServer]                             <section className="panel">
+[WebServer]                               <h3>
+[WebServer]                               <form action={function bound dispatchActionState} className="bar-catalo...">
+[WebServer]                                 <Field label="Название">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="name" required={true} id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="name"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Наценка, %">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="markup" inputMode="decimal" required={true} id={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="markup"
+[WebServer]                                         inputMode="decimal"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 ...
+[WebServer]                               <CatalogList kind="category" rows={[...]}>
+[WebServer]                                 <ul className="bar-catalo...">
+[WebServer]                                   <li>
+[WebServer]                                     <span>
+[WebServer]                                     <form action={function toggleBarCatalogAction}>
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="kind"
+[WebServer]                                         value="category"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="id"
+[WebServer]                                         value="38e1c797-08af-43c1-9641-7209bc834d8c"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="active"
+[WebServer]                                         value="false"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                             <section className="panel">
+[WebServer]                               <h3>
+[WebServer]                               <form action={function bound dispatchActionState} className="bar-catalo...">
+[WebServer]                                 <Field label="Название">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="name" required={true} id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="name"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Телефон">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="phone" id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="phone"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Email">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="email" type="email" id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="email"
+[WebServer]                                         type="email"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Реквизиты">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="details" id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="details"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 ...
+[WebServer]                               <CatalogList kind="supplier" rows={[...]}>
+[WebServer]                                 <ul className="bar-catalo...">
+[WebServer]                                   <li>
+[WebServer]                                     <span>
+[WebServer]                                     <form action={function toggleBarCatalogAction}>
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="kind"
+[WebServer]                                         value="supplier"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="id"
+[WebServer]                                         value="900231ab-fcc8-4af0-b2b4-e329cb004c42"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="active"
+[WebServer]                                         value="false"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                             <section className="panel bar-...">
+[WebServer]                               <h3>
+[WebServer]                               <form action={function bound dispatchActionState} className="bar-produc...">
+[WebServer]                                 <Field label="Код">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="code" required={true} id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="code"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Название">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="name" required={true} id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="name"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field>
+[WebServer]                                 <Field label="Штрихкод">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="barcode" id={undefined} aria-describedby={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="barcode"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Штук в упа...">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="unitsPerPa..." inputMode="numeric" defaultValue="1" required={true} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="unitsPerPackage"
+[WebServer]                                         inputMode="numeric"
+[WebServer]                                         defaultValue="1"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Своя нацен...">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="markup" inputMode="decimal" placeholder="Из категории" id={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="markup"
+[WebServer]                                         inputMode="decimal"
+[WebServer]                                         placeholder="Из категории"
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Начальная ...">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="salePrice" inputMode="decimal" required={true} id={undefined} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="salePrice"
+[WebServer]                                         inputMode="decimal"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 <Field label="Мин. остаток">
+[WebServer]                                   <label htmlFor={undefined} className="field">
+[WebServer]                                     <Input name="minimumSto..." inputMode="numeric" defaultValue="0" required={true} ...>
+[WebServer]                                       <input
+[WebServer]                                         className="inp"
+[WebServer]                                         name="minimumStockUnits"
+[WebServer]                                         inputMode="numeric"
+[WebServer]                                         defaultValue="0"
+[WebServer]                                         required={true}
+[WebServer]                                         id={undefined}
+[WebServer]                                         aria-describedby={undefined}
+[WebServer]                                         aria-invalid={undefined}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                 ...
+[WebServer]                               <CatalogList kind="product" rows={[...]}>
+[WebServer]                                 <ul className="bar-catalo...">
+[WebServer]                                   <li>
+[WebServer]                                     <span>
+[WebServer]                                     <form action={function toggleBarCatalogAction}>
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="kind"
+[WebServer]                                         value="product"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="id"
+[WebServer]                                         value="2a055816-cc42-4162-acd8-53e4e6fd78e9"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="active"
+[WebServer]                                         value="false"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                   <li>
+[WebServer]                                     <span>
+[WebServer]                                     <form action={function toggleBarCatalogAction}>
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="kind"
+[WebServer]                                         value="product"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="id"
+[WebServer]                                         value="b13a9ce2-1fa7-4664-84a9-219ef7cea805"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       <input
+[WebServer]                                         type="hidden"
+[WebServer]                                         name="active"
+[WebServer]                                         value="false"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+  ✓  1 tests/bar-operational-ui/cycle.spec.ts:3:1 › real BAR cycle persists across browser reloads and reconciles API totals (1.4m)
+  ✓  2 tests/bar-operational-ui/remaining.spec.ts:6:1 › T12 catalog creation, discarded cash draft and linked browser void survive reload (1.2m)
+  ✓  3 tests/bar-operational-ui/replay.spec.ts:6:73 › BAR persistent browser intents with real SessionGuard › RETAIL: committed response loss, reload and relogin preserve one intent (20.3s)
+  ✓  4 tests/bar-operational-ui/replay.spec.ts:6:73 › BAR persistent browser intents with real SessionGuard › FOLIO: committed response loss, reload and relogin preserve one intent (51.6s)
+  ✓  5 tests/bar-operational-ui/replay.spec.ts:6:73 › BAR persistent browser intents with real SessionGuard › WRITE_OFF: committed response loss, reload and relogin preserve one intent (51.0s)
+  ✓  6 tests/bar-operational-ui/replay.spec.ts:6:73 › BAR persistent browser intents with real SessionGuard › SUPPLIER_PAYMENT: committed response loss, reload and relogin preserve one intent (28.1s)
+  ✓  7 tests/bar-operational-ui/roles.spec.ts:4:1 › D4 STAFF keeps desk controls without settings or refunds (14.6s)
+  ✓  8 tests/bar-operational-ui/roles.spec.ts:22:1 › D4 READ_ONLY disables every BAR edit under a real OWNER session (18.0s)
+[WebServer] (node:1700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 tests/bar-operational-ui/session.spec.ts:5:1 › T09 real API 503 and expired SessionGuard retain intent across login (41.3s)
+
+  9 passed (7.2m)
+
+# код выхода 0 · 7 мин 13 с

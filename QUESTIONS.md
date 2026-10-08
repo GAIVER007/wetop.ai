@@ -1300,3 +1300,13 @@ Owner response in current chat confirms keeping the accurate sale replay fix fro
 |---|---|---|---|
 | Q-280 | Каков знаменатель no-show rate Beauty/Food, включаются ли отмены и ещё не завершённые записи, по какой дате выбирать период? | OPEN | MV9 показывает абсолютное NO_SHOW; процент до решения не вычисляется. |
 | Q-281 | Повторный клиент: сколько состоявшихся посещений, какое окно истории и scope Business или Organization? | OPEN | MV9 не классифицирует клиентов как повторных и не показывает repeat rate. |
+
+
+## BAR approval reconciliation, 2026-10-08
+
+PR #279 at 95463efb16dabcd15f18328b427d1bb73e332797 records owner approval of D1-D4 and T11. Earlier pending paragraphs are historical. Current accepted behavior: permanent operation identities; supplier-debt compensation on void; separate non-restocked cost loss; refunds permission for reversal; refusal for closed or paid Folio. Positive inventory surplus and A4b scope policy remain open. No production authorization is inferred.
+
+
+## A4b reproduced scope selection, 2026-10-08 (OPEN)
+
+Full AppModule and SessionGuard: warmed ORGANIZATION/BUSINESS cache continues to return first archived Location data with another ACTIVE Location present. Evidence: scope-audit ae91, a4b-observation.json, RISK_CONFIRMED. Proposal A: operational hotel routes require explicit active Location; aggregate reports remain aggregate. Alternative B: pick earliest ACTIVE Location automatically, with cache revalidation. Owner decision requested before changing booking/data-selection behavior (AGENTS.md section4). Existing cache is not repaired or accepted by the observational test.

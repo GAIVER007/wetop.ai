@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-08T09:07:38.546983+00:00",
+  "syntheticOnly": true,
+  "postgresStopped": true,
+  "ownRuntimeAndDataRemoved": true,
+  "ownDumpRemoved": true,
+  "remainingOwnListeners": [],
+  "locks": [],
+  "foreignProcessesUntouched": true
+}

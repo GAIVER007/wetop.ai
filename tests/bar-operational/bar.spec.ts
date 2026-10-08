@@ -29,7 +29,15 @@ async function prepare(request: APIRequestContext) {
     const response =
       data === undefined
         ? await request.get(`${qa}/bar/${path}`, { headers })
-        : await request.post(`${qa}/bar/${path}`, { headers, data });
+        : await request.post(`${qa}/bar/${path}`, {
+            headers,
+            data: /(?:payments$|^write-offs$)/.test(path)
+              ? {
+                  ...(data as Record<string, unknown>),
+                  idempotencyKey: (data as Record<string, unknown>).idempotencyKey ?? randomUUID(),
+                }
+              : data,
+          });
     expect(response.ok(), `${path}: ${response.status()} ${await response.text()}`).toBe(true);
     return response.json();
   };
@@ -293,7 +301,7 @@ test('C11 invalid quantity and overpayment cause no effect; zero actual stock is
   }
   const overpay = await request.post(`${qa}/bar/receipts/${r1.id}/payments`, {
     headers,
-    data: { amountMinor: '60001', method: 'CASH' },
+    data: { amountMinor: '60001', method: 'CASH', idempotencyKey: randomUUID() },
   });
   expect(overpay.status()).toBe(409);
   expect(await call('report')).toEqual(before);
@@ -328,7 +336,9 @@ test('browser shows populated BAR and retains it after reload on a phone', async
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
   const { f } = await prepare(request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/auth/fallback');
@@ -434,7 +444,7 @@ test('C03 repeat receipt posting and C04 full supplier repayment preserve stock 
   expect(paid.cash).toBe(before.cash + 2);
   const excess = await request.post(`${qa}/bar/receipts/${r1.id}/payments`, {
     headers,
-    data: { amountMinor: '1', method: 'CASH' },
+    data: { amountMinor: '1', method: 'CASH', idempotencyKey: randomUUID() },
   });
   expect(excess.status()).toBe(409);
   expect(await snapshot()).toEqual(paid);
@@ -466,11 +476,19 @@ test('C15 guarded HTTP denies foreign product, receipt and sale IDs without chan
       { productId: foreign.a.id, quantityUnits: '1', method: 'CASH', idempotencyKey: randomUUID() },
     ],
     [`receipts/${foreign.r1.id}/post`, {}],
-    [`receipts/${foreign.r1.id}/payments`, { amountMinor: '1', method: 'CASH' }],
+    [
+      `receipts/${foreign.r1.id}/payments`,
+      { amountMinor: '1', method: 'CASH', idempotencyKey: randomUUID() },
+    ],
     [`sales/${foreign.sale.id}/reverse`, { restock: true, reason: 'Synthetic foreign denial' }],
     [
       'write-offs',
-      { productId: foreign.a.id, quantityUnits: '1', reason: 'Synthetic foreign denial' },
+      {
+        productId: foreign.a.id,
+        quantityUnits: '1',
+        reason: 'Synthetic foreign denial',
+        idempotencyKey: randomUUID(),
+      },
     ],
   ] as const) {
     const response = await request.post(`${qa}/bar/${path}`, { headers: own.headers, data });
@@ -497,7 +515,15 @@ async function concurrentAtRow(
   await blocker.connect();
   await blocker.query('BEGIN');
   await blocker.query(`SELECT id FROM pms_test.${table} WHERE id=$1 FOR UPDATE`, [id]);
-  const pending = [0, 1].map(() => request.post(`${qa}/bar/${path}`, { headers, data }));
+  // Separate repayment intents race against the same remaining debt.
+  const pending = [0, 1].map(() =>
+    request.post(`${qa}/bar/${path}`, {
+      headers,
+      data: path.endsWith('/payments')
+        ? { ...(data as Record<string, unknown>), idempotencyKey: randomUUID() }
+        : data,
+    }),
+  );
   try {
     await expect
       .poll(async () => {
@@ -610,7 +636,7 @@ test('C13 browser retries a committed retail sale after lost response without a 
   await page.goto('/bar');
   const form = page
     .locator('form.bar-sale-form')
-    .filter({ has: page.getByRole('button', { name: 'Продать', exact: true }) });
+    .filter({ has: page.locator('select[name=method]') });
   await form.locator('[name=productId]').selectOption(a.id);
   await form.locator('[name=quantityUnits]').fill('1');
   await request.post(`${qa}/__qa/fault`, { data: { mode: 'bar_after' } });
@@ -630,18 +656,17 @@ test('C13 browser retries a committed retail sale after lost response without a 
   ).toBe(2);
   await expect(form.locator('[name=productId]')).toHaveValue(a.id);
   await expect(form.locator('[name=quantityUnits]')).toHaveValue('1');
-  await form.locator('[name=quantityUnits]').fill('2');
-  await form.getByRole('button', { name: 'Продать', exact: true }).click();
-  await expect(form.getByRole('alert')).toContainText('ключ уже использован');
-  expect(
-    await db.barSale.count({ where: { property: { organizationId: f.organizationId } } }),
-  ).toBe(2);
-  await form.locator('[name=quantityUnits]').fill('1');
-  await form.getByRole('button', { name: 'Продать', exact: true }).click();
+  // An uncertain committed intent cannot be edited into a different request.
+  await expect(form.locator('[name=productId]')).toBeDisabled();
+  await expect(form.locator('[name=quantityUnits]')).toBeDisabled();
+  await form.getByRole('button', { name: 'Проверить результат', exact: true }).click();
   await expect(form.getByRole('status')).toContainText('Продажа записана');
   expect(
     await db.barSale.count({ where: { property: { organizationId: f.organizationId } } }),
   ).toBe(2);
+  // Only a new explicit submission can create another sale after confirmation.
+  await form.locator('[name=productId]').selectOption(a.id);
+  await form.locator('[name=quantityUnits]').fill('1');
   await form.getByRole('button', { name: 'Продать', exact: true }).click();
   await expect
     .poll(() => db.barSale.count({ where: { property: { organizationId: f.organizationId } } }))
@@ -748,7 +773,8 @@ test('C13 same sale key with changed payload is rejected without effects', async
     headers,
     data: { ...payload, folioId: randomUUID() },
   });
-  expect(destination.status()).toBe(409);
+  // FOLIO has its own operation-kind namespace; an unknown Folio remains 404.
+  expect(destination.status()).toBe(404);
   expect(await snapshot()).toEqual(before);
 });
 
@@ -860,7 +886,9 @@ test('C13 Folio browser preserves a committed charge and retries it without dupl
   await expect(form.locator('[name=quantityUnits]')).toHaveValue('1');
   const count = () => db.charge.count({ where: { folioId } });
   expect(await count()).toBe(1);
-  await form.getByRole('button', { name: 'Добавить в счет', exact: true }).click();
+  await expect(form.locator('[name=folioId]')).toBeDisabled();
+  await expect(form.locator('[name=quantityUnits]')).toBeDisabled();
+  await form.getByRole('button', { name: 'Проверить результат', exact: true }).click();
   await expect(form.getByRole('status')).toHaveText(
     'Товар добавлен в счет гостя, остаток обновлен',
   );

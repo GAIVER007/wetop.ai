@@ -1,0 +1,18 @@
+# Модульные (unit) · 08.10.2026 14:24 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T09-24-05Z-unit-b1d9.json' 'apps/api/src/auth/auth.service.test.ts' '-t' 'регистрация не останавливает' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (59 tests | 58 skipped) 428ms
+   ✓ AuthService.register (21)
+     ✓ регистрация не останавливает главный поток на время scrypt 425ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 58 skipped (59)
+   Start at  13:24:12
+   Duration  5.36s (transform 61%, import 30%, tests 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T09-24-05Z-unit-b1d9.json
+
+# код выхода 0 · 12 с

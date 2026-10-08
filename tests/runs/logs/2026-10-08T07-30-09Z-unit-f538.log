@@ -1,0 +1,18 @@
+# Модульные (unit) · 08.10.2026 12:30 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-30-09Z-unit-f538.json' 'apps/web/src/app/bar/actions.test.ts' 'apps/api/src/bar/bar.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (13 tests) 38ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (9 tests) 236ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 49ms
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  11:30:12
+   Duration  5.40s (import 50%, transform 46%, tests 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-30-09Z-unit-f538.json
+
+# код выхода 0 · 8 с

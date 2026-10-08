@@ -1,0 +1,134 @@
+# Сквозные (e2e) · 08.10.2026 13:46 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:2257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+(node:2383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/bar-operational/access.spec.ts:134:1 › C15 real SessionGuard isolates foreign cash charges Folio and substituted related IDs (7.2s)
+  ✓   2 tests/bar-operational/access.spec.ts:259:1 › C14 existing OWNER MANAGER STAFF and read-only permissions through real SessionGuard (1.5s)
+  ✓   3 tests/bar-operational/bar.spec.ts:115:1 › populated sales and movements are readable through real guarded HTTP API (1.7s)
+  ✓   4 tests/bar-operational/bar.spec.ts:130:1 › C13 replay after real reversal returns stored status without effects (2.0s)
+  ✓   5 tests/bar-operational/bar.spec.ts:177:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (3.2s)
+  ✓   6 tests/bar-operational/bar.spec.ts:289:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (1.3s)
+  ✓   7 tests/bar-operational/bar.spec.ts:318:1 › C14 read-only reads existing sales and rejects a new sale without effects (1.4s)
+  ✓   8 tests/bar-operational/bar.spec.ts:333:1 › browser shows populated BAR and retains it after reload on a phone (16.6s)
+  ✓   9 tests/bar-operational/bar.spec.ts:374:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (2.0s)
+  ✓  10 tests/bar-operational/bar.spec.ts:419:1 › C03 repeat receipt posting and C04 full supplier repayment preserve stock and reject excess (2.1s)
+  ✓  11 tests/bar-operational/bar.spec.ts:453:1 › C15 guarded HTTP denies foreign product, receipt and sale IDs without changing either tenant (5.8s)
+  ✓  12 tests/bar-operational/bar.spec.ts:546:1 › C16 simultaneous debt repayment creates one payment at the remaining-debt barrier (2.7s)
+  ✓  13 tests/bar-operational/bar.spec.ts:564:1 › C16 simultaneous receipt posting creates exactly one lot and movement (1.4s)
+  ✓  14 tests/bar-operational/bar.spec.ts:589:1 › C16 simultaneous restock reversal creates one return per original lot (918ms)
+  ✘  15 tests/bar-operational/bar.spec.ts:617:1 › C13 browser retries a committed retail sale after lost response without a duplicate (14.1s)
+(node:2897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/bar-operational/bar.spec.ts:677:1 › C01 unused barcode product can be archived without damaging existing history (861ms)
+  ✓  17 tests/bar-operational/bar.spec.ts:723:1 › C02 persisted multiline draft and repeated reads leave debt stock and cash unchanged (788ms)
+  ✘  18 tests/bar-operational/bar.spec.ts:755:1 › C13 same sale key with changed payload is rejected without effects (445ms)
+(node:2917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/bar-operational/bar.spec.ts:781:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (672ms)
+  ✘  20 tests/bar-operational/bar.spec.ts:822:1 › C13 Folio browser preserves a committed charge and retries it without duplication (2.5m)
+(node:4256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/bar-operational/bar.spec.ts:899:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (4.7s)
+  ✓  22 tests/bar-operational/bar.spec.ts:941:1 › C15 foreign receipt supplier and line product are rejected before any draft is saved (647ms)
+  ✓  23 tests/bar-operational/repeat-risk.spec.ts:65:1 › C04/C13 supplier payment lost response replays one committed payment (256ms)
+  ✓  24 tests/bar-operational/repeat-risk.spec.ts:112:1 › C07/C13 write-off lost response replays one committed movement (210ms)
+
+
+  1) tests/bar-operational/bar.spec.ts:617:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).getByRole('alert')
+    Expected substring: "Нет ответа API"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).getByRole('alert') with timeout 5000ms
+      - waiting for locator('form.bar-sale-form').filter({ has: getByRole('button', { name: 'Продать', exact: true }) }).getByRole('alert')
+
+
+      651 |   expect(actionResponse.ok()).toBe(true);
+      652 |   expect(await actionResponse.finished()).toBeNull();
+    > 653 |   await expect(form.getByRole('alert')).toContainText('Нет ответа API');
+          |                                         ^
+      654 |   expect(
+      655 |     await db.barSale.count({ where: { property: { organizationId: f.organizationId } } }),
+      656 |   ).toBe(2);
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:653:41
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+    Error Context: test-results/bar-C13-browser-retries-a--92ad8-esponse-without-a-duplicate/error-context.md
+
+  2) tests/bar-operational/bar.spec.ts:755:1 › C13 same sale key with changed payload is rejected without effects 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 409
+    Received: 404
+
+      775 |     data: { ...payload, folioId: randomUUID() },
+      776 |   });
+    > 777 |   expect(destination.status()).toBe(409);
+          |                                ^
+      778 |   expect(await snapshot()).toEqual(before);
+      779 | });
+      780 |
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:777:32
+
+    Error Context: test-results/bar-C13-same-sale-key-with-10873-is-rejected-without-effects/error-context.md
+
+    Error Context: test-results/bar-C13-same-sale-key-with-10873-is-rejected-without-effects/error-context.md
+
+  3) tests/bar-operational/bar.spec.ts:822:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+
+    Test timeout of 150000ms exceeded.
+
+    Error: locator.click: Test timeout of 150000ms exceeded.
+    Call log:
+      - waiting for locator('form.bar-folio-form').getByRole('button', { name: 'Добавить в счет', exact: true })
+
+
+      887 |   const count = () => db.charge.count({ where: { folioId } });
+      888 |   expect(await count()).toBe(1);
+    > 889 |   await form.getByRole('button', { name: 'Добавить в счет', exact: true }).click();
+          |                                                                            ^
+      890 |   await expect(form.getByRole('status')).toHaveText(
+      891 |     'Товар добавлен в счет гостя, остаток обновлен',
+      892 |   );
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/bar-operational/bar.spec.ts:889:76
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication/error-context.md
+
+    Error Context: test-results/bar-C13-Folio-browser-pres-f0815-ries-it-without-duplication/error-context.md
+
+  3 failed
+    tests/bar-operational/bar.spec.ts:617:1 › C13 browser retries a committed retail sale after lost response without a duplicate 
+    tests/bar-operational/bar.spec.ts:755:1 › C13 same sale key with changed payload is rejected without effects 
+    tests/bar-operational/bar.spec.ts:822:1 › C13 Folio browser preserves a committed charge and retries it without duplication 
+  21 passed (4.4m)
+
+# код выхода 1 · 4 мин 31 с

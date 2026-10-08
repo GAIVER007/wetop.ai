@@ -3322,7 +3322,7 @@ export interface BarSaleRow {
 }
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
 export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
-export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export interface BarReport { nonRestockedLossMinor: string; purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
@@ -3346,7 +3346,7 @@ export const barApi = {
   sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
   reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
   writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
-  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
+  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; status: 'COMPLETED' | 'VOIDED'; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
   inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
 };
 

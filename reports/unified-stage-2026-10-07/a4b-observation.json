@@ -1,0 +1,31 @@
+{
+  "acceptance": "NOT_ACCEPTED",
+  "observations": [
+    {
+      "scope": "ORGANIZATION",
+      "phase": "warm",
+      "status": 200
+    },
+    {
+      "scope": "BUSINESS",
+      "phase": "warm",
+      "status": 200
+    },
+    {
+      "scope": "ORGANIZATION",
+      "phase": "after_archive",
+      "http": 200,
+      "archivedVisible": true,
+      "activeAlternative": "948561d5-daa3-4e3c-94ed-c029955253c1",
+      "result": "RISK_CONFIRMED"
+    },
+    {
+      "scope": "BUSINESS",
+      "phase": "after_archive",
+      "http": 200,
+      "archivedVisible": true,
+      "activeAlternative": "948561d5-daa3-4e3c-94ed-c029955253c1",
+      "result": "RISK_CONFIRMED"
+    }
+  ]
+}

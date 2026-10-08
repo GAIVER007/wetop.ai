@@ -6156,3 +6156,8 @@ Problem: full master U09 reproduces front-to-proxy ECONNRESET before HTTP dispat
 ## 2026-10-08: restore existing stay occupancy editing
 
 Problem: full CI expects occupancy editing while an imported UI test forbids it. Options: remove the operational assertion or restore the existing UI contract. Decision: owner approved restoring the form through the existing server action and authenticated PATCH API. Capacity, authorization and data model remain unchanged. Calendar assertions follow the current workspace hierarchy while retaining geometric checks; restore expandable legend and fit month to available width. Consequence: replace the contradictory absence test with positive form checks; retain rejected-capacity and persisted-count E2E assertions.
+
+
+## Unified BAR integration, 2026-10-08
+
+Problem: the unified candidate predates the approved BAR financial repair. Options: redesign it, defer it, or port the reviewed PR #279 implementation. Decision: port 95463efb16dabcd15f18328b427d1bb73e332797 onto fixed main 5073ac2a with Unified fixes, as approved by the owner. Preserve accepted DS0b layers and U07 session handling; adapt tests to stable operation identities without reducing ledger or isolation assertions. Consequence: migration 068 requires isolated rehearsal and separate production approval; full CI must run on the final assembled SHA.

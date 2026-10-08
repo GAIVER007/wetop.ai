@@ -1,0 +1,102 @@
+{
+  "syntheticOnly": true,
+  "serverVersion": "17.6",
+  "clientTools": "pg_dump/pg_restore18.3",
+  "tables": 100,
+  "migrations": 74,
+  "dataEqual": true,
+  "checks": {
+    "constraints": {
+      "equal": true,
+      "count": 418
+    },
+    "indexes": {
+      "equal": true,
+      "count": 279
+    },
+    "functions": {
+      "equal": true,
+      "count": 229
+    },
+    "policies": {
+      "equal": true,
+      "count": 88
+    },
+    "rls": {
+      "equal": true,
+      "count": 100
+    },
+    "grants": {
+      "equal": true,
+      "count": 1444
+    }
+  },
+  "migrationHistoryEqual": true,
+  "rawConstraintEqual": false,
+  "reparsedCheckDifferences": [
+    {
+      "relation": "pms_test.bar_operation_intents",
+      "constraint": "bar_operation_intents_kind_check",
+      "equal": true,
+      "before": "CHECK (((kind)::text = ANY ((ARRAY['SUPPLIER_PAYMENT'::character varying, 'WRITE_OFF'::character varying, 'RETAIL'::character varying, 'FOLIO'::character varying])::text[])))",
+      "after": "CHECK (((kind)::text = ANY (ARRAY[('SUPPLIER_PAYMENT'::character varying)::text, ('WRITE_OFF'::character varying)::text, ('RETAIL'::character varying)::text, ('FOLIO'::character varying)::text])))"
+    },
+    {
+      "relation": "pms_test.generation_runs",
+      "constraint": "generation_runs_error_code",
+      "equal": true,
+      "before": "CHECK (((error_code IS NULL) OR ((error_code)::text = ANY ((ARRAY['SCHEMA_INVALID'::character varying, 'MODEL_UNAVAILABLE'::character varying, 'BUDGET_EXCEEDED'::character varying, 'TIMEOUT'::character varying, 'REJECTED_CONTENT'::character varying, 'USAGE_UNAVAILABLE'::character varying, 'BRIEF_CHANGED'::character varying, 'BASE_VERSION_CHANGED'::character varying, 'BUDGET_DAY_CHANGED'::character varying])::text[]))))",
+      "after": "CHECK (((error_code IS NULL) OR ((error_code)::text = ANY (ARRAY[('SCHEMA_INVALID'::character varying)::text, ('MODEL_UNAVAILABLE'::character varying)::text, ('BUDGET_EXCEEDED'::character varying)::text, ('TIMEOUT'::character varying)::text, ('REJECTED_CONTENT'::character varying)::text, ('USAGE_UNAVAILABLE'::character varying)::text, ('BRIEF_CHANGED'::character varying)::text, ('BASE_VERSION_CHANGED'::character varying)::text, ('BUDGET_DAY_CHANGED'::character varying)::text]))))"
+    },
+    {
+      "relation": "pms_test.marketing_sites",
+      "constraint": "marketing_sites_slug_reserved",
+      "equal": true,
+      "before": "CHECK (((slug)::text <> ALL ((ARRAY['www'::character varying, 'app'::character varying, 'api'::character varying, 'assistant'::character varying, 'seller'::character varying, 'admin'::character varying, 'mail'::character varying, 'status'::character varying, 'preview'::character varying, 'static'::character varying, 'assets'::character varying, 'cdn'::character varying, 'help'::character varying, 'support'::character varying, 'wetop'::character varying, 'docs'::character varying, 'blog'::character varying])::text[])))",
+      "after": "CHECK (((slug)::text <> ALL (ARRAY[('www'::character varying)::text, ('app'::character varying)::text, ('api'::character varying)::text, ('assistant'::character varying)::text, ('seller'::character varying)::text, ('admin'::character varying)::text, ('mail'::character varying)::text, ('status'::character varying)::text, ('preview'::character varying)::text, ('static'::character varying)::text, ('assets'::character varying)::text, ('cdn'::character varying)::text, ('help'::character varying)::text, ('support'::character varying)::text, ('wetop'::character varying)::text, ('docs'::character varying)::text, ('blog'::character varying)::text])))"
+    },
+    {
+      "relation": "pms_test.seller_agents",
+      "constraint": "seller_agents_lifecycle_check",
+      "equal": true,
+      "before": "CHECK (((lifecycle)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'paused'::character varying, 'archived'::character varying])::text[])))",
+      "after": "CHECK (((lifecycle)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('paused'::character varying)::text, ('archived'::character varying)::text])))"
+    },
+    {
+      "relation": "pms_test.seller_agents",
+      "constraint": "seller_agents_scenario_check",
+      "equal": true,
+      "before": "CHECK (((scenario)::text = ANY ((ARRAY['sales'::character varying, 'support'::character varying])::text[])))",
+      "after": "CHECK (((scenario)::text = ANY (ARRAY[('sales'::character varying)::text, ('support'::character varying)::text])))"
+    },
+    {
+      "relation": "pms_test.seller_agents",
+      "constraint": "seller_agents_working_needs_location",
+      "equal": true,
+      "before": "CHECK ((((lifecycle)::text <> ALL ((ARRAY['active'::character varying, 'paused'::character varying])::text[])) OR (location_id IS NOT NULL)))",
+      "after": "CHECK ((((lifecycle)::text <> ALL (ARRAY[('active'::character varying)::text, ('paused'::character varying)::text])) OR (location_id IS NOT NULL)))"
+    },
+    {
+      "relation": "pms_test.seller_booking_intents",
+      "constraint": "seller_booking_intents_channel",
+      "equal": true,
+      "before": "CHECK (((channel)::text = ANY ((ARRAY['whatsapp'::character varying, 'widget'::character varying])::text[])))",
+      "after": "CHECK (((channel)::text = ANY (ARRAY[('whatsapp'::character varying)::text, ('widget'::character varying)::text])))"
+    },
+    {
+      "relation": "pms_test.service_periods",
+      "constraint": "service_periods_values",
+      "equal": true,
+      "before": "CHECK ((((weekday >= 0) AND (weekday <= 6)) AND (default_duration_minutes > 0) AND (btrim((name)::text) <> ''::text) AND (ends_next_day OR (time_to > time_from))))",
+      "after": "CHECK (((weekday >= 0) AND (weekday <= 6) AND (default_duration_minutes > 0) AND (btrim((name)::text) <> ''::text) AND (ends_next_day OR (time_to > time_from))))"
+    },
+    {
+      "relation": "pms_test.site_assets",
+      "constraint": "site_assets_dimensions",
+      "equal": true,
+      "before": "CHECK (\nCASE kind\n    WHEN 'FAVICON'::pms_test.\"SiteAssetKind\" THEN ((width = 512) AND (height = 512))\n    WHEN 'LOGO'::pms_test.\"SiteAssetKind\" THEN (((width >= 1) AND (width <= 1600)) AND ((height >= 1) AND (height <= 1600)))\n    ELSE (((width >= 1) AND (width <= 2400)) AND ((height >= 1) AND (height <= 2400)))\nEND)",
+      "after": "CHECK (\nCASE kind\n    WHEN 'FAVICON'::pms_test.\"SiteAssetKind\" THEN ((width = 512) AND (height = 512))\n    WHEN 'LOGO'::pms_test.\"SiteAssetKind\" THEN ((width >= 1) AND (width <= 1600) AND ((height >= 1) AND (height <= 1600)))\n    ELSE ((width >= 1) AND (width <= 2400) AND ((height >= 1) AND (height <= 2400)))\nEND)"
+    }
+  ],
+  "pass": true
+}

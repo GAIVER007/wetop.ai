@@ -1,0 +1,92 @@
+[
+  {
+    "vertical": "HOSPITALITY",
+    "role": "OWNER",
+    "website": 200,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "HOSPITALITY",
+    "role": "MANAGER",
+    "website": 200,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "HOSPITALITY",
+    "role": "STAFF",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "HOSPITALITY",
+    "role": "OWNER",
+    "readOnlyWrite": 403,
+    "status": "PASS"
+  },
+  {
+    "vertical": "BEAUTY",
+    "role": "OWNER",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "BEAUTY",
+    "role": "MANAGER",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "BEAUTY",
+    "role": "STAFF",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "BEAUTY",
+    "role": "OWNER",
+    "readOnlyWrite": 403,
+    "status": "PASS"
+  },
+  {
+    "vertical": "FOOD_SERVICE",
+    "role": "OWNER",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "FOOD_SERVICE",
+    "role": "MANAGER",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "FOOD_SERVICE",
+    "role": "STAFF",
+    "website": 403,
+    "report": 200,
+    "invalidWebsite": "403",
+    "status": "PASS"
+  },
+  {
+    "vertical": "FOOD_SERVICE",
+    "role": "OWNER",
+    "readOnlyWrite": 403,
+    "status": "PASS"
+  }
+]

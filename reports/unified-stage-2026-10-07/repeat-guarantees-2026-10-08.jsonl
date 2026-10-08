@@ -1,0 +1,4 @@
+{"scenario":"C04/C13","result":"PASS","variant":"same payment after lost committed response","effects":1,"debtBeforeMinor":"100000","afterFirstMinor":"90000","afterRepeatMinor":"90000","policyAccepted":true}
+{"scenario":"C07/C13","result":"PASS","variant":"same write-off after lost committed response","effects":1,"writeOffAfterFirstMinor":"10000","writeOffAfterRepeatMinor":"10000","stockBeforeMinor":"100000","stockAfterRepeatMinor":"90000","policyAccepted":true}
+{"scenario":"C04/C13","result":"PASS","variant":"same payment after lost committed response","effects":1,"debtBeforeMinor":"100000","afterFirstMinor":"90000","afterRepeatMinor":"90000","policyAccepted":true}
+{"scenario":"C07/C13","result":"PASS","variant":"same write-off after lost committed response","effects":1,"writeOffAfterFirstMinor":"10000","writeOffAfterRepeatMinor":"10000","stockBeforeMinor":"100000","stockAfterRepeatMinor":"90000","policyAccepted":true}

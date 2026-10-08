@@ -56,17 +56,17 @@ async function fixture(request: APIRequestContext) {
 async function record(value: unknown) {
   await mkdir('reports/unified-stage-2026-10-07', { recursive: true });
   await appendFile(
-    'reports/unified-stage-2026-10-07/repeat-risks.jsonl',
+    'reports/unified-stage-2026-10-07/repeat-guarantees-2026-10-08.jsonl',
     `${JSON.stringify(value)}\n`,
   );
 }
 
-// AS-IS observations, not approval of the repeat behavior or an accepted safety guarantee.
-test('AS-IS supplier payment lost response exposes repeat risk despite remaining-debt lock', async ({
+// Historical duplicate observations remain in repeat-risks.jsonl. This suite verifies the accepted repair.
+test('C04/C13 supplier payment lost response replays one committed payment', async ({
   request,
 }) => {
   const f = await fixture(request);
-  const data = { amountMinor: '10000', method: 'CASH' };
+  const data = { amountMinor: '10000', method: 'CASH', idempotencyKey: randomUUID() };
   await request.post(`${qa}/__qa/fault`, { data: { mode: 'bar_supplier_after' } });
   const outcome = await request
     .post(`${qa}/bar/receipts/${f.receipt.id}/payments`, {
@@ -82,25 +82,37 @@ test('AS-IS supplier payment lost response exposes repeat risk despite remaining
   expect(await db.barSupplierPayment.count({ where: { receiptId: f.receipt.id } })).toBe(1);
   expect((await f.call('report')).supplierDebtMinor).toBe('90000');
   await f.call(`receipts/${f.receipt.id}/payments`, data);
-  expect(await db.barSupplierPayment.count({ where: { receiptId: f.receipt.id } })).toBe(2);
-  expect((await f.call('report')).supplierDebtMinor).toBe('80000');
+  expect(await db.barSupplierPayment.count({ where: { receiptId: f.receipt.id } })).toBe(1);
+  expect((await f.call('report')).supplierDebtMinor).toBe('90000');
+  const beforeConflict = await f.call('report');
+  const conflict = await request.post(
+    `${qa}/bar/${'productId' in data ? 'write-offs' : `receipts/${f.receipt.id}/payments`}`,
+    {
+      headers: f.headers,
+      data: {
+        ...data,
+        ...('productId' in data ? { quantityUnits: '2' } : { amountMinor: '20000' }),
+      },
+    },
+  );
+  expect(conflict.status()).toBe(409);
+  expect(await f.call('report')).toEqual(beforeConflict);
   await record({
     scenario: 'C04/C13',
-    result: 'RISK_CONFIRMED',
+    result: 'PASS',
     variant: 'same payment after lost committed response',
-    effects: 2,
+    effects: 1,
     debtBeforeMinor: '100000',
     afterFirstMinor: '90000',
-    afterRepeatMinor: '80000',
-    policyAccepted: false,
+    afterRepeatMinor: '90000',
+    policyAccepted: true,
   });
 });
 
-test('AS-IS write-off lost response exposes repeat risk despite FIFO stock lock', async ({
-  request,
-}) => {
+test('C07/C13 write-off lost response replays one committed movement', async ({ request }) => {
   const f = await fixture(request);
   const data = {
+    idempotencyKey: randomUUID(),
     productId: f.product.id,
     quantityUnits: '1',
     reason: `Synthetic repeated write-off ${randomUUID()}`,
@@ -115,20 +127,33 @@ test('AS-IS write-off lost response exposes repeat risk despite FIFO stock lock'
   expect(outcome).toBe('transport error');
   expect((await f.call('report')).writeOffMinor).toBe('10000');
   await f.call('write-offs', data);
-  expect((await f.call('report')).writeOffMinor).toBe('20000');
+  expect((await f.call('report')).writeOffMinor).toBe('10000');
   expect(
     await db.barStockMovement.count({ where: { productId: f.product.id, kind: 'WRITE_OFF' } }),
-  ).toBe(2);
-  expect((await f.call('report')).stockCostMinor).toBe('80000');
+  ).toBe(1);
+  expect((await f.call('report')).stockCostMinor).toBe('90000');
+  const beforeConflict = await f.call('report');
+  const conflict = await request.post(
+    `${qa}/bar/${'productId' in data ? 'write-offs' : `receipts/${f.receipt.id}/payments`}`,
+    {
+      headers: f.headers,
+      data: {
+        ...data,
+        ...('productId' in data ? { quantityUnits: '2' } : { amountMinor: '20000' }),
+      },
+    },
+  );
+  expect(conflict.status()).toBe(409);
+  expect(await f.call('report')).toEqual(beforeConflict);
   await record({
     scenario: 'C07/C13',
-    result: 'RISK_CONFIRMED',
+    result: 'PASS',
     variant: 'same write-off after lost committed response',
-    effects: 2,
+    effects: 1,
     writeOffAfterFirstMinor: '10000',
-    writeOffAfterRepeatMinor: '20000',
+    writeOffAfterRepeatMinor: '10000',
     stockBeforeMinor: '100000',
-    stockAfterRepeatMinor: '80000',
-    policyAccepted: false,
+    stockAfterRepeatMinor: '90000',
+    policyAccepted: true,
   });
 });

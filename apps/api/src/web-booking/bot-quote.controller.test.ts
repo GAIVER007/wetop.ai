@@ -105,7 +105,8 @@ describe('котировка продавца /bot/availability', () => {
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    // Keep one listener for the suite: Supertest otherwise closes and reopens it per request.
+    await app.listen(0, '127.0.0.1');
     service = app.get(WebBookingService);
     // Даты запросов фиксированные — часы тоже: без этого «13.09» назавтра станет «заездом в прошлом»
     vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
@@ -261,7 +262,8 @@ describe('SA2.5: /bot/availability и /bot/agent-origins по агенту', () 
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    // Keep one listener for the suite: Supertest otherwise closes and reopens it per request.
+    await app.listen(0, '127.0.0.1');
     service = app.get(WebBookingService);
     vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
   });

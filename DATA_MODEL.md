@@ -3172,3 +3172,38 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 Страниц и секций отдельными таблицами (они внутри `SiteSpec`), пользовательского CSS и JavaScript, отзывов, блога,
 формы обратной связи, оплаты на сайте, изображений, созданных ИИ, сайтов Beauty и Food (возможны позже без смены
 владельца, `docs/marketing/README.md` §8).
+
+
+## BAR operational repair: accepted donor contract, 2026-10-08
+
+Source: PR #279, 95463efb16dabcd15f18328b427d1bb73e332797. Integration follows the owner-approved T01-T04 plan.
+
+
+Status: ACCEPTED by owner, 2026-10-07: D1/D2, separate loss and refunds matrix. See plans/bar-operational-repair-next-2026-10-07.md.
+
+- New persistent BAR operation identity for supplier payments, write-offs, retail and Folio sales:
+  immutable propertyId, operation kind, client idempotency key, normalized request,
+  operation/result identity and creation author/time; unique(propertyId,kind,key).
+  Commit atomically with ledger effects, tenant RLS and service-role ownership guards.
+  No memory-only deduplication, key expiry or automatic historical duplicate deletion.
+- Proposed nullable BarSale.reversalRestocked: captured atomically on reversal.
+  POSTED has no reversal choice; REVERSED records true/false for newly processed
+  reversals. Legacy null requires migration evidence and explicit handling.
+- Proposed effective supplier paid/debt derives from linked cash COMPLETED status,
+  retaining historical payment and cash/audit records after VOIDED.
+- Proposed separate nonRestockedLossMinor report/UI metric based on persisted FIFO
+  cost of reversed sales without returned goods; no second warehouse decrement.
+
+Owner approved these model/migration and accounting contracts; document and rehearse rollback before delivery. Existing BAR55-57 ownership and FORCE RLS contracts remain mandatory.
+
+Accepted compensation records: BarSupplierPaymentReversal(unique paymentId, propertyId, amountMinor, author/time), BarCostLoss(unique saleId, propertyId, amountMinor, reason/author/time). Create in the same transaction as the corresponding void/reversal; preserve originals and audit. No second warehouse decrement. All cross-property links denied independently of RLS. Closed/paid Folio policy remains BLOCKED.
+
+Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. Preserve closed status, original payments and allocations; no reopening, compensation or automatic guest refund. Real SessionGuard and refunds remain required.
+
+BAR approved replay implementation detail: BarOperationIntent.operationId is the original payment/sale ID or write-off source UUID, matching result.id and validated against same-Property ledger rows. Forward migration 20261007000068_bar_financial_replay follows the fresh-main 73-migration inventory (canonical maximum 67).
+
+D1 scope clarification (approved Property + operation kind + key): the permanent BarOperationIntent uniqueness is authoritative. The legacy BarSale `(propertyId,idempotencyKey)` lookup index becomes non-unique so RETAIL and FOLIO can each accept the same client key independently. Legacy sale keys are backfilled with their inferred operation kind. A down migration must refuse if cross-kind keys now collide under the former global uniqueness; preserve both operations and restore the pre-upgrade backup rather than delete history.
+
+BAR financial evidence is append-only for wetop_app and wetop_service: INSERT/read are permitted within the existing ownership and RLS contracts, UPDATE and DELETE are rejected by triggers. Administrative deletion requires a table-owning role other than wetop_app or wetop_service. Administrative fixture cleanup and separately authorized rollback remain possible.
+
+BAR D1 canonical request detail: validated UUID references (productId, receiptId, folioId) use lowercase PostgreSQL UUID text in replay payloads. Operation keys remain opaque and case-sensitive. Changing only UUID letter case does not create a different business request.

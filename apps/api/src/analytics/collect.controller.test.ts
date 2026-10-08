@@ -41,13 +41,16 @@ describe('приёмник счётчика POST /a/hit и скрипт GET /a/p
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    // Keep one listener for the suite: Supertest otherwise closes and reopens it per request.
+    await app.listen(0, '127.0.0.1');
     collect = app.get(CollectService);
   });
   afterAll(async () => {
     await app.close();
   });
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Drain pending hits before resetting the fake sink, including after a failed request.
+    await collect.flush();
     repo.recorded = [];
     collect.resetLimits();
   });

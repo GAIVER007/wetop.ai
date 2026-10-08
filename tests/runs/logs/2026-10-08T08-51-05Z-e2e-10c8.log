@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 08.10.2026 13:51 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational/playwright.config.ts' '--workers=1'
+[WebServer] (node:6286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+(node:6382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/bar-operational/access.spec.ts:134:1 › C15 real SessionGuard isolates foreign cash charges Folio and substituted related IDs (1.3s)
+  ✓   2 tests/bar-operational/access.spec.ts:259:1 › C14 existing OWNER MANAGER STAFF and read-only permissions through real SessionGuard (475ms)
+  ✓   3 tests/bar-operational/bar.spec.ts:115:1 › populated sales and movements are readable through real guarded HTTP API (492ms)
+  ✓   4 tests/bar-operational/bar.spec.ts:130:1 › C13 replay after real reversal returns stored status without effects (357ms)
+  ✓   5 tests/bar-operational/bar.spec.ts:177:1 › C06-C08 real folio charge, write-off and shortage reconcile integer amounts (382ms)
+  ✓   6 tests/bar-operational/bar.spec.ts:289:1 › C11 invalid quantity and overpayment cause no effect; zero actual stock is valid (332ms)
+  ✓   7 tests/bar-operational/bar.spec.ts:318:1 › C14 read-only reads existing sales and rejects a new sale without effects (288ms)
+  ✓   8 tests/bar-operational/bar.spec.ts:333:1 › browser shows populated BAR and retains it after reload on a phone (5.0s)
+  ✓   9 tests/bar-operational/bar.spec.ts:374:1 › C16 last-unit concurrent sales wait at a controlled real PostgreSQL barrier (428ms)
+  ✓  10 tests/bar-operational/bar.spec.ts:419:1 › C03 repeat receipt posting and C04 full supplier repayment preserve stock and reject excess (330ms)
+  ✓  11 tests/bar-operational/bar.spec.ts:453:1 › C15 guarded HTTP denies foreign product, receipt and sale IDs without changing either tenant (1.1s)
+  ✓  12 tests/bar-operational/bar.spec.ts:546:1 › C16 simultaneous debt repayment creates one payment at the remaining-debt barrier (390ms)
+  ✓  13 tests/bar-operational/bar.spec.ts:564:1 › C16 simultaneous receipt posting creates exactly one lot and movement (451ms)
+  ✓  14 tests/bar-operational/bar.spec.ts:589:1 › C16 simultaneous restock reversal creates one return per original lot (401ms)
+  ✓  15 tests/bar-operational/bar.spec.ts:617:1 › C13 browser retries a committed retail sale after lost response without a duplicate (5.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '958906650'
+[WebServer] }
+  ✓  16 tests/bar-operational/bar.spec.ts:676:1 › C01 unused barcode product can be archived without damaging existing history (490ms)
+  ✓  17 tests/bar-operational/bar.spec.ts:722:1 › C02 persisted multiline draft and repeated reads leave debt stock and cash unchanged (363ms)
+  ✓  18 tests/bar-operational/bar.spec.ts:754:1 › C13 same sale key with changed payload is rejected without effects (332ms)
+  ✓  19 tests/bar-operational/bar.spec.ts:781:1 › C13 simultaneous identical intent replays one sale after a controlled stock barrier (350ms)
+  ✓  20 tests/bar-operational/bar.spec.ts:822:1 › C13 Folio browser preserves a committed charge and retries it without duplication (3.3s)
+  ✓  21 tests/bar-operational/bar.spec.ts:901:1 › C02 abandoning an unsaved receipt leaves stock debt cash and ledger unchanged (4.7s)
+  ✓  22 tests/bar-operational/bar.spec.ts:943:1 › C15 foreign receipt supplier and line product are rejected before any draft is saved (635ms)
+  ✓  23 tests/bar-operational/repeat-risk.spec.ts:65:1 › C04/C13 supplier payment lost response replays one committed payment (287ms)
+  ✓  24 tests/bar-operational/repeat-risk.spec.ts:112:1 › C07/C13 write-off lost response replays one committed movement (213ms)
+
+  24 passed (35.4s)
+
+# код выхода 0 · 37 с

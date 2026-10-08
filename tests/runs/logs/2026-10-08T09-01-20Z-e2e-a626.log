@@ -1,0 +1,73 @@
+# Сквозные (e2e) · 08.10.2026 14:01 Алматы · MacBook-Air-Urij.local
+# коммит 962cc6f (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-full/playwright.config.ts' 'tests/onboarding-full/scope-audit.spec.ts' '--workers=1'
+[WebServer] (node:23214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:23539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23262) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  1 tests/onboarding-full/scope-audit.spec.ts:34:1 › T04 Website and direct report guards across three verticals and real membership roles (2.1s)
+  ✘  2 tests/onboarding-full/scope-audit.spec.ts:101:1 › T04 A4b observation: warm organization/business cache before archiving first Location (215ms)
+
+
+  1) tests/onboarding-full/scope-audit.spec.ts:101:1 › T04 A4b observation: warm organization/business cache before archiving first Location 
+
+    PrismaClientValidationError: 
+    Invalid `prisma.barProduct.create()` invocation:
+
+    {
+      data: {
+        propertyId: "741729e6-f371-424e-8049-d758898e1a3b",
+        code: "CACHE-4150cc61-86f9-423b-a540-6359ee4f119a",
+        name: "Synthetic archived cache marker",
+        salePriceMinor: 1n,
+        unitsPerPackage: 1,
+        minimumStockUnits: 0n,
+    +   salePrice: BigInt
+      }
+    }
+
+    Argument `salePrice` is missing.
+
+      111 |     }),
+      112 |   );
+    > 113 |   const marker = await db.barProduct.create({
+          |                  ^
+      114 |     data: {
+      115 |       propertyId: first.id,
+      116 |       code: `CACHE-${randomUUID()}`,
+        at throwValidationException (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+        at vn.handleRequestError (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+        at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+        at vn.request (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+        at a (/Users/urijzapojnov/wetop-unified-acceptance-20261007/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/onboarding-full/scope-audit.spec.ts:113:18
+
+    Error Context: test-results/scope-audit-T04-A4b-observ-642a2-re-archiving-first-Location/error-context.md
+
+    Error Context: test-results/scope-audit-T04-A4b-observ-642a2-re-archiving-first-Location/error-context.md
+
+  1 failed
+    tests/onboarding-full/scope-audit.spec.ts:101:1 › T04 A4b observation: warm organization/business cache before archiving first Location 
+  1 passed (9.4s)
+
+# код выхода 1 · 11 с

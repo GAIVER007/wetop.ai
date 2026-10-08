@@ -1,10 +1,19 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { unstable_rethrow } from 'next/navigation';
 import { ApiError, barApi } from '../../lib/api';
 
-export interface BarActionResult { error: string | null; ok: number; message?: string; retry?: { key: string } }
+export interface BarActionResult { error: string | null; ok: number; message?: string }
 const value = (fd: FormData, key: string) => String(fd.get(key) ?? '').trim();
-const describe = (error: unknown) => error instanceof ApiError ? error.message : error instanceof Error ? error.message : String(error);
+const intentKey = (fd: FormData) => {
+  const key = value(fd, 'idempotencyKey');
+  if (!key || key.length > 120) throw new Error('Ключ операции не сохранён. Обновите страницу');
+  return key;
+};
+const describe = (error: unknown) => {
+  unstable_rethrow(error);
+  return error instanceof ApiError ? error.message : error instanceof Error ? error.message : String(error);
+};
 const minor = (raw: string, field: string) => {
   const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(raw);
   if (!match) throw new Error(`${field}: укажите сумму в тенге`);
@@ -43,38 +52,32 @@ export async function postBarReceiptAction(fd: FormData): Promise<void> {
   revalidatePath('/bar');
 }
 
-function saleIntent(previous: BarActionResult, fd: FormData) {
-  return previous.retry ?? { key: value(fd, 'idempotencyKey') || crypto.randomUUID() };
-}
-
 export async function sellBarRetailAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
-  const intent = saleIntent(_previous, fd);
   try {
     const sale = await barApi.sellRetail({
       productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), method: value(fd, 'method'),
-      idempotencyKey: intent.key,
+      idempotencyKey: intentKey(fd),
     });
     revalidatePath('/bar');
-    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Эта продажа уже отменена. Новая продажа не создана.' : 'Продажа записана, остаток и касса обновлены' };
+    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Эта продажа уже возвращена' : 'Продажа записана, остаток и касса обновлены' };
   } catch (error) {
-    return { error: describe(error), ok: _previous.ok, retry: intent };
+    return { error: describe(error), ok: _previous.ok };
   }
 }
 
 export async function sellBarToFolioAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
-  const intent = saleIntent(_previous, fd);
   try {
-    const sale = await barApi.sellToFolio({ folioId: value(fd, 'folioId'), productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), idempotencyKey: intent.key });
+    const sale = await barApi.sellToFolio({ folioId: value(fd, 'folioId'), productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), idempotencyKey: intentKey(fd) });
     revalidatePath('/bar');
-    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Это начисление уже отменено. Новое начисление не создано.' : 'Товар добавлен в счет гостя, остаток обновлен' };
+    return { error: null, ok: Date.now(), message: sale.status === 'REVERSED' ? 'Эта продажа уже возвращена' : 'Товар добавлен в счет гостя, остаток обновлен' };
   } catch (error) {
-    return { error: describe(error), ok: _previous.ok, retry: intent };
+    return { error: describe(error), ok: _previous.ok };
   }
 }
 
 export async function writeOffBarAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
   try {
-    await barApi.writeOff({ productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), reason: value(fd, 'reason') });
+    await barApi.writeOff({ productId: value(fd, 'productId'), quantityUnits: value(fd, 'quantityUnits'), reason: value(fd, 'reason'), idempotencyKey: intentKey(fd) });
     revalidatePath('/bar');
     return { error: null, ok: Date.now(), message: 'Товар списан, остаток обновлен' };
   } catch (error) {
@@ -89,9 +92,9 @@ export async function reverseBarSaleAction(fd: FormData): Promise<void> {
 
 export async function payBarSupplierAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
   try {
-    await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null });
+    const payment = await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null, idempotencyKey: intentKey(fd) });
     revalidatePath('/bar');
-    return { error: null, ok: Date.now(), message: 'Оплата поставщику записана в кассе' };
+    return { error: null, ok: Date.now(), message: payment.status === 'VOIDED' ? 'Эта оплата аннулирована, долг не погашен' : 'Оплата поставщику записана в кассе' };
   } catch (error) {
     return { error: describe(error), ok: _previous.ok };
   }

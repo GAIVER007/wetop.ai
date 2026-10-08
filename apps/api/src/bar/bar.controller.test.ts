@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
@@ -128,7 +129,7 @@ describe('бар: приходы (BAR2)', () => {
   });
 
   it('списывает товар с причиной и не уходит в минус', async () => {
-    const body = { productId: '30000000-0000-4000-8000-000000000001', quantityUnits: '2', reason: 'Бой' };
+    const body = { idempotencyKey: randomUUID(), productId: '30000000-0000-4000-8000-000000000001', quantityUnits: '2', reason: 'Бой' };
     await request(app.getHttpServer()).post('/bar/write-offs').send(body).expect(201);
     await request(app.getHttpServer()).post('/bar/write-offs').send({ ...body, quantityUnits: '13' }).expect(409);
     await request(app.getHttpServer()).post('/bar/write-offs').send({ ...body, reason: '' }).expect(400);
@@ -136,9 +137,9 @@ describe('бар: приходы (BAR2)', () => {
 
   it('принимает частичную оплату поставщику и запрещает переплату', async () => {
     const id = '10000000-0000-4000-8000-000000000001';
-    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL' }).expect(201);
+    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ idempotencyKey: randomUUID(), amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL' }).expect(201);
     expect(paid.body).toMatchObject({ paidAmount: '80000', dueAmount: '100000' });
-    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '180001', method: 'CASH' }).expect(409);
+    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ idempotencyKey: randomUUID(), amountMinor: '180001', method: 'CASH' }).expect(409);
   });
 
   it('добавляет товар в открытый счет гостя', async () => {

@@ -39,9 +39,25 @@ type FileProof = {
 };
 
 const SPECIAL_TESTS = ['a27-auth-boundary.spec.ts'];
+const RUNTIME_ROOT_ENV = 'UI_ISOLATED_RUNTIME_ROOT';
 const TEXT_EXTENSIONS = new Set(['.cjs', '.js', '.json', '.mjs', '.ts', '.tsx']);
 const COPY_IGNORES = new Set(['node_modules', 'out']);
 const RUNTIME_ROOT_FILES = ['package.json', 'package-lock.json', 'tsconfig.base.json'];
+
+type RuntimeManifest = {
+  source: string;
+  transform: 'origin-only';
+  sourceSpecCount: number;
+  partitionedSpecCount: number;
+  specialTests: string[];
+  workers: Array<{
+    index: number;
+    files: FileProof[];
+    apps: FileProof[];
+    testMatch: string[];
+    origins: { fixture: string; web: string; site: string };
+  }>;
+};
 
 function sha256(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
@@ -146,6 +162,60 @@ function link(source: string, target: string): void {
   symlinkSync(source, target, 'dir');
 }
 
+function portFromOrigin(origin: string, label: string): number {
+  const url = new URL(origin);
+  const port = Number(url.port);
+  if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || !Number.isInteger(port))
+    throw new Error(`isolated UI manifest has invalid ${label} origin`);
+  return port;
+}
+
+function loadExistingRuntime(
+  repoRoot: string,
+  runtimeParent: string,
+  root: string,
+): IsolatedUiWorkers {
+  const rootFromParent = relative(runtimeParent, root);
+  if (
+    rootFromParent.startsWith('..') ||
+    isAbsolute(rootFromParent) ||
+    !rootFromParent.startsWith('.wetop-main-ui-')
+  )
+    throw new Error(`${RUNTIME_ROOT_ENV} must name a runtime under UI_RUNTIME_PARENT`);
+
+  const manifestPath = join(root, 'manifest.json');
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RuntimeManifest;
+  if (
+    manifest.source !== repoRoot ||
+    manifest.transform !== 'origin-only' ||
+    manifest.workers?.length !== 2 ||
+    manifest.partitionedSpecCount !==
+      manifest.workers.reduce((count, worker) => count + worker.testMatch.length, 0) ||
+    manifest.specialTests.join('\n') !== SPECIAL_TESTS.join('\n')
+  )
+    throw new Error('isolated UI runtime manifest does not match this checkout');
+
+  const workers = manifest.workers.map((entry, index): UiWorkerRuntime => {
+    if (entry.index !== index)
+      throw new Error('isolated UI runtime manifest worker indexes are invalid');
+    const workerRoot = join(root, `worker-${index}`);
+    return {
+      index,
+      root: workerRoot,
+      uiDir: join(workerRoot, 'tests/ui'),
+      testMatch: entry.testMatch,
+      fixturePort: portFromOrigin(entry.origins.fixture, 'fixture'),
+      webPort: portFromOrigin(entry.origins.web, 'web'),
+      sitePort: portFromOrigin(entry.origins.site, 'site'),
+      fixtureOrigin: entry.origins.fixture,
+      webOrigin: entry.origins.web,
+      siteOrigin: entry.origins.site,
+    };
+  }) as [UiWorkerRuntime, UiWorkerRuntime];
+
+  return { root, runtimeParent, workers, specialTests: [...SPECIAL_TESTS], manifestPath };
+}
+
 /** Creates two external, origin-only test mirrors and disjoint app runtimes. */
 export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
   const fixtureBase = configuredPort('UI_FIXTURE_PORT', 4311);
@@ -156,6 +226,10 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
   if (repoFromParent.startsWith('..') || isAbsolute(repoFromParent))
     throw new Error('UI_RUNTIME_PARENT must contain the repository checkout');
   mkdirSync(runtimeParent, { recursive: true });
+  const existingRoot = process.env[RUNTIME_ROOT_ENV];
+  if (existingRoot)
+    return loadExistingRuntime(repoRoot, runtimeParent, resolve(existingRoot));
+
   const root = mkdtempSync(join(runtimeParent, '.wetop-main-ui-'));
   const sourceUi = join(repoRoot, 'tests/ui');
   const allSpecs = readdirSync(sourceUi)
@@ -231,5 +305,6 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
       2,
     ),
   );
+  process.env[RUNTIME_ROOT_ENV] = root;
   return { root, runtimeParent, workers, specialTests: [...SPECIAL_TESTS], manifestPath };
 }

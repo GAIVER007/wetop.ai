@@ -1,0 +1,32 @@
+# Сквозные (e2e) · 08.10.2026 20:29 Алматы · vm
+# коммит 62b0ae7 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1' '--repeat-each=2'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 330ms. If /home/user/wetop.ai/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (22.8s)
+  ✓   2 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.0s)
+  ✓   3 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.4s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (3.0s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:107:1 › узкий телефон: плитки финансов встают в одну колонку (2.0s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:118:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (10.1s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (12.5s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (12.1s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.8s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.2s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (2.4s)
+  ✓  12 tests/ui/mobile-adaptation.spec.ts:107:1 › узкий телефон: плитки финансов встают в одну колонку (1.7s)
+  ✓  13 tests/ui/mobile-adaptation.spec.ts:118:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (9.5s)
+  ✓  14 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (13.4s)
+
+  14 passed (2.1m)
+
+# код выхода 0 · 2 мин 12 с

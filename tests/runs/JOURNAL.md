@@ -7582,3 +7582,5 @@
 | 08.10.2026 19:45 | e2e | ✅ 26 из 26 | 1 мин 34 с | 8ad48af +1 | [лог](logs/2026-10-08T14-45-55Z-e2e-4371.log) |  |
 | 08.10.2026 19:48 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/status-dictionary-guard.test.ts) | ✅ 20 из 20 | 1 с | bfef9af | [лог](logs/2026-10-08T14-48-35Z-unit-e44b.log) |  |
 | 08.10.2026 19:48 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/design-slop.test.ts tests/ | ✅ 44 из 44 | 2 с | bfef9af | [лог](logs/2026-10-08T14-48-40Z-unit-fadb.log) |  |
+| 08.10.2026 20:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/mobile-adaptation.spec.ts --workers=1 --repeat-each=2) | ✅ 14 из 14 | 2 мин 12 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-29-39Z-e2e-4754.log) |  |
+| 08.10.2026 20:32 | typecheck | ✅ без ошибок | 40 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-32-01Z-typecheck-5076.log) |  |

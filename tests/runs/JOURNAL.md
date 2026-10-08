@@ -7532,3 +7532,4 @@
 | 08.10.2026 12:30 | typecheck | ✅ без ошибок | 57 с | e68dafb | [лог](logs/2026-10-08T07-30-51Z-typecheck-f3fb.log) | DS1a правки после слияния main e57447d3 |
 | 08.10.2026 12:31 | lint | ✅ без ошибок | 34 с | e68dafb | [лог](logs/2026-10-08T07-31-48Z-lint-aa75.log) | DS1a правки после слияния |
 | 08.10.2026 12:32 | unit | ✅ 4058 из 4061, пропущено 3 | 1 мин 54 с | e68dafb | [лог](logs/2026-10-08T07-32-23Z-unit-87a6.log) | DS1a правки после слияния main e57447d3 |
+| 08.10.2026 12:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/booking-compact.spec.ts tests/ui/booking-dates.spec.ts tests/ui/booking-pric | ✅ 291 из 291 | 26 мин 33 с | e68dafb | [лог](logs/2026-10-08T07-34-29Z-e2e-1816.log) | DS1a правки: затронутые экраны после слияния main e57447d3 |

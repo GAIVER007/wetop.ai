@@ -236,16 +236,22 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
         JOIN businesses b ON b.id = l.business_id WHERE b.organization_id = ANY($1::uuid[])`;
       await sql.query('BEGIN');
       await sql.query('ALTER TABLE marketing_site_versions DISABLE TRIGGER marketing_site_version_immutable');
+      await sql.query('ALTER TABLE marketing_site_publications DISABLE TRIGGER marketing_site_publication_immutable');
       await sql.query('ALTER TABLE generation_runs DISABLE TRIGGER generation_run_guard');
       await sql.query(`DELETE FROM marketing_site_publications WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`DELETE FROM site_domains WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`UPDATE marketing_sites SET latest_version_id = NULL, published_version_id = NULL, tracked_site_id = NULL WHERE id IN (${sites})`, [orgs]);
-      await sql.query(`UPDATE generation_runs SET output_version_id = NULL, base_version_id = NULL WHERE site_id IN (${sites})`, [orgs]);
+      await sql.query(`UPDATE generation_runs SET output_version_id = NULL, base_version_id = NULL, status = 'CANCELLED', finished_at = now() WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`UPDATE marketing_site_versions SET parent_version_id = NULL, generation_run_id = NULL, source = 'MANUAL' WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`DELETE FROM marketing_site_versions WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`DELETE FROM generation_runs WHERE site_id IN (${sites})`, [orgs]);
       await sql.query(`DELETE FROM marketing_sites WHERE id IN (${sites})`, [orgs]);
+      await sql.query(
+        `UPDATE locations SET booking_tracked_site_id = NULL WHERE business_id IN (SELECT id FROM businesses WHERE organization_id = ANY($1::uuid[]))`,
+        [orgs],
+      );
       await sql.query('ALTER TABLE generation_runs ENABLE TRIGGER generation_run_guard');
+      await sql.query('ALTER TABLE marketing_site_publications ENABLE TRIGGER marketing_site_publication_immutable');
       await sql.query('ALTER TABLE marketing_site_versions ENABLE TRIGGER marketing_site_version_immutable');
       await sql.query('COMMIT');
       await sql.end();
@@ -253,6 +259,8 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
     if (db) {
       await purgeAuditRows(db, { organizationId: { in: orgs } });
       await db.siteAsset.deleteMany({ where: { location: { business: { organizationId: { in: orgs } } } } });
+      await db.trackedSite.deleteMany({ where: { property: { organizationId: { in: orgs } } } });
+      await db.ratePlan.deleteMany({ where: { property: { organizationId: { in: orgs } } } });
       await db.inventoryUnit.deleteMany({ where: { property: { organizationId: { in: orgs } } } });
       await db.physicalRoom.deleteMany({ where: { floor: { building: { property: { organizationId: { in: orgs } } } } } });
       await db.floor.deleteMany({ where: { building: { property: { organizationId: { in: orgs } } } } });

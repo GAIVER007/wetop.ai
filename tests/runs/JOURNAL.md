@@ -7553,3 +7553,11 @@
 | 08.10.2026 12:52 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts --workers=1 -g Выбор\|Платформа) | ❌ упало 1 из 3 | 35 с | 2f32e84 +20 | [лог](logs/2026-10-08T07-52-19Z-e2e-e8a3.log) | MKT9.2 UI: клавиши в рамке, карточка лицензии |
 | 08.10.2026 12:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-builder-licensed.spec.ts tests/ui/site-editor.spec.ts --workers=1) | ✅ 33 из 33 | 3 мин 21 с | 2f32e84 +20 | [лог](logs/2026-10-08T07-53-03Z-e2e-9161.log) | MKT9.2 UI: новый набор и редактор MKT9 |
 | 08.10.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing-site.spec.ts tests/ui/marketing.spec.ts tests/ui/site-assets.spec.ts tests/ui/platform- | ✅ 85 из 85 | 6 мин 4 с | 2f32e84 +20 | [лог](logs/2026-10-08T07-57-43Z-e2e-7424.log) | MKT9.2: соседние UI-наборы |
+| 08.10.2026 13:06 | typecheck | ✅ без ошибок | 42 с | e3fc13f +4 | [лог](logs/2026-10-08T08-06-58Z-typecheck-2428.log) |  |
+| 08.10.2026 13:07 | lint | ✅ без ошибок | 34 с | e3fc13f +4 | [лог](logs/2026-10-08T08-07-41Z-lint-5544.log) |  |
+| 08.10.2026 13:08 | unit | ❌ код выхода 1 | 1 мин 59 с | e3fc13f +3 | [лог](logs/2026-10-08T08-08-18Z-unit-d57d.log) | (файл не выполнился) |
+| 08.10.2026 13:11 | unit | ✅ 4068 из 4071, пропущено 3 | 1 мин 58 с | e3fc13f +4 | [лог](logs/2026-10-08T08-11-02Z-unit-83cc.log) |  |
+| 08.10.2026 13:13 | integration | ❌ упало 1 из 951 | 2 мин 40 с | e3fc13f +5 | [лог](logs/2026-10-08T08-13-04Z-integration-942c.log) | (файл не выполнился) |
+| 08.10.2026 13:16 | integration | ❌ упало 1 из 951 | 2 мин 45 с | e3fc13f +6 | [лог](logs/2026-10-08T08-16-18Z-integration-4412.log) | (файл не выполнился) |
+| 08.10.2026 13:19 | integration | ✅ 951 из 951 | 2 мин 45 с | e3fc13f +6 | [лог](logs/2026-10-08T08-19-44Z-integration-7742.log) |  |
+| 08.10.2026 13:29 | e2e (частично: --config tests/sites/playwright.config.ts --workers=1) | ✅ 11 из 11 | 12 с | e3fc13f +4 | [лог](logs/2026-10-08T08-29-38Z-e2e-b343.log) |  |

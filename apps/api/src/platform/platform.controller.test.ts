@@ -14,6 +14,7 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
+import { SiteBuilderLicenses } from './site-builder-licenses';
 import { PLATFORM_ADMIN_ONLY, PLATFORM_NO_ORGANIZATION, PlatformController } from './platform.controller';
 
 /**
@@ -56,6 +57,32 @@ class FakeExtensions implements ExtensionsRepository {
 }
 
 const repo = new FakeExtensions();
+
+/** Лицензии конструктора сайта (MKT9.2): один гостиничный филиал организации, запись только в памяти */
+const LOCATION = '7e3a1c2b-9d4f-4e5a-8b6c-0a1b2c3d4e5f';
+class FakeLicenses {
+  saved: Array<{ locationId: string; change: ExtensionChange; by: string | null }> = [];
+  row = () => ({
+    id: LOCATION,
+    name: 'Филиал «Центр»',
+    status: 'ACTIVE',
+    business: { name: 'Хостел «Пример»' },
+    marketingSite: null,
+    siteBuilderEntitlement: this.saved.length
+      ? { ...this.saved.at(-1)!.change, updatedAt: new Date('2026-10-08T00:00:00.000Z') }
+      : null,
+  });
+  async locations(organizationId: string) {
+    return organizationId === ORG ? [this.row()] : [];
+  }
+  async location(organizationId: string, locationId: string) {
+    return organizationId === ORG && locationId === LOCATION ? this.row() : null;
+  }
+  async save(input: { locationId: string; change: ExtensionChange; by: string | null }) {
+    this.saved.push({ locationId: input.locationId, change: input.change, by: input.by });
+  }
+}
+const licenses = new FakeLicenses();
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -81,6 +108,7 @@ beforeAll(async () => {
       { provide: EXTENSIONS_REPOSITORY, useValue: repo },
       // настоящая служба поверх подставного хранилища: смена расширения зовёт её слушателей (Э4)
       ExtensionsService,
+      { provide: SiteBuilderLicenses, useValue: licenses },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -99,6 +127,7 @@ beforeEach(() => {
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
   repo.statuses = [];
+  licenses.saved = [];
   repo.orgs = [
     {
       id: ORG,
@@ -231,5 +260,43 @@ describe('статус организации: подтверждение опл
       .set(as('session-admin'))
       .send({ status: 'ACTIVE' })
       .expect(404);
+  });
+});
+
+describe('лицензия конструктора сайта филиала (MKT9.2)', () => {
+  it('владелец организации не видит и не выдаёт себе лицензию: 403, ничего не записано', async () => {
+    await api().get(`/platform/organizations/${ORG}/site-builder`).set(as('session-owner')).expect(403);
+    await api()
+      .put(`/platform/organizations/${ORG}/site-builder/${LOCATION}`)
+      .set(as('session-owner'))
+      .send({ status: 'ACTIVE' })
+      .expect(403);
+    expect(licenses.saved).toHaveLength(0);
+  });
+
+  it('главный администратор активирует: записано с автором, ответ «действует»', async () => {
+    const list = await api().get(`/platform/organizations/${ORG}/site-builder`).set(as('session-admin')).expect(200);
+    expect(list.body.items[0].license.status).toBeNull();
+    const res = await api()
+      .put(`/platform/organizations/${ORG}/site-builder/${LOCATION}`)
+      .set(as('session-admin'))
+      .send({ status: 'ACTIVE', note: 'Счёт 42' })
+      .expect(200);
+    expect(licenses.saved).toEqual([{ locationId: LOCATION, change: expect.objectContaining({ status: 'ACTIVE' }), by: ADMIN }]);
+    expect(res.body.license.status).toBe('ACTIVE');
+  });
+
+  it('пробный без срока: 400; чужой филиал: 404; ничего не записано', async () => {
+    await api()
+      .put(`/platform/organizations/${ORG}/site-builder/${LOCATION}`)
+      .set(as('session-admin'))
+      .send({ status: 'TRIAL' })
+      .expect(400);
+    await api()
+      .put(`/platform/organizations/${ORG}/site-builder/${ADMIN}`)
+      .set(as('session-admin'))
+      .send({ status: 'ACTIVE' })
+      .expect(404);
+    expect(licenses.saved).toHaveLength(0);
   });
 });

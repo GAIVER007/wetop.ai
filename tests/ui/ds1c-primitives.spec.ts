@@ -110,7 +110,7 @@ test('поле: обязательное с родным required и знако�
   await expect(section.locator('.field__required').first()).toHaveText('*');
   const middle = section.getByLabel(/^Отчество/);
   await expect(middle).not.toHaveAttribute('required', /.*/);
-  await expect(section.getByText('необязательно')).toBeVisible();
+  await expect(section.locator('.field__optional')).toHaveText('необязательно');
 });
 
 test('таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки', async ({

@@ -7602,3 +7602,4 @@
 | 08.10.2026 18:27 | unit | ✅ 4111 из 4114, пропущено 3 | 1 мин 54 с | aec176c | [лог](logs/2026-10-08T13-27-39Z-unit-fc1b.log) |  |
 | 08.10.2026 18:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/reservations-compact.spec.ts tests/ui/reservations-design.spec.ts test | ✅ 170 из 170 | 16 мин 22 с | aec176c | [лог](logs/2026-10-08T13-30-41Z-e2e-f44e.log) |  |
 | 08.10.2026 18:53 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ✅ 357 из 357 | 37 мин 48 с | 3d41f63 | [лог](logs/2026-10-08T13-53-24Z-e2e-0b79.log) |  |
+| 08.10.2026 19:31 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 2 из 357, пропущено 16 | 28 мин 54 с | a7f0cbb | [лог](logs/2026-10-08T14-31-13Z-e2e-b36a.log) | axe и эталонные снимки секций: light |

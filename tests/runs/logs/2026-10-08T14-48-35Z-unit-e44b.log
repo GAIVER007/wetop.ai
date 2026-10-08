@@ -1,0 +1,17 @@
+# Модульные (unit) · 08.10.2026 19:48 Алматы · vm
+# коммит bfef9af (claude/sharp-dirac-6s46fw)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T14-48-35Z-unit-e44b.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-rules.test.ts' 'tests/unit/build-tokens.test.ts' 'tests/unit/status-dictionary-guard.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 10ms
+ ✓ |unit| tests/unit/status-dictionary-guard.test.ts (2 tests) 295ms
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  14:48:36
+   Duration  496ms (tests 43%, import 35%, transform 19%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-08T14-48-35Z-unit-e44b.json
+
+# код выхода 0 · 1 с

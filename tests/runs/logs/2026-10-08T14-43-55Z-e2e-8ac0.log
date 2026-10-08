@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 08.10.2026 19:43 Алматы · vm
+# коммит 8ad48af (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/chessboard-unassigned.spec.ts' '--workers=1'
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[pms_test] миграций применено 0 из 75; данные от 2026-10-08T14:41:32.417Z (сид)
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+[WebServer] ⨯ Error: Войдите в систему
+[WebServer]     at h (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1760)
+[WebServer]     at async Object.me (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5195) {
+[WebServer]   status: 401,
+[WebServer]   digest: 'API_401'
+[WebServer] }
+
+Running 3 tests using 1 worker
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (238ms)
+  ✓  2 [auth] › tests/e2e/_auth.setup.ts:21:1 › вход сотрудника автотестов: замок включён, сессия и филиал в cookie стойки (1.1s)
+[WebServer] (node:1974) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  3 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:30:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (6.7s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 0)
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  3 passed (17.0s)
+
+# код выхода 0 · 18 с

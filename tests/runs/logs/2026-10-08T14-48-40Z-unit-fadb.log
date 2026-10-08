@@ -1,0 +1,21 @@
+# Модульные (unit) · 08.10.2026 19:48 Алматы · vm
+# коммит bfef9af (claude/sharp-dirac-6s46fw)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T14-48-40Z-unit-fadb.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/status-dictionary-guard.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 12ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 182ms
+ ✓ |unit| tests/unit/status-dictionary-guard.test.ts (2 tests) 443ms
+   ✓ вне lib/status нет своих словарей статусов 438ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 7ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 14ms
+
+ Test Files  5 passed (5)
+      Tests  44 passed (44)
+   Start at  14:48:42
+   Duration  905ms (import 41%, tests 39%, transform 19%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-08T14-48-40Z-unit-fadb.json
+
+# код выхода 0 · 2 с

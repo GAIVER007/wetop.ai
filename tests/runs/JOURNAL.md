@@ -7494,6 +7494,17 @@
 | 08.10.2026 00:13 | typecheck | ✅ без ошибок | 1 мин 6 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-13-39Z-typecheck-eb8c.log) |  |
 | 08.10.2026 00:14 | lint | ✅ без ошибок | 59 с | 9346cc7 +3 | [лог](logs/2026-10-07T19-14-46Z-lint-8059.log) |  |
 | 08.10.2026 00:15 | unit (частично: tests/unit/design-slop.test.ts tests/unit/build-tokens.test.ts) | ✅ 17 из 17 | 4 с | 9346cc7 +2 | [лог](logs/2026-10-07T19-15-46Z-unit-b1d5.log) |  |
+| 08.10.2026 00:21 | unit (частично: apps/sites/src/draft-preview.test.ts) | ❌ код выхода 1 | 2 с | 5423299 +1 | [лог](logs/2026-10-07T19-21-27Z-unit-15b4.log) | (файл не выполнился) |
+| 08.10.2026 00:21 | unit (частично: apps/sites/src/draft-preview.test.ts) | ✅ 6 из 6 | 2 с | 5423299 +2 | [лог](logs/2026-10-07T19-21-41Z-unit-20ba.log) |  |
+| 08.10.2026 00:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ код выхода 1 | 15 с | 5423299 +10 | [лог](logs/2026-10-07T19-28-38Z-e2e-840e.log) | (ошибка вне тестов) |
+| 08.10.2026 00:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 4 из 22 | 6 мин 15 с | 5423299 +10 | [лог](logs/2026-10-07T19-29-58Z-e2e-82d3.log) | просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит |
+| 08.10.2026 00:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1) | ❌ упало 1 из 22 | 7 мин 42 с | 5423299 +10 | [лог](logs/2026-10-07T19-36-59Z-e2e-893d.log) | редактор на компьютере, доступность и снимки: light |
+| 08.10.2026 00:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1 -g редактор на) | ✅ 4 из 4 | 1 мин 1 с | 5423299 +10 | [лог](logs/2026-10-07T19-45-05Z-e2e-380c.log) |  |
+| 08.10.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 29 из 29 | 3 мин 13 с | 5423299 +10 | [лог](logs/2026-10-07T19-46-29Z-e2e-f81f.log) |  |
+| 08.10.2026 00:49 | typecheck | ✅ без ошибок | 56 с | 5423299 +10 | [лог](logs/2026-10-07T19-49-46Z-typecheck-261f.log) |  |
+| 08.10.2026 00:50 | lint | ✅ без ошибок | 49 с | 5423299 +10 | [лог](logs/2026-10-07T19-50-43Z-lint-b82e.log) |  |
+| 08.10.2026 00:51 | unit (частично: tests/unit apps/sites packages/domain/src/marketing) | ✅ 800 из 803, пропущено 3 | 1 мин 22 с | 5423299 +9 | [лог](logs/2026-10-07T19-51-33Z-unit-4c74.log) |  |
+| 08.10.2026 00:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts --workers=1 -g открыть голову\|ИИ одного блока) | ❌ упало 2 из 2 | 1 мин 22 с | 5423299 +10 | [лог](logs/2026-10-07T19-53-04Z-e2e-5c85.log) | мутация: щелчок по блоку ничего не выбирает |
 | 08.10.2026 04:31 | typecheck | ❌ ошибок: 5 | 1 мин 15 с | fd51888 +50 | [лог](logs/2026-10-07T23-31-57Z-typecheck-3527.log) | TS2307 |
 | 08.10.2026 04:33 | lint | ✅ без ошибок | 49 с | fd51888 +50 | [лог](logs/2026-10-07T23-33-12Z-lint-ef07.log) |  |
 | 08.10.2026 04:34 | unit | ❌ код выхода 1 | 2 мин 18 с | fd51888 +50 | [лог](logs/2026-10-07T23-34-02Z-unit-f460.log) | (файл не выполнился) |
@@ -7507,3 +7518,8 @@
 | 08.10.2026 11:07 | unit | ✅ 4051 из 4054, пропущено 3 | 2 мин 21 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-07-31Z-unit-f998.log) | DS1a: реестры статусов, сторож, экраны на реестрах |
 | 08.10.2026 11:11 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/booking-compact.spec.ts tests/ui/booking-dates.spec.ts tests/ui/booking-price-nights.spec.ts tests/ui/b | ❌ упало 5 из 412 | 32 мин 2 с | 7e29ddd | [лог](logs/2026-10-08T06-11-36Z-e2e-e81a.log) | DS1a: затронутые экраны статусов |
 | 08.10.2026 11:45 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-export.spec.ts tests/ui/reservations-v2-r2.spec.ts --workers=1) | ✅ 8 из 8 | 58 с | 7e29ddd +2 | [лог](logs/2026-10-08T06-45-13Z-e2e-d2ca.log) | DS1a: CSV и отбор на словах реестра |
+| 08.10.2026 10:46 | unit (частично: tests/unit apps/sites packages/domain/src/marketing) | ❌ упало 1 из 809, пропущено 3 | 2 мин 26 с | 10f23ca +50 | [лог](logs/2026-10-08T05-46-16Z-unit-b586.log) | local demo preview starts its synthetic API without a database or providers |
+| 08.10.2026 10:48 | typecheck | ✅ без ошибок | 46 с | 10f23ca +50 | [лог](logs/2026-10-08T05-48-42Z-typecheck-ac30.log) |  |
+| 08.10.2026 10:49 | lint | ✅ без ошибок | 31 с | 10f23ca +50 | [лог](logs/2026-10-08T05-49-29Z-lint-4fe0.log) |  |
+| 08.10.2026 10:50 | unit (частично: tests/unit/fixture-demo.test.ts) | ✅ 1 из 1 | 2 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-07Z-unit-0c01.log) | одиночный повтор после таймаута 5 с под нагрузкой полного набора |
+| 08.10.2026 10:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/site-editor.spec.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 29 из 29 | 2 мин 37 с | 10f23ca +50 | [лог](logs/2026-10-08T05-50-13Z-e2e-c59d.log) |  |

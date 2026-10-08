@@ -74,6 +74,8 @@ test('«Заселить» из предпросмотра выполняет с
   request,
 }) => {
   await page.goto('/chessboard');
+  await page.getByText('Обозначения', { exact: true }).click();
+  await expect(page.getByTestId('board-legend')).toBeVisible();
   const confirmed = page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first();
   const number = await confirmed.getAttribute('data-number');
   await confirmed.click();

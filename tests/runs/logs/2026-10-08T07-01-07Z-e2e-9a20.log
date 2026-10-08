@@ -1,0 +1,100 @@
+# Сквозные (e2e) · 08.10.2026 12:01 Алматы · MacBook-Air-Urij.local
+# коммит 7c335db (codex/unified-acceptance-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' '--grep' 'Заселить.*предпросмотра|восемь строк'
+[WebServer] (node:92626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:92759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (24.1s)
+(node:92837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (3.9s)
+
+
+  1) tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('board-legend')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('board-legend') with timeout 15000ms
+      - waiting for getByTestId('board-legend')
+        30 × locator resolved to <div class="legend" data-testid="board-legend">…</div>
+           - unexpected value "hidden"
+
+
+      93 |   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+      94 |   await expect(preview.getByTestId('preview-status')).toContainText('Заселён');
+    > 95 |   await expect(page.getByTestId('board-legend')).toBeVisible();
+         |                                                  ^
+      96 |   await page.keyboard.press('Escape');
+      97 |   await page.reload();
+      98 |   const persisted = page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first();
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/chessboard-card.spec.ts:95:50
+
+    Error Context: test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+
+    Error: сетка должна доходить почти до низа окна
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 32
+    Received:    36
+
+      53 |   expect
+      54 |     .soft(m.bottomGap, 'сетка должна доходить почти до низа окна')
+    > 55 |     .toBeLessThanOrEqual(MAX_BOTTOM_GAP);
+         |      ^
+      56 |   expect.soft(m.visible, `видно строк мест: ${m.visible}`).toBeGreaterThanOrEqual(MIN_ROWS);
+      57 |   await page.screenshot({ path: 'reports/chessboard-compact-screen.png' });
+      58 | });
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/chessboard-compact-screen.spec.ts:55:6
+
+    Error Context: test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 
+    tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+
+# код выхода 1 · 1 мин 16 с

@@ -2388,6 +2388,7 @@ body:has(.calendar-workspace[data-expanded='true']) {
 
 @media (min-width: 601px) {
   .page.calendar-page { padding-bottom: 0; }
+  .calendar-page .board-footer { padding-top: 0; }
 }
 
 /* Fit the month to the workspace, including the vertical scrollbar. */

@@ -1,0 +1,121 @@
+# Сквозные (e2e) · 08.10.2026 11:59 Алматы · MacBook-Air-Urij.local
+# коммит 7c335db (codex/unified-acceptance-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/unified-acceptance.spec.ts' '--grep' 'AVAIL-SUM'
+[WebServer] (node:91667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:91732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 (20.4s)
+(node:91990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 (23.3s)
+
+
+  1) tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.fund-result-heading').locator('.fund-counts b')
+    Timeout: 15000ms
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "0",
+    -   "36",
+    +   "34",
+      ]
+
+    Call log:
+      - Expect "toHaveText" locator('.fund-result-heading').locator('.fund-counts b') with timeout 15000ms
+      - waiting for locator('.fund-result-heading').locator('.fund-counts b')
+        32 × locator resolved to 2 elements
+
+
+      14 |     await expect(page.locator('.fund-availability > article')).toHaveCount(1);
+      15 |     await expect(heading.getByRole('heading')).toHaveText('Найдено 1 вариант');
+    > 16 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+         |                                                     ^
+      17 |     await page.reload();
+      18 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+      19 |     await page.getByRole('combobox', { name: 'Тип размещения' }).selectOption('ROOM');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:16:53
+
+    Error Context: test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-AVAIL-S-c041b--visible-categories-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.fund-result-heading').locator('.fund-counts b')
+    Timeout: 15000ms
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "0",
+    -   "36",
+    +   "34",
+      ]
+
+    Call log:
+      - Expect "toHaveText" locator('.fund-result-heading').locator('.fund-counts b') with timeout 15000ms
+      - waiting for locator('.fund-result-heading').locator('.fund-counts b')
+        32 × locator resolved to 2 elements
+
+
+      14 |     await expect(page.locator('.fund-availability > article')).toHaveCount(1);
+      15 |     await expect(heading.getByRole('heading')).toHaveText('Найдено 1 вариант');
+    > 16 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+         |                                                     ^
+      17 |     await page.reload();
+      18 |     await expect(heading.locator('.fund-counts b')).toHaveText(['0', '36']);
+      19 |     await page.getByRole('combobox', { name: 'Тип размещения' }).selectOption('ROOM');
+        at /Users/urijzapojnov/wetop-unified-acceptance-20261007/tests/ui/unified-acceptance.spec.ts:16:53
+
+    Error Context: test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-acceptance-AVAIL-S-9305c-h-visible-categories-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 1440 
+    tests/ui/unified-acceptance.spec.ts:8:3 › AVAIL-SUM-01: totals match visible categories at 390 ─
+
+# код выхода 1 · 1 мин 5 с

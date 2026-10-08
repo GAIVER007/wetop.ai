@@ -5,10 +5,24 @@ test.beforeEach(async ({ request }) => {
 });
 
 for (const width of [1440, 390]) {
-  test(`AVAIL-SUM-01: totals match visible categories at ${width}`, async ({ page }) => {
+  test(`AVAIL-SUM-01: totals match visible categories at ${width}`, async ({ page, request }) => {
     await page.setViewportSize({ width, height: 844 });
+    const reset = await request.post(`${FIXTURE_API}/__test/reset`);
+    expect(reset.ok()).toBe(true);
+    const { today } = (await reset.json()) as { today: string };
+    const dateAfter = (days: number) => {
+      const date = new Date(`${today}T00:00:00Z`);
+      date.setUTCDate(date.getUTCDate() + days);
+      return date.toISOString().slice(0, 10);
+    };
+    // M01 and M02 occupy [today - 2, today + 3); verify both periods exactly.
     await page.goto(
-      '/rooms/availability?arrival=2026-10-10&departure=2026-10-12&guests=1&category=MALE',
+      `/rooms/availability?arrival=${today}&departure=${dateAfter(1)}&guests=1&category=MALE`,
+    );
+    await expect(page.locator('.fund-result-heading .fund-counts b')).toHaveText(['0', '34']);
+    await expect(page.locator('.fund-availability .fund-available-count b')).toHaveText('34');
+    await page.goto(
+      `/rooms/availability?arrival=${dateAfter(4)}&departure=${dateAfter(6)}&guests=1&category=MALE`,
     );
     const heading = page.locator('.fund-result-heading');
     await expect(page.locator('.fund-availability > article')).toHaveCount(1);

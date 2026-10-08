@@ -7505,3 +7505,5 @@
 | 08.10.2026 11:06 | typecheck | ✅ без ошибок | 36 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-19Z-typecheck-bf8c.log) | DS1a |
 | 08.10.2026 11:06 | lint | ✅ без ошибок | 31 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-56Z-lint-3ab6.log) | DS1a |
 | 08.10.2026 11:07 | unit | ✅ 4051 из 4054, пропущено 3 | 2 мин 21 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-07-31Z-unit-f998.log) | DS1a: реестры статусов, сторож, экраны на реестрах |
+| 08.10.2026 11:11 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/booking-compact.spec.ts tests/ui/booking-dates.spec.ts tests/ui/booking-price-nights.spec.ts tests/ui/b | ❌ упало 5 из 412 | 32 мин 2 с | 7e29ddd | [лог](logs/2026-10-08T06-11-36Z-e2e-e81a.log) | DS1a: затронутые экраны статусов |
+| 08.10.2026 11:45 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-export.spec.ts tests/ui/reservations-v2-r2.spec.ts --workers=1) | ✅ 8 из 8 | 58 с | 7e29ddd +2 | [лог](logs/2026-10-08T06-45-13Z-e2e-d2ca.log) | DS1a: CSV и отбор на словах реестра |

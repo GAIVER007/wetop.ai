@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 08.10.2026 11:45 Алматы · vm
+# коммит 7e29ddd (claude/mv8-5-ds1a-status-registries), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/reservations-export.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/reservations-export.spec.ts:12:1 › отбор экрана уходит в CSV: номер брони есть, имени гостя нет (4.6s)
+  ✓  2 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (3.5s)
+  ✓  3 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (5.2s)
+  ✓  4 tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (4.4s)
+  ✓  5 tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (2.4s)
+  ✓  6 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (2.8s)
+  ✓  7 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light (11.2s)
+  ✓  8 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark (11.3s)
+
+  8 passed (56.7s)
+
+# код выхода 0 · 58 с

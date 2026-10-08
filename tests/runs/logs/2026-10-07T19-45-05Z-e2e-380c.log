@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 08.10.2026 00:45 Алматы · vm
+# коммит 5423299 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1' '-g' 'редактор на'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/site-editor.spec.ts:355:3 › редактор на компьютере, доступность и снимки: light (20.0s)
+  ✓  2 tests/ui/site-editor.spec.ts:408:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (7.8s)
+  ✓  3 tests/ui/site-editor.spec.ts:355:3 › редактор на компьютере, доступность и снимки: dark (7.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SiteEditor siteId="ms000001-0..." base={{id:"000000...", ...}} published={null} versions={[...]} categories={[...]} ...>
+[WebServer]       <ConfirmDialog>
+[WebServer]       <Stack>
+[WebServer]         <div className="stack">
+[WebServer]           <div>
+[WebServer]           <div className="site-editor" data-testid="site-editor">
+[WebServer]             <div className="ed-left">
+[WebServer]               <div>
+[WebServer]               <div id="ed-pane-ai" role="tabpanel" aria-labelledby="ed-tab-ai" className="site-edito...">
+[WebServer]                 <Panel>
+[WebServer]                   <section className="panel">
+[WebServer]                     <AiChat entries={[...]} target={null} onClearTarget={function onClearTarget} dirty={false} ...>
+[WebServer]                       <div className="ed-chat" data-testid="ed-ai">
+[WebServer]                         <div>
+[WebServer]                         <form className="ed-chat__c..." onSubmit={function onSubmit}>
+[WebServer]                           <Field label="Что измени..." controlId="ed-ai-text" hint="Ctrl+Enter...">
+[WebServer]                             <label htmlFor="ed-ai-text" className="field">
+[WebServer]                               <Textarea rows={3} maxLength={1800} value="" disabled={false} onChange={function onChange} ...>
+[WebServer]                                 <textarea
+[WebServer]                                   className="inp"
+[WebServer]                                   rows={3}
+[WebServer]                                   maxLength={1800}
+[WebServer]                                   value=""
+[WebServer]                                   disabled={false}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer]                                   id="ed-ai-text"
+[WebServer]                                   aria-describedby="ed-ai-text-hint"
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]       ...
+[WebServer]  
+  ✓  4 tests/ui/site-editor.spec.ts:408:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (9.5s)
+
+  4 passed (59.0s)
+
+# код выхода 0 · 1 мин 1 с

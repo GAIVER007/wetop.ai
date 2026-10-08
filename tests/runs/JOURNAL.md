@@ -7600,3 +7600,4 @@
 | 08.10.2026 18:26 | typecheck | ✅ без ошибок | 39 с | aec176c | [лог](logs/2026-10-08T13-26-27Z-typecheck-0773.log) |  |
 | 08.10.2026 18:27 | lint | ✅ без ошибок | 31 с | aec176c | [лог](logs/2026-10-08T13-27-06Z-lint-503e.log) |  |
 | 08.10.2026 18:27 | unit | ✅ 4111 из 4114, пропущено 3 | 1 мин 54 с | aec176c | [лог](logs/2026-10-08T13-27-39Z-unit-fc1b.log) |  |
+| 08.10.2026 18:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/reservations-compact.spec.ts tests/ui/reservations-design.spec.ts test | ✅ 170 из 170 | 16 мин 22 с | aec176c | [лог](logs/2026-10-08T13-30-41Z-e2e-f44e.log) |  |

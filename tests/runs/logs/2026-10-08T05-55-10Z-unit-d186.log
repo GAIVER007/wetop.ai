@@ -1,0 +1,86 @@
+# Модульные (unit) · 08.10.2026 10:55 Алматы · vm
+# коммит 5073ac2 (claude/mv8-5-ds1a-status-registries), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T05-55-10Z-unit-d186.json' 'tests/unit/status-dictionary-guard.test.ts' 'apps/web/src/lib/status/status.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/status/status.test.ts (0 test)
+ ❯ |unit| tests/unit/status-dictionary-guard.test.ts (2 tests | 1 failed) 289ms
+   ✓ сторож видит локальный словарь и пропускает помеченное пояснение 4ms
+   × вне lib/status нет своих словарей статусов 284ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/status/status.test.ts [ apps/web/src/lib/status/status.test.ts ]
+Error: Cannot find module './beauty' imported from /home/user/wetop.ai/apps/web/src/lib/status/status.test.ts
+ ❯ apps/web/src/lib/status/status.test.ts:4:1
+      2| import { resolve } from 'node:path';
+      3| import { describe, expect, it } from 'vitest';
+      4| import { beautyStatus } from './beauty';
+       | ^
+      5| import { foodStatus } from './food';
+      6| import { hospitalityStatus } from './hospitality';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/status-dictionary-guard.test.ts > вне lib/status нет своих словарей статусов
+AssertionError: expected [ …(29) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/beauty/appointment-status.ts:2 (hospitality)",
++   "apps/web/src/app/beauty/appointment-status.ts:10 (hospitality)",
++   "apps/web/src/app/channels/events/[revisionId]/page.tsx:33 (hospitality)",
++   "apps/web/src/app/chessboard/board-grid.tsx:75 (hospitality)",
++   "apps/web/src/app/chessboard/housekeeping-menu.tsx:27 (housekeeping)",
++   "apps/web/src/app/chessboard/housekeeping-menu.tsx:33 (housekeeping)",
++   "apps/web/src/app/chessboard/stay-labels.ts:38 (source)",
++   "apps/web/src/app/chessboard/stay-labels.ts:79 (source)",
++   "apps/web/src/app/chessboard/stay-preview.tsx:28 (hospitality)",
++   "apps/web/src/app/chessboard/unassigned-plan.ts:13 (hospitality)",
++   "apps/web/src/app/inventory/unit-state.tsx:11 (housekeeping)",
++   "apps/web/src/app/management/analytics/vertical/metrics.ts:16 (hospitality)",
++   "apps/web/src/app/management/analytics/vertical/metrics.ts:23 (hospitality)",
++   "apps/web/src/app/reservations/[number]/page.tsx:23 (hospitality)",
++   "apps/web/src/app/reservations/[number]/page.tsx:31 (source)",
++   "apps/web/src/app/reservations/[number]/print/forms.ts:135 (payment)",
++   "apps/web/src/app/reservations/[number]/print/forms.ts:165 (payment)",
++   "apps/web/src/app/reservations/[number]/print/page.tsx:59 (source)",
++   "apps/web/src/app/reservations/filters.ts:21 (payment)",
++   "apps/web/src/app/units/[code]/page.tsx:13 (hospitality)",
++   "apps/web/src/app/units/[code]/unit-actions.tsx:38 (housekeeping)",
++   "apps/web/src/app/units/[code]/unit-actions.tsx:44 (housekeeping)",
++   "apps/web/src/components/amount-chip.tsx:28 (payment)",
++   "apps/web/src/lib/dashboard-format.ts:51 (source)",
++   "apps/web/src/lib/food-data.ts:53 (hospitality)",
++   "apps/web/src/lib/food-data.ts:61 (hospitality)",
++   "apps/web/src/lib/hotel-api.ts:139 (hospitality)",
++   "apps/web/src/lib/hotel-api.ts:150 (hospitality)",
++   "apps/web/src/lib/hotel-api.ts:158 (source)",
++ ]
+
+ ❯ tests/unit/status-dictionary-guard.test.ts:62:16
+     60|     ),
+     61|   );
+     62|   expect(hits).toEqual([]);
+       |                ^
+     63| });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:55:19
+   Duration  823ms (tests 76%, transform 19%, import 3%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-08T05-55-10Z-unit-d186.json
+
+# код выхода 1 · 10 с

@@ -7500,3 +7500,7 @@
 | 08.10.2026 04:37 | typecheck | ✅ без ошибок | 1 мин 17 с | fd51888 +50 | [лог](logs/2026-10-07T23-37-17Z-typecheck-505c.log) |  |
 | 08.10.2026 04:38 | unit | ✅ 4037 из 4040, пропущено 3 | 2 мин 24 с | fd51888 +50 | [лог](logs/2026-10-07T23-38-35Z-unit-097a.log) |  |
 | 08.10.2026 04:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/marketing.spec.ts tests/ui/marketing-site.spec.ts tests/ui/site-editor.spec.ts tests/ | ✅ 103 из 103 | 9 мин 31 с | fd51888 +50 | [лог](logs/2026-10-07T23-41-05Z-e2e-2b0c.log) |  |
+| 08.10.2026 10:55 | unit (частично: tests/unit/status-dictionary-guard.test.ts apps/web/src/lib/status/status.test.ts) | ❌ упало 1 из 2 | 10 с | 5073ac2 +2 | [лог](logs/2026-10-08T05-55-10Z-unit-d186.log) | DS1a RED: реестров нет, локальные словари есть |
+| 08.10.2026 11:05 | typecheck | ❌ ошибок: 1 | 41 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-05-11Z-typecheck-ddb4.log) | DS1a |
+| 08.10.2026 11:06 | typecheck | ✅ без ошибок | 36 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-19Z-typecheck-bf8c.log) | DS1a |
+| 08.10.2026 11:06 | lint | ✅ без ошибок | 31 с | 5073ac2 +50 | [лог](logs/2026-10-08T06-06-56Z-lint-3ab6.log) | DS1a |

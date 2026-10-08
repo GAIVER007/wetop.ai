@@ -1,12 +1,5 @@
 'use client';
-import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type RefObject,
-} from 'react';
+import { useActionState, useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { HOUSEKEEPING_RU, plansToChoose } from '@pms/domain';
 import { useCommand } from '../../../lib/use-command';
@@ -163,11 +156,32 @@ export function ReservationActions(props: {
   // Окно отмены (срез 7.3, Д5): штраф считает сервер тем же кодом, что и начисление; «Оставить» ничего не пишет
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelPreview, setCancelPreview] = useState<CancelPreview | null | undefined>(undefined);
-  const openCancel = () => {
+  const [cancelReason, setCancelReason] = useState<'cancel' | 'no_show'>('cancel');
+  const [cancelItemId, setCancelItemId] = useState('');
+  const expectedItems = props.items.filter(
+    (it) => it.status === 'CONFIRMED' || it.status === 'TENTATIVE',
+  );
+  const openCancel = (itemId?: string) => {
+    setCancelReason('cancel');
+    setCancelItemId(itemId ?? expectedItems[0]?.id ?? '');
     setCancelPreview(undefined);
     setCancelOpen(true);
-    void cancelPreviewAction(props.number, 'cancel').then(setCancelPreview);
   };
+  useEffect(() => {
+    if (!cancelOpen) return;
+    let alive = true;
+    setCancelPreview(undefined);
+    void cancelPreviewAction(
+      props.number,
+      cancelReason,
+      cancelReason === 'no_show' ? cancelItemId : undefined,
+    ).then((preview) => {
+      if (alive) setCancelPreview(preview);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [cancelOpen, cancelReason, cancelItemId, props.number]);
   const canEdit = OPEN.has(props.status);
   const panel = useRef<HTMLElement>(null);
   useQuickTarget(panel);
@@ -185,6 +199,7 @@ export function ReservationActions(props: {
               currency={props.currency}
               item={it}
               ratePlans={props.ratePlans}
+              onCancel={openCancel}
             />
             <AssignForm
               number={props.number}
@@ -282,7 +297,7 @@ export function ReservationActions(props: {
               tone="danger"
               disabled={cancelPending}
               data-testid="cancel-reservation"
-              onClick={openCancel}
+              onClick={() => openCancel()}
             >
               Отменить бронь
             </Button>
@@ -291,24 +306,75 @@ export function ReservationActions(props: {
           <ConfirmDialog
             open={cancelOpen}
             title={`Отменить бронь ${props.number}?`}
-            confirmLabel="Отменить бронь"
+            confirmLabel={cancelReason === 'cancel' ? 'Подтвердить отмену' : 'Подтвердить незаезд'}
             cancelLabel="Оставить"
             pending={cancelPending}
+            confirmDisabled={
+              cancelPreview === undefined || (cancelReason === 'no_show' && !cancelItemId)
+            }
             onCancel={() => setCancelOpen(false)}
             onConfirm={async () => {
+              let succeeded = false;
               await cancel(async () => {
-                const r = await cancelReservationAction(props.number);
-                if (!r.error) toast({ text: `Бронь ${props.number} отменена`, tone: 'success' });
+                const r =
+                  cancelReason === 'cancel'
+                    ? await cancelReservationAction(props.number)
+                    : await stayAction(props.number, cancelItemId, 'no-show');
+                succeeded = !r.error;
+                if (succeeded)
+                  toast({
+                    text:
+                      cancelReason === 'cancel'
+                        ? `Бронь ${props.number} отменена`
+                        : 'Незаезд отмечен, место вернулось в продажу',
+                    tone: 'success',
+                  });
                 return r;
               });
-              setCancelOpen(false);
+              if (succeeded) setCancelOpen(false);
             }}
           >
+            <label>
+              Причина отмены
+              <Select
+                value={cancelReason}
+                disabled={cancelPending}
+                onChange={(e) => {
+                  setCancelPreview(undefined);
+                  setCancelReason(e.target.value as 'cancel' | 'no_show');
+                }}
+              >
+                <option value="cancel">Отказ от бронирования</option>
+                <option value="no_show" disabled={!expectedItems.length}>
+                  Незаезд гостя
+                </option>
+              </Select>
+            </label>
+            {cancelReason === 'no_show' && expectedItems.length > 1 && (
+              <label>
+                Проживание
+                <Select
+                  value={cancelItemId}
+                  disabled={cancelPending}
+                  onChange={(e) => {
+                    setCancelPreview(undefined);
+                    setCancelItemId(e.target.value);
+                  }}
+                >
+                  {expectedItems.map((it) => (
+                    <option key={it.id} value={it.id}>
+                      {it.unitCode ?? it.accommodationTypeName}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+            )}
             <p>Место вернётся в продажу и уйдёт в каналы.</p>
-            <p>Начисление за проживание сторнируется.</p>
-            <p data-testid="cancel-penalty">
-              {penaltyText(cancelPreview, 'cancel', props.currency)}
+            {cancelReason === 'cancel' && <p>Начисление за проживание сторнируется.</p>}
+            <p data-testid={cancelReason === 'cancel' ? 'cancel-penalty' : 'no-show-penalty'}>
+              {penaltyText(cancelPreview, cancelReason, props.currency)}
             </p>
+            {cancelState.error && <Alert>{cancelState.error}</Alert>}
           </ConfirmDialog>
         </div>
       )}
@@ -427,6 +493,7 @@ function StayButtons(props: {
     debtMinor: string | null;
   };
   ratePlans: RatePlanOption[];
+  onCancel: (itemId: string) => void;
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
@@ -517,15 +584,6 @@ function StayButtons(props: {
         );
       return r;
     });
-  };
-
-  // Незаезд: окно со штрафом вместо window.confirm
-  const [noShowOpen, setNoShowOpen] = useState(false);
-  const [noShowPreview, setNoShowPreview] = useState<CancelPreview | null | undefined>(undefined);
-  const openNoShow = () => {
-    setNoShowPreview(undefined);
-    setNoShowOpen(true);
-    void cancelPreviewAction(props.number, 'no_show', props.item.id).then(setNoShowPreview);
   };
 
   // Выселение с долгом (T3): первое нажатие показывает сумму, второе — с подтверждением
@@ -643,11 +701,11 @@ function StayButtons(props: {
           <Button
             type="button"
             tone="warning"
-            data-testid={`no-show-${props.item.id}`}
+            data-testid={`cancel-stay-${props.item.id}`}
             disabled={pending}
-            onClick={openNoShow}
+            onClick={() => props.onCancel(props.item.id)}
           >
-            Незаезд
+            Отменить бронь
           </Button>
         )}
       </Row>
@@ -657,30 +715,6 @@ function StayButtons(props: {
         </Alert>
       )}
       {state.error && <Alert>{state.error}</Alert>}
-      <ConfirmDialog
-        open={noShowOpen}
-        title={`Отметить незаезд по ${props.item.unitCode ?? props.item.accommodationTypeName}?`}
-        confirmLabel="Отметить незаезд"
-        cancelLabel="Оставить"
-        tone="warning"
-        pending={pending}
-        onCancel={() => setNoShowOpen(false)}
-        onConfirm={async () => {
-          await command(async () => {
-            const r = await stayAction(props.number, props.item.id, 'no-show');
-            if (!r.error)
-              toast({
-                text: `Незаезд отмечен, место ${props.item.unitCode ?? '—'} вернулось в продажу`,
-                tone: 'success',
-              });
-            return r;
-          });
-          setNoShowOpen(false);
-        }}
-      >
-        <p>Назначение ячейки снимется, место вернётся в продажу.</p>
-        <p data-testid="no-show-penalty">{penaltyText(noShowPreview, 'no_show', props.currency)}</p>
-      </ConfirmDialog>
       <ConfirmDialog
         open={debt.open}
         title="Выселить с долгом?"

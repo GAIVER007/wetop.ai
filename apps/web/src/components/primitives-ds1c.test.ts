@@ -82,6 +82,18 @@ describe('ShareBar', () => {
       expect(markup).toContain(`value="${shown}"`);
     }
   });
+  it('середина: 50 из 100 и число словами', () => {
+    expect(html(h(ShareBar, { label: 'Доля', value: 50, showValue: true }))).toMatch(
+      /value="50"[\s\S]*>50 %</,
+    );
+  });
+  it('тон классом по общей шкале, нейтральный без класса', () => {
+    expect(tags(h(ShareBar, { label: 'Доля', value: 5 }))[0]!.attrs['class']).toBe('share-bar');
+    for (const tone of ['info', 'success', 'warning', 'danger'] as const) {
+      const cls = tags(h(ShareBar, { label: 'Доля', value: 5, tone }))[0]!.attrs['class'];
+      expect(cls).toBe(`share-bar share-bar--tone-${tone}`);
+    }
+  });
 });
 
 describe('FormGrid', () => {
@@ -90,6 +102,21 @@ describe('FormGrid', () => {
     expect(div.attrs['class']).toBe('form-grid form-grid--2');
     expect(html(h(FormGrid, { columns: 3, children: 'x' }))).not.toContain('style=');
     expect(tags(h(FormGrid, { children: 'x' }))[0]!.attrs['class']).toBe('form-grid form-grid--2');
+  });
+  it('плотность: compact классом, normal по умолчанию без класса', () => {
+    expect(tags(h(FormGrid, { density: 'compact', children: 'x' }))[0]!.attrs['class']).toBe(
+      'form-grid form-grid--2 form-grid--compact',
+    );
+    expect(tags(h(FormGrid, { density: 'normal', children: 'x' }))[0]!.attrs['class']).toBe(
+      'form-grid form-grid--2',
+    );
+  });
+  it('на телефоне одна колонка, дети сжимаются', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '../app/components.css'), 'utf8');
+    expect(css).toMatch(/\.form-grid > \* \{\s*min-width: 0;/);
+    expect(css).toMatch(
+      /@media \(max-width: 600px\) \{\s*\.form-grid--2,\s*\.form-grid--3 \{\s*grid-template-columns: minmax\(0, 1fr\);/,
+    );
   });
 });
 
@@ -157,6 +184,45 @@ describe('PeriodPicker', () => {
     );
     expect(markup).toMatch(/role="alert"[^>]*>Дата «по» раньше даты «с»</);
     expect(markup).not.toContain('<button type="submit"');
+  });
+  it('ошибки по полям: у поля «С» и у поля «По» своё слово и aria-invalid', () => {
+    const markup = html(
+      h(PeriodPicker, {
+        from: '',
+        to: '2026-09-10',
+        fromName: 'from',
+        toName: 'to',
+        errors: { from: 'Укажите дату «с»', to: 'Дата «по» раньше даты «с»' },
+      }),
+    );
+    expect(markup).toMatch(/aria-invalid="true"[^>]*aria-label="Период: с"|aria-label="Период: с"[^>]*aria-invalid="true"/);
+    expect(markup).toContain('Укажите дату «с»');
+    expect(markup).toContain('Дата «по» раньше даты «с»');
+  });
+  it('управляемый ввод: onFromChange и onToChange получают дату, применяет экран', () => {
+    const got: string[] = [];
+    const tree = PeriodPicker({
+      from: '2026-09-10',
+      to: '2026-09-24',
+      fromName: 'from',
+      toName: 'to',
+      onFromChange: (v) => got.push(`from:${v}`),
+      onToChange: (v) => got.push(`to:${v}`),
+    });
+    const inputs: Array<{ onChange?: (e: { target: { value: string } }) => void }> = [];
+    const walk = (node: unknown): void => {
+      if (Array.isArray(node)) return node.forEach(walk);
+      if (!node || typeof node !== 'object' || !('props' in node)) return;
+      const props = (node as { props: Record<string, unknown> }).props;
+      if (typeof props['aria-label'] === 'string' && String(props['aria-label']).startsWith('Период'))
+        inputs.push(props as never);
+      walk(props['children']);
+    };
+    walk(tree);
+    expect(inputs).toHaveLength(2);
+    inputs[0]!.onChange!({ target: { value: '2026-09-11' } });
+    inputs[1]!.onChange!({ target: { value: '2026-09-25' } });
+    expect(got).toEqual(['from:2026-09-11', 'to:2026-09-25']);
   });
 });
 

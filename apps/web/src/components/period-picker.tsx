@@ -6,7 +6,9 @@ import { Field } from './ui';
 /**
  * Выбор отрезка дат (MV8.5 DS1c, DESIGN.md §8.2): готовые отрезки и поля «С» / «По». Только вид и ввод:
  * поля стоят в форме экрана со своими именами, а когда отрезок применяется (кнопкой «Показать» или
- * сразу), решает экран. Правил отрезка компонент не знает: ошибку называет экран.
+ * сразу), решает экран. Правил отрезка компонент не знает: ошибку называет экран (у поля через
+ * `errors.from` / `errors.to`, у отрезка целиком через `errors.period`). `onFromChange` и `onToChange`
+ * сообщают новую дату экрану, который меняет отрезок сразу; форма с «Показать» их не передаёт.
  */
 export interface PeriodPreset {
   label: string;
@@ -21,6 +23,9 @@ export function PeriodPicker({
   toName,
   presets,
   error,
+  errors,
+  onFromChange,
+  onToChange,
   children,
   className,
   presetsClassName,
@@ -31,13 +36,18 @@ export function PeriodPicker({
   toName: string;
   /** готовые отрезки ссылками: отрезок живёт в адресе экрана */
   presets?: PeriodPreset[];
+  /** ошибка отрезка целиком (то же, что `errors.period`) */
   error?: string | undefined;
+  errors?: { from?: string | undefined; to?: string | undefined; period?: string | undefined };
+  onFromChange?: (value: string) => void;
+  onToChange?: (value: string) => void;
   /** уточнения отрезка, которые экран ставит рядом (например, к чему относится дата) */
   children?: ReactNode;
   className?: string;
   /** класс ряда готовых отрезков, если экран прячет его на телефоне */
   presetsClassName?: string;
 }) {
+  const periodError = errors?.period ?? error;
   return (
     <div className={className ? `period-picker ${className}` : 'period-picker'}>
       {presets && presets.length > 0 && (
@@ -53,22 +63,31 @@ export function PeriodPicker({
           ))}
         </ChipGroup>
       )}
-      <Field inline label="С">
-        <DateInput key={`from-${from}`} name={fromName} defaultValue={from} aria-label="Период: с" />
+      <Field inline label="С" controlId={`period-${fromName}`} error={errors?.from}>
+        <DateInput
+          key={`from-${from}`}
+          id={`period-${fromName}`}
+          name={fromName}
+          defaultValue={from}
+          aria-label="Период: с"
+          {...(onFromChange ? { onChange: (e) => onFromChange(e.target.value) } : {})}
+        />
       </Field>
-      <Field inline label="По">
+      <Field inline label="По" controlId={`period-${toName}`} error={errors?.to}>
         <DateInput
           key={`to-${to}`}
+          id={`period-${toName}`}
           name={toName}
           rangeFromName={fromName}
           defaultValue={to}
           aria-label="Период: по"
+          {...(onToChange ? { onChange: (e) => onToChange(e.target.value) } : {})}
         />
       </Field>
       {children}
-      {error && (
+      {periodError && (
         <p className="period-picker__error" role="alert">
-          {error}
+          {periodError}
         </p>
       )}
     </div>

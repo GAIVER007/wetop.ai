@@ -1,4 +1,96 @@
-/*
+# Модульные (unit) · 09.10.2026 01:05 Алматы · vm
+# коммит e6dbd02 (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T20-05-32Z-unit-8382.json' 'apps/web/src/components/primitives-ds1c.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/components/primitives-ds1c.test.ts (33 tests | 5 failed) 163ms
+   ✓ Stat (5)
+     ✓ изменение словами со знаком и стрелкой-глифом, без цвета направления 16ms
+     ✓ нет базы для сравнения: текст без стрелки 3ms
+     ✓ тон и размер по общей шкале 2ms
+     ✓ прежние alarm, warn, big, compact остаются и выглядят как раньше 1ms
+     ✓ с href вся плитка одна ссылка, внутри других ссылок и кнопок нет 5ms
+   ❯ ShareBar (4)
+     ✓ родной progress с именем, значением и пределом, число рядом 3ms
+     ✓ 0 и 100 без выхода за предел, без строки style 3ms
+     ✓ середина: 50 из 100 и число словами 1ms
+     × тон классом по общей шкале, нейтральный без класса 13ms
+   ❯ FormGrid (3)
+     ✓ колонки одним классом, без ширин в пикселях 1ms
+     × плотность: compact классом, normal по умолчанию без класса 2ms
+     × на телефоне одна колонка, дети сжимаются 3ms
+   ✓ DateBar (3)
+     ✓ кнопки с именами, поле «Дата» с видимой подписью и значением 7ms
+     ✓ без onToday кнопки «Сегодня» нет 3ms
+     ✓ значок назад из набора, без поворота стилем 3ms
+   ❯ PeriodPicker (4)
+     ✓ поля «С» и «По» с именами формы и отрезок готовыми ссылками 49ms
+     ✓ ошибка словами у отрезка, без кнопки применения: применяет экран 6ms
+     × ошибки по полям: у поля «С» и у поля «По» своё слово и aria-invalid 6ms
+     × управляемый ввод: onFromChange и onToChange получают дату, применяет экран 2ms
+   ✓ Overlay и RouteDrawer (3)
+     ✓ без size класс прежний, sm и lg добавляют свой 8ms
+     ✓ заголовок подписывает окно 2ms
+     ✓ исходник RouteDrawer передаёт size и не держит ширину своим селектором 1ms
+   ✓ Field required (3)
+     ✓ true: родное required у поля и знак после подписи, не только цветом 1ms
+     ✓ false: слово «необязательно», без required 1ms
+     ✓ не задан: разметка прежняя (подпись текстом прямо в label, без меток и required) 1ms
+   ✓ Table (4)
+     ✓ новое использование: плотность, липкость и подпись таблицы 1ms
+     ✓ с aria-label область прокрутки берёт то же имя 1ms
+     ✓ прежняя таблица без имени держит общее имя области 1ms
+     ✓ тип: новое использование без имени не собирается 0ms
+   ✓ ErrorState поверх EmptyState (3)
+     ✓ та же обёртка, что у EmptyState, с role=alert 4ms
+     ✓ отклонённый запрос: совет про адрес, без «Подключения API» 2ms
+     ✓ исходник ErrorState не держит своей разметки empty-state 0ms
+   ✓ главная кнопка (1)
+     ✓ наведение красит --primary-hover, фильтра и градиента нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > ShareBar > тон классом по общей шкале, нейтральный без класса
+AssertionError: expected 'share-bar' to be 'share-bar share-bar--tone-info' // Object.is equality
+
+Expected: "share-bar share-bar--tone-info"
+Received: "share-bar"
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:94:19
+     92|     for (const tone of ['info', 'success', 'warning', 'danger'] as con…
+     93|       const cls = tags(h(ShareBar, { label: 'Доля', value: 5, tone }))…
+     94|       expect(cls).toBe(`share-bar share-bar--tone-${tone}`);
+       |                   ^
+     95|     }
+     96|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > FormGrid > плотность: compact классом, normal по умолчанию без класса
+AssertionError: expected 'form-grid form-grid--2' to be 'form-grid form-grid--2 form-grid--com…' // Object.is equality
+
+Expected: "form-grid form-grid--2 form-grid--compact"
+Received: "form-grid form-grid--2"
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:107:89
+    105|   });
+    106|   it('плотность: compact классом, normal по умолчанию без класса', () …
+    107|     expect(tags(h(FormGrid, { density: 'compact', children: 'x' }))[0]…
+       |                                                                                         ^
+    108|       'form-grid form-grid--2 form-grid--compact',
+    109|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > FormGrid > на телефоне одна колонка, дети сжимаются
+AssertionError: expected '/*\n * Слой компонентов (DESIGN.md §2…' to match /\.form-grid > \* \{\s*min-width: 0;/
+
+- Expected:
+/\.form-grid > \* \{\s*min-width: 0;/
+
++ Received:
+"/*
  * Слой компонентов (DESIGN.md §20.6, MV8.5 DS0b): примитивы стойки, каждый определён здесь ровно один раз.
  * До DS0b кнопка, панель, показатель, таблица, поле, бейдж и сегмент описывались по два-четыре раза в
  * globals.css, workspace.css, premium.css и glass.css, и вид решал порядок импорта. Значения ниже взяты
@@ -2601,28 +2693,10 @@
 
   /* ---------- MV8.5 DS1c (DESIGN.md §8.2): доля, сетка формы, период, день ---------- */
   .share-bar {
-    --share-fill: var(--chart-1);
-    --share-track: var(--chart-1-soft);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     justify-content: flex-end;
-  }
-  .share-bar--tone-info {
-    --share-fill: var(--primary);
-    --share-track: var(--primary-soft);
-  }
-  .share-bar--tone-success {
-    --share-fill: var(--success);
-    --share-track: var(--success-soft);
-  }
-  .share-bar--tone-warning {
-    --share-fill: var(--warning);
-    --share-track: var(--warning-soft);
-  }
-  .share-bar--tone-danger {
-    --share-fill: var(--danger);
-    --share-track: var(--danger-soft);
   }
   .share-bar__meter {
     appearance: none;
@@ -2630,20 +2704,20 @@
     height: 6px;
     border: 0;
     border-radius: var(--radius-xs);
-    background: var(--share-track);
-    color: var(--share-fill);
+    background: var(--chart-1-soft);
+    color: var(--chart-1);
     overflow: hidden;
     vertical-align: middle;
   }
   .share-bar__meter::-webkit-progress-bar {
     border-radius: var(--radius-xs);
-    background: var(--share-track);
+    background: var(--chart-1-soft);
   }
   .share-bar__meter::-webkit-progress-value {
-    background: var(--share-fill);
+    background: var(--chart-1);
   }
   .share-bar__meter::-moz-progress-bar {
-    background: var(--share-fill);
+    background: var(--chart-1);
   }
   .share-bar__value {
     min-width: 4ch;
@@ -2663,10 +2737,7 @@
   .form-grid--3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .form-grid--compact {
-    gap: var(--space-2);
-  }
-  .form-grid > * {
+  .form-grid > .field {
     min-width: 0;
   }
   .period-picker {
@@ -2711,3 +2782,55 @@
     }
   }
 }
+"
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:116:17
+    114|   it('на телефоне одна колонка, дети сжимаются', () => {
+    115|     const css = readFileSync(resolve(import.meta.dirname, '../app/comp…
+    116|     expect(css).toMatch(/\.form-grid > \* \{\s*min-width: 0;/);
+       |                 ^
+    117|     expect(css).toMatch(
+    118|       /@media \(max-width: 600px\) \{\s*\.form-grid--2,\s*\.form-grid-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > PeriodPicker > ошибки по полям: у поля «С» и у поля «По» своё слово и aria-invalid
+AssertionError: expected '<div class="period-picker"><label cla…' to match /aria-invalid="true"[^>]*aria-label="П…/
+
+- Expected:
+/aria-invalid="true"[^>]*aria-label="Период: с"|aria-label="Период: с"[^>]*aria-invalid="true"/
+
++ Received:
+"<div class=\"period-picker\"><label class=\"field field--inline\">С<span class=\"date-field\"><input type=\"date\" class=\"inp date-field__input\" aria-label=\"Период: с\" name=\"from\" value=\"\"/><button type=\"button\" class=\"date-field__button\" aria-label=\"Открыть календарь\" aria-haspopup=\"dialog\" aria-expanded=\"false\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-calendar-days\" aria-hidden=\"true\"><path d=\"M8 2v3\"></path><path d=\"M16 2v3\"></path><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect><path d=\"M3 9h18\"></path><path d=\"M8 13h.01\"></path><path d=\"M12 13h.01\"></path><path d=\"M16 13h.01\"></path><path d=\"M8 17h.01\"></path><path d=\"M12 17h.01\"></path><path d=\"M16 17h.01\"></path></svg></button></span></label><label class=\"field field--inline\">По<span class=\"date-field\"><input type=\"date\" class=\"inp date-field__input\" aria-label=\"Период: по\" name=\"to\" value=\"2026-09-10\"/><button type=\"button\" class=\"date-field__button\" aria-label=\"Открыть календарь\" aria-haspopup=\"dialog\" aria-expanded=\"false\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-calendar-days\" aria-hidden=\"true\"><path d=\"M8 2v3\"></path><path d=\"M16 2v3\"></path><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect><path d=\"M3 9h18\"></path><path d=\"M8 13h.01\"></path><path d=\"M12 13h.01\"></path><path d=\"M16 13h.01\"></path><path d=\"M8 17h.01\"></path><path d=\"M12 17h.01\"></path><path d=\"M16 17h.01\"></path></svg></button></span></label></div>"
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:198:20
+    196|       }),
+    197|     );
+    198|     expect(markup).toMatch(/aria-invalid="true"[^>]*aria-label="Период…
+       |                    ^
+    199|     expect(markup).toContain('Укажите дату «с»');
+    200|     expect(markup).toContain('Дата «по» раньше даты «с»');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > PeriodPicker > управляемый ввод: onFromChange и onToChange получают дату, применяет экран
+TypeError: inputs[0].onChange is not a function
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:223:16
+    221|     walk(tree);
+    222|     expect(inputs).toHaveLength(2);
+    223|     inputs[0]!.onChange!({ target: { value: '2026-09-11' } });
+       |                ^
+    224|     inputs[1]!.onChange!({ target: { value: '2026-09-25' } });
+    225|     expect(got).toEqual(['from:2026-09-11', 'to:2026-09-25']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 28 passed (33)
+   Start at  20:05:33
+   Duration  3.24s (transform 75%, import 19%, tests 6%)
+
+JSON report written to /tmp/pms-test-2026-10-08T20-05-32Z-unit-8382.json
+
+# код выхода 1 · 5 с

@@ -7628,3 +7628,17 @@
 | 08.10.2026 22:08 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts --workers=1) | ✅ 10 из 10 | 1 мин 29 с | d009c82 +1 | [лог](logs/2026-10-08T17-08-20Z-e2e-1355.log) |  |
 | 08.10.2026 22:11 | typecheck | ✅ без ошибок | 1 мин 45 с | caa4a8f | [лог](logs/2026-10-08T17-11-23Z-typecheck-34df.log) |  |
 | 08.10.2026 22:13 | lint | ✅ без ошибок | 1 мин 10 с | caa4a8f | [лог](logs/2026-10-08T17-13-10Z-lint-060c.log) |  |
+| 08.10.2026 22:30 | unit | ✅ 4138 из 4141, пропущено 3 | 2 мин 59 с | 9521fd6 | [лог](logs/2026-10-08T17-30-54Z-unit-b28c.log) |  |
+| 08.10.2026 22:38 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ⏹ прерван | 58 мин 19 с | 9521fd6 | [лог](logs/2026-10-08T17-38-05Z-e2e-90d9.log) |  |
+| 08.10.2026 23:36 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ код выхода 1 | 2 с | e6dbd02 | [лог](logs/2026-10-08T18-36-25Z-e2e-070f.log) | (ошибка вне тестов) |
+| 08.10.2026 23:36 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ код выхода 1 | 2 с | e6dbd02 | [лог](logs/2026-10-08T18-36-29Z-e2e-8873.log) | (ошибка вне тестов) |
+| 08.10.2026 23:37 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 1 из 352, пропущено 20 | 38 мин 27 с | e6dbd02 | [лог](logs/2026-10-08T18-37-17Z-e2e-3c5c.log) | новые страницы и обе темы: адаптивность и отсутствие ошибок браузера |
+| 09.10.2026 00:15 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ✅ 354 из 354 | 35 мин 54 с | e6dbd02 | [лог](logs/2026-10-08T19-15-45Z-e2e-6a5f.log) |  |
+| 09.10.2026 00:51 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/design-system.spec.ts tests/ui/ds1c-primitives.spec.ts --workers=1) | ❌ упало 2 из 22 | 4 мин 12 с | e6dbd02 | [лог](logs/2026-10-08T19-51-40Z-e2e-6c17.log) | axe и эталонные снимки секций: light |
+| 09.10.2026 00:56 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/premium.spec.ts --workers=1) | ❌ упало 1 из 7 | 4 мин 30 с | e6dbd02 | [лог](logs/2026-10-08T19-56-17Z-e2e-4188.log) | новые страницы и обе темы: адаптивность и отсутствие ошибок браузера |
+| 09.10.2026 01:01 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/premium.spec.ts -g новые страницы и обе темы --workers=1) | ❌ упало 1 из 1 | 3 мин 32 с | e6dbd02 +24 | [лог](logs/2026-10-08T20-01-13Z-e2e-4d47.log) | новые страницы и обе темы: адаптивность и отсутствие ошибок браузера |
+| 09.10.2026 01:05 | unit (частично: apps/web/src/components/primitives-ds1c.test.ts) | ❌ упало 5 из 33 | 5 с | e6dbd02 +1 | [лог](logs/2026-10-08T20-05-32Z-unit-8382.log) | ShareBar тон классом по общей шкале, нейтральный без класса |
+| 09.10.2026 01:06 | unit (частично: apps/web/src/components/primitives-ds1c.test.ts) | ✅ 33 из 33 | 4 с | e6dbd02 +5 | [лог](logs/2026-10-08T20-06-06Z-unit-c760.log) |  |
+| 09.10.2026 01:06 | typecheck | ✅ без ошибок | 1 мин 31 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-06-33Z-typecheck-778b.log) |  |
+| 09.10.2026 01:08 | lint | ✅ без ошибок | 58 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-08-15Z-lint-40dc.log) |  |
+| 09.10.2026 01:09 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/reservations-compact.spec.ts tests/ui/r | ❌ упало 2 из 100 | 11 мин 57 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-09-36Z-e2e-336e.log) | axe и эталонные снимки секций: light |

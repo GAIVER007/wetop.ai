@@ -435,6 +435,14 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             <ShareBar label="Доля: Booking.com" value={0} max={100} showValue />
             <ShareBar label="Доля: Сайт" value={37} max={100} showValue />
             <ShareBar label="Доля: Стойка" value={100} max={100} showValue />
+            <ShareBar label="Доля: Звонки" value={50} max={100} showValue />
+          </div>
+        </State>
+        <State name="selected" note="тон по общей шкале; смысл держат имя и число, не цвет">
+          <div className="stack">
+            <ShareBar label="Доля: успех" value={64} tone="success" showValue />
+            <ShareBar label="Доля: внимание" value={48} tone="warning" showValue />
+            <ShareBar label="Доля: отказ" value={12} tone="danger" showValue />
           </div>
         </State>
       </Component>
@@ -454,8 +462,8 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             </Field>
           </FormGrid>
         </State>
-        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена">
-          <FormGrid columns={3}>
+        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена; плотность compact">
+          <FormGrid columns={3} density="compact">
             <Field label="Телефон">
               <Input />
             </Field>
@@ -489,14 +497,14 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             />
           </form>
         </State>
-        <State name="error" note="ошибку называет экран">
+        <State name="error" note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)">
           <form className="kit-form-inline" action="#">
             <PeriodPicker
               from="2026-09-24"
               to="2026-09-10"
               fromName={`${theme}-from-err`}
               toName={`${theme}-to-err`}
-              error="Дата «по» раньше даты «с»"
+              errors={{ to: 'Дата «по» раньше даты «с»' }}
             />
           </form>
         </State>

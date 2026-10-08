@@ -84,32 +84,34 @@ describe('оплата', () => {
   it('у каждого тон из договора', () => covers(paymentStatus, Object.keys(paymentStatus)));
 });
 
-describe('салон и ресторан: принятые слова без переименования', () => {
+describe('салон и ресторан: слова без переименования, тоны по общей семантике', () => {
   it('AppointmentStatus', () => {
     covers(beautyStatus, enumValues('AppointmentStatus'));
     expect(
       Object.fromEntries(
-        Object.entries(beautyStatus).map(([k, s]) => [k, [s.label, s.groupLabel]]),
+        Object.entries(beautyStatus).map(([k, s]) => [k, [s.label, s.groupLabel, s.tone]]),
       ),
     ).toEqual({
-      BOOKED: ['Записан', 'Запланировано'],
-      CONFIRMED: ['Подтверждена', 'Подтверждено'],
-      DONE: ['Завершена', 'Завершено'],
-      NO_SHOW: ['Не пришёл', 'Не пришли'],
-      CANCELLED: ['Отменена', 'Отменено'],
+      BOOKED: ['Записан', 'Запланировано', 'warning'],
+      CONFIRMED: ['Подтверждена', 'Подтверждено', 'info'],
+      DONE: ['Завершена', 'Завершено', 'neutral'],
+      NO_SHOW: ['Не пришёл', 'Не пришли', 'danger'],
+      CANCELLED: ['Отменена', 'Отменено', 'danger'],
     });
   });
   it('RestaurantReservationStatus', () => {
     covers(foodStatus, enumValues('RestaurantReservationStatus'));
     expect(
-      Object.fromEntries(Object.entries(foodStatus).map(([k, s]) => [k, [s.label, s.groupLabel]])),
+      Object.fromEntries(
+        Object.entries(foodStatus).map(([k, s]) => [k, [s.label, s.groupLabel, s.tone]]),
+      ),
     ).toEqual({
-      BOOKED: ['Бронь', 'Запланировано'],
-      CONFIRMED: ['Подтверждено', 'Подтверждено'],
-      SEATED: ['За столом', 'Посажены'],
-      COMPLETED: ['Завершено', 'Завершено'],
-      NO_SHOW: ['Не пришли', 'Не пришли'],
-      CANCELLED: ['Отменено', 'Отменено'],
+      BOOKED: ['Бронь', 'Запланировано', 'warning'],
+      CONFIRMED: ['Подтверждено', 'Подтверждено', 'info'],
+      SEATED: ['За столом', 'Посажены', 'success'],
+      COMPLETED: ['Завершено', 'Завершено', 'neutral'],
+      NO_SHOW: ['Не пришли', 'Не пришли', 'danger'],
+      CANCELLED: ['Отменено', 'Отменено', 'danger'],
     });
   });
 });
@@ -118,6 +120,17 @@ describe('источники брони', () => {
   it('каждое значение ReservationSource имеет подпись и короткое имя', () => {
     covers(sourceStatus, enumValues('ReservationSource'));
     for (const s of Object.values(sourceStatus)) expect(s.short?.trim()).toBeTruthy();
+  });
+  it('подписи утверждены, короткие имена разных источников различаются', () => {
+    expect(sourceStatus.WALK_IN.label).toBe('Без предварительной брони');
+    expect(sourceStatus.OTA.label).toBe('Канал продаж');
+    expect([sourceStatus.DESK.short, sourceStatus.WALK_IN.short, sourceStatus.OTA.short]).toEqual([
+      'Стойка',
+      'Без брони',
+      'OTA',
+    ]);
+    const shorts = Object.values(sourceStatus).map((s) => s.short);
+    expect(new Set(shorts).size).toBe(shorts.length);
   });
   it('бренды не переименованы', () => {
     expect(sourceStatus.WHATSAPP.label).toBe('WhatsApp');

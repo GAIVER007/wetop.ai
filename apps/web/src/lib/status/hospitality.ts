@@ -1,10 +1,8 @@
+import type { ReservationStatus } from '@pms/domain';
 import type { StatusRegistry } from './types';
 
 /** Бронь и проживание гостиницы (`ReservationStatus`). Слова, группы и тона утвердил владелец 08.10. */
-export type HospitalityStatus =
-  'TENTATIVE' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW';
-
-export const hospitalityStatus: StatusRegistry<HospitalityStatus> = {
+export const hospitalityStatus: StatusRegistry<ReservationStatus> = {
   TENTATIVE: { label: 'Не подтверждена', groupLabel: 'Не подтверждённые', tone: 'warning' },
   CONFIRMED: { label: 'Подтверждена', groupLabel: 'Подтверждённые', tone: 'info' },
   CHECKED_IN: { label: 'Проживает', groupLabel: 'Проживают', tone: 'success' },

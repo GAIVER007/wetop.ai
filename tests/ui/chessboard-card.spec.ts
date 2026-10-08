@@ -96,6 +96,7 @@ test('«Заселить» из предпросмотра выполняет с
   await persisted.click();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
   await preview.getByRole('button', { name: 'Выселить', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Выселить', exact: true }).click();
   const debt = page.locator('dialog[open]');
   const checkedOut = preview.locator('[data-testid="preview-status"][data-status="CHECKED_OUT"]');
   await expect(debt.or(checkedOut)).toBeVisible();

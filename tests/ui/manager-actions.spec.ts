@@ -187,6 +187,7 @@ test('карточка: отмена, незаезд и выселение с д
     .getByRole('button', { name: 'Заселить всё равно' })
     .click();
   await page.getByRole('main').getByTestId('check-out-ui-item').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Выселить', exact: true }).click();
   dialog = page.getByRole('dialog', { name: 'Выселить с долгом?' });
   await expect(dialog.getByTestId('debt-amount')).toHaveText('Долг 16 000 ₸ останется на счёте');
   await dialog.getByRole('button', { name: 'Оставить' }).click();
@@ -194,6 +195,7 @@ test('карточка: отмена, незаезд и выселение с д
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('check-out-ui-item').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Выселить', exact: true }).click();
   await page
     .getByRole('dialog', { name: 'Выселить с долгом?' })
     .getByRole('button', { name: 'Выселить с долгом' })

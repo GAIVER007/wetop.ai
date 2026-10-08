@@ -118,7 +118,7 @@ test('медленная финансовая команда блокирует 
     await extra.click();
     await expect(extra).toBeDisabled();
     await expect(
-      page.getByRole('button', { name: 'Проверить оплату', exact: true }),
+      page.getByTestId('payment-form').getByRole('button', { name: 'Выполняется…', exact: true }),
     ).toBeDisabled();
   } finally {
     release();

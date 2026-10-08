@@ -82,7 +82,10 @@ export interface PreviewFolio {
 }
 
 /** Только выбранный счёт и доступные остатки платежей, без примечаний и документов гостей. */
-export async function stayFinanceAction(number: string, itemId: string): Promise<PreviewFolio | null> {
+export async function stayFinanceAction(
+  number: string,
+  itemId: string,
+): Promise<PreviewFolio | null> {
   try {
     const finance = await financeApi.reservation(number);
     const folio = finance.folios.find((f) => f.reservationItemId === itemId);
@@ -93,7 +96,15 @@ export async function stayFinanceAction(number: string, itemId: string): Promise
       currency: folio.currency,
       balanceMinor: folio.balanceMinor,
       stay: { accommodationTypeName: folio.stay.accommodationTypeName },
-      payments: folio.payments.filter((p) => p.status === 'COMPLETED' && BigInt(p.allocatedMinor) > BigInt(p.refundedMinor)).map((p) => ({ paymentId: p.paymentId, method: p.method, remainingMinor: (BigInt(p.allocatedMinor) - BigInt(p.refundedMinor)).toString() })),
+      payments: folio.payments
+        .filter(
+          (p) => p.status === 'COMPLETED' && BigInt(p.allocatedMinor) > BigInt(p.refundedMinor),
+        )
+        .map((p) => ({
+          paymentId: p.paymentId,
+          method: p.method,
+          remainingMinor: (BigInt(p.allocatedMinor) - BigInt(p.refundedMinor)).toString(),
+        })),
     };
   } catch {
     return null;

@@ -591,8 +591,17 @@ function StayButtons(props: {
     open: false,
     message: '',
   });
-  const checkOut = () =>
-    command(async () => {
+  const checkOut = async () => {
+    if (
+      !(await ask({
+        title: `Выселить из ${props.item.unitCode}?`,
+        body: 'После подтверждения проживание завершится. Если есть долг, его покажем отдельно до выселения.',
+        confirmLabel: 'Выселить',
+        tone: 'primary',
+      }))
+    )
+      return;
+    return command(async () => {
       const r = await stayAction(props.number, props.item.id, 'check-out');
       if (r.error && r.error.includes('долг')) {
         setDebt({ open: true, message: r.error });
@@ -606,6 +615,7 @@ function StayButtons(props: {
         });
       return r;
     });
+  };
 
   return (
     <div className="panel">
@@ -631,7 +641,15 @@ function StayButtons(props: {
                   tone: 'primary',
                 });
                 if (!ok) return;
-              }
+              } else if (
+                !(await ask({
+                  title: `Заселить в ${props.item.unitCode}?`,
+                  body: `Бронь ${props.number}. После подтверждения статус изменится на «Заселён».`,
+                  confirmLabel: 'Заселить',
+                  tone: 'primary',
+                }))
+              )
+                return;
               void command(async () => {
                 const r = await stayAction(props.number, props.item.id, 'check-in');
                 if (!r.error)

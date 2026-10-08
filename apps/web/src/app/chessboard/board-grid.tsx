@@ -611,7 +611,10 @@ export function ChessboardGrid({
           ? { ...current, status }
           : current,
       );
-      toast({ text: `Гость ${status === 'CHECKED_IN' ? 'заселён' : 'выселен'}, ${t.unitCode}`, tone: 'success' });
+      toast({
+        text: `Гость ${status === 'CHECKED_IN' ? 'заселён' : 'выселен'}, ${t.unitCode}`,
+        tone: 'success',
+      });
       router.refresh();
     };
     try {
@@ -625,12 +628,29 @@ export function ChessboardGrid({
             tone: 'primary',
           });
           if (!ok) return;
-        }
+        } else if (
+          !(await ask({
+            title: `Заселить в ${t.unitCode}?`,
+            body: `Бронь ${t.number}. После подтверждения статус изменится на «Заселён».`,
+            confirmLabel: 'Заселить',
+            tone: 'primary',
+          }))
+        )
+          return;
         const r = await stayAction(t.number, t.itemId, 'check-in');
         setError(r.error);
         if (!r.error) completed('CHECKED_IN');
         return;
       }
+      if (
+        !(await ask({
+          title: `Выселить из ${t.unitCode}?`,
+          body: `Бронь ${t.number}. После подтверждения проживание завершится. Если есть долг, его покажем отдельно до выселения.`,
+          confirmLabel: 'Выселить',
+          tone: 'primary',
+        }))
+      )
+        return;
       const r = await stayAction(t.number, t.itemId, 'check-out');
       if (r.error && r.error.includes('долг')) {
         const ok = await ask({

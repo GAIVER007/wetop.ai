@@ -489,7 +489,9 @@ export function PaymentForm({
   onDraftChange,
 }: {
   number: string;
-  folio: Pick<FinanceFolio, 'id' | 'balanceMinor' | 'currency'> & { stay: Pick<FinanceFolio['stay'], 'accommodationTypeName'> };
+  folio: Pick<FinanceFolio, 'id' | 'balanceMinor' | 'currency'> & {
+    stay: Pick<FinanceFolio['stay'], 'accommodationTypeName'>;
+  };
   action: (fd: FormData) => void;
   values: Record<string, string> | undefined;
   busy: boolean;
@@ -506,7 +508,13 @@ export function PaymentForm({
       ? 'Введите сумму'
       : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodRu(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
   return (
-    <form action={action} onSubmit={onSubmit} onChangeCapture={onChange} data-testid="payment-form" className="folio-form folio-form--pay">
+    <form
+      action={action}
+      onSubmit={onSubmit}
+      onChangeCapture={onChange}
+      data-testid="payment-form"
+      className="folio-form folio-form--pay"
+    >
       <b className="folio-form__title">Принять оплату</b>
       <div className="row">
         <Field inline label="Способ">
@@ -559,7 +567,11 @@ export function PaymentForm({
         <span className="hint" data-testid="payment-digest">
           {digest}
         </span>
-        <Button type="submit" tone="success" disabled={busy || minor === null || BigInt(minor) <= 0n}>
+        <Button
+          type="submit"
+          tone="success"
+          disabled={busy || minor === null || BigInt(minor) <= 0n}
+        >
           {busy ? 'Выполняется…' : review ? 'Подтвердить оплату' : 'Проверить оплату'}
         </Button>
       </div>
@@ -630,7 +642,9 @@ export function RefundForm({
     },
     INIT,
   );
-  useEffect(() => { onPendingChange?.(pending); }, [pending, onPendingChange]);
+  useEffect(() => {
+    onPendingChange?.(pending);
+  }, [pending, onPendingChange]);
   const { review, onSubmit, onChange } = useMoneyReview(pending, onDraftChange);
   return (
     <form
@@ -661,7 +675,9 @@ export function RefundForm({
       {review && (
         <section className="panel" aria-label="Проверка возврата">
           <b>Проверьте возврат</b>
-          <p>Сумма: {review['amount']}. Причина: {review['reason'] || 'не указана'}.</p>
+          <p>
+            Сумма: {review['amount']}. Причина: {review['reason'] || 'не указана'}.
+          </p>
           <p className="hint">Возврат будет проведён после подтверждения.</p>
         </section>
       )}

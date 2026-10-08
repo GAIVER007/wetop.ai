@@ -1,5 +1,5 @@
-"""Вход генерации сайта (MKT6) и ИИ-правки (MKT9): POST /internal/site-generation и /internal/site-edit только по
-служебному ключу платформы.
+"""Вход генерации сайта (MKT6), ИИ-правки (MKT9) и разговора (MKT9.2): POST /internal/site-generation, /internal/site-edit
+и /internal/site-assistant только по служебному ключу платформы.
 
 Живёт в корне экземпляра, как песочница. Сессия панели, публичный ключ виджета и ключ живости этот вход не
 открывают. Проверка ключа идёт раньше разбора тела: чужой запрос не получает подробностей проверки.
@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from src.ai.llm import get_cascade_client
+from src.ai.site_assistant import SiteAssistantIn, answer_site
 from src.ai.site_edit import SiteEditIn, edit_site
 from src.ai.site_generation import SiteGenerationIn, generate_site
 from src.dashboard_router import _key_ok
@@ -54,5 +55,21 @@ async def site_edit(request: Request) -> JSONResponse:
         result = await edit_site(request.app.state.settings, get_cascade_client(), body)
     except Exception:
         logger.exception("правка сайта: сбой")
+        return JSONResponse(status_code=500, content={"status": "error"})
+    return JSONResponse(status_code=200, content=result)
+
+
+@router.post("/internal/site-assistant")
+async def site_assistant(request: Request) -> JSONResponse:
+    if not _key_ok(request):
+        return JSONResponse(status_code=403, content={"status": "forbidden"})
+    try:
+        body = SiteAssistantIn.model_validate(await request.json())
+    except (ValueError, ValidationError):
+        return JSONResponse(status_code=422, content={"status": "bad_request"})
+    try:
+        result = await answer_site(request.app.state.settings, get_cascade_client(), body)
+    except Exception:
+        logger.exception("разговор о сайте: сбой")
         return JSONResponse(status_code=500, content={"status": "error"})
     return JSONResponse(status_code=200, content=result)

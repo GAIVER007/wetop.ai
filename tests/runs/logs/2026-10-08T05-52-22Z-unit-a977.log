@@ -1,0 +1,19 @@
+# Модульные (unit) · 08.10.2026 10:52 Алматы · MacBook-Air-Urij.local
+# коммит 6b601a2 (codex/mv10-vertical-ai-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T05-52-22Z-unit-a977.json' 'apps/api/src/ai-seller/vertical-tools.test.ts' 'apps/api/src/ai-seller/vertical-tools.controller.test.ts' 'apps/api/src/ai-seller/agent-vertical.test.ts' 'apps/api/src/auth/route-access.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests) 919ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 156ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 18ms
+ ✓ |unit| apps/api/src/ai-seller/agent-vertical.test.ts (1 test) 6ms
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  09:52:33
+   Duration  16.26s (transform 49%, import 44%, tests 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T05-52-22Z-unit-a977.json
+
+# код выхода 0 · 27 с

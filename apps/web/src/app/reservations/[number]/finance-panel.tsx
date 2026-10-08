@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
+import { useMoneyReview } from './money-review';
 import { GroupPayment } from './group-payment';
 import { type FinanceFolio, type ReservationFinance, type ServiceOption } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -479,19 +480,22 @@ function FolioPanel({
  * брони уходит. Кнопка одна, на время отправки отключена: второй платёж тем же нажатием не создаётся.
  * Отказ сохраняет ввод (`values` из server action), успех перерисовывает форму заново (ключ снаружи).
  */
-function PaymentForm({
+export function PaymentForm({
   number,
   folio,
   action,
   values,
   busy,
+  onDraftChange,
 }: {
   number: string;
   folio: FinanceFolio;
   action: (fd: FormData) => void;
   values: Record<string, string> | undefined;
   busy: boolean;
+  onDraftChange?: (dirty: boolean) => void;
 }) {
+  const { review, onSubmit, onChange } = useMoneyReview(busy, onDraftChange);
   const [method, setMethod] = useState(values?.method ?? 'CASH');
   const suggested = BigInt(folio.balanceMinor) > 0n ? toDecimal(folio.balanceMinor) : '';
   const [draft, setDraft] = useState<string | null>(values?.amount ?? null);
@@ -502,7 +506,7 @@ function PaymentForm({
       ? 'Введите сумму'
       : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodRu(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
   return (
-    <form action={action} data-testid="payment-form" className="folio-form folio-form--pay">
+    <form action={action} onSubmit={onSubmit} onChangeCapture={onChange} data-testid="payment-form" className="folio-form folio-form--pay">
       <b className="folio-form__title">Принять оплату</b>
       <div className="row">
         <Field inline label="Способ">
@@ -543,12 +547,20 @@ function PaymentForm({
           />
         </Field>
       </div>
+      {review && (
+        <section className="panel" aria-label="Проверка оплаты">
+          <b>Проверьте оплату</b>
+          <p>{digest}</p>
+          {review['note'] && <p>Примечание: {review['note']}</p>}
+          <p className="hint">Оплата будет проведена после подтверждения.</p>
+        </section>
+      )}
       <div className="row folio-form__submit">
         <span className="hint" data-testid="payment-digest">
           {digest}
         </span>
-        <Button type="submit" tone="success" disabled={busy || minor === null}>
-          Принять оплату
+        <Button type="submit" tone="success" disabled={busy || minor === null || BigInt(minor) <= 0n}>
+          {busy ? 'Выполняется…' : review ? 'Подтвердить оплату' : 'Проверить оплату'}
         </Button>
       </div>
     </form>
@@ -595,16 +607,18 @@ function ReceiptForm({
   );
 }
 
-function RefundForm({
+export function RefundForm({
   number,
   paymentId,
   folioId,
   onResult,
+  onDraftChange,
 }: {
   number: string;
   paymentId: string;
   folioId: string;
   onResult: (r: FinanceActionResult) => void;
+  onDraftChange?: (dirty: boolean) => void;
 }) {
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
@@ -614,11 +628,14 @@ function RefundForm({
     },
     INIT,
   );
+  const { review, onSubmit, onChange } = useMoneyReview(pending, onDraftChange);
   return (
     <form
       key={`${state.ok}-${state.attempt ?? 0}`}
       action={action}
       data-testid="refund-form"
+      onSubmit={onSubmit}
+      onChangeCapture={onChange}
       className="row row--xs"
     >
       <Input
@@ -636,8 +653,15 @@ function RefundForm({
         placeholder="причина"
         className="inp--w110 inp--sm"
       />
+      {review && (
+        <section className="panel" aria-label="Проверка возврата">
+          <b>Проверьте возврат</b>
+          <p>Сумма: {review['amount']}. Причина: {review['reason'] || 'не указана'}.</p>
+          <p className="hint">Возврат будет проведён после подтверждения.</p>
+        </section>
+      )}
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
-        вернуть
+        {pending ? 'Выполняется…' : review ? 'Подтвердить возврат' : 'Проверить возврат'}
       </Button>
     </form>
   );

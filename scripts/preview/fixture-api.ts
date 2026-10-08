@@ -6,6 +6,7 @@ import {
   parseMoney,
   parseReceiptNumber,
   assertAllocationsMatch,
+  assertRefundWithin,
   buildDashboard,
   buildUnitStats,
   buildChannelEfficiency,
@@ -1288,6 +1289,7 @@ let paymentLines: Array<{
   note: string | null;
   id: string;
 }> = [];
+let refundLines: Array<{ id: string; folioId: string; paymentId: string; amountMinor: string; reason: string | null; createdAt: string }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 // ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
 let receipts = new Map<string, { number: string; issuedAt: string }>();
@@ -1780,7 +1782,8 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
             : /TEST[1357]$/.test(reservation.confirmationNumber)
               ? BigInt(it.priceMinor)
               : 800000n;
-    const refunded = showcase === 'RETD' ? BigInt(it.priceMinor) : 0n;
+    const extraRefunds = refundLines.filter((line) => line.folioId === id);
+    const refunded = (showcase === 'RETD' ? BigInt(it.priceMinor) : 0n) + extraRefunds.reduce((sum, line) => sum + BigInt(line.amountMinor), 0n);
     const amount = BigInt(it.priceMinor);
     const payments = paymentLines
       .filter((p) => p.folioId === id)
@@ -1794,7 +1797,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
-        refundedMinor: '0',
+        refundedMinor: extraRefunds.filter((line) => line.paymentId === p.id).reduce((sum, line) => sum + BigInt(line.amountMinor), 0n).toString(),
       }));
     if (prepaid)
       payments.unshift({
@@ -1807,7 +1810,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
-        refundedMinor: '0',
+        refundedMinor: ((showcase === 'RETD' ? prepaid : 0n) + extraRefunds.filter((line) => line.paymentId === `prepaid-${id}`).reduce((sum, line) => sum + BigInt(line.amountMinor), 0n)).toString(),
       });
     return {
       id,
@@ -1835,7 +1838,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         },
       ],
       payments,
-      refunds: refunded
+      refunds: [...(showcase === 'RETD'
         ? [
             {
               id: `refund-${id}`,
@@ -1845,7 +1848,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
               createdAt: `${today}T09:30:00Z`,
             },
           ]
-        : [],
+        : []), ...extraRefunds],
       chargedMinor: (voided ? 0n : amount).toString(),
       paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
       refundedMinor: refunded.toString(),
@@ -4617,6 +4620,7 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      refundLines = [];
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
@@ -7203,6 +7207,21 @@ createServer(async (req, res) => {
       if (was) return send(409, { message: `Чек по этому платежу уже выдан: ${was.number}` });
       receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
       return send(200, { paymentId, number: receiptNumber });
+    }
+    const refundMatch = path.match(/^\/finance\/payments\/([^/]+)\/refunds$/);
+    if (refundMatch) {
+      const reservation = allCards().find((card) => finance(card).folios.some((f) => f.id === body['folioId']));
+      const folio = reservation ? finance(reservation).folios.find((f) => f.id === body['folioId']) : null;
+      const payment = folio?.payments.find((p) => p.paymentId === decodeURIComponent(refundMatch[1]!));
+      if (!reservation || !folio || !payment) return send(404, { message: 'Платёж на этом счёте не найден' });
+      try {
+        const amountMinor = parseMoney(String(body['amount']));
+        assertRefundWithin({ allocatedMinor: BigInt(payment.allocatedMinor), refundedMinor: BigInt(payment.refundedMinor), refundMinor: amountMinor });
+        refundLines.push({ id: `ui-refund-${commands.length}`, folioId: folio.id, paymentId: payment.paymentId, amountMinor: amountMinor.toString(), reason: typeof body['reason'] === 'string' ? body['reason'] : null, createdAt: `${today}T12:00:00Z` });
+        return send(201, finance(reservation));
+      } catch {
+        return send(422, { message: 'Сумма возврата должна быть положительной и не превышать остаток платежа' });
+      }
     }
     if (path === '/finance/payments') {
       try {

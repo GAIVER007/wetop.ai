@@ -194,7 +194,7 @@ jobs:
       - name: Браузерные проверки без базы
         env:
           UI_BROWSER_CHANNEL: chromium
-        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3
+        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3 --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -265,14 +265,44 @@ jobs:
             test-results
           if-no-files-found: ignore
 
+  ui-auth:
+    name: Канонический вход и сохранённые login-lock требования
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Все требования входа на двух изолированных workers
+        env:
+          UI_BROWSER_CHANNEL: chromium
+        run: npx playwright test --config tests/ui/playwright.auth.config.ts --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-auth-results
+          path: test-results
+          if-no-files-found: ignore
+
   ui:
     # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
     name: стойка на синтетическом API (tests/ui)
-    needs: ui-shard
+    needs: [ui-shard, ui-vertical, ui-auth]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Все части UI прошли
         env:
           UI_RESULT: ${{ needs.ui-shard.result }}
-        run: test "$UI_RESULT" = success
+          VERTICAL_RESULT: ${{ needs.ui-vertical.result }}
+          AUTH_RESULT: ${{ needs.ui-auth.result }}
+        run: |
+          test "$UI_RESULT" = success
+          test "$VERTICAL_RESULT" = success
+          test "$AUTH_RESULT" = success

@@ -29,6 +29,7 @@ import {
   capLog,
   durationText,
   journalRow,
+  maskJsonReport,
   maskSecrets,
   outcomeText,
   parseEslintOutput,
@@ -204,7 +205,11 @@ function main(): void {
     if (!existsSync(md)) writeFileSync(md, JOURNAL_MD_HEADER);
     appendFileSync(md, `${journalRow(record)}\n`);
     if (process.env.TEST_RECORD_PRESERVE_JSON === '1' && existsSync(reportFile))
-      writeFileSync(resolve(ROOT, 'tests/runs', `${id}.json`), mask(readFileSync(reportFile, 'utf8')), { mode: 0o600 });
+      writeFileSync(
+        resolve(ROOT, 'tests/runs', `${id}.json`),
+        maskJsonReport(readFileSync(reportFile, 'utf8'), values),
+        { mode: 0o600 },
+      );
     rmSync(reportFile, { force: true });
 
     console.log(`\n■ ${suite.name}: ${outcomeText(record)} · ${durationText(durationMs)}`);

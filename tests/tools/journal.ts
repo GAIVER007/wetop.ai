@@ -247,6 +247,19 @@ export function maskSecrets(text: string, secretValues: readonly string[] = []):
   return out;
 }
 
+/** Preserve the runner JSON structure while removing secrets. */
+export function maskJsonReport(text: string, secretValues: readonly string[] = []): string {
+  return JSON.stringify(JSON.parse(text), (key: string, value: unknown) => {
+    if (
+      (SECRET_NAME.test(key) || key.toLowerCase() === 'authorization') &&
+      value !== null &&
+      value !== ''
+    )
+      return '<скрыто>';
+    return typeof value === 'string' ? maskSecrets(value, secretValues) : value;
+  });
+}
+
 type Mask = (text: string) => string;
 const patternsOnly: Mask = (text) => maskSecrets(text);
 

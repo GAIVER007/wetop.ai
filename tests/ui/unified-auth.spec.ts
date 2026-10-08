@@ -1,11 +1,15 @@
 import { expect, test } from './fixtures';
 
-const SITE = 'http://127.0.0.1:3002';
-const APP = 'http://127.0.0.1:3102';
-const API = 'http://127.0.0.1:4313';
+const worker = Number(process.env.TEST_PARALLEL_INDEX || '0');
+const SITE = `http://127.0.0.1:${Number(process.env.AUTH_SITE_PORT || '3002') + worker}`;
+const APP = `http://127.0.0.1:${Number(process.env.AUTH_WEB_PORT || '3102') + worker}`;
+const API = `http://127.0.0.1:${Number(process.env.AUTH_API_PORT || '4313') + worker}`;
+const PROXY = `http://127.0.0.1:${Number(process.env.AUTH_PROXY_PORT || '4323') + worker}`;
 // Только синтетическая учётная запись локального fixture API, без базы и отправки писем.
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
+  await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+  await request.get(`${SITE}/`);
 });
 async function login(page: import('@playwright/test').Page) {
   const dialog = page.getByRole('dialog');
@@ -18,24 +22,24 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     page,
     context,
   }) => {
-    await page.goto(path);
+    await page.goto(`${APP}${path}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
     await login(page);
     await expect(page).toHaveURL(`${APP}${path}`);
     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${APP}${path}`);
   });
 }
 test('старые адреса открывают только формы на главной', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' }),
   ).toBeVisible();
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
-  await page.goto(`${APP}/register`);
+  await page.goto(`${APP}/register`, { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' }),
   ).toBeVisible();
@@ -44,18 +48,18 @@ test('сессия работает в новой вкладке; выход в�
   page,
   context,
 }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
   await login(page);
   await expect(page).toHaveURL(`${APP}/today`);
   const tab = await context.newPage();
-  await tab.goto(`${APP}/profile/access`);
+  await tab.goto(`${APP}/profile/access`, { waitUntil: 'domcontentloaded' });
   await expect(
     tab.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
   await expect(tab.getByTestId('session-list')).toBeVisible();
   await tab.getByRole('button', { name: 'Завершить все сеансы' }).click();
   await expect(tab).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
-  await page.goto('/today');
+  await page.goto(`${APP}/today`, { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
   await tab.close();
 });
@@ -63,7 +67,7 @@ test('регистрация на главной → письмо → подтв
   page,
   context,
 }) => {
-  await page.goto('/register');
+  await page.goto(`${APP}/register`);
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Почта').fill('new@example.invalid');
   await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');

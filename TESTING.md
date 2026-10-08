@@ -358,3 +358,25 @@ npm run test:record -- e2e --workers=1
   закоммичено в момент запуска.
 - Код журнала: `tests/tools/journal.ts` (логика, покрыта тестом), `git-state.ts` (только чтение git),
   `cli-record.ts`, `cli-status.ts`.
+
+## A29: обязательные auth и изоляция основного UI (08.10.2026)
+
+Канонический auth-набор запускается отдельно и сохраняет пять требований старого
+`login-lock`, семь `unified-auth` и шесть A27 boundary сценариев. Сопоставление требований:
+`reports/a29-auth-mapping.md`. Коллекция составляет 18 тестов, пересечения с другими
+наборами не складываются как уникальное покрытие.
+
+```sh
+npm run test:record -- e2e --config tests/ui/playwright.auth.config.ts --workers=2
+npm run test:record -- e2e --config tests/ui/playwright.config.ts --workers=2
+npm run test:record -- e2e --config tests/ui/playwright.assistant.config.ts
+```
+
+Основной UI использует два независимых набора web/site/fixture API с раздельными
+синтетическими данными. Историческая рекомендация одного worker от 19.09 относится
+к прежней общей фикстуре. Текущие два worker нельзя заменять одним ради прохождения.
+Карта транспортных замен и коллекции: `reports/a29-ui-harness-map.md`.
+
+`release-checks` включает отдельный auth job и три параллельных основных UI shards,
+каждый с двумя workers. Локальная проверка этих условий и результат удалённого Actions
+учитываются отдельно. Запуск workflow требует отдельного разрешения владельца.

@@ -6150,3 +6150,15 @@ Compatibility repairs: the real Team page unit harness ignores CSS imports only,
 A28 test isolation and observation details: session ordering fixtures now use distinct explicit issued-at timestamps, and immediate outbox retry fixtures are due by one millisecond before database clock time. This removes timestamp precision races while retaining their original ordering and retry assertions. Supplier-payment UI checks wait for the exact existing success status before reading the unchanged API cash/debt etalon, and restore the temporary synthetic scope in finally.
 
 The two added query-only auth scenarios distinguish actual browser cache hits, captured response bodies and bodies unavailable after redirect. A missing browser response body is not treated as empty or safe; independent fresh document/RSC and old-session API denial proofs remain mandatory. Next transport normalization may redirect a STAFF RSC request to the same origin/path/business query with one empty _rsc parameter. The test follows that exact transport URL and requires a successful response without owner fixture markers, alongside STAFF identity/scope, forbidden permission and old-session 401 checks. These are harness compatibility decisions, with no changes to authentication or permission rules.
+
+## D-SCHEMA, ТЗ №2.9, 08.10.2026
+
+Проблема: node-postgres разбирает URL после PoolConfig, поэтому URL startup options вытесняли search_path выбранной схемы. Пустое URL options включает PGOPTIONS. Отдельно PostgreSQL молча пропускает схему без USAGE и может выбрать public.
+
+Варианты: отказаться от UTC, менять драйвер, объединить startup options и проверить доступность выбранной схемы. Владелец утвердил последний технический ремонт в ТЗ №2.9. Финансовая модель, миграции, RLS и TTL не меняются.
+
+Решение: сохранить эффективные дополнительные URL options (последнее значение, PGOPTIONS при пустом или отсутствующем значении), передать вместе с явной схемой и обязательным UTC. Противоречивый или неоднозначный search_path отклоняется явно. Пул проверяет существование схемы, USAGE и фактическую current_schema на каждом новом физическом соединении до прикладного запроса. Обычный путь без явной схемы сохраняется.
+
+Причина: реальный RED воспроизвёл потерю схемы и чтение доступной public-таблицы при отсутствии USAGE. Адресный GREEN проверил чтение, запись, повторное использование, несколько соединений, direct/service/tenant, commit и rollback через обычные диагностические роли.
+
+Последствия: некорректная конфигурация подключения теперь даёт явный отказ. Первый checkout соединения с явной схемой выполняет один дополнительный служебный SELECT. Это техническое решение не утверждает новые бизнес-правила и не подтверждает готовность к публикации без полного конечного набора.

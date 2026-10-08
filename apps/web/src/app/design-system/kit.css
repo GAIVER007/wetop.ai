@@ -38,6 +38,10 @@
     display: none;
   }
   .kit-theme {
+    /* Keep the component showcase at its reference width as the workspace expands. */
+    width: 100%;
+    max-width: 1160px;
+    margin-inline: auto;
     min-width: 0;
     padding: var(--space-6);
     background: var(--bg);

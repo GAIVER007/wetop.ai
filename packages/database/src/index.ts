@@ -7,14 +7,20 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import { PrismaClient, type Prisma } from './generated/prisma/client';
 import { databasePoolTimeouts } from './pool';
-import { utcConnectionString } from './connection-timezone';
+import { connectionPool, utcConnectionString } from './connection-timezone';
 import { TenantPool, type TenantOf } from './rls';
 import { resolveDatabaseSchema } from './schema';
 
 export * from './generated/prisma/client';
 export { databaseSchemaName, resolveDatabaseSchema } from './schema';
 export { DATABASE_POOL_DEFAULTS, databasePoolTimeouts } from './pool';
-export { RLS_NO_TENANT_TABLES, RLS_TENANT_TABLES, TenantPool, applyTenant, type TenantOf } from './rls';
+export {
+  RLS_NO_TENANT_TABLES,
+  RLS_TENANT_TABLES,
+  TenantPool,
+  applyTenant,
+  type TenantOf,
+} from './rls';
 export { assertRlsAtStartup, rlsRoleProblem, type RlsProbe } from './rls-startup';
 export {
   NEW_PROPERTY_DEFAULTS,
@@ -45,7 +51,10 @@ export function createPrismaClient(
     throw new Error('DATABASE_URL is not set');
   }
   const config = (url: string, max: number): pg.PoolConfig => ({
-    connectionString: utcConnectionString(url, schema ? `-c search_path=${schema},public` : undefined),
+    connectionString: utcConnectionString(
+      url,
+      schema ? `-c search_path=${schema},public` : undefined,
+    ),
     max,
     // ADR-043: подключение, место в пуле и ответ базы ограничены сроком — мёртвое соединение не вешает процесс
     ...databasePoolTimeouts(process.env),
@@ -59,13 +68,17 @@ export function createPrismaClient(
   const options = schema ? { schema, disposeExternalPool: true } : { disposeExternalPool: true };
   let adapter: PrismaPg;
   if (tenant) {
-    const service = new pg.Pool(config(connectionString, max));
+    const service = connectionPool(config(connectionString, max), schema);
     const appUrl = tenant.appConnectionString?.trim();
     // С RLS соединений два пула: служебных и организации. Их сумма держится в потолке пулера (§17.2)
-    const app = appUrl ? new pg.Pool(config(appUrl, poolMax(process.env.DATABASE_APP_POOL_MAX, 5))) : service;
+    const app = appUrl
+      ? connectionPool(config(appUrl, poolMax(process.env.DATABASE_APP_POOL_MAX, 5)), schema)
+      : service;
     adapter = new PrismaPg(new TenantPool(service, app, tenant.of), options);
   } else {
-    adapter = new PrismaPg(config(connectionString, max), schema ? { schema } : undefined);
+    adapter = schema
+      ? new PrismaPg(connectionPool(config(connectionString, max), schema), options)
+      : new PrismaPg(config(connectionString, max));
   }
   // SECURITY.md §7: без аргументов вызова в тексте ошибки — заметка брони или имя гостя не уедут в last_error и журнал
   return new PrismaClient({ adapter, errorFormat: 'minimal' });

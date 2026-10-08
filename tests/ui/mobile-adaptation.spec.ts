@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { FIXTURE_API } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Мобильная версия стойки (02.10.2026, поручение владельца «особое внимание телефону»).
@@ -43,20 +42,17 @@ test('телефон: низ страницы не прячется под ни�
     const nav = page.locator('.bottom-navigation');
     await expect(nav).toBeVisible();
     const navHeight = (await nav.boundingBox())?.height ?? 0;
-    // На части экранов (вкладки тарифов) несколько .page — мерим видимую. Замер повторяется: у раздела
-    // со своим `loading.tsx` первым приходит `.page` экрана ожидания, потоковая отрисовка снимает его
-    // посреди замера, и у отцепленного узла `getComputedStyle` пуст (NaN, release-checks 37795974518)
-    await expect
-      .poll(
-        () =>
-          page
-            .locator('.page:visible')
-            .first()
-            .evaluate((el) => (el.isConnected ? parseFloat(getComputedStyle(el).paddingBottom) : Number.NaN))
-            .catch(() => Number.NaN),
-        { message: `${route}: padding-bottom меньше панели ${navHeight}` },
-      )
-      .toBeGreaterThanOrEqual(navHeight);
+    // После штатного settleStreaming должен остаться один видимый экран, его нижний отступ мерим без
+    // выбора первой копии и без повторов, чтобы скрытый потоковый сегмент не маскировал дефект.
+    const visiblePage = page.locator('.page:visible');
+    await expect(visiblePage).toHaveCount(1);
+    const padBottom = await visiblePage.evaluate((el) =>
+      parseFloat(getComputedStyle(el).paddingBottom),
+    );
+    expect(
+      padBottom,
+      `${route}: padding-bottom ${padBottom} < панель ${navHeight}`,
+    ).toBeGreaterThanOrEqual(navHeight);
     // и страница не едет вбок
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

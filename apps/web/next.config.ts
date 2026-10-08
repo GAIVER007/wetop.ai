@@ -1,11 +1,17 @@
 import type { NextConfig } from 'next';
 
+const testTurbopackRoot =
+  process.env.APP_ALLOW_TEST_DATA === '1'
+    ? process.env.NEXT_TEST_TURBOPACK_ROOT?.trim() || undefined
+    : undefined;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   distDir: process.env.APP_UI_TEST === '1' ? '.next-ui' : '.next',
   devIndicators: false,
   // Стойка на app.wetop.ai за туннелем Cloudflare (plans/wetop-domain-2026-09-14.md, Д5): версия сервера наружу не нужна
   poweredByHeader: false,
+  ...(testTurbopackRoot ? { turbopack: { root: testTurbopackRoot } } : {}),
   // ADR-117: сайт объекта собран в «Сайт и онлайн-бронирование». Старые адреса из закладок и документов ведут туда же
   // вместе с параметрами (?site, ?from, ?to). Временная (307), а не постоянная: браузер запоминает 308 навсегда, а
   // `/analytics` может понадобиться общей аналитике (ADR-105 переносит туда показатели за период с Главной).

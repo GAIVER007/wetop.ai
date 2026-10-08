@@ -6,6 +6,7 @@ import { Page } from '../../components/page';
 import { Notice } from '../../components/ui';
 import { currentMe } from '../../lib/desk-shell';
 import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
+import './team.css';
 
 /**
  * «Сотрудники» (TEAM1): люди организации с ролями, датой входа в организацию и «Был в системе»;

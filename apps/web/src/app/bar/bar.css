@@ -1,35 +1,195 @@
-.bar-receipt-form { display: grid; gap: var(--space-4); }
-.bar-form-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: var(--space-4); }
-.bar-lines { display: grid; gap: var(--space-2); }
-.bar-line { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(120px, 1fr)) auto; gap: var(--space-2); align-items: end; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface-muted); }
-.bar-line-calculation { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); padding-top: var(--space-2); border-top: 1px solid var(--border-soft); }
-.bar-line-calculation small { flex-basis: 100%; color: var(--muted); }
-.bar-check { min-height: 44px; display: flex; align-items: center; gap: var(--space-2); }
-.bar-check input { width: 20px; height: 20px; }
-.bar-error { color: var(--danger); }
-.bar-success { color: var(--success); }
-.bar-receipt-form > .btn { justify-self: start; }
-.bar-receipt-form textarea { resize: vertical; }
-.bar-receipt-form + .section-title { margin-top: var(--space-6); }
-.bar-sale-form { display: grid; grid-template-columns: minmax(240px, 2fr) minmax(120px, 0.6fr) minmax(160px, 1fr) auto; gap: var(--space-4); align-items: end; }
-.bar-folio-form { display: grid; grid-template-columns: minmax(260px, 1.5fr) minmax(220px, 1.4fr) minmax(110px, 0.5fr) auto; gap: var(--space-4); align-items: end; }
-.bar-sale-form .bar-error, .bar-sale-form .bar-success { grid-column: 1 / -1; margin: 0; }
-.bar-folio-form .bar-error, .bar-folio-form .bar-success { grid-column: 1 / -1; margin: 0; }
-.bar-return { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.bar-payment-form { display: grid; grid-template-columns: minmax(100px, 0.7fr) minmax(150px, 1fr) auto; gap: var(--space-1); align-items: end; }
-.bar-payment-form .bar-error, .bar-payment-form .bar-success { grid-column: 1 / -1; margin: 0; max-width: 420px; }
-.bar-catalogs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-.bar-products-catalog { grid-column: 1 / -1; }
-.bar-catalog-form { display: grid; gap: var(--space-2); }
-.bar-product-form { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: var(--space-2); align-items: end; }
-.bar-product-form .bar-error, .bar-product-form .bar-success { grid-column: 1 / -1; margin: 0; }
-.bar-catalog-list { list-style: none; padding: 0; margin: var(--space-4) 0 0; display: grid; gap: var(--space-1); }
-.bar-catalog-list li { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); border-top: 1px solid var(--border-soft); padding-top: var(--space-1); }
-.bar-price-form { display: grid; grid-template-columns: minmax(100px, 130px) auto; gap: var(--space-1); align-items: center; min-width: 230px; }
-.bar-price-form small { grid-column: 1 / -1; }
-.bar-accounting-note { max-width: 920px; margin: 0 0 var(--space-4); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface-muted); }
-@media (max-width: 900px) { .bar-form-grid { grid-template-columns: 1fr 1fr; } .bar-line { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 900px) { .bar-sale-form, .bar-folio-form { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 900px) { .bar-product-form { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 560px) { .bar-form-grid, .bar-line, .bar-sale-form, .bar-folio-form, .bar-payment-form, .bar-catalogs, .bar-product-form { grid-template-columns: 1fr; } .bar-products-catalog { grid-column: auto; } .bar-receipt-form > .btn, .bar-line .btn, .bar-sale-form .btn, .bar-folio-form .btn, .bar-payment-form .btn { width: 100%; min-height: 44px; } }
-@media (prefers-reduced-motion: reduce) { .bar-receipt-form *, .bar-line * { scroll-behavior: auto; transition-duration: 0.01ms !important; } }
+@layer sections {
+  .bar-receipt-form {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .bar-form-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: var(--space-4);
+  }
+  .bar-lines {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-line {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(120px, 1fr)) auto;
+    gap: var(--space-2);
+    align-items: end;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .bar-line-calculation {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-6);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border-soft);
+  }
+  .bar-line-calculation small {
+    flex-basis: 100%;
+    color: var(--muted);
+  }
+  .bar-check {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .bar-check input {
+    width: 20px;
+    height: 20px;
+  }
+  .bar-error {
+    color: var(--danger);
+  }
+  .bar-success {
+    color: var(--success);
+  }
+  .bar-receipt-form > .btn {
+    justify-self: start;
+  }
+  .bar-receipt-form textarea {
+    resize: vertical;
+  }
+  .bar-receipt-form + .section-title {
+    margin-top: var(--space-6);
+  }
+  .bar-sale-form {
+    display: grid;
+    grid-template-columns: minmax(240px, 2fr) minmax(120px, 0.6fr) minmax(160px, 1fr) auto;
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .bar-folio-form {
+    display: grid;
+    grid-template-columns: minmax(260px, 1.5fr) minmax(220px, 1.4fr) minmax(110px, 0.5fr) auto;
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .bar-sale-form .bar-error,
+  .bar-sale-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-folio-form .bar-error,
+  .bar-folio-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-return {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .bar-payment-form {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.7fr) minmax(150px, 1fr) auto;
+    gap: var(--space-1);
+    align-items: end;
+  }
+  .bar-payment-form .bar-error,
+  .bar-payment-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+    max-width: 420px;
+  }
+  .bar-catalogs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  .bar-products-catalog {
+    grid-column: 1 / -1;
+  }
+  .bar-catalog-form {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-product-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .bar-product-form .bar-error,
+  .bar-product-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-catalog-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-4) 0 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .bar-catalog-list li {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    border-top: 1px solid var(--border-soft);
+    padding-top: var(--space-1);
+  }
+  .bar-price-form {
+    display: grid;
+    grid-template-columns: minmax(100px, 130px) auto;
+    gap: var(--space-1);
+    align-items: center;
+    min-width: 230px;
+  }
+  .bar-price-form small {
+    grid-column: 1 / -1;
+  }
+  .bar-accounting-note {
+    max-width: 920px;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  @media (max-width: 900px) {
+    .bar-form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bar-line {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bar-sale-form,
+    .bar-folio-form {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bar-product-form {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .bar-form-grid,
+    .bar-line,
+    .bar-sale-form,
+    .bar-folio-form,
+    .bar-payment-form,
+    .bar-catalogs,
+    .bar-product-form {
+      grid-template-columns: 1fr;
+    }
+    .bar-products-catalog {
+      grid-column: auto;
+    }
+    .bar-receipt-form > .btn,
+    .bar-line .btn,
+    .bar-sale-form .btn,
+    .bar-folio-form .btn,
+    .bar-payment-form .btn {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
+}

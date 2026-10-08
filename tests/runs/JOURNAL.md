@@ -7529,3 +7529,6 @@
 | 08.10.2026 12:29 | unit (частично: apps/web/src/lib/status/status.test.ts) | ✅ 12 из 12 | 4 с | 433fcc3 +2 | [лог](logs/2026-10-08T07-29-54Z-unit-91c4.log) | DS1a правки: RED тоны салона и ресторана, короткое имя WALK_IN |
 | 08.10.2026 12:30 | unit (частично: apps/web/src/lib/status/status.test.ts) | ❌ упало 3 из 13 | 2 с | 433fcc3 +3 | [лог](logs/2026-10-08T07-30-14Z-unit-a2ae.log) | DS1a правки: RED тоны салона и ресторана, короткое имя WALK_IN |
 | 08.10.2026 12:30 | unit (частично: apps/web/src/lib/status/status.test.ts tests/unit/status-dictionary-guard.test.ts) | ✅ 15 из 15 | 1 с | 433fcc3 +6 | [лог](logs/2026-10-08T07-30-17Z-unit-e936.log) | DS1a правки: GREEN реестры на типах домена, тоны, короткие имена |
+| 08.10.2026 12:30 | typecheck | ✅ без ошибок | 57 с | e68dafb | [лог](logs/2026-10-08T07-30-51Z-typecheck-f3fb.log) | DS1a правки после слияния main e57447d3 |
+| 08.10.2026 12:31 | lint | ✅ без ошибок | 34 с | e68dafb | [лог](logs/2026-10-08T07-31-48Z-lint-aa75.log) | DS1a правки после слияния |
+| 08.10.2026 12:32 | unit | ✅ 4058 из 4061, пропущено 3 | 1 мин 54 с | e68dafb | [лог](logs/2026-10-08T07-32-23Z-unit-87a6.log) | DS1a правки после слияния main e57447d3 |

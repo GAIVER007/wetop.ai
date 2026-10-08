@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RecordTabs } from '../../../components/record-tabs';
+import { Tabs } from '../../../components/tabs';
 import { hotelToday } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -218,9 +218,9 @@ export default async function ReservationPage({
           </dd>
         </div>
       </dl>
-      <RecordTabs
+      <Tabs
         label="Разделы карточки брони"
-        tabs={[
+        panels={[
           {
             id: 'booking-overview',
             label: 'Обзор',
@@ -233,7 +233,7 @@ export default async function ReservationPage({
                     приходит оттуда же. Место за ней держится и второй раз не продаётся.
                   </Alert>
                 )}
-                {/* Следующее действие смены — первым; ссылки на вкладки ловит RecordTabs (без записи в историю) */}
+                {/* Следующее действие смены — первым; ссылки на вкладки ловят вкладки (Tabs) (без записи в историю) */}
                 <div className="booking-next" data-testid="booking-next">
                   <a
                     href="#booking-finance"

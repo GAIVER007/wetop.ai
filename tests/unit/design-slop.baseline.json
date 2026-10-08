@@ -2,7 +2,7 @@
   "color-literal": {},
   "space-off-scale": {
     "apps/web/src/app/chessboard/board.css": 16,
-    "apps/web/src/app/components.css": 63,
+    "apps/web/src/app/components.css": 61,
     "apps/web/src/app/directory.css": 10,
     "apps/web/src/app/management/analytics/analytics.css": 15,
     "apps/web/src/app/premium.css": 92,
@@ -30,7 +30,7 @@
   "font-under-12": {},
   "radius-literal": {
     "apps/web/src/app/chessboard/board.css": 3,
-    "apps/web/src/app/components.css": 9,
+    "apps/web/src/app/components.css": 8,
     "apps/web/src/app/directory.css": 1,
     "apps/web/src/app/management/analytics/analytics.css": 3,
     "apps/web/src/app/premium.css": 17,
@@ -61,7 +61,7 @@
     "apps/web/src/app/beauty/beauty.css": 42,
     "apps/web/src/app/channels/channels.css": 61,
     "apps/web/src/app/chessboard/board.css": 30,
-    "apps/web/src/app/components.css": 132,
+    "apps/web/src/app/components.css": 129,
     "apps/web/src/app/connections/integrations.css": 15,
     "apps/web/src/app/directory.css": 87,
     "apps/web/src/app/finance/finance.css": 36,

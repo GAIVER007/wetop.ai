@@ -49,7 +49,9 @@ test('ноутбук 1366×768: восемь строк мест видны це
   // строка дат видна целиком
   expect.soft(m.headTop).toBeGreaterThanOrEqual(0);
   expect.soft(m.headBottom).toBeLessThanOrEqual(m.innerHeight);
-  expect.soft(m.pageScrolls, 'у страницы календаря не должно быть вертикальной прокрутки').toBe(false);
+  expect
+    .soft(m.pageScrolls, 'у страницы календаря не должно быть вертикальной прокрутки')
+    .toBe(false);
   expect
     .soft(m.bottomGap, 'сетка должна доходить почти до низа окна')
     .toBeLessThanOrEqual(MAX_BOTTOM_GAP);
@@ -81,8 +83,11 @@ test('без сохранённого выбора вид «Компактный
     await page.reload();
     await expect(wrap).toHaveAttribute('data-density', view);
   }
-  // выбор в поле «Вид» запоминается
-  await page.getByLabel('Вид строк календаря').selectOption('compact');
+  // выбор в переключателе «Вид» запоминается
+  await page
+    .getByRole('group', { name: 'Вид строк календаря' })
+    .getByRole('button', { name: 'Компактный', exact: true })
+    .click();
   await expect(wrap).toHaveAttribute('data-density', 'compact');
   await page.reload();
   await expect(wrap).toHaveAttribute('data-density', 'compact');

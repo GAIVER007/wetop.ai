@@ -21,6 +21,10 @@ export const PRIMITIVES = [
   'badge',
   'inp',
   'field',
+  // MV8.5 DS1b (DESIGN.md §8.1): вкладки, чипы и полоса инструментов; `.seg` выше — переключатель
+  'tabs',
+  'chip',
+  'toolbar',
 ];
 const ROOT = resolve(import.meta.dirname, '../..');
 const SRC = resolve(ROOT, 'apps/web/src');

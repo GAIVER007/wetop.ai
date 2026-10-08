@@ -369,6 +369,9 @@
   }
   .board-view {
     flex: 0 0 auto;
+  } /* Неверный период: полоса «С / По / Показать» над объявлением */
+  .board-invalid-period {
+    margin-bottom: var(--space-4);
   }
   .board-search-label {
     display: none;

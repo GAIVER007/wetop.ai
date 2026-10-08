@@ -7584,3 +7584,11 @@
 | 08.10.2026 19:48 | unit (частично: tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/design-slop.test.ts tests/ | ✅ 44 из 44 | 2 с | bfef9af | [лог](logs/2026-10-08T14-48-40Z-unit-fadb.log) |  |
 | 08.10.2026 20:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/mobile-adaptation.spec.ts --workers=1 --repeat-each=2) | ✅ 14 из 14 | 2 мин 12 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-29-39Z-e2e-4754.log) |  |
 | 08.10.2026 20:32 | typecheck | ✅ без ошибок | 40 с | 62b0ae7 +1 | [лог](logs/2026-10-08T15-32-01Z-typecheck-5076.log) |  |
+| 08.10.2026 13:35 | unit (частично: apps/web/src/components/primitives.test.ts) | ❌ код выхода 1 | 3 с | 5c2ed16 +1 | [лог](logs/2026-10-08T08-35-27Z-unit-e76c.log) | (файл не выполнился) |
+| 08.10.2026 13:36 | unit (частично: apps/web/src/components/primitives.test.ts) | ❌ код выхода 1 | 2 с | 5c2ed16 +5 | [лог](logs/2026-10-08T08-36-52Z-unit-9518.log) | (файл не выполнился) |
+| 08.10.2026 13:37 | unit (частично: apps/web/src/components/primitives.test.ts) | ✅ 19 из 19 | 1 с | 5c2ed16 +6 | [лог](logs/2026-10-08T08-37-05Z-unit-4a3b.log) |  |
+| 08.10.2026 13:43 | typecheck | ✅ без ошибок | 49 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-43-07Z-typecheck-79fc.log) |  |
+| 08.10.2026 13:43 | lint | ❌ ошибок: 1 | 36 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-43-57Z-lint-7224.log) | no-unexpected-multiline |
+| 08.10.2026 13:45 | lint | ✅ без ошибок | 40 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-45-06Z-lint-c724.log) |  |
+| 08.10.2026 13:45 | unit | ✅ 4077 из 4080, пропущено 3 | 2 мин 1 с | 5c2ed16 +27 | [лог](logs/2026-10-08T08-45-48Z-unit-1309.log) |  |
+| 08.10.2026 13:49 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 5c2ed16 +30 | [лог](logs/2026-10-08T08-49-25Z-e2e-99cf.log) |  |

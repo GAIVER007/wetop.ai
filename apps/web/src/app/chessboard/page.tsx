@@ -7,6 +7,7 @@ import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
 import { Alert, Button, Legend, cx } from '../../components/ui';
+import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
 import { ChessboardGrid } from './board-grid';
 import { BoardTodayLink } from './board-today-link';
@@ -55,20 +56,27 @@ export default async function ChessboardPage({
   if (invalidPeriod)
     return (
       <Page title="Календарь">
-        <form method="get" className="row toolbar">
-          <label className="field">
-            С<DateInput name="from" aria-label="Календарь: с" defaultValue={from} />
-          </label>
-          <label className="field">
-            По
-            <DateInput
-              name="to"
-              rangeFromName="from"
-              aria-label="Календарь: по"
-              defaultValue={to}
-            />
-          </label>
-          <Button>Показать</Button>
+        <form method="get" className="board-invalid-period">
+          <Toolbar
+            label="Период календаря"
+            period={
+              <>
+                <label className="field">
+                  С<DateInput name="from" aria-label="Календарь: с" defaultValue={from} />
+                </label>
+                <label className="field">
+                  По
+                  <DateInput
+                    name="to"
+                    rangeFromName="from"
+                    aria-label="Календарь: по"
+                    defaultValue={to}
+                  />
+                </label>
+              </>
+            }
+            actions={<Button>Показать</Button>}
+          />
         </form>
         <Alert boxed>
           Выберите корректный период до {MAX_CHESSBOARD_DAYS} дней.{' '}

@@ -1,0 +1,37 @@
+# Модульные (unit) · 08.10.2026 13:36 Алматы · vm
+# коммит 5c2ed16 (claude/mv8-5-ds1b-primitives), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T08-36-52Z-unit-9518.json' 'apps/web/src/components/primitives.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/components/primitives.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/primitives.test.ts [ apps/web/src/components/primitives.test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you use tsconfig.json, make sure to not set jsx to preserve.
+  Plugin: vite:import-analysis
+  File: /home/user/wetop.ai/apps/web/src/components/chip.tsx:25:75
+  8  |  	const body = <>
+  9  |        {children}
+  10 |        {count !== undefined && <span className="chip__count">{count}</span>}
+     |                                                                             ^
+  11 |      </>;
+  12 |  	if (rest.href !== undefined) {
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:31147:39
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:31144:14
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:28047:10
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:36:53
+   Duration  480ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-08T08-36-52Z-unit-9518.json
+
+# код выхода 1 · 2 с

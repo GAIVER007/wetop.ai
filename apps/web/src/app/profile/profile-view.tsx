@@ -2,7 +2,7 @@
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { useTheme, type Theme } from '../../components/theme-provider';
-import { RecordTabs } from '../../components/record-tabs';
+import { Tabs } from '../../components/tabs';
 import { Badge } from '../../components/ui';
 import type { ExtensionAccessView } from '../../lib/api';
 import type { DeskPerson } from '../../lib/desk-person';
@@ -27,8 +27,9 @@ export function ProfileView({
       subtitle="Ваш интерфейс, в удобном для вас виде"
       width="narrow"
     >
-      <RecordTabs
-        tabs={[
+      <Tabs
+        label="Разделы карточки"
+        panels={[
           {
             id: 'appearance',
             label: 'Оформление',

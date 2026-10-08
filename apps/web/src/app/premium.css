@@ -763,47 +763,6 @@
       max-height: calc(100dvh - 210px);
     }
   }
-  .record-tab-list {
-    display: flex;
-    gap: var(--space-1);
-    padding: var(--space-1);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius);
-    background: var(--surface-muted);
-    margin: 0 0 var(--space-6);
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-  .record-tab-list button {
-    flex: none;
-    min-height: var(--control-h);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-control);
-    background: transparent;
-    border: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    color: var(--text-2);
-    cursor: pointer;
-  }
-  .record-tab-list button:hover {
-    background: var(--row-hover);
-  }
-  .record-tab-list button[aria-selected='true'] {
-    color: var(--primary);
-    background: var(--primary-soft);
-  }
-  .record-tabs [role='tabpanel'][hidden] {
-    display: none;
-  }
-  .record-tabs [role='tabpanel'] {
-    outline-offset: 5px;
-  }
-  @media (max-width: 600px) {
-    .record-tab-list button {
-      min-height: var(--touch-target);
-    }
-  }
   .directory-toolbar {
     display: flex;
     flex-wrap: wrap;

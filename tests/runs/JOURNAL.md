@@ -7609,3 +7609,9 @@
 | 08.10.2026 20:29 | lint | ✅ без ошибок | 33 с | 620c54c | [лог](logs/2026-10-08T15-29-43Z-lint-6754.log) |  |
 | 08.10.2026 20:30 | unit (частично: apps/web/src/components tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/de | ✅ 90 из 90 | 3 с | 620c54c | [лог](logs/2026-10-08T15-30-17Z-unit-2fa2.log) |  |
 | 08.10.2026 20:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 620c54c | [лог](logs/2026-10-08T15-30-26Z-e2e-4f81.log) |  |
+| 08.10.2026 20:47 | typecheck | ❌ ошибок: 98 | 1 мин 34 с | 1e27513 | [лог](logs/2026-10-08T15-47-14Z-typecheck-636f.log) | TS2339 |
+| 08.10.2026 20:48 | lint | ✅ без ошибок | 1 мин | 1e27513 | [лог](logs/2026-10-08T15-48-50Z-lint-36a5.log) |  |
+| 08.10.2026 20:50 | typecheck | ✅ без ошибок | 1 мин 5 с | 1e27513 | [лог](logs/2026-10-08T15-50-06Z-typecheck-5ac2.log) |  |
+| 08.10.2026 20:51 | unit (частично: apps/web/src/components/primitives.test.ts tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.te | ✅ 61 из 61 | 6 с | 1e27513 | [лог](logs/2026-10-08T15-51-17Z-unit-5470.log) |  |
+| 08.10.2026 20:51 | e2e (частично: tests/ui/ds1b-primitives.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ❌ код выхода 1 | 12 с | 1e27513 | [лог](logs/2026-10-08T15-51-29Z-e2e-82f3.log) | (ошибка вне тестов) |
+| 08.10.2026 20:51 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/mobile-adaptation.spec.ts --workers=1) | ✅ 14 из 14 | 3 мин 12 с | 1e27513 | [лог](logs/2026-10-08T15-51-50Z-e2e-7e42.log) |  |

@@ -162,7 +162,7 @@ test('стойка: занятую койку не продать дважды, 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

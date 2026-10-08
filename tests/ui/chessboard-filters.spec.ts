@@ -255,7 +255,6 @@ test('§38: вид «Компактный / Обычный / Подробный�
   const main = page.getByRole('main');
   const view = main.getByLabel('Вид строк календаря');
   await expect(view).toHaveValue('compact');
-  await view.selectOption('normal');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
   const compact = await height();

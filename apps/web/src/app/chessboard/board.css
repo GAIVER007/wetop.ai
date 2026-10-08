@@ -2395,6 +2395,14 @@
     z-index: var(--layer-sidebar);
     background: var(--bg);
   }
+  .calendar-workspace__main > .board-wrap:has(.board--month) {
+    scrollbar-gutter: auto;
+  }
+  @media (min-width: 601px) and (max-width: 1279px) {
+    .page.calendar-page:has(.board--month) {
+      padding-inline: var(--space-2);
+    }
+  }
   @media (max-width: 1279px) {
     .calendar-workspace {
       grid-template-columns: minmax(0, 1fr);

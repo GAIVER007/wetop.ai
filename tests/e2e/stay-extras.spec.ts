@@ -90,7 +90,7 @@ test('поздний выезд и ранний заезд начисляютс�
 
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся

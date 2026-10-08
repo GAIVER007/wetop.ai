@@ -31,9 +31,9 @@ test('календарь: сводка дня карточкой справа, �
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
-  const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
-  expect(p.height).toBeLessThanOrEqual(190);
+  const c = (await page.locator('.calendar-workspace__main > .board-controls').boundingBox())!;
+  // Вертикальная сводка справа полностью помещается в рабочий экран.
+  expect(p.y + p.height).toBeLessThanOrEqual(page.viewportSize()!.height);
   expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
   await expect(panel.getByTestId('day-free')).toBeVisible();
   await expect(panel.getByTestId('day-units')).toHaveCount(0);

@@ -57,7 +57,7 @@ test('создать бронь с ячейкой → видна в календ
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
   const availabilityEnd = await page.getByRole('main').getByTestId('availability').textContent();

@@ -186,7 +186,7 @@ test('карточка брони: заселение в непроверенн�
 test('выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155)', async ({
   page,
 }) => {
-  // ячейка проверена и доступна — заселение без предупреждения
+  // Проверенная ячейка: явное подтверждение заселения до команды.
   await page.goto('/units/R01');
   const panel = page.getByRole('main').getByTestId('housekeeping-panel');
   await panel.getByTestId('hk-CLEAN').click();
@@ -196,10 +196,18 @@ test('выезд сам переводит ячейку в «требует уб
   await page.goto(`/reservations/${BOOKING}`);
   await actionsTab(page);
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  await page
+    .getByRole('dialog', { name: /Заселить в/ })
+    .getByRole('button', { name: 'Заселить', exact: true })
+    .click();
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   // выезд с долгом — окно с суммой, как и раньше
   await page.getByTestId('check-out-ui-item').filter({ visible: true }).click();
+  await page
+    .getByRole('dialog', { name: /Выселить из/ })
+    .getByRole('button', { name: 'Выселить', exact: true })
+    .click();
   await page
     .getByRole('dialog', { name: 'Выселить с долгом?' })
     .getByRole('button', { name: 'Выселить с долгом' })

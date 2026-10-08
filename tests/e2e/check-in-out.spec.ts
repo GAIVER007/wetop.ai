@@ -56,6 +56,7 @@ test('заселить → карточка и шахматка показыва
       )
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+    else await confirmDialog(page, 'Заселить');
   }
   await expect(page.getByRole('alert').first()).toContainText('гражданство');
   await cardTab(page, 'Обзор');
@@ -97,6 +98,7 @@ test('заселить → карточка и шахматка показыва
       )
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+    else await confirmDialog(page, 'Заселить');
   }
   // статус читаем в строке проживания: слово встречается ещё и в заголовке брони. Сначала итог, потом вкладка:
   // заселение — серверное действие, и по его ответу карточка возвращает вкладку, где его выполнили (#… адреса
@@ -114,6 +116,7 @@ test('заселить → карточка и шахматка показыва
   // статус обязан остаться «заселён».
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить');
   await expect(page.getByRole('main').getByTestId('debt-amount')).toContainText('Долг');
   await confirmDialog(page, 'Оставить');
   await cardTab(page, 'Обзор');
@@ -124,6 +127,7 @@ test('заселить → карточка и шахматка показыва
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить');
   await confirmDialog(page, 'Выселить с долгом');
   // итог действия — до смены вкладки (см. заселение выше)
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
@@ -152,8 +156,9 @@ test('заселить → карточка и шахматка показыва
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   await cardTab(page, 'Действия');
-  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
-  await confirmDialog(page, 'Отметить незаезд');
+  await page.getByRole('main').locator('[data-testid^="cancel-stay-"]').click();
+  await page.getByRole('dialog').getByLabel('Причина отмены').selectOption('no_show');
+  await confirmDialog(page, 'Подтвердить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке; итог — до смены вкладки
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
   await cardTab(page, 'Обзор');

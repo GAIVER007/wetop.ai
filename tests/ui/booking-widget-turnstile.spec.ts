@@ -258,6 +258,9 @@ test('ключ создания: после отказа проверки нов
   await expect(page.locator('[data-pmsw="msg"]')).toContainText('Проверка устарела');
   await expect.poll(() => tsState(page).then((t) => t.resets)).toBe(1);
   await expect(submit).toBeDisabled();
+  // ждём, пока виджет получит 403 и сбросит проверку: кнопка гаснет уже от щелчка, и новый токен,
+  // решённый до ответа сервера, сброс стёр бы, а кнопка осталась бы выключенной (CI #145 и #148)
+  await expect.poll(() => tsState(page).then((t) => t.resets)).toBe(1);
   await solve(page, 'tok-new');
   await expect(submit).toBeEnabled();
   await submit.click();

@@ -97,8 +97,30 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/site': 'settings',
   'POST /marketing/site': 'settings',
   'GET /marketing/site/brief': 'settings',
+  'POST /marketing/site/generations': 'settings',
+  'GET /marketing/site/generations/:id': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions/:id': 'settings',
+  'GET /marketing/site/versions/:id/diff': 'settings',
+  'POST /marketing/site/versions/:id/restore': 'settings',
+  // MKT7: превью, публикация, журнал, откат, пауза, архив и сайт брони филиала (Q-275)
+  'POST /marketing/site/preview': 'settings',
+  'POST /marketing/site/publish': 'settings',
+  'POST /marketing/site/pause': 'settings',
+  'POST /marketing/site/resume': 'settings',
+  'POST /marketing/site/rollback': 'settings',
+  'POST /marketing/site/archive': 'settings',
+  'GET /marketing/site/publications': 'settings',
+  'GET /marketing/site/booking-source': 'settings',
+  'PUT /marketing/site/booking-source': 'settings',
+  'GET /marketing/site/assets': 'settings',
+  'POST /marketing/site/assets': 'settings',
+  'PATCH /marketing/site/assets/:id': 'settings',
+  'DELETE /marketing/site/assets/:id': 'settings',
+  'GET /marketing/site/assets/channex': 'settings',
+  'POST /marketing/site/assets/channex/import': 'settings',
   'GET /food-service/areas': 'desk',
   'POST /food-service/areas': 'property',
   'PATCH /food-service/areas/:id': 'property',
@@ -228,6 +250,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
   'GET /sites-runtime/current': 'service',
+  'GET /sites-runtime/preview': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -436,12 +459,27 @@ describe('права маршрутов API (ADR-107)', () => {
     expect(actual).toEqual(EXPECTED);
   });
 
-  it('MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет', async () => {
+  it('MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет', async () => {
     const actual = await routes();
     const runtime = Object.keys(actual).filter((key) => /\/sites-runtime(\/|$)/.test(key));
-    expect(runtime).toEqual(['GET /sites-runtime/current']);
-    const byId = Object.keys(actual).filter((key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key));
-    expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
+    expect(runtime.sort()).toEqual(['GET /sites-runtime/current', 'GET /sites-runtime/preview']);
+    // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
+    // MKT8: ассет по id только правится (ALT) и удаляется; чтения ассета по id нет ни у управления, ни у рантайма
+    // MKT9: версия по id читается, сравнивается и восстанавливается только управлением (вошедший, `settings`, строгий
+    // scope филиала); рантайм по-прежнему видит только текущую опубликованную версию и превью по токену
+    const allowed = [
+      'GET /marketing/site/generations/:id',
+      'PATCH /marketing/site/assets/:id',
+      'DELETE /marketing/site/assets/:id',
+      'GET /marketing/site/versions/:id',
+      'GET /marketing/site/versions/:id/diff',
+      'POST /marketing/site/versions/:id/restore',
+    ];
+    const byId = Object.keys(actual).filter(
+      (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),
+    );
+    expect(byId, 'по id только явно перечисленные маршруты управления').toEqual([]);
+    expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.test(key))).toEqual([]);
   });
 
   it('замок ролей стоит сразу за замком входа: без сессии роль не узнать', () => {

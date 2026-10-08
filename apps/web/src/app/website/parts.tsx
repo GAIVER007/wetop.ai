@@ -27,6 +27,19 @@ export function WebsiteTabs({ current }: { current: WebsiteView }) {
 }
 
 /**
+ * MKT7: сайт счётчика управляемого сайта WETOP настраивает только публикация. Здесь его не правят и не удаляют
+ * (API ответит 409 MANAGED_SITE_READ_ONLY), поэтому вместо формы строка со ссылкой туда, где он настраивается
+ */
+export function ManagedSitesNotice({ cards }: { cards: TrackedSiteCard[] }) {
+  return cards.map((card) => (
+    <Notice tone="muted" key={card.site.id} data-testid="website-managed-site">
+      «{card.site.name}» это сайт WETOP: домены, пауза и бронь настраиваются в{' '}
+      <Link href="/marketing/site">«Маркетинг → Публикация сайта»</Link>.
+    </Notice>
+  ));
+}
+
+/**
  * Сайта нет или у него только домен-заглушка: пустое состояние, а не «сайт» с зелёным статусом. Заготовку в базе
  * не трогаем — её ключ уже в выданном коде для сайта; достаточно вписать настоящий адрес в «Настройках».
  */

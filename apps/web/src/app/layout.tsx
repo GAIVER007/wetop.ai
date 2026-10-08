@@ -1,3 +1,12 @@
+// CSS первым: globals.css объявляет порядок слоёв каскада (DESIGN.md §20.6), и любой CSS,
+// импортированный компонентом выше, объявил бы свой слой раньше и перевернул порядок (MV8.5 DS0b).
+import './globals.css';
+import './components.css';
+import './workspace.css';
+import './tokens.css';
+import './premium.css';
+import '../components/shell/sidebar.css';
+import '../components/shell/top-menu.css';
 import { headers } from 'next/headers';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
@@ -17,19 +26,6 @@ import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
-import './globals.css';
-import './workspace.css';
-import './today/desk.css';
-import './today/dashboard.css';
-import './management/hotel.css';
-import './tokens.css';
-import './premium.css';
-import '../components/shell/sidebar.css';
-import '../components/shell/top-menu.css';
-import './hotel-settings/settings.css';
-import './control.css';
-// Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).
-import './glass.css';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -52,8 +48,8 @@ function isPublicEntryPath(path: string): boolean {
 }
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
-  const shell=await deskShell();
-  if(shell.access.unknown) return 'Филиал недоступен';
+  const shell = await deskShell();
+  if (shell.access.unknown) return 'Филиал недоступен';
   if (shell.vertical !== 'HOSPITALITY') {
     const branch = await selectedWorkspaceBranch().catch(() => null);
     return branch
@@ -156,6 +152,6 @@ export default async function RootLayout({
 }
 
 async function WorkspaceAssistant({ desk }: { desk: Promise<DeskShell> }) {
-  const shell=await desk;
+  const shell = await desk;
   return shell.vertical !== 'HOSPITALITY' || shell.access.unknown ? null : <AssistantWidget />;
 }

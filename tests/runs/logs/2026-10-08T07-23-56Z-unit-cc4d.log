@@ -1,0 +1,94 @@
+# Модульные (unit) · 08.10.2026 12:23 Алматы · MacBook-Air-Urij.local
+# коммит f179d21 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 202
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-23-56Z-unit-cc4d.json' 'tests/unit/unified-section-layer.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ❯ |unit| tests/unit/unified-section-layer.test.ts (2 tests | 2 failed) 27ms
+   × calendar-workspace retains the selected DS0b sections cascade 20ms
+   × reservation-actions retains the selected DS0b sections cascade 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/unified-section-layer.test.ts > calendar-workspace retains the selected DS0b sections cascade
+AssertionError: expected [ '.calendar-workspace', …(29) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".calendar-workspace",
++   ".calendar-workspace:not(:has(> .calendar-workspace__summary))",
++   ".calendar-workspace__main",
++   ".calendar-workspace__main > .board-wrap",
++   ".calendar-workspace__summary",
++   ".calendar-workspace__summary > summary",
++   ".calendar-workspace__summary .board-day-panel",
++   ".calendar-workspace__summary .board-day-panel__title",
++   ".calendar-workspace__summary .board-day-panel__columns",
++   ".calendar-workspace__summary .board-day-panel__col + .board-day-panel__col",
++   ".calendar-workspace__summary .board-day-panel__row",
++   ".calendar-workspace__summary .board-day-panel__row > b",
++   ".calendar-page:has(.calendar-workspace[data-expanded='true'])",
++   ".calendar-workspace",
++   ".calendar-workspace__summary",
++   ".calendar-workspace__summary > summary",
++   ".calendar-workspace__summary .board-day-panel",
++   ".calendar-workspace__summary .board-day-panel__title",
++   ".calendar-workspace__summary .board-day-panel__columns",
++   ".calendar-workspace__summary .board-day-panel__col + .board-day-panel__col",
++   ".calendar-workspace",
++   ".calendar-workspace__main > .board-wrap",
++   ".calendar-page:has(.calendar-workspace[data-expanded='true'])",
++   "body:has(.calendar-workspace[data-expanded='true'])",
++   ".calendar-workspace__summary .board-day-panel",
++   ".calendar-workspace__summary .board-day-panel__title",
++   ".calendar-workspace__summary .board-day-panel__columns",
++   ".calendar-workspace__summary .board-day-panel__col + .board-day-panel__col",
++   ".calendar-workspace__summary .board-day-panel__row",
++   ".calendar-workspace__summary .board-day-panel__row > b",
++ ]
+
+ ❯ tests/unit/unified-section-layer.test.ts:27:24
+     25|     });
+     26|     expect(checked).toBeGreaterThan(0);
+     27|     expect(violations).toEqual([]);
+       |                        ^
+     28|   });
+     29| }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/unified-section-layer.test.ts > reservation-actions retains the selected DS0b sections cascade
+AssertionError: expected [ '.reservation-actions .panel', …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".reservation-actions .panel",
++   ".reservation-actions .row",
++   ".reservation-actions select",
++ ]
+
+ ❯ tests/unit/unified-section-layer.test.ts:27:24
+     25|     });
+     26|     expect(checked).toBeGreaterThan(0);
+     27|     expect(violations).toEqual([]);
+       |                        ^
+     28|   });
+     29| }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  11:23:57
+   Duration  241ms (import 42%, tests 32%, transform 22%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-23-56Z-unit-cc4d.json
+
+# код выхода 1 · 1 с

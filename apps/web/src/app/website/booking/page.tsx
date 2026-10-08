@@ -7,7 +7,8 @@ import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
 import { BookingSettings, InstallWidgetButton } from '../forms';
-import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
+import { ManagedSitesNotice, MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
+import '../website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -16,11 +17,14 @@ import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
  */
 export default async function WebsiteBookingPage() {
   const sites = await analyticsApi.sites();
-  const [cards, plans, settings] = await Promise.all([
+  const [all, plans, settings] = await Promise.all([
     Promise.all(sites.map((s) => analyticsApi.card(s.id))),
     reservationsApi.ratePlans().catch(() => null),
     hotelApi.settings().catch(() => null),
   ]);
+  // MKT7: бронь сайта WETOP настраивает публикация, здесь только ссылка туда
+  const cards = all.filter((c) => !c.site.managed);
+  const managed = all.filter((c) => c.site.managed);
   return (
     <Page
       crumbs={<MarketingCrumb />}
@@ -28,9 +32,10 @@ export default async function WebsiteBookingPage() {
       subtitle="Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS."
     >
       <WebsiteTabs current="booking" />
-      {cards.length === 0 ? (
+      <ManagedSitesNotice cards={managed} />
+      {cards.length === 0 && managed.length === 0 ? (
         <WebsiteNotConnected drafts={[]} />
-      ) : (
+      ) : cards.length === 0 ? null : (
         <div className="settings-site">
           <Stack>
             {cards.map((card) => (
@@ -127,8 +132,7 @@ function SiteBooking({
         {/* ADR-144: языки и письмо-подтверждение сделаны; дети и SMS не решены, предоплата — срез платёжных ссылок */}
         <p className="hint" data-testid="booking-guest-limits">
           Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю,
-          предоплату.
-          Скидка тарифа и промокода не суммируется: гостю применяется большая.
+          предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.
         </p>
       </Panel>
 

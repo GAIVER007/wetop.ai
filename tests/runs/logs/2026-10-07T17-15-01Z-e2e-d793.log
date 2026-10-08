@@ -1,0 +1,55 @@
+# Сквозные (e2e) · 07.10.2026 22:15 Алматы · vm
+# коммит 508ce0c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/requests.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.2s)
+  ✓   2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (9.1s)
+  ✓   3 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (2.7s)
+  ✓   4 tests/ui/marketing.spec.ts:135:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (6.3s)
+  ✓   5 tests/ui/marketing.spec.ts:157:3 › хаб на компьютере и телефоне, доступность: light (6.3s)
+  ✓   6 tests/ui/marketing.spec.ts:157:3 › хаб на компьютере и телефоне, доступность: dark (6.3s)
+  ✓   7 tests/ui/marketing.spec.ts:198:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (8.6s)
+  ✓   8 tests/ui/requests.spec.ts:81:3 › экран /today: данные берутся одним запросом на путь (2.3s)
+  ✓   9 tests/ui/requests.spec.ts:81:3 › экран /chessboard: данные берутся одним запросом на путь (3.8s)
+  ✓  10 tests/ui/requests.spec.ts:81:3 › экран /reservations: данные берутся одним запросом на путь (3.0s)
+  ✓  11 tests/ui/requests.spec.ts:81:3 › экран /guests: данные берутся одним запросом на путь (2.9s)
+  ✓  12 tests/ui/requests.spec.ts:81:3 › экран /inventory: данные берутся одним запросом на путь (3.1s)
+  ✓  13 tests/ui/requests.spec.ts:81:3 › экран /rooms/categories: данные берутся одним запросом на путь (3.6s)
+  ✓  14 tests/ui/requests.spec.ts:81:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.3s)
+  ✓  15 tests/ui/requests.spec.ts:81:3 › экран /management/analytics: данные берутся одним запросом на путь (3.0s)
+  ✓  16 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (3.0s)
+  ✓  17 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/units: данные берутся одним запросом на путь (3.6s)
+  ✓  18 tests/ui/requests.spec.ts:81:3 › экран /finance: данные берутся одним запросом на путь (3.4s)
+  ✓  19 tests/ui/requests.spec.ts:81:3 › экран /reports: данные берутся одним запросом на путь (2.9s)
+  ✓  20 tests/ui/requests.spec.ts:81:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.3s)
+  ✓  21 tests/ui/requests.spec.ts:81:3 › экран /channels: данные берутся одним запросом на путь (3.8s)
+  ✓  22 tests/ui/requests.spec.ts:81:3 › экран /connections/channex: данные берутся одним запросом на путь (2.5s)
+  ✓  23 tests/ui/requests.spec.ts:81:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.1s)
+  ✓  24 tests/ui/requests.spec.ts:81:3 › экран /channels/sync: данные берутся одним запросом на путь (2.3s)
+  ✓  25 tests/ui/requests.spec.ts:81:3 › экран /channels/events: данные берутся одним запросом на путь (2.2s)
+  ✓  26 tests/ui/requests.spec.ts:81:3 › экран /marketing: данные берутся одним запросом на путь (1.9s)
+  ✓  27 tests/ui/requests.spec.ts:81:3 › экран /website: данные берутся одним запросом на путь (2.0s)
+  ✓  28 tests/ui/requests.spec.ts:81:3 › экран /website/booking: данные берутся одним запросом на путь (1.9s)
+  ✓  29 tests/ui/requests.spec.ts:81:3 › экран /website/analytics: данные берутся одним запросом на путь (2.2s)
+  ✓  30 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.5s)
+  ✓  31 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (2.1s)
+  ✓  32 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.3s)
+  ✓  33 tests/ui/requests.spec.ts:81:3 › экран /team: данные берутся одним запросом на путь (2.6s)
+  ✓  34 tests/ui/requests.spec.ts:81:3 › экран /connections: данные берутся одним запросом на путь (2.7s)
+  ✓  35 tests/ui/requests.spec.ts:81:3 › экран /ai-agents: данные берутся одним запросом на путь (2.3s)
+  ✓  36 tests/ui/requests.spec.ts:81:3 › экран /website/settings: данные берутся одним запросом на путь (1.9s)
+  ✓  37 tests/ui/requests.spec.ts:81:3 › экран /incidents: данные берутся одним запросом на путь (2.6s)
+  ✓  38 tests/ui/requests.spec.ts:81:3 › экран /journal: данные берутся одним запросом на путь (3.1s)
+  ✓  39 tests/ui/requests.spec.ts:81:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (3.3s)
+
+  39 passed (2.4m)
+
+# код выхода 0 · 2 мин 28 с

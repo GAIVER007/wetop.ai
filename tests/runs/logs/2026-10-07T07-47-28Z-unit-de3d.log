@@ -1,0 +1,76 @@
+# Модульные (unit) · 07.10.2026 12:47 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-47-28Z-unit-de3d.json' 'apps/web/src/app/management/analytics/vertical'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ❯ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests | 1 failed) 639ms
+   ❯ MV9 period reconciliation (5)
+     ✓ sums only DONE price snapshots without floating point or currency conversion 72ms
+     ✓ does not silently double count duplicate records or accept unknown statuses 2ms
+     ✓ restaurant counters do not invent financial values 0ms
+     ✓ enumerates valid local dates over DST and leap days, rejects impossible or excessive periods 16ms
+     × formats exact money including currencies with different minor units 543ms
+ ❯ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests | 1 failed) 481ms
+   ✓ MV9 scoped report adapters (2)
+     ✓ checks day and location identity before counting actual snapshots 447ms
+     ✓ does not mislabel another date or count appointments outside the local date 4ms
+   × Food period excludes previous-day overlap and rejects a foreign Location response 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/vertical/load.test.ts > Food period excludes previous-day overlap and rejects a foreign Location response
+AssertionError: promise resolved "{ counts: { BOOKED: 1, …(5) }, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "counts": {
++     "BOOKED": 1,
++     "CANCELLED": 0,
++     "COMPLETED": 0,
++     "CONFIRMED": 0,
++     "NO_SHOW": 0,
++     "SEATED": 0,
++   },
++   "revenue": null,
+  }
+
+ ❯ apps/web/src/app/management/analytics/vertical/load.test.ts:31:55
+     29|   expect(await loadBranchPeriod(food, ['2026-10-07'])).toMatchObject({…
+     30|   read.mockResolvedValue({ items: [{ ...reservation, locationId: 'fore…
+     31|   await expect(loadBranchPeriod(food, ['2026-10-07'])).rejects.toThrow…
+       |                                                       ^
+     32| });
+     33|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts > MV9 period reconciliation > formats exact money including currencies with different minor units
+AssertionError: expected '-1,-23KZT' to be '-1,23KZT' // Object.is equality
+
+Expected: "-1,23KZT"
+Received: "-1,-23KZT"
+
+ ❯ apps/web/src/app/management/analytics/vertical/metrics.test.ts:30:57
+     28|   it('formats exact money including currencies with different minor un…
+     29|     expect(moneyText('9007199254741000', 'KZT').replace(/\s/g, '')).to…
+     30|     expect(moneyText('-123', 'KZT').replace(/\s/g, '')).toBe('-1,23KZT…
+       |                                                         ^
+     31|     expect(moneyText('123', 'JPY').replace(/\s/g, '')).toBe('123JPY');
+     32|     expect(moneyText('1234', 'KWD').replace(/\s/g, '')).toBe('1,234KWD…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 6 passed (8)
+   Start at  11:47:47
+   Duration  2.21s (transform 46%, tests 43%, import 9%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-47-28Z-unit-de3d.json
+
+# код выхода 1 · 21 с

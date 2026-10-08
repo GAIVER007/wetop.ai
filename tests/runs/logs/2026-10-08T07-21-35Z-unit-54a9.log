@@ -1,0 +1,17 @@
+# Модульные (unit) · 08.10.2026 12:21 Алматы · MacBook-Air-Urij.local
+# коммит f179d21 (codex/unified-acceptance-20261007), незакоммиченных файлов набора: 201
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-21-35Z-unit-54a9.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-unified-acceptance-20261007
+
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 58ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  11:21:37
+   Duration  381ms (import 69%, tests 15%, transform 14%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-08T07-21-35Z-unit-54a9.json
+
+# код выхода 0 · 2 с

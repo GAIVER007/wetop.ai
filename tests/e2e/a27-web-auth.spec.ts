@@ -23,7 +23,7 @@ const privateData = parent
       org: string;
       scopes: Record<
         string,
-        { property: string; location: string; business: string; currency: string }
+        { property: string; location: string; business: string; currency: string; name?: string }
       >;
     })
   : { email: '', password: '', user: '', org: '', scopes: {} };
@@ -97,6 +97,7 @@ function protectedMarkers() {
       scope.property,
       scope.location,
       scope.business,
+      scope.name ?? '',
     ]),
   ].filter(Boolean);
 }

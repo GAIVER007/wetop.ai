@@ -25,6 +25,7 @@ import { DateInput } from '../../../components/date-field';
 import { DailyChart } from './daily-chart';
 import { MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
+import '../website.css';
 
 const MAX_PERIOD_DAYS = 366;
 const periodDays = (from: string, to: string) =>
@@ -86,7 +87,11 @@ export default async function AnalyticsPage({
       else failure = e;
     }
   return (
-    <Page crumbs={<MarketingCrumb />} title={WEBSITE_TITLE} subtitle={<span data-testid="an-site-name">{site.name}</span>}>
+    <Page
+      crumbs={<MarketingCrumb />}
+      title={WEBSITE_TITLE}
+      subtitle={<span data-testid="an-site-name">{site.name}</span>}
+    >
       <WebsiteTabs current="analytics" />
       {!primaryHost(site) && (
         <Notice className="block" data-testid="an-domain-missing">

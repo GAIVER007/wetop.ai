@@ -14,6 +14,7 @@ import {
 import { FoodToday } from './food-today';
 import { TodayScopeContent } from './scope-content';
 import { HospitalityToday } from './hospitality-today';
+import './desk.css';
 
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление

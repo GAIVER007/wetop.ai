@@ -19,6 +19,7 @@ import {
 } from '../settings-form';
 import { SaveAction, SettingsSave } from '../settings-save';
 import { currentMe, deskShell } from '../../../lib/desk-shell';
+import '../settings.css';
 
 /**
  * «Настройки объекта» (ТЗ «Настройки объекта» v2, срез SET1, ADR-115): один заголовок на три вкладки. Правила отмены

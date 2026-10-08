@@ -1,224 +1,222 @@
 /* Страница компонентов: только раскладка витрины. Вид самих компонентов: globals.css и токены. */
-.kit-theme-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-  padding: var(--space-2) var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  flex-wrap: wrap;
-}
-.kit-theme-bar__label {
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--text-2);
-}
-.kit-theme-bar__seg {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-.kit-themes {
-  display: grid;
-  /* колонка не шире контейнера: иначе широкое демо (таблица min-width 520) распирало витрину
+@layer sections {
+  .kit-theme-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    flex-wrap: wrap;
+  }
+  .kit-theme-bar__label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .kit-theme-bar__seg {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .kit-themes {
+    display: grid;
+    /* колонка не шире контейнера: иначе широкое демо (таблица min-width 520) распирало витрину
      за 390px, ведь grid-элемент по умолчанию min-width:auto и не сжимается (разбор 22.09) */
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-8);
-}
-.kit-themes--filter-light .kit-theme:not([data-theme='light']) {
-  display: none;
-}
-.kit-themes--filter-dark .kit-theme:not([data-theme='dark']) {
-  display: none;
-}
-.kit-themes--filter-contrast .kit-theme:not([data-theme='contrast']) {
-  display: none;
-}
-.kit-theme {
-  min-width: 0;
-  padding: var(--space-6);
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color-scheme: light;
-}
-.kit-theme[data-theme='dark'] {
-  color-scheme: dark;
-}
-.kit-theme[data-theme='contrast'] {
-  color-scheme: light;
-}
-/* Обёртка .table-scroll у компонента Table получает прокрутку точечно на каждом экране (дашборд,
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+  .kit-themes--filter-light .kit-theme:not([data-theme='light']) {
+    display: none;
+  }
+  .kit-themes--filter-dark .kit-theme:not([data-theme='dark']) {
+    display: none;
+  }
+  .kit-themes--filter-contrast .kit-theme:not([data-theme='contrast']) {
+    display: none;
+  }
+  .kit-theme {
+    min-width: 0;
+    padding: var(--space-6);
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color-scheme: light;
+  }
+  .kit-theme[data-theme='dark'] {
+    color-scheme: dark;
+  }
+  .kit-theme[data-theme='contrast'] {
+    color-scheme: light;
+  } /* Обёртка .table-scroll у компонента Table получает прокрутку точечно на каждом экране (дашборд,
    брони). На витрине компонентов такого правила не было — демо-таблица (min-width 520) распирала
    страницу за 390px. Даём прокрутку в пределах витрины (разбор 22.09). */
-.kit-theme .table-scroll {
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: auto;
-}
-/* В витрине календарь «поля даты» раскрыт сразу (defaultOpen, position:static). .date-field —
+  .kit-theme .table-scroll {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+  } /* В витрине календарь «поля даты» раскрыт сразу (defaultOpen, position:static). .date-field —
    inline-flex в ряд, поэтому встроенный поповер (296px) вставал СПРАВА и распирал строку за 390px.
    Переносим его под поле только в демо; в бою поповер плавающий (position:fixed) и это не трогает. */
-.kit-theme .kit-date-demo .date-field {
-  flex-wrap: wrap;
-}
-.kit-theme__title {
-  margin: 0 0 var(--space-6);
-  font-size: var(--text-2xl);
-}
-.kit-component {
-  padding: var(--space-6) 0;
-  border-top: 1px solid var(--border);
-}
-.kit-component__title {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-lg);
-}
-.kit-component__where {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-.kit-states {
-  display: grid;
-  gap: var(--space-4);
-}
-.kit-state {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: var(--space-4);
-  align-items: start;
-}
-.kit-state__label {
-  font-size: var(--text-sm);
-  color: var(--text-2);
-  padding-top: var(--space-2);
-}
-.kit-state__note {
-  color: var(--muted);
-}
-.kit-state__body {
-  min-width: 0;
-}
-.kit-swatches {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-.kit-swatch {
-  display: grid;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  /* имя токена в <code> длинное и неразрывное — без переноса оно распирало ячейку (224px),
-     а с ней и всю витрину за 390px (разбор 22.09). На широких ширинах перенос не нужен и не влияет. */
-  min-width: 0;
-}
-.kit-swatch code,
-.kit-swatch__label {
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
-.kit-swatch__color {
-  height: var(--space-8);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-.kit-swatch__label {
-  color: var(--muted);
-}
-.kit-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-.kit-status {
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-xs);
-  font-size: var(--text-xs);
-  color: var(--text);
-}
-.kit-space {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-}
-.kit-space i {
-  display: inline-block;
-  height: var(--space-4);
-  background: var(--primary-soft);
-  border: 1px solid var(--primary);
-}
-.kit-radius {
-  display: inline-grid;
-  place-items: center;
-  width: 120px;
-  height: var(--space-12);
-  border: 1px solid var(--border-input);
-  background: var(--surface);
-  font-size: var(--text-xs);
-}
-.kit-type {
-  display: grid;
-  gap: var(--space-2);
-}
-.kit-type code {
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.kit-icons {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: var(--space-2);
-}
-.kit-icon {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--text-2);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-.kit-static {
-  position: static;
-  display: block;
-  width: max-content;
-}
-.kit-hover {
-  background: var(--row-hover);
-}
-.kit-tooltip-open {
-  margin-top: var(--space-8);
-}
-.kit-disabled-host {
-  display: inline-block;
-}
-.kit-theme .confirm-dialog--static {
-  max-width: 100%;
-}
-@media (max-width: 760px) {
+  .kit-theme .kit-date-demo .date-field {
+    flex-wrap: wrap;
+  }
+  .kit-theme__title {
+    margin: 0 0 var(--space-6);
+    font-size: var(--text-2xl);
+  }
+  .kit-component {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--border);
+  }
+  .kit-component__title {
+    margin: 0 0 var(--space-1);
+    font-size: var(--text-lg);
+  }
+  .kit-component__where {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .kit-states {
+    display: grid;
+    gap: var(--space-4);
+  }
   .kit-state {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
   }
-  .kit-theme .tooltip-host {
-    width: 100%;
+  .kit-state__label {
+    font-size: var(--text-sm);
+    color: var(--text-2);
+    padding-top: var(--space-2);
   }
-  .kit-theme .tooltip {
+  .kit-state__note {
+    color: var(--muted);
+  }
+  .kit-state__body {
+    min-width: 0;
+  }
+  .kit-swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .kit-swatch {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    /* имя токена в <code> длинное и неразрывное — без переноса оно распирало ячейку (224px),
+     а с ней и всю витрину за 390px (разбор 22.09). На широких ширинах перенос не нужен и не влияет. */
+    min-width: 0;
+  }
+  .kit-swatch code,
+  .kit-swatch__label {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .kit-swatch__color {
+    height: var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .kit-swatch__label {
+    color: var(--muted);
+  }
+  .kit-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .kit-status {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
+    color: var(--text);
+  }
+  .kit-space {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .kit-space i {
+    display: inline-block;
+    height: var(--space-4);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary);
+  }
+  .kit-radius {
+    display: inline-grid;
+    place-items: center;
+    width: 120px;
+    height: var(--space-12);
+    border: 1px solid var(--border-input);
+    background: var(--surface);
+    font-size: var(--text-xs);
+  }
+  .kit-type {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .kit-type code {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .kit-icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--space-2);
+  }
+  .kit-icon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .kit-static {
+    position: static;
+    display: block;
+    width: max-content;
+  }
+  .kit-hover {
+    background: var(--row-hover);
+  }
+  .kit-tooltip-open {
+    margin-top: var(--space-8);
+  }
+  .kit-disabled-host {
+    display: inline-block;
+  }
+  .kit-theme .confirm-dialog--static {
     max-width: 100%;
   }
-}
-
-/* поле даты: раскрытый календарь должен попасть в снимок секции */
-.kit-date-demo {
-  min-height: 400px;
-  align-items: flex-start;
+  @media (max-width: 760px) {
+    .kit-state {
+      grid-template-columns: 1fr;
+    }
+    .kit-theme .tooltip-host {
+      width: 100%;
+    }
+    .kit-theme .tooltip {
+      max-width: 100%;
+    }
+  } /* поле даты: раскрытый календарь должен попасть в снимок секции */
+  .kit-date-demo {
+    min-height: 400px;
+    align-items: flex-start;
+  }
 }

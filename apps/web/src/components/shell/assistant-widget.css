@@ -1,25 +1,23 @@
 /*
  * Виджет ИИ-помощника (ТЗ П2) — чужая разметка: скрипт бота кладёт её в body с классами .pmsw-* и своими
  * стилями (docs/assistant/README.md §1). Здесь только то, что касается раскладки стойки.
- */
-
-/* На телефоне внизу стойки навигация (premium.css, до 600 px): пузырь и окно чата поднимаются над ней,
+ */ /* На телефоне внизу стойки навигация (premium.css, до 600 px): пузырь и окно чата поднимаются над ней,
    иначе пузырь закрывает последний пункт меню. body — чтобы перебить стили виджета без !important. */
-@media (max-width: 600px) {
-  body .pmsw-b {
-    bottom: calc(var(--space-16) + var(--space-6) + env(safe-area-inset-bottom, 0px));
-  }
-  body .pmsw-p {
-    bottom: calc(var(--space-16) * 2 + var(--space-10) + env(safe-area-inset-bottom, 0px));
-    max-height: calc(
-      100vh - var(--space-16) * 3 - var(--space-10) - env(safe-area-inset-bottom, 0px)
-    );
-  }
-}
-
-/* На печати (счёт, договор) пузыря нет: fixed-элемент печатается на каждой странице */
-@media print {
-  body .pmsw {
-    display: none;
+@layer sections {
+  @media (max-width: 600px) {
+    body .pmsw-b {
+      bottom: calc(var(--space-16) + var(--space-6) + env(safe-area-inset-bottom, 0px));
+    }
+    body .pmsw-p {
+      bottom: calc(var(--space-16) * 2 + var(--space-10) + env(safe-area-inset-bottom, 0px));
+      max-height: calc(
+        100vh - var(--space-16) * 3 - var(--space-10) - env(safe-area-inset-bottom, 0px)
+      );
+    }
+  } /* На печати (счёт, договор) пузыря нет: fixed-элемент печатается на каждой странице */
+  @media print {
+    body .pmsw {
+      display: none;
+    }
   }
 }

@@ -7597,3 +7597,6 @@
 | 08.10.2026 14:54 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ упало 1 из 349 | 24 мин 56 с | 1195291 | [лог](logs/2026-10-08T09-54-53Z-e2e-b5c1.log) | создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик |
 | 08.10.2026 15:20 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts tests/ui/loading-performance.spec.ts --workers=1) | ✅ 18 из 18 | 1 мин 28 с | ebf6e88 | [лог](logs/2026-10-08T10-20-01Z-e2e-d536.log) |  |
 | 08.10.2026 15:23 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/reservations-design.spec.ts tests/ui/re | ❌ упало 2 из 60 | 4 мин 19 с | ebf6e88 +1 | [лог](logs/2026-10-08T10-23-59Z-e2e-c5a2.log) | axe и эталонные снимки секций: light |
+| 08.10.2026 18:26 | typecheck | ✅ без ошибок | 39 с | aec176c | [лог](logs/2026-10-08T13-26-27Z-typecheck-0773.log) |  |
+| 08.10.2026 18:27 | lint | ✅ без ошибок | 31 с | aec176c | [лог](logs/2026-10-08T13-27-06Z-lint-503e.log) |  |
+| 08.10.2026 18:27 | unit | ✅ 4111 из 4114, пропущено 3 | 1 мин 54 с | aec176c | [лог](logs/2026-10-08T13-27-39Z-unit-fc1b.log) |  |

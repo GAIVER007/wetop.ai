@@ -7592,3 +7592,4 @@
 | 08.10.2026 13:45 | lint | ✅ без ошибок | 40 с | 5c2ed16 +33 | [лог](logs/2026-10-08T08-45-06Z-lint-c724.log) |  |
 | 08.10.2026 13:45 | unit | ✅ 4077 из 4080, пропущено 3 | 2 мин 1 с | 5c2ed16 +27 | [лог](logs/2026-10-08T08-45-48Z-unit-1309.log) |  |
 | 08.10.2026 13:49 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 5c2ed16 +30 | [лог](logs/2026-10-08T08-49-25Z-e2e-99cf.log) |  |
+| 08.10.2026 13:50 | e2e (частично: -c tests/ui/playwright.config.ts --shard=1/3 --workers=1) | ✅ 350 из 350 | 35 мин 42 с | df0cc01 | [лог](logs/2026-10-08T08-50-49Z-e2e-1281.log) |  |

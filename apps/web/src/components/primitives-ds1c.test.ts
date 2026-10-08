@@ -209,7 +209,8 @@ describe('Field required', () => {
   it('true: родное required у поля и знак после подписи, не только цветом', () => {
     const markup = field(true);
     expect(markup).toMatch(/<input[^>]*required/);
-    expect(markup).toMatch(/class="field__required" aria-hidden="true">\*</);
+    expect(markup).toContain('field__label field__label--required');
+    expect(markup).not.toContain('*');
     expect(markup).not.toContain('необязательно');
   });
   it('false: слово «необязательно», без required', () => {

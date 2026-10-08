@@ -389,6 +389,26 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
+/**
+ * MV8.5 DS1c: день журнала на общем `DateBar` ведёт по тем же адресам, что прежние ссылки: `?date=` у
+ * пути, «Сегодня» без даты; поле даты держит прежний `data-testid`. Стоит до онбординга: тот пересоздаёт
+ * организацию стенда, и сброс после него не работает.
+ */
+test('DS1c: day navigation keeps the previous addresses', async ({ page, request }) => {
+  await reset(page, request);
+  await page.goto('/calendar?date=2026-10-12');
+  const bar = page.locator('.date-bar');
+  await expect(bar.getByTestId('beauty-day-date')).toHaveValue('2026-10-12');
+  await bar.getByRole('button', { name: 'Следующий день' }).click();
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-13$/);
+  await bar.getByRole('button', { name: 'Предыдущий день' }).click();
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-12$/);
+  await bar.getByLabel('Дата', { exact: true }).fill('2026-10-20');
+  await expect(page).toHaveURL(/\/calendar\?date=2026-10-20$/);
+  await bar.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  await expect(page).toHaveURL(/\/calendar$/);
+});
+
 test('Beauty onboarding completion opens Today and resumes there', async ({ page, request }) => {
   await reset(page, request);
   await page.goto('/register/setup');

@@ -130,15 +130,11 @@ export function Field({
       {required === undefined ? (
         label
       ) : (
-        <span className="field__label">
+        // знак обязательности рисует CSS (`::after` с пустым альтернативным текстом): виден, но не входит
+        // ни в имя поля, ни в текст подписи; для читалки обязательность говорит родное `required`
+        <span className={cx('field__label', required && 'field__label--required')}>
           {label}
-          {required ? (
-            <span className="field__required" aria-hidden="true">
-              *
-            </span>
-          ) : (
-            <span className="field__optional">необязательно</span>
-          )}
+          {!required && <span className="field__optional">необязательно</span>}
         </span>
       )}
       {control}

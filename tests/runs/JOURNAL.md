@@ -7626,3 +7626,5 @@
 | 08.10.2026 22:00 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts --workers=1) | ❌ упало 6 из 22 | 4 мин 12 с | f0fcf86 | [лог](logs/2026-10-08T17-00-54Z-e2e-abf6.log) | axe и эталонные снимки секций: light |
 | 08.10.2026 22:06 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts --workers=1) | ❌ упало 1 из 10 | 1 мин 33 с | d009c82 | [лог](logs/2026-10-08T17-06-41Z-e2e-4a56.log) | поле: обязательное с родным required и знаком, необязательное словом |
 | 08.10.2026 22:08 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts --workers=1) | ✅ 10 из 10 | 1 мин 29 с | d009c82 +1 | [лог](logs/2026-10-08T17-08-20Z-e2e-1355.log) |  |
+| 08.10.2026 22:11 | typecheck | ✅ без ошибок | 1 мин 45 с | caa4a8f | [лог](logs/2026-10-08T17-11-23Z-typecheck-34df.log) |  |
+| 08.10.2026 22:13 | lint | ✅ без ошибок | 1 мин 10 с | caa4a8f | [лог](logs/2026-10-08T17-13-10Z-lint-060c.log) |  |

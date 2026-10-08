@@ -1725,7 +1725,8 @@
     font-weight: 500;
   }
   /* MV8.5 DS1c: обязательность поля; не задана: подпись прежняя */
-  .field__required {
+  .field__label--required::after {
+    content: '*' / '';
     margin-left: var(--space-1);
     color: var(--text-2);
   }

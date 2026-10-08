@@ -35,7 +35,7 @@ test('ресторан: день по прежним адресам, форма 
   await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
   const dialog = page.getByRole('dialog');
   const grid = dialog.locator('.form-grid');
-  await expect(grid.getByRole('textbox', { name: 'Дата', exact: true })).toHaveAttribute('required', '');
-  await expect(grid.getByRole('textbox', { name: 'Время', exact: true })).toHaveAttribute('required', '');
-  await expect(grid.locator('.field__required')).toHaveCount(2);
+  await expect(grid.getByLabel('Дата', { exact: true })).toHaveAttribute('required', '');
+  await expect(grid.getByLabel('Время', { exact: true })).toHaveAttribute('required', '');
+  await expect(grid.locator('.field__label--required')).toHaveCount(2);
 });

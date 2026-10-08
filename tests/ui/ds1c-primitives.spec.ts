@@ -107,7 +107,13 @@ test('поле: обязательное с родным required и знако�
   const section = kit(page).locator('section[data-component="form-grid"]');
   const name = section.getByRole('textbox', { name: 'Имя', exact: true });
   await expect(name).toHaveAttribute('required', '');
-  await expect(section.locator('.field__required').first()).toHaveText('*');
+  // знак виден (`::after`), но подпись и имя поля остаются «Имя»: прежние `getByLabel` не ломаются
+  await expect(section.getByLabel('Имя', { exact: true })).toHaveCount(1);
+  const mark = await section
+    .locator('.field__label--required')
+    .first()
+    .evaluate((el) => getComputedStyle(el, '::after').content);
+  expect(mark).toContain('*');
   const middle = section.getByLabel(/^Отчество/);
   await expect(middle).not.toHaveAttribute('required', /.*/);
   await expect(section.locator('.field__optional')).toHaveText('необязательно');

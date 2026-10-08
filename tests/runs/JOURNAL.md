@@ -7605,3 +7605,7 @@
 | 08.10.2026 19:31 | e2e (частично: -c tests/ui/playwright.config.ts --shard=2/3 --workers=1) | ❌ упало 2 из 357, пропущено 16 | 28 мин 54 с | a7f0cbb | [лог](logs/2026-10-08T14-31-13Z-e2e-b36a.log) | axe и эталонные снимки секций: light |
 | 08.10.2026 20:00 | e2e (частично: -c tests/ui/playwright.config.ts --shard=3/3 --workers=1) | ❌ упало 1 из 347 | 24 мин 37 с | 9ae57c4 | [лог](logs/2026-10-08T15-00-09Z-e2e-76a9.log) | создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик |
 | 08.10.2026 20:25 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts --workers=1 --repeat-each=3) | ✅ 36 из 36 | 2 мин 41 с | 9d2135f | [лог](logs/2026-10-08T15-25-19Z-e2e-bef8.log) |  |
+| 08.10.2026 20:29 | typecheck | ✅ без ошибок | 40 с | 620c54c | [лог](logs/2026-10-08T15-29-03Z-typecheck-ce8e.log) |  |
+| 08.10.2026 20:29 | lint | ✅ без ошибок | 33 с | 620c54c | [лог](logs/2026-10-08T15-29-43Z-lint-6754.log) |  |
+| 08.10.2026 20:30 | unit (частично: apps/web/src/components tests/unit/design-guards.test.ts tests/unit/design-primitive-owner.test.ts tests/unit/design-scale.test.ts tests/unit/de | ✅ 90 из 90 | 3 с | 620c54c | [лог](logs/2026-10-08T15-30-17Z-unit-2fa2.log) |  |
+| 08.10.2026 20:30 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1b-primitives.spec.ts --workers=1) | ✅ 7 из 7 | 50 с | 620c54c | [лог](logs/2026-10-08T15-30-26Z-e2e-4f81.log) |  |

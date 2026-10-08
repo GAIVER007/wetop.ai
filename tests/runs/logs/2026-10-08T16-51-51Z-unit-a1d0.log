@@ -1,0 +1,22 @@
+# Модульные (unit) · 08.10.2026 21:51 Алматы · vm
+# коммит 4e8894b (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 28
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T16-51-51Z-unit-a1d0.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/desk-glass.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (4 tests) 219ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 275ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 23ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 81ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 11ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 17ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (27 tests) 129ms
+
+ Test Files  7 passed (7)
+      Tests  88 passed (88)
+   Start at  16:51:53
+   Duration  3.76s (transform 62%, import 22%, tests 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-08T16-51-51Z-unit-a1d0.json
+
+# код выхода 0 · 5 с

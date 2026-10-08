@@ -5,7 +5,7 @@ import { redirect, unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
-import { DateInput } from '../../components/date-field';
+import { PeriodPicker } from '../../components/period-picker';
 import { Chip, ChipGroup } from '../../components/chip';
 import { Toolbar } from '../../components/toolbar';
 import { LoadError } from '../../components/load-error';
@@ -313,45 +313,29 @@ export default async function ReservationsPage({
             period={
               periodView && (
                 <DatesToggle defaultOpen={!isPreset || f.date !== 'stay'}>
-                  <ChipGroup as="nav" label="Готовые периоды" className="reservations-presets">
-                    {periodPresets.map(([label, p]) => (
-                      <Chip
-                        key={label}
-                        size="sm"
-                        href={href({ from: p.from, to: p.to, view: 'all', page: '1' })}
-                        selected={periodView && p.from === from && p.to === to}
-                      >
-                        {label}
-                      </Chip>
-                    ))}
-                  </ChipGroup>
-
-                  <Field inline label="С">
-                    <DateInput
-                      key={`from-${from}`}
-                      name="from"
-                      defaultValue={from}
-                      aria-label="Период: с"
-                    />
-                  </Field>
-                  <Field inline label="По">
-                    <DateInput
-                      key={`to-${to}`}
-                      name="to"
-                      rangeFromName="from"
-                      defaultValue={to}
-                      aria-label="Период: по"
-                    />
-                  </Field>
-                  <Field inline label="Дата относится к">
-                    <Select name="date" key={`date-${f.date}`} defaultValue={f.date}>
-                      {Object.entries(dateBases).map(([id, label]) => (
-                        <option key={id} value={id}>
-                          {label}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
+                  {/* общий PeriodPicker (MV8.5 DS1c): применяет кнопка «Показать», адрес прежний */}
+                  <PeriodPicker
+                    from={from}
+                    to={to}
+                    fromName="from"
+                    toName="to"
+                    presetsClassName="reservations-presets"
+                    presets={periodPresets.map(([label, p]) => ({
+                      label,
+                      href: href({ from: p.from, to: p.to, view: 'all', page: '1' }),
+                      selected: periodView && p.from === from && p.to === to,
+                    }))}
+                  >
+                    <Field inline label="Дата относится к">
+                      <Select name="date" key={`date-${f.date}`} defaultValue={f.date}>
+                        {Object.entries(dateBases).map(([id, label]) => (
+                          <option key={id} value={id}>
+                            {label}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                  </PeriodPicker>
                 </DatesToggle>
               )
             }

@@ -329,6 +329,20 @@
     border-right: 0;
     animation: drawer-in 180ms ease-out;
   }
+  /* Размер окна и панели (MV8.5 DS1c, DESIGN.md §8.2): md прежняя ширина основы выше, sm и lg из
+     токенов; на узком экране ширина не больше окна */
+  .ui-overlay--sm {
+    width: min(var(--overlay-w-sm), calc(100vw - 32px));
+  }
+  .ui-overlay--lg {
+    width: min(var(--overlay-w-lg), calc(100vw - 32px));
+  }
+  .ui-drawer.ui-overlay--sm {
+    width: min(var(--drawer-w-sm), 100vw);
+  }
+  .ui-drawer.ui-overlay--lg {
+    width: min(var(--drawer-w-lg), 100vw);
+  }
   @keyframes drawer-in {
     from {
       transform: translateX(32px);

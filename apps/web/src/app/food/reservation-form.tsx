@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormGrid } from '../../components/form-grid';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../components/ui';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
@@ -152,14 +153,15 @@ export function ReservationForm({
           )}
         </>
       )}
-      <div className="food-form-row">
-        <Field label="Дата">
-          <Input name="date" type="date" defaultValue={local.slice(0, 10)} required />
+      {/* общий FormGrid и обязательность словами Field (MV8.5 DS1c); остальные ряды формы: DS6 */}
+      <FormGrid columns={2}>
+        <Field label="Дата" required>
+          <Input name="date" type="date" defaultValue={local.slice(0, 10)} />
         </Field>
-        <Field label="Время">
-          <Input name="time" type="time" defaultValue={local.slice(11, 16)} required />
+        <Field label="Время" required>
+          <Input name="time" type="time" defaultValue={local.slice(11, 16)} />
         </Field>
-      </div>
+      </FormGrid>
       <Field label="Период обслуживания">
         <Select
           name="period"

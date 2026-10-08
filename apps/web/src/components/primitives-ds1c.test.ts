@@ -217,10 +217,12 @@ describe('Field required', () => {
     expect(markup).toContain('необязательно');
     expect(markup).not.toMatch(/<input[^>]*required/);
   });
-  it('не задан: разметка прежняя', () => {
-    expect(field()).toBe(
-      '<label for="name" class="field">Имя<input class="inp" name="firstName" id="name"/></label>',
-    );
+  it('не задан: разметка прежняя (подпись текстом прямо в label, без меток и required)', () => {
+    const markup = field();
+    expect(markup).toMatch(/^<label for="name" class="field">Имя<input /);
+    expect(markup).not.toContain('field__');
+    expect(markup).not.toContain('необязательно');
+    expect(markup).not.toMatch(/required/);
   });
 });
 

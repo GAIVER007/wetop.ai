@@ -24,3 +24,5 @@
 ## Выкладка
 
 Production не обновлён этой правкой. Сервер deployed e3fadd02bb8dbbae2d20028118819d576c064e30; release afe78398bd873e4e93f0aa5262416d447252ce93 остановлен на маркетинговых миграциях 60/61. Календарь не меняет schema и не требует миграций. Не обходить отказ сервера. После применения владельцем этих миграций и зелёного exact-SHA release-checks нужна штатная выкладка с проверкой SHA и рабочих маршрутов.
+
+Повторный unit-прогон семи упавших файлов с maxWorkers=1: 82 passed, 2 failed, 1 skipped. Таймауты и socket hang up не повторились. Остались ошибки Bash: repo-sync.sh:283 top_rel (unbound variable), shift-check.sh:61 day (unbound variable) на macOS. Эти скрипты задачей не изменены; не исправлялись в рамках календаря. Полный зелёный набор должен подтвердить Linux release-checks.

@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs';
+import { seedMarket } from './ds1c-market-seed';
 import { FIXTURE_API, test, type Page } from './fixtures';
 
 /**
@@ -8,6 +9,8 @@ import { FIXTURE_API, test, type Page } from './fixtures';
  */
 const phase = process.env['DS1C_CAPTURE'];
 const out = `reports/mv8-5-ds1c-2026-10-08/${phase}`;
+/** пересъёмка одного экрана: `DS1C_ONLY=market` (секции страницы компонентов тогда не снимаются) */
+const only = process.env['DS1C_ONLY'];
 
 const SCREENS: Array<{ name: string; route: string; open?: (page: Page) => Promise<void> }> = [
   { name: 'market', route: '/market' },
@@ -48,6 +51,7 @@ test.skip(!phase, 'только для сравнения DS1c: DS1C_CAPTURE=bef
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
+  await seedMarket(request);
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -57,7 +61,7 @@ for (const theme of ['light', 'dark'] as const) {
       mkdirSync(out, { recursive: true });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-      for (const s of SCREENS) {
+      for (const s of SCREENS.filter((x) => !only || x.name === only)) {
         await page.goto(s.route).catch(() => undefined);
         await page.waitForLoadState('networkidle').catch(() => undefined);
         if (s.open) await s.open(page).catch(() => undefined);
@@ -66,7 +70,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.screenshot({ path: `${out}/${s.name}-${width}-${theme}.png` });
       }
       // секции страницы компонентов: только на компьютере, на телефоне они повторяют те же состояния
-      if (width !== 1440) return;
+      if (width !== 1440 || only) return;
       await page.goto('/design-system');
       await page.waitForLoadState('networkidle').catch(() => undefined);
       const block = page.getByTestId(`kit-${theme}`);

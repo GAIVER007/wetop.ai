@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { seedMarket } from './ds1c-market-seed';
 import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
@@ -104,7 +105,7 @@ test('размеры окон: «Новая задача» sm, новая бро
 test('поле: обязательное с родным required и знаком, необязательное словом', async ({ page }) => {
   await page.goto('/design-system');
   const section = kit(page).locator('section[data-component="form-grid"]');
-  const name = section.getByLabel('Имя', { exact: true });
+  const name = section.getByRole('textbox', { name: 'Имя', exact: true });
   await expect(name).toHaveAttribute('required', '');
   await expect(section.locator('.field__required').first()).toHaveText('*');
   const middle = section.getByLabel(/^Отчество/);
@@ -114,7 +115,9 @@ test('поле: обязательное с родным required и знако�
 
 test('таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки', async ({
   page,
+  request,
 }) => {
+  await seedMarket(request);
   await page.goto('/market');
   const table = page.getByTestId('market-table');
   await expect(table).toHaveClass(/tbl--sticky-column/);
@@ -156,11 +159,15 @@ test('главная кнопка: под курсором фон --primary-hove
 
 const SCREENS = ['/market', '/website/analytics', '/reservations?from=2026-09-10&to=2026-09-24', '/design-system'];
 
+const PRIMITIVES = ['.stat', '.share-bar', '.form-grid', '.period-picker', '.date-bar', '.tbl--sticky-column'];
+
 for (const theme of ['light', 'dark'] as const) {
   test(`390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (${theme})`, async ({
     page,
+    request,
   }) => {
     test.setTimeout(240_000);
+    await seedMarket(request);
     await page.emulateMedia({ colorScheme: theme });
     await page.setViewportSize({ width: 390, height: 844 });
     for (const route of SCREENS) {
@@ -170,8 +177,13 @@ for (const theme of ['light', 'dark'] as const) {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow, route).toBeLessThanOrEqual(0);
+      const present = [];
+      for (const selector of PRIMITIVES) {
+        if ((await page.locator(selector).count()) > 0) present.push(selector);
+      }
+      expect(present.length, route).toBeGreaterThan(0);
       const result = await new AxeBuilder({ page })
-        .include('.stat, .share-bar, .form-grid, .period-picker, .date-bar, .tbl--sticky-column')
+        .include(present.join(', '))
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
         .analyze();
       expect(

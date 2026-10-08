@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 08.10.2026 12:09 Алматы · vm
+# коммит 22c6e31 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-09-50Z-integration-fa62.json' 'tests/integration/licensed-site-builder-db.test.ts' 'tests/integration/generation-runs-db.test.ts' 'tests/integration/marketing-publication-db.test.ts' 'tests/integration/site-assets-db.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/licensed-site-builder-db.test.ts (11 tests) 320ms
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 789ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 21ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 266ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 13ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 18ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 5ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 425ms
+ ✓ |integration| tests/integration/marketing-publication-db.test.ts (9 tests) 152ms
+ ✓ |integration| tests/integration/generation-runs-db.test.ts (9 tests) 145ms
+ ✓ |integration| tests/integration/site-assets-db.test.ts (5 tests) 114ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "marketing_site_version_bookmarks",
++   "site_ai_runs",
++   "site_builder_entitlements",
++ ]
+
+ ❯ tests/integration/rls-isolation.test.ts:112:83
+    110|     );
+    111|     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABL…
+    112|     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(…
+       |                                                                                   ^
+    113|     const rls = await client.query<{ relname: string; relforcerowsecur…
+    114|       `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 39 passed (40)
+   Start at  07:09:51
+   Duration  6.96s (tests 35%, import 33%, transform 32%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-09-50Z-integration-fa62.json
+
+# код выхода 1 · 8 с

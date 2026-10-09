@@ -3,16 +3,23 @@ import { getDictionary } from '../../i18n';
 import { contactLinks, registerLink } from '../../lib/site';
 import { Icon } from '../icon';
 
+/*
+ * «Для кого» (LAND2): три компактные карточки направлений: иконка, сегменты, текст, возможности
+ * чипами и ссылка-стрелка вместо крупной кнопки в каждой. Регистрация с предвыбранным направлением
+ * (`?vertical=`) и «Обсудить подключение» на почту сохраняются; меток зрелости на карточках нет.
+ */
 export function Audience() {
   const t = getDictionary();
   const email = contactLinks().find((contact) => contact.kind === 'email');
   return (
-    <section id="audience" className="verticals" aria-labelledby="audience-title">
-      <div className="public-intro__container">
-        <div className="verticals__heading">
-          <p className="public-intro__eyebrow">{t.nav.audience}</p>
-          <h2 id="audience-title">{t.intro.verticalTitle}</h2>
-          <p>{t.intro.verticalLead}</p>
+    <section id="audience" className="verticals section" aria-labelledby="audience-title">
+      <div className="container">
+        <div className="section-heading">
+          <p className="eyebrow">{t.nav.audience}</p>
+          <h2 id="audience-title" className="section-heading__title">
+            {t.intro.verticalTitle}
+          </h2>
+          <p className="section-heading__lead">{t.intro.verticalLead}</p>
         </div>
         <div className="verticals__grid">
           {t.intro.cards.map((card) => {
@@ -22,7 +29,7 @@ export function Audience() {
             return (
               <article className="verticals__card" key={card.id}>
                 <div className="verticals__top">
-                  <Icon name={card.icon} size={26} />
+                  <Icon name={card.icon} size={24} />
                 </div>
                 <p className="verticals__name">{card.name}</p>
                 <h3>{card.title}</h3>
@@ -35,9 +42,8 @@ export function Audience() {
                     </li>
                   ))}
                 </ul>
-                <p className="verticals__note">{card.note}</p>
                 <div className="verticals__actions">
-                  <a className="public-intro__primary" href={invite.href} data-auth="register">
+                  <a className="link-arrow" href={invite.href} data-auth="register">
                     {t.nav.register}
                     <Icon name="arrowRight" size={16} />
                   </a>

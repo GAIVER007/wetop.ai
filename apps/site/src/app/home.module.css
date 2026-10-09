@@ -28,14 +28,6 @@
 }
 
 /*
- * Полоса фактов (02.10.2026) стоит сразу под первым экраном, а следом идёт блок на полосе: две кромки подряд
- * дают двойную черту, поэтому у соседа верхнюю снимаем.
- */
-.home :global(.facts + .section--band) {
-  border-top: 0;
-}
-
-/*
  * Вторая кнопка на главной: у стеклянной кромка белая, на стекле это блик, а на сплошной панели она
  * исчезает и кнопка читается обычным текстом (поймано на приглашении салонам 03.10.2026).
  */
@@ -91,35 +83,7 @@
   transform-origin: center;
 }
 
-.home :global(#ai-sellers) {
-  color: var(--inverse-on-surface);
-  background:
-    radial-gradient(circle at 80% 18%, color-mix(in srgb, var(--primary) 38%, transparent), transparent 30%),
-    var(--inverse-surface);
-}
-.home :global(#ai-sellers h2),
-.home :global(#ai-sellers h3) {
-  color: var(--inverse-on-surface);
-}
-.home :global(#ai-sellers .section-heading__lead),
-.home :global(#ai-sellers .seller-details__note),
-.home :global(#ai-sellers .seller-details__sign-in) {
-  color: color-mix(in srgb, var(--inverse-on-surface) 76%, transparent);
-}
-.home :global(#ai-sellers .seller-details__preview),
-.home :global(#ai-sellers .seller-details__steps li) {
-  border-color: color-mix(in srgb, var(--inverse-on-surface) 16%, transparent);
-  background: color-mix(in srgb, var(--inverse-surface) 82%, var(--primary));
-}
-
-.home :global(.mobile-home-nav) {
-  display: none;
-}
-
 @media (max-width: 47.99rem) {
-  .home {
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-  }
   .home :global(.hero__panel) {
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   }
@@ -133,45 +97,6 @@
   .home :global(.card-grid),
   .home :global(.steps) {
     gap: 12px;
-  }
-  .home :global(.mobile-home-nav) {
-    position: fixed;
-    right: 10px;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    left: 10px;
-    z-index: 70;
-    display: block;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
-    box-shadow: 0 12px 36px color-mix(in srgb, var(--text) 18%, transparent);
-    backdrop-filter: blur(18px) saturate(150%);
-  }
-  .home :global(.mobile-home-nav ul) {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .home :global(.mobile-home-nav a) {
-    min-height: 52px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    border-radius: var(--radius-control);
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .home :global(.mobile-home-nav a:active),
-  .home :global(.mobile-home-nav a:focus-visible) {
-    color: var(--primary);
-    background: var(--primary-soft);
   }
 }
 

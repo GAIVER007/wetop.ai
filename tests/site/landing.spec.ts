@@ -14,6 +14,8 @@ const PAGES = [
   '/for/mini-hotels/',
   '/for/apart-hotels/',
   '/calculator/',
+  '/privacy/',
+  '/terms/',
 ];
 test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
@@ -88,10 +90,9 @@ test('главная: регистрация открыта, маркетинг�
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
     /^Создайте аккаунт$/,
-    /^Подтвердите почту$/,
-    /^Настройте объект$/,
+    /^Добавьте бизнес$/,
+    /^Настройте процессы$/,
     /^Начните работу$/,
-    /./, // заголовок призыва
   ]);
   await expect(start).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(start).not.toContainText(/7\sдней|подключаем партнёров вручную|заведём аккаунт/i);
@@ -108,13 +109,13 @@ test('главная: регистрация открыта, маркетинг�
     'https://wetop.ai/#register',
   );
   const hero = page.locator('.public-intro');
-  await expect(hero.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );
-  await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
+  await expect(hero.getByRole('link', { name: /Посмотреть возможности/ })).toBeVisible();
   await expect(hero).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
-  await expect(start.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
+  await expect(start.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );

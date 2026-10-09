@@ -21,7 +21,6 @@ export type Dictionary = {
   };
   nav: {
     product: string;
-    ai: string;
     audience: string;
     features: string;
     sales: string;
@@ -31,24 +30,17 @@ export type Dictionary = {
     register: string;
   };
   hero: {
-    /** Плашка над заголовком: самостоятельная регистрация открыта (ADR-147). */
+    /** Плашка над заголовком. */
     status: string;
     /** Заголовок первого экрана; `titleAccent` идёт второй строкой фирменным цветом. */
     title: string;
     titleAccent: string;
     lead: string;
-    /** Вторая кнопка первого экрана: к блоку «Возможности». */
+    /** Кнопки первого экрана: регистрация и переход к «Возможностям». */
+    primary: string;
     secondary: string;
-    /** Строка под кнопками первого экрана: следующий шаг регистрации. */
+    /** Строка под кнопками: работает в браузере. */
     note: string;
-    /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
-    map: {
-      label: string;
-      title: string;
-      hint: string;
-      items: Array<{ icon: IconName; title: string; text: string; href: string }>;
-      caption: string;
-    };
   };
   /**
    * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
@@ -76,109 +68,62 @@ export type Dictionary = {
       name: string;
       text: string;
       capabilities: string[];
-      note: string;
     }>;
   };
-  facts: {
-    label: string;
-    items: Array<{ icon: IconName; title: string; text: string }>;
-  };
-  mockup: {
-    label: string;
-    title: string;
-    views: string[];
-    weekdays: string[];
-    rooms: string;
-    beds: string;
-    room: string;
-    bed: string;
-    fromDesk: string;
-    checkedIn: string;
-    unassigned: string;
-    toastTitle: string;
-    toastText: string;
-  };
-  /**
-   * Раздел «Для кого»: типы объектов, с которыми система работает, и приглашение салонам (03.10.2026).
-   * Дорожной карты направлений на странице нет: `invite` зовёт написать, функций салона не обещает.
-   */
+  /** Ссылки под карточкой гостиниц: страницы по типу объекта (`/for/*`). */
   audience: {
-    eyebrow: string;
-    title: string;
-    lead: string;
     items: Array<{ icon: IconName; title: string; text: string; segment: SegmentSlug }>;
-    /** Подпись ссылки карточки на страницу по типу объекта. */
-    more: string;
-    /** Подпись под макетом шахматки. */
-    caption: string;
-    /** Приглашение салонам и студиям: заголовок, текст и подпись ссылки на почту. */
-    invite: { title: string; text: string; action: string };
   };
   features: {
     eyebrow: string;
     title: string;
     lead: string;
-    items: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
+    items: Array<{ icon: IconName; title: string; text: string }>;
   };
-  /** «Откуда приходят брони»: четыре входа и карточка со ссылкой на калькулятор. */
-  sales: {
+  /** «Продажи и ИИ» (LAND2): три модуля со статусом словами, полоса источников, карточка калькулятора. */
+  growth: {
     eyebrow: string;
     title: string;
     lead: string;
-    items: Array<{ icon: IconName; title: string; text: string; tags?: string[]; link?: string }>;
+    modules: Array<{
+      id: 'marketing' | 'ai-sellers' | 'market';
+      icon: IconName;
+      status: string;
+      title: string;
+      text: string;
+      points: string[];
+    }>;
+    note: string;
+    sources: {
+      title: string;
+      lead: string;
+      items: Array<{ icon: IconName; title: string; text: string }>;
+    };
     calculator: { title: string; text: string; link: string };
   };
-  /** «ИИ-продавцы»: шаги настройки и пример знаний. */
-  ai: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    steps: Array<{ title: string; text: string }>;
-    preview: {
-      label: string;
-      hint: string;
-      title: string;
-      items: Array<{ term: string; text: string }>;
-      note: string;
-      open: string;
-      signIn: string;
-    };
-  };
-  /** «Загрузка конкурентов» (ADR-142): четыре пункта и пример таблицы на одну ночь. */
-  market: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    points: Array<{ title: string; text: string }>;
-    preview: {
-      label: string;
-      hint: string;
-      title: string;
-      items: Array<{ term: string; text: string }>;
-      note: string;
-      open: string;
-      signIn: string;
-    };
-  };
-  /** «Команда и доступ»: три карточки. */
+  /** «Команда и безопасность»: три пункта и мини-пример списка сотрудников. */
   team: {
     eyebrow: string;
     title: string;
     lead: string;
     items: Array<{ icon: IconName; title: string; text: string }>;
+    preview: {
+      label: string;
+      title: string;
+      rows: Array<{ name: string; role: string }>;
+    };
   };
   start: {
     eyebrow: string;
     title: string;
     lead: string;
     steps: Array<{ title: string; text: string }>;
-    ctaTitle: string;
-    ctaText: string;
-    contactsLabel: string;
-    cityLabel: string;
-    siteLabel: string;
-    connectLabel: string;
-    connectText: string;
+  };
+  /** Финальный призыв перед подвалом. */
+  final: {
+    title: string;
+    text: string;
+    contact: string;
   };
   /** «Вопросы и ответы»: нативные details. */
   faq: {
@@ -250,6 +195,11 @@ export type Dictionary = {
     tagline: string;
     /** Девиз в нижней строке подвала. */
     motto: string;
+    product: string;
+    features: string;
+    contacts: string;
+    privacy: string;
+    terms: string;
   };
   notFound: {
     title: string;

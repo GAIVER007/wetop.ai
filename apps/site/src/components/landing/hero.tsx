@@ -16,10 +16,10 @@ export function Hero() {
           <p className="public-intro__lead">{t.hero.lead}</p>
           <div className="public-intro__actions">
             <a className="public-intro__primary" href={registerLink().href} data-auth="register">
-              {t.nav.register}
+              {t.hero.primary}
               <Icon name="arrowRight" size={18} />
             </a>
-            <a className="public-intro__secondary" href="#audience">
+            <a className="public-intro__secondary" href="#features">
               {t.hero.secondary}
               <Icon name="arrowDown" size={18} />
             </a>

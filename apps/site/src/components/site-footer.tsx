@@ -1,24 +1,24 @@
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
-import { companyName, loginLink } from '../lib/site';
+import { companyName, contactLinks, loginLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { typo } from './typo';
 
 /*
- * Подвал — стеклянная плита и нижняя строка: слева ©, по центру звезда, справа девиз (оба снимка
- * направления). Знак подвала берёт свой `id` градиента: два одинаковых в одном документе не бывает.
+ * Подвал (LAND2, ТЗ §10): бренд, ссылки продукта, правовые страницы и контакты, нижняя строка с ©.
+ * «Блог» только при опубликованных статьях; контакты только заполненные в site.config.ts.
  */
 export function SiteFooter() {
   const t = getDictionary();
   // Год сборки: сайт статический, пересобирается при каждой выкладке.
   const year = new Date().getFullYear();
   const owner = companyName() || t.meta.siteName;
-  // «Блог» в подвале — только при опубликованных статьях (С2, 20.09.2026)
   const hasPosts = getPublishedPosts().length > 0;
+  const contacts = contactLinks();
 
   return (
-    <footer className="site-footer">
+    <footer id="contacts" className="site-footer">
       <div className="container">
         <div className="site-footer__panel glass glass--quiet">
           <div className="site-footer__brand">
@@ -27,19 +27,38 @@ export function SiteFooter() {
             </Link>
             <p>{typo(t.footer.tagline)}</p>
           </div>
-          <nav aria-label={t.a11y.footerNav}>
+          <nav aria-label={t.a11y.footerNav} className="site-footer__nav">
             <ul className="site-footer__links">
+              <li>
+                <a href="/#product">{t.footer.product}</a>
+              </li>
+              <li>
+                <a href="/#features">{t.footer.features}</a>
+              </li>
+              <li>
+                <Link href="/calculator/">{t.calculator.link}</Link>
+              </li>
               {hasPosts ? (
                 <li>
                   <Link href="/blog/">{t.nav.blog}</Link>
                 </li>
               ) : null}
               <li>
-                <Link href="/calculator/">{t.calculator.link}</Link>
-              </li>
-              <li>
                 <a href={loginLink().href}>{t.nav.login}</a>
               </li>
+            </ul>
+            <ul className="site-footer__links">
+              <li>
+                <Link href="/privacy/">{t.footer.privacy}</Link>
+              </li>
+              <li>
+                <Link href="/terms/">{t.footer.terms}</Link>
+              </li>
+              {contacts.map((contact) => (
+                <li key={contact.href}>
+                  <a href={contact.href}>{contact.label}</a>
+                </li>
+              ))}
             </ul>
           </nav>
           <div className="site-footer__bar">

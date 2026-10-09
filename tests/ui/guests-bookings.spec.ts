@@ -356,3 +356,35 @@ for (const scheme of ['light', 'dark'] as const) {
     }
   });
 }
+
+// Ноутбук 1366×768 (сверка с макетом 09.10.2026): режим «страница в один экран» включался с высоты 740 px, отборы
+// переносились в две строки, и под таблицу оставалось около 60 px, то есть одна обрезанная строка. На любой ширине
+// и высоте компьютера таблица должна показывать хотя бы три строки гостей целиком.
+for (const [width, height] of [
+  [1366, 768],
+  [1280, 800],
+  [1280, 900],
+  [1440, 900],
+  [1440, 1000],
+] as const) {
+  test(`гости и бронирования: на ${width}×${height} таблица показывает несколько строк, а не одну`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('/guests');
+    const rows = page.getByRole('main').locator('.gb-table tbody tr');
+    await expect(rows.first()).toBeVisible();
+    const visible = await page.evaluate(() => {
+      const box = document.querySelector('.gb-list .table-scroll')!.getBoundingClientRect();
+      const top = Math.max(box.top, 0);
+      const bottom = Math.min(box.bottom, window.innerHeight);
+      const rowsInBox = [...document.querySelectorAll('.gb-table tbody tr')].filter((tr) => {
+        const r = tr.getBoundingClientRect();
+        return r.top >= box.top - 1 && r.bottom <= box.bottom + 1;
+      }).length;
+      const pageScrolls = document.documentElement.scrollHeight > window.innerHeight + 1;
+      return { rowsInBox, pageScrolls, onScreen: bottom - top };
+    });
+    expect(visible.rowsInBox, JSON.stringify(visible)).toBeGreaterThanOrEqual(3);
+  });
+}

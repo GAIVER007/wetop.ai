@@ -7744,3 +7744,9 @@
 | 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |
 | 09.10.2026 18:55 | unit | ✅ 4158 из 4161, пропущено 3 | 2 мин 12 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-55-39Z-unit-b219.log) |  |
 | 09.10.2026 18:57 | lint | ✅ без ошибок | 37 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-57-52Z-lint-9ddb.log) |  |
+| 09.10.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 5 мин 5 с | 35ada50 +1 | [лог](logs/2026-10-09T14-06-32Z-e2e-8a71.log) | хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных |
+| 09.10.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 7 из 7 | 3 мин 14 с | 35ada50 +3 | [лог](logs/2026-10-09T14-12-30Z-e2e-bfd7.log) | меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп |
+| 09.10.2026 19:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 1 из 7 | 43 с | 35ada50 +3 | [лог](logs/2026-10-09T14-15-58Z-e2e-747f.log) | хаб на компьютере и телефоне, доступность: dark |
+| 09.10.2026 19:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 35ada50 +3 | [лог](logs/2026-10-09T14-16-50Z-e2e-2593.log) |  |
+| 09.10.2026 19:17 | typecheck | ✅ без ошибок | 54 с | 35ada50 +3 | [лог](logs/2026-10-09T14-17-47Z-typecheck-1bb8.log) |  |
+| 09.10.2026 19:18 | lint | ✅ без ошибок | 35 с | 35ada50 +3 | [лог](logs/2026-10-09T14-18-42Z-lint-6458.log) |  |

@@ -1,0 +1,65 @@
+# Модульные (unit) · 09.10.2026 12:28 Алматы · vm
+# коммит 9b24111 (claude/mv8-5-ds1c-followup), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T07-28-51Z-unit-eda4.json' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/components/primitives.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/build-tokens.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-rules.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 289ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 147ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 4ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 2ms
+     ✓ design/contrast.md совпадает с расчётом 7ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 94ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 7ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 1ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 3ms
+     ✓ шрифт не мельче 12 px 5ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 3ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 5ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 2ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 1ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 6ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 3ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 14ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 38ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 17ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 10ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (35 tests) 77ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--share-fill', '--share-track' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--share-fill",
++   "--share-track",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:94:21
+     92|     ]);
+     93|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     94|     expect(missing).toEqual([]);
+       |                     ^
+     95|   });
+     96| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 110 passed (111)
+   Start at  07:28:52
+   Duration  2.53s (transform 50%, import 35%, tests 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T07-28-51Z-unit-eda4.json
+
+# код выхода 1 · 4 с

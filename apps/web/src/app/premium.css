@@ -286,7 +286,7 @@
   }
   .ui-overlay {
     margin: auto;
-    width: min(560px, calc(100vw - 32px));
+    width: min(var(--overlay-w-md), calc(100vw - 32px));
     max-height: calc(100dvh - 48px);
     padding: 0;
     color: var(--text);
@@ -321,7 +321,7 @@
   }
   .ui-drawer {
     margin: 0 0 0 auto;
-    width: min(480px, 100vw);
+    width: min(var(--drawer-w-md), 100vw);
     max-width: 100vw;
     height: 100dvh;
     max-height: 100dvh;

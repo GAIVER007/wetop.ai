@@ -250,6 +250,15 @@ describe('Overlay и RouteDrawer', () => {
     const heading = list.find((t) => t.tag === 'h2')!;
     expect(dialog.attrs['aria-labelledby']).toBe(heading.attrs['id']);
   });
+  it('размер md окна и панели берётся из токенов, а не литералом', () => {
+    const css = readFileSync(resolve(import.meta.dirname, '../app/premium.css'), 'utf8');
+    const rule = (selector: string) =>
+      css.match(new RegExp(`\\n\\s*${selector.replace('.', '\\.')}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+    expect(rule('.ui-overlay')).toMatch(/width:\s*min\(var\(--overlay-w-md\),/);
+    expect(rule('.ui-drawer')).toMatch(/width:\s*min\(var\(--drawer-w-md\),/);
+    expect(rule('.ui-overlay')).not.toMatch(/width:\s*min\(\d+px/);
+    expect(rule('.ui-drawer')).not.toMatch(/width:\s*min\(\d+px/);
+  });
   it('исходник RouteDrawer передаёт size и не держит ширину своим селектором', () => {
     const source = readFileSync(resolve(import.meta.dirname, 'route-drawer.tsx'), 'utf8');
     expect(source).toMatch(/size=\{size\}/);
@@ -349,6 +358,35 @@ describe('ErrorState поверх EmptyState', () => {
     const source = readFileSync(resolve(import.meta.dirname, 'error-state.tsx'), 'utf8');
     expect(source).not.toContain('className="empty-state"');
     expect(source).toMatch(/<EmptyState/);
+  });
+});
+
+describe('тема «Контраст» в DS1c не меняется', () => {
+  it('наведение главной кнопки в «Контрасте» прежнее blue.600, светлая blue.800, тёмная blue.300', () => {
+    const tokens = JSON.parse(
+      readFileSync(resolve(import.meta.dirname, '../../../../design/tokens.json'), 'utf8'),
+    ) as Record<string, unknown>;
+    const find = (node: unknown): Record<string, unknown> | undefined => {
+      if (!node || typeof node !== 'object') return undefined;
+      const obj = node as Record<string, unknown>;
+      if ('primary-hover' in obj) return obj['primary-hover'] as Record<string, unknown>;
+      for (const v of Object.values(obj)) {
+        const hit = find(v);
+        if (hit) return hit;
+      }
+      return undefined;
+    };
+    const hover = find(tokens)!;
+    expect(hover['$value']).toBe('{color.primitive.blue.800}');
+    const themes = (hover['$extensions'] as Record<string, Record<string, string>>)['kz.wetop.themes']!;
+    expect(themes['dark']).toBe('{color.primitive.blue.300}');
+    expect(themes['contrast']).toBe('{color.primitive.blue.600}');
+    const css = readFileSync(resolve(import.meta.dirname, '../app/tokens.css'), 'utf8');
+    const block = css.slice(css.indexOf("[data-theme='contrast']"));
+    const primary = block.match(/--primary:\s*(#[0-9a-f]+)/)?.[1];
+    const primaryHover = block.match(/--primary-hover:\s*(#[0-9a-f]+)/)?.[1];
+    expect(primaryHover).toBeDefined();
+    expect(primaryHover).not.toBe(primary);
   });
 });
 

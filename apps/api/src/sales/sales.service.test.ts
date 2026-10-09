@@ -14,7 +14,7 @@ class FakeRepository implements SalesRepository {
       : { offered: 2, booked: 1, revenueMinor: 1_000_00n, currency: 'KZT' };
   }
   async competitors() {
-    return { count: 3, lastObservedOn: '2026-10-09' };
+    return { count: 3, lastObservedOn: '2026-10-09', addedLast30: 1 };
   }
 }
 

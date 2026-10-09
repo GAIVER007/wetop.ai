@@ -9,7 +9,7 @@ const base: SalesSummary = {
   offers: { current: 8, previous: 10 },
   conversionPermille: { current: 375, previous: 200 },
   revenue: { currentMinor: '9000000', previousMinor: '4000000', currency: 'KZT' },
-  competitors: { count: 5, lastObservedOn: '2026-10-09' },
+  competitors: { count: 5, lastObservedOn: '2026-10-09', addedLast30: 2 },
 };
 
 describe('хаб «Продажи»: слова и сравнения', () => {
@@ -35,8 +35,8 @@ describe('хаб «Продажи»: слова и сравнения', () => {
   it('свежесть данных конкурентов: когда обновлялись и пора ли предупредить', () => {
     expect(competitorsFreshness(base.competitors, '2026-10-09')).toEqual({ state: 'fresh', ageDays: 0 });
     expect(competitorsFreshness(base.competitors, '2026-10-14')).toEqual({ state: 'stale', ageDays: 5 });
-    expect(competitorsFreshness({ count: 3, lastObservedOn: null }, '2026-10-14')).toEqual({ state: 'none', ageDays: null });
-    expect(competitorsFreshness({ count: 0, lastObservedOn: null }, '2026-10-14')).toEqual({ state: 'empty', ageDays: null });
+    expect(competitorsFreshness({ count: 3, lastObservedOn: null, addedLast30: 0 }, '2026-10-14')).toEqual({ state: 'none', ageDays: null });
+    expect(competitorsFreshness({ count: 0, lastObservedOn: null, addedLast30: 0 }, '2026-10-14')).toEqual({ state: 'empty', ageDays: null });
   });
 
   it('период хаба: готовые отрезки, неверный адрес возвращается к 30 дням', () => {

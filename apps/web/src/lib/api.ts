@@ -3355,7 +3355,7 @@ export interface SalesSummary {
   offers: { current: number; previous: number };
   conversionPermille: { current: number | null; previous: number | null };
   revenue: { currentMinor: string; previousMinor: string; currency: string | null };
-  competitors: { count: number; lastObservedOn: string | null };
+  competitors: { count: number; lastObservedOn: string | null; addedLast30: number };
 }
 
 export const salesApi = {

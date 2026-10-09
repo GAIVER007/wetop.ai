@@ -51,13 +51,21 @@ export class PrismaSalesRepository implements SalesRepository {
   /** Конкуренты под наблюдением: действующие, и день последнего снимка по ним */
   async competitors(): Promise<CompetitorsTotals> {
     const property = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
-    const [count, last] = await Promise.all([
+    const monthAgo = new Date(Date.now() - 30 * 86_400_000);
+    const [count, added, last] = await Promise.all([
       this.prisma.db.competitor.count({ where: { propertyId: property.id, active: true } }),
+      this.prisma.db.competitor.count({
+        where: { propertyId: property.id, active: true, createdAt: { gte: monthAgo } },
+      }),
       this.prisma.db.competitorOccupancy.aggregate({
         where: { propertyId: property.id, competitor: { active: true } },
         _max: { observedOn: true },
       }),
     ]);
-    return { count, lastObservedOn: last._max.observedOn?.toISOString().slice(0, 10) ?? null };
+    return {
+      count,
+      lastObservedOn: last._max.observedOn?.toISOString().slice(0, 10) ?? null,
+      addedLast30: added,
+    };
   }
 }

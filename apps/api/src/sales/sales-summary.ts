@@ -51,6 +51,8 @@ export interface PeriodTotals {
 export interface CompetitorsTotals {
   count: number;
   lastObservedOn: string | null;
+  /** Сколько конкурентов добавлено за последние 30 суток: «+2 с прошлого месяца» на хабе */
+  addedLast30: number;
 }
 
 /** Доля в десятых долях процента (375 = 37,5 %); предложений нет, доли нет: неизвестное не равно нулю */

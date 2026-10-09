@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 09.10.2026 20:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 26a9050 (claude/sales2-impl), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/sales-hub.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (2.3s)
+  ✓   2 tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (1.7s)
+  ✓   3 tests/ui/sales-hub.spec.ts:90:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (727ms)
+  ✓   4 tests/ui/sales-hub.spec.ts:99:1 › нет предложений: конверсия это знак пропуска, а не 0 % (768ms)
+  ✓   5 tests/ui/sales-hub.spec.ts:109:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (785ms)
+  ✓   6 tests/ui/sales-hub.spec.ts:122:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (1.4s)
+  ✓   7 tests/ui/sales-hub.spec.ts:133:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (735ms)
+  ✓   8 tests/ui/sales-hub.spec.ts:146:1 › администратор смены открывает хаб (1.7s)
+  ✓   9 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 1440px (1.7s)
+  ✓  10 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 390px (1.6s)
+  ✓  11 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 1440px (1.6s)
+  ✓  12 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 390px (1.6s)
+
+  12 passed (21.7s)
+
+# код выхода 0 · 23 с

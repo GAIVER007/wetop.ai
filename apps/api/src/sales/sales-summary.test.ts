@@ -32,14 +32,14 @@ describe('хаб «Продажи»: сводка', () => {
       period: { from: '2026-10-08', to: '2026-10-14' },
       current,
       previous,
-      competitors: { count: 5, lastObservedOn: '2026-10-09' },
+      competitors: { count: 5, lastObservedOn: '2026-10-09', addedLast30: 2 },
     });
     expect(s.bookings).toEqual({ current: 3, previous: 2 });
     expect(s.offers).toEqual({ current: 8, previous: 10 });
     expect(s.conversionPermille).toEqual({ current: 375, previous: 200 });
     expect(s.revenue).toEqual({ currentMinor: '9000000', previousMinor: '4000000', currency: 'KZT' });
     expect(s.previousPeriod).toEqual({ from: '2026-10-01', to: '2026-10-07' });
-    expect(s.competitors).toEqual({ count: 5, lastObservedOn: '2026-10-09' });
+    expect(s.competitors).toEqual({ count: 5, lastObservedOn: '2026-10-09', addedLast30: 2 });
   });
 
   it('нет предложений: конверсия неизвестна, а не ноль', () => {
@@ -47,7 +47,7 @@ describe('хаб «Продажи»: сводка', () => {
       period: { from: '2026-10-08', to: '2026-10-14' },
       current: { offered: 0, booked: 0, revenueMinor: 0n, currency: null },
       previous: { offered: 0, booked: 0, revenueMinor: 0n, currency: null },
-      competitors: { count: 0, lastObservedOn: null },
+      competitors: { count: 0, lastObservedOn: null, addedLast30: 0 },
     });
     expect(s.conversionPermille).toEqual({ current: null, previous: null });
     expect(s.revenue.currency).toBeNull();
@@ -59,7 +59,7 @@ describe('хаб «Продажи»: сводка', () => {
       period: { from: '2026-10-08', to: '2026-10-14' },
       current: { offered: 0, booked: 0, revenueMinor: 0n, currency: null },
       previous,
-      competitors: { count: 1, lastObservedOn: null },
+      competitors: { count: 1, lastObservedOn: null, addedLast30: 0 },
     });
     expect(s.revenue.currency).toBe('KZT');
   });

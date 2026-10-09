@@ -4411,7 +4411,7 @@ function salesRoute(path: string, method: string, q: URLSearchParams): [number, 
       offers: { current: offered[0], previous: offered[1] },
       conversionPermille: { current: permille(booked[0], offered[0]), previous: permille(booked[1], offered[1]) },
       revenue: { currentMinor: revenue, previousMinor: revenuePrev, currency: salesFixture.currency },
-      competitors: { count: active.length, lastObservedOn: observed.at(-1) ?? null },
+      competitors: { count: active.length, lastObservedOn: observed.at(-1) ?? null, addedLast30: active.length },
     },
   ];
 }

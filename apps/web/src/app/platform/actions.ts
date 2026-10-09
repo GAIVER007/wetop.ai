@@ -197,3 +197,59 @@ export async function restoreOrganizationAction(
     return failed(e, attempt);
   }
 }
+
+/**
+ * Создание организации и ссылка владельцу ещё раз (ORG2, ADR-ORG2, Q-283). Владелец сам задаёт пароль по ссылке из
+ * письма; токен наружу не идёт. Письмо не ушло: организация создана, на карточке можно отправить ссылку ещё раз.
+ */
+export interface CreateOrganizationResult extends OrganizationActionResult {
+  /** id созданной организации: форма ведёт на её карточку */
+  organizationId?: string;
+}
+
+export async function createOrganizationAction(
+  prev: CreateOrganizationResult | null,
+  form: FormData,
+): Promise<CreateOrganizationResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+  try {
+    const made = await platformApi.create({
+      name: String(form.get('name') ?? ''),
+      ownerEmail: String(form.get('ownerEmail') ?? ''),
+      vertical,
+    });
+    revalidatePath('/platform');
+    const owner = made.organization.owners[0] ?? 'владельцу';
+    return {
+      error: null,
+      message: made.ownerLinkSent
+        ? `Организация «${made.organization.name}» создана. Ссылка для пароля отправлена на ${owner}.`
+        : `Организация «${made.organization.name}» создана, но письмо не ушло. Откройте её карточку и отправьте ссылку ещё раз.`,
+      attempt,
+      organizationId: made.organization.id,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function sendOwnerLinkAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const sent = await platformApi.ownerLink(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: sent.ownerLinkSent
+        ? `Ссылка отправлена на ${sent.organization.owners[0] ?? 'почту владельца'}.`
+        : 'Письмо не ушло: почтовая служба не отвечает. Попробуйте позже.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}

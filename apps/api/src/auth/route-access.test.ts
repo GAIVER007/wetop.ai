@@ -375,6 +375,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /platform/organizations/:id': 'platform',
   'POST /platform/organizations/:id/archive': 'platform',
   'POST /platform/organizations/:id/restore': 'platform',
+  // создание организации и ссылка «задайте пароль» её владельцу (ORG2, ADR-ORG2)
+  'POST /platform/organizations': 'platform',
+  'POST /platform/organizations/:id/owner-link': 'platform',
   // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
   'GET /platform/organizations/:id/site-builder': 'platform',
   'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',

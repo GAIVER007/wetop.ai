@@ -7803,6 +7803,14 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
+| 09.10.2026 19:12 | unit (частично: apps/api/src/platform/platform.controller.test.ts) | ❌ упало 9 из 33 | 5 с | 6cc360d +2 | [лог](logs/2026-10-09T14-12-55Z-unit-1541.log) | красный: ORG2 создание организации и ссылка владельцу (маршрутов ещё нет) |
+| 09.10.2026 19:13 | unit (частично: apps/api/src/platform/platform.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 36 из 36 | 7 с | 6cc360d +6 | [лог](logs/2026-10-09T14-13-53Z-unit-1d5c.log) | зелёный: ORG2 создание организации и ссылка владельцу |
+| 09.10.2026 19:15 | integration (частично: tests/integration/platform-organization-create.test.ts tests/integration/platform-extensions.test.ts) | ✅ 14 из 14 | 7 с | 6cc360d +9 | [лог](logs/2026-10-09T14-15-35Z-integration-00a2.log) | ORG2: создание организации на настоящей схеме |
+| 09.10.2026 19:21 | typecheck | ✅ без ошибок | 45 с | 485145c +15 | [лог](logs/2026-10-09T14-21-08Z-typecheck-c930.log) |  |
+| 09.10.2026 19:21 | lint | ✅ без ошибок | 40 с | 485145c +15 | [лог](logs/2026-10-09T14-21-54Z-lint-fa54.log) |  |
+| 09.10.2026 19:22 | unit | ✅ 4177 из 4180, пропущено 3 | 2 мин 10 с | 485145c +12 | [лог](logs/2026-10-09T14-22-35Z-unit-e515.log) |  |
+| 09.10.2026 19:24 | integration | ✅ 973 из 973 | 3 мин 1 с | 485145c +10 | [лог](logs/2026-10-09T14-24-53Z-integration-276a.log) | ORG2: весь интеграционный набор на локальной PostgreSQL |
+| 09.10.2026 19:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/organizations-manage.spec.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec. | ✅ 59 из 59 | 7 мин 53 с | 485145c +13 | [лог](logs/2026-10-09T14-28-02Z-e2e-c406.log) | ORG2: организации (создание, ссылка владельцу), меню, платформа, роли |
 | 09.10.2026 19:17 | typecheck | ❌ ошибок: 1 | 1 мин 2 с | f9f53f4 | [лог](logs/2026-10-09T14-17-19Z-typecheck-4447.log) | после слияния main: календарь |
 | 09.10.2026 19:18 | lint | ✅ без ошибок | 44 с | f9f53f4 | [лог](logs/2026-10-09T14-18-22Z-lint-521f.log) | после слияния main: календарь |
 | 09.10.2026 19:19 | typecheck | ✅ без ошибок | 45 с | f9f53f4 +1 | [лог](logs/2026-10-09T14-19-14Z-typecheck-8d65.log) | после слияния main: календарь, исправлена очистка масштаба |

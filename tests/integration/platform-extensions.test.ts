@@ -128,7 +128,7 @@ describe.skipIf(!url)('расширения организаций (integration,
     });
     expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null });
     expect(Object.keys(a ?? {}).sort()).toEqual(
-      ['aiSeller', 'createdAt', 'id', 'members', 'name', 'owners', 'status', 'trialEndsAt'].sort(),
+      ['aiSeller', 'createdAt', 'id', 'members', 'name', 'ownerPending', 'owners', 'status', 'trialEndsAt'].sort(),
     );
     expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null });
     expect(await repo.organization(randomUUID())).toBeNull();

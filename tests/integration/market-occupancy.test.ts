@@ -21,6 +21,7 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
   const audit = { entityType: 'Competitor', action: 'test', after: {} };
 
   async function cleanup() {
+    await db.competitorRate.deleteMany({});
     await db.competitorOccupancy.deleteMany({});
     await db.competitor.deleteMany({});
     await db.auditLog.deleteMany({ where: { entityType: 'Competitor' } }).catch(() => undefined);
@@ -54,6 +55,31 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     const log = await db.auditLog.findFirst({ where: { entityType: 'Competitor', entityId: id } });
     expect(log?.after).toMatchObject({ competitorId: id });
     await expect(repo.createCompetitor({ name: 'Тестовый Сосед' }, audit)).rejects.toThrow(/уже есть/);
+  });
+
+  it('карточка и цены (§23.1): поля сохраняются, цена за день заменяется, пустое снимает, вчерашняя остаётся', async () => {
+    const id = await repo.createCompetitor(
+      { name: 'Ценовой Сосед', district: 'Медеу', category: 'Отель 4★', monitoring: 'PRICE', refreshHours: 2, autoRefresh: true },
+      audit,
+    );
+    const card = (await repo.competitors()).find((c) => c.id === id)!;
+    expect(card).toMatchObject({ district: 'Медеу', category: 'Отель 4★', monitoring: 'PRICE', refreshHours: 2, autoRefresh: true });
+    expect(await repo.currency()).toMatch(/^[A-Z]{3}$/);
+    expect(await repo.writeRates(id, '2031-07-01', 'KZT', [{ date: '2031-07-02', priceMinor: 4_000_000n }], 'MANUAL', audit)).toBe(true);
+    await repo.writeRates(id, '2031-07-02', 'KZT', [{ date: '2031-07-02', priceMinor: 4_200_050n }, { date: '2031-07-03', priceMinor: 100n }], 'MANUAL', audit);
+    await repo.writeRates(id, '2031-07-02', 'KZT', [{ date: '2031-07-03', priceMinor: null }], 'MANUAL', audit);
+    const rows = await repo.rateReadings('2031-07-01', '2031-07-10', '2031-07-02');
+    expect(rows.map((r) => [r.observedOn, r.priceMinor, r.currency]).sort()).toEqual([
+      ['2031-07-01', 4_000_000n, 'KZT'],
+      ['2031-07-02', 4_200_050n, 'KZT'],
+    ]);
+    expect(await repo.rateReadings('2031-07-01', '2031-07-10', '2031-07-01')).toHaveLength(1);
+    await expect(
+      repo.writeRates(id, '2031-07-02', 'KZT', [{ date: '2031-07-04', priceMinor: 0n }], 'MANUAL', audit),
+    ).rejects.toThrow();
+    await repo.updateCompetitor(id, { active: false }, audit);
+    expect(await repo.writeRates(id, '2031-07-02', 'KZT', [{ date: '2031-07-04', priceMinor: 1n }], 'MANUAL', audit)).toBe(false);
+    await repo.updateCompetitor(id, { active: true }, audit);
   });
 
   it('снимок за день заменяется, пустое снимает; вчерашний остаётся; архивный конкурент не пишется', async () => {

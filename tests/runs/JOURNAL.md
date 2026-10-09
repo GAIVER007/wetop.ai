@@ -7794,3 +7794,6 @@
 | 09.10.2026 20:08 | e2e (частично: tests/ui/sales-hub.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 --timeout=240000) | ✅ 12 из 12 | 23 с | 26a9050 +13 | [лог](logs/2026-10-09T15-08-18Z-e2e-2080.log) | SALES2.2b: хаб, доводка |
 | 09.10.2026 20:10 | integration (частично: tests/integration/market-occupancy.test.ts) | ✅ 4 из 4 | 2 с | 1a9ad86 | [лог](logs/2026-10-09T15-10-19Z-integration-f755.log) | локальная база на 55442: рынок |
 | 09.10.2026 20:10 | integration (частично: tests/integration/sales-summary.test.ts) | ❌ код выхода 1 | 2 с | 1a9ad86 +1 | [лог](logs/2026-10-09T15-10-58Z-integration-1c03.log) | SALES2.2: SQL сводки на настоящей базе |
+| 09.10.2026 20:18 | unit (частично: apps/api/src/market apps/api/src/auth/route-access) | ❌ код выхода 1 | 3 с | 5a8e44a +13 | [лог](logs/2026-10-09T15-18-14Z-unit-f83a.log) | (файл не выполнился) |
+| 09.10.2026 20:18 | integration (частично: tests/integration/market-occupancy) | ✅ 0 из 5, пропущено 5 | 2 с | 5a8e44a +14 | [лог](logs/2026-10-09T15-18-42Z-integration-bd21.log) |  |
+| 09.10.2026 20:18 | integration (частично: tests/integration/market-occupancy) | ✅ 5 из 5 | 3 с | 5a8e44a +14 | [лог](logs/2026-10-09T15-18-59Z-integration-fe61.log) |  |

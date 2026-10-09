@@ -85,6 +85,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',
+  'competitor_rates',
   // Food Service v1, migration 55.
   'dining_areas',
   'dining_tables',

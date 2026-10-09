@@ -252,10 +252,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
   'GET /sales/summary': 'reports',
   'GET /market/occupancy': 'reports',
+  'GET /market/rates': 'reports',
   'GET /market/night': 'reports',
   'POST /market/competitors': 'rates',
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
+  'PUT /market/competitors/:id/rates': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет

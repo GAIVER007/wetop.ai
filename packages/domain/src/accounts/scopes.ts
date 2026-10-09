@@ -1,3 +1,4 @@
+import { can, type Permission } from './permissions';
 import { canInvite, type InviteRole, type MembershipRole } from './roles';
 
 /**
@@ -135,4 +136,41 @@ export function parseScopeAssignments(
     assignments.push({ role, businessId, locationId });
   }
   return { ok: true, assignments };
+}
+
+/**
+ * Права уровня организации: команда, роли и расширения, журнал операций всей организации. Человеку с областью они не
+ * открываются никогда, какая бы роль у него ни была в филиале: управлять командой или читать общий журнал можно только
+ * без ограничения по филиалам (DATA_MODEL §30.1; иначе управляющий одного филиала приглашал бы людей во все).
+ */
+export const ORGANIZATION_LEVEL_PERMISSIONS: readonly Permission[] = ['staff', 'owner', 'journal'];
+
+export const RESTRICTED_ORGANIZATION_MESSAGE =
+  'Этот раздел для сотрудников без ограничения по филиалам: у вас доступ к выбранным бизнесам и филиалам.';
+export const SCOPE_CHOOSE_MESSAGE = 'Выберите доступный вам филиал.';
+export const SCOPE_FORBIDDEN_MESSAGE = 'У вас нет доступа к этому бизнесу или филиалу.';
+
+/** Человек работает с ограничением: не владелец и есть назначения */
+export function isRestricted(
+  role: MembershipRole,
+  assignments: readonly ScopeAssignment[],
+): boolean {
+  return role !== 'OWNER' && !isUnrestricted(assignments);
+}
+
+/**
+ * Есть ли у человека право в месте `target` (DATA_MODEL §30.1). Без ограничения: как `can`. С ограничением: права
+ * уровня организации закрыты, остальные по роли назначения в этом месте; без места открыто только своё (`self`).
+ */
+export function canAt(
+  role: MembershipRole,
+  assignments: readonly ScopeAssignment[],
+  permission: Permission,
+  target?: ScopeTarget,
+): boolean {
+  if (!isRestricted(role, assignments)) return can(role, permission);
+  if (ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;
+  if (!target) return permission === 'self';
+  const here = roleAt(role, assignments, target);
+  return here !== null && can(here, permission);
 }

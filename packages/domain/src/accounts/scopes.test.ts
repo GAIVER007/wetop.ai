@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canAt,
+  isRestricted,
   isUnrestricted,
   parseScopeAssignments,
   membershipRoleFor,
@@ -153,5 +155,38 @@ describe('parseScopeAssignments', () => {
       Array.from({ length: 51 }, () => ({ role: 'STAFF', businessId: B })),
     ])
       expect(parseScopeAssignments(bad).ok).toBe(false);
+  });
+});
+
+describe('canAt: право в месте', () => {
+  const staffAtL1: ScopeAssignment[] = [{ role: 'STAFF', businessId: B1, locationId: L1 }];
+  const mgrAtL1: ScopeAssignment[] = [{ role: 'MANAGER', businessId: B1, locationId: L1 }];
+
+  it('без назначений и у владельца всё как по роли', () => {
+    expect(isRestricted('STAFF', [])).toBe(false);
+    expect(canAt('STAFF', [], 'desk', undefined)).toBe(true);
+    expect(canAt('MANAGER', [], 'staff', undefined)).toBe(true);
+    expect(canAt('OWNER', staffAtL1, 'owner', { businessId: B2, locationId: L3 })).toBe(true);
+  });
+
+  it('с областью: работа с гостями только в своём филиале', () => {
+    expect(canAt('STAFF', staffAtL1, 'desk', { businessId: B1, locationId: L1 })).toBe(true);
+    expect(canAt('STAFF', staffAtL1, 'desk', { businessId: B1, locationId: L2 })).toBe(false);
+    expect(canAt('STAFF', staffAtL1, 'desk', { businessId: B2, locationId: L3 })).toBe(false);
+  });
+
+  it('права роли в месте не шире роли назначения: администратор филиала не возвращает', () => {
+    expect(canAt('STAFF', staffAtL1, 'refunds', { businessId: B1, locationId: L1 })).toBe(false);
+    expect(canAt('MANAGER', mgrAtL1, 'refunds', { businessId: B1, locationId: L1 })).toBe(true);
+  });
+
+  it('управляющий филиала не управляет командой и не читает общий журнал', () => {
+    for (const p of ['staff', 'owner', 'journal'] as const)
+      expect(canAt('MANAGER', mgrAtL1, p, { businessId: B1, locationId: L1 })).toBe(false);
+  });
+
+  it('без выбранного места открыто только своё', () => {
+    expect(canAt('STAFF', staffAtL1, 'self')).toBe(true);
+    expect(canAt('STAFF', staffAtL1, 'desk')).toBe(false);
   });
 });

@@ -35,6 +35,7 @@ import {
   sessionExpiry,
   sessionState,
   type MembershipRole,
+  type ScopeAssignment,
   type UserStatus,
 } from '@pms/domain';
 import { NEW_PROPERTY_DEFAULTS, createPropertyInChain } from '@pms/database';
@@ -58,6 +59,11 @@ export interface SignedInUser {
   role: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа». Данных чужих гостиниц это не открывает */
   platformAdmin: boolean;
+  /**
+   * Назначения по бизнесам и филиалам (DATA_MODEL §30.1). Нет поля: человек работает во всей организации. Есть:
+   * только там, где назначен, а `role` это старшая из назначенных; роль в месте даёт `roleAt`.
+   */
+  scopes?: ScopeAssignment[];
 }
 
 /** Организация сессии — то, что показывает экран входа: имя, состояние и пробный период (ADR-046, §13.1). */
@@ -129,6 +135,7 @@ const checkPasswordQueued = verifyPasswordQueued;
 interface Access {
   role: MembershipRole;
   platformAdmin: boolean;
+  scopes: ScopeAssignment[];
 }
 
 const visible = (
@@ -142,6 +149,8 @@ const visible = (
   organizationId,
   role: access.role,
   platformAdmin: access.platformAdmin,
+  // назначения только когда они есть: у человека без области ответ прежний
+  ...(access.scopes.length > 0 ? { scopes: access.scopes } : {}),
 });
 
 /**
@@ -607,14 +616,26 @@ export class AuthService {
    * ключу: читаются при каждом запросе, и отозванная отметка или сменённая роль действуют сразу, без нового входа.
    */
   private async access(userId: string, organizationId: string): Promise<Access> {
-    const [membership, admin] = await Promise.all([
+    const [membership, admin, scopeRows] = await Promise.all([
       this.prisma.db.membership.findUnique({
         where: { userId_organizationId: { userId, organizationId } },
         select: { role: true },
       }),
       this.prisma.db.platformAdmin.findUnique({ where: { userId }, select: { revokedAt: true } }),
+      this.prisma.db.membershipScope.findMany({
+        where: { userId, organizationId },
+        orderBy: { createdAt: 'asc' },
+        select: { role: true, businessId: true, locationId: true },
+      }),
     ]);
     return {
+      scopes: scopeRows
+        .filter((r) => r.role !== 'OWNER')
+        .map((r) => ({
+          role: r.role as 'MANAGER' | 'STAFF',
+          businessId: r.businessId,
+          locationId: r.locationId,
+        })),
       // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет
       role: membership?.role ?? 'STAFF',
       platformAdmin: admin !== null && admin.revokedAt === null,

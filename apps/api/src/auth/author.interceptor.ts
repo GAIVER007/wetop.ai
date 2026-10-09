@@ -15,7 +15,18 @@ import { withSignedInUser, currentVertical } from './request-context';
 import { BUSINESS_CAPABILITY } from './capability.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
 import { assertBusinessCapability, resolveBusinessVertical } from './business-vertical';
-import { LUXX_APARTS_PROPERTY, type VerticalCapability } from '@pms/domain';
+import {
+  LUXX_APARTS_PROPERTY,
+  SCOPE_CHOOSE_MESSAGE,
+  SCOPE_FORBIDDEN_MESSAGE,
+  accessDeniedMessage,
+  can,
+  isRestricted,
+  roleAt,
+  type VerticalCapability,
+} from '@pms/domain';
+import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
+import { SCOPE_AWARE } from './scope-aware.decorator';
 import { propertyRef } from '../database/property-ref';
 import { SCOPE_HEADER, parseScopePointer, resolveScope, type ResolvedScope } from './scope';
 
@@ -55,6 +66,8 @@ export class AuthorInterceptor implements NestInterceptor {
     // Public endpoints authenticate and bind the provider/site inside their own domain adapter.
     const handler = context.getHandler?.();
     const controller = context.getClass?.();
+    const assignments = request?.user?.scopes ?? [];
+    const role = this.roleAtPlace(actor.role, assignments, scope, handler, controller);
     const publicRoute =
       handler &&
       (Reflect.getMetadata(PUBLIC_ROUTE, handler) ??
@@ -64,7 +77,7 @@ export class AuthorInterceptor implements NestInterceptor {
         ? (Reflect.getMetadata(BUSINESS_CAPABILITY, handler) ??
           (controller && Reflect.getMetadata(BUSINESS_CAPABILITY, controller)))
         : undefined;
-    const value = await withSignedInUser({ ...actor, ...scope }, async () => {
+    const value = await withSignedInUser({ ...actor, ...scope, role, scopes: assignments }, async () => {
       if (capability) {
         if (
           request?.headers?.[SCOPE_HEADER] &&
@@ -78,6 +91,41 @@ export class AuthorInterceptor implements NestInterceptor {
       return lastValueFrom(next.handle(), { defaultValue: undefined });
     });
     return from([value]);
+  }
+
+  /**
+   * Человек с областью доступа (DATA_MODEL §30.1) работает только там, где назначен, и с ролью этого места. Маршруту с
+   * правом нужен проверенный филиал (или бизнес) запроса: нет выбора, чужой выбор или право, которого нет у роли в этом
+   * месте, это 403. Маршрут `@ScopeAware` решает сам (выбор филиала и сводка фильтруют ответ), личные маршруты (`self`)
+   * открыты. Без ограничения ничего не меняется.
+   */
+  private roleAtPlace(
+    role: SignedInUser['role'] | null,
+    assignments: NonNullable<SignedInUser['scopes']>,
+    scope: ResolvedScope | Record<string, never>,
+    handler: unknown,
+    controller: unknown,
+  ): typeof role {
+    if (!role || !isRestricted(role as SignedInUser['role'], assignments)) return role;
+    const reflectOn = (key: string) =>
+      handler &&
+      (Reflect.getMetadata(key, handler as object) ??
+        (controller && Reflect.getMetadata(key, controller as object)));
+    if (reflectOn(PUBLIC_ROUTE) || reflectOn(SCOPE_AWARE)) return role;
+    const access: RouteAccess | undefined = reflectOn(ROUTE_ACCESS);
+    if (!access || access === 'self' || access === 'platform' || access === 'service') return role;
+    const here = scope as ResolvedScope;
+    const target =
+      here.scope === 'LOCATION' && here.businessId && here.locationId
+        ? { businessId: here.businessId, locationId: here.locationId }
+        : here.scope === 'BUSINESS' && here.businessId
+          ? { businessId: here.businessId }
+          : undefined;
+    if (!target) throw new ForbiddenException(SCOPE_CHOOSE_MESSAGE);
+    const placeRole = roleAt(role as SignedInUser['role'], assignments, target);
+    if (!placeRole) throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
+    if (!can(placeRole, access)) throw new ForbiddenException(accessDeniedMessage(access));
+    return placeRole;
   }
 
   private async capability(capability: VerticalCapability): Promise<void> {

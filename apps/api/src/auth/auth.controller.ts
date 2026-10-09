@@ -13,7 +13,7 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { deviceFromUserAgent } from '@pms/domain';
+import { deviceFromUserAgent, isRestricted, roleAt } from '@pms/domain';
 import { ExtensionsService } from '../platform/extensions.service';
 import { RateWindows } from '../rate-window';
 import { visitorIp } from '../web-booking/client-ip';
@@ -182,8 +182,22 @@ export class AuthController {
     const signedIn = token ? await this.auth.whoami(token) : null;
     if (!signedIn) return { user: null };
     // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке расширения (ADR-083, Q-183)
+    // человек с областью доступа (DATA_MODEL §30.1): роль по выбранному месту, а организационные разделы закрыты
+    const assignments = signedIn.user.scopes ?? [];
+    const restricted = isRestricted(signedIn.user.role, assignments);
+    const ctx = scopeView();
+    const place =
+      restricted && ctx.businessId
+        ? roleAt(signedIn.user.role, assignments, {
+            businessId: ctx.businessId,
+            locationId: ctx.locationId ?? undefined,
+          })
+        : null;
     return {
       ...signedIn,
+      user: restricted
+        ? { ...signedIn.user, role: place ?? signedIn.user.role, restricted: true }
+        : signedIn.user,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
       // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
       context: scopeView(),

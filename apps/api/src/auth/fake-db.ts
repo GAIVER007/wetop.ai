@@ -398,6 +398,11 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         return { count: hit.length };
       },
     },
+    membershipScope: {
+      async findMany() {
+        return [] as Array<{ role: string; businessId: string; locationId: string | null }>;
+      },
+    },
     membership: {
       async create({
         data,

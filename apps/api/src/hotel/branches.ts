@@ -17,7 +17,9 @@ import {
   createPropertyInChain,
   NEW_PROPERTY_DEFAULTS,
 } from '@pms/database';
+import { canAt, visibleLocations } from '@pms/domain';
 import {
+  currentAssignments,
   currentOrganizationId,
   currentRole,
   currentUserId,
@@ -25,6 +27,7 @@ import {
   withReportLocation,
 } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
+import { ScopeAware } from '../auth/scope-aware.decorator';
 import { PrismaService } from '../database/prisma.provider';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -120,12 +123,23 @@ export class BranchesService {
       select: { ...locationSelect, business: { select: { vertical: true } } },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
-    const items = [
+    const all = [
       ...properties.map((item) => ({ ...item, vertical: 'HOSPITALITY' as const })),
       ...locations.map((row) =>
         locationBranch(row, row.business.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : 'BEAUTY'),
       ),
     ];
+    // человек с областью доступа видит только свои бизнесы и филиалы (DATA_MODEL §30.1): остальных нет и в списке
+    const role = currentRole() ?? 'STAFF';
+    const assignments = currentAssignments();
+    const visible = new Set(
+      visibleLocations(
+        role,
+        assignments,
+        all.map((item) => ({ id: item.locationId, businessId: item.location.businessId })),
+      ).map((l) => l.id),
+    );
+    const items = all.filter((item) => visible.has(item.locationId));
     return { organization, items, canCreate: currentRole() === 'OWNER' };
   }
   async create(raw: unknown) {
@@ -256,17 +270,28 @@ export class BranchesController {
     @Inject(BranchesService) private readonly service: BranchesService,
     @Inject(DashboardService) private readonly dashboard: DashboardService,
   ) {}
-  @Access('desk') @Get() list() {
+  @Access('desk') @ScopeAware() @Get() list() {
     return this.service.list();
   }
   @Access('reports')
+  @ScopeAware()
   @Get('overview')
   async overview(@Query('from') from: string, @Query('to') to: string) {
     const { items } = await this.service.list();
     const rows = [];
     // Сводка гостиничная (решение владельца 06.10.2026, вариант A): показатели DashboardService есть только у филиала с
     // объектом. Салон и ресторан сюда не входят и нулями не показываются: их метрики относятся к MV9.
-    for (const branch of items.filter((item) => item.vertical === 'HOSPITALITY')) {
+    const role = currentRole() ?? 'STAFF';
+    const assignments = currentAssignments();
+    for (const branch of items.filter(
+      (item) =>
+        item.vertical === 'HOSPITALITY' &&
+        // отчёты по месту: роль в этом филиале должна их открывать (DATA_MODEL §30.1)
+        canAt(role, assignments, 'reports', {
+          businessId: item.location.businessId,
+          locationId: item.locationId,
+        }),
+    )) {
       const stats = await withReportLocation(branch.location.businessId, branch.locationId, () =>
         this.dashboard.dashboard(from, to),
       );

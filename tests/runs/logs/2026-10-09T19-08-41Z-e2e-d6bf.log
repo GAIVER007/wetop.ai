@@ -1,0 +1,148 @@
+# Сквозные (e2e) · 10.10.2026 00:08 Алматы · vm
+# коммит f9f0c40 (claude/hopeful-fermat-98a9qt), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/unified-sections.spec.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/object-card.spec.ts' 'tests/ui/property-settings.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-v2.spec.ts:64:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (9.3s)
+  ✓   2 tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (2.9s)
+  ✓   3 tests/ui/analytics-v2.spec.ts:120:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (8.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   4 tests/ui/analytics-v2.spec.ts:145:1 › рост отмен — красный, падение — зелёный; сравнение выключается (3.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   5 tests/ui/analytics-v2.spec.ts:158:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (4.0s)
+  ✓   6 tests/ui/analytics-v2.spec.ts:181:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (3.2s)
+  ✓   7 tests/ui/analytics-v2.spec.ts:198:1 › телефон: без прокрутки вбок, плитки в две колонки (2.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-10" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-10"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-10" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-10"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   8 tests/ui/analytics-v2.spec.ts:209:1 › снимки для визуального гейта AN1 (34.3s)
+  ✓   9 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (24.6s)
+  ✓  10 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (3.3s)
+  ✓  11 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (8.4s)
+  ✓  12 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (22.9s)
+  ✓  13 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.3s)
+  ✓  14 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.8s)
+  ✓  15 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (4.4s)
+  ✓  16 tests/ui/mobile-adaptation.spec.ts:111:1 › узкий телефон: плитки финансов встают в одну колонку (2.8s)
+  ✓  17 tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (15.1s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  18 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (20.4s)
+  ✓  19 tests/ui/object-card.spec.ts:24:1 › карточка объекта: все поля сохраняются и читаются обратно (12.3s)
+  ✓  20 tests/ui/object-card.spec.ts:76:1 › карточка объекта: снятие всех удобств и возврат значения гасят «есть изменения» (8.7s)
+  ✓  21 tests/ui/object-card.spec.ts:103:1 › карточка объекта: ошибки словами у поля и от API, ввод не пропадает (6.3s)
+  ✓  22 tests/ui/object-card.spec.ts:126:1 › предпросмотр карточки показывает ещё не сохранённые правки (4.9s)
+  ✓  23 tests/ui/object-card.spec.ts:148:1 › «Добавить услугу» раскрывает остальные удобства, номера и места считаются по фонду (4.4s)
+  ✓  24 tests/ui/object-card.spec.ts:164:1 › «Проживание» шлёт свои поля и не затирает «Основное» (9.6s)
+  ✓  25 tests/ui/object-card.spec.ts:187:1 › фото объекта: загрузка, показ в карточке справа, удаление (6.4s)
+  ✓  26 tests/ui/object-card.spec.ts:208:1 › договор объекта: только PDF, новый заменяет прежний, удаление (8.1s)
+  ✓  27 tests/ui/object-card.spec.ts:236:1 › хранилище файлов выключено: загрузки нет, причина сказана словами (3.9s)
+  ✓  28 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: light (26.0s)
+  ✓  29 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: dark (28.5s)
+  ✓  30 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (6.6s)
+  ✓  31 tests/ui/property-settings.spec.ts:75:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (8.2s)
+  ✓  32 tests/ui/property-settings.spec.ts:90:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (15.3s)
+  ✓  33 tests/ui/property-settings.spec.ts:150:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (7.5s)
+  ✓  34 tests/ui/property-settings.spec.ts:175:1 › данные объекта и каналов помещаются на экране ноутбука (5.3s)
+  ✓  35 tests/ui/property-settings.spec.ts:192:3 › снимки SET1 и доступность: light (24.8s)
+  ✓  36 tests/ui/property-settings.spec.ts:192:3 › снимки SET1 и доступность: dark (23.4s)
+  ✓  37 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке (4.7s)
+  ✓  38 tests/ui/unified-sections.spec.ts:28:1 › интеграции: незавершённая настройка не называется подключением (5.8s)
+  ✓  39 tests/ui/unified-sections.spec.ts:34:1 › адаптивный обзор разделов (13.5s)
+
+  39 passed (7.1m)
+
+# код выхода 0 · 7 мин 10 с

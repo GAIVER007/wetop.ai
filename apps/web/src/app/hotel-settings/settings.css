@@ -517,6 +517,10 @@
     .object-settings .obj-banner {
       flex-wrap: wrap;
     }
+    /* ссылка-кнопка предпросмотра на телефоне тоже цель касания (mobile-adaptation, 44 px) */
+    .object-settings .obj-preview__open {
+      min-height: var(--touch-target);
+    }
   }
   /* Окно «Предпросмотр карточки»: то, что гость прочтёт об объекте */
   .obj-sample {

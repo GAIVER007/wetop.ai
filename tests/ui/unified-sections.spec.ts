@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, HEADER_GROWTH_PX, test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {
@@ -16,12 +16,13 @@ test('настройки: основные поля и сохранение по
   await page.goto('/hotel-settings');
   await expect(page.getByLabel('Название объекта')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  const size = await page.evaluate(() => ({
-    h: document.documentElement.scrollHeight,
-    v: innerHeight,
-  }));
-  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под форму то же
-  expect(size.h).toBeLessThanOrEqual(size.v + HEADER_GROWTH_PX + 1);
+  // До 09.10.2026 здесь мерилась высота всей формы (бюджет 01.10 плюс HEADER_GROWTH_PX). Вёрстка владельца (PR #340,
+  // ADR-158) раскладывает настройки карточками в три колонки, и целиком форма в 1366×768 не помещается по замыслу.
+  // Проверяется то, ради чего бюджет вводился: название объекта и кнопка сохранения видны без прокрутки.
+  const inFirstScreen = async (box: { y: number; height: number } | null) =>
+    box !== null && box.y >= 0 && box.y + box.height <= (await page.evaluate(() => innerHeight));
+  expect(await inFirstScreen(await page.getByLabel('Название объекта').boundingBox())).toBe(true);
+  expect(await inFirstScreen(await page.getByRole('button', { name: 'Сохранить изменения' }).boundingBox())).toBe(true);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {

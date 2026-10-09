@@ -1479,6 +1479,7 @@ function Cell({
               <span
                 className="board-stay-caption"
                 data-span={label.span}
+                data-continues={label.continues ? '' : undefined}
                 style={{
                   width: `calc(${label.span * 100}% - ${captionEnd})`,
                 }}

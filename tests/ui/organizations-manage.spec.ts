@@ -2,7 +2,7 @@ import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
- * «Настройки → Организации»: название, архив и возврат (ORG1, ADR-154, план `plans/organizations-page-2026-10-09.md`).
+ * «Настройки → Организации»: название, архив и возврат (ORG1, ADR-ORG1, план `plans/organizations-page-2026-10-09.md`).
  * Стенд отвечает теми же словами, что API; «Хостел «Пример»» (ui-org-2) чужая организация, «Luxx Aparts» (ui-org) своя.
  */
 test.beforeEach(async ({ request }) => {

@@ -1,0 +1,98 @@
+# Модульные (unit) · 09.10.2026 17:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T12-57-57Z-unit-8982.json' 'apps/api/src/wizard/wizard-input.test.ts' 'apps/web/src/app/create/regional.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/app/create/regional.test.ts (3 tests) 2ms
+ ✓ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests) 3ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 23ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 23ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(299) } to deeply equal { 'GET /branches': 'desk', …(275) }
+
+- Expected
++ Received
+
+@@ -40,10 +40,19 @@
+    "GET /auth/options": "public",
+    "GET /auth/sessions": "self",
+    "GET /availability": "desk",
+    "GET /availability/nearest": "desk",
+    "GET /availability/offers": "desk",
++   "GET /bar/categories": "desk",
++   "GET /bar/folios": "desk",
++   "GET /bar/movements": "desk",
++   "GET /bar/products": "desk",
++   "GET /bar/receipts": "desk",
++   "GET /bar/report": "desk",
++   "GET /bar/sales": "desk",
++   "GET /bar/stock": "desk",
++   "GET /bar/suppliers": "desk",
+    "GET /beauty/appointments": "desk",
+    "GET /beauty/employees": "desk",
+    "GET /beauty/schedule": "desk",
+    "GET /beauty/services": "desk",
+    "GET /bot/agent-origins": "public",
+@@ -133,10 +142,14 @@
+    "GET /wizard/quota": "public",
+    "GET /wizard/status": "public",
+    "PATCH /analytics/sites/:id": "settings",
+    "PATCH /auth/members/:userId": "owner",
+    "PATCH /auth/members/:userId/details": "staff",
++   "PATCH /bar/categories/:id/active": "settings",
++   "PATCH /bar/products/:id/active": "settings",
++   "PATCH /bar/products/:id/price": "settings",
++   "PATCH /bar/suppliers/:id/active": "settings",
+    "PATCH /beauty/appointments/:id": "desk",
+    "PATCH /beauty/employees/:id": "property",
+    "PATCH /beauty/services/:id": "rates",
+    "PATCH /finance/cash/categories/:id": "settings",
+    "PATCH /guests/:id": "desk",
+@@ -180,10 +193,21 @@
+    "POST /auth/logout-all": "self",
+    "POST /auth/password": "self",
+    "POST /auth/password-reset/confirm": "public",
+    "POST /auth/password-reset/request": "public",
+    "POST /auth/register": "public",
++   "POST /bar/categories": "settings",
++   "POST /bar/inventory-counts": "desk",
++   "POST /bar/products": "settings",
++   "POST /bar/receipts": "desk",
++   "POST /bar/receipts/:id/payments": "desk",
++   "POST /bar/receipts/:id/post": "desk",
++   "POST /bar/sales/:id/reverse": "desk",
++   "POST /bar/sales/folio": "desk",
++   "POST /bar/sales/retail": "desk",
++   "POST /bar/suppliers": "settings",
++   "POST /bar/write-offs": "desk",
+    "POST /beauty/appointments": "desk",
+    "POST /beauty/appointments/:id/status": "desk",
+    "POST /beauty/employees": "property",
+    "POST /beauty/employees/:id/time-offs": "property",
+    "POST /beauty/services": "rates",
+
+ ❯ apps/api/src/auth/route-access.test.ts:378:20
+    376|       .map(([key]) => key);
+    377|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    378|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    379|   });
+    380|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 8 passed (9)
+   Start at  05:57:58
+   Duration  1.30s (transform 53%, import 45%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T12-57-57Z-unit-8982.json
+
+# код выхода 1 · 2 с

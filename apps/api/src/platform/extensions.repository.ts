@@ -28,10 +28,10 @@ export interface OrganizationSummary {
 
 export interface ExtensionsRepository {
   aiSeller(organizationId: string): Promise<ExtensionRow | null>;
-  /** Название организации (ORG1, ADR-154): изменение и строка журнала одной транзакцией */
+  /** Название организации (ORG1, ADR-ORG1): изменение и строка журнала одной транзакцией */
   rename(input: { organizationId: string; name: string; by: string | null; now: Date }): Promise<void>;
   /**
-   * Архив вместо удаления (ORG1, ADR-154): статус `SUSPENDED`, люди организации не входят, данные целы. Прежний статус
+   * Архив вместо удаления (ORG1, ADR-ORG1): статус `SUSPENDED`, люди организации не входят, данные целы. Прежний статус
    * остаётся в журнале (`before`): по нему идёт возврат. Статус и строка журнала — одной транзакцией.
    */
   archive(input: { organizationId: string; by: string | null; now: Date }): Promise<void>;

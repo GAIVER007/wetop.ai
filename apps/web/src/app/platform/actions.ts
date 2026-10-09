@@ -132,7 +132,7 @@ export async function changeSiteBuilderAction(
 }
 
 /**
- * Название, архив и возврат организации (ORG1, ADR-154, Q-282): «удалить» заменено архивом, данные не удаляются.
+ * Название, архив и возврат организации (ORG1, ADR-ORG1, Q-282): «удалить» заменено архивом, данные не удаляются.
  * Проверяет API, отказ его словами.
  */
 export interface OrganizationActionResult {

@@ -59,7 +59,7 @@ export class PlatformController {
     return { items: (await this.repo.organizations()).map((o) => organizationJson(o, now)) };
   }
 
-  /** Название организации (ORG1, ADR-154): пробелы сжимаются, то же название ничего не пишет в журнал */
+  /** Название организации (ORG1, ADR-ORG1): пробелы сжимаются, то же название ничего не пишет в журнал */
   @Patch('organizations/:id')
   async rename(@Param('id') id: string, @Body() body: unknown) {
     requirePlatformAdmin();
@@ -74,7 +74,7 @@ export class PlatformController {
   }
 
   /**
-   * Архив вместо удаления (ORG1, ADR-154, Q-282): организация получает `SUSPENDED`, её люди не входят, данные целы,
+   * Архив вместо удаления (ORG1, ADR-ORG1, Q-282): организация получает `SUSPENDED`, её люди не входят, данные целы,
    * вернуть можно. Свою организацию убрать нельзя: сессия главного администратора перестала бы действовать.
    */
   @Post('organizations/:id/archive')

@@ -2201,7 +2201,7 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
-// ORG1 (ADR-154): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
+// ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
 const platformNames = new Map<string, string>();
 const platformArchived = new Map<string, string>();
 function setOrgTrial(days: unknown) {
@@ -5783,7 +5783,7 @@ createServer(async (req, res) => {
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
       }
-      // ORG1 (ADR-154): название, архив и возврат организации, те же слова отказа, что у API
+      // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
       const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);
       if (rename && req.method === 'PATCH') {
         const org = platformOrganizations().find((o) => o.id === decodeURIComponent(rename[1]!));

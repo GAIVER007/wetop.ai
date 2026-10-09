@@ -100,7 +100,7 @@ async function Organizations({
   const items = organizations.value.items;
   const card = items.find((o) => o.id === selected);
   const ownId = branches.ok ? branches.value.organization.id : '';
-  // архив вместо удаления (ORG1, ADR-154): организации в архиве скрыты, пока их не попросили показать
+  // архив вместо удаления (ORG1, ADR-ORG1): организации в архиве скрыты, пока их не попросили показать
   const archivedCount = items.filter((o) => o.status === 'SUSPENDED').length;
   const visible = items.filter((o) => showArchived || o.status !== 'SUSPENDED' || o.id === selected);
   const archivedParam = showArchived ? '&archived=1' : '';

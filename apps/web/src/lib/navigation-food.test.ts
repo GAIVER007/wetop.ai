@@ -34,11 +34,14 @@ describe('Food workspace isolation', () => {
       expect(menuSectionsFor(owner, v).flatMap((s) => s.items.map((i) => i.href))).not.toContain(
         '/floor-plan',
       );
-      if (v === 'HOSPITALITY')
+      if (v === 'HOSPITALITY') {
+        // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Финансы');
         expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
           href: '/finance',
-          label: 'Финансы',
+          label: 'Оплаты и касса',
         });
+      }
     }
   });
   it('uses canonical landings and verified scope', () => {

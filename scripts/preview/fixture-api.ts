@@ -29,6 +29,7 @@ import {
   isOrganizationNameShaped,
   normalizeOrganizationName,
   parseExtensionChange,
+  validEmail,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
   INVITE_ROLE_MESSAGE,
@@ -2204,6 +2205,16 @@ const platformStatuses = new Map<string, string>();
 // ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
 const platformNames = new Map<string, string>();
 const platformArchived = new Map<string, string>();
+// ORG2 (ADR-ORG2): организации, созданные главным администратором; письмо владельцу и время последней ссылки
+interface FixtureCreatedOrg {
+  id: string;
+  name: string;
+  ownerEmail: string;
+  createdAt: string;
+}
+const platformCreated: FixtureCreatedOrg[] = [];
+const platformLinkAt = new Map<string, number>();
+let platformMailOn = true;
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2230,6 +2241,9 @@ function resetAccess() {
   platformStatuses.clear();
   platformNames.clear();
   platformArchived.clear();
+  platformCreated.length = 0;
+  platformLinkAt.clear();
+  platformMailOn = true;
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2255,6 +2269,7 @@ const platformOrganizations = () => [
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
+    ownerPending: false,
   },
   {
     id: 'ui-org-2',
@@ -2264,7 +2279,18 @@ const platformOrganizations = () => [
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
+    ownerPending: false,
   },
+  ...platformCreated.map((c) => ({
+    id: c.id,
+    name: platformNames.get(c.id) ?? c.name,
+    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'TRIAL'),
+    trialEndsAt: new Date(Date.now() + 14 * DAY_MS).toISOString(),
+    createdAt: c.createdAt,
+    members: 1,
+    owners: [c.ownerEmail],
+    ownerPending: true,
+  })),
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
@@ -4849,6 +4875,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if ('platformMail' in body) platformMailOn = body['platformMail'] !== 'off';
       if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
@@ -5782,6 +5809,39 @@ createServer(async (req, res) => {
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
+      }
+      // ORG2 (ADR-ORG2, Q-283): создание организации и ссылка владельцу, те же слова отказа, что у API
+      if (path === '/platform/organizations' && req.method === 'POST') {
+        const name = body['name'];
+        if (typeof name !== 'string' || !isOrganizationNameShaped(name))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        const rawEmail = body['ownerEmail'];
+        const ownerEmail = typeof rawEmail === 'string' ? validEmail(rawEmail) : null;
+        if (!ownerEmail) return send(400, { message: 'Почта владельца: введите адрес вида имя@домен' });
+        const vertical = body['vertical'] ?? 'HOSPITALITY';
+        if (vertical !== 'HOSPITALITY' && vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE')
+          return send(400, { message: 'Выберите направление бизнеса' });
+        if (vertical !== 'HOSPITALITY')
+          return send(403, { message: 'Направление пока доступно только участникам пилота' });
+        const taken = ['admin@wetop.test', 'owner@example.com', ...platformCreated.map((c) => c.ownerEmail)];
+        if (taken.includes(ownerEmail)) return send(409, { message: 'Эта почта уже зарегистрирована' });
+        const id = `ui-org-new-${platformCreated.length + 1}`;
+        platformCreated.push({ id, name: normalizeOrganizationName(name), ownerEmail, createdAt: new Date().toISOString() });
+        if (platformMailOn) platformLinkAt.set(id, Date.now());
+        return send(201, {
+          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === id)!),
+          ownerLinkSent: platformMailOn,
+        });
+      }
+      const ownerLink = /^\/platform\/organizations\/([^/]+)\/owner-link$/.exec(path);
+      if (ownerLink && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(ownerLink[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (!org.ownerPending) return send(409, { message: 'Владелец уже задал пароль: ссылка не нужна' });
+        if (platformLinkAt.has(org.id))
+          return send(429, { message: 'Письмо уже отправляли: повторить можно через несколько минут' });
+        if (platformMailOn) platformLinkAt.set(org.id, Date.now());
+        return send(201, { organization: platformOrganizationJson(org), ownerLinkSent: platformMailOn });
       }
       // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
       const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);

@@ -92,19 +92,98 @@ test('своя организация: помечена «Ваша», в арх�
   );
 });
 
-test('«Добавить организацию»: новая организация регистрируется сама, ссылка на регистрацию под рукой', async ({
+async function openCreateForm(page: Page) {
+  const main = page.getByRole('main');
+  await main.locator('summary').filter({ hasText: 'Добавить организацию' }).click();
+  return main.getByTestId('platform-create-form');
+}
+
+test('создание организации: письмо владельцу ушло, в таблице «ждёт пароля», повторная ссылка сразу нельзя', async ({
   page,
   request,
 }) => {
   await signInAsPlatformAdmin(page, request);
   await page.goto('/platform');
-  const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить организацию' }).click();
-  await expect(main.getByTestId('platform-add-organization')).toContainText(
-    'Организация регистрируется сама',
+  const form = await openCreateForm(page);
+  await form.getByLabel('Название организации').fill('Хостел «Новый»');
+  await form.getByLabel('Почта владельца').fill('new-owner@example.com');
+  await form.getByRole('button', { name: 'Создать организацию' }).click();
+  await expect(page.getByTestId('platform-create-result')).toContainText('Организация «Хостел «Новый»» создана');
+  await expect(page.getByTestId('platform-create-result')).toContainText('Ссылка для пароля отправлена на new-owner@example.com');
+
+  const table = page.getByTestId('platform-organizations');
+  const row = table.getByRole('row', { name: /Хостел «Новый»/ });
+  await expect(row).toContainText('ждёт пароля');
+  await expect(row).toContainText('пробный');
+  // у организаций, чей владелец уже вошёл, такой отметки и такой кнопки нет
+  await expect(table.getByRole('row', { name: /Хостел «Пример»/ })).not.toContainText('ждёт пароля');
+
+  await row.getByRole('link', { name: 'Хостел «Новый»' }).click();
+  await expect(page.getByTestId('platform-owner-link-form')).toContainText('new-owner@example.com ещё не задал пароль');
+  await page.getByRole('button', { name: 'Отправить ссылку ещё раз' }).click();
+  await expect(page.getByTestId('platform-owner-link-error')).toHaveText(
+    'Письмо уже отправляли: повторить можно через несколько минут',
   );
-  await expect(main.getByRole('link', { name: 'Страница регистрации' })).toHaveAttribute(
+  await page.screenshot({
+    path: 'reports/organizations-page-2026-10-09/organization-created-1440.png',
+    fullPage: true,
+  });
+
+  await page.goto('/platform?org=ui-org-2#organization');
+  await expect(page.getByTestId('platform-owner-link-form')).toHaveCount(0);
+});
+
+test('письмо не ушло: организация создана, ссылку можно отправить ещё раз, когда почта заработала', async ({
+  page,
+  request,
+}) => {
+  await signInAsPlatformAdmin(page, request);
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true, platformMail: 'off' } });
+  await page.goto('/platform');
+  const form = await openCreateForm(page);
+  await form.getByLabel('Название организации').fill('Салон-студия «Лотос»');
+  await form.getByLabel('Почта владельца').fill('lotos-owner@example.com');
+  await form.getByRole('button', { name: 'Создать организацию' }).click();
+  await expect(page.getByTestId('platform-create-result')).toContainText('создана, но письмо не ушло');
+
+  await page.goto('/platform');
+  const table = page.getByTestId('platform-organizations');
+  await table.getByRole('link', { name: 'Салон-студия «Лотос»' }).click();
+  await page.getByRole('button', { name: 'Отправить ссылку ещё раз' }).click();
+  await expect(page.getByTestId('platform-owner-link-result')).toContainText('Письмо не ушло');
+
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true, platformMail: 'on' } });
+  await page.getByRole('button', { name: 'Отправить ссылку ещё раз' }).click();
+  await expect(page.getByTestId('platform-owner-link-result')).toContainText(
+    'Ссылка отправлена на lotos-owner@example.com',
+  );
+});
+
+test('создание: отказы API видны словами; ссылка на самостоятельную регистрацию остаётся', async ({ page, request }) => {
+  await signInAsPlatformAdmin(page, request);
+  await page.goto('/platform');
+  const form = await openCreateForm(page);
+  const submit = form.getByRole('button', { name: 'Создать организацию' });
+
+  await form.getByLabel('Название организации').fill('   ');
+  await form.getByLabel('Почта владельца').fill('someone@example.com');
+  await submit.click();
+  await expect(page.getByTestId('platform-create-error')).toHaveText('Название организации: от 1 до 200 знаков');
+
+  await form.getByLabel('Название организации').fill('Хостел «Дубль»');
+  await form.getByLabel('Почта владельца').fill('owner@example.com');
+  await submit.click();
+  await expect(page.getByTestId('platform-create-error')).toHaveText('Эта почта уже зарегистрирована');
+
+  await form.getByLabel('Название организации').fill('Салон «Не пилот»');
+  await form.getByLabel('Почта владельца').fill('beauty-owner@example.com');
+  await form.getByLabel('Направление').selectOption('BEAUTY');
+  await submit.click();
+  await expect(page.getByTestId('platform-create-error')).toHaveText('Направление пока доступно только участникам пилота');
+
+  await expect(page.getByTestId('platform-add-organization').getByRole('link', { name: 'страница регистрации' })).toHaveAttribute(
     'href',
     /register/,
   );
+  await expect(page.getByTestId('platform-organizations').getByRole('link', { name: /Дубль|Не пилот/ })).toHaveCount(0);
 });

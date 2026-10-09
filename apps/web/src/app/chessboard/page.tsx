@@ -372,7 +372,11 @@ export default async function ChessboardPage({
             ['var(--plate-block)', 'блок'],
           ].map(([color, label]) => (
             <li key={label}>
-              <span className="board-legend-dot" style={{ background: color }} aria-hidden="true" />
+              <span
+                className="board-legend-dot"
+                style={{ backgroundColor: color /* slop-allow: inline-style цвет точки легенды берётся из токена плашки */ }}
+                aria-hidden="true"
+              />
               {label!.charAt(0).toUpperCase() + label!.slice(1)}
             </li>
           ))}

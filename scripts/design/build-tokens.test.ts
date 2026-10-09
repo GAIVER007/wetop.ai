@@ -86,18 +86,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--board-head-real', // board.css: фактическая высота шапки дат, замер из board-grid.tsx
       '--board-unit-real', // board.css: фактическая ширина колонки мест — к ней липнет имя длинной брони
-      '--plate-living', // board.css: цвета плашек календаря по образцу владельца (09.10.2026), свои для тем
-      '--plate-living-ink',
-      '--plate-booked',
-      '--plate-booked-ink',
-      '--plate-tentative',
-      '--plate-tentative-ink',
-      '--plate-left',
-      '--plate-left-ink',
-      '--plate-repair',
-      '--plate-repair-ink',
-      '--plate-block',
-      '--plate-block-ink',
+      '--board-zoom', // board-zoom.tsx: масштаб календаря ставится на корень страницы через style.setProperty
       '--share-fill', // components.css: цвет полосы ShareBar по тону, объявлен в .share-bar (DS1c)
       '--share-track', // components.css: дорожка ShareBar по тону, там же
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя

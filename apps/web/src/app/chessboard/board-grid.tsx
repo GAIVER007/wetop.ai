@@ -1083,7 +1083,7 @@ export function ChessboardGrid({
                       >
                         <span className="board-group-bar" aria-hidden="true">
                           <span
-                            style={{
+                            style={{ // slop-allow: inline-style ширина полосы загрузки категории считается из данных
                               width: `${groupLoad(g.code) ? Math.round((groupLoad(g.code)!.occupied / Math.max(groupLoad(g.code)!.units, 1)) * 100) : 0}%`,
                             }}
                           />
@@ -1626,7 +1626,7 @@ function Cell({
             <span
               className="board-stay-caption board-block-caption"
               data-span={blockRun.span}
-              style={{ width: `calc(${blockRun.span * 100}% - var(--space-2))` }}
+              style={{ width: `calc(${blockRun.span * 100}% - var(--space-2))` /* slop-allow: inline-style ширина подписи блока по числу ночей отрезка */ }}
             >
               <span className="board-stay-line">
                 <b className="board-stay-glyph" aria-hidden="true">

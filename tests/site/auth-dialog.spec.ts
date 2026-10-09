@@ -147,7 +147,7 @@ test('«Регистрация» при открытой регистрации 
   await page.goto('/');
   await page
     .locator('.public-intro')
-    .getByRole('link', { name: /Создать аккаунт/ })
+    .getByRole('link', { name: /Попробовать бесплатно/ })
     .click();
 
   const dialog = page.getByRole('dialog');

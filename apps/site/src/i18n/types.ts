@@ -32,32 +32,36 @@ export type Dictionary = {
   hero: {
     /** Плашка над заголовком. */
     status: string;
-    /** Заголовок первого экрана; `titleAccent` идёт второй строкой фирменным цветом. */
+    /** Заголовок первого экрана; `titleAccent` идёт последней строкой фирменным цветом. */
     title: string;
     titleAccent: string;
     lead: string;
     /** Кнопки первого экрана: регистрация и переход к «Возможностям». */
     primary: string;
     secondary: string;
-    /** Строка под кнопками: работает в браузере. */
+    /** Строка под кнопками. */
     note: string;
+    /** Рукописная пометка у мокапа. */
+    annotation: string;
+    /** Дашборд-мокап: только вымышленные данные, подпись примера обязательна. */
+    dash: {
+      label: string;
+      nav: string[];
+      title: string;
+      date: string;
+      scope: string;
+      metrics: Array<{ name: string; value: string; delta: string }>;
+      arrivalsTitle: string;
+      arrivals: Array<{ time: string; name: string; detail: string; guests: string }>;
+      chartTitle: string;
+      chartDays: string[];
+      chartValues: number[];
+      chartPeak: string;
+      showAll: string;
+    };
   };
-  /**
-   * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
-   * Три факта, которые раньше висели под чертой на первом экране, живут здесь. Обещаний и цифр нет (§19.9).
-   */
   intro: {
     availability: string;
-    previewLabel: string;
-    previewTitle: string;
-    previewContext: string;
-    previewDate: string;
-    previewWorkspace: string;
-    previewNav: string[];
-    eventsTitle: string;
-    events: Array<{ time: string; title: string; detail: string; status: string }>;
-    attentionTitle: string;
-    attention: Array<{ title: string; detail: string }>;
     verticalTitle: string;
     verticalLead: string;
     contactAction: string;
@@ -68,6 +72,8 @@ export type Dictionary = {
       name: string;
       text: string;
       capabilities: string[];
+      /** Подпись ссылки-стрелки карточки: «Для гостиниц». */
+      action: string;
     }>;
   };
   /** Ссылки под карточкой гостиниц: страницы по типу объекта (`/for/*`). */
@@ -80,38 +86,54 @@ export type Dictionary = {
     lead: string;
     items: Array<{ icon: IconName; title: string; text: string }>;
   };
-  /** «Продажи и ИИ» (LAND2): три модуля со статусом словами, полоса источников, карточка калькулятора. */
+  /** «Продажи и ИИ»: две большие карточки с примерами и полоса источников броней. */
   growth: {
     eyebrow: string;
     title: string;
     lead: string;
-    modules: Array<{
-      id: 'marketing' | 'ai-sellers' | 'market';
+    market: {
       icon: IconName;
-      status: string;
       title: string;
       text: string;
       points: string[];
-    }>;
-    note: string;
+      action: string;
+      preview: {
+        label: string;
+        title: string;
+        delta: string;
+        rows: Array<{ name: string; value: string; own?: boolean }>;
+        marker: string;
+        days: string[];
+      };
+    };
+    ai: {
+      icon: IconName;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      note: string;
+      chat: {
+        label: string;
+        title: string;
+        online: string;
+        inbound: string;
+        outbound: string;
+        placeholder: string;
+      };
+    };
     sources: {
       title: string;
       lead: string;
       items: Array<{ icon: IconName; title: string; text: string }>;
     };
-    calculator: { title: string; text: string; link: string };
   };
-  /** «Команда и безопасность»: три пункта и мини-пример списка сотрудников. */
+  /** «Команда и контроль доступа»: три карточки. */
   team: {
     eyebrow: string;
     title: string;
     lead: string;
     items: Array<{ icon: IconName; title: string; text: string }>;
-    preview: {
-      label: string;
-      title: string;
-      rows: Array<{ name: string; role: string }>;
-    };
   };
   start: {
     eyebrow: string;
@@ -119,11 +141,15 @@ export type Dictionary = {
     lead: string;
     steps: Array<{ title: string; text: string }>;
   };
-  /** Финальный призыв перед подвалом. */
+  /** Карточка призыва рядом с FAQ. */
   final: {
+    eyebrow: string;
     title: string;
     text: string;
     contact: string;
+    contactsLabel: string;
+    badgeTop: string;
+    badgeBottom: string;
   };
   /** «Вопросы и ответы»: нативные details. */
   faq: {

@@ -1,50 +1,56 @@
 import { getDictionary } from '../../i18n';
 import { Icon } from '../icon';
-import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
 
 /*
- * «Команда и безопасность» (LAND2, ТЗ §8): три пункта (роли ADR-107, филиалы ADR-104, журнал) и
- * компактный пример списка сотрудников. Имена вымышленные, абсолютных обещаний безопасности нет.
+ * «Команда и контроль доступа» и «Запуск за четыре шага» в два столбца (по снимку владельца).
+ * Левая колонка: три карточки команды; правая: четыре нумерованных шага со стрелками между ними.
  */
-export function Team() {
-  const { team } = getDictionary();
+export function TeamAndStart() {
+  const t = getDictionary();
   return (
-    <section id="team" className="section section--band" aria-labelledby="team-title">
-      <div className="container team__layout">
+    <section id="team" className="section team-start" aria-labelledby="team-title">
+      <div className="container team-start__layout">
         <div>
-          <SectionHeading id="team-title" eyebrow={team.eyebrow} title={team.title} lead={team.lead} />
-          <ul className="team__items">
-            {team.items.map((item) => (
-              <li key={item.title} className="team__item">
+          <div className="section-heading">
+            <p className="eyebrow">{t.team.eyebrow}</p>
+            <h2 id="team-title" className="section-heading__title">
+              {typo(t.team.title)}
+            </h2>
+            <p className="section-heading__lead">{typo(t.team.lead)}</p>
+          </div>
+          <ul className="card-grid card-grid--3 team-start__cards">
+            {t.team.items.map((item) => (
+              <li key={item.title} className="card glass">
                 <span className="icon-tile icon-tile--sm">
                   <Icon name={item.icon} size={20} />
                 </span>
-                <div>
-                  <h3 className="card__title">{typo(item.title)}</h3>
-                  <p className="card__text">{typo(item.text)}</p>
-                </div>
+                <h3 className="card__title">{typo(item.title)}</h3>
+                <p className="card__text">{typo(item.text)}</p>
               </li>
             ))}
           </ul>
         </div>
-        <figure className="team__preview glass" aria-label={team.preview.label}>
-          <figcaption className="team__preview-head">
-            <strong>{team.preview.title}</strong>
-            <span>{getDictionary().intro.previewLabel}</span>
-          </figcaption>
-          <ul className="team__roster">
-            {team.preview.rows.map((row) => (
-              <li key={row.name}>
-                <span className="team__avatar" aria-hidden="true">
-                  <Icon name="guest" size={16} />
+        <div id="start" aria-labelledby="start-title">
+          <div className="section-heading">
+            <p className="eyebrow">{t.start.eyebrow}</p>
+            <h2 id="start-title" className="section-heading__title">
+              {typo(t.start.title)}
+            </h2>
+            <p className="section-heading__lead">{typo(t.start.lead)}</p>
+          </div>
+          <ol className="steps steps--row">
+            {t.start.steps.map((step, index) => (
+              <li key={step.title} className="step glass">
+                <span className="step__number" aria-hidden="true">
+                  {index + 1}
                 </span>
-                <span className="team__name">{row.name}</span>
-                <span className="team__role">{row.role}</span>
+                <h3 className="card__title">{typo(step.title)}</h3>
+                <p className="card__text">{typo(step.text)}</p>
               </li>
             ))}
-          </ul>
-        </figure>
+          </ol>
+        </div>
       </div>
     </section>
   );

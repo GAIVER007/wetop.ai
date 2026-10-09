@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
-import { companyName, contactLinks, loginLink } from '../lib/site';
+import { companyName, loginLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { typo } from './typo';
 
 /*
- * Подвал (LAND2, ТЗ §10): бренд, ссылки продукта, правовые страницы и контакты, нижняя строка с ©.
- * «Блог» только при опубликованных статьях; контакты только заполненные в site.config.ts.
+ * Подвал одной строкой (по снимку владельца): бренд и подпись слева, ссылки по центру, © справа;
+ * ниже мелкая строка с правовыми страницами. «Блог» — только при опубликованных статьях.
  */
 export function SiteFooter() {
   const t = getDictionary();
@@ -15,19 +15,18 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
   const owner = companyName() || t.meta.siteName;
   const hasPosts = getPublishedPosts().length > 0;
-  const contacts = contactLinks();
 
   return (
     <footer id="contacts" className="site-footer">
       <div className="container">
-        <div className="site-footer__panel glass glass--quiet">
+        <div className="site-footer__row">
           <div className="site-footer__brand">
             <Link href="/" className="site-header__brand" aria-label={t.a11y.home}>
               <Wordmark id="brand-footer" />
             </Link>
             <p>{typo(t.footer.tagline)}</p>
           </div>
-          <nav aria-label={t.a11y.footerNav} className="site-footer__nav">
+          <nav aria-label={t.a11y.footerNav}>
             <ul className="site-footer__links">
               <li>
                 <a href="/#product">{t.footer.product}</a>
@@ -47,29 +46,14 @@ export function SiteFooter() {
                 <a href={loginLink().href}>{t.nav.login}</a>
               </li>
             </ul>
-            <ul className="site-footer__links">
-              <li>
-                <Link href="/privacy/">{t.footer.privacy}</Link>
-              </li>
-              <li>
-                <Link href="/terms/">{t.footer.terms}</Link>
-              </li>
-              {contacts.map((contact) => (
-                <li key={contact.href}>
-                  <a href={contact.href}>{contact.label}</a>
-                </li>
-              ))}
-            </ul>
           </nav>
-          <div className="site-footer__bar">
-            <p className="site-footer__copy">
-              © {year} {owner}
-            </p>
-            <span className="site-footer__star" aria-hidden="true">
-              ✦
-            </span>
-            <p className="site-footer__motto">{t.footer.motto}</p>
-          </div>
+          <p className="site-footer__copy">
+            © {year} {owner}
+          </p>
+        </div>
+        <div className="site-footer__legal">
+          <Link href="/privacy/">{t.footer.privacy}</Link>
+          <Link href="/terms/">{t.footer.terms}</Link>
         </div>
       </div>
     </footer>

@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -30,6 +31,7 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;

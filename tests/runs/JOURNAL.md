@@ -7674,3 +7674,8 @@
 | 09.10.2026 12:57 | typecheck | ❌ ошибок: 5 | 19 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-16Z-typecheck-8c97.log) | TS2307 |
 | 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
+| 09.10.2026 13:38 | unit | ✅ 4145 из 4149, пропущено 4 | 1 мин 13 с | abc7498 | [лог](logs/2026-10-09T08-38-34Z-unit-1f54.log) |  |
+| 09.10.2026 13:43 | integration | ❌ упало 3 из 961, пропущено 9 | 51 с | abc7498 | [лог](logs/2026-10-09T08-43-28Z-integration-8ff0.log) | справочник гостей: отборы визита, число визитов, порядок (integration) раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами |
+| 09.10.2026 13:49 | integration | ❌ упало 1 из 961, пропущено 9 | 51 с | abc7498 +4 | [лог](logs/2026-10-09T08-49-27Z-integration-56ad.log) | inventory editing persistence and isolation commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically |
+| 09.10.2026 13:50 | integration | ✅ 952 из 961, пропущено 9 | 50 с | abc7498 +4 | [лог](logs/2026-10-09T08-50-37Z-integration-6f34.log) |  |
+| 09.10.2026 13:52 | typecheck | ✅ без ошибок | 17 с | abc7498 +8 | [лог](logs/2026-10-09T08-52-47Z-typecheck-d7af.log) |  |

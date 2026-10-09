@@ -422,7 +422,7 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       const r = await ask(w, 'CHAT', 'Привет');
       for (let i = 0; i < 3; i += 1) {
         fake.state.replies.push({ status: 'ok', result: { answer: 'x', html: '<b>bad</b>' }, model: 'openai/a', usage: usage(10, 10) });
-        await sql.query(`UPDATE site_ai_runs SET next_attempt_at = now() WHERE id = $1 AND status = 'QUEUED'`, [r.body.run.id]);
+        await sql.query(`UPDATE site_ai_runs SET next_attempt_at = now() - interval '1 second' WHERE id = $1 AND status = 'QUEUED'`, [r.body.run.id]);
         await worker.tick();
       }
       expect(await aiRun(r.body.run.id)).toMatchObject({ status: 'FAILED', errorCode: 'SCHEMA_INVALID', assistantText: null, payload: null, tokensInput: 30 });

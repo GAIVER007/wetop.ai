@@ -7814,3 +7814,13 @@
 | 09.10.2026 19:17 | typecheck | ❌ ошибок: 1 | 1 мин 2 с | f9f53f4 | [лог](logs/2026-10-09T14-17-19Z-typecheck-4447.log) | после слияния main: календарь |
 | 09.10.2026 19:18 | lint | ✅ без ошибок | 44 с | f9f53f4 | [лог](logs/2026-10-09T14-18-22Z-lint-521f.log) | после слияния main: календарь |
 | 09.10.2026 19:19 | typecheck | ✅ без ошибок | 45 с | f9f53f4 +1 | [лог](logs/2026-10-09T14-19-14Z-typecheck-8d65.log) | после слияния main: календарь, исправлена очистка масштаба |
+| 09.10.2026 19:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/booking-price-nights.spec.ts tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-card.spec.t | ⏹ прерван | 5 мин 15 с | 63d4d29 | [лог](logs/2026-10-09T14-20-24Z-e2e-679f.log) | календарь по образцу владельца на дереве после слияния main |
+| 09.10.2026 19:28 | typecheck | ✅ без ошибок | 52 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-28-14Z-typecheck-ae5d.log) |  |
+| 09.10.2026 19:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-compac | ❌ упало 1 из 16 | 3 мин 6 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-29-09Z-e2e-0cfd.log) | повторный щелчок по той же плашке закрывает панель, по другой переключает её |
+| 09.10.2026 19:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ✅ 9 из 9 | 1 мин 18 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-32-27Z-e2e-a453.log) |  |
+| 09.10.2026 19:35 | unit | ❌ упало 14 из 4172, пропущено 3 | 3 мин 13 с | 63d4d29 +3 | [лог](logs/2026-10-09T14-35-47Z-unit-9b7f.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 09.10.2026 19:45 | typecheck | ✅ без ошибок | 1 мин 3 с | 48ed804 +5 | [лог](logs/2026-10-09T14-45-32Z-typecheck-9e60.log) |  |
+| 09.10.2026 19:46 | lint | ✅ без ошибок | 59 с | 48ed804 +5 | [лог](logs/2026-10-09T14-46-36Z-lint-3edb.log) |  |
+| 09.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ❌ код выхода 1 | 2 с | 1ea3433 +3 | [лог](logs/2026-10-09T14-49-35Z-e2e-d841.log) | (ошибка вне тестов) |
+| 09.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ✅ 10 из 10 | 1 мин 29 с | 1ea3433 +3 | [лог](logs/2026-10-09T14-49-58Z-e2e-94b6.log) |  |
+| 09.10.2026 19:52 | unit | ❌ упало 1 из 4172, пропущено 3 | 3 мин 2 с | 1ea3433 +2 | [лог](logs/2026-10-09T14-52-18Z-unit-fc60.log) | восстановление рабочей базы из копии (ADR-137) данные и все миграции прав одной транзакцией, права после данных и по порядку |

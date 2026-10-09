@@ -95,6 +95,37 @@ test('повторный щелчок по той же плашке закрыв
   await expect(preview).not.toContainText(`Бронь №${number}`);
 });
 
+test('панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const preview = page.getByTestId('stay-preview');
+  await expect(page.getByTestId('stay-cell').first()).toBeVisible();
+  await expect(preview).toHaveCount(0);
+
+  // щелчок внутри панели её не закрывает
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await preview.getByTestId('preview-guest').click();
+  await expect(preview).toBeVisible();
+
+  // щелчок мимо (шапка сетки) закрывает
+  await page.locator('.board thead').first().click({ position: { x: 5, y: 5 } });
+  await expect(preview).toHaveCount(0);
+
+  // и карточка показателей
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await page.getByTestId('day-occupancy').click();
+  await expect(preview).toHaveCount(0);
+
+  // смена периода тоже закрывает: брони в новой сетке может не быть
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await page.getByRole('link', { name: /^Следующ/ }).click();
+  await expect(preview).toHaveCount(0);
+});
+
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
   page,
 }) => {

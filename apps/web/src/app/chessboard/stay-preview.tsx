@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Button } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import { messengerLinks } from '../../lib/format';
@@ -102,7 +103,8 @@ function StayPanel({
   }, []);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      // Escape, который уже закрыл меню «…», панель не закрывает
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         event.preventDefault();
         onClose(true);
       }
@@ -124,6 +126,14 @@ function StayPanel({
       ? 'выезд сегодня'
       : '';
   const places = target.unitKind === 'BED' ? 'Койка' : 'Номер';
+  // Меню «…» по образцу владельца: остальные переходы в карточку брони, гостя и счёт
+  const moreItems: ActionMenuItem[] = [
+    ...(!readOnly && live ? [{ label: 'Принять оплату', href: `${card}#booking-finance` }] : []),
+    ...(target.status === 'CHECKED_OUT' ? [{ label: 'Счёт', href: `${card}#booking-finance` }] : []),
+    ...(!readOnly && live ? [{ label: 'Изменить даты', href: `${card}#booking-actions` }] : []),
+    ...(data?.guestHref ? [{ label: 'Открыть гостя', href: data.guestHref }] : []),
+    { label: 'Открыть бронь', href: card },
+  ];
   const nights = data ? nightsBetween(data.arrivalDate, data.departureDate) : 0;
   const messenger = messengerLinks(target.phone);
   const guests = data
@@ -194,9 +204,7 @@ function StayPanel({
             <Icon name="chat" />
           </a>
         )}
-        <Link className="stay-panel__round" href={card} aria-label="Подробнее о брони" title="Подробнее о брони">
-          <Icon name="more" />
-        </Link>
+        <ActionMenu className="stay-panel__more" label="Подробнее о брони" items={moreItems} />
       </div>
       <dl className="stay-panel__facts">
         <div data-testid="preview-dates" className="stay-panel__group">
@@ -284,15 +292,6 @@ function StayPanel({
             <Icon name="close" /> Отменить бронь
           </Button>
         )}
-        <div className="stay-panel__links">
-          {!readOnly && live && (
-            <Link href={`${card}#booking-finance`}>Принять оплату</Link>
-          )}
-          {target.status === 'CHECKED_OUT' && <Link href={`${card}#booking-finance`}>Счёт</Link>}
-          {!readOnly && live && <Link href={`${card}#booking-actions`}>Изменить даты</Link>}
-          {data?.guestHref && <Link href={data.guestHref}>Открыть гостя</Link>}
-          <Link href={card}>Открыть бронь</Link>
-        </div>
       </div>
     </aside>
   );

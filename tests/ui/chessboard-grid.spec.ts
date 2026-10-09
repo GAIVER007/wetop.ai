@@ -57,8 +57,8 @@ test('строка категории прилипает под шапкой д�
 
 test('30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается', async ({ page }) => {
   await page.goto('/chessboard');
-  // быстрые периоды живут в раскрывашке периода (09.10.2026): сначала раскрыть, потом выбрать
-  await page.getByTestId('board-period-button').click();
+  // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
+  await page.getByTestId('board-length-button').click();
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const width = await page

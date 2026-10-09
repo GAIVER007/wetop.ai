@@ -31,10 +31,15 @@ test('одинарный клик — предпросмотр без ухода
   await expect(preview.getByTestId('preview-dates')).toContainText(/ноч/);
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
-  await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  // переходы в карточку брони, гостя и счёт лежат в меню «…» (образец владельца 09.10.2026)
+  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(preview.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
   );
+  // первый Escape закрывает только меню, второй панель
+  await page.keyboard.press('Escape');
+  await expect(preview).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(preview).toBeHidden();
   await expect(stay).toBeFocused();
@@ -53,10 +58,12 @@ test('действия по статусу: подтверждённой — з�
   await page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
-  await expect(preview.getByRole('link', { name: 'Принять оплату', exact: true })).toHaveAttribute(
+  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(preview.getByRole('menuitem', { name: 'Принять оплату', exact: true })).toHaveAttribute(
     'href',
     /#booking-finance$/,
   );
+  await page.keyboard.press('Escape');
   await expect(preview.getByRole('link', { name: 'Переселить', exact: true })).toHaveAttribute(
     'href',
     /#booking-actions$/,
@@ -66,6 +73,26 @@ test('действия по статусу: подтверждённой — з�
   await page.locator('td[data-status="CHECKED_IN"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+});
+
+test('повторный щелчок по той же плашке закрывает панель, по другой переключает её', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const preview = page.getByTestId('stay-preview');
+  const cells = page.getByTestId('stay-cell');
+  // ячейка плашки своя на каждую ночь брони, поэтому «другая плашка» отбирается по номеру брони
+  const number = await cells.first().getAttribute('data-number');
+  await cells.first().click();
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText(`Бронь №${number}`);
+  await cells.first().click();
+  await expect(preview).toBeHidden();
+  await cells.first().click();
+  await expect(preview).toBeVisible();
+  await page.locator(`[data-testid="stay-cell"]:not([data-number="${number}"])`).first().click();
+  await expect(preview).toBeVisible();
+  await expect(preview).not.toContainText(`Бронь №${number}`);
 });
 
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
@@ -189,7 +216,8 @@ test('служебный код скрыт на плашке, источник �
   await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
   await stay.click();
   await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
-  await expect(page.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  await page.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
   );

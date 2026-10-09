@@ -228,8 +228,8 @@ test('по умолчанию видна текущая неделя с поне
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
-  // «7 дней» с 09.10 живёт в раскрывашке периода и отмечает текущую неделю
-  await page.getByTestId('board-period-button').click();
+  // «7 дней» с 09.10 живёт в раскрывашке длины окна и отмечает текущую неделю
+  await page.getByTestId('board-length-button').click();
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'aria-current',
     'page',

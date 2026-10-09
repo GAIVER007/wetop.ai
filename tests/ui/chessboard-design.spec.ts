@@ -30,8 +30,7 @@ test('статусы шахматки понятны без открытия и�
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
   await expect(page.getByTestId('board-legend')).toContainText('проживает');
-  // «Сегодня» — чип в раскрывашке периода (09.10.2026), и он ровно один
-  await page.getByTestId('board-period-button').click();
+  // «Сегодня» стоит в полосе календаря (образец владельца 09.10.2026), и он ровно один
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
 });
 

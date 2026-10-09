@@ -1183,7 +1183,14 @@ export function ChessboardGrid({
                               drag.source.itemId === c.itemId
                             }
                             selected={!!preview && preview.number === c.confirmationNumber}
-                            onPreview={setPreview}
+                            onPreview={(target) =>
+                              // на широком экране повторный щелчок по той же брони закрывает панель
+                              setPreview((cur) =>
+                                docked && cur?.number === target.number && cur.itemId === target.itemId
+                                  ? null
+                                  : target,
+                              )
+                            }
                             onOpen={openCard}
                             onDragStart={onDragStart}
                             onDragEnd={clearDrag}

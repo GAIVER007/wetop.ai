@@ -11,8 +11,8 @@ const routes = [
   '/ai-agents',
   '/today',
   '/chessboard',
-  // «Гости» без пункта меню с 09.10.2026: раздел открывается вкладкой на странице «Брони»
-  '/reservations',
+  // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
+  '/guests',
   '/inventory',
   '/market',
   '/channels',
@@ -34,7 +34,7 @@ const routes = [
 const SECTIONS = [
   'Главная',
   'Календарь',
-  'Брони',
+  'Гости и бронирования',
   'Финансы',
   'Бар',
   'Продажи',
@@ -218,30 +218,21 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-// «Гости» внутри «Броней» (поручение владельца 09.10.2026): в шапке один пункт «Брони»,
-// между списком броней и базой гостей ведут вкладки раздела на самих страницах.
-test('«Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони»', async ({
+// «Гости и бронирования» (поручение владельца 09.10.2026): в шапке один пункт, классический список броней
+// открывается кнопкой на экране и оставляет подсвеченным тот же пункт.
+test('«Гости и бронирования»: один пункт меню, список броней под той же вкладкой', async ({
   page,
 }) => {
-  await page.goto('/reservations');
+  await page.goto('/guests');
   const main = page.getByRole('main');
-  const section = main.getByRole('navigation', { name: 'Брони и гости' });
-  await expect(section.getByRole('link', { name: 'Брони', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
-  await section.getByRole('link', { name: 'Гости', exact: true }).click();
-  await expect(page).toHaveURL(/\/guests$/);
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости');
-  await expect(section.getByRole('link', { name: 'Гости', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
-  // в шапке активна вкладка «Брони»: своего пункта у «Гостей» больше нет
   const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Брони');
-  // и обратно: вкладка «Брони» возвращает к списку броней
-  await section.getByRole('link', { name: 'Брони', exact: true }).click();
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  // обратно: кнопка на списке броней ведёт на экран гостей
+  await main.getByRole('link', { name: 'Гости и бронирования', exact: true }).click();
+  await expect(page).toHaveURL(/\/guests$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
 });

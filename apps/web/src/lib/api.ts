@@ -1,6 +1,8 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
+import type { GuestMainStay } from '@pms/domain';
 export type { ActionPreview } from './action-preview';
+export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
 /**
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
@@ -1353,6 +1355,29 @@ export interface GuestDirectoryRow {
     confirmationNumber: string | null;
   } | null;
   lastCancelledAt: string | null;
+  /** «Гости и бронирования»: основное проживание строки (заселён, иначе ближайшее, иначе последнее); null, если проживания нет */
+  stay: GuestMainStay | null;
+}
+/** Быстрые виды над таблицей «Гостей и бронирований» */
+export type GuestDirectoryView =
+  | 'all'
+  | 'today'
+  | 'inhouse'
+  | 'expected'
+  | 'departures'
+  | 'attention';
+/** Плитки: вся база гостей организации без отборов; заезды и выезды ещё и за вчера */
+export interface GuestDirectoryKpi {
+  /** всего гостей в базе организации */
+  all: number;
+  inhouse: number;
+  arrivalsToday: number;
+  departuresToday: number;
+  expected: number;
+  attention: number;
+  none: number;
+  arrivalsYesterday: number;
+  departuresYesterday: number;
 }
 /** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история, долг из Folio */
 export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
@@ -1361,6 +1386,23 @@ export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
   hasFolios: boolean;
   debtMinor: string;
   currency: string;
+  notes: string | null;
+  visits: Array<{
+    confirmationNumber: string;
+    arrivalDate: string;
+    departureDate: string;
+    nights: number;
+    unitCode: string | null;
+    accommodationTypeName: string;
+    status: string;
+  }>;
+  services: Array<{
+    id: string;
+    description: string;
+    quantity: number;
+    amountMinor: string;
+    serviceDate: string | null;
+  }>;
 }
 export interface GuestDirectoryResult {
   total: number;
@@ -1374,6 +1416,9 @@ export interface GuestDirectoryResult {
     /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
     NONE: number;
   };
+  /** Числа быстрых видов при текущих поиске, отборах и статусе */
+  views: Record<GuestDirectoryView, number>;
+  kpi: GuestDirectoryKpi;
   rows: GuestDirectoryRow[];
 }
 /** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */

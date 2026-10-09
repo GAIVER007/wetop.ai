@@ -16,7 +16,6 @@ import { nightsBetween, pluralRu } from '../../lib/plural';
 import { DatesToggle } from './dates-toggle';
 import { DensityScope } from './density-toggle';
 import { FiltersToggle } from './filters-toggle';
-import { SectionTabs } from './section-tabs';
 import { PreviewRows } from './preview-rows';
 import { FinanceLine } from './finance-line';
 import { deskShell } from '../../lib/desk-shell';
@@ -167,17 +166,21 @@ export default async function ReservationsPage({
     <Page
       title="Брони"
       width="full"
+      // В шапке один пункт «Гости и бронирования» (09.10.2026): этот список его вторая половина, назад ведёт кнопка
       actions={
-        readOnly ? undefined : (
-          <Link href="/reservations/new" className="btn">
-            <Icon name="plus" />
-            Новая бронь
+        <>
+          <Link href="/guests" className="btn btn--secondary">
+            Гости и бронирования
           </Link>
-        )
+          {!readOnly && (
+            <Link href="/reservations/new" className="btn">
+              <Icon name="plus" />
+              Новая бронь
+            </Link>
+          )}
+        </>
       }
     >
-      {/* «Гости» живут внутри раздела (09.10.2026): вкладки под заголовком, в шапке один пункт «Брони» */}
-      <SectionTabs current="/reservations" />
       <section className="reservations-controls" aria-label="Фильтры броней">
         <ChipGroup as="nav" label="Быстрые виды" className="reservations-views">
           {Object.entries(reservationViews).map(([id, label]) => (

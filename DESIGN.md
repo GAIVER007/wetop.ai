@@ -262,7 +262,7 @@ Segoe UI, ни IBM Plex не установлены; DejaVu Sans проходи�
 | время, готово, защита | `clock`, `check`, `shield` | статусы |
 | наружу, вперёд | `external`, `arrow` | ссылки |
 | почта, телефон, отправить, обновить | `mail`, `phone`, `send`, `refresh` | гость, каналы |
-| «Настройки объекта» (ADR-156) | `wifi`, `parking`, `snowflake`, `kitchen`, `transfer`, `breakfast`, `laundry` и остальные удобства; `pin`, `link`, `globe`, `hotel`, `eye`, `info`, `file`, `person`, `paw`, `baby`, `smokeOff`, `deposit`, `calendarOff`, `cash` | поля, правила проживания, удобства |
+| «Настройки объекта» (ADR-158) | `wifi`, `parking`, `snowflake`, `kitchen`, `transfer`, `breakfast`, `laundry` и остальные удобства; `pin`, `link`, `globe`, `hotel`, `eye`, `info`, `file`, `person`, `paw`, `baby`, `smokeOff`, `deposit`, `calendarOff`, `cash` | поля, правила проживания, удобства |
 | переписка | `chat` (MessagesSquare) | меню и пустые экраны раздела «ИИ-продавец» (с 24.09) |
 | бар (с 09.10, ADR-157) | `product` (Package), `stock` (Database), `cart` (ShoppingCart), `chart` (ChartColumn), `coins` (Coins), `truck` (Truck), `edit` (Pencil), `trash` (Trash2), `move` (ArrowLeftRight), `tag` (Tag), `writeoff` (CircleMinus), `up` / `downArrow` (ArrowUp / ArrowDown), `addGuest` (UserPlus) | плитки, строка таблицы и карточка товара обзора бара по макету владельца |
 
@@ -459,7 +459,7 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при �
 «Брони». Переключатель: вид строк шахматки (Компактный / Обычный / Подробный) и плотность строк
 «Броней». Остальные свои виды остаются до своих срезов DS4–DS7.
 
-### 8.3. Выключатель, чип-флажок, поле со значком («Настройки объекта» по верстке владельца, ADR-156, 09.10.2026)
+### 8.3. Выключатель, чип-флажок, поле со значком («Настройки объекта» по верстке владельца, ADR-158, 09.10.2026)
 
 Три примитива формы, которых не было: настройка «да / нет», выбор «есть / нет» чипом и поле с пояснительным значком. Все родные:
 значение уходит с формой, клавиатура и состояние браузерные. Стили только в `components.css`, цвета только токены, статусных

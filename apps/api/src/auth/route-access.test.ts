@@ -175,7 +175,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
-  // фото и договор объекта (ADR-156): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  // фото и договор объекта (ADR-158): читают все с доступом к стойке, договор отдаётся только с правом `settings`
   'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',

@@ -7686,3 +7686,6 @@
 | 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
 | 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |
+| 09.10.2026 14:42 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1) | ❌ упало 1 из 6 | 1 мин 37 с | 7fe00b8 | [лог](logs/2026-10-09T09-42-25Z-e2e-c27c.log) | RED on main 7fe00b87: menu expects Сотрудники after #307 |
+| 09.10.2026 14:44 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts tests/ui/navigation.spec.ts --workers=1) | ✅ 11 из 11 | 1 мин 27 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-44-09Z-e2e-2f05.log) | GREEN: salon menu link Мастера -> /employees |
+| 09.10.2026 14:45 | lint | ✅ без ошибок | 33 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-45-45Z-lint-ceac.log) | spec fix beauty-branch |

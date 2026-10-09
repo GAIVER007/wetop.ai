@@ -78,7 +78,10 @@ test('в салоне меню без гостиничных разделов: �
     'href',
     '/calendar',
   );
-  await expect(menu.getByRole('link', { name: 'Сотрудники', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Мастера', exact: true })).toHaveAttribute(
+    'href',
+    '/employees',
+  );
 });
 
 test('карточка объекта показывает имя салона, а не «объект не загружен»', async ({

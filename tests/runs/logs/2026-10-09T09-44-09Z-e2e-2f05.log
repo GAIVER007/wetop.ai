@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 09.10.2026 14:44 Алматы · vm
+# коммит 7fe00b8 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/navigation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (7.6s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (4.7s)
+  ✓   3 tests/ui/beauty-branch.spec.ts:87:1 › карточка объекта показывает имя салона, а не «объект не загружен» (5.0s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:99:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (5.0s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:113:3 › салон доступен и в светлой теме (5.6s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:113:3 › салон доступен и в тёмной теме (6.0s)
+  ✓   7 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.8s)
+  ✓   8 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.1s)
+  ✓   9 tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы (23.2s)
+  ✓  10 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (4.2s)
+  ✓  11 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (4.1s)
+
+  11 passed (1.4m)
+
+# код выхода 0 · 1 мин 27 с

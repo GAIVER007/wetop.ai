@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 09.10.2026 14:42 Алматы · vm
+# коммит 7fe00b8 (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/beauty-branch.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (9.0s)
+  ✘  2 tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (20.4s)
+  ✓  3 tests/ui/beauty-branch.spec.ts:84:1 › карточка объекта показывает имя салона, а не «объект не загружен» (4.8s)
+  ✓  4 tests/ui/beauty-branch.spec.ts:96:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (5.6s)
+  ✓  5 tests/ui/beauty-branch.spec.ts:110:3 › салон доступен и в светлой теме (6.8s)
+  ✓  6 tests/ui/beauty-branch.spec.ts:110:3 › салон доступен и в тёмной теме (6.4s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.topmenu').getByRole('link', { name: 'Сотрудники', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.topmenu').getByRole('link', { name: 'Сотрудники', exact: true }) with timeout 15000ms
+      - waiting for locator('.topmenu').getByRole('link', { name: 'Сотрудники', exact: true })
+
+
+      79 |     '/calendar',
+      80 |   );
+    > 81 |   await expect(menu.getByRole('link', { name: 'Сотрудники', exact: true })).toBeVisible();
+         |                                                                             ^
+      82 | });
+      83 |
+      84 | test('карточка объекта показывает имя салона, а не «объект не загружен»', async ({
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:81:77
+
+    Error Context: test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+  5 passed (1.5m)
+
+# код выхода 1 · 1 мин 37 с

@@ -2197,16 +2197,12 @@
     .board-nav-arrows .icon-button {
       width: var(--touch-target);
     }
-    /* «Фильтры» и «Новая бронь» тоже здесь: правило десктопа `.board-toolbar .board-filters-open` с высотой
-       `--control-h` стоит выше по файлу и держало кнопку в 38 px, а ниже она достаёт до цели нажатия */
     .board-nav .btn,
     .board-nav-arrows,
     .board-period-menu > summary,
     .board-length-menu > summary,
     .board-scale a,
-    .board-length-pop a,
-    .board-toolbar .board-filters-open,
-    .board-toolbar .board-new {
+    .board-length-pop a {
       min-height: var(--touch-target);
     }
     .board-toolbar .board-search .inp,

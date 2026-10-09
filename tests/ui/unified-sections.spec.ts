@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, HEADER_GROWTH_PX, test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {
@@ -16,12 +16,14 @@ test('настройки: основные поля и сохранение по
   await page.goto('/hotel-settings');
   await expect(page.getByLabel('Название объекта')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  const size = await page.evaluate(() => ({
-    h: document.documentElement.scrollHeight,
-    v: innerHeight,
-  }));
-  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под форму то же
-  expect(size.h).toBeLessThanOrEqual(size.v + HEADER_GROWTH_PX + 1);
+  // с 09.10.2026 «Настройки объекта» это длинная форма из пяти вкладок и трёх колонок карточек (макет владельца),
+  // страница прокручивается намеренно, как «Отчёты» (desktop-compact.spec.ts). Контракт один: первое поле и
+  // «Сохранить изменения» на первом экране ноутбука, прокручивать ради них не надо
+  const viewport = page.viewportSize()!.height;
+  const field = await page.getByLabel('Название объекта').boundingBox();
+  const save = await page.getByRole('button', { name: 'Сохранить изменения' }).boundingBox();
+  expect(field!.y + field!.height, 'поле «Название объекта» на первом экране').toBeLessThanOrEqual(viewport);
+  expect(save!.y + save!.height, 'кнопка «Сохранить изменения» на первом экране').toBeLessThanOrEqual(viewport);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {

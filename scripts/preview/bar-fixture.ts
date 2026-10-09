@@ -1,17 +1,19 @@
 /**
  * Бар на подставном API (ADR-154): состояние в памяти для UI-тестов стойки без базы.
- * Товары, поставщики, приходы, продажи, движения и скан накладной; деньги: строки в тиынах.
- * Сбрасывается вместе с остальной фикстурой (`/__test/reset`).
+ * Наполнение повторяет макет владельца 09.10.2026 (товары, поставщики, приходы, популярные), чтобы снимок
+ * сравнивался с макетом глазами. Деньги строками в тиынах. Сбрасывается вместе с фикстурой (`/__test/reset`).
  */
 
 interface BarCategory { id: string; name: string; defaultMarkupBasis: number; active: boolean }
+interface BarSupplier { id: string; name: string; phone: string | null; email: string | null; details: string | null; active: boolean }
 interface BarProduct {
   id: string; code: string; name: string; categoryId: string | null; barcode: string | null;
   unitsPerPackage: number; markupBasis: number | null; salePrice: string; minimumStockUnits: string;
   active: boolean; category: BarCategory | null;
   availableUnits: string; stockCostMinor: string;
+  lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
+  nearestExpiry: string | null;
 }
-interface BarSupplier { id: string; name: string; phone: string | null; email: string | null; details: string | null; active: boolean }
 interface BarReceipt {
   id: string; documentNumber: string; documentDate: string; receivedDate: string;
   status: 'DRAFT' | 'POSTED' | 'REVERSED'; totalAmount: string; paidAmount: string; dueAmount: string;
@@ -21,7 +23,7 @@ interface BarSale {
   id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
   lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
 }
-interface BarMovement { id: string; kind: string; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+interface BarMovement { id: string; productId: string; kind: string; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
 
 let categories: BarCategory[] = [];
 let products: BarProduct[] = [];
@@ -29,44 +31,67 @@ let suppliers: BarSupplier[] = [];
 let receipts: BarReceipt[] = [];
 let sales: BarSale[] = [];
 let movements: BarMovement[] = [];
+let popular: Array<{ productId: string; name: string; units: string }> = [];
 let sequence = 0;
 const nextId = (prefix: string) => `${prefix}0000000-0000-4000-8000-${String((sequence += 1)).padStart(12, '0')}`;
+/** Даты от «сегодня» объекта (UTC+5), чтобы отбор «за 30 дней» и месяц работали в любой день прогона */
+const daysAgo = (days: number) => new Date(Date.now() + 5 * 3600_000 - days * 86_400_000).toISOString().slice(0, 10);
 
 export function resetBarFixture(): void {
   sequence = 0;
-  const drinks: BarCategory = { id: nextId('c'), name: 'Напитки', defaultMarkupBasis: 3500, active: true };
-  categories = [drinks];
+  const drinks: BarCategory = { id: nextId('c'), name: 'Безалкогольные', defaultMarkupBasis: 8800, active: true };
+  const juices: BarCategory = { id: nextId('c'), name: 'Соки', defaultMarkupBasis: 7800, active: true };
+  const snacks: BarCategory = { id: nextId('c'), name: 'Снэки', defaultMarkupBasis: 10000, active: true };
+  categories = [drinks, juices, snacks];
+  const supplier = (name: string): BarSupplier => ({ id: nextId('d'), name, phone: '+77010000000', email: null, details: null, active: true });
+  const foodMaster = supplier('FoodMaster');
+  const globalDrinks = supplier('Global Drinks');
+  const aquaTrade = supplier('Aqua Trade');
+  const snackMarket = supplier('SnackMarket');
+  suppliers = [aquaTrade, foodMaster, globalDrinks, snackMarket];
+  const product = (code: string, name: string, category: BarCategory, from: BarSupplier, units: number, min: number, cost: number, price: number, barcode: string | null, received: number): BarProduct => ({
+    id: nextId('b'), code, name, categoryId: category.id, barcode, unitsPerPackage: 1, markupBasis: null,
+    salePrice: String(price * 100), minimumStockUnits: String(min), active: true, category,
+    availableUnits: String(units), stockCostMinor: String(units * cost * 100),
+    lastUnitCostMinor: String(cost * 100), lastReceivedDate: daysAgo(received), lastSupplier: { id: from.id, name: from.name },
+    nearestExpiry: units > 0 ? daysAgo(-180) : null,
+  });
   products = [
-    {
-      id: nextId('b'), code: 'COLA-05', name: 'Cola 0,5', categoryId: drinks.id, barcode: '4870001234567',
-      unitsPerPackage: 12, markupBasis: null, salePrice: '70000', minimumStockUnits: '6', active: true,
-      category: drinks, availableUnits: '12', stockCostMinor: '84000',
-    },
-    {
-      id: nextId('b'), code: 'WATER-1', name: 'Вода 1 л', categoryId: null, barcode: null,
-      unitsPerPackage: 1, markupBasis: 2000, salePrice: '35000', minimumStockUnits: '10', active: true,
-      category: null, availableUnits: '4', stockCostMinor: '48000',
-    },
+    product('CC-050', 'Coca-Cola 0.5', drinks, foodMaster, 24, 10, 320, 600, '4870001234567', 3),
+    product('RB-025', 'Red Bull 0.25', drinks, globalDrinks, 5, 10, 550, 1000, null, 5),
+    product('BA-050', 'Вода BonAqua 0.5', drinks, aquaTrade, 48, 20, 180, 400, null, 10),
+    product('RICH-02', 'Сок Rich 0.2', juices, foodMaster, 12, 10, 450, 800, null, 3),
+    product('LAYS-90', "Чипсы Lay's 90г", snacks, snackMarket, 0, 10, 500, 1000, null, 13),
+    product('SN-50', 'Шоколад Snickers', snacks, snackMarket, 18, 10, 350, 700, null, 13),
   ];
-  suppliers = [
-    { id: nextId('d'), name: 'ТОО «Алматы Напитки»', phone: '+77010000000', email: null, details: null, active: true },
-  ];
+  const receipt = (number: string, from: BarSupplier, days: number, lines: number, total: number, paid: boolean): BarReceipt => ({
+    id: nextId('e'), documentNumber: number, documentDate: daysAgo(days), receivedDate: daysAgo(days), status: 'POSTED',
+    totalAmount: String(total * 100), paidAmount: paid ? String(total * 100) : '0', dueAmount: paid ? '0' : String(total * 100),
+    supplier: from, _count: { lines },
+  });
   receipts = [
-    {
-      id: nextId('e'), documentNumber: 'SF-77', documentDate: '2026-10-05', receivedDate: '2026-10-05',
-      status: 'POSTED', totalAmount: '180000', paidAmount: '80000', dueAmount: '100000',
-      supplier: suppliers[0]!, _count: { lines: 2 },
-    },
+    receipt('П-000123', foodMaster, 3, 12, 45600, true),
+    receipt('П-000122', globalDrinks, 5, 8, 68400, false),
+    receipt('П-000121', aquaTrade, 10, 15, 32500, true),
+    receipt('П-000120', snackMarket, 13, 20, 96300, true),
   ];
+  const cola = products[0]!;
   sales = [
     {
-      id: nextId('f'), status: 'POSTED', totalRevenue: '70000', totalCost: '15000', createdAt: '2026-10-06T10:00:00.000Z',
-      lines: [{ id: nextId('f'), productId: products[0]!.id, quantityUnits: '1', salePrice: '70000', revenue: '70000', cost: '15000', product: { name: 'Cola 0,5' } }],
+      id: nextId('f'), status: 'POSTED', totalRevenue: '60000', totalCost: '32000', createdAt: `${daysAgo(1)}T10:00:00.000Z`,
+      lines: [{ id: nextId('f'), productId: cola.id, quantityUnits: '1', salePrice: '60000', revenue: '60000', cost: '32000', product: { name: cola.name } }],
     },
   ];
   movements = [
-    { id: nextId('g'), kind: 'RECEIPT', units: '12', unitCost: '7000', amountMinor: '84000', note: 'SF-77', createdAt: '2026-10-05T09:00:00.000Z', product: { name: 'Cola 0,5' } },
-    { id: nextId('g'), kind: 'SALE', units: '-1', unitCost: '15000', amountMinor: '15000', note: null, createdAt: '2026-10-06T10:00:00.000Z', product: { name: 'Cola 0,5' } },
+    { id: nextId('g'), productId: cola.id, kind: 'RECEIPT', units: '25', unitCost: '32000', amountMinor: '800000', note: 'П-000123', createdAt: `${daysAgo(3)}T09:00:00.000Z`, product: { name: cola.name } },
+    { id: nextId('g'), productId: cola.id, kind: 'SALE', units: '-1', unitCost: '32000', amountMinor: '32000', note: null, createdAt: `${daysAgo(1)}T10:00:00.000Z`, product: { name: cola.name } },
+  ];
+  popular = [
+    { productId: cola.id, name: cola.name, units: '142' },
+    { productId: products[2]!.id, name: products[2]!.name, units: '96' },
+    { productId: products[1]!.id, name: products[1]!.name, units: '78' },
+    { productId: products[4]!.id, name: products[4]!.name, units: '64' },
+    { productId: products[3]!.id, name: products[3]!.name, units: '53' },
   ];
 }
 resetBarFixture();
@@ -92,11 +117,20 @@ export function barFixture(
     if (path === '/bar/movements') return ok(movements);
     if (path === '/bar/folios')
       return ok([{ id: '90000000-0000-4000-8000-000000000001', confirmationNumber: 'WTP-101', guestName: 'Айдана Тестова', unitCode: 'K-12' }]);
-    if (path === '/bar/report')
+    if (path === '/bar/report') {
+      const debt = receipts.filter((r) => r.status === 'POSTED').reduce((sum, r) => sum + BigInt(r.dueAmount), 0n);
+      const stockCost = products.filter((p) => p.active).reduce((sum, p) => sum + BigInt(p.stockCostMinor), 0n);
       return ok({
-        purchasesMinor: '180000', supplierPaidMinor: '80000', revenueMinor: '70000', costMinor: '15000',
-        grossProfitMinor: '55000', writeOffMinor: '0', stockCostMinor: '132000', supplierDebtMinor: '100000',
+        purchasesMinor: '24280000', supplierPaidMinor: (24280000n - debt).toString(), revenueMinor: '124560000', costMinor: '62220000',
+        grossProfitMinor: '62340000', writeOffMinor: '0', stockCostMinor: stockCost.toString(), supplierDebtMinor: debt.toString(),
+        month: {
+          monthStart: `${daysAgo(0).slice(0, 7)}-01`, purchasesMinor: '41280000', purchasesPrevMinor: '36857143',
+          revenueMinor: '124560000', revenuePrevMinor: '105559322', grossProfitMinor: '62340000',
+          purchasesGrowth: 12, revenueGrowth: 18,
+        },
+        popular,
       });
+    }
     return undefined;
   }
   if (method === 'POST' && path === '/bar/categories') {
@@ -120,6 +154,7 @@ export function barFixture(
       markupBasis: body.markupBasis === null || body.markupBasis === undefined ? null : Number(body.markupBasis),
       salePrice: str(body.salePriceMinor), minimumStockUnits: str(body.minimumStockUnits) || '0',
       active: true, category, availableUnits: '0', stockCostMinor: '0',
+      lastUnitCostMinor: null, lastReceivedDate: null, lastSupplier: null, nearestExpiry: null,
     };
     products.push(product);
     return ok(product);
@@ -193,8 +228,8 @@ export function barFixture(
       return { status: 400, data: { message: 'Нужно фото накладной: JPG, PNG или WebP. PDF пока не принимается' } };
     // подставной ИИ: кола находится по штрихкоду, сок, новый товар, поставщик совпал по названию
     return ok({
-      supplierId: suppliers[0]?.active ? suppliers[0].id : null,
-      supplierName: 'ТОО Алматы Напитки',
+      supplierId: suppliers.find((item) => item.name === 'FoodMaster' && item.active)?.id ?? null,
+      supplierName: 'FoodMaster',
       documentNumber: 'SF-123',
       documentDate: '2026-10-08',
       lines: [

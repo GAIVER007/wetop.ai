@@ -45,6 +45,20 @@ import {
   ClipboardCheck,
   MessagesSquare,
   CircleHelp,
+  Package,
+  Database,
+  ShoppingCart,
+  ChartColumn,
+  Coins,
+  Truck,
+  Pencil,
+  Trash2,
+  ArrowLeftRight,
+  Tag,
+  CircleMinus,
+  ArrowUp,
+  ArrowDown,
+  UserPlus,
 } from 'lucide-react';
 const icons = {
   arrival: LogIn,
@@ -94,6 +108,21 @@ const icons = {
   // переписка: раздел «ИИ-продавец» (DESIGN.md §7, «добавить при первом использовании»; ТЗ ред. 1 П6)
   chat: MessagesSquare,
   help: CircleHelp,
+  // бар по макету владельца (ADR-154, 09.10.2026): плитки показателей, действия строки и карточки товара
+  product: Package,
+  stock: Database,
+  cart: ShoppingCart,
+  chart: ChartColumn,
+  coins: Coins,
+  truck: Truck,
+  edit: Pencil,
+  trash: Trash2,
+  move: ArrowLeftRight,
+  tag: Tag,
+  writeoff: CircleMinus,
+  up: ArrowUp,
+  downArrow: ArrowDown,
+  addGuest: UserPlus,
 };
 export type IconName = keyof typeof icons;
 /** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */

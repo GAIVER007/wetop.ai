@@ -2,9 +2,10 @@ import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { allocateFifo, LUXX_APARTS_PROPERTY, salePriceFromMarkup } from '@pms/domain';
+import { allocateFifo, LUXX_APARTS_PROPERTY, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyRef, propertyToday } from '../database/property-ref';
+import { growthPercent, monthBounds, shiftDate } from './bar-period';
 import { auditUserId } from '../accounts/actor';
 
 export interface BarReceiptInput {
@@ -179,14 +180,34 @@ export class PrismaBarRepository implements BarRepository {
   async stock() {
     const propertyId = await this.propertyId();
     const rows = await (this.prisma.db as any).barProduct.findMany({
-      where: { propertyId }, include: { category: true, lots: { where: { remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } } }, orderBy: { name: 'asc' },
+      where: { propertyId },
+      include: {
+        category: true,
+        lots: { where: { remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true, expiresOn: true } },
+        // последний проведённый приход товара (ADR-154, макет): поставщик, цена закупки и дата; у товара своего поставщика в модели нет
+        receiptLines: {
+          where: { receipt: { status: 'POSTED' } }, orderBy: { receipt: { receivedDate: 'desc' } }, take: 1,
+          select: { unitCost: true, receipt: { select: { receivedDate: true, supplier: { select: { id: true, name: true } } } } },
+        },
+      },
+      orderBy: { name: 'asc' },
     });
     return rows.map((row: any) => {
       const available = row.lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n);
       const stockCost = row.lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits) * BigInt(lot.unitCost), 0n);
+      const expiries = row.lots.map((lot: any) => lot.expiresOn).filter(Boolean).map((day: Date) => day.toISOString().slice(0, 10)).sort();
+      const last = row.receiptLines[0] ?? null;
       const product = { ...row };
       delete product.lots;
-      return { ...product, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(), availableUnits: available.toString(), stockCostMinor: stockCost.toString() };
+      delete product.receiptLines;
+      return {
+        ...product, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(),
+        availableUnits: available.toString(), stockCostMinor: stockCost.toString(),
+        lastUnitCostMinor: last ? last.unitCost.toString() : null,
+        lastReceivedDate: last ? last.receipt.receivedDate.toISOString().slice(0, 10) : null,
+        lastSupplier: last ? last.receipt.supplier : null,
+        nearestExpiry: expiries[0] ?? null,
+      };
     });
   }
   async sales() {
@@ -208,19 +229,60 @@ export class PrismaBarRepository implements BarRepository {
   }
   async report() {
     const propertyId = await this.propertyId();
-    const [receipts, sales, lots, writeOffs] = await Promise.all([
+    const ref = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const { prevMonthStart, monthStart, nextMonthStart } = monthBounds(today);
+    // границы месяца для продаж: начало суток в поясе объекта, а не по UTC (AGENTS.md §13)
+    const at = (day: string) => zonedStartOfDay(day, ref.timezone);
+    const popularFrom = at(shiftDate(today, -29));
+    const [receipts, sales, lots, writeOffs, popularLines] = await Promise.all([
       (this.prisma.db as any).barReceipt.findMany({ where: { propertyId, status: 'POSTED' }, include: { payments: { select: { amount: true } } } }),
-      (this.prisma.db as any).barSale.findMany({ where: { propertyId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true } }),
+      (this.prisma.db as any).barSale.findMany({ where: { propertyId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true, createdAt: true } }),
       (this.prisma.db as any).barStockLot.findMany({ where: { propertyId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
       (this.prisma.db as any).barStockMovement.findMany({ where: { propertyId, kind: 'WRITE_OFF' }, select: { units: true, unitCost: true } }),
+      (this.prisma.db as any).barSaleLine.findMany({
+        where: { sale: { propertyId, status: 'POSTED', createdAt: { gte: popularFrom } } },
+        select: { productId: true, quantityUnits: true, product: { select: { name: true } } },
+      }),
     ]);
+    const inMonth = (from: string, to: string) => (day: string) => day >= from && day < to;
+    const thisMonth = inMonth(monthStart, nextMonthStart);
+    const lastMonth = inMonth(prevMonthStart, monthStart);
+    const receiptDay = (row: any) => row.receivedDate.toISOString().slice(0, 10);
+    const sumReceipts = (match: (day: string) => boolean) =>
+      receipts.filter((row: any) => match(receiptDay(row))).reduce((sum: bigint, row: any) => sum + BigInt(row.totalAmount), 0n);
+    const saleIn = (from: Date, to: Date) => sales.filter((row: any) => row.createdAt >= from && row.createdAt < to);
+    const salesMonth = saleIn(at(monthStart), at(nextMonthStart));
+    const salesPrev = saleIn(at(prevMonthStart), at(monthStart));
+    const revenueOf = (rows: any[]) => rows.reduce((sum: bigint, row: any) => sum + BigInt(row.totalRevenue), 0n);
+    const costOf = (rows: any[]) => rows.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
+    const popularMap = new Map<string, { productId: string; name: string; units: bigint }>();
+    for (const line of popularLines) {
+      const entry = popularMap.get(line.productId) ?? { productId: line.productId, name: line.product.name, units: 0n };
+      entry.units += BigInt(line.quantityUnits);
+      popularMap.set(line.productId, entry);
+    }
+    const popular = [...popularMap.values()]
+      .sort((a, b) => (a.units === b.units ? a.name.localeCompare(b.name, 'ru') : a.units > b.units ? -1 : 1))
+      .slice(0, 5)
+      .map((entry) => ({ productId: entry.productId, name: entry.name, units: entry.units.toString() }));
+    const month = {
+      monthStart,
+      purchasesMinor: sumReceipts(thisMonth).toString(),
+      purchasesPrevMinor: sumReceipts(lastMonth).toString(),
+      revenueMinor: revenueOf(salesMonth).toString(),
+      revenuePrevMinor: revenueOf(salesPrev).toString(),
+      grossProfitMinor: (revenueOf(salesMonth) - costOf(salesMonth)).toString(),
+      purchasesGrowth: growthPercent(sumReceipts(thisMonth), sumReceipts(lastMonth)),
+      revenueGrowth: growthPercent(revenueOf(salesMonth), revenueOf(salesPrev)),
+    };
     const purchases = receipts.reduce((sum: bigint, row: any) => sum + BigInt(row.totalAmount), 0n);
     const paid = receipts.reduce((sum: bigint, row: any) => sum + row.payments.reduce((part: bigint, payment: any) => part + BigInt(payment.amount), 0n), 0n);
     const revenue = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalRevenue), 0n);
     const cost = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
     const stockCost = lots.reduce((sum: bigint, row: any) => sum + BigInt(row.remainingUnits) * BigInt(row.unitCost), 0n);
     const writeOff = writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
-    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString() };
+    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
   }
   async sellRetail(input: BarRetailSaleInput) {
     const propertyId = await this.propertyId();

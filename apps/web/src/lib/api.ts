@@ -3398,14 +3398,30 @@ export interface BarReceiptRow {
   id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
   totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
 }
-export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarStockRow extends BarProductRow {
+  availableUnits: string; stockCostMinor: string;
+  /** Последний проведённый приход (ADR-154): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
+  lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
+  /** Ближайший срок годности среди партий с остатком */
+  nearestExpiry: string | null;
+}
 export interface BarSaleRow {
   id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
   lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
 }
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
-export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
-export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export interface BarMovementRow { id: string; productId: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+export interface BarReport {
+  purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string;
+  writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string;
+  /** Текущий месяц объекта к прошлому (ADR-154); прирост null, если в прошлом месяце не было сумм */
+  month?: {
+    monthStart: string; purchasesMinor: string; purchasesPrevMinor: string; revenueMinor: string; revenuePrevMinor: string;
+    grossProfitMinor: string; purchasesGrowth: number | null; revenueGrowth: number | null;
+  };
+  /** Популярные товары за последние 30 дней, штуки строкой */
+  popular?: Array<{ productId: string; name: string; units: string }>;
+}
 /** Строка накладной из ИИ-скана (ADR-153): товар найден по штрихкоду или названию, иначе `productId: null` */
 export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
 export interface BarScanResult {

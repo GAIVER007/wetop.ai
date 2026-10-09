@@ -200,6 +200,18 @@ export async function updateBarProductAction(_previous: BarActionResult, fd: For
   }
 }
 
+/** Отмеченные строки доски в архив разом (макет: флажки строк); история и остатки сохраняются */
+export async function archiveBarProductsAction(ids: string[]): Promise<BarActionResult> {
+  try {
+    for (const id of ids) await barApi.setProductActive(id, false);
+    revalidateBar();
+    return { error: null, ok: Date.now(), message: `В архив: ${ids.length}` };
+  } catch (error) {
+    revalidateBar();
+    return { error: describe(error), ok: 0 };
+  }
+}
+
 export async function toggleBarCatalogAction(fd: FormData): Promise<void> {
   const id = value(fd, 'id');
   const active = value(fd, 'active') === 'true';

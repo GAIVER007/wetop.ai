@@ -15,7 +15,14 @@ import {
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
 import { SiteBuilderLicenses } from './site-builder-licenses';
-import { PLATFORM_ADMIN_ONLY, PLATFORM_NO_ORGANIZATION, PlatformController } from './platform.controller';
+import {
+  PLATFORM_ADMIN_ONLY,
+  PLATFORM_ALREADY_ARCHIVED,
+  PLATFORM_NOT_ARCHIVED,
+  PLATFORM_NO_ORGANIZATION,
+  PLATFORM_OWN_ORGANIZATION,
+  PlatformController,
+} from './platform.controller';
 
 /**
  * Раздел «Платформа» (DATA_MODEL §16, ADR-083). Настоящие замок и автор запроса, подставное хранилище. Открыт только
@@ -30,6 +37,26 @@ class FakeExtensions implements ExtensionsRepository {
   orgs: OrganizationSummary[] = [];
   saved: Array<{ organizationId: string; change: ExtensionChange; by: string | null }> = [];
   statuses: Array<{ organizationId: string; status: string; note: string | null; by: string | null }> = [];
+  renamed: Array<{ organizationId: string; name: string; by: string | null }> = [];
+  archived: Array<{ organizationId: string; by: string | null }> = [];
+  restored: Array<{ organizationId: string; status: string; by: string | null }> = [];
+  /** статус до архива: так хранилище помнит, куда возвращать (в настоящем он лежит в журнале) */
+  before = new Map<string, OrganizationSummary['status']>();
+  async rename(input: { organizationId: string; name: string; by: string | null; now: Date }) {
+    this.renamed.push({ organizationId: input.organizationId, name: input.name, by: input.by });
+    this.orgs.find((o) => o.id === input.organizationId)!.name = input.name;
+  }
+  async archive(input: { organizationId: string; by: string | null; now: Date }) {
+    this.archived.push({ organizationId: input.organizationId, by: input.by });
+    const org = this.orgs.find((o) => o.id === input.organizationId)!;
+    this.before.set(org.id, org.status);
+    org.status = 'SUSPENDED';
+  }
+  async restore(input: { organizationId: string; by: string | null; now: Date }) {
+    const org = this.orgs.find((o) => o.id === input.organizationId)!;
+    org.status = this.before.get(org.id) ?? 'READ_ONLY';
+    this.restored.push({ organizationId: org.id, status: org.status, by: input.by });
+  }
   async saveStatus(input: {
     organizationId: string;
     status: 'ACTIVE' | 'READ_ONLY';
@@ -127,6 +154,10 @@ beforeEach(() => {
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
   repo.statuses = [];
+  repo.renamed = [];
+  repo.archived = [];
+  repo.restored = [];
+  repo.before.clear();
   licenses.saved = [];
   repo.orgs = [
     {
@@ -298,5 +329,102 @@ describe('лицензия конструктора сайта филиала (M
       .send({ status: 'ACTIVE' })
       .expect(404);
     expect(licenses.saved).toHaveLength(0);
+  });
+});
+
+/**
+ * Название, архив и возврат организации (ORG1, ADR-153). «Удалить» заменено архивом: организация получает статус
+ * `SUSPENDED`, её люди не входят, данные целы; возврат ставит прежний статус. Свою организацию в архив убрать нельзя:
+ * главный администратор потерял бы доступ. Всё пишется в журнал с автором.
+ */
+const OTHER = '2a4b6c8d-1e3f-4a5b-9c7d-8e0f1a2b3c4d';
+describe('организация: название, архив и возврат', () => {
+  beforeEach(() => {
+    repo.orgs.push({
+      id: OTHER,
+      name: 'Гостиница «Север»',
+      status: 'ACTIVE',
+      trialEndsAt: null,
+      createdAt: new Date('2026-09-26T00:00:00.000Z'),
+      members: 1,
+      owners: ['sever@example.invalid'],
+      aiSeller: null,
+    });
+  });
+
+  it('переименование: пробелы сжаты, записано с автором, в ответе новое название', async () => {
+    const res = await api()
+      .patch(`/platform/organizations/${OTHER}`)
+      .set(as('session-admin'))
+      .send({ name: '  Гостиница   «Север 2»  ' })
+      .expect(200);
+    expect(res.body.name).toBe('Гостиница «Север 2»');
+    expect(repo.renamed).toEqual([{ organizationId: OTHER, name: 'Гостиница «Север 2»', by: ADMIN }]);
+  });
+
+  it('то же название: ответ 200, лишней записи в журнале нет', async () => {
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({ name: ' Гостиница «Север» ' }).expect(200);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('пустое, слишком длинное и не строка: 400, ничего не записано', async () => {
+    for (const name of ['', '   ', 'я'.repeat(201), 42, null]) {
+      await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({ name }).expect(400);
+    }
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({}).expect(400);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('переименовывает только главный администратор; нет такой — 404; не идентификатор — 400', async () => {
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-owner')).send({ name: 'Х' }).expect(403);
+    await api().patch('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00').set(as('session-admin')).send({ name: 'Х' }).expect(404);
+    await api().patch('/platform/organizations/abc').set(as('session-admin')).send({ name: 'Х' }).expect(400);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('архив: статус SUSPENDED, автор записан, организация остаётся в списке', async () => {
+    const res = await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    expect(res.body.status).toBe('SUSPENDED');
+    expect(repo.archived).toEqual([{ organizationId: OTHER, by: ADMIN }]);
+    const list = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
+    expect(list.body.items.find((o: { id: string }) => o.id === OTHER).status).toBe('SUSPENDED');
+  });
+
+  it('свою организацию в архив убрать нельзя: 409, статус не тронут', async () => {
+    const res = await api().post(`/platform/organizations/${ORG}/archive`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe(PLATFORM_OWN_ORGANIZATION);
+    expect(repo.archived).toHaveLength(0);
+    expect(repo.orgs.find((o) => o.id === ORG)!.status).toBe('TRIAL');
+  });
+
+  it('уже в архиве — 409; нет такой — 404; владелец — 403', async () => {
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    const again = await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(409);
+    expect(again.body.message).toBe(PLATFORM_ALREADY_ARCHIVED);
+    await api().post('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00/archive').set(as('session-admin')).expect(404);
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-owner')).expect(403);
+    expect(repo.archived).toHaveLength(1);
+  });
+
+  it('возврат ставит прежний статус, а не «оплачено»', async () => {
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'TRIAL';
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(201);
+    expect(res.body.status).toBe('TRIAL');
+    expect(repo.restored).toEqual([{ organizationId: OTHER, status: 'TRIAL', by: ADMIN }]);
+  });
+
+  it('прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется', async () => {
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(201);
+    expect(res.body.status).toBe('READ_ONLY');
+  });
+
+  it('вернуть из архива можно только организацию из архива: иначе 409; владелец — 403', async () => {
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe(PLATFORM_NOT_ARCHIVED);
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+    await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-owner')).expect(403);
+    expect(repo.restored).toHaveLength(0);
   });
 });

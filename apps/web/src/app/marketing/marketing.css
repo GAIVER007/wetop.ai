@@ -62,10 +62,6 @@
     align-items: center;
     gap: var(--space-4);
   }
-  .marketing-product__next {
-    font-size: var(--text-sm);
-    color: var(--muted);
-  }
   .marketing-soon {
     display: grid;
     align-content: start;

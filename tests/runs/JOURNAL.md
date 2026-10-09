@@ -7727,6 +7727,14 @@
 | 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 2 из 14 | 2 мин 14 с | 8940508 +7 | [лог](logs/2026-10-09T12-28-22Z-e2e-6b2f.log) | организации: одна страница, «Организации» в «Настройках» |
 | 09.10.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 3 из 14 | 2 мин 4 с | 8940508 +7 | [лог](logs/2026-10-09T12-32-31Z-e2e-7ccf.log) | повтор: организации, одна страница; «Организации» в «Настройках» |
 | 09.10.2026 17:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ✅ 58 из 58 | 8 мин 17 с | 8940508 +7 | [лог](logs/2026-10-09T12-35-02Z-e2e-fb5b.log) | организации и меню, один поток (общее подставное API) |
+| 09.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 4 мин 58 с | 8940508 +1 | [лог](logs/2026-10-09T12-20-54Z-e2e-767a.log) | хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных |
+| 09.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-26-10Z-e2e-f41c.log) |  |
+| 09.10.2026 17:27 | typecheck | ✅ без ошибок | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-08Z-typecheck-6653.log) |  |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
+| 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |
+| 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |
+| 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts -g вкладки входа и регистрации --workers=1) | ❌ упало 1 из 1 | 1 мин 7 с | 6332d73 | [лог](logs/2026-10-09T13-28-36Z-e2e-5f1d.log) | вкладки входа и регистрации переключаются без перехода в приложение |
+| 09.10.2026 18:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 10 с | 6332d73 +1 | [лог](logs/2026-10-09T13-29-48Z-e2e-a8b3.log) |  |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
 | 09.10.2026 17:44 | typecheck | ✅ без ошибок | 1 мин 4 с | 072b71f | [лог](logs/2026-10-09T12-44-12Z-typecheck-86fe.log) |  |
@@ -7764,3 +7772,5 @@
 | 09.10.2026 18:50 | typecheck | ✅ без ошибок | 1 мин | a0173a0 +30 | [лог](logs/2026-10-09T13-50-51Z-typecheck-4c12.log) |  |
 | 09.10.2026 18:51 | lint | ✅ без ошибок | 39 с | a0173a0 +30 | [лог](logs/2026-10-09T13-51-51Z-lint-182a.log) |  |
 | 09.10.2026 18:52 | unit | ❌ упало 1 из 4172, пропущено 3 | 2 мин 9 с | a0173a0 +26 | [лог](logs/2026-10-09T13-52-31Z-unit-ce67.log) | С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 |
+| 09.10.2026 18:35 | typecheck | ✅ без ошибок | 45 с | de0cd1e | [лог](logs/2026-10-09T13-35-02Z-typecheck-cb8e.log) |  |
+| 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |

@@ -30,6 +30,7 @@ import {
   cx,
 } from '../../components/ui';
 import { CompetitorButton, NightDrawer, OccupancyButton } from './drawers';
+import { MarketCharts } from './market-charts';
 import '../directory.css';
 import './market.css';
 
@@ -177,6 +178,7 @@ export default async function MarketPage({
         <>
           <Summary view={view} />
           <Insights view={view} />
+          <MarketCharts board={view.board} />
           <Grid view={view} editable={editable} nightHref={nightHref} />
           {night && (
             <NightDrawer date={night} history={nightLoaded} closeHref={`/market?${base}`} />

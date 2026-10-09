@@ -1,0 +1,58 @@
+import type { MarketView } from '../../lib/api';
+
+/**
+ * Данные трёх графиков экрана «Загрузка конкурентов» (SALES2.3). Считаем только то, что уже лежит в таблице:
+ * цен у конкурентов нет (ADR-142), поэтому ни «цены по датам», ни «изменения цен» тут не рисуются. Всё в базисных
+ * пунктах (8 550 = 85,5 %), пропуск это `null`, а не ноль.
+ */
+export interface ChartRow {
+  date: string;
+  own: number | null;
+  market: number | null;
+  /** Самый свободный и самый загруженный сосед на ночь */
+  min: number | null;
+  max: number | null;
+  /** Соседей с данными на ночь и всего соседей */
+  withData: number;
+  total: number;
+  /** Среднее изменение загрузки соседей к прошлому снимку; нет сравнения нет и значения */
+  changeBp: number | null;
+}
+
+export function buildChartRows(board: MarketView['board']): ChartRow[] {
+  return board.dates.map((date, i) => {
+    const cells = board.competitors.map((c) => c.cells[i]);
+    const values = cells.flatMap((c) => (c && c.bp !== null ? [c.bp] : []));
+    const deltas = cells.flatMap((c) => (c && c.deltaBp !== null ? [c.deltaBp] : []));
+    return {
+      date,
+      own: board.own[i]?.bp ?? null,
+      market: board.market[i]?.bp ?? null,
+      min: values.length ? Math.min(...values) : null,
+      max: values.length ? Math.max(...values) : null,
+      withData: values.length,
+      total: board.competitors.length,
+      changeBp: deltas.length ? Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length) : null,
+    };
+  });
+}
+
+/** Путь линии: рвётся на пропуске, одиночная точка остаётся точкой */
+export function linePath(
+  values: Array<number | null>,
+  y: (v: number) => number,
+  x: (i: number) => number,
+): string {
+  let d = '';
+  let open = false;
+  values.forEach((v, i) => {
+    if (v === null) {
+      open = false;
+      return;
+    }
+    d += `${open ? 'L' : 'M'}${x(i)},${y(v)}`;
+    open = true;
+  });
+  // одиночная точка между пропусками: M без L не рисуется, добавляем нулевой отрезок
+  return d.replace(/M([\d.-]+,[\d.-]+)(?=M|$)/g, 'M$1L$1');
+}

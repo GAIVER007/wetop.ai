@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 09.10.2026 19:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит eb9e202 (claude/sales2-impl), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/market-charts.spec.ts' 'tests/ui/market.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (2.2s)
+  ✓   2 tests/ui/market-charts.spec.ts:79:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (873ms)
+  ✓   3 tests/ui/market-charts.spec.ts:90:1 › пока конкурентов нет, графиков нет: пустое состояние как раньше (595ms)
+  ✓   4 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 1440px (2.1s)
+  ✓   5 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px (2.1s)
+  ✓   6 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 1440px (2.1s)
+  ✓   7 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px (2.0s)
+  ✓   8 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (2.5s)
+  ✓   9 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (2.8s)
+  ✓  10 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (1.8s)
+  ✓  11 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (3.5s)
+  ✓  12 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (3.3s)
+  ✓  13 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (1.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓  14 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (2.3s)
+
+  14 passed (36.6s)
+
+# код выхода 0 · 37 с

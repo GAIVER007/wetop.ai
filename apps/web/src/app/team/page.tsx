@@ -22,12 +22,17 @@ export default async function TeamPage() {
   const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
   const team = !!token && !!me.user?.organization && !!role && canManageStaff(role);
   const info = await clientInfo();
-  const [invites, members] =
+  const [invites, members, structure] =
     token && team
-      ? await Promise.all([authApi.invites(token, info), authApi.members(token, info)])
-      : [[], []];
+      ? await Promise.all([
+          authApi.invites(token, info),
+          authApi.members(token, info),
+          // область доступа (DATA_MODEL §30.1): нет структуры (старый API) — раздел без неё, как был
+          authApi.accessStructure(token, info).catch(() => null),
+        ])
+      : [[], [], null];
   return (
-    <TeamProvider role={team && role ? role : null}>
+    <TeamProvider role={team && role ? role : null} structure={structure}>
       <Page
         title="Сотрудники и доступ"
         subtitle={
@@ -41,7 +46,7 @@ export default async function TeamPage() {
           <>
             <TeamNavigation current="team" owner={role === 'OWNER'} />
             <TeamStats members={members} invites={invites} />
-            <MembersTable members={members} />
+            <MembersTable members={members} structure={structure} actorRole={role} />
             <PendingInvites invites={invites} />
           </>
         ) : (

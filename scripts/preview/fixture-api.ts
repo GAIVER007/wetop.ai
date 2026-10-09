@@ -56,6 +56,10 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseMemberDetails,
+  parseScopeAssignments,
+  validateAssignments,
+  membershipRoleFor,
+  type ScopeAssignment,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -2087,13 +2091,39 @@ interface FixtureInvite {
   role: InviteRole;
   expiresAt: string;
   createdAt: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: ScopeAssignment[];
 }
+/** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §30.1) */
+const FIXTURE_STRUCTURE = {
+  businesses: [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'Гостиница Luxx',
+      vertical: 'HOSPITALITY',
+      locations: [
+        { id: '21111111-1111-4111-8111-111111111111', name: 'Главный филиал' },
+        { id: '22222222-2222-4222-8222-222222222222', name: 'Филиал Алматы' },
+      ],
+    },
+    {
+      id: '33333333-3333-4333-8333-333333333333',
+      name: 'Салон красоты',
+      vertical: 'BEAUTY',
+      locations: [{ id: '44444444-4444-4444-8444-444444444444', name: 'Салон на Абая' }],
+    },
+  ],
+};
+const uiScopes = new Map<string, ScopeAssignment[]>();
 let uiTeam: FixtureMember[] = [];
 /** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
 let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiMyDetails = { phone: null, position: null };
+  uiScopes.clear();
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -2161,6 +2191,8 @@ function teamView(me: UiUser) {
         ...m,
         suspended: m.suspended === true,
         suspendable: !you && canRemoveMember(uiRole, m.role),
+        scopes: uiScopes.get(m.userId) ?? [],
+        scopesEditable: !you && canRemoveMember(uiRole, m.role),
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
@@ -5195,6 +5227,10 @@ createServer(async (req, res) => {
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const view = (i: FixtureInvite) => ({
         ...i,
+        firstName: i.firstName ?? null,
+        lastName: i.lastName ?? null,
+        position: i.position ?? null,
+        scopes: i.scopes ?? [],
         acceptedAt: null,
         revocable: canInvite(uiRole, i.role),
       });
@@ -5213,12 +5249,33 @@ createServer(async (req, res) => {
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
         if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
+        // область и данные приглашения (DATA_MODEL §30.3): те же функции домена, что у API
+        const parsedScopes = parseScopeAssignments(body['scopes']);
+        if (!parsedScopes.ok) return send(400, { message: parsedScopes.message });
+        if (parsedScopes.assignments.length > 0) {
+          const check = validateAssignments({
+            actor: uiRole,
+            assignments: parsedScopes.assignments,
+            known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+              businessId: b.id,
+              locationIds: b.locations.map((l) => l.id),
+            })),
+          });
+          if (!check.ok) return send(400, { message: check.reason });
+        }
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
-          role,
+          role:
+            parsedScopes.assignments.length > 0
+              ? (membershipRoleFor(parsedScopes.assignments, role) as InviteRole)
+              : role,
           expiresAt: invitePreview.expiresAt,
           createdAt: new Date().toISOString(),
+          firstName: typeof body['firstName'] === 'string' ? body['firstName'] : null,
+          lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
+          position: null,
+          scopes: parsedScopes.assignments,
         };
         uiInvites.unshift(invite);
         return send(201, view(invite));
@@ -5255,6 +5312,44 @@ createServer(async (req, res) => {
       if (target.you) uiMyDetails = next;
       else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
       return send(200, { userId: target.userId, ...next });
+    }
+    // Бизнесы и филиалы для области доступа и замена назначений (DATA_MODEL §30.1)
+    if (path === '/auth/access-structure' && req.method === 'GET') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      return send(200, FIXTURE_STRUCTURE);
+    }
+    const scopesMatch = /^\/auth\/members\/([^/]+)\/scopes$/.exec(path);
+    if (scopesMatch && req.method === 'PUT') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const parsed = parseScopeAssignments(body['scopes']);
+      if (!parsed.ok) return send(400, { message: parsed.message });
+      const target = teamView(who).find((m) => m.userId === scopesMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      if (parsed.assignments.length > 0) {
+        const check = validateAssignments({
+          actor: uiRole,
+          assignments: parsed.assignments,
+          known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+            businessId: b.id,
+            locationIds: b.locations.map((l) => l.id),
+          })),
+        });
+        if (!check.ok) return send(400, { message: check.reason });
+        uiScopes.set(target.userId, parsed.assignments);
+        const next = membershipRoleFor(parsed.assignments, target.role) as InviteRole;
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role: next } : m));
+      } else uiScopes.delete(target.userId);
+      return send(200, { userId: target.userId, scopes: parsed.assignments });
     }
     // Приостановка и возобновление доступа (DATA_MODEL §30.2): круг тот же, что у отключения
     const suspendMatch = /^\/auth\/members\/([^/]+)\/(suspend|resume)$/.exec(path);

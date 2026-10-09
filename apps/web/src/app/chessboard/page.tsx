@@ -13,6 +13,7 @@ import { PeriodPicker } from '../../components/period-picker';
 import { ChessboardGrid } from './board-grid';
 import { BoardTodayLink } from './board-today-link';
 import { BoardMenu } from './board-menu';
+import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
@@ -85,7 +86,8 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, todayBoard] = await Promise.all([
+  const yesterday = new Date(Date.parse(`${today}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  const [board, incidents, events, shell, day, todayBoard, yesterdayBoard] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -94,6 +96,8 @@ export default async function ChessboardPage({
     // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
     from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
+    // тренд загрузки «к вчерашнему дню» (образец владельца 09.10.2026): тот же расчёт за вчера
+    chessboardApi.board(yesterday, yesterday).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -168,7 +172,17 @@ export default async function ChessboardPage({
       ),
     ),
   ).size;
-  const attention = debtStays + (board.unassigned?.length ?? 0);
+  // «Требует внимания» по образцу владельца: долги и открытые задачи (брони без места вынесены в
+  // отдельную строку над сеткой и в окошко «Фильтры»)
+  const attention = debtStays + (day?.counts.tasksOpen ?? 0);
+  const yesterdaySummary = yesterdayBoard?.summary[yesterday];
+  const yesterdayUnits = yesterdaySummary
+    ? yesterdaySummary.occupied + yesterdaySummary.free + yesterdaySummary.blocked
+    : 0;
+  const trend =
+    occupancy !== null && yesterdaySummary && yesterdayUnits
+      ? occupancy - Math.round((yesterdaySummary.occupied / yesterdayUnits) * 100)
+      : null;
   const availabilityHref = `/rooms/availability?${new URLSearchParams({
     arrival: board.from,
     departure: new Date(Date.parse(`${board.to}T12:00:00Z`) + 86400000).toISOString().slice(0, 10),
@@ -304,6 +318,7 @@ export default async function ChessboardPage({
       day={day}
       today={today}
       occupancy={occupancy}
+      trend={trend}
       occupied={todaySummary?.occupied ?? null}
       units={units}
       free={todaySummary?.free ?? null}
@@ -345,50 +360,79 @@ export default async function ChessboardPage({
         help={help}
       />
       <div className="board-footer">
-        <details className="board-legend-details">
-          <summary>Обозначения</summary>
-          <Legend
-            data-testid="board-legend"
-            items={[
-              {
-                color: 'var(--st-confirmed)',
-                label: statusText(hospitalityStatus, 'CONFIRMED'),
-                glyph: '•',
-              },
-              {
-                color: 'var(--st-checked-in)',
-                label: statusText(hospitalityStatus, 'CHECKED_IN'),
-                glyph: '✓',
-              },
-              {
-                color: 'var(--st-checked-out)',
-                label: statusText(hospitalityStatus, 'CHECKED_OUT'),
-                glyph: '✕',
-              },
-              {
-                color: 'var(--st-tentative)',
-                label: statusText(hospitalityStatus, 'TENTATIVE'),
-                glyph: '?',
-              },
-              { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-              // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
-              {
-                color: 'var(--warning-bg)',
-                label: statusText(housekeepingStatus, 'DIRTY'),
-                icon: 'dirty',
-              },
-              {
-                color: 'var(--primary-soft)',
-                label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
-                icon: 'clean',
-              },
-              { label: 'без значка — проверена, доступна' },
-            ]}
-          />
-        </details>
-        <span className="board-gesture-hint">
-          Плашка — переселить, правый край — продлить, пустые клетки — протянуть и создать бронь
-        </span>
+        {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
+            масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
+        <ul className="board-legend-inline" aria-label="Цвета плашек">
+          {[
+            ['var(--plate-living)', statusText(hospitalityStatus, 'CHECKED_IN')],
+            ['var(--plate-booked)', statusText(hospitalityStatus, 'CONFIRMED')],
+            ['var(--plate-tentative)', statusText(hospitalityStatus, 'TENTATIVE')],
+            ['var(--plate-left)', statusText(hospitalityStatus, 'CHECKED_OUT')],
+            ['var(--plate-repair)', 'ремонт, неисправна'],
+            ['var(--plate-block)', 'блок'],
+          ].map(([color, label]) => (
+            <li key={label}>
+              <span className="board-legend-dot" style={{ background: color }} aria-hidden="true" />
+              {label!.charAt(0).toUpperCase() + label!.slice(1)}
+            </li>
+          ))}
+        </ul>
+        <BoardMenu
+          className="board-legend-details"
+          testId="board-legend-button"
+          summary={
+            <>
+              <Icon name="help" />
+              Показать легенду
+            </>
+          }
+        >
+          <div className="board-legend-pop">
+            <Legend
+              data-testid="board-legend"
+              items={[
+                {
+                  color: 'var(--plate-booked)',
+                  label: statusText(hospitalityStatus, 'CONFIRMED'),
+                  icon: 'booking',
+                },
+                {
+                  color: 'var(--plate-living)',
+                  label: statusText(hospitalityStatus, 'CHECKED_IN'),
+                  icon: 'guests',
+                },
+                {
+                  color: 'var(--plate-left)',
+                  label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+                  icon: 'departure',
+                },
+                {
+                  color: 'var(--plate-tentative)',
+                  label: statusText(hospitalityStatus, 'TENTATIVE'),
+                  icon: 'help',
+                },
+                { color: 'var(--plate-repair)', label: 'ремонт, неисправна', icon: 'settings' },
+                { color: 'var(--plate-block)', label: 'блокировка', icon: 'shield' },
+                // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная без значка
+                {
+                  color: 'var(--warning-bg)',
+                  label: statusText(housekeepingStatus, 'DIRTY'),
+                  icon: 'dirty',
+                },
+                {
+                  color: 'var(--primary-soft)',
+                  label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
+                  icon: 'clean',
+                },
+                { label: 'без значка: проверена, доступна' },
+              ]}
+            />
+            <p className="board-gesture-hint">
+              Плашка: переселить. Правый край: продлить. Пустые клетки: протянуть и создать бронь.
+            </p>
+          </div>
+        </BoardMenu>
+        <BoardZoom />
       </div>
     </Page>
   );
@@ -409,6 +453,7 @@ function DayStats({
   day,
   today,
   occupancy,
+  trend,
   occupied,
   units,
   free,
@@ -419,6 +464,8 @@ function DayStats({
   day: import('../../lib/api').DeskDay;
   today: string;
   occupancy: number | null;
+  /** разница загрузки с вчерашним днём, процентных пунктов; без данных за вчера нет */
+  trend: number | null;
   occupied: number | null;
   units: number | null;
   free: number | null;
@@ -436,9 +483,22 @@ function DayStats({
           <Icon name="bed" />
         </span>
         <div className="board-kpi__body">
-          <b className="board-kpi__value" data-testid="day-occupancy">
-            {occupancy === null ? 'н/д' : `${occupancy}%`}
-          </b>
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-occupancy">
+              {occupancy === null ? 'н/д' : `${occupancy}%`}
+            </b>
+            {trend !== null && trend !== 0 && (
+              <span
+                className="board-kpi__trend"
+                data-direction={trend > 0 ? 'up' : 'down'}
+                data-testid="day-trend"
+                title="К вчерашнему дню, процентных пунктов"
+              >
+                <Icon name="arrow" className={trend > 0 ? 'rotate-up' : 'rotate-down'} />
+                {trend > 0 ? `+${trend}%` : `${trend}%`}
+              </span>
+            )}
+          </span>
           <span className="board-kpi__label">
             <span className="sr-only">Загрузка: </span>
             <span data-testid="day-occupied">{n(occupied)}</span>
@@ -478,52 +538,55 @@ function DayStats({
           </Link>
         </div>
       </div>
-      <div className="board-kpi board-kpi--free">
+      <Link
+        className="board-kpi board-kpi--free"
+        href={availabilityHref}
+        aria-label="Поиск свободных номеров"
+      >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="inventory" />
         </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-free">
-              {n(free)}
-            </b>
-            <span className="board-kpi__label">Свободно номеров</span>
+        <span className="board-kpi__row">
+          <b className="board-kpi__value" data-testid="day-free">
+            {n(free)}
+          </b>
+          <span className="board-kpi__label">
+            Свободно
+            <br />
+            номеров
           </span>
-          <Link className="board-kpi__more" href={availabilityHref} aria-label="Поиск свободных номеров">
-            Найти номера <Icon name="arrow" />
-          </Link>
-        </div>
-      </div>
+        </span>
+      </Link>
       <div className="board-kpi board-kpi--dirty">
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="dirty" />
         </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-dirty">
-              {dirty}
-            </b>
-            <span className="board-kpi__label">Уборка</span>
+        <span className="board-kpi__row">
+          <b className="board-kpi__value" data-testid="day-dirty">
+            {dirty}
+          </b>
+          <span className="board-kpi__label">
+            Уборка
+            <br />
+            мест
           </span>
-          <span className="board-kpi__note">мест ждут уборки</span>
-        </div>
+        </span>
       </div>
-      <div className="board-kpi board-kpi--attention">
+      <Link className="board-kpi board-kpi--attention" href="/chessboard?stays=debt" aria-label="Неоплаченные">
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="incidents" />
         </span>
-        <div className="board-kpi__body">
-          <span className="board-kpi__row">
-            <b className="board-kpi__value" data-testid="day-attention">
-              {attention}
-            </b>
-            <span className="board-kpi__label">Требует внимания</span>
+        <span className="board-kpi__row">
+          <b className="board-kpi__value" data-testid="day-attention">
+            {attention}
+          </b>
+          <span className="board-kpi__label">
+            Требует внимания
+            <br />
+            <span className="board-kpi__note">долги и задачи</span>
           </span>
-          <Link className="board-kpi__more" href="/chessboard?stays=debt" aria-label="Неоплаченные">
-            Неоплаченные <Icon name="arrow" />
-          </Link>
-        </div>
-      </div>
+        </span>
+      </Link>
     </section>
   );
 }

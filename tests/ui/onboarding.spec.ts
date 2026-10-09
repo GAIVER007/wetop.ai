@@ -91,7 +91,7 @@ test('после запуска отеля «Финансы» без «Перв�
   await main.getByRole('button', { name: 'Запустить отель' }).click();
   await page.waitForURL('**/finance');
 
-  await expect(page.getByRole('heading', { name: 'Финансы', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
   await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
@@ -101,7 +101,7 @@ test('после запуска отеля «Финансы» без «Перв�
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: false } });
   await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Финансы', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
 });
 
@@ -124,7 +124,7 @@ test('«Заполнить позже»: стойка открывается, г
   await main.getByTestId('onboarding-later').click();
 
   await page.waitForURL('**/finance');
-  await expect(page.getByRole('heading', { name: 'Финансы', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
   // «Первые шаги» сняты 29.09.2026 (слово владельца): подсказки «Настроить отель» больше нет
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await page.screenshot({ path: 'test-results/onboarding-later-2-finance.png' });

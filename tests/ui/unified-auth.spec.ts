@@ -80,7 +80,7 @@ test('регистрация на главной → письмо → подтв
   await page.goto(`${APP}/login/verify?token=ui-verify-1`);
   await expect(page).toHaveURL(`${APP}/finance`);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
 });
 test('резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран', async ({
   browser,

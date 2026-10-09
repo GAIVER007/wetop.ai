@@ -1,25 +1,20 @@
 import { cache, Suspense } from 'react';
 import Link from 'next/link';
 import { ApiError, dashboardApi, chessboardApi } from '../../lib/api';
-import { hotelApi } from '../../lib/hotel-api';
-import { formatMoney } from '../../lib/money';
 import { formatPercent } from '../../lib/dashboard-format';
 import { displayDate } from '../../lib/display-date';
-import { Alert } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { loadDeskDay } from './desk-section';
-import { loadGuardStatus } from './guard-status';
-import { DayAttention, attentionCount } from './day-attention';
-import { DashboardDetails, DashboardRefresh, ForecastDetails } from './owner-controls';
-import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
+import { DashboardRefresh, ForecastDetails } from './owner-controls';
+import { OwnerPlaceholder } from './owner-loading';
 
-const loadPeriod = cache((from: string, to: string) =>
+/** Один запрос показателей на отрисовку: обзор, прогноз и плитки читают общий кэш */
+export const loadPeriod = cache((from: string, to: string) =>
   dashboardApi.period(from, to).catch((error: unknown) => {
     if (error instanceof ApiError) return error;
     throw error;
   }),
 );
-const loadBoard = cache((date: string) =>
+export const loadBoard = cache((date: string) =>
   chessboardApi.board(date, date).catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
@@ -34,7 +29,7 @@ export async function OwnerOutlook({ today }: { today: string }) {
   return (
     <div className="owner-outlook">
       <header>
-        <h3>Ближайшие 7 дней</h3>
+        <h3>Прогноз загрузки на 7 дней</h3>
         {!(result instanceof ApiError) && (
           <ForecastDetails>
             <p className="owner-forecast-note">
@@ -105,11 +100,11 @@ export async function OwnerLoad({ date }: { date: string }) {
   const total = summary ? summary.occupied + summary.free + summary.blocked : 0;
   const percent = summary && total > 0 ? Math.round((summary.occupied * 1000) / total) / 10 : null;
   return (
-    <section className="owner-load owner-surface" aria-label="Загрузка сегодня">
+    <section className="owner-load owner-surface" aria-labelledby="owner-load-title">
       <header className="owner-section-head">
-        <h2>Загрузка сегодня</h2>
-        <Link href={`/management/analytics/occupancy?date=${date}`} aria-label="Подробная загрузка">
-          <Icon name="external" width={18} height={18} />
+        <h2 id="owner-load-title">Загрузка и операционные показатели</h2>
+        <Link href={`/management/analytics/occupancy?date=${date}`} className="card-heading__link">
+          Подробнее
         </Link>
       </header>
       <div className="owner-load-main">
@@ -166,82 +161,6 @@ export async function OwnerLoad({ date }: { date: string }) {
       >
         <OwnerOutlook today={date} />
       </Suspense>
-    </section>
-  );
-}
-
-async function DebtAmount({ minor }: { minor: string }) {
-  const hotel = await hotelApi.settings().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
-  });
-  return (
-    <strong data-testid="c-debt">
-      {hotel ? formatMoney(minor, hotel.property.currency) : 'Нет данных'}
-    </strong>
-  );
-}
-export async function OwnerOperations({ date }: { date: string }) {
-  const day = await loadDeskDay(date);
-  if (day instanceof ApiError)
-    return (
-      <div className="owner-operations">
-        <Alert boxed tone="warning" data-testid="desk-error">
-          Данные сегодняшнего дня не загрузились.
-          <div className="owner-error-actions">
-            <DashboardRefresh label="Повторить" />
-            <Link href="/reservations">Открыть брони</Link>
-          </div>
-        </Alert>
-      </div>
-    );
-  return (
-    <>
-      <section className="owner-today owner-surface" aria-label="Сегодня">
-        <header className="owner-section-head">
-          <h2>Сегодня</h2>
-          <Link href={`/reservations?date=${date}`} aria-label="Брони сегодня">
-            <Icon name="chevron" width={18} height={18} />
-          </Link>
-        </header>
-        <div className="owner-today-values">
-          <Link href={`/reservations?arrival=${date}`}>
-            <span>Заезды</span>
-            <strong>{day.counts.toCheckIn}</strong>
-          </Link>
-          <Link href={`/reservations?departure=${date}`}>
-            <span>Выезды</span>
-            <strong>{day.counts.toCheckOut}</strong>
-          </Link>
-          <Link href={`/reservations?departure=${date}`} aria-label="К оплате у выезжающих сегодня">
-            <span>К оплате</span>
-            <Suspense fallback={<strong>…</strong>}>
-              <DebtAmount minor={day.debtMinor} />
-            </Suspense>
-          </Link>
-        </div>
-      </section>
-      <Suspense fallback={<AttentionPlaceholder />}>
-        <OwnerAttention day={day} date={date} />
-      </Suspense>
-    </>
-  );
-}
-
-async function OwnerAttention({
-  day,
-  date,
-}: {
-  day: Exclude<Awaited<ReturnType<typeof loadDeskDay>>, ApiError>;
-  date: string;
-}) {
-  const [board, guard] = await Promise.all([loadBoard(date), loadGuardStatus()]);
-  const attention = { day, board, guard, isToday: true };
-  return (
-    <section className="owner-attention" aria-label="Риски на сегодня" data-testid="owner-risks">
-      <DashboardDetails title="Требуют внимания" count={attentionCount(attention)}>
-        <DayAttention {...attention} />
-      </DashboardDetails>
     </section>
   );
 }

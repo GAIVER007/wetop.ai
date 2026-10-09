@@ -55,7 +55,7 @@ test('F1: заголовок и период в подзаголовке, пер
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Обзор бизнеса');
   await expect(main.getByTestId('finance-period')).toContainText('За период с');
   await expect(main.getByTestId('finance-period')).toContainText('по');
   // В действиях страницы только «Обновить данные» (блок владельца, 09.10); поиска брони нет

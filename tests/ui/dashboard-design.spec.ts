@@ -111,7 +111,7 @@ test('финансы: «Требуют внимания» разбито по в
   // с 03.10 экран владельца без действий смены (с 09.10 он живёт в «Финансах»): брони в «Календаре» и «Бронях»
   await expect(page.getByRole('region', { name: 'Быстрые действия' })).toHaveCount(0);
   await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const tally = page.getByTestId('attention-tally');
   await expect(tally.getByRole('listitem')).toHaveText([/Критично/, /Важно/, /К сведению/]);
   const numbers = (await tally.locator('strong').allInnerTexts()).map(Number);

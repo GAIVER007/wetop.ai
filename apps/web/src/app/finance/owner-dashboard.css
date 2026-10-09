@@ -2,38 +2,32 @@
    Since 09.10.2026 the owner blocks live on /finance (plans/finance-home-merge-2026-10-09.md):
    the cash summary takes the money cell, header search stays available as on other screens. */
 @layer sections {
-  .page:has(.owner-dashboard) {
-    max-width: 1200px;
-    margin-inline: auto;
-    padding: 24px;
-  }
-  .page:has(.owner-dashboard) .page__head {
+  .page:has(.biz-overview) .page__head {
     align-items: center;
     margin-bottom: 16px;
   }
-  .page:has(.owner-dashboard) .page__title {
+  .page:has(.biz-overview) .page__title {
     font-size: var(--text-4xl);
     letter-spacing: -0.6px;
   }
-  .page:has(.owner-dashboard) .page__subtitle {
+  .page:has(.biz-overview) .page__subtitle {
     font-size: var(--text-sm);
     color: var(--muted);
     margin-top: 4px;
   }
-  .page:has(.owner-dashboard) .page__heading {
+  .page:has(.biz-overview) .page__heading {
     flex: 1;
     min-width: 0;
   }
-  .page:has(.owner-dashboard) .page__actions {
-    flex: 0 0 auto;
-    width: auto;
+  .page:has(.biz-overview) .page__head {
+    flex-wrap: wrap;
   }
-  .owner-dashboard {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    grid-template-areas: 'load finance' 'load today' 'load attention';
-    gap: 16px;
-    align-items: start;
+  .page:has(.biz-overview) .page__actions {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: auto;
+    min-width: 0;
   }
   .owner-surface {
     background: var(--surface);
@@ -55,15 +49,10 @@
     margin: 0;
   }
   .owner-section-head > a {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin: -8px -8px -8px 0;
-    color: var(--muted);
-  }
-  .owner-load {
-    grid-area: load;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    min-height: 24px;
   }
   .owner-load-main {
     display: flex;
@@ -202,50 +191,6 @@
     background: var(--primary);
     border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   }
-  .owner-finance {
-    grid-area: finance;
-  }
-  /* Сводка кассы на месте блока «Деньги»: в сетке владельца столбцом и без нижнего зазора панели */
-  .owner-dashboard .cash-summary {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    margin: 0;
-    padding: 16px;
-  }
-  .owner-today {
-    grid-area: today;
-  }
-  .owner-today-values {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.4fr;
-    gap: 8px;
-  }
-  .owner-today-values > a {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 0;
-    min-height: 44px;
-    gap: 4px;
-    color: var(--text);
-  }
-  .owner-today-values > a + a {
-    border-left: 1px solid var(--border);
-    padding-left: 8px;
-  }
-  .owner-today-values span {
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  .owner-today-values strong {
-    font-size: var(--text-xl);
-    line-height: 1.2;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-  .owner-attention {
-    grid-area: attention;
-  }
   .owner-attention-button {
     width: 100%;
     display: flex;
@@ -284,19 +229,7 @@
     display: grid;
     gap: 16px;
   }
-  .owner-operations {
-    grid-column: 1 / -1;
-  }
   @media (max-width: 900px) {
-    .page:has(.owner-dashboard) {
-      max-width: 640px;
-      padding: 16px;
-    }
-    .owner-dashboard {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: 'load' 'finance' 'today' 'attention';
-      gap: 8px;
-    }
     .owner-surface {
       padding: 16px;
     }
@@ -320,20 +253,14 @@
     }
   }
   @media (max-width: 600px) {
-    .page:has(.owner-dashboard) {
-      padding: 8px 8px calc(88px + env(safe-area-inset-bottom));
-    }
-    .page:has(.owner-dashboard) .page__head {
+    .page:has(.biz-overview) .page__head {
       margin-bottom: 8px;
     }
-    .page:has(.owner-dashboard) .page__title {
+    .page:has(.biz-overview) .page__title {
       font-size: var(--text-3xl);
     }
-    .page:has(.owner-dashboard) .page__subtitle {
+    .page:has(.biz-overview) .page__subtitle {
       font-size: var(--text-xs);
-    }
-    .owner-dashboard {
-      gap: 8px;
     }
     .owner-surface {
       padding: 8px;
@@ -382,14 +309,14 @@
       min-height: 44px;
       padding: 8px 8px;
     }
-    body:has(.owner-dashboard) .pmsw-b {
+    body:has(.biz-overview) .pmsw-b {
       top: 76px;
       bottom: auto;
       right: 12px;
       width: 44px;
       height: 44px;
     }
-    body:has(.owner-dashboard):has(.pmsw-b) .page__actions {
+    body:has(.biz-overview):has(.pmsw-b) .page__actions {
       margin-right: 48px;
     }
   }
@@ -408,9 +335,6 @@
     .owner-section-head {
       margin-bottom: 4px;
     }
-    .owner-section-head > a {
-      margin-block: -8px;
-    }
     .owner-ring {
       width: 88px;
       height: 88px;
@@ -425,9 +349,6 @@
     }
     .owner-load-counts dt,
     .owner-load-counts dd,
-    .owner-today-values span {
-      line-height: 1.2;
-    }
     .owner-week strong,
     .owner-week span {
       line-height: 1.2;
@@ -612,9 +533,6 @@
     outline-offset: 2px;
   }
   @media (max-width: 600px) and (max-height: 820px) {
-    .owner-dashboard {
-      gap: var(--space-1);
-    }
     .owner-surface {
       padding-block: var(--space-1);
     }

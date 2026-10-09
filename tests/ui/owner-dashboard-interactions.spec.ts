@@ -39,7 +39,7 @@ test('forecast details expose availability and open the selected calendar day', 
 test('forecast can recover in place after a temporary API failure', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/finance');
-  const load = page.getByRole('region', { name: 'Загрузка сегодня', exact: true });
+  const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
   // отказ аналитики не трогает деньги: сводка кассы живёт своими запросами
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
@@ -52,7 +52,7 @@ test('forecast can recover in place after a temporary API failure', async ({ pag
 test('unavailable inventory stays explicit and can be retried', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/chessboard' } });
   await page.goto('/finance');
-  const load = page.getByRole('region', { name: 'Загрузка сегодня', exact: true });
+  const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('c-occupancy')).toHaveText('Нет данных');
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '' } });
   await load.getByRole('button', { name: 'Повторить', exact: true }).click();
@@ -66,7 +66,7 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
   const ready = await page
-    .getByRole('region', { name: 'Загрузка сегодня', exact: true })
+    .getByRole('region', { name: 'Загрузка и операционные показатели' })
     .boundingBox();
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { delayPath: '/chessboard', delayMs: 6000 },
@@ -129,8 +129,8 @@ test('compact owner summary fits a 360 by 800 phone first screen', async ({ page
   await page.goto('/finance');
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
   await expect(page.getByTestId('owner-outlook-chart').getByRole('link')).toHaveCount(7);
-  // сводка (загрузка и деньги) помещается в первый экран телефона; касса ниже достижима прокруткой
-  const cash = await page.getByTestId('cash-summary').boundingBox();
-  expect(cash!.y + cash!.height).toBeLessThanOrEqual(800);
+  // плитки показателей начинают первый экран; деньги ниже, достижимы прокруткой
+  await expect(page.getByTestId('biz-revenue')).toBeInViewport();
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/mobile-360.png` });
 });

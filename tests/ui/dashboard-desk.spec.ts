@@ -21,7 +21,7 @@ test('3. одна очередь внимания в панели; выбор ф
 }) => {
   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
   await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention')).toHaveCount(1);
   await expect(page.locator('#day-attention .attention-list')).toBeVisible();
   await expect(page.locator('#day-attention')).not.toContainText('Всё в порядке');
@@ -31,14 +31,14 @@ test('5. долг у выезжающих отдельно от финансов
 }) => {
   await page.goto('/finance');
   await expect(page.getByTestId('c-debt')).toHaveText('0 ₸');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention')).toContainText('20260913-TEST4');
 });
 test('6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка', async ({
   page,
 }) => {
   await page.goto('/finance');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const list = page.locator('#day-attention .attention-list');
   await expect(list).toBeVisible();
   expect(await list.evaluate((el) => getComputedStyle(el).overflowY)).toBe('visible');
@@ -106,7 +106,7 @@ test('9. размеры шрифта на главной и в «Аналити�
     await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
 
     // блоки владельца держат утверждённую шкалу; у сводки кассы своё утверждённое оформление 05.10
-    for (const block of ['.owner-load', '.owner-today', '.owner-attention'])
+    for (const block of ['.owner-load', '.biz-today', '.biz-attention'])
       expect(await offScale(main.locator(block)), `${block}, ширина ${width}`).toEqual([]);
     // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
     await page.goto('/management/analytics?period=week');
@@ -138,7 +138,7 @@ test('10. заголовок страницы и панели брони — п�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/finance');
   // с 03.10 быстрых действий на экране владельца нет: бронь открывается из очереди «Требуют внимания»
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await page
     .locator('#day-attention')
     .getByRole('link', { name: /20260913-TEST4/ })

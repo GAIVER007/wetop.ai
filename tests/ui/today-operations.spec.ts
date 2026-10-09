@@ -14,7 +14,7 @@ type Day = {
   arrivals: Row[];
   departures: Row[];
   debtMinor: string;
-  counts: { toCheckIn: number; toCheckOut: number };
+  counts: { arrivals: number; departures: number; toCheckIn: number; toCheckOut: number };
 };
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const tenge = (minor: string) => String(BigInt(minor) / 100n);
@@ -33,18 +33,18 @@ test('операционные карточки убраны, а риски дн
   for (const name of ['Загрузка на сегодня', 'Гости сегодня', 'Состояние номеров'])
     await expect(page.getByRole('article', { name })).toHaveCount(0);
   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
-  await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
 });
 
 test('события дня совпадают с /desk/today и не зависят от периода кассы', async ({ page }) => {
   const d = await day(page);
   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
   const today = page.getByRole('region', { name: 'Сегодня', exact: true });
-  await expect(today.getByRole('link', { name: /Заезды/ })).toContainText(
-    String(d.counts.toCheckIn),
+  await expect(today.getByRole('link', { name: /^Заезды/ })).toContainText(
+    String(d.counts.arrivals),
   );
-  await expect(today.getByRole('link', { name: /Выезды/ })).toContainText(
-    String(d.counts.toCheckOut),
+  await expect(today.getByRole('link', { name: /^Выезды/ })).toContainText(
+    String(d.counts.departures),
   );
   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
   // блок «Деньги» с заглушками «Нет данных» не переехал: деньги считает касса
@@ -58,5 +58,5 @@ test('сбой сторожа не скрывает показатели и де
   await page.goto('/finance');
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
   await expect(page.getByTestId('owner-risks')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
 });

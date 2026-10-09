@@ -31,7 +31,7 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
 
 test('после входа рабочее место открывается, «Выйти» закрывает двери снова', async ({ page }) => {
   await signIn(page);
-  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь' })).toBeVisible();
 
@@ -58,5 +58,5 @@ test('ссылка из письма подтверждает почту при 
 
   await page.goto('/login/verify?token=ui-verify-1');
   await expect(page).toHaveURL(/\/finance/);
-  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
 });

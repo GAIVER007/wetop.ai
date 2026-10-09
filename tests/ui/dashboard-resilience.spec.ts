@@ -40,7 +40,7 @@ test('«Финансы» открываются и с упавшими пока�
 }) => {
   await request.post(`${API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
   await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });

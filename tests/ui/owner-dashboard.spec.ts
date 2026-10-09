@@ -22,12 +22,13 @@ test('owner blocks: compact metrics and operational widgets on finance', async (
     await expect(main.getByRole('article', { name })).toHaveCount(0);
   await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
   await expect(main.getByRole('link', { name: 'Все филиалы' })).toHaveCount(0);
-  await expect(main.getByRole('link', { name: 'Брони сегодня' })).toBeVisible();
-  // Деньги по умолчанию за месяц (готовые периоды кассы), виджеты загрузки показывают сегодня.
-  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(main.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+  // Деньги по умолчанию за месяц, виджеты дня показывают сегодня.
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Период обзора', exact: true })
+      .getByRole('link', { name: 'Месяц', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
   await page.screenshot({
     caret: 'initial',
     path: `${SHOTS}/desktop.png`,
@@ -51,7 +52,7 @@ test('attention and cash stay available when dashboard API fails', async ({ page
   });
   await page.goto('/finance');
   await expect(page.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
 });
 
@@ -66,9 +67,9 @@ test('owner blocks dark desktop and mobile remain usable', async ({ page }) => {
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  // На телефоне сводка (загрузка и деньги) остаётся первым экраном.
-  await expect(page.getByTestId('cash-summary')).toBeInViewport();
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  // На телефоне первый экран начинается с плиток показателей.
+  await expect(page.getByTestId('biz-revenue')).toBeInViewport();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Требуют внимания', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await page.reload();
@@ -93,9 +94,9 @@ test('owner mobile summary fits the first screen and omits removed metrics', asy
   for (const id of ['owner-refunds', 'owner-cash', 'owner-total'])
     await expect(page.getByTestId(id)).toHaveCount(0);
   await expect(page.getByTestId('owner-outlook-chart')).toBeVisible();
-  // Первый экран телефона: сводка, загрузка и деньги видны без прокрутки.
-  const cash = await page.getByTestId('cash-summary').boundingBox();
-  expect(cash!.y + cash!.height).toBeLessThanOrEqual(844);
+  // Первый экран телефона начинается с показателей; деньги ниже, достижимы прокруткой.
+  await expect(page.getByTestId('biz-revenue')).toBeInViewport();
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
@@ -126,12 +127,12 @@ test('approved owner concept groups forecast with occupancy and matches attentio
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  const load = page.getByRole('region', { name: 'Загрузка сегодня', exact: true });
+  const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
   await expect(load.getByTestId('c-occupancy')).toBeVisible();
   const badge = page.getByTestId('owner-attention-count');
   await expect(badge).toBeVisible();
   const count = await badge.innerText();
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention .attention-count')).toHaveText(count);
 });

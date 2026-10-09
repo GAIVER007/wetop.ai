@@ -80,7 +80,7 @@ test('очередь: каждое событие дня с числом, важ
 }) => {
   const events = await expected(request);
   await page.goto('/finance');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   for (const [key, e] of Object.entries(events)) {
     const item = block.locator(`[data-testid="attention-event"][data-event="${key}"]`);
@@ -121,7 +121,7 @@ test('незаезд ведёт в бронь, долг — в счёт; бро�
 }) => {
   const day: Day = await (await request.get(`${fixture}/desk/today`, asClient)).json();
   await page.goto('/finance');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   const noShow = block.locator('[data-event="no-show"]');
   const first = day.overdueArrivals[0]!;
@@ -140,7 +140,7 @@ test('сторож не ответил — строк инцидентов не�
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
   await page.goto('/finance');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(
     block.locator('[data-event="incidents"], [data-event="incidents-critical"]'),
@@ -150,7 +150,7 @@ test('сторож не ответил — строк инцидентов не�
 
 test('финансовый период в будущем не скрывает текущие задачи гостиницы', async ({ page }) => {
   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(block).not.toContainText('Всё в порядке');
   await expect(block.getByTestId('attention-event').first()).toBeVisible();
@@ -173,7 +173,7 @@ test('снимки панелей единых «Финансов»', async ({ p
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/finance');
-      await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+      await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
       const block = page.getByRole('region', { name: 'Требуют внимания' });
       await expect(block.getByTestId('attention-event').first()).toBeVisible();
       const height = await page.evaluate(() => document.documentElement.scrollHeight);

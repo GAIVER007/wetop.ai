@@ -208,6 +208,8 @@ const DELTA_GLYPH = { up: '\u2191', down: '\u2193', flat: '\u2192' } as const;
 type StatProps = {
   label: ReactNode;
   value: ReactNode;
+  /** значок-подпись в углу плитки (обзор бизнеса, план finance-overview-2026-10-09): смысл держит label */
+  icon?: IconName | undefined;
   hint?: ReactNode;
   hintTone?: 'warn' | undefined;
   testId?: string | undefined;
@@ -224,6 +226,7 @@ type StatProps = {
 export function Stat({
   label,
   value,
+  icon,
   hint,
   hintTone,
   testId,
@@ -243,6 +246,11 @@ export function Stat({
   const className = cx('stat', toneClass, sizeClass, href && 'stat--link');
   const body = (
     <>
+      {icon && (
+        <span className="stat__icon" aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+      )}
       <div className="stat__label">{label}</div>
       <div className="stat__value" data-testid={testId}>
         {value}
@@ -352,7 +360,9 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
         )}
         {...rest}
       >
-        {caption && <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>}
+        {caption && (
+          <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>
+        )}
         {children}
       </table>
     </div>

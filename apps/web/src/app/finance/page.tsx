@@ -4,7 +4,7 @@ import { Suspense, type ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
-import { hotelToday, validDate } from '../../lib/hotel-api';
+import { hotelToday, plusDays, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { can } from '@pms/domain';
@@ -39,9 +39,19 @@ import '../directory.css';
 import './finance.css';
 import './owner-dashboard.css';
 import './attention.css';
-import { OwnerLoad, OwnerOperations } from './owner-dashboard';
+import './overview.css';
+import { OwnerLoad } from './owner-dashboard';
 import { DashboardRefresh } from './owner-controls';
 import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
+import {
+  AttentionCard,
+  BizKpis,
+  MoneyOverview,
+  PaymentMethods,
+  RecentOperations,
+  TodayCard,
+  periodWord,
+} from './overview';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -109,24 +119,33 @@ export default async function FinanceReportPage({
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, servicesLoaded, periodOpsLoaded] =
-    await Promise.all([
-      valid ? settle(financeApi.report(from, to)) : null,
-      valid ? settle(financeApi.debts(from, to)) : null,
-      valid
-        ? settle(
-            financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }),
-          )
-        : null,
-      deskShell(),
-      // Касса (§21): остатки за всё время и статьи одним запросом, от периода не зависят.
-      settle(financeApi.cash()),
-      // отчёт по услугам (REP2): то же окно, что у сводки
-      valid ? settle(financeApi.servicesReport(from, to)) : null,
-      valid && (filter.type || filter.method || filter.source)
-        ? settle(financeApi.operations(from, to, { limit: 1 }))
-        : null,
-    ]);
+  // прошлый отрезок той же длины: сравнения плиток обзора (план finance-overview-2026-10-09)
+  const prevTo = dates ? plusDays(from, -1) : from;
+  const prevFrom = dates ? plusDays(from, -days) : from;
+  const [
+    loaded,
+    debtsLoaded,
+    opsLoaded,
+    shell,
+    cashLoaded,
+    servicesLoaded,
+    periodOpsLoaded,
+    prevOpsLoaded,
+  ] = await Promise.all([
+    valid ? settle(financeApi.report(from, to)) : null,
+    valid ? settle(financeApi.debts(from, to)) : null,
+    // лента и график обзора из одного ответа: всегда до OPS_ALL строк, лента ниже режется сама
+    valid ? settle(financeApi.operations(from, to, { ...filter, limit: OPS_ALL })) : null,
+    deskShell(),
+    // Касса (§21): остатки за всё время и статьи одним запросом, от периода не зависят.
+    settle(financeApi.cash()),
+    // отчёт по услугам (REP2): то же окно, что у сводки
+    valid ? settle(financeApi.servicesReport(from, to)) : null,
+    valid && (filter.type || filter.method || filter.source)
+      ? settle(financeApi.operations(from, to, { limit: OPS_ALL }))
+      : null,
+    valid ? settle(financeApi.operations(prevFrom, prevTo, { limit: 1 })) : null,
+  ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
   const debts = debtsLoaded?.ok ? debtsLoaded.r : null;
@@ -136,6 +155,7 @@ export default async function FinanceReportPage({
   const periodOpsResult = periodOpsLoaded ?? opsLoaded;
   const periodOps = periodOpsResult?.ok ? periodOpsResult.r : null;
   const periodOpsError = periodOpsResult && !periodOpsResult.ok ? periodOpsResult.e : null;
+  const prevOps = prevOpsLoaded?.ok ? prevOpsLoaded.r : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
   const services = servicesLoaded?.ok ? servicesLoaded.r : null;
@@ -148,6 +168,27 @@ export default async function FinanceReportPage({
   const period = `/finance?from=${from}&to=${to}`;
   const preset = (p: { from: string; to: string }) => `/finance?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
+  const presetKind = isPreset({ from: cal.today, to: cal.today })
+    ? ('today' as const)
+    : isPreset(cal.week)
+      ? ('week' as const)
+      : isPreset(cal.month)
+        ? ('month' as const)
+        : ('custom' as const);
+  // деньги обзора: поступления и расходы кассовыми правилами (finance-cash-first), в BigInt
+  const income = periodOps ? BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor) : null;
+  const expense = periodOps
+    ? BigInt(periodOps.refundedMinor) + BigInt(periodOps.expenseMinor)
+    : null;
+  const sums = {
+    income,
+    expense,
+    prevIncome: prevOps ? BigInt(prevOps.paidMinor) + BigInt(prevOps.incomeMinor) : null,
+    prevExpense: prevOps ? BigInt(prevOps.refundedMinor) + BigInt(prevOps.expenseMinor) : null,
+    currency: periodOps?.currency ?? cashBalances?.currency ?? 'KZT',
+  };
+  // лента ниже по-прежнему начинается с двадцати строк; полный ответ остаётся графику и «Показать все»
+  const opsForList = ops && !opsAll ? { ...ops, rows: ops.rows.slice(0, OPS_SHOWN) } : ops;
   // Q-206: «К сбору» — сумма того же списка долгов, куда ведёт плитка: число сверху всегда равно сумме строк
   const due = debts ? BigInt(debts.balanceMinor) : 0n;
   const onlyOverdue = sp.debts === 'overdue';
@@ -174,96 +215,92 @@ export default async function FinanceReportPage({
   if (srcParam) exportQuery.set('src', srcParam);
   return (
     <Page
-      title="Финансы"
-      subtitle={displayDate(cal.today, 'full')}
+      title="Обзор бизнеса"
+      subtitle="Ключевые показатели, деньги, загрузка и задачи в одном месте"
       width="full"
-      actions={<DashboardRefresh />}
+      actions={
+        <>
+          <nav className="biz-period" aria-label="Период обзора">
+            <a href="#finance-filters" className="biz-period__range" data-testid="finance-period">
+              За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
+            </a>
+            {(
+              [
+                ['Сегодня', { from: cal.today, to: cal.today }],
+                ['7 дней', cal.week],
+                ['Месяц', cal.month],
+              ] as const
+            ).map(([label, p]) => (
+              <Link
+                key={label}
+                href={preset(p)}
+                className={isPreset(p) ? 'is-active' : ''}
+                aria-current={isPreset(p) ? 'page' : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <DashboardRefresh />
+        </>
+      }
     >
-      {/* Блоки Главной (план finance-home-merge-2026-10-09): загрузка, события дня и внимание
-          в прежней сетке владельца; место блока «Деньги» занимает сводка кассы */}
-      <div className="owner-dashboard" data-testid="owner-dashboard">
+      {/* «Обзор бизнеса» по макету владельца (план finance-overview-2026-10-09): блоки бывшей
+          Главной и деньги кассы одним экраном; числа макета вымышленные, всё считается из API */}
+      <div className="biz-overview" data-testid="owner-dashboard">
         <Suspense
           fallback={
-            <div className="owner-load owner-surface">
-              <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
-            </div>
+            <section className="biz-kpis" aria-label="Ключевые показатели">
+              <OwnerPlaceholder variant="today" label="Загружаем показатели…" />
+            </section>
           }
         >
-          <OwnerLoad date={cal.today} />
+          <BizKpis
+            sums={sums}
+            periodLabel={periodWord(presetKind)}
+            debts={debts}
+            date={cal.today}
+            yesterday={yesterdayDate}
+          />
         </Suspense>
-        <section
-          className="cash-summary owner-finance"
-          aria-label="Итоги кассы"
-          data-testid="cash-summary"
-        >
-        <div className="cash-summary__balance">
-          <span className="cash-summary__label">
-            Всего <small>за всё время</small>
-          </span>
-          <strong data-testid="cash-balance">
-            {cashBalances
-              ? formatMoney(cashBalances.totalMinor, cashBalances.currency)
-              : 'Нет данных'}
-          </strong>
+        <div className="biz-row biz-row--two">
+          <Suspense
+            fallback={
+              <div className="owner-load owner-surface">
+                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+              </div>
+            }
+          >
+            <OwnerLoad date={cal.today} />
+          </Suspense>
+          <MoneyOverview
+            sums={sums}
+            ops={periodOps}
+            from={from}
+            to={to}
+            cash={cashBalances}
+            detailsHref={`${period}&show=1#operations`}
+          />
         </div>
-        <div className="cash-summary__period">
-          <a href="#finance-filters" className="cash-summary__label" data-testid="finance-period">
-            За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
-          </a>
-          <dl>
-            <div className="cash-summary__income">
-              <dt>Поступления</dt>
-              <dd data-testid="cash-period-income">
-                {periodOps
-                  ? formatMoney(
-                      BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor),
-                      periodOps.currency,
-                    )
-                  : 'Нет данных'}
-              </dd>
-            </div>
-            <div className="cash-summary__expense">
-              <dt>Расходы</dt>
-              <dd data-testid="cash-period-expense">
-                {periodOps
-                  ? formatMoney(
-                      BigInt(periodOps.refundedMinor) + BigInt(periodOps.expenseMinor),
-                      periodOps.currency,
-                    )
-                  : 'Нет данных'}
-              </dd>
-            </div>
-          </dl>
-        </div>
-        {cashBalances && (
-          <details className="cash-summary__methods">
-            <summary>
-              <Icon name="chevron" />
-              Баланс по способам оплаты
-            </summary>
-            <dl>
-              {cashBalances.balances.map((balance) => (
-                <div key={balance.method}>
-                  <dt>{METHOD_RU[balance.method] ?? balance.method}</dt>
-                  <dd>{formatMoney(balance.balanceMinor, cashBalances.currency)}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-        )}
-        </section>
-        <Suspense
-          fallback={
-            <>
-              <div className="owner-today owner-surface">
+        <div className="biz-row biz-row--three">
+          <PaymentMethods
+            report={r}
+            opsHref={(method) => opsHref(method ? { op: 'payment', method } : { op: 'payment' })}
+          />
+          <Suspense
+            fallback={
+              <div className="biz-today owner-surface">
                 <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
               </div>
-              <AttentionPlaceholder />
-            </>
-          }
-        >
-          <OwnerOperations date={cal.today} />
-        </Suspense>
+            }
+          >
+            <TodayCard date={cal.today} debts={debts} period={period} currency={sums.currency} />
+          </Suspense>
+          <Suspense fallback={<AttentionPlaceholder />}>
+            <AttentionCard date={cal.today} debts={debts} period={period} />
+          </Suspense>
+        </div>
+        <RecentOperations ops={periodOps} period={period} />
       </div>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
@@ -652,9 +689,9 @@ export default async function FinanceReportPage({
                 {opsError !== null && (
                   <LoadError testId="ops-error" {...loadErrorProps(opsError)} />
                 )}
-                {ops && (
+                {opsForList && (
                   <Operations
-                    ops={ops}
+                    ops={opsForList}
                     type={filter.type}
                     method={filter.method}
                     all={opsAll}

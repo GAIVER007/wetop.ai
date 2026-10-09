@@ -87,11 +87,12 @@ for (const screen of [
       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
     );
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
-    // «Финансы» с 09.10 единый раздел (plans/finance-home-merge-2026-10-09.md): к шести источникам
-    // кассы добавились четыре блока бывшей Главной (/chessboard, /desk/dashboard, /desk/today,
-    // /guard/status); каждый путь по-прежнему спрашивается один раз
+    // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+    // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+    // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+    // каждый путь по-прежнему спрашивается один раз
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      screen === '/finance' ? 13 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      screen === '/finance' ? 15 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
     );
   });
 }

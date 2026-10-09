@@ -22,18 +22,25 @@ export function DashboardRefresh({ label }: { label?: string }) {
 }
 export function DashboardDetails({
   title,
+  label,
   children,
   count,
 }: {
   title: string;
+  /** подпись кнопки, если отличается от заголовка панели («Все задачи» в обзоре бизнеса) */
+  label?: string;
   children: ReactNode;
   count: number;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="owner-attention-button" aria-label={title} onClick={() => setOpen(true)}>
-        <span>{title}</span>
+      <button
+        className="owner-attention-button"
+        aria-label={label ?? title}
+        onClick={() => setOpen(true)}
+      >
+        <span>{label ?? title}</span>
         <b data-testid="owner-attention-count" data-empty={count === 0}>
           {count}
         </b>

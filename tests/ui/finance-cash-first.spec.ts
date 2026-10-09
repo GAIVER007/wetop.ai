@@ -111,10 +111,11 @@ test('касса: первый экран без лишних кнопок, де
 test('касса: визуальная иерархия итогов и спокойный сброс', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
+  // «Финансовый обзор» по макету 09.10: поступления и расходы рядом, одной строкой
   const income = await page.getByTestId('cash-period-income').boundingBox();
   const expense = await page.getByTestId('cash-period-expense').boundingBox();
-  expect(expense!.y).toBeGreaterThan(income!.y);
-  expect(Math.abs(expense!.x + expense!.width - income!.x - income!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(expense!.y - income!.y)).toBeLessThanOrEqual(1);
+  expect(expense!.x).toBeGreaterThan(income!.x);
   await expect(page.getByTestId('finance-period')).toContainText('За период с');
   expect(
     await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),

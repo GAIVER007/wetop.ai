@@ -11,12 +11,12 @@ test('финансы: деньги на первом экране, кнопки 
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/finance');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(page.getByTestId('cash-summary')).toBeInViewport();
+    await expect(page.getByTestId('biz-revenue')).toBeInViewport();
     const risks = page.getByRole('region', { name: 'Риски на сегодня' });
     await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
-      .getByRole('button', { name: 'Требуют внимания', exact: true });
+      .getByRole('button', { name: 'Все задачи', exact: true });
     await expect(attention).toBeAttached();
     if (width === 1440) {
       await expect(risks).toBeInViewport({ ratio: 1 });

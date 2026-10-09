@@ -20,17 +20,18 @@ test('финансы открываются с корня; заезд на да�
   await page.goto('/');
   // гостиница с 09.10 живёт единым разделом «Финансы» (plans/finance-home-merge-2026-10-09.md)
   await expect(page).toHaveURL(/\/finance$/);
-  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
   // деньги по умолчанию за месяц, риски внизу всегда о сегодняшнем дне
-  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Период обзора', exact: true })
+      .getByRole('link', { name: 'Месяц', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
 
   // Заводим заезд на выбранную дату и проверяем рост очереди «Требуют внимания».
   const day = plus(0);
   await page.goto(`/finance?from=${day}&to=${day}`);
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   // A3: брони без ячейки — одна строка очереди с числом; брони под ней — первые три
   const tasks = page.getByRole('region', { name: 'Требуют внимания' });
   const unassigned = tasks.locator('[data-event="unassigned"]');
@@ -57,7 +58,7 @@ test('финансы открываются с корня; заезд на да�
   const number = page.url().split('/').pop()!;
 
   await page.goto(`/finance?from=${day}&to=${day}`);
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   // бронь без ячейки — в очереди критичным, стойка видит причину
   await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
   await expect(unassigned).toHaveAttribute('data-severity', 'critical');
@@ -94,7 +95,7 @@ test('финансы открываются с корня; заезд на да�
 
   // Прошлый финансовый период не меняет текущую полосу рисков.
   await page.goto('/finance?from=2026-08-15&to=2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
   await expect(page.getByRole('main').getByLabel('Период: с', { exact: true })).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByLabel('Период: по', { exact: true })).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByTestId('owner-risks')).toBeVisible();

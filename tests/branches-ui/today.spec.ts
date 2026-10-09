@@ -247,7 +247,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // гостиница с 09.10 живёт единым разделом «Финансы»: /today уводит туда (finance-home-merge)
     await expect(page).toHaveURL(/\/finance$/);
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
     await expect(page.getByTestId('food-today')).toHaveCount(0);
     await choose(page, 'Тестовый салон');
     await expect(page.getByTestId('beauty-today')).toBeVisible();
@@ -395,7 +395,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const from = await callCount(request);
     await page.goto('/today');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|food-service)\b/.test(c))).toBe(false);

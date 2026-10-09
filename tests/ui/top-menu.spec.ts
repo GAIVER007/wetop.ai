@@ -91,9 +91,9 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(menu.getByRole('link', { name: 'Финансы', exact: true })).not.toHaveAttribute(
-    'aria-current',
-    'page',
+  // «Финансы» с ADR-157 группа: на чужом экране её вкладка без отметки текущего пункта
+  await expect(menu.getByRole('button', { name: 'Финансы', exact: true })).not.toHaveClass(
+    /has-current-page/,
   );
 
   // Escape закрывает список и возвращает фокус на вкладку

@@ -40,7 +40,7 @@ export class BarController {
   @Post('write-offs') writeOff(@Body() body: unknown) { return this.service.writeOff(body); }
   @Post('inventory-counts') inventoryCount(@Body() body: unknown) { return this.service.inventoryCount(body); }
   @Post('receipts') createReceipt(@Body() body: unknown) { return this.service.createReceipt(body); }
-  // ИИ-скан накладной (ADR-152): фото внутрь, строки формы наружу; ничего не создаёт и не проводит
+  // ИИ-скан накладной (ADR-153): фото внутрь, строки формы наружу; ничего не создаёт и не проводит
   @Post('receipts/scan') scanReceipt(@Body() body: unknown) { return this.scan.scanReceipt(body); }
   @Post('receipts/:id/post') postReceipt(@Param('id', ParseUUIDPipe) id: string) { return this.service.postReceipt(id); }
   @Post('receipts/:id/payments') payReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.payReceipt(id, body); }

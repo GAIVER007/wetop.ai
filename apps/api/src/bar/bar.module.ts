@@ -14,7 +14,7 @@ import { BAR_SCAN_BOT, barScanBotFromEnv } from './scan.bot';
     BarService,
     BarScanService,
     { provide: BAR_REPOSITORY, useClass: PrismaBarRepository },
-    // скан накладной (ADR-152): без SELLER_URL и ключа порт пуст, и сервис честно отвечает 503
+    // скан накладной (ADR-153): без SELLER_URL и ключа порт пуст, и сервис честно отвечает 503
     { provide: BAR_SCAN_BOT, useFactory: barScanBotFromEnv },
   ],
 })

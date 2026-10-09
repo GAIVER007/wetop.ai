@@ -6744,7 +6744,7 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
-    // Бар (ADR-152): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
+    // Бар (ADR-153): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
     {
       const barResponse = barFixture(path, req.method ?? 'GET', body);
       if (barResponse) return send(barResponse.status, barResponse.data);

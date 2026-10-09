@@ -13,7 +13,7 @@ import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
-/** Приходы бара (ADR-152): журнал документов поставщиков, проведение черновиков, оплата и долги. */
+/** Приходы бара (ADR-153): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
   await requireVertical(['HOSPITALITY']);
   const receipts = await settle(barApi.receipts());

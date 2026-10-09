@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 import { WizardRetentionService } from '../../apps/api/src/wizard/wizard-retention.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -9,7 +10,7 @@ import type { PrismaService } from '../../apps/api/src/database/prisma.provider'
  * входа растила бы базу без предела. `purgeExpired` снимает только истёкшие; черновик и события уходят каскадом.
  * Run only on explicit loopback PostgreSQL, never the hotel's working database.
  */
-const local = process.env.DATABASE_URL?.includes('@127.0.0.1:55432/');
+const local = isLocalDatabase(process.env.DATABASE_URL ?? '');
 describe.skipIf(!local)('уборка сессий мастера', () => {
   it('снимает истёкшую сессию вместе с черновиком и событием, живую не трогает', async () => {
     const db = createPrismaClient();

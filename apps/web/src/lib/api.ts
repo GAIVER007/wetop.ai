@@ -3393,7 +3393,7 @@ export interface BarSaleRow {
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
 export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
 export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
-/** Строка накладной из ИИ-скана (ADR-152): товар найден по штрихкоду или названию, иначе `productId: null` */
+/** Строка накладной из ИИ-скана (ADR-153): товар найден по штрихкоду или названию, иначе `productId: null` */
 export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
 export interface BarScanResult {
   supplierId: string | null; supplierName: string | null;

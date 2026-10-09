@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 import { WizardService, WIZARD_LIMITS } from '../../apps/api/src/wizard/wizard.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -10,7 +11,7 @@ import type { PrismaService } from '../../apps/api/src/database/prisma.provider'
  * `WIZARD_ENABLED`, поток открытий с одного адреса и поток сохранений в одной сессии станут отказом в обслуживании.
  * Run only on explicit loopback PostgreSQL, never the hotel's working database.
  */
-const local = process.env.DATABASE_URL?.includes('@127.0.0.1:55432/');
+const local = isLocalDatabase(process.env.DATABASE_URL ?? '');
 describe.skipIf(!local)('гостевой мастер: пределы по адресу и по сессии', () => {
   it(`после ${WIZARD_LIMITS.opensPerIpPerHour} открытий сессии с одного адреса — отказ, другой адрес открывает как прежде`, async () => {
     process.env.WIZARD_ENABLED = '1';

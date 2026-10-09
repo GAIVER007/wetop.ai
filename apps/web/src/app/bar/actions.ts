@@ -23,7 +23,7 @@ const salePriceOf = (unitCostMinor: string, markupBasis: number) => {
   const exact = (raw + 9_999n) / 10_000n;
   return (((exact + 999n) / 1_000n) * 1_000n).toString();
 };
-/** Раздел живёт на пяти подстраницах (ADR-152): после записи обновляются все */
+/** Раздел живёт на пяти подстраницах (ADR-153): после записи обновляются все */
 const BAR_PATHS = ['/bar', '/bar/receipts', '/bar/receipts/new', '/bar/products', '/bar/suppliers', '/bar/operations'];
 const revalidateBar = () => { for (const path of BAR_PATHS) revalidatePath(path); };
 

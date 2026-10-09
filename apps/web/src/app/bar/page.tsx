@@ -14,7 +14,7 @@ import './bar.css';
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /**
- * Обзор бара (ADR-152): показатели, продажа и остатки одним экраном. Журналы и справочники живут
+ * Обзор бара (ADR-153): показатели, продажа и остатки одним экраном. Журналы и справочники живут
  * на своих вкладках: «Приходы», «Товары», «Поставщики», «Операции».
  */
 export default async function BarPage() {

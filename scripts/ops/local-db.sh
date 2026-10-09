@@ -87,7 +87,11 @@ start() {
   if [ ! -s "$PGDATA/PG_VERSION" ]; then
     mkdir -p "$PGDATA"
     [ "$(id -u)" = 0 ] && id -u postgres >/dev/null 2>&1 && chown -R postgres "$PGDATA"
-    as_owner "'$b/initdb' -D '$PGDATA' -U postgres --auth=trust" >/dev/null
+    # Кодировка и сортировка заданы явно, а не от LANG оболочки: без --encoding initdb без LANG делает
+    # SQL_ASCII и ломает кириллицу, а системная сортировка macOS в en_US.UTF-8 ставит кириллицу не по
+    # алфавиту (09.10.2026: справочник гостей краснел на порядке фамилий, на Linux тот же запрос верен).
+    # Провайдер ICU идёт в самой PostgreSQL, поэтому порядок один и на Mac, и на раннере.
+    as_owner "'$b/initdb' -D '$PGDATA' -U postgres --auth=trust --encoding=UTF8 --locale-provider=icu --icu-locale=en-US" >/dev/null
   fi
   if ! as_owner "'$b/pg_ctl' -D '$PGDATA' status" >/dev/null 2>&1; then
     as_owner "'$b/pg_ctl' -D '$PGDATA' -l '$PGDATA/server.log' -o '-p $PORT -k $PGDATA' start" >/dev/null

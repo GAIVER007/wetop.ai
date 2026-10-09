@@ -101,6 +101,8 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--plate-block-ink',
       '--share-fill', // components.css: цвет полосы ShareBar по тону, объявлен в .share-bar (DS1c)
       '--share-track', // components.css: дорожка ShareBar по тону, там же
+      '--module-fill', // marketing.css: плитка значка модуля хаба по модулю, объявлена в .marketing-module (MKT10)
+      '--module-ink', // marketing.css: цвет значка модуля, там же
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя
       '--space-', // `var(--space-${n})` на странице /design-system — тоже шаблон
       '--text-', //  `var(--text-${s})` там же

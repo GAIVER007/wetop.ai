@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
 const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
@@ -91,13 +91,9 @@ test('поздняя загрузка гостиницы сохраняет вв
   try {
     await page.goto('/reservations/new', { waitUntil: 'commit' });
     await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
-    const menu = page.getByRole('button', { name: 'Меню администратора' });
-    // страница ещё стримится (гостиница задержана): клик до гидратации кнопки теряется — на медленном
-    // раннере CI так и было (20.09, 184/185); повторяем клик, пока меню не раскроется
-    await expect(async () => {
-      await menu.click();
-      await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
-    }).toPass({ timeout: 15_000 });
+    // страница ещё стримится (гостиница задержана): меню открывается, когда React оживил кнопку. Клик до
+    // оживления терялся на медленном раннере CI (20.09, 184/185)
+    const menu = await openProfileMenu(page);
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );

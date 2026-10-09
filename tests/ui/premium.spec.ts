@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, openProfileMenu } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
@@ -30,7 +30,7 @@ test('shell: панель, меню профиля, поиск', async ({ page }
   await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Главная');
   // меню профиля упрощено 01.10 («Simplify account menu»): обучение и вход/выход, ссылки «Профиль и
   // предпочтения» больше нет
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('tour-restart')).toBeHidden();

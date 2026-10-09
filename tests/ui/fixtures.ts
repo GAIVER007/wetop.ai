@@ -15,7 +15,7 @@
  * `reservations-states`, «загрузка словом» в `system-screens` и `channex-screens`). Длинное
  * ожидание здесь отдавало бы им уже загруженную страницу и проверяло пустоту вместо скелетона.
  */
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
 const STREAM_GRACE_MS = 700;
 
@@ -86,6 +86,35 @@ export const devNoise = /Failed to execute 'measure' on 'Performance'/;
  * проверка его ловит (разбор полного UI 03.10.2026, `docs/history/2026-10-03-double-shift.md`).
  */
 export const HEADER_GROWTH_PX = 28;
+
+/**
+ * Оживил ли React этот узел. Сервер рисует кнопку раньше, чем браузер получит и выполнит скрипты стойки, и клик в
+ * этот промежуток пропадает: кнопка видна, а обработчика у неё ещё нет. Признак оживления: служебное свойство React
+ * на самом узле (`__reactProps$…`), его ставят вместе с обработчиками (тот же признак, что у `ai-seller.spec.ts`).
+ * На медленном раннере GitHub промежуток доходит до секунд: TESTING.md, строки 20.09 (`real-data`), 27.09
+ * (`ai-seller`) и 03.10 (`login-access`, release-checks #7).
+ */
+export async function hydrated(target: Locator): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        target.evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$'))),
+      { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+    )
+    .toBe(true);
+}
+
+/**
+ * «Меню администратора» в шапке: нажать, когда React оживил кнопку, и убедиться, что меню раскрылось. Спеки открывают
+ * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку.
+ */
+export async function openProfileMenu(page: Page): Promise<Locator> {
+  const menu = page.getByRole('button', { name: 'Меню администратора' });
+  await hydrated(menu);
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  return menu;
+}
 
 /**
  * Обучение в стойке (ADR-100) само открывается на Главной у вошедшего, пока в браузере нет отметки «пройдено».

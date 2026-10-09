@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';
@@ -43,12 +43,7 @@ test('верный пароль открывает рабочее место, в
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page).toHaveURL(APP + '/today');
-  // клик до гидратации шапки теряется (меню не открывается): повторяем, пока меню не раскрыто
-  const profile = page.getByRole('button', { name: 'Меню администратора' });
-  await expect(async () => {
-    if ((await profile.getAttribute('aria-expanded')) !== 'true') await profile.click();
-    await expect(profile).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
-  }).toPass();
+  await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
 });

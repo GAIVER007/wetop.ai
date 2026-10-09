@@ -371,7 +371,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
-  // название, архив и возврат организации (ORG1, ADR-153): только главный администратор
+  // название, архив и возврат организации (ORG1, ADR-154): только главный администратор
   'PATCH /platform/organizations/:id': 'platform',
   'POST /platform/organizations/:id/archive': 'platform',
   'POST /platform/organizations/:id/restore': 'platform',

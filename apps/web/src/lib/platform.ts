@@ -24,7 +24,7 @@ export function organizationStatusLine(o: Pick<PlatformOrganization, 'status' | 
     };
   if (o.status === 'ACTIVE') return { label: 'работает', tone: 'ok' };
   if (o.status === 'READ_ONLY') return { label: 'только чтение', tone: 'warn' };
-  // `SUSPENDED` ставит только архив организации (ORG1, ADR-153): люди не входят, данные целы
+  // `SUSPENDED` ставит только архив организации (ORG1, ADR-154): люди не входят, данные целы
   if (o.status === 'SUSPENDED') return { label: 'в архиве', tone: 'danger' };
   return { label: String(o.status), tone: 'neutral' };
 }

@@ -32,7 +32,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(
     menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),
   ).toBe(true);
-  // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-152)
+  // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-153)
   expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs, every one a direct tab', () => {

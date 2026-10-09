@@ -7709,3 +7709,4 @@
 | 09.10.2026 17:27 | typecheck | ✅ без ошибок | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-08Z-typecheck-6653.log) |  |
 | 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
 | 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |
+| 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |

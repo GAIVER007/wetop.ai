@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 09.10.2026 20:37 Алматы · vm
+# коммит 3791412 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T15-37-25Z-integration-086d.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 621ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  15:37:26
+   Duration  3.97s (transform 56%, tests 30%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-09T15-37-25Z-integration-086d.json
+
+# код выхода 0 · 5 с

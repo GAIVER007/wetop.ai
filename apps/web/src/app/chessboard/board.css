@@ -2295,7 +2295,8 @@
   }
   .board-stay-dates {
     flex: none;
-    color: var(--text-2);
+    /* на синей плашке «проживает» чистый --text-2 даёт 4,48 вместо 4,5 (axe, светлая тема): чуть темнее к --text */
+    color: color-mix(in srgb, var(--text-2) 85%, var(--text));
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }

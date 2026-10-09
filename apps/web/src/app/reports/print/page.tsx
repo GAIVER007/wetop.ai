@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { isIsoDate } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, deskApi, type DeskRow } from '../../../lib/api';
@@ -55,6 +56,7 @@ export default async function PrintDaySheet({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const language = sp.lang === 'kz' ? 'kz' : 'ru';
   const t = T[language];

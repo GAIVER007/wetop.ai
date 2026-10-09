@@ -1833,9 +1833,14 @@ export interface DashboardView {
 }
 export const dashboardApi = {
   /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
-  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+  period: (from: string, to: string, fund: DashboardFund = 'all', category?: string) =>
     getJson<DashboardView>(
-      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+      `/desk/dashboard?${new URLSearchParams({
+        from,
+        to,
+        ...(fund === 'all' ? {} : { fund }),
+        ...(category ? { category } : {}),
+      })}`,
     ),
   /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
   units: (from: string, to: string, fund: DashboardFund = 'all') =>

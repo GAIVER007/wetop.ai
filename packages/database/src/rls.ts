@@ -111,10 +111,6 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
-  // Области доступа сотрудника по бизнесам и филиалам, по организации (STAFF2.3b, миграция 20261009000072)
-  'membership_scopes',
-  // Фото и видео объекта, через объект (миграция 20261009000073_property_media)
-  'property_media',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

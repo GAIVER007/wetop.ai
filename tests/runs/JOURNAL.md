@@ -7750,3 +7750,6 @@
 | 09.10.2026 19:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 35ada50 +3 | [лог](logs/2026-10-09T14-16-50Z-e2e-2593.log) |  |
 | 09.10.2026 19:17 | typecheck | ✅ без ошибок | 54 с | 35ada50 +3 | [лог](logs/2026-10-09T14-17-47Z-typecheck-1bb8.log) |  |
 | 09.10.2026 19:18 | lint | ✅ без ошибок | 35 с | 35ada50 +3 | [лог](logs/2026-10-09T14-18-42Z-lint-6458.log) |  |
+| 09.10.2026 19:25 | unit | ✅ 4158 из 4161, пропущено 3 | 2 мин 54 с | 4892f5c +1 | [лог](logs/2026-10-09T14-25-01Z-unit-4eb9.log) |  |
+| 09.10.2026 19:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.spec.ts tests/ui/top-menu.spe | ⏹ прерван | 8 мин 53 с | 35ada50 +3 | [лог](logs/2026-10-09T14-19-18Z-e2e-4f40.log) |  |
+| 09.10.2026 19:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.sp | ❌ код выхода 1 | 3 с | 4892f5c +1 | [лог](logs/2026-10-09T14-28-20Z-e2e-0912.log) | (ошибка вне тестов) |

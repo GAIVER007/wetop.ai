@@ -1,7 +1,7 @@
 @layer sections {
   /* Хаб «Маркетинг» (MKT2; макет Marketing 2.0 09.10.2026, DESIGN.md §8): слева три модуля одного вида, справа
-   колонка результатов. Рабочий модуль отличается рамкой акцента, будущие приглушены и без ссылок. До 1100 px колонка
-   уходит под модули, до 760 px модули встают в столбец */
+   колонка результатов. Рабочий модуль отличается рамкой акцента, будущие приглушены и без ссылок. До 1279 px колонка
+   уходит под модули, до 960 px модули встают в столбец */
   .marketing-hub {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
@@ -142,12 +142,12 @@
     color: var(--text-2);
     font-size: var(--text-sm);
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 1279px) {
     .marketing-hub {
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  @media (max-width: 760px) {
+  @media (max-width: 960px) {
     .marketing-hub__modules {
       grid-template-columns: minmax(0, 1fr);
     }

@@ -8,14 +8,18 @@ import { LoadError } from '../../../components/load-error';
 import {
   Alert,
   Badge,
+  Button,
   EmptyState,
   Fact,
+  Field,
   Grid,
+  Input,
   LoadingState,
   Notice,
   Panel,
   Row,
   SectionTitle,
+  Select,
   Stack,
   Table,
 } from '../../../components/ui';
@@ -157,6 +161,8 @@ export default async function AiSellerPage({
           mode={one(query.mode)}
           id={one(query.id)}
           days={one(query.days)}
+          q={one(query.q)}
+          channel={one(query.channel)}
           owner={mayAccess(access, 'owner')}
         />
       </Suspense>
@@ -184,12 +190,16 @@ async function SellerScreen({
   mode,
   id,
   days,
+  q,
+  channel,
   owner,
 }: {
   view: SellerView;
   mode: string;
   id: string;
   days: string;
+  q: string;
+  channel: string;
   /** Платные расширения — владельческое (ADR-107): напоминание о продлении только ему */
   owner: boolean;
 }) {
@@ -211,7 +221,7 @@ async function SellerScreen({
       )}
       {view === 'overview' && <OverviewView status={status.value} />}
       {view === '' && <SetupView status={status.value} />}
-      {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
+      {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} />}
       {view === 'analytics' && <AnalyticsView days={days} />}
@@ -654,10 +664,14 @@ async function DialogsView({
   status,
   mode,
   id,
+  q,
+  channel,
 }: {
   status: SellerStatus;
   mode: string;
   id: string;
+  q: string;
+  channel: string;
 }) {
   const clock = await hotelClock();
   if (!sellerConnected(status))
@@ -668,6 +682,21 @@ async function DialogsView({
     settle(sellerApi.conversations(selected || undefined)),
     UUID.test(id) ? settle(sellerApi.conversation(id)) : Promise.resolve(null),
   ]);
+  // поиск по имени и отбор по каналу делает стойка над уже полученным списком: у бота такого отбора нет
+  const needle = q.trim().toLowerCase();
+  const all = list.ok ? list.value.items : [];
+  const channels = [...new Set(all.map((c) => c.channel))].sort();
+  const items = all.filter(
+    (c) =>
+      (!channel || c.channel === channel) &&
+      (!needle || (c.clientName ?? '').toLowerCase().includes(needle)),
+  );
+  const keep = { ...(selected ? { mode: selected } : {}), ...(q ? { q } : {}), ...(channel ? { channel } : {}) };
+  const link = (extra: Record<string, string>) => `/ai-seller/dialogs?${new URLSearchParams({ ...keep, ...extra })}`;
+  const chipHref = (value: string) => {
+    const next = new URLSearchParams({ ...(q ? { q } : {}), ...(channel ? { channel } : {}), ...(value ? { mode: value } : {}) });
+    return next.size ? `/ai-seller/dialogs?${next}` : '/ai-seller/dialogs';
+  };
   return (
     <Stack>
       {summary.ok && (
@@ -680,63 +709,93 @@ async function DialogsView({
       )}
       <nav className="chips" aria-label="Отбор диалогов">
         {MODES.map((m) => (
-          <Link
-            key={m.value}
-            href={m.value ? `/ai-seller/dialogs?mode=${m.value}` : '/ai-seller/dialogs'}
-            aria-current={m.value === selected ? 'page' : undefined}
-          >
+          <Link key={m.value} href={chipHref(m.value)} aria-current={m.value === selected ? 'page' : undefined}>
             {m.label}
           </Link>
         ))}
       </nav>
-      {card &&
-        (card.ok ? (
-          <DialogCard card={card.value} canAct={sellerCanAct(status)} />
-        ) : (
-          <LoadError testId="seller-dialog-error" {...loadErrorProps(card.error)} />
-        ))}
-      {!list.ok ? (
-        <LoadError testId="seller-dialogs-error" {...loadErrorProps(list.error)} />
-      ) : list.value.items.length === 0 ? (
-        <EmptyState icon={<Icon name="chat" width={32} height={32} />} title="Диалогов нет">
-          Здесь появятся разговоры гостей с продавцом на сайте объекта.
-        </EmptyState>
-      ) : (
-        <Table aria-label="Диалоги продавца" data-testid="seller-dialogs">
-          <thead>
-            <tr>
-              <th>Гость</th>
-              <th>Режим</th>
-              <th>Этап</th>
-              <th>Сообщений</th>
-              <th>Последнее</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.value.items.map((c) => {
-              const m = conversationModeLabel(c.mode);
-              return (
-                <tr key={c.id}>
-                  <td>
-                    <Link
-                      href={`/ai-seller/dialogs?${new URLSearchParams({ ...(selected ? { mode: selected } : {}), id: c.id })}`}
-                    >
-                      {c.clientName || 'Гость без имени'}
-                    </Link>
-                    {c.hasContact && <span className="sub"> — оставил контакт</span>}
-                  </td>
-                  <td>
-                    <Badge tone={m.tone}>{m.label}</Badge>
-                  </td>
-                  <td>{conversationStageLabel(c.stage)}</td>
-                  <td>{c.messages}</td>
-                  <td>{clock.moment(c.lastActivityAt)}</td>
+      <form method="get" className="seller-dialogs__search" role="search" aria-label="Поиск по диалогам" data-testid="seller-dialogs-search">
+        {selected && <input type="hidden" name="mode" value={selected} />}
+        <Field inline label="Имя гостя">
+          <Input name="q" defaultValue={q} placeholder="Часть имени" />
+        </Field>
+        {channels.length > 1 && (
+          <Field inline label="Канал">
+            <Select name="channel" defaultValue={channel}>
+              <option value="">Все</option>
+              {channels.map((ch) => (
+                <option key={ch} value={ch}>
+                  {conversationChannelLabel(ch)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        <Button type="submit" tone="secondary" size="sm">
+          Найти
+        </Button>
+        {(q || channel) && (
+          <Link href={selected ? `/ai-seller/dialogs?mode=${selected}` : '/ai-seller/dialogs'}>Сбросить</Link>
+        )}
+      </form>
+      <div className="seller-dialogs" data-testid="seller-dialogs-layout">
+        <div className="seller-dialogs__list">
+          {!list.ok ? (
+            <LoadError testId="seller-dialogs-error" {...loadErrorProps(list.error)} />
+          ) : all.length === 0 ? (
+            <EmptyState icon={<Icon name="chat" width={32} height={32} />} title="Диалогов нет">
+              Здесь появятся разговоры гостей с продавцом на сайте объекта.
+            </EmptyState>
+          ) : items.length === 0 ? (
+            <EmptyState icon={<Icon name="search" width={32} height={32} />} title="Ничего не найдено" data-testid="seller-dialogs-none">
+              По такому отбору диалогов нет. Измените имя или канал.
+            </EmptyState>
+          ) : (
+            <Table aria-label="Диалоги продавца" data-testid="seller-dialogs">
+              <thead>
+                <tr>
+                  <th>Гость</th>
+                  <th>Этап</th>
+                  <th>Последнее</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      )}
+              </thead>
+              <tbody>
+                {items.map((c) => {
+                  const m = conversationModeLabel(c.mode);
+                  return (
+                    <tr key={c.id} aria-selected={c.id === id ? true : undefined}>
+                      <td>
+                        <Link href={link({ id: c.id })}>{c.clientName || 'Гость без имени'}</Link>
+                        <span className="sub">
+                          <Badge tone={m.tone}>{m.label}</Badge>
+                          {c.hasContact && ' оставил контакт'}
+                        </span>
+                      </td>
+                      <td>{conversationStageLabel(c.stage)}</td>
+                      <td>{clock.moment(c.lastActivityAt)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+          )}
+        </div>
+        {card ? (
+          card.ok ? (
+            <DialogCard card={card.value} canAct={sellerCanAct(status)} />
+          ) : (
+            <div className="seller-dialogs__wide">
+              <LoadError testId="seller-dialog-error" {...loadErrorProps(card.error)} />
+            </div>
+          )
+        ) : (
+          <div className="seller-dialogs__wide">
+            <Notice tone="muted" data-testid="seller-dialog-pick">
+              Выберите диалог слева: здесь появятся переписка и карточка гостя.
+            </Notice>
+          </div>
+        )}
+      </div>
     </Stack>
   );
 }
@@ -752,55 +811,74 @@ async function DialogCard({
   const m = conversationModeLabel(card.mode);
   const lead = leadFacts(card.leadData);
   return (
-    <Panel data-testid="seller-dialog-card">
-      <Row gap="lg" className="row--baseline">
-        <SectionTitle first>{card.contact.name || 'Гость без имени'}</SectionTitle>
-        <Badge tone={m.tone} data-testid="seller-dialog-mode">
-          {m.label}
-        </Badge>
-      </Row>
-      <Grid min={180}>
-        <Fact label="Телефон" value={card.contact.phone ?? '—'} />
-        <Fact label="Почта" value={card.contact.email ?? '—'} />
-        <Fact label="Канал" value={conversationChannelLabel(card.contact.channel)} />
-        <Fact label="Этап" value={conversationStageLabel(card.stage)} />
-      </Grid>
-      {lead.length > 0 && (
-        <dl className="settings-facts" data-testid="seller-dialog-lead">
-          {lead.map((f) => (
-            <div key={f.label}>
-              <dt>{f.label}</dt>
-              <dd>{f.value}</dd>
-            </div>
+    <>
+      <Panel data-testid="seller-dialog-card" className="seller-dialogs__chat">
+        <Row gap="lg" className="row--baseline">
+          <SectionTitle first>{card.contact.name || 'Гость без имени'}</SectionTitle>
+          <Badge tone={m.tone} data-testid="seller-dialog-mode">
+            {m.label}
+          </Badge>
+        </Row>
+        <ol className="seller-transcript" aria-label="Переписка">
+          {card.messages.map((msg, i) => (
+            <li key={i}>
+              <p className={msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'}>
+                <b>{ROLE[msg.role] ?? msg.role}</b>
+                {msg.at ? <span className="sub"> {clock.moment(msg.at)}</span> : null}: {msg.text}
+              </p>
+            </li>
           ))}
+        </ol>
+        {canAct ? (
+          <>
+            <DialogModeButtons id={card.id} mode={card.mode} />
+            <DialogReplyForm id={card.id} />
+          </>
+        ) : (
+          <Notice tone="muted" data-testid="seller-dialog-read-only">
+            Срок расширения вышел: переписку видно, но отвечать гостю и перехватывать диалог нельзя.
+            Продлевает администратор WETOP.
+          </Notice>
+        )}
+      </Panel>
+      <Panel className="seller-dialogs__client" aria-labelledby="seller-client-title" data-testid="seller-dialog-client">
+        <SectionTitle first id="seller-client-title">
+          Карточка гостя
+        </SectionTitle>
+        <dl className="settings-facts">
+          <div>
+            <dt>Телефон</dt>
+            <dd>{card.contact.phone ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>Почта</dt>
+            <dd>{card.contact.email ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>Канал</dt>
+            <dd>{conversationChannelLabel(card.contact.channel)}</dd>
+          </div>
+          <div>
+            <dt>Этап</dt>
+            <dd>{conversationStageLabel(card.stage)}</dd>
+          </div>
         </dl>
-      )}
-      <ol className="seller-transcript" aria-label="Переписка">
-        {card.messages.map((msg, i) => (
-          <li key={i}>
-            <p
-              className={
-                msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'
-              }
-            >
-              <b>{ROLE[msg.role] ?? msg.role}</b>
-              {msg.at ? <span className="sub"> {clock.moment(msg.at)}</span> : null}: {msg.text}
-            </p>
-          </li>
-        ))}
-      </ol>
-      {canAct ? (
-        <>
-          <DialogModeButtons id={card.id} mode={card.mode} />
-          <DialogReplyForm id={card.id} />
-        </>
-      ) : (
-        <Notice tone="muted" data-testid="seller-dialog-read-only">
-          Срок расширения вышел: переписку видно, но отвечать гостю и перехватывать диалог нельзя.
-          Продлевает администратор WETOP.
-        </Notice>
-      )}
-    </Panel>
+        {lead.length > 0 && (
+          <dl className="settings-facts" data-testid="seller-dialog-lead">
+            {lead.map((f) => (
+              <div key={f.label}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <p className="settings-note">
+          Ответственного, следующего шага и заметок пока нет: они появятся после решения владельца по
+          модели диалога.
+        </p>
+      </Panel>
+    </>
   );
 }
 

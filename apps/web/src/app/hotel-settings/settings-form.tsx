@@ -383,8 +383,15 @@ function TimeField({
   );
 }
 
-function MainInfoCard({ value, check, live }: { value: Value; check: Check; live: LiveValues }) {
-  void live;
+function MainInfoCard({
+  value,
+  check,
+  extra,
+}: {
+  value: Value;
+  check: Check;
+  extra?: ReactNode;
+}) {
   const website = check('website');
   return (
     <ObjectCard
@@ -434,6 +441,7 @@ function MainInfoCard({ value, check, live }: { value: Value; check: Check; live
           {website.error}
         </Field>
       </div>
+      {extra}
     </ObjectCard>
   );
 }
@@ -767,7 +775,15 @@ function LocationCard({
   );
 }
 
-function LegalCard({ value, owner }: { value: Value; owner: boolean }) {
+function LegalCard({
+  value,
+  owner,
+  extra,
+}: {
+  value: Value;
+  owner: boolean;
+  extra?: ReactNode;
+}) {
   return (
     <ObjectCard
       id="settings-legal"
@@ -788,6 +804,7 @@ function LegalCard({ value, owner }: { value: Value; owner: boolean }) {
           <Input name="publicName" maxLength={200} defaultValue={value('publicName')} />
         </Field>
       </div>
+      {extra}
     </ObjectCard>
   );
 }
@@ -833,8 +850,7 @@ export function GeneralSettingsForm({
       {(value, check, live) => (
         <div className="obj-grid">
           <div className="obj-col">
-            <MainInfoCard value={value} check={check} live={live} />
-            {photoSlot}
+            <MainInfoCard value={value} check={check} extra={photoSlot} />
             <AmenitiesCard value={value} />
           </div>
           <div className="obj-col">
@@ -848,8 +864,7 @@ export function GeneralSettingsForm({
               rooms={capacity?.rooms ?? null}
               beds={capacity?.beds ?? null}
             />
-            <LegalCard value={value} owner={owner} />
-            {contractSlot}
+            <LegalCard value={value} owner={owner} extra={contractSlot} />
             <PreviewCardBlock live={live} photos={photos} />
           </div>
         </div>

@@ -184,6 +184,68 @@ test('«Проживание» шлёт свои поля и не затирае
   await expect(general.getByLabel('Залог')).toHaveValue('HALF');
 });
 
+test('фото объекта: загрузка, показ в карточке справа, удаление', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/hotel-settings');
+  const main = page.getByRole('main');
+  const photos = main.getByTestId('photos-block');
+  await expect(photos.getByRole('img')).toHaveCount(0);
+  await photos.getByLabel('Файл фото').setInputFiles({
+    name: 'номер.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('вымышленная картинка'),
+  });
+  await expect(photos.getByRole('img', { name: 'Фото объекта' })).toHaveCount(1);
+  await expect(main.getByTestId('object-preview').getByRole('img')).toHaveCount(1);
+  // загрузка не делает форму сведений «изменённой»
+  await expect(
+    main.locator('.page__actions').getByRole('button', { name: 'Сохранить изменения' }),
+  ).toBeDisabled();
+  await photos.getByRole('button', { name: 'Удалить фото' }).click();
+  await expect(photos.getByRole('img')).toHaveCount(0);
+});
+
+test('договор объекта: только PDF, новый заменяет прежний, удаление', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/hotel-settings');
+  const contract = page.getByRole('main').getByTestId('contract-block');
+  await expect(contract).toContainText('Файл договора не загружен');
+  await contract.getByLabel('Файл договора').setInputFiles({
+    name: 'скан.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('MZ не договор'),
+  });
+  await expect(contract.getByRole('alert').filter({ hasText: 'только в формате PDF' })).toBeVisible();
+  await contract.getByLabel('Файл договора').setInputFiles({
+    name: 'Договор_Luxx.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4 вымышленный договор'),
+  });
+  await expect(contract.getByRole('link', { name: 'Договор_Luxx.pdf' })).toBeVisible();
+  await contract.getByLabel('Файл договора').setInputFiles({
+    name: 'Договор_2.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4 новая редакция'),
+  });
+  await expect(contract.getByRole('link', { name: 'Договор_2.pdf' })).toBeVisible();
+  await expect(contract.getByRole('link', { name: 'Договор_Luxx.pdf' })).toHaveCount(0);
+  await contract.getByRole('button', { name: 'Удалить договор' }).click();
+  await expect(contract).toContainText('Файл договора не загружен');
+});
+
+test('хранилище файлов выключено: загрузки нет, причина сказана словами', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await request.post(`${API}/__test/control`, { data: { mediaStorageOff: true } });
+  await page.goto('/hotel-settings');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('photos-block')).toContainText('Хранилище файлов не включено');
+  await expect(main.getByRole('button', { name: 'Добавить фото' })).toHaveCount(0);
+  await expect(main.getByTestId('contract-block').getByRole('button', { name: /договор/i })).toHaveCount(0);
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`карточка объекта: доступность и 390 px без горизонтальной прокрутки: ${theme}`, async ({
     page,

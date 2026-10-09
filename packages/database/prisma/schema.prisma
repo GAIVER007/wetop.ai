@@ -105,6 +105,32 @@ model Location {
   @@map("locations")
 }
 
+/// Фото и договор объекта (ADR-154, DATA_MODEL §30.3): файл в закрытом хранилище, в базе только ключ.
+model PropertyMedia {
+  id          String    @id @default(uuid()) @db.Uuid
+  propertyId  String    @map("property_id") @db.Uuid
+  /// PHOTO | CONTRACT (CHECK в базе)
+  kind        String    @db.VarChar(8)
+  position    Int       @default(0)
+  fileName    String?   @map("file_name") @db.VarChar(200)
+  mimeType    String    @map("mime_type") @db.VarChar(40)
+  storageRef  String    @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int       @map("byte_size")
+  width       Int?
+  height      Int?
+  sha256      String    @db.Char(64)
+  alt         String?   @db.VarChar(200)
+  createdById String?   @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([propertyId, kind])
+  @@map("property_media")
+}
+
 model Property {
   id                  String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
@@ -166,6 +192,7 @@ model Property {
   /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
   location            Location              @relation(fields: [locationId], references: [id], onDelete: Restrict)
   buildings           Building[]
+  media               PropertyMedia[]
   accommodationTypes  AccommodationType[]
   reservations        Reservation[]
   ratePlans           RatePlan[]
@@ -2076,6 +2103,7 @@ model User {
   generationRunsRequested      GenerationRun[]
   sitePublications             MarketingSitePublication[]
   siteAssetsCreated            SiteAsset[]
+  propertyMedia                PropertyMedia[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]

@@ -141,6 +141,11 @@ export class HotelService {
     return property;
   }
 
+  /** Объект вошедшего: файлы объекта (фото, договор) привязаны к нему */
+  async currentPropertyId(): Promise<string> {
+    return (await this.property()).id;
+  }
+
   async settings() {
     const key = this.settingsKey();
     const cached = this.cachedSettings.get(key);

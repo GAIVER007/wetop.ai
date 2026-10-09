@@ -5,6 +5,7 @@ import { can, parseMembershipRole } from '@pms/domain';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import { serviceCatalogApi } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
+import { propertyMediaApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
@@ -14,6 +15,7 @@ import { Notice, Panel } from '../../../components/ui';
 import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
 import { GeneralSettingsForm, StaySettingsForm } from '../settings-form';
 import { PreviewButton } from '../object-preview';
+import { ContractBlock, PhotosBlock } from '../media-blocks';
 import { SalesSummary, DocumentsSummary } from '../object-summaries';
 import { withCardDefaults, formText } from '../card-model';
 import { SaveAction, SettingsSave } from '../settings-save';
@@ -56,11 +58,17 @@ export default async function HotelSettingsPage({
   if (view === 'photos' || view === 'amenities') redirect('/connections#channex-connection');
   if (!tabs.some((item) => item.view === view)) notFound();
   // настройки уже прочитал макет (кэш на одну отрисовку): название объекта в подзаголовке ничего не стоит
-  const [loaded, me, { readOnly }] = await Promise.all([
+  const [loaded, me, { readOnly }, mediaRead] = await Promise.all([
     settle(hotelApi.settings()),
     settle(currentMe()),
     deskShell(),
+    // фото и договор объекта (ADR-154): отказ чтения не роняет экран, блоки просто не показываются
+    view === '' || view === 'stay' ? settle(propertyMediaApi.list()) : Promise.resolve(null),
   ]);
+  const media = mediaRead?.ok ? mediaRead.value : null;
+  const previewPhotos = (media?.photos ?? []).flatMap((p) =>
+    p.url ? [{ id: p.id, url: p.url, alt: p.alt ?? 'Фото объекта' }] : [],
+  );
   // Правят владелец и управляющий — право `settings` (ТЗ ux-retention п. 3.1, ADR-107); администратору раздел закрыт
   // целиком (`AccessGate`). Никто не вошёл или вход не ответил — только просмотр: API без человека сведений не меняет.
   const role = me.ok && me.value.user?.role ? parseMembershipRole(me.value.user.role) : null;
@@ -78,7 +86,7 @@ export default async function HotelSettingsPage({
       ) : undefined
     ) : formTab && loaded.ok ? (
       <>
-        <PreviewButton initial={previewValues(loaded.value.property)} photos={[]} />
+        <PreviewButton initial={previewValues(loaded.value.property)} photos={previewPhotos} />
         {editable && <SaveAction />}
       </>
     ) : undefined;
@@ -152,7 +160,9 @@ export default async function HotelSettingsPage({
                 editable={editable}
                 owner={owner}
                 capacity={capacity}
-                photos={[]}
+                photos={previewPhotos}
+                photoSlot={<PhotosBlock media={media} editable={mayEdit} />}
+                contractSlot={<ContractBlock media={media} editable={mayEdit} />}
               />
               {!owner && <Notice tone="muted">{OWNER_ONLY}</Notice>}
             </div>

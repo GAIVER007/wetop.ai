@@ -198,6 +198,37 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Фото и договор объекта (ADR-154, DATA_MODEL §30.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+export interface PropertyMediaItem {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  position: number;
+  fileName: string | null;
+  byteSize: number;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  url: string | null;
+}
+export interface PropertyMediaList {
+  storage: 'READY' | 'OFF';
+  limits: { maxBytes: number; maxPhotos: number };
+  photos: PropertyMediaItem[];
+  contract: PropertyMediaItem | null;
+}
+export const propertyMediaApi = {
+  list: () => getJson<PropertyMediaList>('/hotel/media'),
+  upload: async (kind: 'photos' | 'contract', file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/hotel/media/${kind}`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removePhoto: (id: string) =>
+    sendJson<unknown>('DELETE', `/hotel/media/photos/${encodeURIComponent(id)}`, {}),
+  removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
   update: (patch: Record<string, unknown>) =>

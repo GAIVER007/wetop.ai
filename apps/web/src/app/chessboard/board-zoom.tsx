@@ -23,7 +23,9 @@ export function BoardZoom() {
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--board-zoom', String(percent / 100));
-    return () => root.style.removeProperty('--board-zoom');
+    return () => {
+      root.style.removeProperty('--board-zoom');
+    };
   }, [percent]);
   const move = (dir: -1 | 1) => {
     const i = STEPS.indexOf(percent as (typeof STEPS)[number]);

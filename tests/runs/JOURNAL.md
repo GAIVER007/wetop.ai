@@ -7679,3 +7679,5 @@
 | 09.10.2026 13:49 | integration | ❌ упало 1 из 961, пропущено 9 | 51 с | abc7498 +4 | [лог](logs/2026-10-09T08-49-27Z-integration-56ad.log) | inventory editing persistence and isolation commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically |
 | 09.10.2026 13:50 | integration | ✅ 952 из 961, пропущено 9 | 50 с | abc7498 +4 | [лог](logs/2026-10-09T08-50-37Z-integration-6f34.log) |  |
 | 09.10.2026 13:52 | typecheck | ✅ без ошибок | 17 с | abc7498 +8 | [лог](logs/2026-10-09T08-52-47Z-typecheck-d7af.log) |  |
+| 09.10.2026 13:54 | e2e | ❌ упало 2 из 26 | 34 мин 19 с | f78f8c4 | [лог](logs/2026-10-09T08-54-50Z-e2e-3a5a.log) | страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 |
+| 09.10.2026 14:30 | e2e | ✅ 26 из 26 | 54 с | f78f8c4 | [лог](logs/2026-10-09T09-30-18Z-e2e-a5fe.log) |  |

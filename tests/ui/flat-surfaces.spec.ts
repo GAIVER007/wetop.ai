@@ -9,7 +9,8 @@ test('flat shared surfaces across application routes in both themes', async ({ p
       const decor = await page.evaluate(() => ({
         before: getComputedStyle(document.body, '::before').content,
         after: getComputedStyle(document.body, '::after').content,
-        panels: [...document.querySelectorAll('.panel,.stat,.table-scroll,.workspace-property')].filter(e => e.getBoundingClientRect().height > 0).map(e => ({ shadow: getComputedStyle(e).boxShadow, image: getComputedStyle(e).backgroundImage })),
+        // у плитки с тоном черта 3 px слева нарисована inset-тенью — это утверждённый DS1c (§8.2), не декор
+        panels: [...document.querySelectorAll('.panel,.stat:not([class*="stat--tone"]),.table-scroll,.workspace-property')].filter(e => e.getBoundingClientRect().height > 0).map(e => ({ shadow: getComputedStyle(e).boxShadow, image: getComputedStyle(e).backgroundImage })),
       }));
       expect(decor.before, route).toBe('none');
       expect(decor.after, route).toBe('none');

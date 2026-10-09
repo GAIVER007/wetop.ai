@@ -6,24 +6,20 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('главная: «Гостиница сегодня» на первом экране, кнопки брони нет', async ({ page }) => {
-  // Главная владельца (03.10.2026): сверху виджеты «Сегодня», бронь заводится в «Календаре» и «Бронях»;
-  // на телефоне первым экраном загрузка дня
+test('главная: деньги на первом экране, кнопки брони нет', async ({ page }) => {
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(
-      page.getByRole('article', { name: 'Загрузка на сегодня' }).getByTestId('c-occupancy'),
-    ).toBeInViewport();
-    const hotel = page.getByRole('region', { name: 'Гостиница сегодня' });
-    await expect(hotel).toBeAttached();
+    await expect(page.getByTestId('owner-paid')).toBeInViewport();
+    const risks = page.getByRole('region', { name: 'Риски на сегодня' });
+    await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
       .getByRole('button', { name: 'Требуют внимания', exact: true });
     await expect(attention).toBeAttached();
     if (width === 1440) {
-      await expect(hotel).toBeInViewport({ ratio: 1 });
+      await expect(risks).toBeInViewport({ ratio: 1 });
       await expect(attention).toBeInViewport();
     }
   }
@@ -34,11 +30,12 @@ test('период Главной и «Аналитики» на телефон�
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  await page.getByLabel('Свои даты', { exact: true }).click();
   // период финансов Главной: готовые отрезки и свой отрезок (вместо полосы дня стойки A1)
   for (const control of [
     page.getByLabel('Начало периода'),
     page.getByLabel('Конец периода'),
-    page.getByRole('main').locator('.owner-toolbar').getByRole('button', { name: 'Показать' }),
+    page.getByRole('main').locator('.owner-dates').getByRole('button', { name: 'Показать' }),
     page
       .getByRole('navigation', { name: 'Период финансов' })
       .getByRole('link', { name: 'Сегодня', exact: true }),
@@ -73,17 +70,16 @@ test('период Главной и «Аналитики» на телефон�
   }
 });
 
-test('главная: финансы за выбранный период, гостиница за сегодня; месяц целиком в «Аналитике»', async ({
+test('главная: финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике»', async ({
   page,
 }) => {
-  // Главная владельца (30.09.2026): ?period= задаёт финансы, «Гостиница сегодня» всегда о сегодняшнем дне
+  // ?period= задаёт финансы, полоса рисков всегда о сегодняшнем дне
   await page.goto('/today?period=month');
   await expect(
     page.getByRole('navigation', { name: 'Период финансов' }).getByRole('link', { name: 'Месяц' }),
   ).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toContainText(
-    /\d{2}\.\d{2}\.\d{4}/,
-  );
+  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
   // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
   // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
@@ -107,7 +103,7 @@ for (const theme of ['light', 'dark'] as const) {
       test.setTimeout(120_000);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
-      const directory = 'reports/design-refresh-2026-09-19/after';
+      const directory = 'reports/owner-home-v3-2026-10-05/accessibility';
       mkdirSync(directory, { recursive: true });
       for (const route of ['today', 'design-system']) {
         await page.goto(`/${route}`);
@@ -127,7 +123,10 @@ for (const theme of ['light', 'dark'] as const) {
         });
         expect(overflow).toBeLessThanOrEqual(1);
         if (route === 'today') {
-          await page.screenshot({ path: `${directory}/today-${theme}-${width}.png` });
+          await page.screenshot({
+            caret: 'initial',
+            path: `${directory}/today-${theme}-${width}.png`,
+          });
         } else {
           for (const component of ['button', 'input']) {
             const section = page

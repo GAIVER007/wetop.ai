@@ -55,15 +55,11 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   await expect(bed).toContainText('Койко-место');
   await expect(bed).toContainText('36 коек');
   await expect(bed).toContainText('1 гость на койко-место');
-  await expect(bed).toContainText('Стандартный');
+  await expect(bed).toContainText('6 000 ₸ за койку в ночь');
   await expect(bed).not.toContainText('M01');
   await expect(bed.getByRole('link', { name: 'Открыть весь состав' })).toHaveAttribute(
     'href',
     '/inventory?category=MALE',
-  );
-  await expect(bed.getByRole('link', { name: 'Настроить тарифы' })).toHaveAttribute(
-    'href',
-    '/rates?category=MALE',
   );
   await expect(bed.getByRole('link', { name: 'Открыть в календаре' })).toHaveAttribute(
     'href',
@@ -97,7 +93,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   await page.getByRole('menuitem', { name: 'Открыть', exact: true }).click();
   const bare = page.getByRole('dialog', { name: 'Одноместная комната без окон' });
   await expect(bare).toContainText('Номерной фонд ещё не добавлен');
-  await expect(bare).toContainText('Тариф не настроен');
+  await expect(bare).toContainText('Цена не задана');
   // «Добавить номер» из панели открывает прежнюю форму с этой категорией
   await bare.getByRole('button', { name: 'Добавить номер' }).click();
   const add = page.getByRole('dialog', { name: 'Добавить размещение' });

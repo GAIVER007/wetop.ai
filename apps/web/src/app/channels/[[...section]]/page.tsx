@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
@@ -91,6 +92,7 @@ export default async function ChannelSalesPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
@@ -381,9 +383,10 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               </p>
             ) : (
               <p className="note" data-testid="mapping-note">
-                Сопоставление — общее для всех каналов: категорий {mappedCategories}
-                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
-                {connection?.mappedRatePlans ?? '—'}.
+                Сопоставление общее для всех каналов: категорий {mappedCategories}
+                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифных планов{' '}
+                {connection?.mappedLocalRatePlans ?? 'неизвестно'}, сопоставлений тарифов{' '}
+                {connection?.mappedRatePlans ?? 'неизвестно'}.
               </p>
             ))}
         </section>
@@ -593,8 +596,17 @@ async function Mapping() {
           )
         )}
         <p className="note">
-          В каналы уходит один тариф: он сопоставлен с каждой категорией объекта. Остальные тарифы
-          работают только в WETOP — это не ошибка.
+          Сопоставлено тарифов:{' '}
+          {
+            new Set(
+              mapping
+                .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+                .map((m) => m.localRatePlanId),
+            ).size
+          }
+          . Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений
+          доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или
+          успешную передачу цен.
         </p>
       </section>
       <details className="context-help" data-testid="mapping-tech">

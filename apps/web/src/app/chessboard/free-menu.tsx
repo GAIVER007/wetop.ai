@@ -1,7 +1,9 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
+import { displayDate } from '../../lib/display-date';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 import type { FreeMenu } from './range-plan';
 
 const GAP = 6;
@@ -18,15 +20,32 @@ const EDGE = 8;
  */
 export function FreeMenuPopover({
   menu,
+  periods,
+  starts,
   anchor,
   readOnly,
   onClose,
 }: {
   menu: FreeMenu;
+  periods: FreeMenu[];
+  starts: Array<{ date: string; periods: FreeMenu[] }>;
   anchor: HTMLElement;
   readOnly: boolean;
   onClose: () => void;
 }) {
+  const [period, setPeriod] = useState(() =>
+    Math.max(
+      0,
+      periods.findIndex((p) => p.newHref === menu.newHref),
+    ),
+  );
+  const [arrival, setArrival] = useState(() =>
+    new URLSearchParams(menu.newHref.split('?')[1]).get('arrival')!,
+  );
+  const options = starts.find((start) => start.date === arrival)?.periods ?? periods;
+  const selected = options[period] ?? options[0] ?? menu;
+  const selectedDates = new URLSearchParams(selected.newHref.split('?')[1]);
+  const departure = selectedDates.get('departure')!;
   const ref = useRef<HTMLDivElement>(null);
   const placed = useRef<{ top: number; left: number } | null>(null);
 
@@ -49,11 +68,18 @@ export function FreeMenuPopover({
     el.style.top = `${top}px`;
   }, [anchor, menu]);
 
+  const closeWithFocus = useCallback(() => {
+    onClose();
+    if (!anchor.isConnected) return;
+    if (!anchor.hasAttribute('tabindex')) anchor.tabIndex = -1;
+    anchor.focus({ preventScroll: true });
+  }, [anchor, onClose]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        closeWithFocus();
       }
     };
     const onPointer = (event: PointerEvent) => {
@@ -77,49 +103,104 @@ export function FreeMenuPopover({
       wrap?.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
-  }, [anchor, onClose]);
+  }, [anchor, onClose, closeWithFocus]);
 
   return (
     <div
       ref={ref}
       popover="manual"
       role="dialog"
-      aria-label={`${menu.title}: ${menu.dates}`}
+      aria-label={`${selected.title}: ${selected.dates}`}
       tabIndex={-1}
       className="stay-preview free-menu"
       data-testid="free-menu"
     >
       <div className="stay-preview__head">
         <h2 className="stay-preview__guest" data-testid="free-menu-title">
-          {menu.title}
+          {selected.title}
         </h2>
         <button
           type="button"
           className="icon-button stay-preview__close"
           aria-label="Закрыть"
-          onClick={onClose}
+          onClick={closeWithFocus}
         >
           <Icon name="close" />
         </button>
       </div>
-      <p className="stay-preview__status">{menu.category}</p>
+      <p className="stay-preview__status">{selected.category}</p>
       <p className="free-menu__dates" data-testid="free-menu-dates">
-        {menu.dates}
+        {selected.dates}
       </p>
-      {menu.state && (
+      {selected.state && (
         <p className="free-menu__state" data-testid="free-menu-state">
-          {menu.state}
+          {selected.state}
         </p>
+      )}
+      {!readOnly && (
+        <label className="field free-menu__arrival">
+          <span>Заезд</span>
+          <select
+            className="inp"
+            aria-label="Заезд"
+            value={arrival}
+            onChange={(event) => {
+              setArrival(event.target.value);
+              setPeriod(0);
+            }}
+          >
+            {starts.map((start) => (
+              <option key={start.date} value={start.date}>
+                {displayDate(start.date)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <dl className="free-menu__summary" aria-live="polite">
+        <div>
+          <dt>Заезд</dt>
+          <dd>{displayDate(arrival)}</dd>
+        </div>
+        <div>
+          <dt>Выезд</dt>
+          <dd data-testid="free-menu-departure" data-date={departure}>
+            {displayDate(departure)}
+          </dd>
+        </div>
+        <div>
+          <dt>Проживание</dt>
+          <dd>{pluralRu(nightsBetween(arrival, departure), ['ночь', 'ночи', 'ночей'])}</dd>
+        </div>
+      </dl>
+      {!readOnly && (
+        <label className="field free-menu__period">
+          <span>Период проживания</span>
+          <select
+            className="inp"
+            value={period}
+            onChange={(event) => setPeriod(Number(event.target.value))}
+          >
+            {options.map((option, index) => (
+              <option key={option.newHref} value={index}>
+                {index === 0 ? `${option.dates}, 1 ночь` : option.dates}
+              </option>
+            ))}
+          </select>
+          <span className="muted">
+            Доступны свободные ночи этого участка. Другие даты можно выбрать в форме брони.
+          </span>
+        </label>
       )}
       {readOnly ? (
         <p className="stay-preview__status">Только чтение: новые брони и блокировки недоступны</p>
       ) : (
         <div className="stay-preview__actions">
-          <Link className="btn btn--primary" href={menu.newHref}>
-            {menu.createLabel}
+          <Link className="btn btn--primary" href={selected.newHref}>
+            {selected.createLabel}
           </Link>
-          <Link className="btn btn--secondary" href={menu.blockHref}>
-            {menu.blockLabel}
+          <Link className="btn btn--secondary" href={selected.blockHref}>
+            {selected.blockLabel}
           </Link>
         </div>
       )}

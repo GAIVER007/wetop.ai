@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 
 /**
  * Навигация стойки сверху (ADR-134, plans/workspace-top-navigation-2026-10-02.md): вместо бокового меню
- * строка вкладок во второй строке шапки. Главное одним щелчком, группы «Продажи», «Настройки» и
+ * строка вкладок во второй строке шапки. Главное одним щелчком, группы «Продажи», «Маркетинг», «Настройки» и
  * «Платформа» раскрывают список под вкладкой; на телефоне и планшете по-прежнему выдвижное меню
  * «Навигация» и нижняя панель.
  */
@@ -15,12 +15,13 @@ const routes = [
   '/reservations',
   '/guests',
   '/inventory',
-  '/rates',
   '/market',
   '/channels',
-  '/website',
+  // MKT2: вход в сайт через хаб «Маркетинг», у страниц /website/* своего пункта меню нет
+  '/marketing',
   '/reports',
   '/finance',
+  '/bar',
   '/management/analytics',
   '/hotel-settings',
   '/connections',
@@ -35,7 +36,9 @@ const TABS = [
   'Брони',
   'Гости',
   'Финансы',
+  'Бар',
   'Продажи',
+  'Маркетинг',
   'Отчёты',
   'Номерной фонд',
   'Настройки',
@@ -57,10 +60,17 @@ test('строка вкладок в шапке: порядок, одна акт
   // бокового меню больше нет: все разделы в шапке
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
-  // вкладки стоят второй строкой, под поиском
+  // Утверждённая owner Главная скрывает поиск; вкладки остаются под верхней строкой.
+  await expect(header.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  const row = await header.locator('.workspace-header__row').boundingBox();
+  const homeTab = await menu.locator('.topmenu__tab').first().boundingBox();
+  expect(homeTab!.y).toBeGreaterThanOrEqual(row!.y + row!.height - 1);
+  // Прежняя проверка поиска сохраняется на Календаре, где поиск доступен.
+  await page.goto('/chessboard');
   const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
   const first = await menu.locator('.topmenu__tab').first().boundingBox();
   expect(first!.y).toBeGreaterThanOrEqual(search!.y + search!.height - 1);
+  await page.goto('/today');
   // в разметке каждый раздел ровно один раз, включая пункты закрытых списков
   const links = await menu
     .locator('a')
@@ -78,17 +88,17 @@ test('строка вкладок в шапке: порядок, одна акт
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await expect(menu.locator('[aria-expanded="true"]')).toHaveCount(1);
-  const rates = menu.getByRole('link', { name: 'Тарифы и цены', exact: true });
+  const rates = menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true });
   await expect(rates).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(rates).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/rates$/);
+  await expect(page).toHaveURL(/\/market$/);
   // переход закрывает список, текущий пункт остаётся в разметке и подсвечивает вкладку группы
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(rates).toBeHidden();
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).not.toHaveAttribute(
     'aria-current',
@@ -104,7 +114,9 @@ test('строка вкладок в шапке: порядок, одна акт
   // щелчок мимо списка закрывает его
   await sales.click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await page.getByRole('main').getByRole('heading', { level: 1 }).click();
+  // мимо — в нижний угол окна: на «Загрузке конкурентов» раскрытый список лежит поверх заголовка страницы
+  const viewport = page.viewportSize()!;
+  await page.mouse.click(8, viewport.height - 8);
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // вторая группа закрывает первую: открытый список один
   await sales.click();
@@ -129,10 +141,13 @@ test('вложенные адреса подсвечивают свою вкла
     'aria-current',
     'page',
   );
-  // вкладка модуля сайта: один пункт «Продаж» (ADR-117)
+  // вкладка модуля сайта: один пункт «Сайт и SEO» группы «Маркетинг» (MKT2, раньше «Продажи», ADR-117)
   await page.goto('/website/settings');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
-  await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).toHaveClass(
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(menu.getByRole('button', { name: 'Маркетинг', exact: true })).toHaveClass(
+    /has-current-page/,
+  );
+  await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).not.toHaveClass(
     /has-current-page/,
   );
   // страницы продавца: пункт «ИИ-продавцы» (S0)

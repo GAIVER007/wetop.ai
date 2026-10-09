@@ -23,9 +23,10 @@ import {
   type WorkingInterval,
 } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
-import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
+import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 
 /**
  * График мастера и отсутствия (DATA_MODEL §19.1, Q-251, срез B4).
@@ -50,7 +51,7 @@ export class BeautyScheduleService {
   /** Экран графика: мастера бизнеса, неделя выбранного в этом филиале, его отсутствия и филиалы */
   async overview(employeeId?: string) {
     mayBeauty('desk');
-    const scope = await beautyScope(this.prisma);
+    const scope = await beautyScope(this.prisma, true);
 
     const employees = await this.prisma.db.employee.findMany({
       where: { businessId: scope.businessId },
@@ -113,7 +114,7 @@ export class BeautyScheduleService {
 
   /** Неделя целиком: список заменяет прежний график мастера в этом филиале */
   async setWorkingHours(id: string, raw: unknown) {
-    mayBeauty('property');
+    await mayBeautyWrite(this.prisma, 'property');
     const scope = await this.employeeScope(id);
     if (!scope.locationId) throw new ConflictException('Сначала выберите филиал');
     const parsed = parseWorkingHoursWeek(raw);
@@ -127,7 +128,7 @@ export class BeautyScheduleService {
       throw new ConflictException('Мастер в этом филиале не работает: сначала поставьте его в филиал');
 
     const locationId = scope.locationId;
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.workingHours.deleteMany({ where: { employeeId: id, locationId } });
       if (parsed.value.length)
         await tx.workingHours.createMany({
@@ -156,7 +157,7 @@ export class BeautyScheduleService {
 
   /** Отсутствие мастера. Записи в эти дни не отменяются, их число возвращается словами для человека */
   async addTimeOff(id: string, raw: unknown) {
-    mayBeauty('property');
+    await mayBeautyWrite(this.prisma, 'property');
     const scope = await this.employeeScope(id);
     const parsed = parseTimeOffInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
@@ -172,7 +173,7 @@ export class BeautyScheduleService {
     });
 
     const timeOffId = randomUUID();
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.timeOff.create({
         data: {
           id: timeOffId,
@@ -203,7 +204,7 @@ export class BeautyScheduleService {
   }
 
   async removeTimeOff(id: string, timeOffId: string) {
-    mayBeauty('property');
+    await mayBeautyWrite(this.prisma, 'property');
     const scope = await this.employeeScope(id);
     if (!UUID.test(timeOffId)) throw new NotFoundException('Отсутствие не найдено');
     const row = await this.prisma.db.timeOff.findFirst({
@@ -212,7 +213,7 @@ export class BeautyScheduleService {
     });
     if (!row) throw new NotFoundException('Отсутствие не найдено');
 
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.timeOff.delete({ where: { id: row.id } });
       await tx.auditLog.create({
         data: {
@@ -239,7 +240,7 @@ export class BeautyScheduleService {
    * (Q-252). График снятого филиала уходит вместе с ним, иначе он остался бы висеть ничьим.
    */
   async setLocations(id: string, raw: unknown) {
-    mayBeauty('property');
+    await mayBeautyWrite(this.prisma, 'property');
     const scope = await this.employeeScope(id);
     const body = (raw ?? {}) as Record<string, unknown>;
     const ids = Array.isArray(body['locationIds']) ? body['locationIds'] : null;
@@ -274,7 +275,7 @@ export class BeautyScheduleService {
     }
 
     const added = wanted.filter((locationId) => !current.some((row) => row.locationId === locationId));
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       if (removed.length) {
         const locationIds = removed.map((row) => row.locationId);
         await tx.workingHours.deleteMany({ where: { employeeId: id, locationId: { in: locationIds } } });
@@ -304,7 +305,7 @@ export class BeautyScheduleService {
   /** Мастер своего бизнеса. Чужой или несуществующий одинаково не найден: лишнего наружу не говорим */
   private async employeeScope(id: string): Promise<BeautyScope> {
     if (!UUID.test(id)) throw new NotFoundException('Мастер не найден');
-    const scope = await beautyScope(this.prisma);
+    const scope = await beautyScope(this.prisma, true);
     const employee = await this.prisma.db.employee.findFirst({
       where: { id, businessId: scope.businessId },
       select: { id: true },
@@ -402,6 +403,7 @@ function todayIn(timezone: string): string {
   }).format(new Date());
 }
 
+@RequiresBusinessCapability('beauty.employees')
 @Access('desk')
 @Controller('beauty')
 export class BeautyScheduleController {

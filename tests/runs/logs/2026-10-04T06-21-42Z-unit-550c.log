@@ -1,0 +1,18 @@
+# Модульные (unit) · 04.10.2026 11:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-21-42Z-unit-550c.json' 'packages/domain/src/tasks' 'apps/api/src/tasks' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights
+
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 9ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 246ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 170ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  23:21:45
+   Duration  5.43s (transform 57%, import 38%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-04T06-21-42Z-unit-550c.json
+
+# код выхода 0 · 8 с

@@ -1,6 +1,8 @@
+import { parseBusinessVertical } from '@pms/domain';
 import { ApiError } from '../../../../lib/api-error';
 import { authApi } from '../../../../lib/api';
 import { safeReturnPath } from '../../../../lib/auth-entry';
+import { scopeResolvePath } from '../../../../lib/scope-pointer';
 import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
 
@@ -45,8 +47,9 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       const password = field(body, 'password');
       if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
       const result = await authApi.login({ email, password }, info);
+      // Рабочий филиал выбирает сервер по `GET /branches` (SCOPE-HARDENING), не регистрационный помощник
       return {
-        body: { next: safeReturnPath(field(body, 'next')) },
+        body: { next: scopeResolvePath(safeReturnPath(field(body, 'next'))) },
         session: { token: result.token, expiresAt: result.expiresAt },
       };
     },
@@ -54,11 +57,21 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
   register: {
     method: 'POST',
     run: async (body, info) => {
+      const raw = body as Record<string, unknown> | null;
+      const hasVertical = Object.prototype.hasOwnProperty.call(raw ?? {}, 'vertical');
+      const vertical = hasVertical ? parseBusinessVertical(raw?.vertical) : undefined;
+      if (hasVertical && !vertical) throw new ApiError(400, 'Выберите направление бизнеса');
       const result = await authApi.register(
         {
           email: field(body, 'email').trim(),
           name: field(body, 'name').trim(),
-          hotelName: field(body, 'hotelName').trim(),
+          ...(vertical ? { vertical } : {}),
+          ...(Object.prototype.hasOwnProperty.call(body ?? {}, 'businessName')
+            ? { businessName: field(body, 'businessName').trim() }
+            : {}),
+          ...(Object.prototype.hasOwnProperty.call(body ?? {}, 'hotelName')
+            ? { hotelName: field(body, 'hotelName').trim() }
+            : {}),
           password: field(body, 'password'),
           phoneCountry: field(body, 'phoneCountry').trim(),
           phone: field(body, 'phone').trim(),

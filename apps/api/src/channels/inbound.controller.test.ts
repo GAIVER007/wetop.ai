@@ -531,7 +531,13 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .overrideProvider(CHESSBOARD_REPOSITORY)
       .useValue({})
       .overrideProvider(PrismaService)
-      .useValue({})
+      .useValue({
+        db: {
+          channelMapping: {
+            findMany: async () => [{ propertyId: 'local-prop-1', providerPropertyId: 'prop-1' }],
+          },
+        },
+      })
       .compile();
     app = m.createNestApplication();
     inbound = m.get(InboundBookingsService);
@@ -607,8 +613,18 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
 
   it('канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-140)', async () => {
     fakes.setFeed([
-      revision({ id: 'rev-bdc', unique_id: 'BDC-111', ota_reservation_code: '111', ota_name: 'BookingCom' }),
-      revision({ id: 'rev-abb', unique_id: 'ABB-HM222', ota_reservation_code: 'HM222', ota_name: 'AirBNB' }),
+      revision({
+        id: 'rev-bdc',
+        unique_id: 'BDC-111',
+        ota_reservation_code: '111',
+        ota_name: 'BookingCom',
+      }),
+      revision({
+        id: 'rev-abb',
+        unique_id: 'ABB-HM222',
+        ota_reservation_code: 'HM222',
+        ota_name: 'AirBNB',
+      }),
     ]);
     const r = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(r.body).toMatchObject({ received: 2, acknowledged: 2 });
@@ -1002,7 +1018,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')
       .set('x-channex-webhook-secret', 'test-webhook-secret')
-      .send({ event: 'booking', payload: { revision_id: 'rev-warn-hook' } })
+      .send({ event: 'booking', property_id: 'prop-1', payload: { revision_id: 'rev-warn-hook' } })
       .expect(200);
     await inbound.drain();
     const hook = [...fakes.events.values()].find((e) => e.id.endsWith('rev-warn-hook'))!;
@@ -1298,10 +1314,21 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')
       .set('x-channex-webhook-secret', 'test-webhook-secret')
-      .send({ event: 'sync_error', payload: { message: 'x' }, timestamp: 't1' })
+      .send({
+        event: 'sync_error',
+        property_id: 'prop-1',
+        payload: { message: 'x' },
+        timestamp: 't1',
+      })
       .expect(200);
     await inbound.drain();
     expect([...fakes.events.keys()].some((k) => k.startsWith('channex|sync_error:'))).toBe(true);
+    await request(app.getHttpServer())
+      .post('/channels/channex/webhook')
+      .set('x-channex-webhook-secret', 'test-webhook-secret')
+      .send({ event: 'booking', property_id: 'unknown', payload: { revision_id: 'foreign' } })
+      .expect(503);
+    expect(fakes.feedCalls).toEqual(['prop-1']);
     // событие booking без revision_id отклоняется до постановки в очередь
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')

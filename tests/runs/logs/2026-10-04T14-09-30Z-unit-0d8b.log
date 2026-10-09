@@ -1,0 +1,17 @@
+# Модульные (unit) · 04.10.2026 19:09 Алматы · MacBook-Air-Urij.local
+# коммит 07f5cf1 (codex/mv3-onboarding-20261004), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-09-30Z-unit-0d8b.json' 'apps/api/src/hotel/branch-context.test.ts' 'apps/api/src/hotel/onboarding.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 14ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  18:09:32
+   Duration  854ms (transform 59%, import 39%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T14-09-30Z-unit-0d8b.json
+
+# код выхода 0 · 2 с

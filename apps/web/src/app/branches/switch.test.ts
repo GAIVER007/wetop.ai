@@ -18,6 +18,7 @@ beforeEach(() => {
     items: [
       {
         id: 'own',
+        vertical: 'HOSPITALITY',
         locationId: 'location',
         location: { businessId: 'business' },
         _count: { inventoryUnits: 2 },
@@ -46,3 +47,49 @@ it('чужой филиал не меняет cookie', async () => {
   await expect(selectBranch(form)).rejects.toThrow('Филиал недоступен');
   expect(state.set).not.toHaveBeenCalled();
 });
+
+it.each([
+  ['FOOD_SERVICE', '/today'],
+  ['BEAUTY', '/today'],
+])(
+  'canonical landing for verified %s branch ignores old vertical route',
+  async (vertical, expected) => {
+    state.list.mockResolvedValue({
+      items: [
+        {
+          id: 'own',
+          vertical,
+          locationId: 'location',
+          location: { businessId: 'business' },
+          _count: { inventoryUnits: 0 },
+        },
+      ],
+    });
+    const form = new FormData();
+    form.set('id', 'own');
+    form.set('returnTo', '/chessboard');
+    await expect(selectBranch(form)).rejects.toThrow(`redirect:${expected}`);
+    expect(state.set).toHaveBeenCalledOnce();
+  },
+);
+
+it.each(['BEAUTY', 'FOOD_SERVICE'])(
+  'MV9 shared analytics survives %s branch switch without old filters',
+  async (vertical) => {
+    state.list.mockResolvedValue({
+      items: [
+        {
+          id: 'own',
+          vertical,
+          locationId: 'location',
+          location: { businessId: 'business' },
+          _count: { inventoryUnits: 0 },
+        },
+      ],
+    });
+    const form = new FormData();
+    form.set('id', 'own');
+    form.set('returnTo', '/management/analytics?from=2026-10-01&scope=organization');
+    await expect(selectBranch(form)).rejects.toThrow('redirect:/management/analytics');
+  },
+);

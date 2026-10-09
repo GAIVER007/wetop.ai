@@ -2,7 +2,16 @@
 import { useActionState, useState } from 'react';
 import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  Table,
+} from '../../../components/ui';
 import { formatMoney } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { saveBeautyService, saveLocationService } from '../actions';
@@ -35,7 +44,7 @@ export function ServicesBoard({
       <div className="beauty-bar">
         <p role="status">
           {items.length === 0
-            ? 'Услуг пока нет'
+            ? 'Добавьте первую услугу'
             : `Услуг в каталоге: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
         </p>
         {canEdit && (
@@ -44,7 +53,12 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      <Table>
+      {items.length === 0 && (
+        <EmptyState title="Добавьте первую услугу">
+          Укажите название, длительность и цену, затем включите услугу в филиале.
+        </EmptyState>
+      )}
+      <Table className="beauty-operational-table">
         <thead>
           <tr>
             <th>Услуга</th>
@@ -58,14 +72,18 @@ export function ServicesBoard({
         <tbody>
           {items.map((row) => (
             <tr key={row.id}>
-              <td>
+              <td data-label="Услуга">
                 {row.name}
                 {!row.active && <Badge>В архиве</Badge>}
               </td>
-              <td className="beauty-col-wide">{row.category ?? 'Без группы'}</td>
-              <td className="beauty-col-wide">{row.durationMinutes} мин</td>
-              <td>{formatMoney(row.priceMinor, row.currency)}</td>
-              <td>
+              <td data-label="Группа" className="beauty-col-wide">
+                {row.category ?? 'Без группы'}
+              </td>
+              <td data-label="Длительность" className="beauty-col-wide">
+                {row.durationMinutes} мин
+              </td>
+              <td data-label="Цена каталога">{formatMoney(row.priceMinor, row.currency)}</td>
+              <td data-label="В этом филиале">
                 {row.effective === null
                   ? 'Выберите филиал'
                   : row.effective.sellable
@@ -73,7 +91,7 @@ export function ServicesBoard({
                     : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
               </td>
               {canEdit && (
-                <td>
+                <td data-label="Действия">
                   <Button
                     type="button"
                     size="sm"
@@ -114,7 +132,10 @@ function ServiceForm({
   locationCurrency: string | null;
 }) {
   const [state, action, pending] = useActionState(saveBeautyService, null);
-  const [locationState, locationAction, locationPending] = useActionState(saveLocationService, null);
+  const [locationState, locationAction, locationPending] = useActionState(
+    saveLocationService,
+    null,
+  );
   // Проверяем тем же разбором, что API (SET3 делает так же): иначе серверное действие сбросило бы форму
   const [error, setError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -145,7 +166,13 @@ function ServiceForm({
         <Field label="Название">
           <Input name="name" required maxLength={200} defaultValue={row?.name ?? ''} />
         </Field>
-        <Field label={<span>Группа <small className="beauty-note">необязательно: «Ногти», «Волосы»</small></span>}>
+        <Field
+          label={
+            <span>
+              Группа <small className="beauty-note">необязательно: «Ногти», «Волосы»</small>
+            </span>
+          }
+        >
           <Input name="category" maxLength={100} defaultValue={row?.category ?? ''} />
         </Field>
         <Field label="Длительность, минут">
@@ -156,7 +183,14 @@ function ServiceForm({
             defaultValue={String(row?.durationMinutes ?? 60)}
           />
         </Field>
-        <Field label={<span>Цена каталога, тиын <small className="beauty-note">целое число: 800000 это 8 000 тенге</small></span>}>
+        <Field
+          label={
+            <span>
+              Цена каталога, тиын{' '}
+              <small className="beauty-note">целое число: 800000 это 8 000 тенге</small>
+            </span>
+          }
+        >
           <Input
             name="priceMinor"
             inputMode="numeric"
@@ -203,21 +237,31 @@ function ServiceForm({
           <h3>В этом филиале</h3>
           <input type="hidden" name="id" value={row.id} />
           <label className="beauty-check">
-            <input
-              type="checkbox"
-              name="enabled"
-              defaultChecked={row.location?.enabled ?? false}
-            />
+            <input type="checkbox" name="enabled" defaultChecked={row.location?.enabled ?? false} />
             Филиал оказывает эту услугу
           </label>
-          <Field label={<span>Своя цена филиала, тиын <small className="beauty-note">пусто: действует цена каталога</small></span>}>
+          <Field
+            label={
+              <span>
+                Своя цена филиала, тиын{' '}
+                <small className="beauty-note">пусто: действует цена каталога</small>
+              </span>
+            }
+          >
             <Input
               name="priceOverrideMinor"
               inputMode="numeric"
               defaultValue={row.location?.priceOverrideMinor ?? ''}
             />
           </Field>
-          <Field label={<span>Своя длительность, минут <small className="beauty-note">пусто: действует длительность каталога</small></span>}>
+          <Field
+            label={
+              <span>
+                Своя длительность, минут{' '}
+                <small className="beauty-note">пусто: действует длительность каталога</small>
+              </span>
+            }
+          >
             <Input
               name="durationOverrideMinutes"
               inputMode="numeric"
@@ -232,9 +276,7 @@ function ServiceForm({
           {(locationError ?? locationState?.error) && (
             <Alert>{locationError ?? locationState?.error}</Alert>
           )}
-          {!locationError && locationState?.message && (
-            <p role="status">{locationState.message}</p>
-          )}
+          {!locationError && locationState?.message && <p role="status">{locationState.message}</p>}
           <Button type="submit" tone="secondary" disabled={locationPending}>
             {locationPending ? 'Сохраняем…' : 'Сохранить для филиала'}
           </Button>

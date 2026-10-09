@@ -2,9 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * «Дни рождения» (Q-249 T0, образец Lite PMS): строка в панели «Сегодня» календаря и страница
- * `/guests/birthdays` из уже хранимой даты рождения гостя. Панель «Сегодня» стоит слева от
- * управления календарём (владелец 03.10: «календарь справа, остальное слева»).
+ * Страница `/guests/birthdays` использует уже хранимую дату рождения гостя. Календарь не показывает
+ * этот показатель; подробности остаются на отдельной странице.
  */
 const API = FIXTURE_API;
 const H = { 'x-wetop-test-client': '1' };
@@ -13,7 +12,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`, { headers: H });
 });
 
-test('панель «Сегодня» слева, управление календарём справа; строка «Дни рождения»', async ({
+test('календарь исключает дни рождения, отдельная страница раскрывает детали', async ({
   page,
   request,
 }) => {
@@ -28,12 +27,16 @@ test('панель «Сегодня» слева, управление кале�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  const birthdays = panel.getByTestId('day-birthdays');
-  await expect(birthdays).toHaveText('1');
+  // дней рождения в сводке календаря нет (владелец 06.10: «лишнее убери»), страница живёт отдельно
+  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
+  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
   const panelBox = (await panel.boundingBox())!;
   const navBox = (await page.locator('.board-date-nav').boundingBox())!;
-  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(navBox.x);
-  await panel.getByRole('link', { name: /Дни рождения/ }).click();
+  // на компьютере карточка справа от стрелок дат (владелец 06.10), на узком экране над ними
+  expect(navBox.x + navBox.width <= panelBox.x || panelBox.y + panelBox.height <= navBox.y).toBe(
+    true,
+  );
+  await page.goto('/guests/birthdays');
   await expect(page).toHaveURL(/\/guests\/birthdays$/);
   const todaySection = page.getByRole('region', { name: 'Сегодня' });
   await expect(todaySection.getByRole('link', { name: 'Гость Тестовый' })).toHaveAttribute(
@@ -49,11 +52,11 @@ test('панель «Сегодня» слева, управление кале�
   }
 });
 
-test('нет дат рождения: строка «0», страница говорит, что в неделю пусто', async ({ page }) => {
+test('нет дат рождения: отдельная страница говорит, что в неделю пусто', async ({ page }) => {
   await page.goto('/chessboard');
-  await expect(
-    page.getByRole('group', { name: 'Сегодня на объекте' }).getByTestId('day-birthdays'),
-  ).toHaveText('0');
+  const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+  await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+  await expect(panel.getByTestId('day-birthdays')).toHaveCount(0);
   await page.goto('/guests/birthdays');
   await expect(page.getByText('В ближайшую неделю дней рождения нет')).toBeVisible();
 });

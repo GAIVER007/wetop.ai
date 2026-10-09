@@ -22,11 +22,12 @@ import {
   type Permission,
 } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
-import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
+import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 
 /**
  * Каталог салона: услуги сети и мастера (DATA_MODEL §19 и §19.1, срез B3, ADR-141).
@@ -48,6 +49,18 @@ export class BeautyCatalogService {
 
   private scope(): Promise<BeautyScope> {
     return beautyScope(this.prisma);
+  }
+
+  /** Organization owns the identity; CustomerBusiness grants visibility in this business. */
+  async customers() {
+    this.may('desk');
+    const scope = await this.scope();
+    const items = await this.prisma.db.customer.findMany({
+      where: { organizationId: scope.organizationId, businesses: { some: { businessId: scope.businessId } } },
+      orderBy: [{ firstName: 'asc' }, { id: 'asc' }],
+      select: { id: true, firstName: true, lastName: true, phone: true, status: true },
+    });
+    return { items };
   }
 
   /** Услуги каталога с тем, что про них говорит филиал: действующая цена считается домéном */
@@ -81,12 +94,12 @@ export class BeautyCatalogService {
   }
 
   async createService(raw: unknown) {
-    this.may('rates');
+    await mayBeautyWrite(this.prisma, 'rates');
     const parsed = parseBeautyServiceInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value as Required<NonNullable<typeof parsed.value>>;
     const scope = await this.scope();
-    const created = await this.prisma.db.$transaction(async (tx) => {
+    const created = await beautyTransaction(this.prisma, scope, async (tx) => {
       const row = await tx.beautyService.create({
         data: {
           id: randomUUID(),
@@ -115,7 +128,7 @@ export class BeautyCatalogService {
   }
 
   async updateService(id: string, raw: unknown) {
-    this.may('rates');
+    await mayBeautyWrite(this.prisma, 'rates');
     if (!UUID.test(id)) throw new NotFoundException('Услуга не найдена');
     const parsed = parseBeautyServiceInput(raw, { partial: true });
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
@@ -143,7 +156,7 @@ export class BeautyCatalogService {
     if (p.active !== undefined && p.active !== current.active) data.active = p.active;
     if (Object.keys(data).length === 0)
       return serviceView({ ...current, locations: [] }, scope.locationCurrency);
-    const updated = await this.prisma.db.$transaction(async (tx) => {
+    const updated = await beautyTransaction(this.prisma, scope, async (tx) => {
       const row = await tx.beautyService.update({ where: { id: current.id }, data });
       await tx.auditLog.create({
         data: {
@@ -163,7 +176,7 @@ export class BeautyCatalogService {
 
   /** Что филиал делает с услугой каталога: включает и ставит свои цену и длительность */
   async setLocationService(id: string, raw: unknown) {
-    this.may('rates');
+    await mayBeautyWrite(this.prisma, 'rates');
     if (!UUID.test(id)) throw new NotFoundException('Услуга не найдена');
     const parsed = parseLocationServiceInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
@@ -176,7 +189,7 @@ export class BeautyCatalogService {
     });
     if (!service) throw new NotFoundException('Услуга не найдена');
     const input = parsed.value;
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.locationService.upsert({
         where: { locationId_serviceId: { locationId: scope.locationId!, serviceId: service.id } },
         create: {
@@ -232,12 +245,12 @@ export class BeautyCatalogService {
   }
 
   async createEmployee(raw: unknown) {
-    this.may('property');
+    await mayBeautyWrite(this.prisma, 'property');
     const parsed = parseEmployeeInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value as Required<NonNullable<typeof parsed.value>>;
     const scope = await this.scope();
-    const created = await this.prisma.db.$transaction(async (tx) => {
+    const created = await beautyTransaction(this.prisma, scope, async (tx) => {
       const row = await tx.employee.create({
         data: {
           id: randomUUID(),
@@ -273,7 +286,7 @@ export class BeautyCatalogService {
   }
 
   async updateEmployee(id: string, raw: unknown) {
-    this.may('property');
+    await mayBeautyWrite(this.prisma, 'property');
     if (!UUID.test(id)) throw new NotFoundException('Мастер не найден');
     const parsed = parseEmployeeInput(raw, { partial: true });
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
@@ -297,7 +310,7 @@ export class BeautyCatalogService {
       if (status !== current.status) data.status = status;
     }
     if (Object.keys(data).length === 0) return this.employee(current.id, scope.businessId);
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.employee.update({ where: { id: current.id }, data });
       await tx.auditLog.create({
         data: {
@@ -316,7 +329,7 @@ export class BeautyCatalogService {
 
   /** Что мастер умеет: список услуг каталога целиком, не добавлением по одной */
   async setEmployeeServices(id: string, raw: unknown) {
-    this.may('property');
+    await mayBeautyWrite(this.prisma, 'property');
     if (!UUID.test(id)) throw new NotFoundException('Мастер не найден');
     const body = (raw ?? {}) as Record<string, unknown>;
     const ids = Array.isArray(body['serviceIds']) ? body['serviceIds'] : null;
@@ -335,7 +348,7 @@ export class BeautyCatalogService {
     });
     if (own.length !== wanted.length)
       throw new BadRequestException('Среди выбранных услуг есть чужая');
-    await this.prisma.db.$transaction(async (tx) => {
+    await beautyTransaction(this.prisma, scope, async (tx) => {
       await tx.employeeService.deleteMany({ where: { employeeId: employee.id } });
       if (wanted.length)
         await tx.employeeService.createMany({
@@ -473,10 +486,16 @@ function pick(row: LogRow, keys: string[]): LogRow {
   return Object.fromEntries(keys.map((k) => [k, row[map[k] ?? k] ?? null]));
 }
 
+@RequiresBusinessCapability('beauty.services')
 @Access('desk')
 @Controller('beauty')
 export class BeautyCatalogController {
   constructor(@Inject(BeautyCatalogService) private readonly service: BeautyCatalogService) {}
+
+  @RequiresBusinessCapability('beauty.customers')
+  @Get('customers') customers() {
+    return this.service.customers();
+  }
 
   @Get('services') services() {
     return this.service.services();
@@ -498,19 +517,23 @@ export class BeautyCatalogController {
     return this.service.setLocationService(id, body);
   }
 
+  @RequiresBusinessCapability('beauty.employees')
   @Get('employees') employees() {
     return this.service.employees();
   }
   // Мастера это то, чем салон работает: право `property`, как номерной фонд в гостинице (Q-253)
+  @RequiresBusinessCapability('beauty.employees')
   @Access('property') @Post('employees') createEmployee(@Body() body: unknown) {
     return this.service.createEmployee(body);
   }
+  @RequiresBusinessCapability('beauty.employees')
   @Access('property') @Patch('employees/:id') updateEmployee(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.updateEmployee(id, body);
   }
+  @RequiresBusinessCapability('beauty.employees')
   @Access('property') @Put('employees/:id/services') setEmployeeServices(
     @Param('id') id: string,
     @Body() body: unknown,

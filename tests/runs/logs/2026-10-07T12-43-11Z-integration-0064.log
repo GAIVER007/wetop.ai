@@ -1,0 +1,72 @@
+# Интеграционные (integration) · 07.10.2026 17:43 Алматы · vm
+# коммит 867a391 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T12-43-11Z-integration-0064.json' 'tests/integration/marketing-publication-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 2; данные на месте
+ ❯ |integration| tests/integration/marketing-publication-db.test.ts (9 tests | 2 failed) 363ms
+   ❯ MKT7 публикации, домены и сайт брони: инварианты базы (9)
+     ✓ журнал: форма действия, версии только своего сайта 43ms
+     ✓ журнал только дописывается; удаление сотрудника обнуляет автора 36ms
+     ✓ домен: принадлежит своему сайту, хост и вид не меняются, переходы по §29.8 21ms
+     ✓ домен: хост в нормальном виде, у платформы нет проверки владения 11ms
+     ✓ домен: один живой владелец хоста, REMOVED освобождает; один основной на сайт 10ms
+     × сайт брони филиала: только сайт объекта этого филиала 23ms
+     ✓ перенос Q-275: ровно один подходящий сайт ставится, ноль или два оставляют NULL 19ms
+     ✓ перенос не трогает уже выбранный указатель 8ms
+     × RLS: организация видит только свои публикации и домены; права приложения 70ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > сайт брони филиала: только сайт объекта этого филиала
+AssertionError: expected [Function] to throw error matching /объекта другого филиала/ but got 'locations: сайт брони принадлежит объ…'
+
+- Expected:
+/объекта другого филиала/
+
++ Received:
+"locations: сайт брони принадлежит объекту другого филиала"
+
+ ❯ tests/integration/marketing-publication-db.test.ts:213:113
+    211|       const own = await trackedSite(attempt, propA1);
+    212|       const foreign = await trackedSite(attempt, propA2);
+    213|       await expect(attempt(`UPDATE locations SET booking_tracked_site_…
+       |                                                                                                                 ^
+    214|         /объекта другого филиала/,
+    215|       );
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:210:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-publication-db.test.ts > MKT7 публикации, домены и сайт брони: инварианты базы > RLS: организация видит только свои публикации и домены; права приложения
+AssertionError: expected [Function] to throw error matching /row-level security/ but got 'marketing_site_publications: прежняя …'
+
+- Expected:
+/row-level security/
+
++ Received:
+"marketing_site_publications: прежняя версия другого сайта"
+
+ ❯ tests/integration/marketing-publication-db.test.ts:274:67
+    272|       await expect(attempt(`DELETE FROM site_domains WHERE id = $1`, […
+    273|       await attempt(`UPDATE site_domains SET status = 'ACTIVE', activa…
+    274|       await expect(publication(attempt, siteB, 'PAUSE', null, vB)).rej…
+       |                                                                   ^
+    275|     });
+    276|   });
+ ❯ probe tests/integration/marketing-publication-db.test.ts:38:7
+ ❯ tests/integration/marketing-publication-db.test.ts:257:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  12:43:12
+   Duration  5.57s (transform 66%, import 20%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-10-07T12-43-11Z-integration-0064.json
+
+# код выхода 1 · 7 с

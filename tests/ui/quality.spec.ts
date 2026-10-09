@@ -24,7 +24,7 @@ test('повторяющиеся параметры поиска не обруш
   await page.goto('/guests?q=Тест&q=Другой');
   await expect(page.getByRole('heading', { name: 'Гости', exact: true })).toBeVisible();
   await page.goto('/journal?q=TEST&q=OTHER');
-  await expect(page.getByRole('heading', { name: 'Журнал действий', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал операций', exact: true })).toBeVisible();
 });
 
 test('операция проживания блокирует повторное нажатие до ответа сервера', async ({ page }) => {
@@ -75,21 +75,12 @@ test('отказ оплаты сохраняет введённую сумму, 
   await expect(form.locator('[name=note]')).toHaveValue('');
 });
 
-test('ошибочные даты шахматки и месяца тарифов оставляют форму исправления', async ({ page }) => {
-  for (const route of [
-    '/rates?month=not-a-month',
-    '/rates?month=2026-13',
-    '/chessboard?from=wrong&to=2026-09-20',
-  ]) {
-    await page.goto(route);
-    await expect(page.getByRole('heading', { name: /Тарифы и цены|Календарь/ })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
-    // форма исправления: у тарифов с 27.09 (ADR-111) кнопки нет — месяц перезагружает данные сам
-    if (route.startsWith('/rates'))
-      await expect(page.getByRole('main').getByLabel('Месяц', { exact: true })).toBeEnabled();
-    else
-      await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
-  }
+test('ошибочные даты шахматки оставляют форму исправления', async ({ page }) => {
+  // месяц тарифов снят вместе с разделом «Тарифы и цены» (06.10.2026), осталась шахматка
+  await page.goto('/chessboard?from=wrong&to=2026-09-20');
+  await expect(page.getByRole('heading', { name: /Календарь/ })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
+  await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
 });
 
 test('список гостей и вторая бронь открывают собственные карточки', async ({ page }) => {

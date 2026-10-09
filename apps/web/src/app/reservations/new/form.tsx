@@ -283,7 +283,7 @@ export function NewReservationForm(props: {
         <Alert tone="warning">Сначала добавьте категории и номера в разделе «Номерной фонд».</Alert>
       )}
       {props.ratePlans.length === 0 && (
-        <Alert tone="warning">Сначала добавьте тариф в разделе «Тарифы и цены».</Alert>
+        <Alert tone="warning">Сначала задайте цену категории в «Категориях номеров».</Alert>
       )}
       {unavailable.length > 0 && (
         <Alert tone="warning">
@@ -521,7 +521,7 @@ function summarize(
           : unit
             ? `ячейка ${unit}`
             : 'ячейка назначается позже';
-    return `${category?.name ?? dash}, ${where}, ${pluralRu(adults, ['гость', 'гостя', 'гостей'])}`;
+    return `${category?.name ?? dash}, ${where}, ${pluralRu(adults * quantity, ['гость', 'гостя', 'гостей'])}`;
   });
   return {
     nights,
@@ -746,7 +746,7 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
-      <Field label="Гостей">
+      <Field label="Гостей на место">
         <Input
           type="number"
           name={field('adults')}

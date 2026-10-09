@@ -1,0 +1,225 @@
+# Интеграционные (integration) · 08.10.2026 12:23 Алматы · vm
+# коммит 9ae75aa (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 24
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-23-18Z-integration-88d1.json' 'tests/integration/marketing-site.test.ts' 'tests/integration/site-generation.test.ts' 'tests/integration/site-editor.test.ts' 'tests/integration/site-publication.test.ts' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:5799) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-generation.test.ts (16 tests | 1 failed) 3337ms
+   ❯ MKT6 site generation (16)
+     ✓ счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 480ms
+     ✓ постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу 344ms
+     ✓ сайт с версией: 409, INITIAL не правка 269ms
+     ✓ лимит постановок: 10 за час на человека 77ms
+     ✓ BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается 105ms
+     ✓ BASE_VERSION_CHANGED: человек сохранил версию, пока шла генерация; ручная версия остаётся последней 151ms
+     ✓ неверный ответ модели: версия не создаётся, повтор только с путём и кодом, расход всех попыток суммируется 208ms
+     ✓ неверный вывод «проза вместо JSON у бота»: задача ждёт повтора, версии нет 125ms
+     ✓ неверный вывод «не тот язык»: задача ждёт повтора, версии нет 100ms
+     ✓ неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет 109ms
+     ✓ бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута 392ms
+     × неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC 131ms
+     ✓ неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет 96ms
+     ✓ повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова 152ms
+     ✓ падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен 197ms
+     ✓ очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно 201ms
+(node:5817) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-editor.test.ts (14 tests | 1 failed) 2902ms
+   ❯ MKT9 site editor (14)
+     × история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 417ms
+     ✓ чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется 251ms
+     ✓ восстановление как новый черновик: r1 → новая r4 от r3, источник MANUAL, опубликованная не меняется; устаревшая база 409 184ms
+     ✓ откат MKT7 меняет только опубликованную, восстановление MKT9 только голову 186ms
+     ✓ восстановление версии с картинкой, удалённой из библиотеки: 409 ASSET_UNAVAILABLE, головы нет 86ms
+     ✓ PATCH: постановка, повтор того же ключа, неверная база, пустая и длинная команда, параллельная задача; журнал без текста 201ms
+     ✓ PATCH, воркер: бот получает базу и команду без организации; новая версия AI base+1 с родителем; опубликованная не тронута 218ms
+     ✓ PATCH: ИИ меняет телефон → SCHEMA_INVALID и повтор с путями ошибок; голова сменилась до повтора → BASE_VERSION_CHANGED без модели 230ms
+     ✓ гонка: ИИ работает с r1, человек сохраняет r2 → результат ИИ не применён, версии r3 от ИИ нет 152ms
+     ✓ SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ 202ms
+     ✓ бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота 137ms
+     ✓ предел постановок в час считает и правки: 10 задач за час → 429 100ms
+     ✓ архивный сайт: правка, восстановление и сохранение отклоняются 80ms
+     ✓ окно «Создать сайт»: пожелания к первой версии хранятся в задаче, уходят боту отдельным полем, наружу и в журнал не попадают 220ms
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"60481306-0dd1-4460-8079-abc4e377cde1","kind":"IMAGE","byteSize":76}
+
+(node:5833) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-assets.test.ts (11 tests) 3285ms
+   ✓ MKT8 библиотека изображений сайта (10)
+     ✓ §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 536ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 791ms
+(node:5852) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[Nest] 5852  - 10/08/2026, 7:23:39 AM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 382085,
+  length: 382085,
+  limit: 307200,
+  type: 'entity.too.large'
+}
+[Nest] 5852  - 10/08/2026, 7:23:39 AM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 153619,
+  length: 153619,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ❯ |integration| tests/integration/marketing-site.test.ts (37 tests | 1 failed) 1462ms
+   ❯ MKT3 marketing site core (37)
+     ✓ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       ✓ указателя нет: 409 «Выберите филиал» 73ms
+       ✓ выбран только бизнес: 409 «Выберите филиал» 40ms
+       ✓ чужой филиал: 403, без отката в организацию 16ms
+       ✓ архивный филиал: 403, без отката в организацию 12ms
+       ✓ архивный бизнес: 403, без отката в организацию 8ms
+       ✓ филиал из другого бизнеса: 403, без отката в организацию 17ms
+       ✓ несуществующий филиал: 403, без отката в организацию 9ms
+       ✓ салон и ресторан: 403 4ms
+       ✓ без права settings (администратор): 403 2ms
+     ✓ заведение сайта (MKT9.2 bootstrap): имя и адрес из филиала, один филиал один сайт (6)
+       ✓ сайта нет: пустой ответ, черновика нет 76ms
+       ✓ прежний POST /marketing/site с названием и адресом снят: 404, сайт не заводится 10ms
+       ✓ тело пустое: имя, адрес, филиал, бизнес и организация из тела дают 400 47ms
+       ✓ заводит сайт филиала из scope в DRAFT с именем и адресом из филиала; повтор 200 тот же сайт 64ms
+       ✓ адрес занят сайтом другого филиала: детерминированный суффикс, а не отказ 24ms
+       ✓ чужой филиал той же организации видит только свой сайт 30ms
+     ✓ версии (6)
+       ✓ первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 58ms
+       ✓ устаревшая ревизия: 409, новой версии нет 23ms
+       ✓ неверный документ: 400 со списком ошибок, версия не пишется 17ms
+       ✓ следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 58ms
+       ✓ два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 88ms
+       ✓ у сайта без версий годится только baseRevision 0: иначе 409 28ms
+     ❯ база: изоляция, неизменяемость, принадлежность (7)
+       ✓ чужая организация не видит ни сайтов, ни версий; своя видит свои 21ms
+       × API чужой организации не видит сайт и не может писать в него 27ms
+       ✓ роль приложения не меняет и не удаляет версии 14ms
+       ✓ даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 4ms
+       ✓ указатели сайта и родитель версии не ведут на другой сайт 10ms
+       ✓ организация только для чтения не пишет: 403, читать может 28ms
+       ✓ филиал сайта не меняется после создания 2ms
+     ✓ база: инварианты MKT3 без API (поручение владельца по ревью) (5)
+       ✓ tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL 17ms
+       ✓ зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит 7ms
+       ✓ версия мимо API (3)
+         ✓ schema_version совпадает с schemaVersion документа 8ms
+         ✓ источник: AI без задачи генерации (MKT6) и IMPORT отклонены, MANUAL проходит 7ms
+         ✓ страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит 24ms
+     ✓ размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) (4)
+       ✓ документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется 140ms
+       ✓ SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413 29ms
+       ✓ тело больше транспортного предела 300 КБ: 413, версия не пишется 27ms
+       ✓ другой маршрут JSON по-прежнему режется на 100 КБ: знания проекта с телом 150 КБ дают 413 10ms
+(node:5867) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-publication.test.ts (15 tests) 3021ms
+   ✓ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 689ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 314ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория 312ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > API чужой организации не видит сайт и не может писать в него
+AssertionError: expected { site: null, archived: false, …(3) } to deeply equal { site: null }
+
+- Expected
++ Received
+
+  {
++   "archived": false,
++   "builder": {
++     "access": "active",
++     "activeUntil": null,
++     "status": "ACTIVE",
++   },
++   "instructions": null,
++   "locationName": "Loc 1aaf",
+    "site": null,
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:387:22
+    385|     it('API чужой организации не видит сайт и не может писать в него',…
+    386|       const r = await call('GET', '/marketing/site', { user: 'B', scop…
+    387|       expect(r.body).toEqual({ site: null });
+       |                      ^
+    388|       const spoof = await call('GET', '/marketing/site', { user: 'B', …
+    389|       expect(spoof.status).toBe(403);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница
+AssertionError: expected [ 'bookmark', 'createdAt', …(9) ] to deeply equal [ 'createdAt', 'createdById', …(8) ]
+
+- Expected
++ Received
+
+@@ -1,6 +1,7 @@
+  [
++   "bookmark",
+    "createdAt",
+    "createdById",
+    "generationRunId",
+    "id",
+    "isLatest",
+
+ ❯ tests/integration/site-editor.test.ts:260:55
+    258|     expect(list.status).toBe(200);
+    259|     expect(list.body.versions.map((v: { revision: number }) => v.revis…
+    260|     expect(Object.keys(list.body.versions[0]).sort()).toEqual(
+       |                                                       ^
+    261|       ['createdAt', 'createdById', 'generationRunId', 'id', 'isLatest'…
+    262|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC
+AssertionError: {"code":"USAGE_UNAVAILABLE","message":"Расход токенов неизвестен: новые генерации сегодня остановлены"}: expected 409 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 409
+
+ ❯ queued tests/integration/site-generation.test.ts:171:30
+    169|     const brief = await briefOf(w);
+    170|     const r = await request(w, brief.briefHash);
+    171|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    172|     return { id: r.body.run.id, input: brief.input };
+    173|   }
+ ❯ tests/integration/site-generation.test.ts:475:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 2 passed (5)
+      Tests  3 failed | 90 passed (93)
+   Start at  07:23:20
+   Duration  23.86s (tests 67%, import 22%, transform 11%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-23-18Z-integration-88d1.json
+
+# код выхода 1 · 25 с

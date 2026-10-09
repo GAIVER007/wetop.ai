@@ -12,6 +12,7 @@ import pg from 'pg';
 /** Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`) */
 export const RLS_TENANT_TABLES: readonly string[] = [
   'organizations',
+  'onboarding_progress',
   'memberships',
   'sessions',
   'invites',
@@ -61,6 +62,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_categories',
   'cash_operations',
   'cash_reconciliations',
+  // Задачи стойки (DATA_MODEL §22): политика — в миграции 20261003000049_desk_tasks
+  'desk_tasks',
   // Запросы оплаты (DATA_MODEL §24, ADR-144): политика — в миграции 20261003000046_payment_requests
   'payment_requests',
   // Фискальные чеки по запросу (DATA_MODEL §26): политика — в миграции 20261003000048_fiscal_receipts
@@ -82,6 +85,37 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',
+  // Food Service v1, migration 55.
+  'dining_areas',
+  'dining_tables',
+  'service_periods',
+  'restaurant_reservations',
+  'table_assignments',
+  // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
+  'marketing_sites',
+  'marketing_site_versions',
+  // MKT6: задачи генерации ИИ, через свой сайт (DATA_MODEL §29.7, миграция 20261007000062_generation_run_core)
+  'generation_runs',
+  // MKT7: журнал публикаций и домены сайта, через свой сайт (DATA_MODEL §29.4, §29.6, миграция …064)
+  'marketing_site_publications',
+  'site_domains',
+  // MKT8: библиотека изображений сайта, через Location → Business (DATA_MODEL §29.5, миграция …066)
+  'site_assets',
+  // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
+  'site_builder_entitlements',
+  'site_ai_runs',
+  'marketing_site_version_bookmarks',
+  // Existing policies from 20261004000051_bar_inventory.
+  'bar_categories',
+  'bar_products',
+  'bar_receipt_lines',
+  'bar_receipts',
+  'bar_sale_lines',
+  'bar_sales',
+  'bar_stock_lots',
+  'bar_stock_movements',
+  'bar_supplier_payments',
+  'bar_suppliers',
 ];
 
 /**

@@ -1,0 +1,316 @@
+# Сквозные (e2e) · 06.10.2026 19:41 Алматы · vm
+# коммит 2ae0f33 (claude/quirky-franklin-mo3gcn), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 61 tests using 1 worker
+
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.6s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой слева, управление справа (3.4s)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.7s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:62:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_38uatpe..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-06" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:75:3 › гейт «Календарь»: light (3.7s)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:75:3 › гейт «Календарь»: dark (3.3s)
+  ✓   7 tests/ui/chessboard-calendar.spec.ts:88:1 › пустая клетка не дублирует дату из шапки календаря (2.5s)
+  ✓   8 tests/ui/chessboard-calendar.spec.ts:96:1 › даты в шапке не повторяют свободные и занятые места (2.7s)
+  ✘   9 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (4.4s)
+  ✓  10 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (3.7s)
+  ✓  11 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (3.7s)
+  ✓  12 tests/ui/chessboard-statistics.spec.ts:62:1 › today statistics stay available when the calendar shows another month (7.6s)
+  ✘  13 tests/ui/chessboard-statistics.spec.ts:76:1 › empty booking base shows zero occupancy and no urgent bookings (16.9s)
+  ✘  14 tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets light: accessible labels and contrasts (19.7s)
+  ✘  15 tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets dark: accessible labels and contrasts (20.4s)
+  ✓  16 tests/ui/chessboard-statistics.spec.ts:108:3 › desktop daily widgets light: accessible pointer targets (4.2s)
+  ✓  17 tests/ui/chessboard-statistics.spec.ts:108:3 › desktop daily widgets dark: accessible pointer targets (3.9s)
+  ✘  18 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.0s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (11.0s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.9s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (6.6s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (6.0s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (5.8s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (6.9s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (24.3s)
+  ✓  26 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (22.6s)
+  ✓  27 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (3.6s)
+  ✓  28 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (6.9s)
+  ✓  29 tests/ui/guests-birthdays.spec.ts:57:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (3.4s)
+  ✓  30 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (2.2s)
+  ✓  31 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.4s)
+  ✓  32 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (2.1s)
+  ✓  33 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.9s)
+  ✓  34 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (2.3s)
+  ✓  35 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.6s)
+  ✓  36 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (2.0s)
+  ✓  37 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (2.1s)
+  ✓  38 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (2.1s)
+  ✓  39 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.8s)
+  ✓  40 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (3.0s)
+  ✓  41 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (2.3s)
+  ✓  42 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (1.9s)
+  ✓  43 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.1s)
+  ✓  44 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (2.7s)
+  ✓  45 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (2.2s)
+  ✓  46 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.0s)
+  ✓  47 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (1.9s)
+  ✓  48 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (1.8s)
+  ✓  49 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (2.4s)
+  ✓  50 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (2.5s)
+  ✓  51 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (2.6s)
+  ✓  52 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.4s)
+  ✓  53 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  54 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (2.0s)
+  ✓  55 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (1.7s)
+  ✓  56 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (2.3s)
+  ✓  57 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (1.7s)
+  ✓  58 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (2.4s)
+  ✓  59 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.7s)
+  ✓  60 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (2.5s)
+  ✓  61 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.8s)
+
+
+  1) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    4
+
+      52 |     expect(
+      53 |       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    > 54 |     ).toBeLessThanOrEqual(1);
+         |       ^
+      55 |     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
+      56 |     await page.screenshot({
+      57 |       path: `reports/calendar-mobile-statistics-2026-10-05/grid-${width}.png`,
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:54:7
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:76:1 › empty booking base shows zero occupancy and no urgent bookings 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+    Expected: "0"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+
+
+      83 |   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+      84 |   await expect(panel.getByTestId('day-occupancy')).toHaveText('0%');
+    > 85 |   await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '0');
+         |                                          ^
+      86 |   await expect(panel.getByTestId('day-occupied')).toHaveText('0');
+      87 |   await expect(panel.getByTestId('day-arrivals')).toHaveText('0');
+      88 | });
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:85:42
+
+    Error Context: test-results/chessboard-statistics-empt-ebb1c-ancy-and-no-urgent-bookings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-empt-ebb1c-ancy-and-no-urgent-bookings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-empt-ebb1c-ancy-and-no-urgent-bookings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets light: accessible labels and contrasts 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+    Expected: "8"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+
+
+       97 |     const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
+       98 |     expect(results.violations).toEqual([]);
+    >  99 |     await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+          |                                            ^
+      100 |     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
+      101 |     await page.screenshot({
+      102 |       path: `reports/calendar-mobile-statistics-2026-10-05/${theme}-390.png`,
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:99:44
+
+    Error Context: test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-dail-4544b-ssible-labels-and-contrasts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets dark: accessible labels and contrasts 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+    Expected: "8"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByRole('meter')
+
+
+       97 |     const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
+       98 |     expect(results.violations).toEqual([]);
+    >  99 |     await expect(panel.getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+          |                                            ^
+      100 |     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
+      101 |     await page.screenshot({
+      102 |       path: `reports/calendar-mobile-statistics-2026-10-05/${theme}-390.png`,
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:99:44
+
+    Error Context: test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-dail-3bdb7-ssible-labels-and-contrasts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 384
+    Received:    407.5
+
+      16 |   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+      17 |   const box = await page.locator('.board-wrap').boundingBox();
+    > 18 |   expect(box!.y).toBeLessThanOrEqual(384);
+         |                  ^
+      19 |   // состояние мест считается на первую дату окна — подпись поля это говорит (PR 7 «Шахматки v2»)
+      20 |   await expect(page.getByText('Места на 14 сент.', { exact: true })).toBeVisible();
+      21 |   await page.getByLabel('Поиск в календаре').fill('Несуществующее место');
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:18:18
+
+    Error Context: test-results/chessboard-week-C1-сетка-н-57da4-ьтры-объясняют-дату-статуса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-сетка-н-57da4-ьтры-объясняют-дату-статуса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-сетка-н-57da4-ьтры-объясняют-дату-статуса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:76:1 › empty booking base shows zero occupancy and no urgent bookings 
+    tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets light: accessible labels and contrasts 
+    tests/ui/chessboard-statistics.spec.ts:91:3 › daily widgets dark: accessible labels and contrasts 
+    tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса 
+  56 passed (5.0m)
+
+# код выхода 1 · 5 мин 3 с

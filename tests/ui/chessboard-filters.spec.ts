@@ -84,7 +84,7 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await expect(pop.getByRole('group', { name: 'Статус брони' }).getByRole('button')).toHaveText([
     'Не подтверждена',
     'Подтверждена',
-    'Заселён',
+    'Проживает',
   ]);
   await expect(pop.getByText(/Брони без назначенного места/)).toHaveCount(0);
   // Escape — без применения
@@ -127,7 +127,7 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await sources.getByRole('button', { name: 'Booking.com', exact: true }).click();
   await pop
     .getByRole('group', { name: 'Статус брони' })
-    .getByRole('button', { name: 'Заселён', exact: true })
+    .getByRole('button', { name: 'Проживает', exact: true })
     .click();
   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
   expect(await codes(page)).toEqual(['F01', 'M01', 'R04']);
@@ -253,21 +253,24 @@ test('§38: вид «Компактный / Обычный / Подробный�
 }) => {
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
-  const view = main.getByLabel('Вид строк календаря');
-  await expect(view).toHaveValue('normal');
+  // переключатель (DS1b): кнопки с aria-pressed вместо выпадающего списка
+  const view = main.getByRole('group', { name: 'Вид строк календаря' });
+  const pick = (name: string) => view.getByRole('button', { name, exact: true });
+  // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
+  await expect(pick('Компактный')).toHaveAttribute('aria-pressed', 'true');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
-  const normal = await height();
-  await view.selectOption('compact');
   const compact = await height();
-  await view.selectOption('detailed');
+  await pick('Обычный').click();
+  const normal = await height();
+  await pick('Подробный').click();
   const detailed = await height();
   expect(compact).toBeLessThan(normal);
   expect(detailed).toBeGreaterThan(normal);
-  await view.selectOption('compact');
+  await pick('Обычный').click();
   await page.reload();
-  await expect(main.getByLabel('Вид строк календаря')).toHaveValue('compact');
-  expect(await height()).toBe(compact);
+  await expect(pick('Обычный')).toHaveAttribute('aria-pressed', 'true');
+  expect(await height()).toBe(normal);
 });
 
 test('§40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр', async ({

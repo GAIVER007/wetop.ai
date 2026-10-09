@@ -6,8 +6,6 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
-  // ссылку «Все филиалы» сняли с Главной при переделке её в экран владельца (03.10): раздел открываем
-  // по своему адресу, как это делают спеки салона
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
@@ -17,7 +15,9 @@ test('филиалы: создание, сохранение после reload �
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Все филиалы', exact: true })).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+  ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -56,7 +56,9 @@ test('организации: филиал создаётся прямо в ра
   await expect(
     main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
   ).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Все филиалы', exact: true })).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+  ).toBeVisible();
   await expect(main.getByTestId('platform-organizations')).not.toBeVisible();
   await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   await expect(main.getByTestId('platform-organizations')).toBeVisible();
@@ -95,7 +97,9 @@ test('переключатель филиалов сохраняет разде�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  // Филиалов два: после входа сервер не выбирает первый, человек выбирает сам (SCOPE-HARDENING)
+  await page.waitForURL('**/branches');
+  expect((await page.context().cookies()).find((c) => c.name === 'wetop_scope')).toBeUndefined();
   await page.goto('/chessboard');
   // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
   const sidebar = page.locator('.workspace-header');
@@ -109,7 +113,11 @@ test('переключатель филиалов сохраняет разде�
   await choices.getByLabel('Найти филиал').fill('Нет такого филиала');
   await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
   await choices.getByLabel('Найти филиал').fill('');
-  await expect(choices.getByText('Текущий филиал')).toBeVisible();
+  // Указателя ещё нет, и стойка филиал не угадывает (MV8, `9023217b`): в списке оба филиала и ни одного
+  // текущего; отметка «Текущий филиал» появляется только после выбора (проверка ниже, после перезагрузки)
+  await expect(choices.getByRole('button', { name: /Тестовый центральный филиал/ })).toBeVisible();
+  await expect(choices.getByRole('button', { name: /Филиал Север/ })).toBeVisible();
+  await expect(choices.getByText('Текущий филиал')).toHaveCount(0);
   await choices.getByRole('button', { name: /Филиал Север/ }).click();
   await expect(trigger).toContainText('Филиал Север');
   await expect(page).toHaveURL(/\/chessboard$/);
@@ -123,6 +131,7 @@ test('переключатель филиалов сохраняет разде�
     'aria-pressed',
     'true',
   );
+  await expect(choices.getByText('Текущий филиал')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(choices).not.toBeVisible();
   await expect(trigger).toBeFocused();

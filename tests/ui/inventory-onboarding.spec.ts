@@ -13,6 +13,7 @@ test('empty inventory can start a dorm category from the add menu', async ({ pag
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('radio', { name: /Койко-место/ })).toBeChecked();
   await dialog.getByLabel('Название категории').fill('Тестовая общая комната');
+  await dialog.getByLabel('Цена за койку в ночь, ₸').fill('6000');
   await dialog.getByRole('button', { name: 'Создать', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить комнату с койками', exact: true }).click();
   await page.getByLabel('Корпус', { exact: true }).fill('Тестовый корпус');

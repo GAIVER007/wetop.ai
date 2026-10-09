@@ -1,13 +1,18 @@
 import type { Db } from '@pms/database';
+import { parseBusinessVertical } from '@pms/domain';
 import type { BusinessVertical, RequestScope } from './request-context';
 
 /**
  * Scope запроса (Platform P2, К1; план `plans/platform-p2-request-context-2026-09-27.md` §4–§5, ADR-120).
  *
  * Указатель выбора приходит заголовком `X-Wetop-Scope: business=<uuid>;location=<uuid>` (стойка пересылает куку
- * `wetop_scope`). Это намерение человека, а не право: API проверяет его на каждом запросе. Любой отказ — чужой,
- * несуществующий или архивный Business или филиал, филиал без Business, битый указатель — тихо даёт ORGANIZATION:
- * устаревшая кука не должна ронять каждый экран, а права она не расширяет. Под RLS те же выборки ещё и режет база.
+ * `wetop_scope`). Это намерение человека, а не право: API проверяет его на каждом запросе. Любой отказ (чужой,
+ * несуществующий или архивный Business или филиал, филиал без Business, битый указатель) даёт здесь ORGANIZATION,
+ * и права указатель не расширяет. Под RLS те же выборки ещё и режет база.
+ *
+ * Отклонённый явный указатель на маршрутах с проверкой направления дальше отвечает 403 (`AuthorInterceptor`, MV1,
+ * fail-closed): в смешанной организации неверный выбор не должен молча открывать гостиницу. Устаревшую куку сбрасывает
+ * стойка: она видит, что `/auth/me` выбор не подтвердил, и ведёт через `/scope/resolve` (SCOPE-HARDENING, 06.10.2026).
  */
 export const SCOPE_HEADER = 'x-wetop-scope';
 
@@ -56,12 +61,18 @@ export async function resolveScope(
     where: { id: pointer.businessId, organizationId, status: 'ACTIVE' },
     select: { id: true, vertical: true },
   });
-  if (!business) return organization;
-  if (!pointer.locationId) return { scope: 'BUSINESS', businessId: business.id, vertical: business.vertical };
+  if (!business || !parseBusinessVertical(business.vertical)) return organization;
+  if (!pointer.locationId)
+    return { scope: 'BUSINESS', businessId: business.id, vertical: business.vertical };
   const location = await db.location.findFirst({
     where: { id: pointer.locationId, businessId: business.id, status: 'ACTIVE' },
     select: { id: true },
   });
   if (!location) return organization;
-  return { scope: 'LOCATION', businessId: business.id, locationId: location.id, vertical: business.vertical };
+  return {
+    scope: 'LOCATION',
+    businessId: business.id,
+    locationId: location.id,
+    vertical: business.vertical,
+  };
 }

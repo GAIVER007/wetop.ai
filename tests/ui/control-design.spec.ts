@@ -111,20 +111,21 @@ test('контроль: поиск журнала и переходы досту
   await request.post(`${API}/__test/control`, { data: { delayPath: '/audit', delayMs: 5000 } });
   const start = performance.now();
   await page.goto('/journal?q=TEST', { waitUntil: 'commit' });
+  await page.getByText('Фильтры журнала', { exact: true }).click({ timeout: 1500 });
   await expect(page.getByLabel('Поиск в журнале')).toBeVisible({ timeout: 1500 });
   console.log(`CONTROL_JOURNAL_CONTROLS_MS ${Math.round(performance.now() - start)}`);
   await expect(page.getByTestId('journal-loading')).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Контроль', exact: true })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Сотрудники и контроль', exact: true })).toBeVisible();
   await expect(page.getByTestId('journal-row')).toHaveCount(1);
   await page.getByRole('link', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(page).toHaveURL(/\/journal$/);
   await request.post(`${API}/__test/control`, { data: {} });
   await page
-    .getByRole('navigation', { name: 'Контроль', exact: true })
-    .getByRole('link', { name: 'Неисправности', exact: true })
+    .getByRole('navigation', { name: 'Сотрудники и контроль', exact: true })
+    .getByRole('link', { name: 'Сотрудники', exact: true })
     .click();
-  await expect(page).toHaveURL(/\/incidents$/);
-  await expect(page.getByTestId('incident-row')).toBeVisible();
+  await expect(page).toHaveURL(/\/team$/);
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toContainText('Сотрудники');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -135,7 +136,9 @@ for (const theme of ['light', 'dark'] as const) {
     for (const route of ['/incidents', '/journal']) {
       await page.goto(route);
       const main = page.getByRole('main');
-      await expect(main.getByRole('navigation', { name: 'Контроль', exact: true })).toBeVisible();
+      await expect(main.getByRole('navigation', {
+        name: route === '/journal' ? 'Сотрудники и контроль' : 'Контроль', exact: true,
+      })).toBeVisible();
       await expect(main.locator('[data-testid$="loading"]')).toHaveCount(0);
       for (const width of [390, 1440]) {
         await page.setViewportSize({ width, height: 900 });

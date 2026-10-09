@@ -750,3 +750,63 @@ describe('AuthService: учётные данные читаются служеб
     expect(audit.at(-1)!).toMatchObject({ action: 'user.password.changed', userId: 'u-1' });
   });
 });
+
+describe('MV2 registration vertical validation', () => {
+  const input = {
+    email: 'mv2@example.invalid',
+    name: 'Мария Тестова',
+    hotelName: 'Тестовый бизнес',
+    password: PASSWORD,
+    phoneCountry: 'KZ',
+    phone: '8 701 555 44 33',
+    privacyAccepted: true,
+  };
+  afterEach(() => vi.unstubAllEnvs());
+  it.each(['UNKNOWN', '', null, 42])(
+    'rejects explicit invalid vertical %s before writes',
+    async (vertical) => {
+      const { auth, organizations } = service();
+      const before = organizations.length;
+      await expect(auth.register({ ...input, vertical } as never, NOW)).rejects.toThrow(
+        /направление бизнеса/,
+      );
+      expect(organizations).toHaveLength(before);
+    },
+  );
+  it.each(['BEAUTY', 'FOOD_SERVICE'])('keeps %s pilot closed by default', async (vertical) => {
+    const { auth, organizations } = service();
+    const before = organizations.length;
+    await expect(auth.register({ ...input, vertical } as never, NOW)).rejects.toThrow(/пилот/);
+    expect(organizations).toHaveLength(before);
+  });
+});
+
+describe('MV2 pilot allowlist and first chain', () => {
+  const input = {
+    email: 'pilot@example.invalid',
+    name: 'Мария Тестова',
+    businessName: 'Пилот Тест',
+    password: PASSWORD,
+    phoneCountry: 'KZ',
+    phone: '8 701 555 44 33',
+    privacyAccepted: true,
+  };
+  afterEach(() => vi.unstubAllEnvs());
+  it.each(['BEAUTY', 'FOOD_SERVICE'])('persists %s without creating a hotel', async (vertical) => {
+    vi.stubEnv(`REGISTRATION_${vertical}_PILOT_EMAILS`, ' PILOT@example.invalid ');
+    const { auth, businesses, locations, properties } = service();
+    await auth.register({ ...input, vertical } as never, NOW);
+    expect(businesses).toHaveLength(1);
+    expect(businesses[0]).toMatchObject({ vertical, name: input.businessName });
+    expect(locations).toHaveLength(1);
+    expect(locations[0]!.businessId).toBe(businesses[0]!.id);
+    expect(properties).toHaveLength(0);
+  });
+  it('a Beauty allowlist cannot open Food signup', async () => {
+    vi.stubEnv('REGISTRATION_BEAUTY_PILOT_EMAILS', input.email);
+    const { auth } = service();
+    await expect(
+      auth.register({ ...input, vertical: 'FOOD_SERVICE' } as never, NOW),
+    ).rejects.toThrow(/пилот/);
+  });
+});

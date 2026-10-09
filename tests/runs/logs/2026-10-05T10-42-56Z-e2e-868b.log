@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 05.10.2026 15:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 383a90b (HEAD), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' '--workers=1' '--grep' 'первый экран без|визуальная иерархия'
+[WebServer] (node:14993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15106) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:15155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления (16.7s)
+(node:15248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс (1.3s)
+
+
+  1) tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('button', { name: 'Новая операция', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('button', { name: 'Новая операция', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Новая операция', exact: true })
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      90 | test('касса: первый экран без лишних кнопок, действия внутри управления', async ({ page }) => {
+      91 |   await page.goto('/finance');
+    > 92 |   await expect(page.getByRole('button', { name: 'Новая операция', exact: true })).toHaveCount(0);
+         |                                                                                   ^
+      93 |   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
+      94 |   await page.getByText('Отчёты и управление', { exact: true }).click();
+      95 |   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:92:83
+
+    Error Context: test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 229.078125
+    Received:   229.078125
+
+      103 |   const income = await page.getByTestId('cash-period-income').boundingBox();
+      104 |   const expense = await page.getByTestId('cash-period-expense').boundingBox();
+    > 105 |   expect(expense!.y).toBeGreaterThan(income!.y);
+          |                      ^
+      106 |   expect(Math.abs(expense!.x - income!.x)).toBeLessThanOrEqual(1);
+      107 |   await expect(page.getByTestId('finance-period')).toContainText('За период с');
+      108 |   expect(
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:105:22
+
+    Error Context: test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления
+    tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс
+
+# код выхода 1 · 26 с

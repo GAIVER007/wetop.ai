@@ -1,263 +1,266 @@
-.page.booking-create {
-  max-width: 960px;
-}
-.booking-create .booking-form {
-  padding: 16px;
-  gap: 8px;
-}
-.booking-create .form-section-title {
-  margin: 0;
-}
-.booking-create .form-section-title > span {
-  display: none;
-}
-.booking-create h2 {
-  font-size: 16px;
-  margin: 0;
-}
-.booking-create .field {
-  gap: 4px;
-  font-size: 13px;
-  min-width: 0;
-}
-.booking-create .input,
-.booking-create .select {
-  min-height: 40px;
-  padding-block: 8px;
-  font-size: 14px;
-}
-.booking-create .grid-auto {
-  gap: 8px;
-}
-.booking-create .placement-fields {
-  padding: 8px;
-  margin: 0;
-  border-radius: var(--radius-control);
-}
-.booking-create .placement-fields legend {
-  font-size: 12px;
-}
-.booking-create__dates {
-  display: grid;
-  gap: 8px;
-}
-.booking-create__date-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.booking-create__quick {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.booking-create__extras,
-.booking-create__review {
-  font-size: 13px;
-}
-.booking-create summary {
-  cursor: pointer;
-  padding: 8px 0;
-  color: var(--text-2);
-}
-.booking-create__extra-fields {
-  display: grid;
-  gap: 16px;
-  padding-top: 8px;
-}
-.booking-create .booking-footer {
-  margin: 0 -16px -16px;
-  padding: 16px;
-  gap: 16px;
-  background: var(--surface);
-  flex-wrap: wrap;
-}
-.booking-create .booking-footer__actions {
-  flex: 1;
-  justify-content: space-between;
-}
-.booking-create .booking-footer__digest {
-  flex-basis: 100%;
-  font-size: 12px;
-}
-.booking-drawer:has(.booking-create) {
-  width: min(760px, 100vw);
-}
-.booking-drawer .booking-create {
-  padding: 16px;
-}
-.booking-drawer .booking-create > .page__head {
-  display: none;
-}
-@media (min-width: 600px) {
-  .booking-create .placement-fields .grid-auto {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-  .booking-create .grid-auto {
-    gap: 8px;
-  }
-}
-@media (max-width: 599px) {
-  .booking-create .booking-footer__actions {
-    flex-wrap: wrap;
-  }
-  .booking-create .booking-footer__actions .btn {
-    width: 100%;
-  }
-  .booking-create__date-fields {
-    gap: 8px;
+@layer sections {
+  .page.booking-create {
+    max-width: 960px;
   }
   .booking-create .booking-form {
     padding: 16px;
+    gap: 8px;
+  }
+  .booking-create .form-section-title {
+    margin: 0;
+  }
+  .booking-create .form-section-title > span {
+    display: none;
+  }
+  .booking-create h2 {
+    font-size: 16px;
+    margin: 0;
+  }
+  .booking-create .field {
+    gap: 4px;
+    font-size: 13px;
+    min-width: 0;
+  }
+  .booking-create .input,
+  .booking-create .select {
+    min-height: 40px;
+    padding-block: 8px;
+    font-size: 14px;
+  }
+  .booking-create .grid-auto {
+    gap: 8px;
+  }
+  .booking-create .placement-fields {
+    padding: 8px;
+    margin: 0;
+    border-radius: var(--radius-control);
+  }
+  .booking-create .placement-fields legend {
+    font-size: 12px;
+  }
+  .booking-create__dates {
+    display: grid;
+    gap: 8px;
+  }
+  .booking-create__date-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .booking-create__quick {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .booking-create__extras,
+  .booking-create__review {
+    font-size: 13px;
+  }
+  .booking-create summary {
+    cursor: pointer;
+    padding: 8px 0;
+    color: var(--text-2);
+  }
+  .booking-create__extra-fields {
+    display: grid;
+    gap: 16px;
+    padding-top: 8px;
   }
   .booking-create .booking-footer {
     margin: 0 -16px -16px;
-    padding: 8px 16px;
+    padding: 16px;
+    gap: 16px;
+    background: var(--surface);
+    flex-wrap: wrap;
   }
-}
-
-.booking-create .booking-footer__actions {
-  flex-direction: row;
-  align-items: center;
-}
-.booking-create__price {
-  display: grid;
-  gap: 4px;
-  color: var(--text-2);
-}
-.booking-create__price strong {
-  font-size: 20px;
-  color: var(--text);
-}
-.booking-create .booking-footer__actions > .btn {
-  flex: 0 0 auto;
-}
-
-.booking-create fieldset {
-  min-width: 0;
-}
-.booking-create .grid-auto {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.booking-create .select,
-.booking-create .input,
-.booking-create .date-field {
-  min-width: 0;
-  max-width: 100%;
-}
-@media (max-width: 599px) {
-  .booking-create .grid-auto {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.booking-create .booking-footer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-.booking-create .booking-footer__actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-width: 0;
-  text-align: left;
-}
-.booking-drawer .booking-create .booking-footer {
-  bottom: 0;
-}
-@media (max-width: 599px) {
   .booking-create .booking-footer__actions {
+    flex: 1;
+    justify-content: space-between;
+  }
+  .booking-create .booking-footer__digest {
+    flex-basis: 100%;
+    font-size: 12px;
+  }
+  .booking-drawer .booking-create {
+    padding: 16px;
+  }
+  .booking-drawer .booking-create > .page__head {
+    display: none;
+  }
+  @media (min-width: 600px) {
+    .booking-create .placement-fields .grid-auto {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .booking-create .grid-auto {
+      gap: 8px;
+    }
+  }
+  @media (max-width: 599px) {
+    .booking-create .booking-footer__actions {
+      flex-wrap: wrap;
+    }
+    .booking-create .booking-footer__actions .btn {
+      width: 100%;
+    }
+    .booking-create__date-fields {
+      gap: 8px;
+    }
+    .booking-create .booking-form {
+      padding: 16px;
+    }
+    .booking-create .booking-footer {
+      margin: 0 -16px -16px;
+      padding: 8px 16px;
+    }
+  }
+  .booking-create .booking-footer__actions {
+    flex-direction: row;
+    align-items: center;
+  }
+  .booking-create__price {
+    display: grid;
+    gap: 4px;
+    color: var(--text-2);
+  }
+  .booking-create__price strong {
+    font-size: 20px;
+    color: var(--text);
+  }
+  .booking-create .booking-footer__actions > .btn {
+    flex: 0 0 auto;
+  }
+  .booking-create fieldset {
+    min-width: 0;
+  }
+  .booking-create .grid-auto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .booking-create .select,
+  .booking-create .input,
+  .booking-create .date-field {
+    min-width: 0;
+    max-width: 100%;
+  }
+  @media (max-width: 599px) {
+    .booking-create .grid-auto {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .booking-create .booking-footer {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-/* Compact placement rows: category and unit, then rate and guest counts. */
-.booking-create .placement-fields.is-single {
-  border: 0;
-  padding: 0;
-}
-.booking-create .booking-form {
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-}
-.booking-create__quick .btn {
-  min-height: 32px;
-  padding: 4px 8px;
-  font-size: 12px;
-}
-.booking-create__quick [aria-pressed='true'] {
-  color: var(--primary);
-  background: var(--primary-soft);
-  border-color: var(--primary);
-}
-.booking-create .placement-fields .grid-auto {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-.booking-create .placement-fields .grid-auto > :nth-child(1) {
-  grid-column: span 4;
-}
-.booking-create .placement-fields .grid-auto > :nth-child(2) {
-  grid-column: span 2;
-}
-.booking-create .placement-fields .grid-auto > :nth-child(3) {
-  grid-column: span 3;
-}
-.booking-create .placement-fields .grid-auto > :nth-child(4) {
-  grid-column: span 1;
-}
-.booking-create .placement-fields .grid-auto > :nth-child(5) {
-  grid-column: span 2;
-}
-.booking-create .booking-footer__digest {
-  color: var(--muted);
-  line-height: 1.5;
-}
-.booking-create .booking-footer {
-  border-radius: 0 0 var(--radius-control) var(--radius-control);
-}
-@media (max-width: 599px) {
-  .booking-create .placement-fields .grid-auto > :nth-child(-n + 3) {
-    grid-column: 1 / -1;
+  .booking-create .booking-footer__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+    text-align: left;
   }
-  .booking-create .placement-fields .grid-auto > :nth-child(n + 4) {
+  .booking-drawer .booking-create .booking-footer {
+    bottom: 0;
+  }
+  @media (max-width: 599px) {
+    .booking-create .booking-footer__actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  } /* Compact placement rows: category and unit, then rate and guest counts. */
+  .booking-create .placement-fields.is-single {
+    border: 0;
+    padding: 0;
+  }
+  .booking-create .booking-form {
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  .booking-create__quick .btn {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  .booking-create__quick [aria-pressed='true'] {
+    color: var(--primary);
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
+  .booking-create .placement-fields .grid-auto {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .booking-create .placement-fields .grid-auto > :nth-child(1) {
+    grid-column: span 4;
+  }
+  .booking-create .placement-fields .grid-auto > :nth-child(2) {
+    grid-column: span 2;
+  }
+  .booking-create .placement-fields .grid-auto > :nth-child(3) {
     grid-column: span 3;
   }
-}
-
-.booking-form [aria-invalid="true"] {
-  border-color: var(--danger);
-}
-.booking-form .field > small[role="alert"] {
-  color: var(--danger);
-  font-size: var(--text-sm);
-}
-
-/* Детализация цены по дням (образец Exely, 03.10): свёрнута, раскрывается по щелчку */
-.booking-create__nights {
-  margin: 0;
-}
-.booking-create__nights > summary {
-  cursor: pointer;
-  color: var(--primary);
-  font-size: var(--text-sm);
-  min-height: 24px;
-}
-.booking-create__nights-table {
-  margin-top: var(--space-2);
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-}
-.booking-create__nights-table th {
-  text-align: left;
-  font-weight: 400;
-  color: var(--muted);
-  padding: var(--space-1) var(--space-6) var(--space-1) 0;
-}
-.booking-create__nights-table td {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.booking-create__nights-sum {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
+  .booking-create .placement-fields .grid-auto > :nth-child(4) {
+    grid-column: span 1;
+  }
+  .booking-create .placement-fields .grid-auto > :nth-child(5) {
+    grid-column: span 2;
+  }
+  .booking-create .booking-footer__digest {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .booking-create .booking-footer {
+    border-radius: 0 0 var(--radius-control) var(--radius-control);
+  }
+  @media (max-width: 599px) {
+    .booking-create .placement-fields .grid-auto > :nth-child(-n + 3) {
+      grid-column: 1 / -1;
+    }
+    .booking-create .placement-fields .grid-auto > :nth-child(n + 4) {
+      grid-column: span 3;
+    }
+  }
+  .booking-form [aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+  .booking-form .field > small[role='alert'] {
+    color: var(--danger);
+    font-size: var(--text-sm);
+  } /* Детализация цены по дням (образец Exely, 03.10): свёрнута, раскрывается по щелчку */
+  .booking-create__nights {
+    margin: 0;
+  }
+  .booking-create__nights > summary {
+    cursor: pointer;
+    color: var(--primary);
+    font-size: var(--text-sm);
+    min-height: 24px;
+  }
+  .booking-create__nights-table {
+    margin-top: var(--space-2);
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .booking-create__nights-table th {
+    text-align: left;
+    font-weight: 400;
+    color: var(--muted);
+    padding: var(--space-1) var(--space-6) var(--space-1) 0;
+  }
+  .booking-create__nights-table td {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .booking-create__nights-sum {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+  } /* Keep focused fields clear of author-created sticky actions on phones. */
+  @media (max-width: 599px) {
+    .booking-create:focus-within .booking-footer {
+      position: static;
+    }
+    .booking-create input,
+    .booking-create select,
+    .booking-create textarea,
+    .booking-create .btn {
+      scroll-margin-block: 100px;
+    }
+  }
 }

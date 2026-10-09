@@ -13,6 +13,7 @@ const inBranch = <T>(locationId: string, fn: () => Promise<T>) =>
       role: 'OWNER',
       scope: 'LOCATION',
       businessId: 'synthetic-business',
+      vertical: 'HOSPITALITY',
       locationId,
     },
     fn,

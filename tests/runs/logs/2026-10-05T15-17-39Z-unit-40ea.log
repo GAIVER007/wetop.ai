@@ -1,0 +1,20 @@
+# Модульные (unit) · 05.10.2026 20:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4af4193 (codex/staff-owner-journal), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-17-39Z-unit-40ea.json' 'apps/api/src/accounts/invites.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/tasks/tasks.controller.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+[Nest] 53179  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (53 tests) 219ms
+[Nest] 53183  - 10/05/2026, 8:17:42 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 245ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 288ms
+
+ Test Files  3 passed (3)
+      Tests  69 passed (69)
+   Start at  08:17:40
+   Duration  2.70s (import 45%, tests 31%, transform 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-17-39Z-unit-40ea.json
+
+# код выхода 0 · 4 с

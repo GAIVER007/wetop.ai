@@ -1,10 +1,13 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
-import { DateInput } from '../../components/date-field';
+import { PeriodPicker } from '../../components/period-picker';
+import { Chip, ChipGroup } from '../../components/chip';
+import { Toolbar } from '../../components/toolbar';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { formatMoney } from '../../lib/money';
@@ -40,7 +43,6 @@ import {
   validDate,
   sourceNames,
   reservationStatuses,
-  reservationStatusWords,
 } from '../../lib/hotel-api';
 
 export default async function ReservationsPage({
@@ -48,6 +50,7 @@ export default async function ReservationsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   // Форма шлёт и пустые поля, и умолчания: адрес после «Показать» чистится одним переходом (R2, ADR-106)
   if (needsCleanup(sp)) redirect(cleanHref(sp));
@@ -173,196 +176,189 @@ export default async function ReservationsPage({
       }
     >
       <section className="reservations-controls" aria-label="Фильтры броней">
-        <nav className="directory-filters reservations-views" aria-label="Быстрые виды">
+        <ChipGroup as="nav" label="Быстрые виды" className="reservations-views">
           {Object.entries(reservationViews).map(([id, label]) => (
-            <Link
-              key={id}
-              href={href({ view: id, page: '1' })}
-              className={f.view === id ? 'is-active' : ''}
-              aria-current={f.view === id ? 'page' : undefined}
-            >
+            <Chip key={id} size="sm" href={href({ view: id, page: '1' })} selected={f.view === id}>
               {id === 'all' ? 'По периоду' : label}
-            </Link>
+            </Chip>
           ))}
-        </nav>
-        <form className="reservations-toolbar" method="get">
+        </ChipGroup>
+        <form method="get">
           {!periodView && <input type="hidden" name="view" value={f.view} />}
-          <div className="search-field">
-            <Icon name="search" />
-            <Input
-              name="q"
-              // key: при переходе по ссылке «Убрать поиск» React переиспользует поле, и defaultValue не
-              // обновился бы — поле показывало бы прежний запрос (CI 20.09)
-              key={`q-${q}`}
-              defaultValue={q}
-              placeholder="Гость, телефон или номер брони"
-              aria-label="Поиск броней"
-            />
-          </div>
-          {periodView && (
-            <DatesToggle defaultOpen={!isPreset || f.date !== 'stay'}>
-              <nav className="directory-filters reservations-presets" aria-label="Готовые периоды">
-                {periodPresets.map(([label, p]) => {
-                  const current = periodView && p.from === from && p.to === to;
-                  return (
-                    <Link
-                      key={label}
-                      href={href({ from: p.from, to: p.to, view: 'all', page: '1' })}
-                      className={current ? 'is-active' : ''}
-                      aria-current={current ? 'page' : undefined}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-
-              <Field inline label="С">
-                <DateInput
-                  key={`from-${from}`}
-                  name="from"
-                  defaultValue={from}
-                  aria-label="Период: с"
+          <Toolbar
+            label="Поиск и отбор броней"
+            className="reservations-toolbar"
+            search={
+              <div className="search-field">
+                <Icon name="search" />
+                <Input
+                  name="q"
+                  // key: при переходе по ссылке «Убрать поиск» React переиспользует поле, и defaultValue не
+                  // обновился бы — поле показывало бы прежний запрос (CI 20.09)
+                  key={`q-${q}`}
+                  defaultValue={q}
+                  placeholder="Гость, телефон или номер брони"
+                  aria-label="Поиск броней"
                 />
-              </Field>
-              <Field inline label="По">
-                <DateInput
-                  key={`to-${to}`}
-                  name="to"
-                  rangeFromName="from"
-                  defaultValue={to}
-                  aria-label="Период: по"
-                />
-              </Field>
-              <Field inline label="Дата относится к">
-                <Select name="date" key={`date-${f.date}`} defaultValue={f.date}>
-                  {Object.entries(dateBases).map(([id, label]) => (
-                    <option key={id} value={id}>
-                      {label}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-            </DatesToggle>
-          )}
-          <Field label="Статус" className="reservations-status-mobile">
-            <Select
-              name="status"
-              key={`status-${status}`}
-              defaultValue={status}
-              aria-label="Статус брони"
-            >
-              {Object.entries(reservationStatuses).map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                  {counts && (counts[id] ?? 0) > 0 ? ` (${counts[id]})` : ''}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <span className="reservations-break" aria-hidden="true" />
-          <FiltersToggle
-            active={[f.source, f.payment, f.allocation, f.category, f.sort].filter(Boolean).length}
-          >
-            <Select
-              name="source"
-              key={`source-${sourceValue}`}
-              defaultValue={sourceValue}
-              aria-label="Источник"
-            >
-              <option value="">Все источники</option>
-              <optgroup label="Каналы продаж">
-                <option value="OTA">Все каналы продаж</option>
-                {CHANNELS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Напрямую">
-                {Object.entries(sourceNames)
-                  .filter(([id]) => id !== 'OTA')
-                  .map(([id, label]) => (
-                    <option key={id} value={id}>
-                      {label}
-                    </option>
-                  ))}
-              </optgroup>
-              {sourceValue &&
-                sourceValue !== 'OTA' &&
-                !Object.hasOwn(sourceNames, sourceValue) &&
-                !CHANNELS.includes(sourceValue) && (
-                  <option value={sourceValue}>{sourceValue}</option>
+              </div>
+            }
+            filters={
+              <>
+                <Field label="Статус" className="reservations-status-mobile">
+                  <Select
+                    name="status"
+                    key={`status-${status}`}
+                    defaultValue={status}
+                    aria-label="Статус брони"
+                  >
+                    {Object.entries(reservationStatuses).map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                        {counts && (counts[id] ?? 0) > 0 ? ` (${counts[id]})` : ''}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <FiltersToggle
+                  active={
+                    [f.source, f.payment, f.allocation, f.category, f.sort].filter(Boolean).length
+                  }
+                >
+                  <Select
+                    name="source"
+                    key={`source-${sourceValue}`}
+                    defaultValue={sourceValue}
+                    aria-label="Источник"
+                  >
+                    <option value="">Все источники</option>
+                    <optgroup label="Каналы продаж">
+                      <option value="OTA">Все каналы продаж</option>
+                      {CHANNELS.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Напрямую">
+                      {Object.entries(sourceNames)
+                        .filter(([id]) => id !== 'OTA')
+                        .map(([id, label]) => (
+                          <option key={id} value={id}>
+                            {label}
+                          </option>
+                        ))}
+                    </optgroup>
+                    {sourceValue &&
+                      sourceValue !== 'OTA' &&
+                      !Object.hasOwn(sourceNames, sourceValue) &&
+                      !CHANNELS.includes(sourceValue) && (
+                        <option value={sourceValue}>{sourceValue}</option>
+                      )}
+                  </Select>
+                  <Select
+                    name="payment"
+                    key={`payment-${f.payment}`}
+                    defaultValue={f.payment}
+                    aria-label="Оплата"
+                  >
+                    {Object.entries(paymentFilters).map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    name="allocation"
+                    key={`allocation-${f.allocation}`}
+                    defaultValue={f.allocation}
+                    aria-label="Размещение"
+                  >
+                    {Object.entries(allocationFilters).map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    name="category"
+                    key={`category-${f.category}`}
+                    defaultValue={f.category}
+                    aria-label="Категория"
+                  >
+                    <option value="">Все категории</option>
+                    {categories.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                    {f.category && !categories.some((c) => c.code === f.category) && (
+                      <option value={f.category}>{f.category}</option>
+                    )}
+                  </Select>
+                  <Select
+                    name="sort"
+                    key={`sort-${f.sort}`}
+                    defaultValue={f.sort}
+                    aria-label="Сортировка"
+                  >
+                    {Object.entries(sortOptions).map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
+                </FiltersToggle>
+              </>
+            }
+            period={
+              periodView && (
+                <DatesToggle defaultOpen={!isPreset || f.date !== 'stay'}>
+                  {/* общий PeriodPicker (MV8.5 DS1c): применяет кнопка «Показать», адрес прежний */}
+                  <PeriodPicker
+                    from={from}
+                    to={to}
+                    fromName="from"
+                    toName="to"
+                    presetsClassName="reservations-presets"
+                    presets={periodPresets.map(([label, p]) => ({
+                      label,
+                      href: href({ from: p.from, to: p.to, view: 'all', page: '1' }),
+                      selected: periodView && p.from === from && p.to === to,
+                    }))}
+                  >
+                    <Field inline label="Дата относится к">
+                      <Select name="date" key={`date-${f.date}`} defaultValue={f.date}>
+                        {Object.entries(dateBases).map(([id, label]) => (
+                          <option key={id} value={id}>
+                            {label}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                  </PeriodPicker>
+                </DatesToggle>
+              )
+            }
+            actions={
+              <>
+                <Button tone="secondary">Показать</Button>
+                {/* H11: тот же отбор в Excel; файл уходит из системы, поэтому без имён и контактов гостей */}
+                {!error && (result?.total ?? 0) > 0 && (
+                  <a
+                    href={`/reservations/export?${new URLSearchParams(
+                      Object.fromEntries(Object.entries(apiQuery(f)).filter(([k]) => k !== 'page')),
+                    )}`}
+                    className="btn btn--secondary btn--sm reservations-export"
+                    data-testid="reservations-export"
+                    download
+                  >
+                    <Icon name="down" />
+                    Скачать CSV
+                  </a>
                 )}
-            </Select>
-            <Select
-              name="payment"
-              key={`payment-${f.payment}`}
-              defaultValue={f.payment}
-              aria-label="Оплата"
-            >
-              {Object.entries(paymentFilters).map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              name="allocation"
-              key={`allocation-${f.allocation}`}
-              defaultValue={f.allocation}
-              aria-label="Размещение"
-            >
-              {Object.entries(allocationFilters).map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              name="category"
-              key={`category-${f.category}`}
-              defaultValue={f.category}
-              aria-label="Категория"
-            >
-              <option value="">Все категории</option>
-              {categories.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-              {f.category && !categories.some((c) => c.code === f.category) && (
-                <option value={f.category}>{f.category}</option>
-              )}
-            </Select>
-            <Select
-              name="sort"
-              key={`sort-${f.sort}`}
-              defaultValue={f.sort}
-              aria-label="Сортировка"
-            >
-              {Object.entries(sortOptions).map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </FiltersToggle>
-          <Button tone="secondary">Показать</Button>
-          {/* H11: тот же отбор в Excel; файл уходит из системы, поэтому без имён и контактов гостей */}
-          {!error && (result?.total ?? 0) > 0 && (
-            <a
-              href={`/reservations/export?${new URLSearchParams(
-                Object.fromEntries(Object.entries(apiQuery(f)).filter(([k]) => k !== 'page')),
-              )}`}
-              className="btn btn--secondary btn--sm reservations-export"
-              data-testid="reservations-export"
-              download
-            >
-              <Icon name="down" />
-              Скачать CSV
-            </a>
-          )}
+              </>
+            }
+          />
         </form>
       </section>
       {error && (
@@ -487,10 +483,7 @@ export default async function ReservationsPage({
                           <FinanceLine row={r} />
                         </td>
                         <td>
-                          <StatusBadge
-                            status={r.status}
-                            label={reservationStatusWords[r.status] || r.status}
-                          />
+                          <StatusBadge kind="hospitality" value={r.status} />
                         </td>
                       </tr>
                     );

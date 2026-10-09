@@ -1,3 +1,4 @@
+import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
 import {
   Body,
@@ -21,6 +22,7 @@ import { Access } from '../auth/access.decorator';
  * нет, и формы стойки не спрашивают имя, контакты и документы. Стойка читает режим заранее, а не узнаёт отказом.
  */
 @Access('desk')
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('system')
 export class PiiStorageController {
   @Get('pii-storage')
@@ -30,6 +32,7 @@ export class PiiStorageController {
 }
 
 @Access('desk')
+@RequiresBusinessCapability('hospitality.reservations')
 @Controller('guests')
 export class GuestsController {
   constructor(@Inject(GuestsService) private readonly service: GuestsService) {}

@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 04.10.2026 20:39 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--grep' 'TimeOff'
+[WebServer] (node:1122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:1198) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:291:1 › TimeOff from employee drawer, server denial and timezone persisted (7.3s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:291:1 › TimeOff from employee drawer, server denial and timezone persisted
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('table')
+    Expected substring: "Тестовое обучение"
+    Received string:    "КогдаПричинаЗаписи в эти дниДействия"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('table') with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('table')
+        14 × locator resolved to <table class="tbl">…</table>
+           - unexpected value "КогдаПричинаЗаписи в эти дниДействия"
+
+
+      300 |   await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
+      301 |   await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
+    > 302 |   await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+          |                                          ^
+      303 |   await page.goto(`/calendar?date=${day}`);
+      304 |   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
+      305 |   const rejected = await book(page);
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:302:42
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:291:1 › TimeOff from employee drawer, server denial and timezone persisted
+
+# код выхода 1 · 14 с

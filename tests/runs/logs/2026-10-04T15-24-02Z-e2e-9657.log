@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 04.10.2026 20:24 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 37
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts'
+[WebServer] (node:96851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] node:internal/modules/run_main:107
+[WebServer]     triggerUncaughtException(
+[WebServer]     ^
+[WebServer]
+[WebServer] Error: Transform failed with 1 error:
+[WebServer] /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/fixture-api.ts:79:43: ERROR: Parameter decorators only work when experimental decorators are enabled
+[WebServer]     at failureErrorWithLog (/Users/urijzapojnov/wetop-mv1-20261004/node_modules/esbuild/lib/main.js:1752:15)
+[WebServer]     at /Users/urijzapojnov/wetop-mv1-20261004/node_modules/esbuild/lib/main.js:1019:50
+[WebServer]     at responseCallbacks.<computed> (/Users/urijzapojnov/wetop-mv1-20261004/node_modules/esbuild/lib/main.js:886:9)
+[WebServer]     at handleIncomingPacket (/Users/urijzapojnov/wetop-mv1-20261004/node_modules/esbuild/lib/main.js:941:12)
+[WebServer]     at Socket.readFromStdout (/Users/urijzapojnov/wetop-mv1-20261004/node_modules/esbuild/lib/main.js:864:7)
+[WebServer]     at Socket.emit (node:events:514:20)
+[WebServer]     at addChunk (node:internal/streams/readable:576:12)
+[WebServer]     at readableAddChunkPushByteMode (node:internal/streams/readable:527:3)
+[WebServer]     at Readable.push (node:internal/streams/readable:407:5)
+[WebServer]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23) {
+[WebServer]   name: 'TransformError'
+[WebServer] }
+[WebServer]
+[WebServer] Node.js v26.9.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 2 с

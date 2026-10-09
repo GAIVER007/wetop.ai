@@ -1,0 +1,228 @@
+@layer sections {
+  .food-workspace {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+  .food-toolbar,
+  .food-tabs,
+  .food-inline-actions,
+  .food-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .food-section-heading {
+    justify-content: space-between;
+  }
+  .food-section-heading h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+  .food-toolbar .field {
+    min-width: 0;
+  }
+  .food-summary {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .food-summary span {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    font-size: 13px;
+  }
+  .food-summary strong {
+    font-size: 18px;
+  }
+  .food-table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .food-table-card {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+    min-height: 156px;
+    padding: 16px;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .food-table-card:hover {
+    border-color: var(--primary);
+  }
+  .food-table-card strong {
+    font-size: 16px;
+  }
+  .food-table-card small {
+    color: var(--muted);
+  }
+  .food-table-card[data-status='SEATED'] {
+    border-left: 3px solid var(--primary);
+  }
+  .food-table-card .badge {
+    margin-top: auto;
+  }
+  .food-unassigned {
+    display: grid;
+    gap: 8px;
+  }
+  .food-reservation-card {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .food-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: 16px;
+  }
+  .food-catalog-list {
+    padding: 0;
+    list-style: none;
+    margin-bottom: 0;
+  }
+  .food-catalog-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .food-catalog-list li > div {
+    display: grid;
+    gap: 4px;
+    flex: 1;
+  }
+  .food-catalog-list span {
+    font-size: 13px;
+  }
+  .food-form,
+  .food-detail {
+    display: grid;
+    gap: 16px;
+  }
+  .food-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .food-form .field,
+  .food-form-row .field {
+    min-width: 0;
+  }
+  .food-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 14px;
+  }
+  .food-detail dl {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+    margin: 0;
+  }
+  .food-detail dt {
+    color: var(--muted);
+  }
+  .food-detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .food-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .food-mobile-reservations {
+    display: none;
+  }
+  .food-drawer {
+    max-width: 520px;
+  }
+  .food-drawer .overlay-content {
+    padding-bottom: 32px;
+  }
+  @media (max-width: 600px) {
+    .food-workspace {
+      gap: 16px;
+    }
+    .food-toolbar {
+      gap: 8px;
+    }
+    .food-toolbar .field {
+      flex: 1 1 120px;
+    }
+    .food-toolbar input,
+    .food-toolbar select {
+      width: 100%;
+      max-width: 100%;
+    }
+    .food-summary {
+      gap: 16px;
+    }
+    .food-summary span {
+      font-size: 12px;
+      gap: 4px;
+    }
+    .food-summary strong {
+      font-size: 16px;
+    }
+    .food-table-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .food-table-card {
+      min-height: 156px;
+      padding: 16px;
+      overflow-wrap: anywhere;
+    }
+    .food-desktop-reservations {
+      display: none;
+    }
+    .food-mobile-reservations {
+      display: grid;
+      gap: 16px;
+    }
+    .food-drawer {
+      width: 100%;
+      max-width: 100%;
+    }
+    .food-section-heading {
+      align-items: flex-start;
+    }
+    .food-inline-actions {
+      gap: 8px;
+    }
+  }
+  .food-drawer.ui-overlay {
+    background: var(--surface-solid);
+  }
+  .food-detail dt {
+    color: var(--text-2);
+  }
+  .food-workspace > section > h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}

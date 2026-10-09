@@ -1,0 +1,172 @@
+# Модульные (unit) · 03.10.2026 16:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-35-31Z-unit-236d.json' 'packages/domain/src/accounts/members.test.ts' 'apps/api/src/accounts/members.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+ ❯ |unit| packages/domain/src/accounts/members.test.ts (5 tests | 5 failed) 12ms
+   ❯ parseMemberDetails (3)
+     × телефон приводится к +E.164, должность чистится от лишних пробелов 8ms
+     × пустое поле стирает значение; поля нет — тоже пусто 1ms
+     × не телефон или слишком длинная должность — отказ словами 0ms
+   ❯ canEditMemberDetails (2)
+     × как отключение: владелец правит управляющих и администраторов, управляющий администраторов 0ms
+     × свои контакты правит тот, кому открыт раздел; администратор раздела не видит 0ms
+ ❯ |unit| apps/api/src/accounts/members.controller.test.ts (28 tests | 6 failed) 715ms
+   ✓ приглашение с ролью (7)
+     ✓ владелец зовёт управляющего: роль в приглашении, в ответе и в письме 119ms
+     ✓ без роли — администратор, как принимались приглашения до ADR-107 3ms
+     ✓ владельца приглашением не назначают; непонятная роль — 400, приглашения нет 10ms
+     ✓ управляющий зовёт администратора, управляющего — нет 22ms
+     ✓ администратор не приглашает и списка не видит 12ms
+     ✓ управляющий видит все ожидающие приглашения, но отозвать может только приглашение администратора 5ms
+     ✓ принятое приглашение управляющего даёт роль управляющего 2ms
+   ✓ сотрудники организации (4)
+     ✓ владелец видит людей своей организации с ролями; чужих — нет 1ms
+     ✓ управляющему: отключить можно только администраторов, роль не меняет никому 2ms
+     ✓ администратор список сотрудников не видит 1ms
+     ✓ без сессии — 401 2ms
+   ✓ отключить сотрудника (3)
+     ✓ владелец отключает управляющего: членства нет, в журнал — кто и кого 1ms
+     ✓ управляющий отключает администратора, но не управляющего и не владельца 3ms
+     ✓ себя не отключить; администратор не отключает никого; чужого и несуществующего нет 2ms
+   ✓ сменить роль (3)
+     ✓ владелец делает администратора управляющим и обратно; в журнал — было и стало 2ms
+     ✓ владельца так не назначить и не снять; себе — нельзя; непонятная роль — 400 3ms
+     ✓ управляющий роль не меняет 1ms
+   ✓ сессия действия проверяется полностью (3)
+     ✓ приостановленная организация — 401 2ms
+     ✓ заблокированный человек — 401 1ms
+     ✓ отключённый со старой сессией — 401, а не «администратор» 1ms
+   ✓ отключение и смена роли — по роли в момент записи (2)
+     ✓ роль сменилась между проверкой и записью: управляющий не удаляет нового управляющего 1ms
+     ✓ повторное «Отключить» того же человека — 404, а не сбой 1ms
+   ❯ телефон и должность сотрудника (6)
+     × в списке: телефон и должность (пусто — null) и кому их можно править 5ms
+     × владелец записывает администратору телефон и должность; в журнал — должность, телефон только отметкой 0ms
+     × не телефон — 400 словами, ничего не записано 0ms
+     × управляющий правит себя и администраторов, но не владельца; администратор — никого; чужой — 404 0ms
+     × роль сменилась между проверкой и записью: управляющий не правит нового управляющего 0ms
+     × без сессии — 401 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 686ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 680ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > в списке: телефон и должность (пусто — null) и кому их можно править
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > владелец записывает администратору телефон и должность; в журнал — должность, телефон только отметкой
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > не телефон — 400 словами, ничего не записано
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > управляющий правит себя и администраторов, но не владельца; администратор — никого; чужой — 404
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > роль сменилась между проверкой и записью: управляющий не правит нового управляющего
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > телефон и должность сотрудника > без сессии — 401
+TypeError: Cannot read properties of undefined (reading 'clear')
+ ❯ apps/api/src/accounts/members.controller.test.ts:380:18
+    378|
+    379|   beforeEach(() => {
+    380|     repo.details.clear();
+       |                  ^
+    381|     repo.detailChanges.length = 0;
+    382|     repo.roleOverride.clear();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(231) } to deeply equal { 'GET /branches': 'desk', …(232) }
+
+- Expected
++ Received
+
+@@ -117,11 +117,10 @@
+    "GET /w/widget.js": "public",
+    "GET /wizard/quota": "public",
+    "GET /wizard/status": "public",
+    "PATCH /analytics/sites/:id": "settings",
+    "PATCH /auth/members/:userId": "owner",
+-   "PATCH /auth/members/:userId/details": "staff",
+    "PATCH /finance/cash/categories/:id": "settings",
+    "PATCH /guests/:id": "desk",
+    "PATCH /hotel/services/:code": "settings",
+    "PATCH /hotel/settings": "settings",
+    "PATCH /inventory/categories/:code": "property",
+
+ ❯ apps/api/src/auth/route-access.test.ts:326:20
+    324|       .map(([key]) => key);
+    325|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    326|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    327|   });
+    328|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/members.test.ts > parseMemberDetails > телефон приводится к +E.164, должность чистится от лишних пробелов
+TypeError: parseMemberDetails is not a function
+ ❯ packages/domain/src/accounts/members.test.ts:13:7
+     11|   it('телефон приводится к +E.164, должность чистится от лишних пробел…
+     12|     expect(
+     13|       parseMemberDetails({ phone: '<телефон>', position: '  Ст…
+       |       ^
+     14|     ).toEqual({ ok: true, phone: '<телефон>', position: 'Старший ад…
+     15|     expect(parseMemberDetails({ phone: '+998 90 123 45 67', position: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/members.test.ts > parseMemberDetails > пустое поле стирает значение; поля нет — тоже пусто
+TypeError: parseMemberDetails is not a function
+ ❯ packages/domain/src/accounts/members.test.ts:23:12
+     21|
+     22|   it('пустое поле стирает значение; поля нет — тоже пусто', () => {
+     23|     expect(parseMemberDetails({ phone: '  ', position: '' })).toEqual({
+       |            ^
+     24|       ok: true,
+     25|       phone: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/members.test.ts > parseMemberDetails > не телефон или слишком длинная должность — отказ словами
+TypeError: parseMemberDetails is not a function
+ ❯ packages/domain/src/accounts/members.test.ts:32:12
+     30|
+     31|   it('не телефон или слишком длинная должность — отказ словами', () =>…
+     32|     expect(parseMemberDetails({ phone: '12-34', position: '' })).toEqu…
+       |            ^
+     33|       ok: false,
+     34|       message: MEMBER_PHONE_MESSAGE,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/members.test.ts > canEditMemberDetails > как отключение: владелец правит управляющих и администраторов, управляющий администраторов
+TypeError: canEditMemberDetails is not a function
+ ❯ packages/domain/src/accounts/members.test.ts:50:12
+     48| describe('canEditMemberDetails', () => {
+     49|   it('как отключение: владелец правит управляющих и администраторов, у…
+     50|     expect(canEditMemberDetails('OWNER', 'MANAGER', false)).toBe(true);
+       |            ^
+     51|     expect(canEditMemberDetails('OWNER', 'STAFF', false)).toBe(true);
+     52|     expect(canEditMemberDetails('MANAGER', 'STAFF', false)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/members.test.ts > canEditMemberDetails > свои контакты правит тот, кому открыт раздел; администратор раздела не видит
+TypeError: canEditMemberDetails is not a function
+ ❯ packages/domain/src/accounts/members.test.ts:58:12
+     56|
+     57|   it('свои контакты правит тот, кому открыт раздел; администратор разд…
+     58|     expect(canEditMemberDetails('OWNER', 'OWNER', true)).toBe(true);
+       |            ^
+     59|     expect(canEditMemberDetails('MANAGER', 'MANAGER', true)).toBe(true…
+     60|     expect(canEditMemberDetails('STAFF', 'STAFF', true)).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  12 failed | 23 passed (35)
+   Start at  04:35:38
+   Duration  10.46s (transform 54%, import 35%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-35-31Z-unit-236d.json
+
+# код выхода 1 · 20 с

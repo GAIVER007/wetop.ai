@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 import { expect, test, type Page, type Route } from '@playwright/test';
 
@@ -151,12 +152,13 @@ test('«Получить доступ» при открытой регистра
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+  await expect(dialog).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(page).toHaveURL(`${SITE_ORIGIN}/`); // не раздел «Как начать»
   await page.waitForTimeout(300); // окно появляется за 180 мс
   await page.screenshot({ path: 'test-results/site-auth-2-register.png' });
 
   await dialog.getByLabel('Имя').fill('Дана Тестова');
-  await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
   // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
   await dialog.getByLabel('Код страны').selectOption('KZ');
   await dialog.getByLabel('Телефон').fill('701 555 44 33');
@@ -175,11 +177,12 @@ test('«Получить доступ» при открытой регистра
 
   await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   await expect(dialog).toContainText('dana@example.invalid');
-  await expect(dialog).toContainText('настройка гостиницы');
+  await expect(dialog).toContainText('настройка бизнеса');
   expect(calls.find((c) => c.path === 'register')?.body).toEqual({
     email: 'dana@example.invalid',
     name: 'Дана Тестова',
-    hotelName: 'Хостел «Тест»',
+    businessName: 'Тестовый бизнес',
+    vertical: 'HOSPITALITY',
     password: 'parol-dlya-testa',
     phoneCountry: 'KZ',
     phone: '701 555 44 33',
@@ -236,7 +239,7 @@ test('на телефоне окно открывается из меню и н�
 /** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
 test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
-  const report = 'reports/registration-v2-2026-09-29';
+  const report = 'reports/mv2-registration-2026-10-04/screenshots';
   mkdirSync(report, { recursive: true });
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
@@ -246,10 +249,18 @@ test('снимки окна регистрации: светлая и тёмна
       const dialog = page.getByRole('dialog');
       await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
       await dialog.getByLabel('Имя').fill('Дана Тестова');
-      await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+      await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
       await dialog.getByLabel('Код страны').selectOption('KZ');
       await dialog.getByLabel('Телефон').fill('701 555 44 33');
       await page.waitForTimeout(300);
+      const axe = await new AxeBuilder({ page }).include('.auth-dialog').analyze();
+      expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+      const radio = page.locator('input[name="vertical"][value="HOSPITALITY"]');
+      await radio.focus();
+      await page.keyboard.press('ArrowDown');
+      await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
+      await page.reload();
+      await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
       await page.screenshot({
         path: `${report}/site-register-${theme}-${width}.png`,
         caret: 'initial',
@@ -280,3 +291,31 @@ test('снимки окна регистрации: светлая и тёмна
     caret: 'initial',
   });
 });
+
+for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+  test(`MV2 selector preselects ${vertical} without granting pilot access`, async ({ page }) => {
+    const calls = await mockDesk(page, {
+      options: () => ({ status: 200, body: { registrationEnabled: true } }),
+      register: () => ({
+        status: 403,
+        body: { message: 'Направление пока доступно только участникам пилота' },
+      }),
+    });
+    await page.goto(`/?vertical=${vertical}#register`);
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
+    await expect(dialog.getByText('Подключение по приглашению', { exact: true })).toBeVisible();
+    await dialog.getByLabel('Имя', { exact: true }).fill('Мария Тестова');
+    await dialog.getByLabel('Название бизнеса').fill('Тестовый пилот');
+    await dialog.getByLabel('Почта', { exact: true }).fill('pilot@example.invalid');
+    await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password-2026');
+    await dialog.getByLabel('Телефон').fill('7015554433');
+    await dialog.getByRole('checkbox').check();
+    await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+    await expect(dialog.getByRole('alert')).toContainText('только участникам пилота');
+    expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
+      vertical,
+      businessName: 'Тестовый пилот',
+    });
+  });
+}

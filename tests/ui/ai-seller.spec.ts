@@ -290,10 +290,9 @@ test('«Знания»: документы, загрузка и данные о�
     'href',
     '/hotel-settings',
   );
-  await expect(page.getByRole('link', { name: 'Изменить цены в «Тарифах»' })).toHaveAttribute(
-    'href',
-    '/rates',
-  );
+  await expect(
+    page.getByRole('link', { name: 'Изменить цены в «Категориях номеров»' }),
+  ).toHaveAttribute('href', '/rooms/categories');
 });
 
 test('«Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ', async ({ page }) => {

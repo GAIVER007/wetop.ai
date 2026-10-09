@@ -6,6 +6,9 @@ import { ErrorState } from '../../components/error-state';
 import { ToastProvider, ToastRegion, useToast } from '../../components/toast';
 import { Tooltip } from '../../components/tooltip';
 import { Button } from '../../components/ui';
+import { Chip, ChipGroup } from '../../components/chip';
+import { Segmented } from '../../components/segmented';
+import { DateBar } from '../../components/date-bar';
 
 /** Живые примеры компонентов с состоянием: окно, уведомление, меню, подсказка. */
 export function ConfirmDemo() {
@@ -164,5 +167,115 @@ export function ErrorDemo({ digest }: { digest: string }) {
     <div data-attempt={attempt}>
       <ErrorState error={error} retry={() => setAttempt((n) => n + 1)} />
     </div>
+  );
+}
+
+/**
+ * Живой переключатель тем витрины: светлая, тёмная, с повышенной контрастностью.
+ * По умолчанию показывает все темы.
+ */
+export function ThemeSwitcher({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'all' | 'light' | 'dark' | 'contrast'>('all');
+  return (
+    <div>
+      <div className="kit-theme-bar" role="toolbar" aria-label="Переключение тем витрины">
+        <span className="kit-theme-bar__label">Режим просмотра:</span>
+        <div className="kit-theme-bar__seg">
+          <button
+            type="button"
+            aria-pressed={theme === 'all'}
+            className={`btn btn--sm ${theme === 'all' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('all')}
+          >
+            Все темы
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'light'}
+            className={`btn btn--sm ${theme === 'light' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('light')}
+          >
+            Только светлая
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'dark'}
+            className={`btn btn--sm ${theme === 'dark' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('dark')}
+          >
+            Только тёмная
+          </button>
+          <button
+            type="button"
+            aria-pressed={theme === 'contrast'}
+            className={`btn btn--sm ${theme === 'contrast' ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setTheme('contrast')}
+          >
+            Повышенная контрастность
+          </button>
+        </div>
+      </div>
+      <div className={`kit-themes ${theme !== 'all' ? `kit-themes--filter-${theme}` : ''}`}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Переключатель с живым выбором: стрелки, Home, End (DS1b) */
+export function SegmentedDemo({ label, disabled }: { label: string; disabled?: boolean }) {
+  const [view, setView] = useState<'compact' | 'normal' | 'detailed'>('normal');
+  return (
+    <Segmented
+      label={label}
+      value={view}
+      onChange={setView}
+      disabled={disabled}
+      options={[
+        { value: 'compact', label: 'Компактный' },
+        { value: 'normal', label: 'Обычный' },
+        { value: 'detailed', label: 'Подробный' },
+      ]}
+    />
+  );
+}
+
+/** Чипы с живым выбором: кнопки с aria-pressed (DS1b) */
+export function ChipDemo({ label }: { label: string }) {
+  const [on, setOn] = useState<string[]>(['arrivals']);
+  const toggle = (id: string) =>
+    setOn((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  return (
+    <ChipGroup label={label}>
+      <Chip selected={on.includes('arrivals')} count={3} onClick={() => toggle('arrivals')}>
+        Заезды сегодня
+      </Chip>
+      <Chip selected={on.includes('debt')} count={12} onClick={() => toggle('debt')}>
+        С долгом
+      </Chip>
+      <Chip selected={on.includes('rooms')} onClick={() => toggle('rooms')}>
+        Номера
+      </Chip>
+    </ChipGroup>
+  );
+}
+
+/** День для страницы компонентов: тот же `DateBar`, дата меняется на месте, без адреса */
+export function DateBarDemo({ withToday }: { withToday?: boolean }) {
+  const start = '2026-10-12';
+  const [date, setDate] = useState(start);
+  const shift = (n: number) => {
+    const at = new Date(`${date}T12:00:00Z`);
+    at.setUTCDate(at.getUTCDate() + n);
+    return at.toISOString().slice(0, 10);
+  };
+  return (
+    <DateBar
+      date={date}
+      onDateChange={setDate}
+      onPrevious={() => setDate(shift(-1))}
+      onNext={() => setDate(shift(1))}
+      onToday={withToday ? () => setDate(start) : undefined}
+    />
   );
 }

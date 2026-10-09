@@ -1,0 +1,16 @@
+# Модульные (unit) · 05.10.2026 16:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 09ddbd9 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-00-09Z-unit-1bc8.json' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 35ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  04:00:10
+   Duration  191ms (transform 45%, tests 37%, import 16%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T11-00-09Z-unit-1bc8.json
+
+# код выхода 0 · 1 с

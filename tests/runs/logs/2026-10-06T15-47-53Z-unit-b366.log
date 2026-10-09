@@ -1,0 +1,37 @@
+# Модульные (unit) · 06.10.2026 20:47 Алматы · vm
+# коммит c6044ba (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T15-47-53Z-unit-b366.json' 'apps/web/src/app/today/page.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/page.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/page.test.ts [ apps/web/src/app/today/page.test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you use tsconfig.json, make sure to not set jsx to preserve.
+  Plugin: vite:import-analysis
+  File: /home/user/wetop.ai/apps/web/src/app/today/page.tsx:45:9
+  29 |          <Suspense fallback={<div className="owner-load owner-surface">
+  30 |                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+  31 |              </div>}>
+     |                      ^
+  32 |            <OwnerLoad date={today} />
+  33 |          </Suspense>
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:31147:39
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:31144:14
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:28047:10
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:47:54
+   Duration  309ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T15-47-53Z-unit-b366.json
+
+# код выхода 1 · 1 с

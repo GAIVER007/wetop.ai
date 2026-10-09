@@ -7,6 +7,7 @@ import type {
   AgentScopeRow,
   AnalyticsRepository,
   RatePlanOption,
+  ServingChain,
   SiteRecord,
   SiteReservationRow,
   SiteStatus,
@@ -127,7 +128,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async site(id: string): Promise<SiteRecord | null> {
     return this.sitesById.get(id) ?? null;
   }
-  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
+  async bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]> {
+    const found: SiteRecord[] = [];
     for (const [siteId, org] of this.siteOrganizations) {
       const site = this.sitesById.get(siteId);
       if (
@@ -137,7 +139,25 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
         site.bookingEnabled &&
         site.bookingRatePlan
       )
-        return site;
+        found.push(site);
+    }
+    return found.slice(0, 2);
+  }
+  /** Цепочки объектов, заданные тестом; без записи: действующая цепочка организации сайта этого объекта */
+  chains = new Map<string, ServingChain | null>();
+  async servingChain(propertyId: string): Promise<ServingChain | null> {
+    if (this.chains.has(propertyId)) return this.chains.get(propertyId) ?? null;
+    for (const site of this.sitesById.values()) {
+      if (site.propertyId !== propertyId) continue;
+      const org = site.organizationId ?? this.siteOrganizations.get(site.id) ?? null;
+      if (!org) return null;
+      return {
+        propertyOrganizationId: org,
+        locationStatus: 'ACTIVE',
+        businessStatus: 'ACTIVE',
+        vertical: 'HOSPITALITY',
+        businessOrganizationId: org,
+      };
     }
     return null;
   }
@@ -148,11 +168,11 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   }
   async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
     const scope = await this.agentScope(agentId);
-    if (!scope?.propertyId) return null;
-    for (const site of this.sitesById.values()) {
-      if (site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
-        return { ...site, organizationId: scope.organizationId };
-    }
+    if (!scope?.propertyId || !scope.bookingTrackedSiteId) return null;
+    // Q-275: только канонический сайт брони филиала, без перебора соседних
+    const site = this.sitesById.get(scope.bookingTrackedSiteId);
+    if (site && site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
+      return { ...site, organizationId: scope.organizationId };
     return null;
   }
   async hostsForAgent(agentId: string): Promise<string[] | null> {
@@ -210,7 +230,7 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     },
   ): Promise<SiteRecord | null> {
     const s = this.sitesById.get(id);
-    if (!s) return null;
+    if (!s || s.managed) return null;
     const { bookingRatePlanId, ...rest } = patch;
     const next: SiteRecord = { ...s, ...rest };
     if (bookingRatePlanId !== undefined) {
@@ -221,7 +241,13 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     return next;
   }
   async deleteSite(id: string): Promise<boolean> {
+    if (this.sitesById.get(id)?.managed) return false;
     return this.sitesById.delete(id);
+  }
+  /** MKT7: отметить сайт как сайт счётчика управляемого сайта WETOP (в базе это связь `marketing_sites.tracked_site_id`) */
+  markManaged(id: string): void {
+    const s = this.sitesById.get(id);
+    if (s) this.sitesById.set(id, { ...s, managed: true });
   }
   async record(hits: StoredHit[]): Promise<void> {
     this.recorded.push(...hits);

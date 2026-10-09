@@ -25,6 +25,7 @@ import {
   organizationStatusLine,
 } from '../../lib/platform';
 import { ExtensionForm, StatusForm } from './forms';
+import { SiteBuilderLicense } from './site-builder';
 import { DataConnectionPanel } from './data-connection';
 import { hotelApi } from '../../lib/hotel-api';
 import { unstable_rethrow } from 'next/navigation';
@@ -195,6 +196,35 @@ function OrganizationCard({ organization: o }: { organization: PlatformOrganizat
         organizationName={o.name}
         initial={extensionFormDefaults(o.aiSeller)}
       />
+      <SectionTitle>Конструктор сайта</SectionTitle>
+      <p className="settings-note">
+        Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и
+        публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать»
+        пустой срок значит бессрочно.
+      </p>
+      <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
+        <SiteBuilderLicenses organizationId={o.id} />
+      </Suspense>
     </Panel>
+  );
+}
+
+/** MKT9.2: гостиничные филиалы организации с лицензией конструктора сайта */
+async function SiteBuilderLicenses({ organizationId }: { organizationId: string }) {
+  const loaded = await platformApi.siteBuilder(organizationId).then(
+    (value) => ({ ok: true as const, value }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
+  );
+  if (!loaded.ok) return <LoadError testId="platform-site-builder-load-error" {...loadErrorProps(loaded.error)} />;
+  if (loaded.value.items.length === 0) return <p className="muted">У организации нет гостиничных филиалов.</p>;
+  return (
+    <Stack data-testid="platform-site-builder">
+      {loaded.value.items.map((l) => (
+        <SiteBuilderLicense key={l.id} organizationId={organizationId} location={l} />
+      ))}
+    </Stack>
   );
 }

@@ -29,7 +29,7 @@ export type Dictionary = {
     register: string;
   };
   hero: {
-    /** Плашка над заголовком: регистрация открыта (ADR-098). */
+    /** Плашка над заголовком: самостоятельная регистрация открыта (ADR-147). */
     status: string;
     /** Заголовок первого экрана; `titleAccent` идёт второй строкой фирменным цветом. */
     title: string;
@@ -37,7 +37,7 @@ export type Dictionary = {
     lead: string;
     /** Вторая кнопка первого экрана: к блоку «Возможности». */
     secondary: string;
-    /** Строка под кнопками первого экрана: срок пробного периода (ADR-098). */
+    /** Строка под кнопками первого экрана: следующий шаг регистрации. */
     note: string;
     /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
     map: {
@@ -246,6 +246,7 @@ export type Dictionary = {
     register: {
       title: string;
       lead: string;
+      pilotLead: string;
       submit: string;
       pending: string;
       terms: string;

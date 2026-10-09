@@ -1,9 +1,13 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
-import { cx } from '../../components/ui';
+import { Segmented, type SegmentOption } from '../../components/segmented';
 
 const KEY = 'wetop.reservations.density';
 type Density = 'normal' | 'compact';
+const DENSITIES: ReadonlyArray<SegmentOption<Density>> = [
+  { value: 'normal', label: 'Обычно' },
+  { value: 'compact', label: 'Компактно' },
+];
 
 /**
  * Плотность строк списка (ТЗ «Брони v2» §35): «Обычно» и «Компактно», выбор хранится в браузере.
@@ -40,24 +44,14 @@ export function DensityScope({
       <div className="reservations-meta-row">
         {meta}
         {showControl && (
-          <div className="seg reservations-density" role="group" aria-label="Плотность строк">
-            {(
-              [
-                ['normal', 'Обычно'],
-                ['compact', 'Компактно'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                className={cx(density === value && 'is-on')}
-                aria-pressed={density === value}
-                onClick={() => pick(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            label="Плотность строк"
+            size="sm"
+            className="reservations-density"
+            value={density}
+            options={DENSITIES}
+            onChange={pick}
+          />
         )}
       </div>
       {children}

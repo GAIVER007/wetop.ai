@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 06.10.2026 19:15 Алматы · vm
+# коммит 4ce9e90 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.booking-widget.config.ts' '--workers=1'
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/booking-widget-langs.spec.ts:78:1 › по умолчанию русский; выбранный язык отмечен (301ms)
+  ✓   2 tests/ui/booking-widget-langs.spec.ts:86:1 › data-lang="en": английский с первого показа (279ms)
+  ✓   3 tests/ui/booking-widget-langs.spec.ts:94:1 › гость переключает язык: даты и гости остаются, бронь уходит с языком, ответ на языке гостя (523ms)
+  ✓   4 tests/ui/booking-widget-langs.spec.ts:119:1 › казахский: подписи формы и подсказка о письме подтверждения (274ms)
+  ✓   5 tests/ui/booking-widget-turnstile.spec.ts:131:1 › с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book (422ms)
+  ✓   6 tests/ui/booking-widget-turnstile.spec.ts:158:1 › токен одноразовый: после отказа проверка сбрасывается, кнопка ждёт нового токена (450ms)
+  ✓   7 tests/ui/booking-widget-turnstile.spec.ts:186:1 › токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки (324ms)
+  ✓   8 tests/ui/booking-widget-turnstile.spec.ts:200:1 › без публичного ключа форма как раньше: кнопка доступна, Cloudflare не грузится, токена в запросе нет (366ms)
+  ✓   9 tests/ui/booking-widget-turnstile.spec.ts:215:1 › скрипт Cloudflare не загрузился (блокировщик, сеть): гость видит понятный текст, брони не отправить (269ms)
+  ✓  10 tests/ui/booking-widget-turnstile.spec.ts:229:1 › ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом (424ms)
+  ✘  11 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (30.0s)
+  ✓  12 tests/ui/booking-widget-turnstile.spec.ts:267:1 › ключ создания: форму изменили после сбоя: новая попытка с новым ключом (559ms)
+  ✓  13 tests/ui/booking-widget-turnstile.spec.ts:288:1 › ключ создания: после подтверждённой брони следующая бронь: новый ключ (578ms)
+
+
+  1) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button disabled type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        57 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /home/user/wetop.ai/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ/error-context.md
+
+  1 failed
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+  12 passed (37.2s)
+
+# код выхода 1 · 39 с

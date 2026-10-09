@@ -35,6 +35,9 @@ import {
   assertDerivedRuleAllows,
   assertPromoAllows,
   normalizePromoCode,
+  parseMoney,
+  FinanceRuleError,
+  ADJUSTMENT_DOWN_MESSAGE,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
@@ -163,9 +166,30 @@ function channelBooking(
   return out;
 }
 /** Гостей на проживании (Q-102). Цена не пересчитывается: перецена — через «Изменить даты». */
+/** Цена проживания из запроса: строка денег больше нуля, иначе 400 словами (деньги целыми тиынами, ADR-008) */
+function parsePrice(value: unknown): bigint {
+  if (typeof value !== 'string' && typeof value !== 'number')
+    throw new BadRequestException('price — сумма, например 25000 или 25000.50');
+  let minor: bigint;
+  try {
+    minor = parseMoney(String(value));
+  } catch (e) {
+    if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
+    throw e;
+  }
+  if (minor <= 0n) throw new BadRequestException('price — цена проживания больше нуля');
+  return minor;
+}
+
 export interface UpdateItemDto {
   adults?: number;
   children?: number;
+  /**
+   * Цена проживания целиком, строка денег («25000», «25000.50»; план finance-payments-direct 07.10.2026, У6):
+   * пишется в `ReservationItem.price`, начисление за проживание переписывает система. Вниз — только с правом
+   * `refunds` (ADR-107). При смене дат или категории цена снова считается по тарифу.
+   */
+  price?: string | number;
 }
 export interface ChangeDatesDto {
   arrivalDate?: string;
@@ -331,6 +355,28 @@ function existingGuest(
   return id;
 }
 
+/** Ключ создания брони: UUID v4 (повтор ручной брони, MKT1B BOOK-2) */
+const CREATION_KEY_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CREATION_KEY_CONFLICT = 'Этот запрос уже создал бронь с другими данными. Откройте новую форму.';
+
+/** Отпечаток запроса создания: sha256 канонической записи (ключи по порядку, без undefined), ключ в нижнем регистре */
+function creationFingerprint(dto: CreateReservationDto, key: string): string {
+  const canonical = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(canonical)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(
+            Object.entries(value)
+              .filter(([, v]) => v !== undefined)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => [k, canonical(v)]),
+          )
+        : value;
+  return createHash('sha256')
+    .update(JSON.stringify(canonical({ ...dto, creationKey: key.toLowerCase() })))
+    .digest('hex');
+}
+
 @Injectable()
 export class ReservationsService {
   constructor(
@@ -380,40 +426,42 @@ export class ReservationsService {
    * гость записывается псевдонимом, и имя не обязательно. `guestPrepared` — гость уже приведён к хранению
    * вызывающим (бронь с сайта: `guestForStorage`), берётся как есть.
    */
+  /**
+   * Ранний повтор (MKT1B BOOK-2): бронь, уже созданная этим ключом в объекте текущего контекста, если её отпечаток
+   * совпадает с отпечатком ЭТОГО запроса, тем же алгоритмом, что у `create`. Ключ без совпадения отпечатка данных
+   * брони не открывает: другой запрос с тем же ключом: 409. Брони с этим ключом нет: `null`. Ничего не пишет.
+   */
+  async replayOf(dto: CreateReservationDto): Promise<ReservationCard | null> {
+    const key = dto.creationKey;
+    if (typeof key !== 'string' || !CREATION_KEY_RE.test(key))
+      throw new BadRequestException('Обновите форму: некорректный ключ создания');
+    const fingerprint = creationFingerprint(dto, key);
+    return this.uow.read(async (repo) => {
+      const previous = await repo.reservationByCreationKey(key.toLowerCase());
+      if (!previous) return null;
+      if (previous.fingerprint !== fingerprint) throw new ConflictException(CREATION_KEY_CONFLICT);
+      return (await repo.card(previous.confirmationNumber)) ?? null;
+    });
+  }
+
   create(dto: CreateReservationDto, opts: { preview: true }): Promise<ReservationQuote>;
-  create(dto: CreateReservationDto, opts?: { guestPrepared?: boolean }): Promise<ReservationCard>;
+  create(
+    dto: CreateReservationDto,
+    opts?: { guestPrepared?: boolean; onReplay?: () => void },
+  ): Promise<ReservationCard>;
   async create(
     dto: CreateReservationDto,
-    opts: { guestPrepared?: boolean; preview?: boolean } = {},
+    opts: { guestPrepared?: boolean; preview?: boolean; onReplay?: () => void } = {},
   ): Promise<ReservationCard | ReservationQuote> {
     const key = dto.creationKey;
-    if (
-      key !== undefined &&
-      (typeof key !== 'string' ||
-        !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key))
-    )
+    if (key !== undefined && (typeof key !== 'string' || !CREATION_KEY_RE.test(key)))
       throw new BadRequestException('Обновите форму: некорректный ключ создания');
     if (
       dto.expectedTotalMinor !== undefined &&
       (typeof dto.expectedTotalMinor !== 'string' || !/^\d+$/.test(dto.expectedTotalMinor))
     )
       throw new BadRequestException('Обновите расчёт стоимости');
-    const canonical = (value: unknown): unknown =>
-      Array.isArray(value)
-        ? value.map(canonical)
-        : value && typeof value === 'object'
-          ? Object.fromEntries(
-              Object.entries(value)
-                .filter(([, v]) => v !== undefined)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([k, v]) => [k, canonical(v)]),
-            )
-          : value;
-    const fingerprint = key
-      ? createHash('sha256')
-          .update(JSON.stringify(canonical({ ...dto, creationKey: key.toLowerCase() })))
-          .digest('hex')
-      : null;
+    const fingerprint = key ? creationFingerprint(dto, key) : null;
     let replay = false;
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
       throw new BadRequestException(`source обязателен: один из ${RESERVATION_SOURCES.join(', ')}`);
@@ -461,9 +509,7 @@ export class ReservationsService {
           const previous = await repo.reservationByCreationKey(key.toLowerCase());
           if (previous) {
             if (previous.fingerprint !== fingerprint)
-              throw new ConflictException(
-                'Этот запрос уже создал бронь с другими данными. Откройте новую форму.',
-              );
+              throw new ConflictException(CREATION_KEY_CONFLICT);
             replay = true;
             return (await repo.card(previous.confirmationNumber))!;
           }
@@ -673,6 +719,7 @@ export class ReservationsService {
       }),
     );
     if (!replay && 'confirmationNumber' in created) await this.publish(null, created);
+    if (replay) opts.onReplay?.();
     return created;
   }
 
@@ -1203,8 +1250,9 @@ export class ReservationsService {
       throw new BadRequestException('adults — целое ≥ 1');
     if (dto.children !== undefined && (!Number.isInteger(dto.children) || dto.children < 0))
       throw new BadRequestException('children — целое ≥ 0');
-    if (dto.adults === undefined && dto.children === undefined)
-      throw new BadRequestException('Нечего менять: укажите adults и/или children');
+    const priceMinor = dto.price === undefined ? null : parsePrice(dto.price);
+    if (dto.adults === undefined && dto.children === undefined && priceMinor === null)
+      throw new BadRequestException('Нечего менять: укажите adults, children или price');
     return this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
@@ -1212,26 +1260,45 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
           throw new UnprocessableEntityException(
-            `Проживание в статусе ${item.status}: гостей не изменить`,
+            `Проживание в статусе ${item.status}: ${priceMinor === null ? 'гостей' : 'цену'} не изменить`,
           );
+        if (priceMinor !== null && item.status === 'CHECKED_OUT')
+          throw new UnprocessableEntityException(
+            'Гость выехал: цену проживания не изменить, при необходимости начислите корректировку',
+          );
+        // уменьшить цену — то же, что уменьшить счёт: владелец и управляющий (ADR-107, Q-024)
+        if (priceMinor !== null && priceMinor < item.priceMinor && !actorMay('refunds'))
+          throw new ForbiddenException(ADJUSTMENT_DOWN_MESSAGE);
         const type = await repo.categoryById(item.accommodationTypeId);
         if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
         const adults = dto.adults ?? item.adults;
         const children = dto.children ?? item.children;
         assertFits(type, adults, children);
         const before = await repo.card(number);
-        await repo.updateItem(item.id, { adults, children });
-        // Шапка брони производна от проживаний: гостей — сумма по неотменённым
+        await repo.updateItem(item.id, {
+          adults,
+          children,
+          ...(priceMinor !== null ? { priceMinor } : {}),
+        });
+        // Шапка брони производна от проживаний: гостей и сумма — по неотменённым
         const active = state.items.filter((i) => i.status !== 'CANCELLED');
         await repo.updateReservation(state.id, {
           adults: active.reduce((s, i) => s + (i.id === item.id ? adults : i.adults), 0),
           children: active.reduce((s, i) => s + (i.id === item.id ? children : i.children), 0),
+          ...(priceMinor !== null
+            ? {
+                totalAmountMinor: active.reduce(
+                  (s, i) => s + (i.id === item.id ? priceMinor : i.priceMinor),
+                  0n,
+                ),
+              }
+            : {}),
         });
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
           entityId: state.id,
-          action: 'reservation.updateItem',
+          action: priceMinor !== null ? 'reservation.item.price' : 'reservation.updateItem',
           before,
           after,
         });

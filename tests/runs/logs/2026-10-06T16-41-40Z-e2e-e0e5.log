@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 06.10.2026 21:41 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/marketing.spec.ts' '-g' 'MKT3' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/marketing.spec.ts:195:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь (45.1s)
+
+
+  1) tests/ui/marketing.spec.ts:195:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+      195 | test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь', async ({ page }) => {
+      196 |   await page.goto('/auth/fallback');
+    > 197 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+          |                                                   ^
+      198 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      199 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      200 |   await page.waitForURL('**/today');
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:197:51
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-452a9-н-уводится-в-свой-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-452a9-н-уводится-в-свой-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-452a9-н-уводится-в-свой-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing.spec.ts:195:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится в свой календарь 
+
+# код выхода 1 · 58 с

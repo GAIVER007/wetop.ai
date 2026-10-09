@@ -1,5 +1,8 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
+import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
+import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
+import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -32,17 +35,24 @@ import {
   MEMBER_OWNER_MESSAGE,
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_DETAILS_FORBIDDEN_MESSAGE,
   MEMBER_SELF_MESSAGE,
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
+  ADJUSTMENT_DOWN_MESSAGE,
+  assertPaymentReversible,
+  assertRefundWithin,
+  FinanceRuleError,
   canInvite,
+  canEditMemberDetails,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
   mayAssignPlanWithoutRates,
   parseInviteRole,
+  parseMemberDetails,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -51,6 +61,8 @@ import {
   countGuestNights,
   summarizeGuestStays,
   upcomingBirthday,
+  parseTaskInput,
+  taskBucket,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -172,6 +184,9 @@ const categorySeed: {
   rateNames?: string[];
   /** Что использует категорию (C4): у засеянных — брони и Channex, у созданных через POST — ничего */
   usage?: { reservations: number; upcomingReservations: number; channexMapped: boolean };
+  /** Цена категории тиынами (план categories-price-2026-10-06); у засеянных — по типу, у архивных — как была */
+  priceMinor?: string | null;
+  active?: boolean;
 }[] = [
   {
     code: 'ROOM',
@@ -293,6 +308,13 @@ function ratePlanRows() {
   }));
 }
 /** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
+/** Цена категории из тела запроса → тиыны строкой; undefined — не передана, null — неверная (как categoryPrice API) */
+function fixturePrice(raw: unknown): string | null | undefined {
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const m = /^(\d{1,8})(?:\.(\d{1,2}))?$/.exec(String(raw).replace(/\s/g, '').replace(',', '.'));
+  if (!m || Number(m[0]) <= 0) return null;
+  return (BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0'))).toString();
+}
 function fixturePlanChoice(body: Record<string, unknown>) {
   if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
   if (typeof body.newRatePlanName === 'string' && body.newRatePlanName.trim()) {
@@ -388,6 +410,30 @@ let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
 const extraGuests = new Map<string, GuestCard>();
+/** Задачи стойки (DATA_MODEL §22): память фикстуры, сбрасывается вместе со стендом */
+interface FixtureTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+}
+const taskStore = new Map<string, FixtureTask>();
+const tasksList = () => {
+  const rows = [...taskStore.values()].sort(
+    (a, b) => a.dueDate.localeCompare(b.dueDate) || (a.dueTime ?? '').localeCompare(b.dueTime ?? ''),
+  );
+  const tasks = rows.map((r) => ({ ...r, bucket: taskBucket({ dueDate: r.dueDate, done: r.doneAt !== null }, today) }));
+  const n = (b: string) => tasks.filter((x) => x.bucket === b).length;
+  return { today, tasks, counts: { overdue: n('overdue'), today: n('today'), upcoming: n('upcoming'), done: n('done') } };
+};
 /** Порядок появления карточек — «новые брони» (R2): у карточек подставного API нет момента создания */
 const cardSeen = new Map<string, number>();
 function initializeRecords() {
@@ -1248,6 +1294,29 @@ let paymentLines: Array<{
   note: string | null;
   id: string;
 }> = [];
+// ── аннулирование и замена платежа, возвраты, ручные начисления (план finance-payments-direct 07.10.2026) ──
+let voidedPayments = new Set<string>();
+let refundLines: Array<{
+  id: string;
+  folioId: string;
+  paymentId: string;
+  amountMinor: string;
+  reason: string | null;
+  createdAt: string;
+}> = [];
+let extraCharges: Array<{
+  id: string;
+  folioId: string;
+  kind: 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
+  serviceCode: string | null;
+  description: string;
+  quantity: number;
+  unitPriceMinor: string;
+  amountMinor: string;
+  serviceDate: string | null;
+  createdAt: string;
+  voidedAt: string | null;
+}> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 // ── фискальные чеки по запросу гостя (DATA_MODEL §26): номер из кассы по id платежа ──
 let receipts = new Map<string, { number: string; issuedAt: string }>();
@@ -1433,6 +1502,7 @@ const mixClosed = (): Incident[] =>
 let extraIncidents: Incident[] = [];
 /** Журнал за несколько дней: без него все строки фикстуры — сегодняшние, и группы по дням не проверить */
 let journalHistory = false;
+let journalFinance = false;
 let guardTick = false;
 
 function desk(date: string): DeskDay {
@@ -1487,6 +1557,7 @@ function desk(date: string): DeskDay {
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
       overdueArrivals: overdueArrivals.length,
+      tasksOpen: [...taskStore.values()].filter((x) => !x.doneAt && x.dueDate <= date).length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -1738,35 +1809,52 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
             : /TEST[1357]$/.test(reservation.confirmationNumber)
               ? BigInt(it.priceMinor)
               : 800000n;
-    const refunded = showcase === 'RETD' ? BigInt(it.priceMinor) : 0n;
     const amount = BigInt(it.priceMinor);
+    const refundedOf = (paymentId: string) =>
+      refundLines
+        .filter((x) => x.folioId === id && x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const statusOf = (paymentId: string) =>
+      voidedPayments.has(paymentId) ? ('VOIDED' as const) : ('COMPLETED' as const);
     const payments = paymentLines
       .filter((p) => p.folioId === id)
       .map((p) => ({
         paymentId: p.id,
         method: p.method,
-        status: 'COMPLETED' as const,
+        status: statusOf(p.id),
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
         receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
-        refundedMinor: '0',
+        refundedMinor: refundedOf(p.id).toString(),
       }));
     if (prepaid)
       payments.unshift({
         paymentId: `prepaid-${id}`,
         method: 'CASH',
-        status: 'COMPLETED',
+        status: statusOf(`prepaid-${id}`),
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
         receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
-        refundedMinor: '0',
+        refundedMinor: refundedOf(`prepaid-${id}`).toString(),
       });
+    // возвраты витрины плюс сделанные тестом; оплачено — только проведённые платежи (как folioView API)
+    const liveRefunds = refundLines.filter((x) => x.folioId === id);
+    const refunded =
+      (showcase === 'RETD' ? BigInt(it.priceMinor) : 0n) +
+      liveRefunds.reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+    const paidLive = payments
+      .filter((p) => p.status === 'COMPLETED')
+      .reduce((acc, p) => acc + BigInt(p.allocatedMinor), 0n);
+    const manual = extraCharges.filter((c) => c.folioId === id);
+    const chargedLive =
+      (voided ? 0n : amount) +
+      manual.filter((c) => !c.voidedAt).reduce((acc, c) => acc + BigInt(c.amountMinor), 0n);
     return {
       id,
       reservationItemId: it.id,
@@ -1791,23 +1879,44 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
           createdAt: `${today}T07:00:00Z`,
           voidedAt: voided ? `${today}T09:00:00Z` : null,
         },
+        ...manual.map((c) => ({
+          id: c.id,
+          kind: c.kind,
+          serviceCode: c.serviceCode,
+          description: c.description,
+          quantity: c.quantity,
+          unitPriceMinor: c.unitPriceMinor,
+          amountMinor: c.amountMinor,
+          serviceDate: c.serviceDate,
+          createdAt: c.createdAt,
+          voidedAt: c.voidedAt,
+        })),
       ],
       payments,
-      refunds: refunded
-        ? [
-            {
-              id: `refund-${id}`,
-              paymentId: `prepaid-${id}`,
-              amountMinor: refunded.toString(),
-              reason: 'Отмена брони',
-              createdAt: `${today}T09:30:00Z`,
-            },
-          ]
-        : [],
-      chargedMinor: (voided ? 0n : amount).toString(),
-      paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
+      refunds: [
+        ...(showcase === 'RETD'
+          ? [
+              {
+                id: `refund-${id}`,
+                paymentId: `prepaid-${id}`,
+                amountMinor: it.priceMinor,
+                reason: 'Отмена брони',
+                createdAt: `${today}T09:30:00Z`,
+              },
+            ]
+          : []),
+        ...liveRefunds.map((x) => ({
+          id: x.id,
+          paymentId: x.paymentId,
+          amountMinor: x.amountMinor,
+          reason: x.reason,
+          createdAt: x.createdAt,
+        })),
+      ],
+      chargedMinor: chargedLive.toString(),
+      paidMinor: paidLive.toString(),
       refundedMinor: refunded.toString(),
-      balanceMinor: ((voided ? 0n : amount) - prepaid - (paid.get(id) ?? 0n) + refunded).toString(),
+      balanceMinor: (chargedLive - paidLive + refunded).toString(),
     };
   });
   if (groupFixture && reservation === card) {
@@ -1963,6 +2072,9 @@ interface FixtureMember {
   joinedAt: string;
   /** Последний вход, как отдаёт API (TEAM1): не входил — null */
   lastLoginAt: string | null;
+  /** Телефон и должность (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
 }
 interface FixtureInvite {
   id: string;
@@ -1972,8 +2084,11 @@ interface FixtureInvite {
   createdAt: string;
 }
 let uiTeam: FixtureMember[] = [];
+/** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
+let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
+  uiMyDetails = { phone: null, position: null };
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -1982,6 +2097,8 @@ function resetTeam() {
       role: 'MANAGER',
       joinedAt: '2026-09-02T09:00:00.000Z',
       lastLoginAt: '2026-09-28T14:30:00.000Z',
+      phone: '+77010000001',
+      position: 'Управляющий',
     },
     {
       userId: 'ui-admin',
@@ -1990,6 +2107,8 @@ function resetTeam() {
       role: 'STAFF',
       joinedAt: '2026-09-03T09:00:00.000Z',
       lastLoginAt: null,
+      phone: null,
+      position: null,
     },
   ];
   uiInvites = [
@@ -2020,6 +2139,8 @@ function teamView(me: UiUser) {
       role: uiRole,
       joinedAt: '2026-09-01T09:00:00.000Z',
       lastLoginAt: '2026-10-01T09:00:00.000Z',
+      phone: uiMyDetails.phone,
+      position: uiMyDetails.position,
     },
     ...uiTeam,
   ];
@@ -2037,6 +2158,7 @@ function teamView(me: UiUser) {
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
           !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        detailsEditable: canEditMemberDetails(uiRole, m.role, you),
       };
     });
 }
@@ -2950,7 +3072,15 @@ function read(path: string, q: URLSearchParams): unknown {
           ? 'DORM_BED'
           : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
-      active: true,
+      active: c.active ?? true,
+      // как настоящий API: цена сегодняшней ночи основного тарифа; засеянные — 6 000 ₸ койка, 11 000 ₸ номер
+      priceMinor:
+        c.priceMinor !== undefined
+          ? c.priceMinor
+          : units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
+            ? '600000'
+            : '1100000',
+      currency: 'KZT',
       ratePlans: (c.rateNames ?? [plans[0]!.name]).length,
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
@@ -3375,6 +3505,7 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   }
   // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/tasks') return tasksList();
   if (path === '/guests/birthdays') {
     const from = q.get('from') || today;
     const days = Number(q.get('days') || 1);
@@ -3866,6 +3997,7 @@ function read(path: string, q: URLSearchParams): unknown {
       propertyAccessible: true,
       // частичное сопоставление: две категории из трёх — как строки `/channels/channex/mapping`
       mappedCategories: channelMapping === 'partial' ? 2 : 3,
+      mappedLocalRatePlans: 1,
       mappedRatePlans: channelMapping === 'partial' ? 2 : 3,
       lastWebhookAt: null as string | null,
       lastPullAt: null as string | null,
@@ -4091,7 +4223,28 @@ function read(path: string, q: URLSearchParams): unknown {
         : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
     return { ...base, ...channelsOverrides.webhook };
   }
+  if (path === '/audit/actors') return [{ id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый кассир' }];
   if (path === '/audit') {
+    if (journalFinance) {
+      const actor = '11111111-1111-4111-8111-111111111111';
+      const rows = Array.from({ length: 65 }, (_, i) => ({
+        id: `22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
+        at: `${today}T08:00:00.123Z`, authorId: actor, author: 'Тестовый кассир',
+        entityType: 'CashOperation', entityId: `cash-${i}`, subject: null, targetAvailable: null,
+        action: i === 0 ? 'finance.cash.operation.void' : 'finance.cash.operation',
+        before: i === 0 ? { amountMinor: '150050', method: 'CASH', kind: 'EXPENSE' } : {},
+        after: i === 0 ? { voided: true } : { amountMinor: '250000', method: 'CASH', kind: 'INCOME' },
+        cursor: `${today}T08:00:00.123000Z|22222222-2222-4222-8222-${String(1000 - i).padStart(12, '0')}`,
+      }));
+      const cursor = q.get('cursor');
+      const start = cursor ? rows.findIndex((r) => r.cursor === cursor) + 1 : 0;
+      return rows.filter((r) => !q.get('actor') || q.get('actor') === r.authorId)
+        .filter((r) => !q.get('action') || r.action.startsWith(q.get('action')!))
+        .filter(() => !q.get('group') || q.get('group') === 'finance')
+        .filter(() => !q.get('from') || today >= q.get('from')!)
+        .filter(() => !q.get('to') || today <= q.get('to')!)
+        .slice(start, start + Number(q.get('limit') || 50));
+    }
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
     const entries: Array<{
@@ -4302,6 +4455,11 @@ function marketRoute(
 }
 
 const fixtureBranches: Array<Record<string, unknown>> = [];
+/**
+ * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
+ * Иначе указатель, который сервер сам выбрал (`/scope/resolve`, SCOPE-HARDENING), стойка сочла бы устаревшим.
+ */
+const DEFAULT_FIXTURE_BRANCH = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
 
 /** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
 interface FixtureBeautyService {
@@ -4436,6 +4594,10 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const assetsResponse = siteAssetsFixture(path, req.method ?? 'GET', body, raw);
+    if (assetsResponse) return send(assetsResponse.status, assetsResponse.data);
+    const siteResponse = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams);
+    if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
@@ -4464,8 +4626,11 @@ createServer(async (req, res) => {
       fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
+      resetMarketingSiteFixture();
+      resetSiteAssetsFixture();
       hits.clear();
       requestHits.clear();
+      taskStore.clear();
       resetUiAuth();
       resetAccess();
       resetSupport();
@@ -4487,6 +4652,7 @@ createServer(async (req, res) => {
       extraIncidents = [];
       guardTick = false;
       journalHistory = false;
+      journalFinance = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -4529,6 +4695,9 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      voidedPayments = new Set();
+      refundLines = [];
+      extraCharges = [];
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
@@ -4622,6 +4791,7 @@ createServer(async (req, res) => {
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
       journalHistory = body['journalHistory'] === true;
+      journalFinance = body['journalFinance'] === true;
       if (body['incidentsMix'] === true) {
         extraIncidents = [...mixIncidents(), ...mixClosed()];
         guardTick = true;
@@ -4635,7 +4805,19 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
+      // «Удалить» категорию (план categories-price-2026-10-06): тест меняет её использование, reset возвращает засев
+      if (body['categoryUsage'] && typeof body['categoryUsage'] === 'object')
+        for (const [code, patch] of Object.entries(body['categoryUsage'] as Record<string, object>)) {
+          const c = categories.find((item) => item.code === code);
+          if (c)
+            c.usage = {
+              ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
+              ...patch,
+            };
+        }
       if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
+      // MKT7: сайт счётчика управляемого сайта WETOP; старый путь отвечает 409, как API
+      if (body['siteManaged'] === true) site = { ...site, managed: true } as typeof site;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -4922,7 +5104,10 @@ createServer(async (req, res) => {
             return a.arrivalDate < b.arrivalDate ? 1 : -1;
           return 0;
         });
-      const rows = ordered.map((r) => {
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
+      // Enrich only the requested page, matching the production directory query.
+      const rows = ordered.slice((page - 1) * pageSize, page * pageSize).map((r) => {
         const { money } = moneyOf(r);
         return {
           confirmationNumber: r.confirmationNumber,
@@ -4941,20 +5126,21 @@ createServer(async (req, res) => {
           unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
           itemsCount: r.items.length,
           primaryGuest: r.primaryGuest
-            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+            ? {
+                ...r.primaryGuest,
+                email: (r.primaryGuest.id === guest.id ? guest : extraGuests.get(r.primaryGuest.id))?.email ?? null,
+              }
             : null,
         };
       });
-      const pageSize = Number(url.searchParams.get('pageSize') || 25);
-      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
-        total: emptyFixture ? 0 : rows.length,
+        total: emptyFixture ? 0 : ordered.length,
         page,
         pageSize,
         counts,
-        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
+        rows: emptyFixture ? [] : rows,
       });
     }
     // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
@@ -5014,6 +5200,24 @@ createServer(async (req, res) => {
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
     }
+    // Телефон и должность (TEAM2, Q-244): разбор и право: те же функции домена, что у API
+    const detailsMatch = /^\/auth\/members\/([^/]+)\/details$/.exec(path);
+    if (detailsMatch && req.method === 'PATCH') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const details = parseMemberDetails(body);
+      if (!details.ok) return send(400, { message: details.message });
+      const target = teamView(who).find((m) => m.userId === detailsMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (!canEditMemberDetails(uiRole, target.role, target.you))
+        return send(403, { message: MEMBER_DETAILS_FORBIDDEN_MESSAGE });
+      const next = { phone: details.phone, position: details.position };
+      if (target.you) uiMyDetails = next;
+      else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
+      return send(200, { userId: target.userId, ...next });
+    }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
     if (memberMatch) {
@@ -5060,6 +5264,12 @@ createServer(async (req, res) => {
       }
       return send(200, invitePreview);
     }
+    if (path === '/auth/registration-context') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+      // Базовая UI-организация не создаёт Business/Location нового онбординга.
+      return send(200, null);
+    }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
@@ -5068,14 +5278,14 @@ createServer(async (req, res) => {
       const { organization, ...user } = signedInView(who);
       // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
       const pointer = String(req.headers['x-wetop-scope'] ?? '');
-      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
+      const scoped = [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
-          businessId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          businessId: scoped ? String((scoped['location'] as { businessId: string }).businessId) : null,
           locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
           vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
         },
@@ -5401,8 +5611,16 @@ createServer(async (req, res) => {
           },
         };
       };
+      if (path === '/beauty/customers' && req.method === 'GET') {
+        const customers = new Map(fixtureAppointments.filter(a => a.locationId === locationId)
+          .map(a => [a.customer.id, { id: a.customer.id, firstName: a.customer.name,
+            lastName: null, phone: a.customer.phone, status: 'ACTIVE' }]));
+        return send(200, { items: [...customers.values()] });
+      }
       if (path === '/beauty/appointments' && req.method === 'GET')
-        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+        // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)
+        return send(200, dayView(url.searchParams.get('date') ||
+          new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date())));
       if (path === '/beauty/appointments' && req.method === 'POST') {
         const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
         if (!employee) return send(404, { message: 'Мастер не найден' });
@@ -5508,7 +5726,7 @@ createServer(async (req, res) => {
       return send(404, { message: 'Нет такого маршрута салона' });
     }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = DEFAULT_FIXTURE_BRANCH;
       if (req.method === 'POST') {
         // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
         const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
@@ -5530,6 +5748,9 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      // MKT9.2: лицензии конструктора сайта по филиалам
+      const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
+      if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);
       const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
       if (change && req.method === 'PUT') {
         const org = platformOrganizations().find((o) => o.id === decodeURIComponent(change[1]!));
@@ -6521,6 +6742,33 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
+    if (
+      req.method === 'GET' &&
+      [
+        '/bar/categories',
+        '/bar/products',
+        '/bar/suppliers',
+        '/bar/receipts',
+        '/bar/stock',
+        '/bar/sales',
+        '/bar/folios',
+        '/bar/movements',
+      ].includes(path)
+    ) {
+      return send(200, []);
+    }
+    if (path === '/bar/report' && req.method === 'GET') {
+      return send(200, {
+        purchasesMinor: '0',
+        supplierPaidMinor: '0',
+        revenueMinor: '0',
+        costMinor: '0',
+        grossProfitMinor: '0',
+        writeOffMinor: '0',
+        stockCostMinor: '0',
+        supplierDebtMinor: '0',
+      });
+    }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)
         return send(403, {
@@ -6529,12 +6777,22 @@ createServer(async (req, res) => {
         });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
-      const hotelName = String(body['hotelName'] ?? '').trim();
+      let businessName: string;
+      try {
+        businessName = registrationBusiness({
+          ...(typeof body['businessName'] === 'string' ? { businessName: body['businessName'] } : {}),
+          ...(typeof body['hotelName'] === 'string' ? { hotelName: body['hotelName'] } : {}),
+          ...(body['vertical'] !== undefined ? { vertical: body['vertical'] } : {}),
+        }).name.trim();
+      } catch (error) {
+        return send(400, { message: error instanceof Error ? error.message : 'Проверьте направление бизнеса' });
+      }
       const password = String(body['password'] ?? '');
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
       if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
-      if (!hotelName) return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+      if (!businessName || businessName.length > 200)
+        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
       if (password.trim().length < 10)
         return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
       // телефон и согласие — те же правила домена, что у настоящего API (форма 29.09.2026)
@@ -6604,8 +6862,10 @@ createServer(async (req, res) => {
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {
-      // как на настоящем API (ADR-119): тариф — существующий, новый с названием или явно «позже»
-      const rate = fixturePlanChoice(body);
+      // как на настоящем API: с ценой тариф не выбирают (основной тариф объекта); без цены — прежний выбор ADR-119
+      const price = fixturePrice(body.price);
+      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      const rate = price ? { name: plans[0]!.name } : fixturePlanChoice(body);
       if (rate === undefined && body.ratePlanLater !== true)
         return send(400, { message: 'Выберите тариф или «Настроить позже»' });
       if (rate === null) return send(404, { message: 'Тариф не найден' });
@@ -6618,6 +6878,7 @@ createServer(async (req, res) => {
         prefix: 'T',
         kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
         rateNames: rate ? [rate.name] : [],
+        priceMinor: price ?? null,
       });
       return send(201, { code });
     }
@@ -6635,8 +6896,30 @@ createServer(async (req, res) => {
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
       if (!c) return send(404, { message: 'Категория не найдена' });
-      c.name = String(body.name);
+      const price = fixturePrice(body.price);
+      if (price === null) return send(400, { message: 'Цена: число больше нуля, до двух знаков после запятой' });
+      if (body.name === undefined && price === undefined)
+        return send(400, { message: 'Укажите название или цену' });
+      if (price !== undefined && c.active === false)
+        return send(409, { message: 'Категория в архиве: цену у неё не меняют' });
+      if (body.name !== undefined) c.name = String(body.name);
+      if (price !== undefined) c.priceMinor = price;
       return send(200, { code: c.code });
+    }
+    if (path.startsWith('/inventory/categories/') && req.method === 'DELETE') {
+      // то же правило, что categoryRemoval на API: брони впереди — отказ, места или история — архив, иначе удалить
+      const i = categories.findIndex((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
+      if (i < 0) return send(404, { message: 'Категория не найдена' });
+      const c = categories[i]!;
+      const usage = c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false };
+      if (usage.upcomingReservations)
+        return send(409, {
+          message: `У категории ${usage.upcomingReservations} броней впереди. Дождитесь выезда или переселите гостей, затем удалите категорию.`,
+        });
+      const used = units.some((u) => u.accommodationTypeCode === c.code) || usage.reservations > 0 || usage.channexMapped;
+      if (used) c.active = false;
+      else categories.splice(i, 1);
+      return send(200, { code: c.code, result: used ? 'archived' : 'deleted' });
     }
     if (path === '/inventory/rooms' && req.method === 'POST') {
       const c = categories.find((c) => c.code === body.categoryCode);
@@ -6720,6 +7003,12 @@ createServer(async (req, res) => {
       return send(201, read('/analytics/sites/ui-site', url.searchParams));
     }
     if (path === '/analytics/sites/ui-site') {
+      if ((site as { managed?: boolean }).managed)
+        return send(409, {
+          code: 'MANAGED_SITE_READ_ONLY',
+          message: 'Управляемый сайт настраивается в «Маркетинг → Сайт и SEO»',
+          statusCode: 409,
+        });
       if (req.method === 'DELETE') {
         siteDeleted = true;
         return send(200, { deleted: true });
@@ -7009,6 +7298,155 @@ createServer(async (req, res) => {
       receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
       return send(200, { paymentId, number: receiptNumber });
     }
+    // ── счёт брони: аннулирование и замена платежа, возврат, ручные начисления, цена проживания ──
+    const paymentVerb = /^\/finance\/payments\/([^/]+)\/(void|replace|refunds)$/.exec(path);
+    if (paymentVerb) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const paymentId = decodeURIComponent(paymentVerb[1]!);
+      const verb = paymentVerb[2]!;
+      // платёж ищем по всем счетам всех карточек: предоплата витрины и платежи тестов живут в разных местах
+      let line: { folioId: string; amountMinor: string; method: string } | null = null;
+      let number = '';
+      for (const r of allCards())
+        for (const f of finance(r).folios)
+          for (const p of f.payments)
+            if (p.paymentId === paymentId) {
+              line = { folioId: f.id, amountMinor: p.allocatedMinor, method: p.method };
+              number = r.confirmationNumber;
+            }
+      if (!line) return send(404, { message: `Платёж ${paymentId} не найден` });
+      const refundedMinor = refundLines
+        .filter((x) => x.paymentId === paymentId)
+        .reduce((acc, x) => acc + BigInt(x.amountMinor), 0n);
+      const reservation = getCard(number)!;
+      if (verb === 'refunds') {
+        if (voidedPayments.has(paymentId)) return send(409, { message: 'Платёж аннулирован' });
+        if (String(body['folioId'] ?? '') !== line.folioId)
+          return send(400, { message: 'Этот платёж на указанный счёт не распределялся' });
+        try {
+          const refundMinor = parseMoney(String(body['amount'] ?? ''));
+          assertRefundWithin({
+            allocatedMinor: BigInt(line.amountMinor),
+            refundedMinor,
+            refundMinor,
+          });
+          refundLines.push({
+            id: `ui-refund-${commands.length}`,
+            folioId: line.folioId,
+            paymentId,
+            amountMinor: refundMinor.toString(),
+            reason: typeof body['reason'] === 'string' && body['reason'] ? body['reason'] : null,
+            createdAt: `${today}T12:00:00Z`,
+          });
+        } catch (e) {
+          return send(400, { message: (e as Error).message });
+        }
+        return send(201, finance(reservation));
+      }
+      try {
+        assertPaymentReversible({
+          status: voidedPayments.has(paymentId) ? 'VOIDED' : 'COMPLETED',
+          refundedMinor,
+          receiptNumber: receipts.get(paymentId)?.number ?? null,
+        });
+      } catch (e) {
+        return send(409, { message: (e as Error).message });
+      }
+      voidedPayments.add(paymentId);
+      // запрос оплаты, закрытый этим платежом: при аннулировании снова ждёт оплаты, при замене переходит на новый
+      const request = paymentRequests.find((x) => x.paymentId === paymentId) ?? null;
+      if (verb === 'void') {
+        if (request) {
+          request.status = 'PENDING';
+          request.paymentId = null;
+          request.closedAt = null;
+        }
+        return send(200, finance(reservation));
+      }
+      const methodCode = String(body['method'] ?? '');
+      if (!['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(methodCode)) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: 'method — один из способов оплаты' });
+      }
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? ''));
+        if (amountMinor <= 0n) throw new FinanceRuleError('amount — сумма больше нуля');
+      } catch (e) {
+        voidedPayments.delete(paymentId);
+        return send(400, { message: (e as Error).message });
+      }
+      const fresh = `ui-payment-${commands.length}`;
+      paymentLines.push({
+        folioId: line.folioId,
+        amountMinor: amountMinor.toString(),
+        method: methodCode,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+        id: fresh,
+      });
+      if (request) request.paymentId = fresh;
+      return send(200, finance(reservation));
+    }
+    const chargeFolio = /^\/finance\/folios\/([^/]+)\/charges$/.exec(path);
+    if (chargeFolio) {
+      const folioId = decodeURIComponent(chargeFolio[1]!);
+      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === folioId));
+      if (!reservation) return send(404, { message: `Счёт ${folioId} не найден` });
+      const kind = String(body['kind'] ?? '');
+      if (!['SERVICE', 'PENALTY', 'ADJUSTMENT'].includes(kind))
+        return send(400, { message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)' });
+      const quantity = body['quantity'] === undefined ? 1 : Number(body['quantity']);
+      if (!Number.isInteger(quantity) || quantity < 1)
+        return send(400, { message: 'quantity — целое число от 1' });
+      let description = typeof body['description'] === 'string' ? body['description'].trim() : '';
+      let serviceCode: string | null = null;
+      let unitPriceMinor: bigint;
+      try {
+        if (kind === 'SERVICE') {
+          const svc = serviceCatalog.find((x) => x.code === body['serviceCode'] && x.active);
+          if (!svc) return send(400, { message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике` });
+          serviceCode = svc.code;
+          if (!description) description = svc.name;
+          unitPriceMinor =
+            body['unitPrice'] === undefined ? BigInt(svc.priceMinor) : parseMoney(String(body['unitPrice']));
+        } else {
+          if (!description) return send(400, { message: 'description — за что начисление' });
+          unitPriceMinor = parseMoney(String(body['unitPrice'] ?? ''));
+        }
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      if (kind === 'ADJUSTMENT' ? unitPriceMinor === 0n : unitPriceMinor <= 0n)
+        return send(400, {
+          message: kind === 'ADJUSTMENT' ? 'Корректировка не может быть нулевой' : 'Цена должна быть больше нуля',
+        });
+      if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !can(uiRole, 'refunds'))
+        return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+      extraCharges.push({
+        id: `ui-charge-${commands.length}`,
+        folioId,
+        kind: kind as 'SERVICE' | 'PENALTY' | 'ADJUSTMENT',
+        serviceCode,
+        description,
+        quantity,
+        unitPriceMinor: unitPriceMinor.toString(),
+        amountMinor: (unitPriceMinor * BigInt(quantity)).toString(),
+        serviceDate: typeof body['serviceDate'] === 'string' ? body['serviceDate'] : today,
+        createdAt: `${today}T12:00:00Z`,
+        voidedAt: null,
+      });
+      return send(201, finance(reservation));
+    }
+    const chargeVoid = /^\/finance\/charges\/([^/]+)\/void$/.exec(path);
+    if (chargeVoid) {
+      if (!can(uiRole, 'refunds')) return send(403, { message: accessDeniedMessage('refunds') });
+      const charge = extraCharges.find((c) => c.id === decodeURIComponent(chargeVoid[1]!));
+      if (!charge) return send(404, { message: 'Начисление не найдено' });
+      if (charge.voidedAt) return send(409, { message: 'Начисление уже сторнировано' });
+      charge.voidedAt = `${today}T12:30:00Z`;
+      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === charge.folioId))!;
+      return send(200, finance(reservation));
+    }
     if (path === '/finance/payments') {
       try {
         const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;
@@ -7146,6 +7584,29 @@ createServer(async (req, res) => {
       ];
       return send(201, getGuest(id));
     }
+    if (path === '/tasks' && req.method === 'POST') {
+      const parsed = parseTaskInput(body, 'create');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      const task: FixtureTask = {
+        id: `00000000-0000-4000-8000-${String(taskStore.size + 1).padStart(12, '0')}`,
+        title: v.title!, note: v.note ?? null, dueDate: v.dueDate!, dueTime: v.dueTime ?? null,
+        priority: v.priority ?? 'NORMAL', assigneeUserId: v.assigneeUserId ?? null,
+        assigneeName: v.assigneeUserId ? uiUser.name : null, reservationNumber: v.reservationNumber ?? null,
+        guestId: v.guestId ?? null, doneAt: null, createdAt: new Date().toISOString(),
+      };
+      taskStore.set(task.id, task);
+      return send(201, task);
+    }
+    if (path.startsWith('/tasks/') && req.method === 'PATCH') {
+      const task = taskStore.get(decodeURIComponent(path.split('/')[2]!));
+      if (!task) return send(404, { message: 'Задача не найдена' });
+      const parsed = parseTaskInput(body, 'update');
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const { done, ...rest } = parsed.value;
+      Object.assign(task, rest, done === undefined ? {} : { doneAt: done ? new Date().toISOString() : null });
+      return send(200, task);
+    }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);
       const g = id === guest.id ? guest : extraGuests.get(id);
@@ -7238,6 +7699,27 @@ createServer(async (req, res) => {
         return send(200, r);
       }
       if (item && req.method === 'PATCH') {
+        // цена проживания (план finance-payments-direct 07.10.2026, У6): как в API — строка денег больше нуля,
+        // вниз только с правом `refunds`, отменённое и незаезд не меняются
+        if (body['price'] !== undefined) {
+          let priceMinor: bigint;
+          try {
+            priceMinor = parseMoney(String(body['price']));
+          } catch (e) {
+            return send(400, { message: (e as Error).message });
+          }
+          if (priceMinor <= 0n) return send(400, { message: 'price — цена проживания больше нуля' });
+          if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
+            return send(422, { message: `Проживание в статусе ${item.status}: цену не изменить` });
+          if (priceMinor < BigInt(item.priceMinor) && !can(uiRole, 'refunds'))
+            return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
+          item.priceMinor = priceMinor.toString();
+          retotal(r);
+          const rest: Record<string, unknown> = { ...body };
+          delete rest['price'];
+          Object.assign(item, rest);
+          return send(200, r);
+        }
         Object.assign(item, body);
         return send(200, r);
       }

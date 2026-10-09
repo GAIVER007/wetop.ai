@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
 export type { ActionPreview } from './action-preview';
 
@@ -14,6 +15,7 @@ import type {
   DashboardPeriod,
   InviteRole,
   MembershipRole,
+  BusinessVertical,
   UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
@@ -67,7 +69,7 @@ export interface InventoryUnit {
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
-async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
+async function backendFetch(path: string, options: RequestInit = {}, reportScope?: string): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
     process.env.NODE_ENV === 'development' &&
@@ -89,6 +91,7 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
         ...(await sessionHeader()),
         // указатель выбора Business и филиала (Platform P2, К1): проверяет API, стойка только пересылает
         ...(await requestScopeHeader()),
+        ...(reportScope ? { 'x-wetop-scope': reportScope } : {}),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -142,8 +145,8 @@ async function sessionHeader(): Promise<Record<string, string>> {
   }
 }
 
-async function getJson<T>(path: string): Promise<T> {
-  const res = await backendFetch(path);
+async function getJson<T>(path: string, headers: Record<string, string> = {}): Promise<T> {
+  const res = await backendFetch(path, { headers });
   if (!res.ok) {
     // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
     let message = `API ${path}: HTTP ${res.status}`;
@@ -394,7 +397,7 @@ export interface RatePlanOption {
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
 
-async function sendJson<T>(
+export async function sendJson<T>(
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
@@ -491,7 +494,18 @@ async function messageOf(res: Response): Promise<string> {
  * `login/actions.ts`, сюда он потом попадает сам, заголовком (см. sessionHeader); `/auth/me` и
  * `/auth/logout` общие — API узнаёт сессию любого входа.
  */
+export interface RegistrationContext {
+  businessId: string;
+  locationId: string;
+  vertical: BusinessVertical;
+  businessName: string;
+  locationName: string;
+}
+
 export const authApi = {
+  registrationContext: (token?: string) => getJson<RegistrationContext | null>(
+    '/auth/registration-context', token ? { authorization: `Bearer ${token}` } : {},
+  ),
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
   login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
@@ -512,7 +526,7 @@ export const authApi = {
         scope?: string | null;
         businessId?: string | null;
         locationId?: string | null;
-        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+        vertical?: BusinessVertical | null;
       } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
@@ -557,7 +571,9 @@ export const authApi = {
     body: {
       email: string;
       name: string;
-      hotelName: string;
+      hotelName?: string;
+      businessName?: string;
+      vertical?: BusinessVertical;
       password: string;
       phoneCountry: string;
       phone: string;
@@ -641,6 +657,20 @@ export const authApi = {
       method: 'PATCH',
       headers: authHeaders(info, token),
       body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Телефон и должность сотрудника (TEAM2, Q-244); пустое поле стирает значение */
+  setMemberDetails: async (
+    token: string,
+    userId: string,
+    details: { phone: string; position: string },
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/details`, {
+      method: 'PATCH',
+      headers: authHeaders(info, token),
+      body: JSON.stringify(details),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
@@ -948,7 +978,12 @@ export const channelsApi = {
   /** Строки очереди: что именно уехало в Channex (срез 7.2) */
   outboxMessages: (limit = 20) =>
     getJson<OutboxMessage[]>(`/channels/channex/outbox/messages?limit=${limit}`),
-  setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
+  setup: (ratePlanCode?: string) =>
+    sendJson<unknown>(
+      'POST',
+      `/channels/channex/setup${ratePlanCode ? `?${new URLSearchParams({ ratePlanCode })}` : ''}`,
+      {},
+    ),
   /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
   sync: (days?: number) =>
     sendJson<{ from: string; to: string; tasks: string[] }>(
@@ -1075,6 +1110,8 @@ export interface ChannelConnection {
   propertyId: string | null;
   propertyAccessible: boolean;
   mappedCategories: number;
+  mappedLocalRatePlans: number;
+  /** Внешние связки категории и тарифа, не число планов WETOP. */
   mappedRatePlans: number;
   lastWebhookAt: string | null;
   lastPullAt: string | null;
@@ -1339,6 +1376,34 @@ export interface GuestDirectoryResult {
   };
   rows: GuestDirectoryRow[];
 }
+/** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */
+export interface DeskTask {
+  id: string;
+  title: string;
+  note: string | null;
+  dueDate: string;
+  dueTime: string | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  assigneeUserId: string | null;
+  assigneeName: string | null;
+  reservationNumber: string | null;
+  guestId: string | null;
+  doneAt: string | null;
+  createdAt: string;
+  bucket: 'overdue' | 'today' | 'upcoming' | 'done';
+}
+export interface DeskTasksList {
+  today: string;
+  tasks: DeskTask[];
+  counts: { overdue: number; today: number; upcoming: number; done: number };
+}
+export const tasksApi = {
+  list: () => getJson<DeskTasksList>('/tasks'),
+  create: (body: unknown) => sendJson<DeskTask>('POST', '/tasks', body),
+  update: (id: string, body: unknown) =>
+    sendJson<DeskTask>('PATCH', `/tasks/${encodeURIComponent(id)}`, body),
+};
+
 /** «Дни рождения» (Q-249 T0): гость, дата дня рождения в окне и сколько исполняется */
 export interface GuestBirthday {
   id: string;
@@ -1666,6 +1731,20 @@ export const financeApi = {
       `/finance/payments/${encodeURIComponent(paymentId)}/refunds`,
       body,
     ),
+  /** Аннулировать платёж (план finance-payments-direct 07.10.2026): без возвратов и чека, право `refunds` */
+  voidPayment: (paymentId: string, reason: string | null) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/void`,
+      { reason },
+    ),
+  /** Заменить платёж: старый аннулируется, новый проводится той же транзакцией */
+  replacePayment: (paymentId: string, body: unknown) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/replace`,
+      body,
+    ),
 };
 
 // ── Рабочий день стойки ──
@@ -1694,6 +1773,7 @@ export interface DeskDay {
   overdueArrivals: DeskRow[];
   counts: {
     overdueArrivals: number;
+    tasksOpen: number;
     arrivals: number;
     departures: number;
     inHouse: number;
@@ -1762,6 +1842,8 @@ export interface TrackedSite {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** MKT7: сайт счётчика управляемого сайта WETOP; настраивается только в «Маркетинг → Публикация сайта» */
+  managed?: boolean;
 }
 export interface TrackedSiteCard {
   site: TrackedSite;
@@ -1825,6 +1907,305 @@ export interface SiteReport {
     charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
+/** MKT7: состояние управляемого сайта для страницы публикации; документа здесь нет */
+export interface MarketingSiteSummary {
+  id: string;
+  name: string;
+  slug: string;
+  state: 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
+  latest: { id: string; revision: number } | null;
+  published: { id: string; revision: number } | null;
+  /** Действующий основной адрес; до публикации null */
+  url: string | null;
+  /** Адрес, который получит сайт при публикации; null, если адрес сайтов не настроен */
+  proposedUrl: string | null;
+}
+
+export interface SitePublicationRow {
+  id: string;
+  action: 'PUBLISH' | 'ROLLBACK' | 'PAUSE' | 'RESUME' | 'ARCHIVE';
+  versionId: string | null;
+  revision: number | null;
+  previousVersionId: string | null;
+  previousRevision: number | null;
+  actorId: string | null;
+  createdAt: string;
+}
+
+export interface BookingSourceView {
+  canonicalTrackedSiteId: string | null;
+  /** Действующие тарифы объекта для явного выбора тарифа брони при публикации */
+  ratePlans: Array<{ id: string; code: string; name: string }>;
+  options: Array<{
+    id: string;
+    name: string;
+    status: 'ACTIVE' | 'PAUSED';
+    bookingEnabled: boolean;
+    bookingRatePlan: { id: string; code: string; name: string } | null;
+    managed: boolean;
+  }>;
+}
+
+/** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
+/** MKT9.2: лицензия конструктора сайта филиала глазами стойки */
+export interface SiteBuilderState {
+  access: 'active' | 'expired' | 'off';
+  status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+  activeUntil: string | null;
+}
+
+export interface MarketingSiteCurrent {
+  site: MarketingSiteSummary | null;
+  /** Сайт филиала в архиве: нового не будет (один филиал, один сайт) */
+  archived: boolean;
+  locationName: string | null;
+  builder: SiteBuilderState;
+  instructions: string | null;
+}
+
+export const marketingSiteApi = {
+  current: () => getJson<MarketingSiteCurrent>('/marketing/site'),
+  publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
+  bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
+  preview: (versionId: string) =>
+    sendJson<{ url: string; expiresAt: string }>('POST', '/marketing/site/preview', { versionId }),
+  publish: (expectedVersionId: string, bookingRatePlanId?: string) =>
+    sendJson<{ site: MarketingSiteSummary; changed: boolean }>('POST', '/marketing/site/publish', {
+      expectedVersionId,
+      ...(bookingRatePlanId ? { bookingRatePlanId } : {}),
+    }),
+  pause: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/pause', {}),
+  resume: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/resume', {}),
+  rollback: (versionId: string) =>
+    sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/rollback', { versionId }),
+  archive: () => sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
+  setBookingSource: (trackedSiteId: string | null) =>
+    sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
+};
+
+/** MKT8: изображение библиотеки сайта; ключа объекта и адреса бакета нет, только подписанный адрес на срок */
+export interface SiteAssetView {
+  id: string;
+  kind: 'IMAGE' | 'LOGO' | 'FAVICON';
+  status: 'READY';
+  source: 'UPLOAD' | 'CHANNEX_IMPORT';
+  mimeType: string;
+  byteSize: number;
+  width: number;
+  height: number;
+  sha256: string;
+  defaultAlt: Record<string, string> | null;
+  createdAt: string;
+  previewUrl: string | null;
+}
+
+export interface SiteAssetLibrary {
+  storage: 'READY' | 'OFF';
+  limits: { maxUploadBytes: number };
+  assets: SiteAssetView[];
+}
+
+export interface ChannexPhotoChoice {
+  photoId: string;
+  description: string | null;
+  forRoomType: boolean;
+  position: number;
+}
+
+/** «Маркетинг → Изображения сайта» (MKT8): библиотека филиала в строгом scope; файл уходит в API, не в хранилище */
+export const siteAssetsApi = {
+  list: () => getJson<SiteAssetLibrary>('/marketing/site/assets'),
+  upload: async (file: File, kind: string): Promise<{ asset: SiteAssetView; created: boolean }> => {
+    const form = new FormData();
+    form.append('kind', kind);
+    form.append('file', file, file.name);
+    const res = await backendFetch('/marketing/site/assets', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { asset: SiteAssetView; created: boolean };
+  },
+  updateAlt: (id: string, defaultAlt: Record<string, string> | null) =>
+    sendJson<{ asset: SiteAssetView }>('PATCH', `/marketing/site/assets/${encodeURIComponent(id)}`, { defaultAlt }),
+  remove: (id: string) =>
+    sendJson<{ deleted: true; retainedForPublishedHistory: boolean }>('DELETE', `/marketing/site/assets/${encodeURIComponent(id)}`, {}),
+  channexPhotos: () => getJson<{ state: string; photos: ChannexPhotoChoice[] }>('/marketing/site/assets/channex'),
+  importChannex: (photoIds: string[]) =>
+    sendJson<{ imported: Array<{ photoId: string; created: boolean; asset: SiteAssetView }>; failed: Array<{ photoId: string; code: string }> }>(
+      'POST',
+      '/marketing/site/assets/channex/import',
+      { photoIds },
+    ),
+};
+
+/** MKT9: метаданные версии сайта в истории; документ отдельно */
+export interface SiteVersionMeta {
+  id: string;
+  revision: number;
+  /** MKT9.2: подпись закладки или null */
+  bookmark?: string | null;
+  parentVersionId: string | null;
+  source: 'MANUAL' | 'AI' | 'IMPORT';
+  generationRunId: string | null;
+  createdById: string | null;
+  createdAt: string;
+  specHash: string;
+  isLatest: boolean;
+  isPublished: boolean;
+}
+
+export interface SiteSpecErrorView {
+  path: string;
+  code: string;
+  message: string;
+}
+
+/** Смысловое изменение версии (`diffSiteSpecs` домена): у стойки только слова, без JSON */
+export interface SiteChangeView {
+  area: 'site' | 'page' | 'section' | 'asset';
+  kind: 'added' | 'removed' | 'moved' | 'changed' | 'variant' | 'replaced';
+  field?: string;
+  pageId?: string;
+  sectionId?: string;
+  sectionType?: string;
+  label?: string;
+  from?: string;
+  to?: string;
+  slot?: string;
+}
+
+/** MKT9.2: структура ответа ассистента по режиму (проверена платформой) */
+export interface DesignDirectionView {
+  id: string;
+  name: string;
+  shortDescription: string;
+  theme: { preset: string; accent: string; typography: string; radius: string; density: string; colorScheme: string };
+  heroVariant: string;
+  sectionOrder: string[];
+}
+export type AssistantPayloadView =
+  | { kind: 'CHAT'; suggestBuild: boolean; suggestPublish: boolean }
+  | { kind: 'QUESTIONS'; questions: Array<{ id: string; question: string; options: string[]; allowCustom: boolean }> }
+  | { kind: 'PLAN'; summary: string; affectedPages: string[]; affectedSections: string[]; steps: string[]; tradeoffs: string[]; buildInstruction: string }
+  | { kind: 'DESIGN'; directions: DesignDirectionView[] };
+
+export interface AssistantRunView {
+  id: string;
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  baseVersionId: string | null;
+  userText: string;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  errorCode: string | null;
+}
+
+/** MKT9.2: запись разговора сайта: сборка или разговорная задача */
+export interface SiteConversationItem {
+  id: string;
+  kind: 'BUILD' | 'ASSISTANT';
+  mode: string;
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  userText: string | null;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  target: { pageId: string; sectionId: string } | null;
+  fromPlanId: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+  errorCode: string | null;
+}
+
+export interface GenerationRunView {
+  id: string;
+  type: 'INITIAL' | 'PATCH' | 'SECTION' | 'SEO';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  errorCode: string | null;
+  target?: { pageId: string; sectionId: string } | null;
+}
+
+export interface SiteDraftView {
+  site: MarketingSiteSummary;
+  version: { revision: number; specHash: string; source: string; createdAt: string; spec: Record<string, unknown> } | null;
+}
+
+/**
+ * Ответ API редактору как есть: при отказе нужен не только текст, но и код (`VERSION_CONFLICT`, `ASSET_UNAVAILABLE`,
+ * `BASE_VERSION_CHANGED`) и пути ошибок проверки, чтобы показать их у полей
+ */
+export type EditorReply<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number; code: string | null; message: string; errors: SiteSpecErrorView[]; paths: Array<{ path: string; code: string }> };
+
+async function editorCall<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<EditorReply<T>> {
+  const res = await backendFetch(path, {
+    method,
+    ...(body !== undefined ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
+  });
+  let json: Record<string, unknown> = {};
+  try {
+    json = (await res.json()) as Record<string, unknown>;
+  } catch {
+    /* тело не JSON */
+  }
+  if (res.ok) return { ok: true, data: json as T };
+  const message = Array.isArray(json['message']) ? (json['message'] as string[]).join('; ') : typeof json['message'] === 'string' ? json['message'] : `HTTP ${res.status}`;
+  return {
+    ok: false,
+    status: res.status,
+    code: typeof json['code'] === 'string' ? json['code'] : null,
+    message: res.status >= 500 && res.status !== 503 ? `Сервер ответил ошибкой ${res.status}: проверьте результат перед повтором` : message,
+    errors: Array.isArray(json['errors']) ? (json['errors'] as SiteSpecErrorView[]) : [],
+    paths: Array.isArray(json['paths']) ? (json['paths'] as Array<{ path: string; code: string }>) : [],
+  };
+}
+
+/** «Маркетинг → Редактор сайта» (MKT9): черновик, история, разница, восстановление и ИИ-правки в строгом scope */
+export const siteEditorApi = {
+  draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
+  versions: () => getJson<{ versions: SiteVersionMeta[]; bookmarks?: SiteVersionMeta[] }>('/marketing/site/versions'),
+  brief: () =>
+    getJson<{
+      briefHash: string;
+      input: {
+        identity: { displayNameCandidate: string; address?: string | null; phone?: string | null; email?: string | null };
+        stay?: { checkInTime: string | null; checkOutTime: string | null };
+        accommodations: Array<{ categoryCode: string; name: string }>;
+      };
+    }>('/marketing/site/brief'),
+  version: (id: string) =>
+    editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>('GET', `/marketing/site/versions/${encodeURIComponent(id)}`),
+  diff: (id: string, against: string) =>
+    editorCall<{ from: SiteVersionMeta; to: SiteVersionMeta; changes: SiteChangeView[] }>(
+      'GET',
+      `/marketing/site/versions/${encodeURIComponent(id)}/diff?against=${encodeURIComponent(against)}`,
+    ),
+  save: (baseRevision: number, spec: unknown) =>
+    editorCall<{ version: { id: string; revision: number } }>('POST', '/marketing/site/versions', { baseRevision, spec }),
+  restore: (id: string, baseRevision: number) =>
+    editorCall<{ version: { id: string; revision: number }; restoredFrom: { id: string; revision: number } }>(
+      'POST',
+      `/marketing/site/versions/${encodeURIComponent(id)}/restore`,
+      { baseRevision },
+    ),
+  generate: (body: Record<string, unknown>) => editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
+  run: (id: string) => editorCall<{ run: GenerationRunView }>('GET', `/marketing/site/generations/${encodeURIComponent(id)}`),
+  // ── MKT9.2: лицензированный конструктор ──
+  bootstrap: () => editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/bootstrap', {}),
+  conversation: () => editorCall<{ items: SiteConversationItem[] }>('GET', '/marketing/site/conversation?limit=100'),
+  assistant: (body: Record<string, unknown>) => editorCall<{ run: AssistantRunView }>('POST', '/marketing/site/assistant', body),
+  assistantRun: (id: string) => editorCall<{ run: AssistantRunView }>('GET', `/marketing/site/assistant/${encodeURIComponent(id)}`),
+  approve: (id: string, instruction?: string) =>
+    editorCall<{ run: GenerationRunView }>('POST', `/marketing/site/assistant/${encodeURIComponent(id)}/approve`, instruction ? { instruction } : {}),
+  context: () => editorCall<{ instructions: string | null }>('GET', '/marketing/site/context'),
+  saveContext: (instructions: string) => editorCall<{ instructions: string | null }>('PATCH', '/marketing/site/context', { instructions }),
+  bookmark: (id: string, label: string) =>
+    editorCall<{ bookmark: { versionId: string; revision: number; label: string } }>('PUT', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`, { label }),
+  removeBookmark: (id: string) => editorCall<{ removed: boolean }>('DELETE', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`),
+};
+
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
   card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),
@@ -2282,8 +2663,26 @@ export interface ExtensionChangeBody {
 }
 
 /** Раздел «Платформа» (DATA_MODEL §16, ADR-083): только главному администратору, остальным API отвечает 403 */
+/** MKT9.2: гостиничный филиал организации с лицензией конструктора сайта («Платформа → Организации») */
+export interface PlatformSiteBuilderLocation {
+  id: string;
+  name: string;
+  status: string;
+  businessName: string;
+  site: { state: string; slug: string } | null;
+  license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
+}
+
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  siteBuilder: (organizationId: string) =>
+    getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
+  changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
+    sendJson<PlatformSiteBuilderLocation>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/site-builder/${encodeURIComponent(locationId)}`,
+      body,
+    ),
   changeAiSeller: (organizationId: string, body: ExtensionChangeBody) =>
     sendJson<PlatformOrganization>(
       'PUT',
@@ -2536,6 +2935,10 @@ export interface AuthMember {
   you: boolean;
   removable: boolean;
   roleEditable: boolean;
+  /** Телефон и должность в организации (TEAM2, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
+  detailsEditable: boolean;
 }
 
 export interface AuthInvitePreview {
@@ -2562,6 +2965,9 @@ export interface InventoryCategory {
   upcomingReservations: number;
   /** Категория сопоставлена с типом номера в Channex */
   channexMapped: boolean;
+  /** Цена категории: сегодняшняя ночь основного тарифа, тиыны строкой; null — цена не задана */
+  priceMinor: string | null;
+  currency: string | null;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
@@ -2570,6 +2976,13 @@ export const inventoryEditorApi = {
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
       body,
+    ),
+  /** «Удалить»: пустая категория удаляется, с историей — в архив, с бронями впереди — 409 словами */
+  remove: (code: string) =>
+    sendJson<{ code: string; result: 'deleted' | 'archived' }>(
+      'DELETE',
+      `/inventory/categories/${encodeURIComponent(code)}`,
+      {},
     ),
   /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
   linkRatePlan: (code: string, body: Record<string, unknown>) =>
@@ -2639,7 +3052,7 @@ export interface BranchItem {
   currency: string;
   timezone: string;
   /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
-  vertical: 'HOSPITALITY' | 'BEAUTY';
+  vertical: WebVertical;
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };
@@ -2778,7 +3191,16 @@ export interface BeautyDay {
   bounds: { fromMinutes: number; toMinutes: number };
 }
 
+export interface BeautyCustomerRow {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  phone: string | null;
+  status: string;
+}
+
 export const beautyApi = {
+  customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
   services: () =>
     getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
       '/beauty/services',
@@ -2934,3 +3356,79 @@ export const marketApi = {
       { entries },
     ),
 };
+
+export interface SharedOnboardingState {
+  vertical: BusinessVertical;
+  businessId: string;
+  locationId: string;
+  flowVersion: number;
+  currentStep: string;
+  draft: Record<string, unknown>;
+  completedAt: string | null;
+  updatedAt: string | null;
+  canEdit: boolean;
+}
+export const sharedOnboardingApi = {
+  status: () => getJson<SharedOnboardingState>('/onboarding'),
+  save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
+    sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+};
+
+export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
+export interface BarProductRow {
+  id: string; code: string; name: string; categoryId: string | null; unitsPerPackage: number;
+  markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
+  category?: BarCategoryRow | null;
+}
+export interface BarSupplierRow { id: string; name: string; phone: string | null; email: string | null; active: boolean }
+export interface BarReceiptRow {
+  id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
+  totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
+}
+export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarSaleRow {
+  id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
+  lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
+}
+export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
+export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export const barApi = {
+  categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
+  createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
+  setCategoryActive: (id: string, active: boolean) => sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, { active }),
+  products: () => getJson<BarProductRow[]>('/bar/products'),
+  createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
+  setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
+  setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
+  suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
+  createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
+  setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),
+  receipts: () => getJson<BarReceiptRow[]>('/bar/receipts'),
+  stock: () => getJson<BarStockRow[]>('/bar/stock'),
+  sales: () => getJson<BarSaleRow[]>('/bar/sales'),
+  folios: () => getJson<BarFolioRow[]>('/bar/folios'),
+  movements: () => getJson<BarMovementRow[]>('/bar/movements'),
+  report: () => getJson<BarReport>('/bar/report'),
+  createReceipt: (body: unknown) => sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
+  postReceipt: (id: string) => sendJson<{ id: string; status: 'POSTED' }>('POST', `/bar/receipts/${encodeURIComponent(id)}/post`, {}),
+  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
+  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
+  reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
+  writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
+  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
+  inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
+};
+
+/** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>, date: string, cursor?: string): Promise<BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>> {
+  const q = new URLSearchParams({ date });
+  if (branch.vertical === 'FOOD_SERVICE') {
+    q.set('limit', '100');
+    if (cursor) q.set('cursor', cursor);
+  } else if (branch.vertical !== 'BEAUTY') throw new Error('Нет адаптера отчёта');
+  const path = `${branch.vertical === 'BEAUTY' ? '/beauty/appointments' : '/food-service/reservations'}?${q}`;
+  const response = await backendFetch(path, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}

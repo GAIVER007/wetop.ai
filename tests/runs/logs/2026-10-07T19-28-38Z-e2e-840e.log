@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 08.10.2026 00:28 Алматы · vm
+# коммит 5423299 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+SyntaxError: /home/user/wetop.ai/tests/ui/site-editor.spec.ts: Unexpected token, expected "," (52:2)
+
+  50 |   await expect(diff).toContainText('Секция «Новый первый экран»: изменено содержимое');
+  51 |   await expect(diff).not.toContainText('{');
+> 52 | });
+     |   ^
+  53 |
+  54 | test('просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит', async ({ page }) => {
+  55 |   await page.goto('/marketing/site/editor');
+
+   at site-editor.spec.ts:52
+
+  50 |   await expect(diff).toContainText('Секция «Новый первый экран»: изменено содержимое');
+  51 |   await expect(diff).not.toContainText('{');
+> 52 | });
+     |  ^
+  53 |
+  54 | test('просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит', async ({ page }) => {
+  55 |   await page.goto('/marketing/site/editor');
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+
+
+# код выхода 1 · 15 с

@@ -1,0 +1,198 @@
+# Интеграционные (integration) · 05.10.2026 11:10 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/bar-repair-2), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-10-34Z-integration-d763.json' 'tests/integration/bar-property-guard.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ❯ |integration| tests/integration/bar-property-guard.test.ts (12 tests | 9 failed) 58ms
+   ❯ BAR property guard: table-specific trigger dispatch (12)
+     × product with own category succeeds without reading supplier_id 20ms
+     × product with null category succeeds 3ms
+     ✓ product rejects foreign category 3ms
+     ✓ product rejects nonexistent category 2ms
+     × product property update rejects previously own category 2ms
+     × receipt with own supplier succeeds without reading category_id 3ms
+     × receipt rejects foreign supplier 5ms
+     × receipt rejects nonexistent supplier 3ms
+     × receipt rejects null supplier 3ms
+     × receipt property update rejects previously own supplier 2ms
+     × unknown table fails closed even with neither row-specific field 5ms
+     ✓ search_path is pinned to owning schema, public, pg_temp 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product with own category succeeds without reading supplier_id
+AssertionError: promise rejected "error: record "new" has no field "supplie… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:45:58
+     43|   }
+     44|   it('product with own category succeeds without reading supplier_id',…
+     45|     await fixture(async (a) => { await expect(product(a)).resolves.toB…
+       |                                                          ^
+     46|   });
+     47|   it('product with null category succeeds', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:45:5
+
+Caused by: error: record "new" has no field "supplier_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+ ❯ tests/integration/bar-property-guard.test.ts:45:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 331, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: 'SQL expression "TG_TABLE_NAME = 'bar_receipts' AND NOT EXISTS (SELECT 1 FROM bar_suppliers s WHERE s.id = NEW.supplier_id AND s.property_id = NEW.property_id)"
+PL/pgSQL function bar_property_guard() line 4 at IF', schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'pl_exec.c', routine: 'plpgsql_exec_get_datum_type_info' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product with null category succeeds
+AssertionError: promise rejected "error: record "new" has no field "supplie… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:48:64
+     46|   });
+     47|   it('product with null category succeeds', async () => {
+     48|     await fixture(async (a) => { await expect(product(a, null)).resolv…
+       |                                                                ^
+     49|   });
+     50|   it('product rejects foreign category', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:48:5
+
+Caused by: error: record "new" has no field "supplier_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+ ❯ tests/integration/bar-property-guard.test.ts:48:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:48:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 331, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: 'SQL expression "TG_TABLE_NAME = 'bar_receipts' AND NOT EXISTS (SELECT 1 FROM bar_suppliers s WHERE s.id = NEW.supplier_id AND s.property_id = NEW.property_id)"
+PL/pgSQL function bar_property_guard() line 4 at IF', schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'pl_exec.c', routine: 'plpgsql_exec_get_datum_type_info' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product property update rejects previously own category
+error: record "new" has no field "supplier_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+     34|   async function product(a: Side, category: string | null = a.category…
+     35|     const id = randomUUID();
+     36|     await client.query(`INSERT INTO bar_products (id,property_id,categ…
+       |     ^
+     37|     return id;
+     38|   }
+ ❯ tests/integration/bar-property-guard.test.ts:58:18
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:57:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt with own supplier succeeds without reading category_id
+AssertionError: promise rejected "error: record "new" has no field "categor… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:63:58
+     61|   });
+     62|   it('receipt with own supplier succeeds without reading category_id',…
+     63|     await fixture(async (a) => { await expect(receipt(a)).resolves.toB…
+       |                                                          ^
+     64|   });
+     65|   it('receipt rejects foreign supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:63:5
+
+Caused by: error: record "new" has no field "category_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ receipt tests/integration/bar-property-guard.test.ts:41:5
+ ❯ tests/integration/bar-property-guard.test.ts:63:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:63:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 364, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: 'SQL expression "TG_TABLE_NAME = 'bar_products' AND NEW.category_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM bar_categories c WHERE c.id = NEW.category_id AND c.property_id = NEW.property_id)"
+PL/pgSQL function bar_property_guard() line 3 at IF', schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'pl_exec.c', routine: 'plpgsql_exec_get_datum_type_info' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects foreign supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'record "new" has no field "category_i…'
+
+Expected: "Supplier belongs to another property"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:66:71
+     64|   });
+     65|   it('receipt rejects foreign supplier', async () => {
+     66|     await fixture(async (a,b) => { await expect(receipt(a,b.supplier))…
+       |                                                                       ^
+     67|   });
+     68|   it('receipt rejects nonexistent supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:66:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects nonexistent supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'record "new" has no field "category_i…'
+
+Expected: "Supplier belongs to another property"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:69:71
+     67|   });
+     68|   it('receipt rejects nonexistent supplier', async () => {
+     69|     await fixture(async (a) => { await expect(receipt(a,randomUUID()))…
+       |                                                                       ^
+     70|   });
+     71|   it('receipt rejects null supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:69:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects null supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'record "new" has no field "category_i…'
+
+Expected: "Supplier belongs to another property"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:73:268
+
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:72:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt property update rejects previously own supplier
+error: record "new" has no field "category_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ receipt tests/integration/bar-property-guard.test.ts:41:5
+
+ ❯ tests/integration/bar-property-guard.test.ts:78:18
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:77:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > unknown table fails closed even with neither row-specific field
+AssertionError: expected [Function] to throw error including 'Unsupported table for bar_property_gu…' but got 'record "new" has no field "category_i…'
+
+Expected: "Unsupported table for bar_property_guard"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:86:94
+     84|       await client.query('CREATE TEMP TABLE bar_unknown_probe (id uuid…
+     85|       await client.query('CREATE TRIGGER probe BEFORE INSERT ON bar_un…
+     86|       await expect(client.query('INSERT INTO bar_unknown_probe VALUES …
+       |                                                                                              ^
+     87|     });
+     88|   });
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:83:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 3 passed (12)
+   Start at  10:10:35
+   Duration  963ms (transform 67%, import 19%, tests 13%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-10-34Z-integration-d763.json
+
+# код выхода 1 · 2 с

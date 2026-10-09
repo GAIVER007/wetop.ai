@@ -1,0 +1,97 @@
+# Сквозные (e2e) · 05.10.2026 16:51 Алматы · MacBook-Air-Urij.local
+# коммит 6293670 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 59
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:4638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:4920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4678) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✘  1 tests/food-ui/food.spec.ts:106:1 › empty restaurant catalog and complete persisted desk flow (1.5m)
+(node:5887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/food-ui/food.spec.ts:135:1 › walk-in is seated immediately and persisted after reload (1.3m)
+
+
+  1) tests/food-ui/food.spec.ts:106:1 › empty restaurant catalog and complete persisted desk flow ──
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Назначить стол', { exact: true })
+
+
+      113 |   await dialog
+      114 |     .getByLabel('Назначить стол', { exact: true })
+    > 115 |     .selectOption({ label: 'Основной зал · Стол 7 · 4 мест' });
+          |      ^
+      116 |   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+      117 |   await expect(dialog).toContainText('Основной зал · Стол 7');
+      118 |   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:115:6
+
+    Error Context: test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:135:1 › walk-in is seated immediately and persisted after reload ───
+
+    Test was interrupted.
+
+    Error: locator.selectOption: Test ended.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Стол', { exact: true })
+
+
+       97 |     await dialog
+       98 |       .getByLabel('Стол', { exact: true })
+    >  99 |       .selectOption({ label: 'Основной зал · Стол 7 · 4 мест' });
+          |        ^
+      100 |   await dialog
+      101 |     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
+      102 |     .click();
+        at create (/Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:99:8)
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:137:18
+
+    Error Context: test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:106:1 › empty restaurant catalog and complete persisted desk flow ───
+  1 interrupted
+    tests/food-ui/food.spec.ts:135:1 › walk-in is seated immediately and persisted after reload ────
+  2 did not run
+
+# код выхода 130 · 3 мин 2 с

@@ -1,29 +1,22 @@
 'use server';
-import { cookies } from 'next/headers';
+import { landingForVertical } from '../../lib/vertical-landing';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { branchesApi, ApiError } from '../../lib/api';
+import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { branchDestination } from '../../lib/branch-destination';
-import { hotelApi } from '../../lib/hotel-api';
-import { SCOPE_COOKIE } from '../../lib/scope-pointer';
+import { setScopeCookie } from '../../lib/session';
 
 export async function selectBranch(form: FormData) {
   const { items } = await branchesApi.list();
   const branch = items.find((item) => item.id === String(form.get('id')));
   if (!branch) throw new Error('Филиал недоступен. Обновите список.');
-  (await cookies()).set(
-    SCOPE_COOKIE,
-    `business=${branch.location.businessId};location=${branch.locationId}`,
-    {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-    },
-  );
+  await setScopeCookie(`business=${branch.location.businessId};location=${branch.locationId}`);
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
-  if (branch.vertical === 'BEAUTY') redirect('/beauty');
+  if (branch.vertical !== 'HOSPITALITY') {
+    const destination = branchDestination(String(form.get('returnTo') ?? ''));
+    redirect(destination === '/management/analytics' ? destination : landingForVertical(branch.vertical));
+  }
   redirect(
     branch._count.inventoryUnits
       ? branchDestination(String(form.get('returnTo') ?? ''))
@@ -62,10 +55,16 @@ export async function createBranch(
 
 export async function branchChoices() {
   try {
-    const [{ items }, hotel] = await Promise.all([branchesApi.list(), hotelApi.settings()]);
+    const [{ items }, me] = await Promise.all([branchesApi.list(), authApi.me()]);
+    const selected = items.find(
+      (item) =>
+        item.locationId === me.context?.locationId &&
+        item.location.businessId === me.context?.businessId,
+    );
+    const currentId = selected?.id ?? null;
     return {
       items: items.map(({ id, name, address }) => ({ id, name, address })),
-      currentId: hotel.property.id,
+      currentId,
     };
   } catch {
     return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };

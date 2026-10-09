@@ -9,7 +9,16 @@ import type {
   TableHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import Link from 'next/link';
+import { cloneElement, isValidElement } from 'react';
+import type { Delta } from '../lib/dashboard-format';
 import { Icon, type IconName } from './icon';
+import { beautyStatus } from '../lib/status/beauty';
+import { foodStatus } from '../lib/status/food';
+import { hospitalityStatus } from '../lib/status/hospitality';
+import { housekeepingStatus } from '../lib/status/housekeeping';
+import { paymentStatus } from '../lib/status/payment';
+import { statusLabel, statusTone, type StatusRegistry, type StatusTone } from '../lib/status/types';
 
 /**
  * Примитивы интерфейса стойки (срез 10, ADR-027). Без клиентского JS: годятся и серверным, и
@@ -63,18 +72,82 @@ export function Textarea({ className, ...rest }: TextareaHTMLAttributes<HTMLText
   return <textarea className={cx('inp', className)} {...rest} />;
 }
 
-/** Подпись над полем (или слева, `inline`). Текст подписи идёт первым — так поле находится по label. */
+type FieldControlProps = {
+  id?: string | undefined;
+  required?: boolean | undefined;
+  'aria-describedby'?: string | undefined;
+  'aria-invalid'?: boolean | 'true' | 'false' | undefined;
+};
+
+type FieldProps = LabelHTMLAttributes<HTMLLabelElement> & {
+  label: ReactNode;
+  inline?: boolean | undefined;
+  /**
+   * Обязательность (MV8.5 DS1c, DESIGN.md §8.2): true даёт полю родное `required` и знак после подписи,
+   * false пишет «необязательно», не задан: прежний вид. Новые и переведённые формы выбирают явно.
+   */
+  required?: boolean | undefined;
+} & (
+    | { controlId: string; hint?: ReactNode | undefined; error?: ReactNode | undefined }
+    | { controlId?: undefined; hint?: undefined; error?: undefined }
+  );
+
+/**
+ * Подпись над полем (или слева, `inline`). Для hint/error обязателен `controlId`:
+ * компонент связывает подпись и пояснение с прямым дочерним Input/Select/Textarea.
+ */
 export function Field({
   label,
   inline,
+  controlId,
+  hint,
+  error,
+  required,
   className,
   children,
   ...rest
-}: LabelHTMLAttributes<HTMLLabelElement> & { label: ReactNode; inline?: boolean | undefined }) {
+}: FieldProps) {
+  const hintId = hint && controlId ? `${controlId}-hint` : undefined;
+  const errorId = error && controlId ? `${controlId}-error` : undefined;
+  const descriptionId = errorId ?? hintId;
+  const control = isValidElement<FieldControlProps>(children)
+    ? cloneElement(children, {
+        id: children.props.id ?? controlId,
+        ...(required === undefined ? {} : { required: children.props.required ?? required }),
+        'aria-describedby':
+          [children.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') ||
+          undefined,
+        'aria-invalid': error ? true : children.props['aria-invalid'],
+      })
+    : children;
+
   return (
-    <label className={cx('field', inline && 'field--inline', className)} {...rest}>
-      {label}
-      {children}
+    <label
+      htmlFor={controlId}
+      className={cx('field', inline && 'field--inline', error ? 'field--error' : false, className)}
+      {...rest}
+    >
+      {required === undefined ? (
+        label
+      ) : (
+        // знак обязательности рисует CSS (`::after` с пустым альтернативным текстом): виден, но не входит
+        // ни в имя поля, ни в текст подписи; для читалки обязательность говорит родное `required`
+        <span className={cx('field__label', required && 'field__label--required')}>
+          {label}
+          {!required && <span className="field__optional">необязательно</span>}
+        </span>
+      )}
+      {control}
+      {hint && !error && (
+        <span className="field__hint" id={hintId}>
+          {hint}
+        </span>
+      )}
+      {error && (
+        <span className="field__error" id={errorId} role="alert">
+          {error}
+        </span>
+      )}
     </label>
   );
 }
@@ -123,6 +196,31 @@ export function Stats({
   return <section className={cx('stats', className)} style={{ ...vars, ...style }} {...rest} />;
 }
 
+/** Тон плитки по общей шкале (MV8.5 DS1c): тонкая черта слева и цвет подсказки, плитка не заливается */
+export type StatTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+/** Прежние тоны и размеры (`alarm`, `warn`, `big`, `compact`) остаются совместимостью до DS4–DS7 */
+type LegacyStatTone = 'alarm' | 'warn';
+type LegacyStatSize = 'big' | 'compact';
+const LEGACY_TONES: readonly string[] = ['alarm', 'warn'];
+/** глиф направления изменения: вверх, вниз, без изменений (кодами, чтобы сторож стрелок в тексте не путал) */
+const DELTA_GLYPH = { up: '\u2191', down: '\u2193', flat: '\u2192' } as const;
+
+type StatProps = {
+  label: ReactNode;
+  value: ReactNode;
+  hint?: ReactNode;
+  hintTone?: 'warn' | undefined;
+  testId?: string | undefined;
+  tone?: StatTone | LegacyStatTone | undefined;
+  size?: 'sm' | 'md' | 'lg' | LegacyStatSize | undefined;
+  /** изменение к прошлому периоду: форма `Delta` из `lib/dashboard-format.ts` */
+  delta?: Delta | undefined;
+} & (
+  | { href?: undefined; children?: ReactNode }
+  /** плитка-ссылка целиком: внутри других ссылок и кнопок нет */
+  | { href: string; children?: never }
+);
+
 export function Stat({
   label,
   value,
@@ -131,24 +229,42 @@ export function Stat({
   testId,
   tone,
   size,
+  delta,
+  href,
   children,
-}: {
-  label: ReactNode;
-  value: ReactNode;
-  hint?: ReactNode;
-  hintTone?: 'warn' | undefined;
-  testId?: string | undefined;
-  tone?: 'alarm' | 'warn' | undefined;
-  size?: 'big' | 'compact' | undefined;
-  children?: ReactNode;
-}) {
-  return (
-    <div className={cx('stat', tone && `stat--${tone}`, size && `stat--${size}`)}>
+}: StatProps) {
+  const toneClass =
+    tone && tone !== 'neutral'
+      ? LEGACY_TONES.includes(tone)
+        ? `stat--${tone}`
+        : `stat--tone-${tone}`
+      : false;
+  const sizeClass = size && size !== 'md' && `stat--${size}`;
+  const className = cx('stat', toneClass, sizeClass, href && 'stat--link');
+  const body = (
+    <>
       <div className="stat__label">{label}</div>
       <div className="stat__value" data-testid={testId}>
         {value}
       </div>
+      {delta && (
+        <div className="stat__delta" data-direction={delta.direction ?? 'none'}>
+          {delta.direction && <span aria-hidden="true">{DELTA_GLYPH[delta.direction]}</span>}
+          {delta.text}
+        </div>
+      )}
       {hint && <div className={cx('stat__hint', hintTone === 'warn' && 'warn-text')}>{hint}</div>}
+    </>
+  );
+  if (href)
+    return (
+      <Link href={href} prefetch={false} className={className}>
+        {body}
+      </Link>
+    );
+  return (
+    <div className={className}>
+      {body}
       {children}
     </div>
   );
@@ -174,37 +290,71 @@ export function Fact({
   );
 }
 
-export function Table({
-  size,
-  dense,
-  nowrap,
-  plain,
-  className,
-  ...rest
-}: TableHTMLAttributes<HTMLTableElement> & {
+type TableBase = TableHTMLAttributes<HTMLTableElement> & {
   size?: 'sm' | undefined;
-  dense?: boolean | undefined;
   nowrap?: boolean | undefined;
   plain?: boolean | undefined;
-}) {
+};
+/** Прежний вход: имя области общее, пока экран не переведён (DS4–DS7) */
+type LegacyTableProps = TableBase & {
+  dense?: boolean | undefined;
+  density?: undefined;
+  sticky?: undefined;
+  caption?: undefined;
+  captionHidden?: undefined;
+};
+/**
+ * Новый вход (MV8.5 DS1c, DESIGN.md §8.2): плотность выбрана явно, липкие шапка или первая колонка,
+ * имя таблицы обязательно (подпись, можно скрытая, или `aria-label`); без имени тип не собирается.
+ */
+type CanonicalTableProps = TableBase & {
+  density: 'normal' | 'compact';
+  sticky?: 'header' | 'column' | 'both' | undefined;
+  dense?: undefined;
+} & (
+    | { caption: string; captionHidden?: boolean | undefined; 'aria-label'?: undefined }
+    | { 'aria-label': string; caption?: undefined; captionHidden?: undefined }
+  );
+
+export function Table(props: LegacyTableProps | CanonicalTableProps) {
+  const {
+    size,
+    dense,
+    density,
+    sticky,
+    caption,
+    captionHidden,
+    nowrap,
+    plain,
+    className,
+    children,
+    ...rest
+  } = props;
+  const name = caption ?? rest['aria-label'];
   return (
     <div
       className="table-scroll"
       tabIndex={0}
       role="region"
-      aria-label={rest['aria-label'] || 'Таблица, прокрутка по горизонтали'}
+      aria-label={name || 'Таблица, прокрутка по горизонтали'}
     >
       <table
         className={cx(
           'tbl',
           size && `tbl--${size}`,
           dense && 'tbl--dense',
+          density === 'compact' && 'tbl--compact',
+          (sticky === 'header' || sticky === 'both') && 'tbl--sticky-header',
+          (sticky === 'column' || sticky === 'both') && 'tbl--sticky-column',
           nowrap && 'tbl--nowrap',
           plain && 'tbl--plain',
           className,
         )}
         {...rest}
-      />
+      >
+        {caption && <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>}
+        {children}
+      </table>
     </div>
   );
 }
@@ -221,24 +371,33 @@ export function Badge({
   );
 }
 
-const STATUS_TONE: Record<string, BadgeTone> = {
-  TENTATIVE: 'warn',
-  CONFIRMED: 'info',
-  CHECKED_IN: 'ok',
-  CHECKED_OUT: 'neutral',
-  CANCELLED: 'danger',
-  NO_SHOW: 'danger',
+/** Тон договора статусов в тон бейджа: success и warning у бейджа называются ok и warn */
+export const BADGE_TONE: Record<StatusTone, BadgeTone> = {
+  neutral: 'neutral',
+  info: 'info',
+  success: 'ok',
+  warning: 'warn',
+  danger: 'danger',
 };
+const STATUS_REGISTRY = {
+  hospitality: hospitalityStatus,
+  housekeeping: housekeepingStatus,
+  payment: paymentStatus,
+  beauty: beautyStatus,
+  food: foodStatus,
+} as const satisfies Record<string, StatusRegistry<string>>;
+export type StatusKind = keyof typeof STATUS_REGISTRY;
 
-/** Статус брони/проживания. Подпись даёт страница (у стойки свои слова: «ждём», «живёт»). */
+/** Статус словом и тоном из реестра домена (`lib/status`, MV8.5 DS1a): страница своих слов не держит */
 export function StatusBadge({
-  status,
-  label,
+  kind,
+  value,
   ...rest
-}: HTMLAttributes<HTMLSpanElement> & { status: string; label: string }) {
+}: HTMLAttributes<HTMLSpanElement> & { kind: StatusKind; value: string }) {
+  const registry: StatusRegistry<string> = STATUS_REGISTRY[kind];
   return (
-    <Badge tone={STATUS_TONE[status] ?? 'neutral'} {...rest}>
-      {label}
+    <Badge tone={BADGE_TONE[statusTone(registry, value)]} {...rest}>
+      {statusLabel(registry, value)}
     </Badge>
   );
 }
@@ -403,6 +562,7 @@ export function StateFact({
 export function EmptyState({
   icon,
   title,
+  details,
   actions,
   className,
   children,
@@ -410,6 +570,8 @@ export function EmptyState({
 }: HTMLAttributes<HTMLElement> & {
   icon?: ReactNode;
   title?: ReactNode;
+  /** подробности под текстом (код ошибки и подобное, MV8.5 DS1c: `ErrorState` собирается отсюда) */
+  details?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
@@ -417,6 +579,7 @@ export function EmptyState({
       {icon}
       {title && <h3 className="empty-state__title">{title}</h3>}
       {children && <p className="empty-state__text">{children}</p>}
+      {details}
       {actions && <div className="empty-state__actions">{actions}</div>}
     </section>
   );

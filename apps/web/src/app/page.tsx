@@ -1,6 +1,7 @@
+import { landingForVertical } from '../lib/vertical-landing';
 import { redirect } from 'next/navigation';
-
-/** Корень ведёт на рабочий день стойки: это первое, что открывает администратор в смену (SPEC §6). */
-export default function Home() {
-  redirect('/today');
+import { deskShell } from '../lib/desk-shell';
+export default async function Home() {
+  const shell = await deskShell();
+  redirect(landingForVertical(shell.vertical));
 }

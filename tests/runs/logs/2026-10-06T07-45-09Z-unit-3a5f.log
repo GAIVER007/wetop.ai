@@ -1,0 +1,16 @@
+# Модульные (unit) · 06.10.2026 12:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит a616d39 (codex/remaining-release-20261005)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-45-09Z-unit-3a5f.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  00:45:10
+   Duration  129ms (import 65%, transform 28%, tests 4%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-06T07-45-09Z-unit-3a5f.json
+
+# код выхода 0 · 1 с

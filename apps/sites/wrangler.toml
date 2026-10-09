@@ -1,0 +1,31 @@
+# Публичный рантайм сайтов WETOP (MKT4, Q-269: Cloudflare Workers, Worker сам origin сайта).
+# Окружения: dev (локально), staging (workers.dev, всегда noindex) и production (MKT7). Индексация только в production
+# и только при основном хосте сайта. Ключ рантайма только секретом:
+#   npx wrangler@4.148.0 secret put SITES_RUNTIME_KEY --env <staging|production>
+# Выкладка и проверки: apps/sites/README.md.
+# Q-271 RESOLVED OWNER 07.10.2026: сайты клиентов на отдельном registrable domain `SITES_BASE_DOMAIN`, не под wetop.ai
+# (Worker проверяет это тем же правилом, что API; неверное значение выключает превью). Значение, настоящий адрес API
+# и маршрут `*.<домен>/*` с wildcard DNS задаёт инфраструктура при выкладке (`--var SITES_BASE_DOMAIN:<домен>`,
+# `--var SITES_API_URL:<адрес>`); конкретного домена в этом файле нет намеренно.
+name = "wetop-sites"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+[env.dev]
+name = "wetop-sites-dev"
+workers_dev = false
+vars = { SITES_ENV = "dev", SITES_API_URL = "http://127.0.0.1:3001" }
+
+[env.staging]
+name = "wetop-sites-staging"
+workers_dev = true
+# Адрес API staging задаётся при первой выкладке staging (`--var SITES_API_URL:<адрес>`): боевой API разрешает
+# хосты только с MKT7, а dev-резолвер в production выключен. Пустой адрес даёт 503, а не чужой сайт.
+vars = { SITES_ENV = "staging", SITES_API_URL = "" }
+
+[env.production]
+name = "wetop-sites-production"
+workers_dev = false
+# Пустой адрес API даёт 503, а не чужой сайт: настоящий адрес и SITES_BASE_DOMAIN задаются при выкладке
+vars = { SITES_ENV = "production", SITES_API_URL = "" }

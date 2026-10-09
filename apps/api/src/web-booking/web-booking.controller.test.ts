@@ -189,11 +189,14 @@ const createBooking = async (dto: { arrivalDate: string; departureDate: string }
     ],
   };
 };
-const reservations = { create: vi.fn(createBooking) };
+/** Ранний повтор (MKT1B BOOK-2): по умолчанию брони с этим ключом ещё нет */
+const reservations = { create: vi.fn(createBooking), replayOf: vi.fn(async () => null) };
 /** Письма гостю (ADR-144): только заглушка, живых писем в тестах нет */
 const mailer = new mail.StubMailSender();
 
 const booking = () => ({
+  // MKT1B BOOK-2: ключ создания обязателен (UUID v4)
+  creationKey: '6a1f0b2c-3d4e-4f50-8a6b-7c8d9e0f1a2b',
   k: SITE.publicKey,
   arrival: '2026-09-13',
   departure: '2026-09-15',
@@ -649,6 +652,23 @@ describe('виджет бронирования /w/*', () => {
   });
 
   // Аудит 26.09, С-36: цены с сайта — около 30 обращений к базе на запрос, ключ публичен, лимита не было
+  it('Q-276: GET /w/from-prices — свой домен с CORS и коротким кэшем, чужой домен 403 без CORS, без ключа 404', async () => {
+    const own = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', ORIGIN)
+      .set('cf-connecting-ip', '203.0.113.60')
+      .expect(200);
+    expect(own.headers['access-control-allow-origin']).toBe(ORIGIN);
+    expect(own.headers['cache-control']).toBe('public, max-age=60');
+    expect(Object.keys(own.body).sort()).toEqual(['categories', 'currency', 'window']);
+    const foreign = await request(app.getHttpServer())
+      .get(`/w/from-prices?k=${SITE.publicKey}`)
+      .set('Origin', 'http://evil.local')
+      .expect(403);
+    expect(foreign.headers['access-control-allow-origin']).toBeUndefined();
+    await request(app.getHttpServer()).get('/w/from-prices').set('Origin', ORIGIN).expect(404);
+  });
+
   it('цены: больше 60 запросов в минуту с одного адреса — 429', async () => {
     const quote = () =>
       request(app.getHttpServer())

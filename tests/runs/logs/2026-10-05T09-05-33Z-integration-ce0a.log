@@ -1,0 +1,266 @@
+# Интеграционные (integration) · 05.10.2026 14:05 Алматы · MacBook-Air-Urij.local
+# коммит 8db4653 (codex/bar-repair-2), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-05-33Z-integration-ce0a.json' 'tests/integration/bar-external-parent-ownership.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ❯ |integration| tests/integration/bar-external-parent-ownership.test.ts (20 tests | 14 failed) 383ms
+   ❯ BAR linked external parents preserve existing ownership (20)
+     × wetop_app denies parent mutation: payment cash property 129ms
+     × wetop_app denies parent mutation: sale cash property 19ms
+     × wetop_app denies parent mutation: charge folio 19ms
+     ✓ wetop_app denies parent mutation: folio reservation item 17ms
+     ✓ wetop_app denies parent mutation: item reservation 14ms
+     × wetop_app denies parent mutation: reservation property 15ms
+     × wetop_service denies parent mutation: payment cash property 13ms
+     × wetop_service denies parent mutation: sale cash property 11ms
+     × wetop_service denies parent mutation: charge folio 10ms
+     × wetop_service denies parent mutation: folio reservation item 11ms
+     × wetop_service denies parent mutation: item reservation 13ms
+     × wetop_service denies parent mutation: reservation property 11ms
+     × wetop_app: direct reservation Property mutation is denied 11ms
+     × wetop_app: charge-only reservation Property mutation is denied 10ms
+     ✓ wetop_app: same-property mutations and unrelated parents remain mutable 14ms
+     ✓ wetop_app: unreferenced parents can change Property chains 14ms
+     × wetop_service: direct reservation Property mutation is denied 11ms
+     × wetop_service: charge-only reservation Property mutation is denied 9ms
+     ✓ wetop_service: same-property mutations and unrelated parents remain mutable 9ms
+     ✓ wetop_service: unreferenced parents can change Property chains 10ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app denies parent mutation: payment cash property
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app denies parent mutation: sale cash property
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app denies parent mutation: charge folio
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app denies parent mutation: reservation property
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: payment cash property
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: sale cash property
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: charge folio
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: folio reservation item
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: item reservation
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service denies parent mutation: reservation property
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:82:55
+     80|         const [sql, params] = queries[kind];
+     81|         await proof.asRole(role, a.org, async () => {
+     82|           await expect(client.query(sql, [...params])).rejects.toThrow(
+       |                                                       ^
+     83|             /BAR .*ownership|row-level security/,
+     84|           );
+ ❯ Object.asRole tests/tools/bar-proof-fixture.ts:341:20
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:81:9
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:7
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:35:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app: direct reservation Property mutation is denied
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_app: charge-only reservation Property mutation is denied
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service: direct reservation Property mutation is denied
+ FAIL  |integration| tests/integration/bar-external-parent-ownership.test.ts > BAR linked external parents preserve existing ownership > wetop_service: charge-only reservation Property mutation is denied
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:110:14
+    108|                 reservation,
+    109|               ]),
+    110|             ).rejects.toThrow(/BAR .*ownership/);
+       |              ^
+    111|           });
+    112|         });
+ ❯ Object.asRole tests/tools/bar-proof-fixture.ts:341:20
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:104:11
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:7
+ ❯ tests/integration/bar-external-parent-ownership.test.ts:92:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  14 failed | 6 passed (20)
+   Start at  13:05:34
+   Duration  2.27s (transform 56%, tests 26%, import 17%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T09-05-33Z-integration-ce0a.json
+
+# код выхода 1 · 3 с

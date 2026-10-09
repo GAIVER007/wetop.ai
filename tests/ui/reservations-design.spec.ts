@@ -25,7 +25,7 @@ test('выбранный статус броней доступен с клав�
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/status=CONFIRMED/);
   await expect(statuses).toHaveValue('CONFIRMED');
-  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждены');
+  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждённые');
 });
 
 test('мобильный статус и поиск сохраняются в URL, карточка открывается из списка', async ({

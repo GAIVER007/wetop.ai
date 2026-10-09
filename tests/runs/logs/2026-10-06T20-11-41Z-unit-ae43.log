@@ -1,0 +1,44 @@
+# Модульные (unit) · 07.10.2026 01:11 Алматы · vm
+# коммит 65a1342 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T20-11-41Z-unit-ae43.json' 'apps/web/src/app/today/dispatch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/today/dispatch.test.ts (8 tests | 1 failed) 13ms
+   ❯ /today: один адрес, экран только по подтверждённому направлению (8)
+     ✓ пускает все три направления: ни одно не уводится на другой адрес 2ms
+     ✓ гостиница: прежняя Главная 0ms
+     ✓ салон и ресторан с подтверждёнными Business и филиалом: свой экран, ключ по ним 0ms
+     ✓ направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING) 0ms
+     ✓ салон и ресторан без филиала или без Business: не свой экран, а выбор 0ms
+     ✓ аноним при включённом замке входа (production): тоже не гостиница 0ms
+     × открытый стенд разработки (замок входа выключен, сессии нет): одна гостиница стенда, как до MV8 7ms
+     ✓ куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > /today: один адрес, экран только по подтверждённому направлению > открытый стенд разработки (замок входа выключен, сессии нет): одна гостиница стенда, как до MV8
+AssertionError: expected 'UNRESOLVED' to be 'HOSPITALITY' // Object.is equality
+
+Expected: "HOSPITALITY"
+Received: "UNRESOLVED"
+
+ ❯ apps/web/src/app/today/dispatch.test.ts:54:88
+     52|
+     53|   it('открытый стенд разработки (замок входа выключен, сессии нет): од…
+     54|     expect(todayScreen({ user: null, context: null }, { authRequired: …
+       |                                                                                        ^
+     55|       'HOSPITALITY',
+     56|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  20:11:42
+   Duration  244ms (transform 72%, import 13%, tests 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-06T20-11-41Z-unit-ae43.json
+
+# код выхода 1 · 1 с

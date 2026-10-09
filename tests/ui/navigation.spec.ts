@@ -14,13 +14,14 @@ const routes = [
   '/reservations',
   '/guests',
   '/inventory',
-  '/rates',
   '/market',
   '/channels',
-  '/website',
+  // MKT2: вход в сайт через хаб «Маркетинг» (ADR-149)
+  '/marketing',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
   '/reports',
   '/finance',
+  '/bar',
   '/management/analytics',
   '/hotel-settings',
   // «Сотрудники» — видимый раздел команды (TEAM1, план settings-hub-2026-10-02)
@@ -36,7 +37,9 @@ const SECTIONS = [
   'Брони',
   'Гости',
   'Финансы',
+  'Бар',
   'Продажи',
+  'Маркетинг',
   'Отчёты',
   'Номерной фонд',
   'Настройки',
@@ -75,16 +78,16 @@ test('меню телефона: работа смены прямыми ссыл
   await page.keyboard.press('Space');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(menu.getByRole('link', { name: 'Тарифы и цены', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Тарифы и цены', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/rates$/);
+  await expect(page).toHaveURL(/\/market$/);
   await expect(menu).not.toBeVisible();
   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 

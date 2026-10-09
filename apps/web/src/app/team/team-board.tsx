@@ -22,6 +22,7 @@ import {
   inviteAction,
   removeMemberAction,
   revokeInviteAction,
+  setMemberDetailsAction,
   setMemberRoleAction,
   type TeamActionResult,
 } from '../login/actions';
@@ -151,6 +152,7 @@ const who = (m: AuthMember) => m.name ?? m.email;
 export function MembersTable({ members }: { members: AuthMember[] }) {
   const { error, pending, run } = useTeamActions();
   const { ask, dialog } = useConfirm();
+  const [editing, setEditing] = useState<AuthMember | null>(null);
   return (
     <section className="settings-catalog" aria-label="Люди организации">
       {error && <Alert boxed>{error}</Alert>}
@@ -158,9 +160,10 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
         <thead>
           <tr>
             <th>Сотрудник</th>
+            <th className="settings-col-wide">Телефон</th>
             <th className="settings-col-wide">Роль</th>
             <th className="settings-col-wide">В организации с</th>
-            <th>Был в системе</th>
+            <th className="settings-col-wide">Был в системе</th>
             <th aria-label="Действия" />
           </tr>
         </thead>
@@ -170,11 +173,21 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
               <td>
                 <b>{who(m)}</b>
                 {m.you ? ' — это вы' : ''}
+                {m.position ? <span className="cell-sub">{m.position}</span> : null}
                 <span className="cell-sub team-member-sub">
                   {m.name ? <span>{m.email}</span> : null}
-                  {/* на телефоне колонки роли и даты входа в организацию скрыты — роль строкой под именем */}
+                  {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
+                  {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
                   <span className="team-sub-role">{MEMBERSHIP_ROLES[m.role]}</span>
+                  <span className="team-sub-role">
+                    {m.lastLoginAt
+                      ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}`
+                      : 'ещё не входил'}
+                  </span>
                 </span>
+              </td>
+              <td className="settings-col-wide">
+                {m.phone ? <a href={`tel:${m.phone}`}>{m.phone}</a> : <span className="muted">не указан</span>}
               </td>
               <td className="settings-col-wide">
                 {m.roleEditable ? (
@@ -192,8 +205,21 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
                 )}
               </td>
               <td className="settings-col-wide">{displayDate(m.joinedAt.slice(0, 10))}</td>
-              <td>{m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'}</td>
+              <td className="settings-col-wide">
+                {m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'}
+              </td>
               <td className="team-row-actions">
+                {m.detailsEditable && (
+                  <Button
+                    type="button"
+                    tone="secondary"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() => setEditing(m)}
+                  >
+                    Изменить
+                  </Button>
+                )}
                 {m.removable && (
                   <Button
                     type="button"
@@ -218,7 +244,71 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
         </tbody>
       </Table>
       {dialog}
+      <Overlay
+        drawer
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title={editing ? who(editing) : ''}
+      >
+        {editing && (
+          <DetailsForm key={editing.userId} member={editing} onDone={() => setEditing(null)} />
+        )}
+      </Overlay>
     </section>
+  );
+}
+
+/** Телефон и должность (TEAM2, Q-244): пустое поле стирает значение; отказ API: словами, ввод остаётся */
+function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => void }) {
+  const [phone, setPhone] = useState(member.phone ?? '');
+  const [position, setPosition] = useState(member.position ?? '');
+  const [error, setError] = useState('');
+  const [pending, start] = useTransition();
+  return (
+    <form
+      className="team-invite-form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        start(async () => {
+          setError('');
+          const result = await setMemberDetailsAction(member.userId, phone, position);
+          if (result.error) setError(result.error);
+          else onDone();
+        });
+      }}
+    >
+      <p className="muted">Права даёт роль, должность их не меняет.</p>
+      <Field label="Телефон">
+        <Input
+          type="tel"
+          name="memberPhone"
+          inputMode="tel"
+          autoComplete="off"
+          placeholder="8 701 000 00 00"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+        />
+      </Field>
+      <Field label="Должность">
+        <Input
+          name="memberPosition"
+          autoComplete="off"
+          maxLength={100}
+          placeholder="Старший администратор"
+          value={position}
+          onChange={(event) => setPosition(event.target.value)}
+        />
+      </Field>
+      {error && <Alert>{error}</Alert>}
+      <div className="team-invite-form__actions">
+        <Button type="submit" disabled={pending}>
+          {pending ? 'Сохраняю…' : 'Сохранить'}
+        </Button>
+        <Button type="button" tone="secondary" onClick={onDone}>
+          Отмена
+        </Button>
+      </div>
+    </form>
   );
 }
 

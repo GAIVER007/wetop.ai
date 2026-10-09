@@ -277,6 +277,10 @@ function makeFakes() {
         status: 'COMPLETED',
         amountMinor: p.amountMinor,
         currency: p.currency,
+        paidAt: p.paidAt ?? '2026-09-09T12:00:00.000Z',
+        note: p.note,
+        receiptNumber: null,
+        requestId: null,
         allocations: p.allocations,
         refunds: [],
       });
@@ -309,7 +313,35 @@ function makeFakes() {
           }
     },
     async paymentById(id) {
-      return payments.find((p) => p.id === id) ?? null;
+      const p = payments.find((x) => x.id === id);
+      if (!p) return null;
+      // чек хранит строка платежа в счёте (issueReceipt выше): отдаём его номер, как настоящий репозиторий
+      const receipt = folios
+        .flatMap((f) => f.allocations)
+        .find((a) => a.paymentId === id && a.payment.receipt)?.payment.receipt;
+      return { ...p, receiptNumber: receipt?.number ?? null };
+    },
+    // аннулирование и замена (план finance-payments-direct 07.10.2026): правило У3 держит сервис до записи,
+    // фальшивка только переписывает статус и строки счетов
+    async voidPayment(id, audit) {
+      if (audit) {
+        audits.push(audit.action);
+        auditAfter.push(audit.after);
+      }
+      const p = payments.find((x) => x.id === id);
+      if (!p) throw new FinanceStateErrorForTest('Платёж не найден');
+      p.status = 'VOIDED';
+      for (const f of folios)
+        for (const a of f.allocations) if (a.paymentId === id) a.payment.status = 'VOIDED';
+    },
+    async replacePayment(id, next, audit) {
+      await repo.voidPayment(id);
+      const created = await repo.createPayment(next);
+      if (audit) {
+        audits.push(audit.action);
+        auditAfter.push({ ...audit.after, paymentId: created });
+      }
+      return created;
     },
     async createRefund(r, audit) {
       if (audit) audits.push(audit.action);
@@ -1239,6 +1271,116 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await request(app.getHttpServer()).post(`/finance/charges/${chargeId}/void`).expect(200);
     expect(fakes.blocks.map((b) => b.reason)).toEqual(['ремонт']);
   });
+
+  /** План `plans/finance-payments-direct-2026-10-07.md`: платёж аннулируется и заменяется, прошлое не правится */
+  describe('аннулирование и замена платежа', () => {
+    const http = () => request(app.getHttpServer());
+    const F1 = '00000000-0000-4000-8000-000000000021';
+    const F2 = '00000000-0000-4000-8000-000000000022';
+    const pay = async (allocations: Array<{ folioId: string; amount: string }>, method = 'CASH') => {
+      const amount = allocations.reduce((x, a) => x + Number(a.amount), 0).toString();
+      await http().post('/finance/payments').send({ method, amount, allocations }).expect(201);
+      return (await folioOf(allocations[0]!.folioId)).allocations.at(-1)!.paymentId;
+    };
+    const folioOf = async (id: string) => (await fakes.repo.folioById(id))!;
+
+    it('аннулирование: платёж уходит из оплаченного, строка остаётся со статусом VOIDED, запись в журнале', async () => {
+      const id = await pay([{ folioId: F1, amount: '5000' }]);
+      const before = await get();
+      expect(before.body.paidMinor).toBe('500000');
+      const res = await http()
+        .post(`/finance/payments/${id}/void`)
+        .send({ reason: 'ошибся способом' })
+        .expect(200);
+      expect(res.body.paidMinor).toBe('0');
+      expect(res.body.folios[0].balanceMinor).toBe('1200000');
+      expect(res.body.folios[0].payments).toHaveLength(1);
+      expect(res.body.folios[0].payments[0]).toMatchObject({ paymentId: id, status: 'VOIDED' });
+      expect(fakes.audits).toContain('finance.payment.void');
+      expect(fakes.auditAfter.at(-1)).toMatchObject({ voided: true, reason: 'ошибся способом' });
+      // второй раз — 409 словами, чужой id — 404
+      await http().post(`/finance/payments/${id}/void`).send({}).expect(409);
+      await http()
+        .post('/finance/payments/00000000-0000-4000-8b00-999999999999/void')
+        .send({})
+        .expect(404);
+    });
+
+    it('платёж с возвратом или с чеком не аннулируется и не меняется: 409 называет причину', async () => {
+      const withRefund = await pay([{ folioId: F1, amount: '5000' }]);
+      await http()
+        .post(`/finance/payments/${withRefund}/refunds`)
+        .send({ folioId: F1, amount: '1000', reason: 'часть' })
+        .expect(201);
+      const r1 = await http().post(`/finance/payments/${withRefund}/void`).send({}).expect(409);
+      expect(r1.body.message).toMatch(/возврат/);
+      const r2 = await http()
+        .post(`/finance/payments/${withRefund}/replace`)
+        .send({ method: 'KASPI', amount: '4000' })
+        .expect(409);
+      expect(r2.body.message).toMatch(/возврат/);
+
+      const withReceipt = await pay([{ folioId: F1, amount: '2000' }]);
+      await http()
+        .post(`/finance/payments/${withReceipt}/receipt`)
+        .send({ number: 'ФП 77' })
+        .expect(200);
+      const r3 = await http().post(`/finance/payments/${withReceipt}/void`).send({}).expect(409);
+      expect(r3.body.message).toMatch(/чек № ФП 77/);
+    });
+
+    it('замена: старый аннулирован, новый проведён с новым способом и суммой, дата платежа прежняя', async () => {
+      const id = await pay([{ folioId: F1, amount: '5000' }]);
+      const res = await http()
+        .post(`/finance/payments/${id}/replace`)
+        .send({ method: 'KASPI', amount: '3000', note: 'на самом деле Kaspi' })
+        .expect(200);
+      const lines = res.body.folios[0].payments as Array<Record<string, unknown>>;
+      expect(lines).toHaveLength(2);
+      expect(lines[0]).toMatchObject({ paymentId: id, status: 'VOIDED', method: 'CASH' });
+      expect(lines[1]).toMatchObject({
+        status: 'COMPLETED',
+        method: 'KASPI',
+        allocatedMinor: '300000',
+        note: 'на самом деле Kaspi',
+      });
+      expect(res.body.paidMinor).toBe('300000');
+      expect(res.body.folios[0].balanceMinor).toBe('900000');
+      expect(fakes.audits).toContain('finance.payment.replaced');
+      expect(fakes.auditAfter.at(-1)).toMatchObject({ method: 'KASPI', amountMinor: '300000' });
+      const stored = (await fakes.repo.paymentById(String(lines[1]!['paymentId'])))!;
+      expect(stored.paidAt).toBe('2026-09-09T12:00:00.000Z');
+      // способ не из справочника и сумма не число — 400 до записи
+      const fresh = String(lines[1]!['paymentId']);
+      await http().post(`/finance/payments/${fresh}/replace`).send({ method: 'GOLD', amount: '1' }).expect(400);
+      await http().post(`/finance/payments/${fresh}/replace`).send({ method: 'CASH', amount: 'x' }).expect(400);
+    });
+
+    it('групповой платёж: без распределения 409 словами, с распределением заменяется', async () => {
+      const id = await pay([
+        { folioId: F1, amount: '6000' },
+        { folioId: F2, amount: '4000' },
+      ]);
+      const r = await http()
+        .post(`/finance/payments/${id}/replace`)
+        .send({ method: 'HALYK', amount: '10000' })
+        .expect(409);
+      expect(r.body.message).toMatch(/несколько счетов/);
+      const ok = await http()
+        .post(`/finance/payments/${id}/replace`)
+        .send({
+          method: 'HALYK',
+          amount: '10000',
+          allocations: [
+            { folioId: F1, amount: '7000' },
+            { folioId: F2, amount: '3000' },
+          ],
+        })
+        .expect(200);
+      expect(ok.body.folios[0].paidMinor).toBe('700000');
+      expect(ok.body.folios[1].paidMinor).toBe('300000');
+    });
+  });
 });
 
 /**
@@ -1320,6 +1462,35 @@ describe('роли в деньгах: возврат, сторно и умень
   const manualChargeId = (body: {
     folios: Array<{ charges: Array<{ id: string; kind: string }> }>;
   }) => body.folios[0]!.charges.find((c) => c.kind !== 'ACCOMMODATION')!.id;
+
+  it('аннулировать и заменить платёж может управляющий, администратор получает 403 с подписью права', async () => {
+    const paid = await pay('session-admin').expect(201);
+    const id = (paid.body.folios[0].payments as Array<{ paymentId: string }>)[0]!.paymentId;
+    const denied = await request(app.getHttpServer())
+      .post(`/finance/payments/${id}/void`)
+      .set(as('session-admin'))
+      .send({})
+      .expect(403);
+    expect(denied.body.message).toBe(accessDeniedMessage('refunds'));
+    await request(app.getHttpServer())
+      .post(`/finance/payments/${id}/replace`)
+      .set(as('session-admin'))
+      .send({ method: 'KASPI', amount: '1000' })
+      .expect(403);
+    const replaced = await request(app.getHttpServer())
+      .post(`/finance/payments/${id}/replace`)
+      .set(as('session-manager'))
+      .send({ method: 'KASPI', amount: '1000' })
+      .expect(200);
+    const fresh = (replaced.body.folios[0].payments as Array<{ paymentId: string; status: string }>).find(
+      (x) => x.status === 'COMPLETED',
+    )!.paymentId;
+    await request(app.getHttpServer())
+      .post(`/finance/payments/${fresh}/void`)
+      .set(as('session-manager'))
+      .send({})
+      .expect(200);
+  });
 
   it('администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт', async () => {
     const up = await charge('session-admin', {

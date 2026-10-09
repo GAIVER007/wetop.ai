@@ -1,0 +1,11 @@
+# Линтер (lint) · 05.10.2026 17:51 Алматы · MacBook-Air-Urij.local
+# коммит 5a133eb (codex/mv7-food-ui-20261005)
+# npx eslint .
+
+/Users/urijzapojnov/wetop-mv7-20261005/scripts/preview/fixture-api.ts
+  6637:9  error  'businessName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 1 мин 2 с

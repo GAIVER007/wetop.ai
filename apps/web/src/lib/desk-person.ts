@@ -1,3 +1,4 @@
+import type { WebVertical } from './vertical-landing';
 import {
   MEMBERSHIP_ROLES,
   canWrite,
@@ -17,6 +18,8 @@ export interface DeskPerson {
 
 /** Что оболочка стойки знает о вошедшем: открытые пункты меню и подпись. Вошедшего нет — всё закрыто */
 export interface DeskShell {
+  /** Verified Business/Location identity for branch switching. */
+  scopeKey?: string;
   access: NavigationAccess;
   person: DeskPerson | null;
   /** «Пробный период: ещё N дн.» — только у организации на пробном сроке (ТЗ ux-retention п. 2.7) */
@@ -29,7 +32,7 @@ export interface DeskShell {
    * Направление текущего филиала (Q-254, ADR-141): от него зависит набор разделов меню. Контекст запроса его
    * уже несёт (Platform P2 К1). Нет филиала в указателе, значит гостиница, как было до среза B2.
    */
-  vertical: 'HOSPITALITY' | 'BEAUTY';
+  vertical: WebVertical;
 }
 
 export const CLOSED_SHELL: DeskShell = {
@@ -116,6 +119,6 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     trial: trialLine(me.user.organization, new Date()),
     tourKey: tourKeyOf(me.user.email),
     readOnly: readOnlyOf(me.user.organization, new Date()),
-    vertical: me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
+    vertical: me.context?.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
   };
 }

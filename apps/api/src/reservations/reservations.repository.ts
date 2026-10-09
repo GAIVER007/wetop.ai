@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import {
   ensureFolioWithAccommodation,
   recordExternalPayment,
@@ -8,6 +8,7 @@ import {
   type DbTx,
 } from '@pms/database';
 import {
+  soldDeparture,
   folioBalance,
   channelPrepaymentToKeep,
   discountedMinor,
@@ -21,8 +22,12 @@ import type {
   ReservationStatus,
   StayRestriction,
 } from '@pms/domain';
-import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
-import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
+import { FOREIGN_PROPERTY_MESSAGE, propertyRef } from '../database/property-ref';
+import {
+  actsForOrganization,
+  currentIntegrationPropertyId,
+  currentOrganizationId,
+} from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { maskAuditFreeText, withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
@@ -473,17 +478,31 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     organizationId: string;
   }> {
     if (!this.propertyCache) {
-      // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
-      // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
-      if (actsForOrganization()) {
+      // Порядок веток важен: точный объект сайта (BOOK-4) выше вошедшего сотрудника, иначе выбранный в стойке филиал
+      // перехватил бы публичную бронь сайта; служебный путь по имени последним.
+      const exact = currentIntegrationPropertyId();
+      if (exact && actsForOrganization()) {
+        // MKT1B BOOK-4: публичный путь сайта и ИИ-продавца назвал объект сайта (проверенный сервером), и цены, фонд,
+        // ключ идемпотентности и бронь идут строго в него, а не в первый объект организации. Объект чужой
+        // организации: тот же отказ, что у вошедшего. Стойка этот путь не берёт: объект в её контексте не задан.
         const organizationId = currentOrganizationId();
-        if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-        const found = await this.db.property.findFirst({
-          where: { organizationId },
+        const found = await this.db.property.findUnique({
+          where: { id: exact },
           select: { id: true, currency: true, timezone: true, organizationId: true },
         });
-        if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+        if (!found || organizationId === null || found.organizationId !== organizationId)
+          throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         this.propertyCache = found;
+      } else if (actsForOrganization()) {
+        // Вошедший человек: объект выбранного филиала по той же цепочке и тому же scope, что шахматка, финансы и фонд
+        // (`propertyRef`, Platform P2 К1). Раньше здесь был первый попавшийся объект организации: при двух гостиницах
+        // бронь, котировка и выгрузка в канал уходили не в выбранный филиал (SCOPE-HARDENING, 06.10.2026). Филиал без
+        // объекта (Beauty, Food) получает 404, а не чужую гостиницу.
+        const ref = await propertyRef(this.db, this.propertyName);
+        this.propertyCache = await this.db.property.findUniqueOrThrow({
+          where: { id: ref.id },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
+        });
       } else {
         // самый ранний с этим именем — как `propertyRef` (аудит 26.09, С-2)
         const found = await this.db.property.findFirstOrThrow({
@@ -1152,13 +1171,25 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           departureDate: { gt: asDate(from) },
           ...(exceptItemId ? { id: { not: exceptItemId } } : {}),
         },
-        select: { arrivalDate: true, departureDate: true },
+        select: {
+          arrivalDate: true,
+          departureDate: true,
+          status: true,
+          allocations: { select: { endDate: true } },
+        },
       }),
     ]);
     let left = Number.POSITIVE_INFINITY;
     for (let d = from; d < toExclusive;) {
       const blocked = blocks.filter((b) => iso(b.dateFrom) <= d && d < iso(b.dateTo)).length;
-      const taken = sold.filter((s) => iso(s.arrivalDate) <= d && d < iso(s.departureDate)).length;
+      const taken = sold.filter((s) => {
+        const end = soldDeparture({
+          status: s.status,
+          departureDate: iso(s.departureDate),
+          allocationEndDates: s.allocations.map((a) => iso(a.endDate)),
+        });
+        return end !== null && iso(s.arrivalDate) <= d && d < end;
+      }).length;
       left = Math.min(left, units - blocked - taken);
       const next = new Date(`${d}T00:00:00Z`);
       next.setUTCDate(next.getUTCDate() + 1);

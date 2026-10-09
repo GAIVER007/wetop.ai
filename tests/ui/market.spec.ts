@@ -123,9 +123,10 @@ test('таблица «вы и рынок»: изменение к вчера, �
   // подсказка: высокий спрос, ссылка в календарь цен месяца первой ночи
   const insight = main.getByTestId('market-insights').locator('li').first();
   await expect(insight).toContainText(/Рынок почти полон|Высокий спрос/);
+  // цены живут в «Категориях номеров» (раздела «Тарифы и цены» нет с 06.10.2026)
   await expect(insight.getByRole('link', { name: 'Открыть цены' })).toHaveAttribute(
     'href',
-    `/rates?month=${today.slice(0, 7)}`,
+    '/rooms/categories',
   );
 
   // без сравнения изменения нет

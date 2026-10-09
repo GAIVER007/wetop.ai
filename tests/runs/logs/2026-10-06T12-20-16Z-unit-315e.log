@@ -1,0 +1,22 @@
+# Модульные (unit) · 06.10.2026 17:20 Алматы · vm
+# коммит 0ab33b3 (claude/blissful-newton-6pa4ky)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-20-16Z-unit-315e.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/web/src/lib/session.test.ts' 'apps/web/src/app/login/verify-registration.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 44ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 69ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 73ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (4 tests) 64ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 5ms
+
+ Test Files  7 passed (7)
+      Tests  30 passed (30)
+   Start at  12:20:17
+   Duration  1.66s (transform 77%, import 15%, tests 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-20-16Z-unit-315e.json
+
+# код выхода 0 · 3 с

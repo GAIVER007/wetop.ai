@@ -29,7 +29,9 @@ async function openSalon(page: Page, request: APIRequestContext) {
     .filter({ hasText: 'Студия Айна' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  await page.waitForURL('**/beauty');
+  // MV8: открытый салон начинает с общего рабочего экрана дня
+  await page.waitForURL('**/today');
+  await page.goto('/calendar');
 }
 
 async function addService(page: Page, name: string, minutes: string, priceMinor: string) {
@@ -62,7 +64,11 @@ test('филиал включает услугу и ставит свою цен
   await addService(page, 'Маникюр', '60', '800000');
   await page.goto('/beauty/services');
   const main = page.getByRole('main');
-  await main.getByRole('row').filter({ hasText: 'Маникюр' }).getByRole('button', { name: 'Изменить' }).click();
+  await main
+    .getByRole('row')
+    .filter({ hasText: 'Маникюр' })
+    .getByRole('button', { name: 'Изменить' })
+    .click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
   await panel.getByLabel(/Своя цена филиала/).fill('950000');
@@ -107,12 +113,13 @@ test('мастер добавляется, умения ставятся и сн
   await page.goto('/beauty/masters');
   const row = main.getByRole('row').filter({ hasText: 'Дина' });
   await expect(row).toContainText('Маникюр, Стрижка');
-  await expect(row).toContainText('1');
+  await expect(row).toContainText('Студия Айна');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
   // снятая галочка должна сниматься, а не копиться
-  await row.getByRole('button', { name: 'Изменить' }).click();
+  await row.getByRole('button', { name: 'Открыть' }).click();
   const edit = page.getByRole('dialog');
+  await edit.getByRole('button', { name: 'Услуги', exact: true }).click();
   await edit.getByRole('checkbox', { name: 'Стрижка' }).uncheck();
   await edit.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
   await expect(edit.getByRole('status')).toContainText('Мастер сохранён');
@@ -128,9 +135,10 @@ test('каталог салона на телефоне: без прокрутк
   for (const path of ['/beauty/services', '/beauty/masters']) {
     await page.goto(path);
     await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), path).toBe(
-      true,
-    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      path,
+    ).toBe(true);
     await page.screenshot({
       path: `${SNAPSHOTS}/${path.split('/').pop()}-390.png`,
       fullPage: true,

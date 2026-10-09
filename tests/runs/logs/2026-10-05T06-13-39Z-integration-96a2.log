@@ -1,0 +1,423 @@
+# Интеграционные (integration) · 05.10.2026 11:13 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/bar-repair-2), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-13-39Z-integration-96a2.json' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 254ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ❯ |integration| tests/integration/bar-populated-rls.test.ts (24 tests | 8 failed) 123ms
+   ❯ BAR populated tenant visibility and SQL ownership boundary (24)
+     ✓ bar_categories: own=1, foreign=0; unset/empty=0; service=2 19ms
+     ✓ bar_products: own=1, foreign=0; unset/empty=0; service=2 7ms
+     ✓ bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2 7ms
+     ✓ bar_receipts: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_sales: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_suppliers: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ all ten tables FORCE RLS; service has BYPASSRLS; app has no bypass 2ms
+     ✓ bar_products: app A cannot create a row in property B 3ms
+     ✓ bar_suppliers: app A cannot create a row in property B 3ms
+     ✓ bar_receipts: app A cannot create a row in property B 3ms
+     ✓ bar_sales: app A cannot create a row in property B 3ms
+     × ownership denies receipt line foreign product 8ms
+     × ownership denies lot foreign product 4ms
+     × ownership denies movement foreign product 4ms
+     × ownership denies movement foreign lot 4ms
+     ✓ ownership denies supplier payment foreign receipt 3ms
+     × ownership denies supplier payment foreign cash 3ms
+     × ownership denies sale line foreign product 3ms
+     × ownership denies lot property A referencing a new receipt line in B 3ms
+     × ownership denies direct INSERT of own receipt line with foreign product 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies sale line foreign product
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:334:62
+    332|       await asRole('wetop_app', a.org, async () => {
+    333|         const id = foreign === 'cash' ? b.cash : b.rows[foreign];
+    334|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    335|           /row-level security|another property/,
+    336|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:332:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies supplier payment foreign cash
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'duplicate key value violates unique c…'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"duplicate key value violates unique constraint \"bar_supplier_payments_cash_operation_id_key\""
+
+ ❯ tests/integration/bar-populated-rls.test.ts:334:62
+    332|       await asRole('wetop_app', a.org, async () => {
+    333|         const id = foreign === 'cash' ? b.cash : b.rows[foreign];
+    334|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    335|           /row-level security|another property/,
+    336|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:332:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot property A referencing a new receipt line in B
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:364:10
+    362|             a.rows.bar_stock_lots,
+    363|           ]),
+    364|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    365|       });
+    366|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:358:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:341:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies direct INSERT of own receipt line with foreign product
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:382:10
+    380|             calculated_price: '100',
+    381|           }),
+    382|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    383|       });
+    384|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:370:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:369:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  8 failed | 22 passed (30)
+   Start at  10:13:40
+   Duration  1.26s (tests 49%, transform 33%, import 18%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-13-39Z-integration-96a2.json
+
+# код выхода 1 · 2 с

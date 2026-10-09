@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 05.10.2026 18:28 Алматы · MacBook-Air-Urij.local
+# коммит c519f0a (codex/owner-home-compact), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/design-refresh.spec.ts' '--workers=1'
+[WebServer] (node:84589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:84676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+SyntaxError: /private/tmp/wetop-owner-home-verify-20261005/tests/ui/owner-dashboard-interactions.spec.ts: Unexpected token, expected "," (56:33)
+
+  54 | });
+  55 |
+> 56 | test('slow inventory keeps today's events usable and shows a stable loading card', async ({ page, request }) => {
+     |                                  ^
+  57 |   await page.setViewportSize({ width: 390, height: 844 });
+  58 |   await page.goto('/today');
+  59 |   const ready = await page.getByRole('region', { name: 'Загрузка сегодня', exact: true }).boundingBox();
+
+   at owner-dashboard-interactions.spec.ts:56
+
+  54 | });
+  55 |
+> 56 | test('slow inventory keeps today's events usable and shows a stable loading card', async ({ page, request }) => {
+     |                                 ^
+  57 |   await page.setViewportSize({ width: 390, height: 844 });
+  58 |   await page.goto('/today');
+  59 |   const ready = await page.getByRole('region', { name: 'Загрузка сегодня', exact: true }).boundingBox();
+    at eval (<anonymous>:1:1)
+
+
+# код выхода 1 · 10 с

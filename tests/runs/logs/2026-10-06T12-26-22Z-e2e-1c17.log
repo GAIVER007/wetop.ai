@@ -1,0 +1,206 @@
+# Сквозные (e2e) · 06.10.2026 17:26 Алматы · vm
+# коммит 0ab33b3 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-onboarding.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe (5.9s)
+  ✘  2 tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe (5.7s)
+  ✘  3 tests/onboarding/onboarding.spec.ts:61:1 › READ_ONLY displays data without mutation controls (5.7s)
+  ✘  4 tests/onboarding/onboarding.spec.ts:67:1 › Hospitality existing categories persist on reload and provision real inventory (1.0m)
+
+
+  1) tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Настройте Beauty"
+    Received: "Страница не найдена"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        14 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      13 |     await page.goto('/register/setup?vertical=HOSPITALITY');
+      14 |     const main = page.getByRole('main');
+    > 15 |     await expect(main.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                           ^
+      16 |       vertical === 'BEAUTY' ? 'Настройте Beauty' : 'Настройте Food Service',
+      17 |     );
+      18 |     await main.getByLabel('Название бизнеса').fill('Новый тестовый бизнес');
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:15:59
+
+    Error Context: test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/error-context.md
+
+    Error Context: test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Настройте Food Service"
+    Received: "Страница не найдена"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        14 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      13 |     await page.goto('/register/setup?vertical=HOSPITALITY');
+      14 |     const main = page.getByRole('main');
+    > 15 |     await expect(main.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                           ^
+      16 |       vertical === 'BEAUTY' ? 'Настройте Beauty' : 'Настройте Food Service',
+      17 |     );
+      18 |     await main.getByLabel('Название бизнеса').fill('Новый тестовый бизнес');
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:15:59
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/error-context.md
+
+    Error Context: test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/onboarding/onboarding.spec.ts:61:1 › READ_ONLY displays data without mutation controls ──
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').getByLabel('Название бизнеса')
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').getByLabel('Название бизнеса') with timeout 5000ms
+      - waiting for getByRole('main').getByLabel('Название бизнеса')
+
+
+      62 |   await request.post(`${api}/__test/reset`, { data: { vertical: 'BEAUTY', readOnly: true } });
+      63 |   await page.goto('/register/setup');
+    > 64 |   await expect(page.getByRole('main').getByLabel('Название бизнеса')).toBeDisabled();
+         |                                                                       ^
+      65 |   await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toHaveCount(0);
+      66 | });
+      67 | test('Hospitality existing categories persist on reload and provision real inventory', async ({
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:64:71
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/error-context.md
+
+    Error Context: test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/onboarding/onboarding.spec.ts:67:1 › Hospitality existing categories persist on reload and provision real inventory 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Название категории')
+
+
+      72 |   await page.goto('/register/setup');
+      73 |   const main = page.getByRole('main');
+    > 74 |   await main.getByLabel('Название категории').fill('Тестовый номер');
+         |                                               ^
+      75 |   await main.getByLabel(/Цена за ночь/).fill('21000');
+      76 |   await main.getByRole('button', { name: 'Сохранить', exact: true }).click();
+      77 |   await expect(main.getByRole('status')).toHaveText('Сохранено');
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:74:47
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /home/user/wetop.ai/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/error-context.md
+
+    Error Context: test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe 
+    tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe 
+    tests/onboarding/onboarding.spec.ts:61:1 › READ_ONLY displays data without mutation controls ───
+    tests/onboarding/onboarding.spec.ts:67:1 › Hospitality existing categories persist on reload and provision real inventory 
+
+# код выхода 1 · 1 мин 27 с

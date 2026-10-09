@@ -497,8 +497,8 @@ async function DataView() {
         <Link className="btn btn--secondary" href="/hotel-settings">
           Изменить карточку объекта
         </Link>
-        <Link className="btn btn--secondary" href="/rates">
-          Изменить цены в «Тарифах»
+        <Link className="btn btn--secondary" href="/rooms/categories">
+          Изменить цены в «Категориях номеров»
         </Link>
         <Link className="btn btn--secondary" href="/website/booking">
           Тариф сайта

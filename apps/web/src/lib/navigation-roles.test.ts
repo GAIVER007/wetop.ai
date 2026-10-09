@@ -42,6 +42,7 @@ describe('меню по ролям', () => {
       '/reservations',
       '/guests',
       '/finance',
+      '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/market',
       '/ai-agents',
@@ -55,6 +56,7 @@ describe('меню по ролям', () => {
       'reservations',
       'guests',
       'finance',
+      'bar',
       'sales',
       'reports',
       'settings',
@@ -63,13 +65,26 @@ describe('меню по ролям', () => {
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
     const noPlatform = everything.filter((h) => !h.startsWith('/platform'));
-    expect(hrefs(access('MANAGER'))).toEqual(noPlatform);
+    expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
   });
 
   it('никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется', () => {
     expect(hrefs(CLOSED_ACCESS)).toEqual(everything.filter((h) => !h.startsWith('/platform')));
+  });
+
+  it('«Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2)', () => {
+    for (const role of ['OWNER', 'MANAGER'] as const) {
+      expect(menuSectionsFor(access(role)).map((s) => s.id)).toContain('marketing');
+      expect(hrefs(access(role))).toContain('/marketing');
+    }
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).not.toContain('marketing');
+    // адрес без пункта меню не открывает страницу: право то же, что у пункта
+    expect(pageOpen(access('STAFF'), routeRule('/marketing')!.requires as 'settings')).toBe(false);
+    expect(pageOpen(access('STAFF'), routeRule('/website/booking')!.requires as 'settings')).toBe(
+      false,
+    );
   });
 
   it('пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего', () => {
@@ -79,11 +94,13 @@ describe('меню по ролям', () => {
 
 describe('страница по адресу: какое право её открывает', () => {
   it('разделы меню и их вложенные адреса', () => {
-    expect(routeRule('/rates')?.requires).toBe('rates');
+    // «Тарифы и цены» сняты 06.10.2026: адрес только переадресует в «Категории номеров», права у него нет
+    expect(routeRule('/rates')).toBeUndefined();
     expect(routeRule('/channels/events/rev-1')?.requires).toBe('channels');
     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('settings');
     expect(routeRule('/journal')?.requires).toBe('journal');
     expect(routeRule('/finance')?.requires).toBe('reports');
+    expect(routeRule('/bar')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 

@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 07.10.2026 00:02 Алматы · vm
+# коммит 6ee3ce8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/51ff20cc-2597-5469-81c3-d45144dbcbb2/scratchpad/pw-branches-ui.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+  ✓   1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (3.5s)
+  ✓   2 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (2.5s)
+  ✓   3 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (1.9s)
+  ✓   4 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (3.2s)
+  ✓   5 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (5.9s)
+  ✓   6 tests/branches-ui/branches.spec.ts:136:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (5.9s)
+  ✓   7 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (1.6s)
+  ✓   8 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (1.6s)
+  ✓   9 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (1.4s)
+  ✓  10 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (7.0s)
+  ✓  11 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (2.7s)
+  ✓  12 tests/branches-ui/today.spec.ts:292:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (1.4s)
+  ✓  13 tests/branches-ui/today.spec.ts:304:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (2.9s)
+  ✓  14 tests/branches-ui/today.spec.ts:322:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (6.9s)
+  ✓  15 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (3.9s)
+  ✓  16 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  17 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (2.3s)
+  ✓  18 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  19 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (2.9s)
+  ✓  20 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  21 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (2.4s)
+  ✓  22 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (2.4s)
+  ✓  23 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (2.8s)
+  ✓  24 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  25 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  26 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+
+  26 passed (1.6m)
+
+# код выхода 0 · 1 мин 38 с

@@ -51,7 +51,9 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toHaveCount(0);
   }
-  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
+    'Объект',
+  );
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
@@ -74,12 +76,8 @@ test('старые адреса: часы — на «Проживание», п�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  // переход потоковый (redirect() после начала ответа): `goto` возвращается раньше, а холодная сборка
-  // `/rates/plans` в `next dev` на двухъядерном раннере GitHub дольше 15 с (release-checks 03.10.2026)
-  await expect(page).toHaveURL(/\/rates\/plans$/, { timeout: 40_000 });
-  const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
-  await expect(row).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  // «Тарифы и цены» сняты 06.10.2026: старый адрес правил отмены ведёт в настройки объекта
+  await expect(page).toHaveURL(/\/hotel-settings$/, { timeout: 40_000 });
 });
 
 test('владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку', async ({
@@ -103,6 +101,9 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(save).toBeDisabled();
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await form.getByLabel('Юридическое название').fill('ИП «Тестовый»');
+  await form.getByLabel('Страна (код ISO)').fill('KZ');
+  await form.getByLabel('Город', { exact: true }).fill('Вымышленный город');
+  await form.getByLabel('Тип размещения').selectOption('motel');
   await save.click();
   await expect(state).toHaveText('✓ Изменения сохранены');
   await expect(save).toBeDisabled();
@@ -110,10 +111,13 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await page.reload();
   await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
   await expect(form.getByLabel('Юридическое название')).toHaveValue('ИП «Тестовый»');
+  await expect(form.getByLabel('Страна (код ISO)')).toHaveValue('KZ');
+  await expect(form.getByLabel('Город', { exact: true })).toHaveValue('Вымышленный город');
+  await expect(form.getByLabel('Тип размещения')).toHaveValue('motel');
 
   await form.getByLabel('Почта').fill('не почта');
   await save.click();
-  await expect(main.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(main.getByRole('alert')).toContainText('Почта в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
   await expect(state).toHaveText('• Есть несохранённые изменения');
 
@@ -157,6 +161,18 @@ test('администратор и «только чтение» видят с�
     await expect(main.locator('input')).toHaveCount(0);
   }
   await expect(main.getByTestId('stay-settings')).toContainText('12:00');
+});
+
+test('данные объекта и каналов помещаются на экране ноутбука', async ({ page }) => {
+  await signIn(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/hotel-settings');
+  const form = page.getByTestId('hotel-settings-form');
+  for (const label of ['Тип размещения', 'ИИН/БИН']) {
+    const box = await form.getByLabel(label).boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(876);
+  }
 });
 
 for (const theme of ['light', 'dark'] as const) {

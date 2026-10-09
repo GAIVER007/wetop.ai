@@ -1,3 +1,4 @@
+import { soldDeparture } from '@pms/domain';
 /**
  * Какие ночи уходят в канал после изменения брони — только те, где поменялся остаток категории.
  *
@@ -22,6 +23,7 @@ export interface StaySpan {
   arrivalDate: string;
   departureDate: string;
   status: string;
+  allocationEndDates?: string[];
 }
 
 /** Проживания в этих статусах место не держат — как в `soldItems` (channels.repository) */
@@ -47,8 +49,9 @@ function heldPlaces(stays: StaySpan[]): Map<string, Map<string, number>> {
     if (NOT_SOLD.has(s.status)) continue;
     let perNight = out.get(s.categoryCode);
     if (!perNight) out.set(s.categoryCode, (perNight = new Map()));
-    for (const d of nightsOf(s.arrivalDate, s.departureDate))
-      perNight.set(d, (perNight.get(d) ?? 0) + 1);
+    const end = soldDeparture(s);
+    if (end === null) continue;
+    for (const d of nightsOf(s.arrivalDate, end)) perNight.set(d, (perNight.get(d) ?? 0) + 1);
   }
   return out;
 }
@@ -125,6 +128,7 @@ export function cardStays(
       arrivalDate: string;
       departureDate: string;
       status: string;
+      unitCode?: string | null;
     }>;
   } | null,
 ): StaySpan[] {
@@ -133,6 +137,8 @@ export function cardStays(
     arrivalDate: i.arrivalDate,
     departureDate: i.departureDate,
     status: i.status,
+    // Карточка получает unitCode из последнего назначения. null означает, что назначения сняты.
+    ...(i.status === 'CHECKED_OUT' && i.unitCode === null ? { allocationEndDates: [] } : {}),
   }));
 }
 

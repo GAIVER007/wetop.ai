@@ -67,6 +67,9 @@ export interface MemberRecord {
   joinedAt: Date;
   /** Последний вход в систему (`users.last_login_at`, TEAM1): не входил — null */
   lastLoginAt: Date | null;
+  /** Рабочий телефон и должность в этой организации (`memberships`, v2.10, Q-244): не указаны: null */
+  phone: string | null;
+  position: string | null;
 }
 
 export interface AccountsRepository {
@@ -106,6 +109,13 @@ export interface AccountsRepository {
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
   inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null>;
   markInviteAccepted(id: string, at: Date): Promise<void>;
+  /** Принятие, членство, ссылка на пароль и аудит одной транзакцией. */
+  acceptInvite(input: {
+    id: string;
+    now: Date;
+    passwordTokenHash: string;
+    passwordExpiresAt: Date;
+  }): Promise<{ passwordTokenIssued: boolean } | null>;
   /** Сколько приглашений организация создала с `since` — для суточного предела (аудит 26.09, С-11). */
   invitesCreatedSince(organizationId: string, since: Date): Promise<number>;
   /**
@@ -118,6 +128,8 @@ export interface AccountsRepository {
     organizationId: string,
     at: Date,
     roles: readonly MembershipRole[],
+    by?: string,
+    deliveryFailed?: boolean,
   ): Promise<boolean>;
   /** Есть ли у адреса членство в этой организации (любой статус человека). */
   isMember(email: string, organizationId: string): Promise<boolean>;
@@ -154,6 +166,19 @@ export interface AccountsRepository {
     role: MembershipRole;
     by: string;
     from: readonly MembershipRole[];
+  }): Promise<MemberWrite>;
+  /**
+   * Телефон и должность (v2.10, Q-244) и запись в журнал организации (`membership.details.updated`: должность было и
+   * стало, телефон только отметкой: номер в журнал не пишется) одной транзакцией. `roles`: чьи контакты можно
+   * менять, сверка под блокировкой строки, как у отключения; `null`: человек правит себя.
+   */
+  setMemberDetails(input: {
+    organizationId: string;
+    userId: string;
+    phone: string | null;
+    position: string | null;
+    by: string;
+    roles: readonly MembershipRole[] | null;
   }): Promise<MemberWrite>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие

@@ -1,3 +1,4 @@
+import { SharedOnboardingModule } from './onboarding/onboarding.module';
 import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { AiSellerModule } from './ai-seller/ai-seller.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AssistantModule } from './assistant/assistant.module';
 import { AuthModule } from './auth/auth.module';
+import { BarModule } from './bar/bar.module';
 import { SessionGuard } from './auth/auth.guard';
 import { RoleGuard } from './auth/role.guard';
 import { AuthorInterceptor } from './auth/author.interceptor';
@@ -22,7 +24,11 @@ import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
+import { TasksModule } from './tasks/tasks.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { FoodModule } from './food-service/food.module';
+import { MarketingSiteModule } from './marketing-site/marketing-site.module';
+import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
@@ -41,10 +47,14 @@ import { DataConnectionModule } from './database/connection';
     // одноразовый код на почту — AccountsModule (ADR-046).
     AuthModule,
     AccountsModule,
+    BarModule,
     // главный администратор: организации и их расширения (ADR-083)
     PlatformModule,
     InventoryModule,
     BeautyModule,
+    FoodModule,
+    MarketingSiteModule,
+    SitesRuntimeModule,
     HotelModule,
     ChessboardModule,
     ReservationsModule,
@@ -52,6 +62,7 @@ import { DataConnectionModule } from './database/connection';
     RatesModule,
     UnitsModule,
     GuestsModule,
+    TasksModule,
     AuditModule,
     FinanceModule,
     MarketModule,
@@ -66,6 +77,7 @@ import { DataConnectionModule } from './database/connection';
     // Раздел «ИИ-продавец»: профиль, прокси к продавцу, применение и сверка (ТЗ ред. 1, ADR-079)
     AiSellerModule,
     WizardModule,
+    SharedOnboardingModule,
   ],
   // Замок непубличных маршрутов. В боевом образе включён, пока не выключен явным AUTH_REQUIRED=0 (auth.guard.ts)
   providers: [

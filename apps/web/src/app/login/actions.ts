@@ -1,9 +1,17 @@
 'use server';
+import { scopeResolvePath } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
-import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
+import {
+  clearScopeCookie,
+  clearSessionCookie,
+  clientInfo,
+  sessionToken,
+  setScopeCookie,
+  setSessionCookie,
+} from '../../lib/session';
 import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
 
 /**
@@ -27,11 +35,12 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
   try {
     const result = await authApi.login({ email, password }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    await clearScopeCookie();
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  redirect(safeReturnPath(form.get('next')));
+  redirect(scopeResolvePath(safeReturnPath(form.get('next'))));
 }
 
 /** «Выйти»: сессия отзывается в базе (ключ мёртв, даже если его скопировали), cookie удаляется. Access — отдельный замок. */
@@ -110,7 +119,9 @@ function errorText(e: unknown): string {
 export async function registerAction(input: {
   email: string;
   name: string;
-  hotelName: string;
+  hotelName?: string;
+  businessName?: string;
+  vertical?: import('@pms/domain').BusinessVertical;
   password: string;
   phoneCountry: string;
   phone: string;
@@ -133,13 +144,19 @@ export async function registerAction(input: {
  * человек назвал при регистрации, спрашивать его второй раз незачем.
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
+  let pilot: boolean;
   try {
     const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
+    const context = await authApi.registrationContext(result.token);
+    pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    // Завершение регистрации: единственный филиал новой организации (регистрационный помощник, не выбор входа)
+    if (context)
+      await setScopeCookie(`business=${context.businessId};location=${context.locationId}`);
   } catch (e) {
     return { error: errorText(e) };
   }
-  redirect('/today');
+  redirect(pilot ? '/register/complete' : '/today');
 }
 
 export interface ResendState {
@@ -218,6 +235,17 @@ export async function setMemberRoleAction(userId: string, role: string): Promise
   if (!next) return { error: 'Роль сотрудника — «управляющий» или «администратор».' };
   return teamAction(async (token) =>
     authApi.setMemberRole(token, userId, next, await clientInfo()),
+  );
+}
+
+/** Телефон и должность сотрудника: проверку и слова отказа даёт API (TEAM2, Q-244) */
+export async function setMemberDetailsAction(
+  userId: string,
+  phone: string,
+  position: string,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberDetails(token, userId, { phone, position }, await clientInfo()),
   );
 }
 

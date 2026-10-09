@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 06.10.2026 17:41 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-41-53Z-integration-8114.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:6310) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration)
+[mkt1b] уборка не закончена: 
+Invalid `prisma.reservationItem.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `stay_guests_reservation_item_id_fkey`
+
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (8 tests | 1 failed) 982ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (8)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 13ms
+     × BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 56ms
+     ✓ BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний 56ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 52ms
+     ✓ BOOK-2: K+A дважды — та же бронь, одна запись, одно письмо, проверка Turnstile один раз 114ms
+     ✓ BOOK-2: K+A, затем K+B — 409 без данных первой брони 61ms
+     ✓ BOOK-2: два одновременных K+A — ровно одна бронь 110ms
+     ✓ BOOK-2: новый ключ требует действующего токена; ключ не UUID v4 — 400 55ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A
+BadRequestException: creationKey: UUID v4
+ ❯ WebBookingService.book apps/api/src/web-booking/web-booking.service.ts:381:27
+    379|     const site = await this.bookingSite(siteKey, ctx);
+    380|     const parsed = parseBookingRequest(raw, localDate(now, site.timezo…
+    381|     if (!parsed.ok) throw new BadRequestException(parsed.reason);
+       |                           ^
+    382|     const req = parsed.value;
+    383|     // MKT1B BOOK-2: вход брони строится только из канонического запро…
+ ❯ tests/integration/web-booking-exact-property.test.ts:240:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  12:41:54
+   Duration  5.10s (transform 51%, tests 27%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-41-53Z-integration-8114.json
+
+# код выхода 1 · 6 с

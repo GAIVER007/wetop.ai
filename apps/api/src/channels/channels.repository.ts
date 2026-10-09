@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { integrationTables, onIntegrationTables } from '../database/integration-tables';
 import { propertyToday, propertyIdRef, propertyRef } from '../database/property-ref';
@@ -17,6 +17,7 @@ import type {
   LocalRatePlanForChannex,
 } from './setup-plan';
 import { auditUserId } from '../accounts/actor';
+import { mappedChannexProperties, type MappedChannexProperty } from './mapped-properties';
 
 /** Подмножество клиента Channex, которое нужно синхронизации; в тестах — фальшивка. */
 export type ChannexGateway = Pick<
@@ -53,6 +54,8 @@ export interface LocalSetup {
 }
 
 export interface ChannelsRepository {
+  connectedProperties(): Promise<MappedChannexProperty[]>;
+  currentPropertyId(): Promise<string>;
   /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026): окно ARI считается от него */
   today(): Promise<string>;
   localSetup(ratePlanCode: string): Promise<LocalSetup>;
@@ -213,14 +216,20 @@ export interface OutboxRow {
 }
 export const CHANNELS_REPOSITORY = Symbol('CHANNELS_REPOSITORY');
 
-/** Адрес объекта для Channex — OBJECT.md (в схеме Property нет страны/города). */
-const OBJECT_LOCATION = { country: 'KZ', city: 'Алматы' };
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 
 @Injectable()
 export class PrismaChannelsRepository implements ChannelsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  connectedProperties(): Promise<MappedChannexProperty[]> {
+    return mappedChannexProperties(this.prisma.db);
+  }
+
+  currentPropertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
 
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
@@ -231,6 +240,10 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     // по имени — sync.service ходит сюда как служебный ходок). Читаем полный объект по его id.
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const p = await this.prisma.db.property.findUniqueOrThrow({ where: { id: propertyId } });
+    if (!p.countryCode || !p.city || !p.channexPropertyType)
+      throw new UnprocessableEntityException(
+        'Укажите страну, город и тип размещения в настройках объекта перед подключением менеджера каналов',
+      );
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       orderBy: { code: 'asc' },
@@ -238,7 +251,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
     const rp = await this.prisma.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId: p.id, code: ratePlanCode } },
-      select: { id: true, code: true, name: true, currency: true },
+      select: { id: true, code: true, name: true, currency: true, active: true },
     });
     return {
       property: {
@@ -249,7 +262,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         address: p.address,
         email: null,
         phone: null,
-        ...OBJECT_LOCATION,
+        country: p.countryCode,
+        city: p.city,
+        propertyType: p.channexPropertyType,
       },
       categories: types.map((t) => ({
         id: t.id,
@@ -259,7 +274,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         capacityAdults: t.capacityAdults,
         units: t._count.units,
       })),
-      ratePlan: rp,
+      ratePlan: rp?.active ? rp : null,
     };
   }
   /**
@@ -351,7 +366,18 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async saveRatePlanMapping(
     row: Parameters<ChannelsRepository['saveRatePlanMapping']>[0],
   ): Promise<void> {
-    await this.prisma.db.channelMapping.create({ data: row });
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${row.localAccommodationTypeId}`}, 0))`;
+      const plan = await tx.ratePlan.findFirst({
+        where: { id: row.localRatePlanId, propertyId: row.propertyId, active: true },
+        select: { id: true },
+      });
+      if (!plan)
+        throw new UnprocessableEntityException(
+          'Тариф отключён или недоступен для этого объекта. Выберите действующий тариф',
+        );
+      await tx.channelMapping.create({ data: row });
+    });
   }
   async dailyRates(ratePlanIds: string[], from: string, to: string): Promise<LocalDailyRate[]> {
     const rows = await this.prisma.db.dailyRate.findMany({
@@ -436,16 +462,28 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         departureDate: { gt: asDate(from) },
       },
       select: {
+        status: true,
+        allocations: { select: { endDate: true } },
         arrivalDate: true,
         departureDate: true,
         accommodationType: { select: { code: true } },
       },
     });
-    return rows.map((r) => ({
-      accommodationTypeCode: r.accommodationType.code,
-      arrivalDate: iso(r.arrivalDate),
-      departureDate: iso(r.departureDate),
-    }));
+    return rows.flatMap((r) => {
+      const departureDate = soldDeparture({
+        status: r.status,
+        departureDate: iso(r.departureDate),
+        allocationEndDates: r.allocations.map((a) => iso(a.endDate)),
+      });
+      if (departureDate === null || departureDate <= from) return [];
+      return [
+        {
+          accommodationTypeCode: r.accommodationType.code,
+          arrivalDate: iso(r.arrivalDate),
+          departureDate,
+        },
+      ];
+    });
   }
   async enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string> {
     // Phase 1 изоляции (ADR-100 §17.2): сообщение очереди с рождения знает объект
@@ -538,7 +576,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   }
   async lastAuditAt(action: string): Promise<Date | null> {
     const row = await this.prisma.db.auditLog.findFirst({
-      where: { action },
+      where: { action, entityType: 'Property', entityId: await this.scopedPropertyId() },
       orderBy: { createdAt: 'desc' },
       select: { createdAt: true },
     });

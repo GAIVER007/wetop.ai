@@ -1,0 +1,236 @@
+# Сквозные (e2e) · 05.10.2026 15:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8df2bc2 (HEAD), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' 'finance-cash.spec.ts' 'finance-f2.spec.ts' '--workers=1'
+[WebServer] (node:1976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 21 tests using 1 worker
+
+(node:2088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (11.8s)
+  ✓   2 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (1.4s)
+  ✓   3 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (1.3s)
+  ✘   4 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (792ms)
+(node:2211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/finance-cash-first.spec.ts:90:1 › касса: быстрые действия доступны без отчётов (1.6s)
+  ✓   6 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (1.1s)
+  ✘   7 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (1.4s)
+(node:2238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (1.4s)
+(node:2251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (1.9s)
+[WebServer] (node:2282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (1.6s)
+  ✓  11 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (1.6s)
+  ✓  12 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (1.6s)
+  ✘  13 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (1.3s)
+(node:2338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1772961852'
+[WebServer] }
+  ✘  14 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (1.5s)
+(node:2355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (2.4s)
+  ✓  16 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (1.8s)
+  ✓  17 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (1.6s)
+  ✓  18 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (964ms)
+  ✓  19 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (1.1s)
+  ✓  20 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (3.3s)
+  ✓  21 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (3.9s)
+
+
+  1) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ───────────────────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    26
+
+      70 |       expect(
+      71 |         await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
+    > 72 |       ).toBeLessThanOrEqual(1);
+         |         ^
+      73 |       await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeInViewport();
+      74 |     }
+      75 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:72:9
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('cash-saved')
+    Expected substring: "Поступление записано"
+    Error: strict mode violation: getByTestId('cash-saved') resolved to 2 elements:
+        1) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('cash-quick').getByTestId('cash-saved')
+        2) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('finance-cash').getByTestId('cash-saved')
+
+    Call log:
+      - Expect "toContainText" getByTestId('cash-saved') with timeout 15000ms
+      - waiting for getByTestId('cash-saved')
+
+
+      60 |   await form.getByTestId('cash-amount').fill('2000');
+      61 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+    > 62 |   await expect(page.getByTestId('cash-saved')).toContainText('Поступление записано');
+         |                                                ^
+      63 |   expect(await tenge(page, 'cash-CASH')).toBe(was + 2000);
+      64 |
+      65 |   await page.getByTestId('cash-expense-btn').click();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash.spec.ts:62:48
+
+    Error Context: test-results/finance-cash-поступление-и-914cc-овами-введённое-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-поступление-и-914cc-овами-введённое-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-поступление-и-914cc-овами-введённое-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('cash-saved')
+    Expected substring: "Перевод записан"
+    Error: strict mode violation: getByTestId('cash-saved') resolved to 2 elements:
+        1) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('cash-quick').getByTestId('cash-saved')
+        2) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('finance-cash').getByTestId('cash-saved')
+
+    Call log:
+      - Expect "toContainText" getByTestId('cash-saved') with timeout 15000ms
+      - waiting for getByTestId('cash-saved')
+
+
+      85 |   await form.locator('[name="commissionPercent"]').fill('1');
+      86 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+    > 87 |   await expect(page.getByTestId('cash-saved')).toContainText('Перевод записан');
+         |                                                ^
+      88 |   expect(await tenge(page, 'cash-CASH')).toBe(cashWas - 1000 - 10);
+      89 |   expect(await tenge(page, 'cash-KASPI')).toBe(1000);
+      90 |
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash.spec.ts:87:48
+
+    Error Context: test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-перевод-с-ком-3b5d1-»-аннулирование-снимает-оба/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('cash-saved')
+    Expected substring: "Сверка записана"
+    Error: strict mode violation: getByTestId('cash-saved') resolved to 2 elements:
+        1) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('cash-quick').getByTestId('cash-saved')
+        2) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('finance-cash').getByTestId('cash-saved')
+
+    Call log:
+      - Expect "toContainText" getByTestId('cash-saved') with timeout 15000ms
+      - waiting for getByTestId('cash-saved')
+
+
+      187 |   await form.getByTestId('cash-counted').fill(String(was - 500));
+      188 |   await form.getByRole('button', { name: 'Записать сверку' }).click();
+    > 189 |   await expect(page.getByTestId('cash-saved')).toContainText('Сверка записана');
+          |                                                ^
+      190 |   // поправка выровняла остаток, строка состояния — о последней сверке
+      191 |   expect(await tenge(page, 'cash-CASH')).toBe(was - 500);
+      192 |   const status = page.getByTestId('cash-reconciliation-status');
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash.spec.ts:189:48
+
+    Error Context: test-results/finance-cash-сверка-§21-4--c73c9-ой-строка-состояния-и-лента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-сверка-§21-4--c73c9-ой-строка-состояния-и-лента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-сверка-§21-4--c73c9-ой-строка-состояния-и-лента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('cash-saved')
+    Expected substring: "Сверка записана"
+    Error: strict mode violation: getByTestId('cash-saved') resolved to 2 elements:
+        1) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('cash-quick').getByTestId('cash-saved')
+        2) <span role="status" data-testid="cash-saved" class="settings-save-state settings-save-state--saved"></span> aka getByTestId('finance-cash').getByTestId('cash-saved')
+
+    Call log:
+      - Expect "toContainText" getByTestId('cash-saved') with timeout 15000ms
+      - waiting for getByTestId('cash-saved')
+
+
+      211 |   await form.getByTestId('cash-counted').fill(String(was + 70));
+      212 |   await form.getByRole('button', { name: 'Записать сверку' }).click();
+    > 213 |   await expect(page.getByTestId('cash-saved')).toContainText('Сверка записана');
+          |                                                ^
+      214 |   expect(await tenge(page, 'cash-CASH')).toBe(was);
+      215 |   await expect(page.getByTestId('cash-reconciliation-status')).toContainText('+70');
+      216 | });
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash.spec.ts:213:48
+
+    Error Context: test-results/finance-cash-сверка-без-га-2eb47-ие-видно-в-строке-состояния/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-сверка-без-га-2eb47-ие-видно-в-строке-состояния/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-сверка-без-га-2eb47-ие-видно-в-строке-состояния/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ────────────────────
+    tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется
+    tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба
+    tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента
+    tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния
+  16 passed (1.1m)
+
+# код выхода 1 · 1 мин 6 с

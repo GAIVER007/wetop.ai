@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 05.10.2026 11:22 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-22-31Z-integration-9186.json' 'tests/integration/mv6-food-database.test.ts' 'tests/integration/mv6-food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+(node:48014) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 1058ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (3 tests) 73ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  10:22:32
+   Duration  2.38s (tests 62%, import 20%, transform 18%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-22-31Z-integration-9186.json
+
+# код выхода 0 · 3 с

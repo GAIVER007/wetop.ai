@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   CallHandler,
+  ForbiddenException,
   ExecutionContext,
   Inject,
   Injectable,
@@ -10,7 +11,12 @@ import {
 import { from, lastValueFrom, type Observable } from 'rxjs';
 import { PrismaService } from '../database/prisma.provider';
 import type { SignedInUser } from './auth.service';
-import { withSignedInUser } from './request-context';
+import { withSignedInUser, currentVertical } from './request-context';
+import { BUSINESS_CAPABILITY } from './capability.decorator';
+import { PUBLIC_ROUTE } from './public.decorator';
+import { assertBusinessCapability, resolveBusinessVertical } from './business-vertical';
+import { LUXX_APARTS_PROPERTY, type VerticalCapability } from '@pms/domain';
+import { propertyRef } from '../database/property-ref';
 import { SCOPE_HEADER, parseScopePointer, resolveScope, type ResolvedScope } from './scope';
 
 /**
@@ -46,10 +52,67 @@ export class AuthorInterceptor implements NestInterceptor {
       platformAdmin: request?.user?.platformAdmin === true,
     };
     const scope = await this.scope(actor, request?.headers?.[SCOPE_HEADER]);
-    const value = await withSignedInUser({ ...actor, ...scope }, () =>
-      lastValueFrom(next.handle(), { defaultValue: undefined }),
-    );
+    // Public endpoints authenticate and bind the provider/site inside their own domain adapter.
+    const handler = context.getHandler?.();
+    const controller = context.getClass?.();
+    const publicRoute =
+      handler &&
+      (Reflect.getMetadata(PUBLIC_ROUTE, handler) ??
+        (controller && Reflect.getMetadata(PUBLIC_ROUTE, controller)));
+    const capability: VerticalCapability | undefined =
+      handler && !publicRoute
+        ? (Reflect.getMetadata(BUSINESS_CAPABILITY, handler) ??
+          (controller && Reflect.getMetadata(BUSINESS_CAPABILITY, controller)))
+        : undefined;
+    const value = await withSignedInUser({ ...actor, ...scope }, async () => {
+      if (capability) {
+        if (
+          request?.headers?.[SCOPE_HEADER] &&
+          actor.userId &&
+          scope.scope !== 'BUSINESS' &&
+          scope.scope !== 'LOCATION'
+        )
+          throw new ForbiddenException('Выберите доступный бизнес');
+        await this.capability(capability);
+      }
+      return lastValueFrom(next.handle(), { defaultValue: undefined });
+    });
     return from([value]);
+  }
+
+  private async capability(capability: VerticalCapability): Promise<void> {
+    const vertical = currentVertical();
+    if (vertical) {
+      assertBusinessCapability(vertical, capability);
+      return;
+    }
+    if (capability.startsWith('food.'))
+      throw new ForbiddenException('Выберите доступный бизнес Food Service и филиал');
+    if (capability.startsWith('beauty.'))
+      throw new ForbiddenException('Выберите доступный бизнес Beauty');
+    if (!this.prisma) throw new ForbiddenException('Не удалось проверить направление бизнеса');
+    // Legacy organization/service requests bind to the same Property as the domain repository.
+    const property = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const chain = await this.prisma.db.property.findUnique({
+      where: { id: property.id },
+      select: {
+        location: {
+          select: {
+            status: true,
+            businessId: true,
+            business: { select: { organizationId: true } },
+          },
+        },
+      },
+    });
+    if (!chain?.location || chain.location.status !== 'ACTIVE')
+      throw new ForbiddenException('Филиал недоступен');
+    const resolved = await resolveBusinessVertical(
+      this.prisma.db,
+      chain.location.business.organizationId,
+      chain.location.businessId,
+    );
+    assertBusinessCapability(resolved, capability);
   }
 
   private async scope(

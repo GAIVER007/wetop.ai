@@ -3,28 +3,41 @@ import { expect, test } from './fixtures';
 
 /**
  * «Календарь» (02.10.2026, план `plans/calendar-litepms-2026-10-02.md`): раздел «Шахматка»
- * переименован в «Календарь», в строке управления — сводка дня (заезды, выезды, проживают,
- * свободно, загрузка; без денег — они в «Финансах») и быстрые действия «Поиск свободных номеров»
- * и «Неоплаченные»; пустые клетки показывают число месяца;
+ * переименован в «Календарь», в строке управления показана компактная сводка дня без повторов
+ * (заезды, горящие брони, выезды, проживания, незаезды, свободные номера и загрузка; без денег) и быстрые действия
+ * «Поиск свободных номеров» и «Неоплаченные»;
  * `?stays=debt` открывает сетку с уже включённым фильтром «С долгом».
  */
 
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // сводка дня в строке управления: заезды, выезды, проживают, свободно, загрузка — ссылками
+  // Сводка по образцу Lite PMS (владелец 06.10): слева движение гостей, справа фонд.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  await expect(stats.getByTestId('day-arrivals')).toBeVisible();
-  await expect(stats.getByTestId('day-free')).toBeVisible();
-  await expect(stats.getByTestId('day-occupancy')).toBeVisible();
+  await expect(
+    stats.getByRole('heading', { name: /^Сегодня, \d+ \S+, \d\d:\d\d:\d\d$/ }),
+  ).toBeVisible();
+  for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy'])
+    await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+  await expect(stats.getByRole('link', { name: 'Проживания' })).toBeVisible();
+  // владелец 06.10: «лишнее убери, в скобках убери» — дней рождения, задач, блокировок и разбивки нет
+  await expect(stats.getByText('Дни рождения')).toHaveCount(0);
+  await expect(stats.getByText('Задачи')).toHaveCount(0);
+  await expect(stats.getByText('Заблокировано')).toHaveCount(0);
+  await expect(stats.getByText('Всего номеров')).toHaveCount(0);
+  await expect(stats.getByText('(')).toHaveCount(0);
   // деньги дня — в «Финансах», на календаре их нет (поручение 02.10)
   await expect(stats.getByText('К оплате')).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toHaveCount(0);
-  // быстрые действия ведут в существующие потоки
+  // Search preserves the visible inclusive calendar period as exclusive stay dates.
+  const dateColumns = page.getByTestId('date-col');
+  const arrival = (await dateColumns.first().getAttribute('data-date'))!;
+  const last = (await dateColumns.last().getAttribute('data-date'))!;
+  const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
     'href',
-    '/rooms/availability',
+    `/rooms/availability?arrival=${arrival}&departure=${departure}`,
   );
   await expect(page.getByRole('link', { name: 'Неоплаченные' })).toHaveAttribute(
     'href',
@@ -59,11 +72,19 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('пустая клетка подписана числом месяца', async ({ page }) => {
+test('пустая клетка не дублирует дату из шапки календаря', async ({ page }) => {
   await page.goto('/chessboard');
   const free = page.getByTestId('free-cell').first();
   await expect(free).toBeAttached();
-  const date = await free.getAttribute('href');
-  const day = Number(/arrival=\d{4}-\d{2}-(\d{2})/.exec(date ?? '')?.[1]);
-  await expect(free.locator('.board__free-day')).toHaveText(String(day));
+  await expect(free).toHaveText('');
+  await expect(free.locator('.board__free-day')).toHaveCount(0);
+});
+
+test('даты в шапке не повторяют свободные и занятые места', async ({ page }) => {
+  await page.goto('/chessboard');
+  const headers = page.getByTestId('date-col');
+  await expect(headers).not.toHaveCount(0);
+  await expect(headers.locator('.board-day-metrics')).toHaveCount(0);
+  await expect(headers.locator('.board__free-count')).toHaveCount(0);
+  await expect(headers.locator('[data-testid^="occupied-"]')).toHaveCount(0);
 });

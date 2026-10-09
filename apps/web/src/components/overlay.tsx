@@ -8,6 +8,8 @@ export function Overlay({
   children,
   drawer = false,
   className = '',
+  trapFocus = false,
+  size = 'md',
 }: {
   open: boolean;
   onClose: () => void;
@@ -15,6 +17,9 @@ export function Overlay({
   children: ReactNode;
   drawer?: boolean;
   className?: string;
+  trapFocus?: boolean;
+  /** ширина (MV8.5 DS1c, DESIGN.md §8.2): md прежняя (окно 560, панель 480), sm и lg из токенов */
+  size?: 'sm' | 'md' | 'lg';
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -34,8 +39,31 @@ export function Overlay({
   return (
     <dialog
       ref={dialog}
-      className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${className}`}
+      className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${size === 'md' ? '' : `ui-overlay--${size}`} ${className}`}
       aria-labelledby={titleId}
+      onKeyDown={(e) => {
+        if (!trapFocus || e.key !== 'Tab') return;
+        const element = e.currentTarget;
+        if ((e.target as HTMLElement).closest('dialog') !== element) return;
+        const controls = [
+          ...element.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+          ),
+        ].filter((control) => control.getClientRects().length > 0 && !control.closest('[inert]'));
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (!first || !last) {
+          e.preventDefault();
+          return;
+        }
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }}
       onCancel={(e) => {
         // Нативный cancel не всплывает, но React доставляет его и родителям по дереву компонентов:
         // Escape в окне подтверждения внутри панели закрывал и панель (найдено B3, 20.09).

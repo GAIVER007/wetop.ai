@@ -1,10 +1,12 @@
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { authApi } from '../../lib/api';
 import { clientInfo, sessionToken } from '../../lib/session';
+import { TeamNavigation } from '../../components/team-navigation';
 import { Page } from '../../components/page';
 import { Notice } from '../../components/ui';
 import { currentMe } from '../../lib/desk-shell';
 import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
+import './team.css';
 
 /**
  * «Сотрудники» (TEAM1): люди организации с ролями, датой входа в организацию и «Был в системе»;
@@ -33,11 +35,14 @@ export default async function TeamPage() {
       >
         {team ? (
           <>
+            <TeamNavigation current="team" owner={role === 'OWNER'} />
             <MembersTable members={members} />
             <PendingInvites invites={invites} />
           </>
         ) : (
-          <Notice tone="muted">Приглашать и отключать сотрудников могут владелец и управляющий.</Notice>
+          <Notice tone="muted">
+            Приглашать и отключать сотрудников могут владелец и управляющий.
+          </Notice>
         )}
       </Page>
     </TeamProvider>

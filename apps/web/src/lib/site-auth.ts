@@ -2,6 +2,7 @@ import { ApiError } from './api-error';
 import type { AuthClientInfo } from './api';
 import { readBoundedText } from './bounded-body';
 import { SESSION_COOKIE, cookieSecure } from './session-cookie';
+import { clearScopeCookieHeader } from './scope-pointer';
 
 /**
  * Вход и регистрация окном на wetop.ai (plans/site-auth-dialog-tour-2026-09-27.md, Д1, ADR-100).
@@ -109,7 +110,11 @@ export async function handleSiteAuth(request: Request, action: SiteAuthAction, e
 
   try {
     const result = await action(body, clientInfoOf(request));
-    if (result.session) headers.append('set-cookie', sessionCookieHeader(result.session, env));
+    if (result.session) {
+      headers.append('set-cookie', sessionCookieHeader(result.session, env));
+      // Новый вход не наследует указатель прошлого: филиал выберет `/scope/resolve` по `GET /branches`
+      headers.append('set-cookie', clearScopeCookieHeader(env));
+    }
     return json(result.body, 200, headers);
   } catch (error) {
     if (error instanceof ApiError) return json({ message: error.message }, error.status, headers);

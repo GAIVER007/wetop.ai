@@ -1,0 +1,11 @@
+# Линтер (lint) · 08.10.2026 13:43 Алматы · vm
+# коммит 5c2ed16 (claude/mv8-5-ds1b-primitives), незакоммиченных файлов набора: 33
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/components/segmented.tsx
+  65:15  error  Unexpected newline between object and [ of property access  no-unexpected-multiline
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 36 с

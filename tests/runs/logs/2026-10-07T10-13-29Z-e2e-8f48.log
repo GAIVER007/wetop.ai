@@ -1,0 +1,348 @@
+# Сквозные (e2e) · 07.10.2026 15:13 Алматы · MacBook-Air-Urij.local
+# коммит 03dfec1 (codex/mv8-audit-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' '--workers=1'
+[WebServer] (node:87939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+(node:88000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Compaction failed: Failed to compact database[WebServer]
+[WebServer]
+[WebServer] Caused by:
+[WebServer]     0: Failed to merge database files for family 2
+[WebServer]     1: Failed to write compressed value block
+[WebServer]     2: Failed to write block data
+[WebServer]     3: failed to write to file `/Users/urijzapojnov/wetop-mv8-audit-20261007/apps/web/.next-ui/dev/cache/turbopack/v16.3.6-a758ffcf/00000031.sst`: No space left on device (os error 28)
+[WebServer] Persisting is disabled for this session due to an unrecoverable error. Stopping the background persisting process.
+[WebServer] ⨯ Error: ENOSPC: no space left on device, open '/Users/urijzapojnov/wetop-mv8-audit-20261007/apps/web/.next-ui/dev/server/app-paths-manifest.json.tmp.fps94cmwsn8'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/urijzapojnov/wetop-mv8-audit-20261007/apps/web/.next-ui/dev/server/app-paths-manifest.json.tmp.fps94cmwsn8'
+[WebServer] }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768925) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:425:29:
+[WebServer] Failed to open /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/next-panic-421077db9cf506d8b017a3ff56ce6a8e.log
+[WebServer] note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768925) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] Error: ENOSPC: no space left on device, open '/Users/urijzapojnov/wetop-mv8-audit-20261007/apps/web/.next-ui/dev/server/app-paths-manifest.json.tmp.fps94cmwsn8'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/urijzapojnov/wetop-mv8-audit-20261007/apps/web/.next-ui/dev/server/app-paths-manifest.json.tmp.fps94cmwsn8'
+[WebServer] }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer] [Error: ENOSPC: no space left on device, write] {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: [Error: ENOSPC: no space left on device, write] {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  [Error: ENOSPC: no space left on device, write] {
+[WebServer]   errno: -28,
+[WebServer]   code: 'ENOSPC',
+[WebServer]   syscall: 'write'
+[WebServer] }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+  ✘   1 tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day (3.0s)
+(node:88055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768900) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769135) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+  ✘   2 tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure (2.4s)
+(node:88077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768900) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768900) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768900) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769136) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+  ✘   3 tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried (4.2s)
+(node:88105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (769135) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768898) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768901) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768925) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768897) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768925) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768925) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] ⨯ [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer]
+[WebServer] thread 'tokio-rt-worker' (768895) panicked at crates/next-napi-bindings/src/next_api/turbopack_ctx.rs:372:51:
+[WebServer] called `Result::unwrap()` on an `Err` value: PoisonError { .. }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+[WebServer] [Error: Panic in async function] { code: 'GenericFailure' }
+  ✘   4 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (2.8s)
+
+
+  1) tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day
+
+    Error: ENOSPC: no space left on device, open 'reports/owner-home-v3-2026-10-05/forecast.png'
+
+      21 |   const href = await days.nth(1).getAttribute('href');
+      22 |   expect(href).toMatch(/^\/chessboard\?from=(\d{4}-\d{2}-\d{2})&to=\1$/);
+    > 23 |   await page.screenshot({
+         |   ^
+      24 |     caret: 'initial',
+      25 |     path: 'reports/owner-home-v3-2026-10-05/forecast.png',
+      26 |   });
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/ui/owner-dashboard-interactions.spec.ts:23:3
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, copyfile '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-0/traces/4d3188a981947926ef65-889c5792a49f3581cc51-recording2.network' -> '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-0/traces/4d3188a981947926ef65-889c5792a49f3581cc51-recording2-pwnetcopy-1.network'
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, copyfile '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-0/traces/4d3188a981947926ef65-889c5792a49f3581cc51.network' -> '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-0/traces/4d3188a981947926ef65-889c5792a49f3581cc51-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOSPC: no space left on device, write
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-ee241-n-the-selected-calendar-day/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure
+
+    Error: browserContext.close: ENOSPC: no space left on device, write
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, write
+
+    Error Context: test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-b422a-ter-a-temporary-API-failure/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried
+
+    Error: browserContext.close: ENOSPC: no space left on device, write
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, copyfile '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-2/traces/4d3188a981947926ef65-f70db561b1925a4a36ea.network' -> '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-2/traces/4d3188a981947926ef65-f70db561b1925a4a36ea-pwnetcopy-1.network'
+
+    Error: ENOSPC: no space left on device, mkdir '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried'
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-692cb-explicit-and-can-be-retried/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card
+
+    Error: ENOSPC: no space left on device, open 'reports/owner-home-v3-2026-10-05/loading.png'
+
+      76 |     timeout: 2000,
+      77 |   });
+    > 78 |   await page.screenshot({ caret: 'initial', path: 'reports/owner-home-v3-2026-10-05/loading.png' });
+         |   ^
+      79 |   await expect(page.getByTestId('c-occupancy')).toBeVisible();
+      80 | });
+      81 |
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/ui/owner-dashboard-interactions.spec.ts:78:3
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, copyfile '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-3/traces/4d3188a981947926ef65-690906a426d5a66df78a-recording2.network' -> '/Users/urijzapojnov/wetop-mv8-audit-20261007/test-results/.playwright-artifacts-3/traces/4d3188a981947926ef65-690906a426d5a66df78a-recording2-pwnetcopy-1.network'
+
+    Error: apiRequestContext._wrapApiCall: ENOSPC: no space left on device, write
+
+    Error: browserContext._wrapApiCall: ENOSPC: no space left on device, write
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day
+    tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure
+    tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried
+    tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card
+  11 did not run
+
+# код выхода 130 · 31 с

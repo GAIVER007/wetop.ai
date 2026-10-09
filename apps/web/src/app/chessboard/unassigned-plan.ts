@@ -2,22 +2,14 @@ import type { ActionPreview, StayAvailability, UnassignedStay } from '../../lib/
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusText } from '../../lib/status/types';
 
 /**
  * Правила ящика «Брони без размещения» (ТЗ «Шахматка v2» §11–12, §64). Здесь только слова и выбор мест:
  * свободные места считает API (`/availability` на весь срок брони), назначение — команда `assign`,
  * деньги переезда в другую категорию — её предпросмотр. Своих правил посадки у ящика нет.
  */
-
-/** Слово о брони в единственном числе, как в строке «Без ячейки» и на «Бронях» */
-const STATUS: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
 
 export interface UnassignedSummary {
   reservations: number;
@@ -70,7 +62,7 @@ export function unassignedCard(s: UnassignedStay): UnassignedCard {
     nights,
     category: s.categoryName,
     categoryCode: s.categoryCode,
-    status: STATUS[s.status] ?? s.status,
+    status: statusText(hospitalityStatus, s.status),
     arrivalDate: s.arrivalDate,
     departureDate: s.departureDate,
   };

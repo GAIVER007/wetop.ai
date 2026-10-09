@@ -45,7 +45,6 @@ for (const screen of [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
-  '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
   // «По номерам» (REP3): один запрос /desk/dashboard/units
@@ -61,6 +60,8 @@ for (const screen of [
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',
+  // хаб «Маркетинг» (MKT2): статичная страница, данных не спрашивает
+  '/marketing',
   '/website',
   '/website/booking',
   '/website/analytics',

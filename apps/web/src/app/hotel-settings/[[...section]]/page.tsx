@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
@@ -7,6 +8,7 @@ import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
+import { Tabs } from '../../../components/tabs';
 import { loadErrorProps } from '../../../lib/load-error';
 import { Notice, Panel } from '../../../components/ui';
 import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
@@ -18,6 +20,7 @@ import {
 } from '../settings-form';
 import { SaveAction, SettingsSave } from '../settings-save';
 import { currentMe, deskShell } from '../../../lib/desk-shell';
+import '../settings.css';
 
 /**
  * «Настройки объекта» (ТЗ «Настройки объекта» v2, срез SET1, ADR-115): один заголовок на три вкладки. Правила отмены
@@ -42,12 +45,13 @@ export default async function HotelSettingsPage({
 }: {
   params: Promise<{ section?: string[] }>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
   if (view === 'description') redirect('/hotel-settings');
   if (view === 'check-in') redirect('/hotel-settings/stay');
-  if (view === 'penalties') redirect('/rates/plans');
+  if (view === 'penalties') redirect('/hotel-settings');
   if (view === 'photos' || view === 'amenities') redirect('/connections#channex-connection');
   if (!tabs.some((item) => item.view === view)) notFound();
   // настройки уже прочитал макет (кэш на одну отрисовку): название объекта в подзаголовке ничего не стоит
@@ -82,18 +86,10 @@ export default async function HotelSettingsPage({
           subtitle={loaded.ok ? loaded.value.property.name : undefined}
           actions={actions}
         >
-          <nav className="settings-tabs" aria-label="Настройки объекта">
-            {tabs.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch={false}
-                aria-current={item.view === view ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <Tabs
+            label="Настройки объекта"
+            items={tabs.map((item) => ({ ...item, current: item.view === view }))}
+          />
           {view === 'services' ? (
             <Suspense
               fallback={

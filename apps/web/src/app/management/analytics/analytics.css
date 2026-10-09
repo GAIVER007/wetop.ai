@@ -3,530 +3,867 @@
  * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `.settings-tabs`; здесь только
  * то, чего у них нет: полоса периода с типом фонда, шесть плиток в ряд, скелетон.
  */
-.pa-toolbar {
-  display: grid;
-  gap: var(--space-2);
-  margin-bottom: var(--space-6);
-}
-.pa-toolbar__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.pa-day-step {
-  flex: none;
-}
-.pa-day-step--prev svg {
-  transform: scaleX(-1);
-}
-.pa-toolbar__caption {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-.pa-toolbar__caption strong {
-  color: var(--text);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-}
-.pa-toolbar__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-}
-.pa-range {
-  position: relative;
-}
-.pa-range > summary {
-  list-style: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  cursor: pointer;
-}
-.pa-range > summary::-webkit-details-marker {
-  display: none;
-}
-.pa-range > summary.is-on {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.pa-range[open] > .pa-range__form {
-  display: flex;
-}
-/* свой период — всплывающая панель над страницей (ТЗ §18: редкие настройки — в popover), тень по §5 */
-.pa-range__form {
-  display: none;
-  position: absolute;
-  top: calc(100% + var(--space-2));
-  left: 0;
-  z-index: var(--layer-overlay);
-  align-items: end;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  background: var(--surface-solid);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-floating);
-}
-.pa-range__form label {
-  display: grid;
-  gap: var(--space-1);
-  width: 160px;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-.pa-compare {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-h);
-  font-size: var(--text-sm);
-  color: var(--text-2);
-  text-decoration: none;
-}
-.pa-compare:hover {
-  color: var(--text);
-}
-.pa-compare__box {
-  display: inline-grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-xs);
-  color: var(--on-primary);
-}
-.pa-compare.is-on .pa-compare__box {
-  background: var(--primary);
-  border-color: var(--primary);
-}
-
-/* шесть плиток ТЗ §5 в один ряд на широком экране */
-.pa-kpis {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  margin-bottom: var(--space-4);
-}
-.pa-kpis .kpi {
-  padding: var(--space-4);
-}
-.pa-kpis .kpi__value {
-  font-size: var(--text-3xl);
-}
-.pa-kpis .kpi--revenue .kpi__value,
-.pa-kpis .kpi--average .kpi__value {
-  font-size: var(--text-2xl);
-}
-.pa-secondary {
-  margin: 0 0 var(--space-4);
-  padding-top: 0;
-}
-.pa-note {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-sm);
-}
-.pa-single {
-  margin: var(--space-4) 0;
-}
-.pa-single strong {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-semibold);
-  font-variant-numeric: tabular-nums;
-}
-
-/* «Загрузка» (AN2): пять плиток в ряд */
-.pa-kpis--occupancy {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-.pa-kpis .kpi__hint .pa-kpi-link {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.pa-meta {
-  margin-bottom: var(--space-4);
-}
-.pa-panel-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  margin-top: var(--space-4);
-  font-size: var(--text-sm);
-}
-.pa-occupancy-table .kpi-delta {
-  white-space: nowrap;
-}
-/* «Сравнение категорий»: полоса — загрузка категории, черта — средняя по фонду */
-.pa-rank {
-  margin-bottom: var(--space-4);
-}
-/* одна колонка названий на все строки: полосы начинаются с одной линии и сравниваются на глаз */
-.hbars.pa-rank li {
-  grid-template-columns: minmax(160px, 22%) minmax(0, 1fr) auto;
-}
-.pa-rank__track {
-  position: relative;
-}
-.pa-rank__avg {
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  width: 2px;
-  transform: translateX(-50%);
-  background: var(--text-2);
-}
-.pa-rank__diff {
-  min-width: 150px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.pa-rank__diff--up {
-  color: var(--success);
-}
-.pa-rank__diff--down {
-  color: var(--danger);
-}
-.pa-rank__diff--flat {
-  color: var(--muted);
-}
-
-/*
+@layer sections {
+  /*
+ Перенесено из today/dashboard.css (MV8.5 DS0b): раньше грузилось из layout.tsx
+ */
+  .period-presets {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+  .period-presets a {
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h);
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .period-presets a:hover {
+    color: var(--text);
+  }
+  .seg.period-presets {
+    gap: 4px;
+  }
+  .seg.period-presets a {
+    border-left: 0;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface-solid);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-radius: var(--radius);
+  }
+  .kpi__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .kpi__body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 40px;
+  }
+  .kpi__value {
+    font-size: var(--text-4xl);
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .kpi__hint {
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--muted);
+    min-height: 2.8em;
+  }
+  .kpi-delta {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-delta--up {
+    color: var(--success);
+  }
+  .kpi-delta--down {
+    color: var(--danger);
+  }
+  .kpi-delta--flat,
+  .kpi-delta--none {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .kpi-secondary .kpi-delta {
+    grid-column: 1 / -1;
+  }
+  .kpi-compare {
+    margin: 12px 0 24px;
+    font-size: var(--text-xs);
+  }
+  .kpi-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 16px 0;
+    margin-top: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: stretch;
+  }
+  .dash-grid--chart {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+  .dash-grid > * {
+    min-width: 0;
+  }
+  .dash-panel {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .dash-panel > .table-scroll {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .dash-panel--table {
+    padding-bottom: 8px;
+  }
+  .dash-panel .table-scroll {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dash-panel .dash-table {
+    min-width: 0;
+  }
+  .dash-table td,
+  .dash-table th {
+    white-space: nowrap;
+  }
+  .dash-table td.dash-table__name {
+    white-space: normal;
+    min-width: 150px;
+    line-height: 1.3;
+  }
+  .dash-table td.dash-table__name .muted {
+    font-size: var(--text-xs);
+    margin-top: 2px;
+  }
+  .dash-table td:first-child,
+  .dash-table th:first-child {
+    padding-left: 0;
+  }
+  .dash-table td:last-child,
+  .dash-table th:last-child {
+    padding-right: 0;
+  }
+  .dash-panel__link {
+    display: inline-block;
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: var(--text-sm);
+  }
+  .dash-empty {
+    margin: 8px 0;
+    font-size: var(--text-sm);
+  }
+  .dash-note {
+    margin: auto 0 0;
+    padding-top: 10px;
+    font-size: var(--text-xs);
+  }
+  .bars-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .bars-legend a {
+    margin-left: auto;
+  }
+  .bars-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: -1px;
+  }
+  .bars-legend__past {
+    background: var(--primary);
+  }
+  .bars-legend__future {
+    background: color-mix(in srgb, var(--primary) 40%, var(--surface));
+    border: 1px dashed color-mix(in srgb, var(--primary) 60%, transparent);
+  }
+  .hbars,
+  .sources {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .hbars li {
+    display: grid;
+    grid-template-columns: fit-content(45%) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+    font-size: var(--text-sm);
+  }
+  .hbars__label {
+    white-space: nowrap;
+  }
+  .hbars__track,
+  .sources__track {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border-soft);
+    overflow: hidden;
+  }
+  .hbars__track > i,
+  .sources__track > i {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--primary);
+  }
+  .hbars__value,
+  .sources__share,
+  .sources__amount,
+  .sources__count {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hbars__value {
+    color: var(--muted);
+  }
+  .sources__label {
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .sources__count {
+    font-weight: 600;
+  }
+  .sources__share {
+    color: var(--muted);
+    text-align: right;
+  }
+  .sources__amount {
+    color: var(--text-2);
+    text-align: right;
+  }
+  @media (max-width: 1279px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .kpi {
+      padding: 12px;
+    }
+    .kpi__value {
+      font-size: var(--text-3xl);
+    }
+  }
+  .sources li {
+    display: grid;
+    grid-template-columns: fit-content(45%) auto minmax(50px, 1fr) 48px auto;
+    align-items: center;
+    gap: 10px 12px;
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 760px) {
+    .hbars li,
+    .sources li {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      row-gap: 4px;
+    }
+    .sources li {
+      grid-template-columns: auto minmax(0, 1fr) 48px auto;
+    }
+    .hbars__label,
+    .sources__label {
+      grid-column: 1 / -1;
+      white-space: normal;
+    }
+    .hbars li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+  @media (max-width: 600px) {
+    .period-presets a {
+      min-height: var(--touch-target);
+    }
+    .kpi-secondary {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+  }
+  @media (max-width: 340px) {
+    .kpi-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .dash-cell-word {
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .dash-panel .tbl.dash-table--categories,
+    .dash-table--categories tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dash-table--categories thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dash-table--categories tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-1) var(--space-4);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dash-table--categories tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dash-table--categories tbody td,
+    .tbl--nowrap.dash-table--categories tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      text-align: left;
+    }
+    .dash-table--categories tbody td.dash-table__name {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+    .dash-table--categories tbody td.dash-table__occupancy {
+      grid-column: 1 / -1;
+    }
+    .dash-table--categories tbody td.num {
+      color: var(--text-2);
+    }
+    .dash-table--categories .dash-cell-word {
+      display: inline;
+    }
+  }
+  .pa-toolbar {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+  .pa-toolbar__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .pa-day-step {
+    flex: none;
+  }
+  .pa-day-step--prev svg {
+    transform: scaleX(-1);
+  }
+  .pa-toolbar__caption {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .pa-toolbar__caption strong {
+    color: var(--text);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .pa-toolbar__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .pa-range {
+    position: relative;
+  }
+  .pa-range > summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+  }
+  .pa-range > summary::-webkit-details-marker {
+    display: none;
+  }
+  .pa-range > summary.is-on {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .pa-range[open] > .pa-range__form {
+    display: flex;
+  } /* свой период — всплывающая панель над страницей (ТЗ §18: редкие настройки — в popover), тень по §5 */
+  .pa-range__form {
+    display: none;
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: var(--layer-overlay);
+    align-items: end;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-floating);
+  }
+  .pa-range__form label {
+    display: grid;
+    gap: var(--space-1);
+    width: 160px;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .pa-compare {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    font-size: var(--text-sm);
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  .pa-compare:hover {
+    color: var(--text);
+  }
+  .pa-compare__box {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-xs);
+    color: var(--on-primary);
+  }
+  .pa-compare.is-on .pa-compare__box {
+    background: var(--primary);
+    border-color: var(--primary);
+  } /* шесть плиток ТЗ §5 в один ряд на широком экране */
+  .pa-kpis {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin-bottom: var(--space-4);
+  }
+  .pa-kpis .kpi {
+    padding: var(--space-4);
+  }
+  .pa-kpis .kpi__value {
+    font-size: var(--text-3xl);
+  }
+  .pa-kpis .kpi--revenue .kpi__value,
+  .pa-kpis .kpi--average .kpi__value {
+    font-size: var(--text-2xl);
+  }
+  .pa-secondary {
+    margin: 0 0 var(--space-4);
+    padding-top: 0;
+  }
+  .pa-note {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .pa-single {
+    margin: var(--space-4) 0;
+  }
+  .pa-single strong {
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  } /* «Загрузка» (AN2): пять плиток в ряд */
+  .pa-kpis--occupancy {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .pa-kpis .kpi__hint .pa-kpi-link {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pa-meta {
+    margin-bottom: var(--space-4);
+  }
+  .pa-panel-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .pa-occupancy-table .kpi-delta {
+    white-space: nowrap;
+  } /* «Сравнение категорий»: полоса — загрузка категории, черта — средняя по фонду */
+  .pa-rank {
+    margin-bottom: var(--space-4);
+  } /* одна колонка названий на все строки: полосы начинаются с одной линии и сравниваются на глаз */
+  .hbars.pa-rank li {
+    grid-template-columns: minmax(160px, 22%) minmax(0, 1fr) auto;
+  }
+  .pa-rank__track {
+    position: relative;
+  }
+  .pa-rank__avg {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    transform: translateX(-50%);
+    background: var(--text-2);
+  }
+  .pa-rank__diff {
+    min-width: 150px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .pa-rank__diff--up {
+    color: var(--success);
+  }
+  .pa-rank__diff--down {
+    color: var(--danger);
+  }
+  .pa-rank__diff--flat {
+    color: var(--muted);
+  } /*
  * Полоска загрузки в таблице категорий: общий стиль (`management/hotel.css`) красит заливку тем же
  * `--success-soft`, что и дорожку, и доля не видна. Здесь заливка — акцентом, как столбики графика.
  */
-.pa-categories .occupancy-meter meter::-webkit-meter-optimum-value,
-.pa-occupancy-table .occupancy-meter meter::-webkit-meter-optimum-value,
-.pa-units-table .occupancy-meter meter::-webkit-meter-optimum-value {
-  background: var(--primary);
-}
-.pa-categories .occupancy-meter meter::-moz-meter-bar,
-.pa-occupancy-table .occupancy-meter meter::-moz-meter-bar,
-.pa-units-table .occupancy-meter meter::-moz-meter-bar {
-  background: var(--primary);
-}
-.pa-categories .occupancy-meter meter::-webkit-meter-bar,
-.pa-categories .occupancy-meter meter,
-.pa-occupancy-table .occupancy-meter meter::-webkit-meter-bar,
-.pa-occupancy-table .occupancy-meter meter,
-.pa-units-table .occupancy-meter meter::-webkit-meter-bar,
-.pa-units-table .occupancy-meter meter {
-  background: var(--primary-soft);
-}
-
-/* «По номерам» (REP3): категория — заголовком группы, как в каталоге фонда; итог выделен сверху чертой */
-.pa-units-group th {
-  padding: var(--space-4) var(--space-4) var(--space-2);
-  text-align: left;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-}
-.pa-units-group th > span {
-  margin-left: var(--space-2);
-  color: var(--text-2);
-  font-weight: var(--weight-regular);
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
-}
-.pa-units-total th,
-.pa-units-total td {
-  border-top: 1px solid var(--border);
-  font-weight: var(--weight-semibold);
-}
-.pa-units-total th {
-  text-align: left;
-}
-
-.pa-skeleton {
-  display: grid;
-  gap: var(--space-4);
-}
-.pa-skeleton__chart {
-  height: 240px;
-}
-
-@media (max-width: 1279px) {
-  .pa-kpis {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .pa-categories .occupancy-meter meter::-webkit-meter-optimum-value,
+  .pa-occupancy-table .occupancy-meter meter::-webkit-meter-optimum-value,
+  .pa-units-table .occupancy-meter meter::-webkit-meter-optimum-value {
+    background: var(--primary);
   }
-}
-/* на телефоне отличие от средней — своей строкой под полосой, название уже стоит над ней */
-@media (max-width: 760px) {
-  .hbars.pa-rank li {
-    grid-template-columns: minmax(0, 1fr) auto;
+  .pa-categories .occupancy-meter meter::-moz-meter-bar,
+  .pa-occupancy-table .occupancy-meter meter::-moz-meter-bar,
+  .pa-units-table .occupancy-meter meter::-moz-meter-bar {
+    background: var(--primary);
   }
-  .pa-rank__diff {
-    min-width: 0;
+  .pa-categories .occupancy-meter meter::-webkit-meter-bar,
+  .pa-categories .occupancy-meter meter,
+  .pa-occupancy-table .occupancy-meter meter::-webkit-meter-bar,
+  .pa-occupancy-table .occupancy-meter meter,
+  .pa-units-table .occupancy-meter meter::-webkit-meter-bar,
+  .pa-units-table .occupancy-meter meter {
+    background: var(--primary-soft);
+  } /* «По номерам» (REP3): категория — заголовком группы, как в каталоге фонда; итог выделен сверху чертой */
+  .pa-units-group th {
+    padding: var(--space-4) var(--space-4) var(--space-2);
+    text-align: left;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
   }
-}
-@media (max-width: 760px) {
-  .pa-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .pa-units-group th > span {
+    margin-left: var(--space-2);
+    color: var(--text-2);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
   }
-  .pa-kpis .kpi__value,
-  .pa-kpis .kpi--revenue .kpi__value,
-  .pa-kpis .kpi--average .kpi__value {
-    font-size: var(--text-xl);
+  .pa-units-total th,
+  .pa-units-total td {
+    border-top: 1px solid var(--border);
+    font-weight: var(--weight-semibold);
   }
-  .pa-toolbar__row {
-    align-items: stretch;
+  .pa-units-total th {
+    text-align: left;
   }
-  .pa-range__form {
-    flex-wrap: wrap;
-    width: min(360px, calc(100vw - var(--space-8)));
+  .pa-skeleton {
+    display: grid;
+    gap: var(--space-4);
   }
-}
-
-/* телефон: каждая цель полосы периода не меньше 44 px (DESIGN.md §11), поле даты — 16 px, без приближения */
-@media (max-width: 600px) {
-  .pa-fund a,
-  .pa-compare,
-  .pa-range > summary,
-  .pa-range__form .btn,
-  .pa-range__form .inp {
-    min-height: var(--touch-target);
+  .pa-skeleton__chart {
+    height: 240px;
   }
-  .pa-fund a {
-    display: inline-flex;
-    align-items: center;
-  }
-  .pa-day-step {
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-  }
-  .pa-range__form .inp {
-    font-size: var(--text-lg);
-  }
-}
-
-/* ссылка внутри поясняющего текста отличается от текста не только цветом (WCAG 1.4.1, axe link-in-text-block) */
-.pa-note a,
-.pa-note-links a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-/* Overview: four primary KPIs, two charts, details on demand. Размеры шрифта только из шкалы §6
+  @media (max-width: 1279px) {
+    .pa-kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  } /* на телефоне отличие от средней — своей строкой под полосой, название уже стоит над ней */
+  @media (max-width: 760px) {
+    .hbars.pa-rank li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .pa-rank__diff {
+      min-width: 0;
+    }
+    .pa-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .pa-kpis .kpi__value,
+    .pa-kpis .kpi--revenue .kpi__value,
+    .pa-kpis .kpi--average .kpi__value {
+      font-size: var(--text-xl);
+    }
+    .pa-toolbar__row {
+      align-items: stretch;
+    }
+    .pa-range__form {
+      flex-wrap: wrap;
+      width: min(360px, calc(100vw - var(--space-8)));
+    }
+  } /* телефон: каждая цель полосы периода не меньше 44 px (DESIGN.md §11), поле даты — 16 px, без приближения */
+  @media (max-width: 600px) {
+    .pa-fund a,
+    .pa-compare,
+    .pa-range > summary,
+    .pa-range__form .btn,
+    .pa-range__form .inp {
+      min-height: var(--touch-target);
+    }
+    .pa-fund a {
+      display: inline-flex;
+      align-items: center;
+    }
+    .pa-day-step {
+      min-width: var(--touch-target);
+      min-height: var(--touch-target);
+    }
+    .pa-range__form .inp {
+      font-size: var(--text-lg);
+    }
+  } /* ссылка внутри поясняющего текста отличается от текста не только цветом (WCAG 1.4.1, axe link-in-text-block) */
+  .pa-note a,
+  .pa-note-links a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  } /* Overview: four primary KPIs, two charts, details on demand. Размеры шрифта только из шкалы §6
    (токены `--text-*`): заголовок страницы общий для всех экранов, своего здесь нет */
-.analytics-page {
-  padding: 16px 24px;
-}
-.analytics-page .page__head {
-  margin-bottom: 16px;
-}
-.analytics-page .page__subtitle {
-  font-size: var(--text-xs);
-}
-.analytics-page .pa-tabs {
-  background: transparent;
-  border: 0;
-  margin-bottom: 16px;
-}
-.analytics-page .pa-toolbar {
-  margin-bottom: 16px;
-}
-.analytics-page .pa-toolbar__caption strong {
-  font-size: var(--text-sm);
-}
-.analytics-page .pa-kpis {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-.analytics-page .kpi {
-  padding: 16px;
-}
-.analytics-page .kpi__value {
-  font-size: var(--text-3xl);
-}
-.analytics-page .kpi__hint,
-.analytics-page .kpi-delta {
-  font-size: var(--text-xs);
-}
-.analytics-page .kpi-compare {
-  margin: 8px 0;
-  font-size: var(--text-xs);
-  line-height: 1.5;
-}
-.analytics-page .pa-charts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.analytics-page .dash-panel {
-  padding: 16px;
-  margin: 0;
-}
-.analytics-page .dash-panel .panel__title {
-  font-size: var(--text-md);
-}
-.analytics-page .pa-details {
-  margin-top: 16px;
-}
-.analytics-page .pa-details > summary {
-  cursor: pointer;
-  padding: 8px 0;
-  font-size: var(--text-xs);
-  color: var(--primary);
-}
-.analytics-page .pa-details[open] {
-  display: grid;
-  gap: 16px;
-}
-.analytics-page .pa-details .pa-kpis {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-@media (max-width: 900px) {
-  .analytics-page .pa-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .analytics-page .pa-charts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 600px) {
   .analytics-page {
+    padding: 16px 24px;
+  }
+  .analytics-page .page__head {
+    margin-bottom: 16px;
+  }
+  .analytics-page .page__subtitle {
+    font-size: var(--text-xs);
+  }
+  .analytics-page .pa-tabs {
+    background: transparent;
+    border: 0;
+    margin-bottom: 16px;
+  }
+  .analytics-page .pa-toolbar {
+    margin-bottom: 16px;
+  }
+  .analytics-page .pa-toolbar__caption strong {
+    font-size: var(--text-sm);
+  }
+  .analytics-page .pa-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .analytics-page .kpi {
     padding: 16px;
   }
   .analytics-page .kpi__value {
-    font-size: var(--text-2xl);
+    font-size: var(--text-3xl);
   }
-}
-
-/* «Каналы» (ADR-141): полоса отбора: период заезда, сравнение, канал; переносится по ширине */
-.pa-channels__form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-  padding: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-}
-.pa-channels__group {
-  display: flex;
-  align-items: end;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.pa-channels__group legend {
-  padding: 0;
-  margin-bottom: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-2);
-}
-.pa-channels__group > label,
-.pa-channels__channel {
-  display: grid;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-2);
-}
-.pa-channels__check {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--touch-target);
-  font-size: var(--text-sm);
-  color: var(--text);
-}
-.pa-channels__group legend .pa-channels__check {
-  min-height: 0;
-  font-size: var(--text-xs);
-  color: var(--text-2);
-}
-.pa-sort {
-  color: inherit;
-  text-decoration: none;
-}
-.pa-sort:hover {
-  text-decoration: underline;
-}
-.pa-channels__share,
-.pa-channels__bookings,
-.pa-channels__before {
-  display: block;
-  font-size: var(--text-xs);
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-}
-.pa-channels__before .kpi-delta {
-  margin-left: var(--space-1);
-}
-.pa-channels__row--empty td {
-  color: var(--text-2);
-}
-.pa-channels-total th,
-.pa-channels-total td {
-  border-top: 1px solid var(--border);
-  font-weight: var(--weight-semibold);
-  text-align: left;
-}
-.pa-channels-total td.num {
-  text-align: right;
-}
-@media (max-width: 600px) {
-  .pa-channels__form .btn,
-  .pa-channels__form .inp,
-  .pa-channels__form select {
-    min-height: var(--touch-target);
+  .analytics-page .kpi__hint,
+  .analytics-page .kpi-delta {
+    font-size: var(--text-xs);
   }
-  .pa-channels__form .inp {
-    font-size: var(--text-lg);
+  .analytics-page .kpi-compare {
+    margin: 8px 0;
+    font-size: var(--text-xs);
+    line-height: 1.5;
   }
-}
-/* телефон: строка канала: карточкой (название сверху, три числа со словом), как «По категориям» Главной */
-@media (max-width: 600px) {
-  .dash-panel .tbl.pa-channels-table,
-  .pa-channels-table tbody,
-  .pa-channels-table tfoot {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .pa-channels-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .pa-channels-table tr {
+  .analytics-page .pa-charts {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-1) var(--space-4);
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--border-soft);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
-  .pa-channels-table tbody td,
-  .pa-channels-table tfoot td,
-  .pa-channels-table tfoot th,
-  .tbl--nowrap.pa-channels-table td,
-  .tbl--nowrap.pa-channels-table th {
-    display: block;
+  .analytics-page .dash-panel {
+    padding: 16px;
+    margin: 0;
+  }
+  .analytics-page .dash-panel .panel__title {
+    font-size: var(--text-md);
+  }
+  .analytics-page .pa-details {
+    margin-top: 16px;
+  }
+  .analytics-page .pa-details > summary {
+    cursor: pointer;
+    padding: 8px 0;
+    font-size: var(--text-xs);
+    color: var(--primary);
+  }
+  .analytics-page .pa-details[open] {
+    display: grid;
+    gap: 16px;
+  }
+  .analytics-page .pa-details .pa-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 900px) {
+    .analytics-page .pa-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .analytics-page .pa-charts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .analytics-page {
+      padding: 16px;
+    }
+    .analytics-page .kpi__value {
+      font-size: var(--text-2xl);
+    }
+  } /* «Каналы» (ADR-141): полоса отбора: период заезда, сравнение, канал; переносится по ширине */
+  .pa-channels__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .pa-channels__group {
+    display: flex;
+    align-items: end;
+    gap: var(--space-2);
+    margin: 0;
     padding: 0;
     border: 0;
-    min-width: 0;
-    white-space: normal;
-    text-align: left;
-    background: none;
-    position: static;
   }
-  .pa-channels-table .dash-table__name,
-  .pa-channels-table tfoot th {
-    grid-column: 1 / -1;
+  .pa-channels__group legend {
+    padding: 0;
+    margin-bottom: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--text-2);
   }
-  .pa-channels-table tfoot tr {
-    border-bottom: 0;
-    border-top: 1px solid var(--border);
+  .pa-channels__group > label,
+  .pa-channels__channel {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--text-2);
   }
-  .pa-channels-table .dash-cell-word {
+  .pa-channels__check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    font-size: var(--text-sm);
+    color: var(--text);
+  }
+  .pa-channels__group legend .pa-channels__check {
+    min-height: 0;
+    font-size: var(--text-xs);
+    color: var(--text-2);
+  }
+  .pa-sort {
+    color: inherit;
+    text-decoration: none;
+  }
+  .pa-sort:hover {
+    text-decoration: underline;
+  }
+  .pa-channels__share,
+  .pa-channels__bookings,
+  .pa-channels__before {
     display: block;
     font-size: var(--text-xs);
     color: var(--text-2);
-    font-weight: var(--weight-regular);
+    font-variant-numeric: tabular-nums;
   }
+  .pa-channels__before .kpi-delta {
+    margin-left: var(--space-1);
+  }
+  .pa-channels__row--empty td {
+    color: var(--text-2);
+  }
+  .pa-channels-total th,
+  .pa-channels-total td {
+    border-top: 1px solid var(--border);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+  }
+  .pa-channels-total td.num {
+    text-align: right;
+  }
+  @media (max-width: 600px) {
+    .pa-channels__form .btn,
+    .pa-channels__form .inp,
+    .pa-channels__form select {
+      min-height: var(--touch-target);
+    }
+    .pa-channels__form .inp {
+      font-size: var(--text-lg);
+    }
+    .dash-panel .tbl.pa-channels-table,
+    .pa-channels-table tbody,
+    .pa-channels-table tfoot {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .pa-channels-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .pa-channels-table tr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-1) var(--space-4);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .pa-channels-table tbody td,
+    .pa-channels-table tfoot td,
+    .pa-channels-table tfoot th,
+    .tbl--nowrap.pa-channels-table td,
+    .tbl--nowrap.pa-channels-table th {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      text-align: left;
+      background: none;
+      position: static;
+    }
+    .pa-channels-table .dash-table__name,
+    .pa-channels-table tfoot th {
+      grid-column: 1 / -1;
+    }
+    .pa-channels-table tfoot tr {
+      border-bottom: 0;
+      border-top: 1px solid var(--border);
+    }
+    .pa-channels-table .dash-cell-word {
+      display: block;
+      font-size: var(--text-xs);
+      color: var(--text-2);
+      font-weight: var(--weight-regular);
+    }
+  } /* телефон: строка канала: карточкой (название сверху, три числа со словом), как «По категориям» Главной */
 }

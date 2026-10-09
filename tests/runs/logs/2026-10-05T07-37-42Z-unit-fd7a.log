@@ -1,0 +1,17 @@
+# Модульные (unit) · 05.10.2026 12:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (HEAD), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T07-37-42Z-unit-fd7a.json' 'apps/web/src/app/chessboard/range-plan.test.ts' 'apps/web/src/app/chessboard/board-filters.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP
+
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 2ms
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  00:37:44
+   Duration  105ms (transform 57%, import 30%, tests 8%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T07-37-42Z-unit-fd7a.json
+
+# код выхода 0 · 2 с

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RecordTabs } from '../../../components/record-tabs';
+import { Tabs } from '../../../components/tabs';
 import { hotelToday } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -19,24 +19,8 @@ import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
-
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'стойка',
-  PHONE: 'телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'с улицы',
-  INSTAGRAM: 'Instagram',
-  OTA: 'OTA',
-  WEBSITE: 'сайт',
-};
+import { sourceStatus } from '../../../lib/status/source';
+import { statusLabel } from '../../../lib/status/types';
 
 /**
  * Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение.
@@ -121,9 +105,9 @@ export default async function ReservationPage({
       }
       subtitle={
         <>
-          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
+          <StatusBadge kind="hospitality" value={r.status} />{' '}
           <span>
-            {SOURCE_RU[r.source] ?? r.source}
+            {statusLabel(sourceStatus, r.source)}
             {r.channel ? `, ${r.channel}` : ''}
           </span>
         </>
@@ -234,9 +218,9 @@ export default async function ReservationPage({
           </dd>
         </div>
       </dl>
-      <RecordTabs
+      <Tabs
         label="Разделы карточки брони"
-        tabs={[
+        panels={[
           {
             id: 'booking-overview',
             label: 'Обзор',
@@ -249,7 +233,7 @@ export default async function ReservationPage({
                     приходит оттуда же. Место за ней держится и второй раз не продаётся.
                   </Alert>
                 )}
-                {/* Следующее действие смены — первым; ссылки на вкладки ловит RecordTabs (без записи в историю) */}
+                {/* Следующее действие смены — первым; ссылки на вкладки ловят вкладки (Tabs) (без записи в историю) */}
                 <div className="booking-next" data-testid="booking-next">
                   <a
                     href="#booking-finance"
@@ -294,10 +278,7 @@ export default async function ReservationPage({
                           <time dateTime={it.departureDate}>{displayDate(it.departureDate)}</time>
                         </td>
                         <td>
-                          <StatusBadge
-                            status={it.status}
-                            label={STATUS_RU[it.status] ?? it.status}
-                          />
+                          <StatusBadge kind="hospitality" value={it.status} />
                         </td>
                         <td className="num">{formatMoney(it.priceMinor, r.currency)}</td>
                         <td>
@@ -372,17 +353,18 @@ export default async function ReservationPage({
                 <SectionTitle id="booking-finance">Счета</SectionTitle>
                 {finance && services ? (
                   <>
-                    <PaymentRequestsPanel
-                      number={r.confirmationNumber}
-                      propertyName={paymentRequests?.propertyName ?? ''}
-                      requests={paymentRequests?.requests ?? null}
-                      folios={finance.folios}
-                    />
+                    {/* оплата одним шагом первой; запросы оплаты (§24) ниже, свёрнутыми (план 07.10.2026, У8) */}
                     <FinancePanel
                       number={r.confirmationNumber}
                       finance={finance}
                       services={services}
                       today={today}
+                    />
+                    <PaymentRequestsPanel
+                      number={r.confirmationNumber}
+                      propertyName={paymentRequests?.propertyName ?? ''}
+                      requests={paymentRequests?.requests ?? null}
+                      folios={finance.folios}
                     />
                   </>
                 ) : (

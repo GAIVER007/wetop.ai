@@ -20,21 +20,15 @@ test('главная открывается с корня; заезд на да�
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  // деньги по умолчанию за месяц, виджеты сверху всегда о сегодняшнем дне (03.10.2026)
+  // деньги по умолчанию за месяц, риски внизу всегда о сегодняшнем дне
   await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
 
-  // Только видимый блок: Next также содержит скрытые потоковые сегменты.
-  const strip = page.getByRole('region', { name: 'Гостиница сегодня' });
-  const arrivals = async () => Number(await strip.getByTestId('tw-arrivals').innerText());
-
-  // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
-  // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.
+  // Заводим заезд на выбранную дату и проверяем рост очереди «Требуют внимания».
   const day = plus(0);
   await page.goto(`/today?date=${day}`);
-  const before = await arrivals();
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   // A3: брони без ячейки — одна строка очереди с числом; брони под ней — первые три
   const tasks = page.getByRole('region', { name: 'Требуют внимания' });
@@ -62,7 +56,6 @@ test('главная открывается с корня; заезд на да�
   const number = page.url().split('/').pop()!;
 
   await page.goto(`/today?date=${day}`);
-  expect(await arrivals()).toBe(before + 1);
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   // бронь без ячейки — в очереди критичным, стойка видит причину
   await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
@@ -71,8 +64,8 @@ test('главная открывается с корня; заезд на да�
     await expect(unassigned.getByRole('link', { name: new RegExp(number) })).toContainText(
       'нет ячейки',
     );
-  // Операции относятся к сегодняшнему дню.
-  await expect(strip).toBeVisible();
+  // Риски относятся к сегодняшнему дню.
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
@@ -98,16 +91,12 @@ test('главная открывается с корня; заезд на да�
     page.getByRole('main').getByTestId('statistics-table').locator('tbody tr').first(),
   ).toBeVisible();
 
-  // Прошлый финансовый период не меняет сегодняшние операции гостиницы.
+  // Прошлый финансовый период не меняет текущую полосу рисков.
   await page.goto('/today?date=2026-08-15');
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByLabel('Конец периода')).toHaveValue('2026-08-15');
-  expect(await arrivals()).toBe(before + 1);
-  await expect(strip.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
-    'href',
-    `/chessboard?from=${today}&to=${today}`,
-  );
+  await expect(page.getByRole('main').getByTestId('owner-risks')).toBeVisible();
   await page.goto('/management/analytics?date=2026-08-15');
   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
 });

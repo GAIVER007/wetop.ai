@@ -1,145 +1,216 @@
-/* Раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097). Только раскладка: цвета и размеры — токены. */
-
-/* Вкладки раздела: четыре, в одну строку; на узком — прокрутка вкладок, а не страницы */
-.seller-tabs {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
-  padding: var(--space-1);
-  gap: var(--space-1);
-  background: var(--surface);
-  /* concentric corners: tab radius + container padding */
-  border-radius: calc(var(--radius-control) + var(--space-1));
-  scrollbar-width: thin;
-}
-.seller-tabs > a {
-  flex: none;
-  white-space: nowrap;
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-md);
-  min-height: 44px;
-  border-radius: var(--radius-control);
-}
-@media (max-width: 700px) {
+/* Раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097). Только раскладка: цвета и размеры — токены. */ /* Вкладки раздела: четыре, в одну строку; на узком — прокрутка вкладок, а не страницы */
+@layer sections {
+  .seller-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: var(--space-1);
+    gap: var(--space-1);
+    background: var(--surface);
+    /* concentric corners: tab radius + container padding */
+    border-radius: calc(var(--radius-control) + var(--space-1));
+    scrollbar-width: thin;
+  }
   .seller-tabs > a {
+    flex: none;
+    white-space: nowrap;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-md);
+    min-height: 44px;
+    border-radius: var(--radius-control);
+  }
+  @media (max-width: 700px) {
+    .seller-tabs > a {
+      font-size: var(--text-sm);
+    }
+  } /* Метка состояния под заголовком: слово бейджем и строка рядом */
+  .seller-state {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  } /* «Настройка»: окно инструкции и проверка рядом; на узком — проверка под окном */
+  .seller-setup {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .seller-setup > * {
+    min-width: 0;
+  }
+  .seller-setup__note {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+    margin: var(--space-2) 0 0;
+  }
+  .seller-setup__note svg {
+    flex: none;
+    margin-top: var(--space-1);
+  }
+  @media (max-width: 900px) {
+    .seller-setup {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  } /* «До запуска»: сделанное — галочкой, у несделанного — кнопка туда, где его сделать */
+  .seller-checklist {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .seller-checklist li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .seller-checklist li:first-child {
+    border-top: 0;
+  }
+  .seller-checklist li > div {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .seller-checklist li[data-state='todo'] > svg {
+    color: var(--warning);
+  }
+  .seller-checklist li[data-state='done'] > svg {
+    color: var(--success);
+  }
+  @media (max-width: 520px) {
+    .seller-checklist li {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .seller-checklist li > .btn {
+      grid-column: 2;
+      justify-self: start;
+    }
+  } /* Переписка: реплики гостя и продавца строками, без пузырей — стойка читает, а не переписывается */
+  .seller-transcript {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .seller-transcript p {
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .seller-transcript__guest {
+    background: var(--surface-muted);
+  }
+  .seller-transcript__bot {
+    border: 1px solid var(--border-soft);
+  } /* Guided setup: existing server forms remain mounted while navigating steps. */
+  .seller-wizard {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+  }
+  .seller-wizard__steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .seller-wizard__steps button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: transparent;
+    color: var(--muted);
+    border: 0;
+    border-radius: var(--radius-control);
+    padding: var(--space-2);
+    min-height: 44px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .seller-wizard__steps button[aria-current] {
+    background: var(--surface-elevated);
+    color: var(--primary);
+  }
+  .seller-wizard__steps button span {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  .seller-wizard__heading {
+    padding: var(--space-4) 0 var(--space-2);
+  }
+  .seller-wizard__heading h2 {
+    margin: var(--space-2) 0;
+  }
+  .seller-wizard__heading p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .seller-wizard__body[hidden] {
+    display: none;
+  }
+  .seller-wizard__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .seller-wizard__footer .muted {
     font-size: var(--text-sm);
   }
-}
-
-/* Метка состояния под заголовком: слово бейджем и строка рядом */
-.seller-state {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* «Настройка»: окно инструкции и проверка рядом; на узком — проверка под окном */
-.seller-setup {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: var(--space-4);
-  align-items: start;
-}
-.seller-setup > * {
-  min-width: 0;
-}
-.seller-setup__note {
-  display: flex;
-  gap: var(--space-2);
-  align-items: flex-start;
-  margin: var(--space-2) 0 0;
-}
-.seller-setup__note svg {
-  flex: none;
-  margin-top: var(--space-1);
-}
-@media (max-width: 900px) {
-  .seller-setup {
-    grid-template-columns: minmax(0, 1fr);
+  .seller-connection-steps {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .seller-connection-steps > details {
+    background: var(--surface);
+    border-radius: var(--radius-control);
+    padding: var(--space-4);
+  }
+  .seller-connection-steps summary {
+    cursor: pointer;
+    font-weight: 600;
+    min-height: 44px;
+  }
+  .seller-connection-steps summary span {
+    display: block;
+    font-weight: 400;
+    font-size: var(--text-sm);
+    color: var(--muted);
+    margin: var(--space-2) 0;
+  }
+  @media (max-width: 700px) {
+    .seller-wizard {
+      padding: var(--space-2);
+    }
+    .seller-wizard__steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .seller-wizard__footer .muted {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
+  .seller-wizard__body > .panel {
+    padding: var(--space-4);
+    gap: var(--space-4);
+    align-content: start;
+  }
+  .seller-wizard__body > .panel > p {
+    margin: 0;
+  }
+  .seller-wizard__body > .panel > .section-title {
+    margin: 0;
+  }
+  .seller-wizard__body .panel .settings-note {
+    margin: 0;
   }
 }
-
-/* «До запуска»: сделанное — галочкой, у несделанного — кнопка туда, где его сделать */
-.seller-checklist {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.seller-checklist li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: var(--space-2) var(--space-4);
-  align-items: center;
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--border-soft);
-}
-.seller-checklist li:first-child {
-  border-top: 0;
-}
-.seller-checklist li > div {
-  display: grid;
-  gap: var(--space-1);
-}
-.seller-checklist li[data-state='todo'] > svg {
-  color: var(--warning);
-}
-.seller-checklist li[data-state='done'] > svg {
-  color: var(--success);
-}
-@media (max-width: 520px) {
-  .seller-checklist li {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-  .seller-checklist li > .btn {
-    grid-column: 2;
-    justify-self: start;
-  }
-}
-
-/* Переписка: реплики гостя и продавца строками, без пузырей — стойка читает, а не переписывается */
-.seller-transcript {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.seller-transcript p {
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.seller-transcript__guest {
-  background: var(--surface-muted);
-}
-.seller-transcript__bot {
-  border: 1px solid var(--border-soft);
-}
-
-/* Guided setup: existing server forms remain mounted while navigating steps. */
-.seller-wizard { background: var(--surface); border-radius: var(--radius); padding: var(--space-4); }
-.seller-wizard__steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); }
-.seller-wizard__steps button { display: flex; align-items: center; gap: var(--space-2); background: transparent; color: var(--muted); border: 0; border-radius: var(--radius-control); padding: var(--space-2); min-height: 44px; text-align: left; cursor: pointer; }
-.seller-wizard__steps button[aria-current] { background: var(--surface-elevated); color: var(--primary); }
-.seller-wizard__steps button span { font-variant-numeric: tabular-nums; font-weight: 700; }
-.seller-wizard__heading { padding: var(--space-4) 0 var(--space-2); }
-.seller-wizard__heading h2 { margin: var(--space-2) 0; }
-.seller-wizard__heading p { margin: 0; color: var(--muted); }
-.seller-wizard__body[hidden] { display: none; }
-.seller-wizard__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
-.seller-wizard__footer .muted { font-size: var(--text-sm); }
-.seller-connection-steps { display: grid; gap: var(--space-2); }
-.seller-connection-steps > details { background: var(--surface); border-radius: var(--radius-control); padding: var(--space-4); }
-.seller-connection-steps summary { cursor: pointer; font-weight: 600; min-height: 44px; }
-.seller-connection-steps summary span { display: block; font-weight: 400; font-size: var(--text-sm); color: var(--muted); margin: var(--space-2) 0; }
-@media (max-width: 700px) { .seller-wizard { padding: var(--space-2); } .seller-wizard__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .seller-wizard__footer .muted { order: 3; flex-basis: 100%; } }
-
-.seller-wizard__body > .panel { padding: var(--space-4); gap: var(--space-4); align-content: start; }
-.seller-wizard__body > .panel > p { margin: 0; }
-.seller-wizard__body > .panel > .section-title { margin: 0; }
-.seller-wizard__body .panel .settings-note { margin: 0; }

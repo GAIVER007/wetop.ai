@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 03.10.2026 19:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 18e89ed (claude/mobile-rest-screens), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/desktop-compact.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/desktop-compact.spec.ts:25:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (10.7s)
+  ✓   2 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (1.1s)
+  ✓   3 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (1.8s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (44.1s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (13.0s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:70:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (12.3s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (8.1s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:95:1 › узкий телефон: плитки финансов встают в одну колонку (6.8s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:104:1 › телефон: месяц цен не растягивается на четыре экрана (9.1s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:117:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (49.4s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (1.3m)
+
+  11 passed (4.0m)
+
+# код выхода 0 · 4 мин 3 с

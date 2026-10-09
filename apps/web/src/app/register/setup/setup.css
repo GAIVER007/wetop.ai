@@ -1,0 +1,26 @@
+@layer sections {
+  .setup-shell {
+    width: min(100% - 32px, 880px);
+    margin: 48px auto;
+  }
+  .setup-fields {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .setup-shell dl {
+    display: grid;
+    gap: 16px;
+  }
+  .setup-shell dd {
+    margin: 4px 0 0;
+    overflow-wrap: anywhere;
+  }
+  .setup-shell dt {
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .setup-shell {
+      margin: 24px auto;
+    }
+  }
+}

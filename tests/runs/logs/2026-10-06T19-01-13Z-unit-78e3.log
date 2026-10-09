@@ -1,0 +1,51 @@
+# Модульные (unit) · 07.10.2026 00:01 Алматы · vm
+# коммит 6ee3ce8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-01-13Z-unit-78e3.json' 'apps/web/src/components/shell/tour-steps.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/components/shell/tour-steps.test.ts (9 tests | 1 failed) 20ms
+   ✓ TOUR_STEPS (2)
+     ✓ первый шаг — приветствие без элемента, последний — как вернуться к обучению 2ms
+     ✓ у каждого шага — заголовок и текст, цели не повторяются 3ms
+   ✓ tourStepsFor (3)
+     ✓ элемент на экране — шаг с подсветкой 1ms
+     ✓ закрытый по правам раздел — шаг пропущен независимо от разметки 0ms
+     ✓ обязательный шаг без элемента (телефон, меню свёрнуто) — остаётся, но без подсветки 0ms
+   ✓ tourKeyOf (1)
+     ✓ ключ свой у каждой почты, без самой почты в хранилище браузера 1ms
+   ❯ shouldAutoStartTour (2)
+     ✓ сам стартует один раз — на Главной, у вошедшего, пока не пройдено 1ms
+     × обучение гостиничное: на «Сегодня» салона и ресторана само не открывается (MV8) 7ms
+   ✓ обучение скрывает недоступные права, а доступные темы остаются на телефоне 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/shell/tour-steps.test.ts > shouldAutoStartTour > обучение гостиничное: на «Сегодня» салона и ресторана само не открывается (MV8)
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ apps/web/src/components/shell/tour-steps.test.ts:70:88
+     68|   it('обучение гостиничное: на «Сегодня» салона и ресторана само не от…
+     69|     for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const)
+     70|       expect(shouldAutoStartTour({ path: '/today', key: 'k', done: fal…
+       |                                                                                        ^
+     71|   });
+     72| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  19:01:15
+   Duration  449ms (transform 77%, tests 10%, import 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-01-13Z-unit-78e3.json
+
+# код выхода 1 · 2 с

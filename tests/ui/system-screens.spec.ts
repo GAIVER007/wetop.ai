@@ -50,7 +50,7 @@ test('журнал: выборка словами, разделы чипами, 
   // отказ API: поиск и раздел на месте, повтор возвращает строки с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал действий');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
   await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -259,11 +259,9 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-115, SET4): старый адрес — «Тарифные планы», правило словами, без кода тарифа
+  // правила отмены ушли к тарифам (SET4), а «Тарифы и цены» сняты 06.10.2026: старый адрес ведёт в настройки
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
-  await expect(main.getByTestId('rate-plans-table')).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/hotel-settings$/);
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');

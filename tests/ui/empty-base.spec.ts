@@ -23,8 +23,7 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/rooms', title: /номер/i },
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },
-  { route: '/rates', title: /Тарифы/ },
-  { route: '/finance', title: /Финансы/ },
+  { route: '/finance', title: /Касса/ },
   { route: '/management/analytics', title: /Аналитика/, says: /Недостаточно данных/ },
   { route: '/management/analytics/occupancy', title: /Аналитика/ },
   { route: '/journal', title: /Журнал/ },
@@ -62,9 +61,9 @@ test('пустая база: шахматка показывает все мес
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {
   await page.goto('/today');
   const main = page.getByRole('main');
-  // Главная владельца (03.10.2026): заезды и выезды дня строками виджета «Гости сегодня»
-  await expect(main.getByTestId('tw-arrivals')).toHaveText('0');
-  await expect(main.getByTestId('tw-departures')).toHaveText('0');
-  const text = (await main.innerText()).replace(/\s+/g, ' ');
-  expect(text).toMatch(/Заезд|Выезд|Проживают/);
+  await expect(main.getByTestId('owner-paid').locator('strong')).toContainText('0');
+  await expect(main.getByTestId('c-occupancy')).toHaveText('0 %');
+  await expect(main.getByTestId('c-free')).toHaveText('88');
+  await expect(main.getByTestId('owner-expenses')).toContainText('Нет данных');
+  await expect(main.getByTestId('owner-outlook-chart').getByRole('listitem')).toHaveCount(7);
 });

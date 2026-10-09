@@ -6,6 +6,8 @@ import { defineConfig } from 'vitest/config';
  * на таймаутах, по отдельности прошли за 77 с: у пулера мало сессий, и параллельные PrismaClient их вычерпывают.
  */
 export default defineConfig({
+  // компоненты стойки (`*.tsx`) рендерятся в unit серверным рендером (DS1b); tsconfig держит jsx: preserve для Next
+  oxc: { jsx: { runtime: 'automatic' } },
   test: {
     passWithNoTests: true,
     projects: [

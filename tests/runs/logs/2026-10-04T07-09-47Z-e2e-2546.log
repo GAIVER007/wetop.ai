@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 04.10.2026 12:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 42142c2 (claude/desk-tasks), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desk-tasks.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/desk-tasks.spec.ts:27:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (15.7s)
+  ✓  2 tests/ui/desk-tasks.spec.ts:61:1 › ошибка словами у формы, введённое не теряется (4.8s)
+  ✓  3 tests/ui/desk-tasks.spec.ts:72:1 › «только чтение»: список виден, создавать и закрывать нельзя (12.2s)
+  ✓  4 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: light (10.2s)
+  ✓  5 tests/ui/desk-tasks.spec.ts:89:3 › снимки и доступность: dark (18.1s)
+
+  5 passed (1.3m)
+
+# код выхода 0 · 1 мин 20 с

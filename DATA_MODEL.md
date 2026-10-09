@@ -45,6 +45,9 @@ v2.6 (28.09.2026; **поручение владельца после закры�
 v2.7 (29.09.2026; **SEC-1b, стадия A — по слову владельца «давай делай» на план аудита 29.09.2026**, ADR-124, `plans/sec1b-credential-grants-2026-09-29.md`): §17.2–17.3 — права роли `wetop_app` на десять таблиц без RLS приведены к замыслу §17.3 «только `wetop_service` читает по делу». Миграция `20260929000033_rls_credential_grants` отзывает у `wetop_app` всё на `password_resets`, `email_verifications`, `wizard_sessions`, `wizard_events`, `wizard_surveys`; на `users` оставляет только чтение колонок `id`, `email`, `name`, `status`, `email_verified_at`; на `platform_admins` — только чтение `user_id`, `revoked_at`. Таблицы, колонки, связи и политики не меняются; `external_events`, `channel_outbox`, `system_incidents` не тронуты (стадия B). `down.sql` возвращает полный доступ. **На рабочей базе применяет владелец — после выкладки кода**
 v2.8 (29.09.2026; **утверждено владельцем 30.09.2026 с поправками** — SA1.5 плана `plans/business-ai-seller-v2-2026-09-29.md`, ADR-127): §20 «Business Agent: личность, филиал и рабочий продавец» — `seller_agents.location_id`, не более одного неархивного AI-продавца (`scenario = 'sales'`) на филиал, четыре хранимых состояния `draft`/`active`/`paused`/`archived` (`TESTING` и `ERROR` вычисляются), перенос существующего продавца в агента с `id = organization_id` вместе со всей историей, ключ провайдера модели — секрет платформы (перевод отдельным срезом), секреты WhatsApp — на подключении канала агента, порядок выкладки и откат. Кода и миграций ещё нет — их делает SA1.6; номер версии уточнить при слиянии (ADR-052).
 v2.9 (30.09.2026; **SEC-1b, стадия B — по решению владельца 30.09.2026 (Q-222 вариант (б\*), Q-225 вариант (а\*))**, ADR-124, `plans/sec1b-stage-b-2026-09-30.md`): §17.2–17.3 — права роли `wetop_app` на три оставшиеся таблицы без RLS. Миграция `20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox` оставляет только `INSERT` (без `RETURNING`: постановка изменения остатков в очередь остаётся в транзакции команды человека и откатывается вместе с ней). Права `wetop_service` не меняются. Таблицы, колонки, связи и политики не меняются. `down.sql` возвращает полный доступ обеим ролям. **На рабочей базе применяет владелец — после выкладки кода** (PR #188, #189, #198: все обращения через `integrationTables(db)` и интеграционную команду на служебной роли)
+v2.10 (03.10.2026; **утверждено владельцем 03.10.2026 ответом «да нужны» на Q-244**, TEAM2, `plans/team-contacts-2026-10-03.md`): §13.3: `memberships.phone` и `memberships.position`, обе необязательные; телефон и должность принадлежат членству, а не человеку (у двух организаций свои); миграция `20261003000050_membership_contacts` (в сессии была 044, при слиянии 044-049 заняли другие срезы; ADR-052)
+v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A, ADR-149): §29 «Маркетинг: управляемый сайт», кандидаты `MarketingSite`, `MarketingSiteVersion`, `MarketingSitePublication`, `SiteAsset`, `SiteDomain`, `GenerationRun`. Владелец сайта `Location` и раздельность с `TrackedSite` утверждены ADR-149; поля, таблицы и ограничения ждут отдельного «да». Prisma и миграций нет
+v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -678,6 +681,27 @@ active
 > разнесения и возврата держит база: `CHECK (amount > 0)` на `payments`, `payment_allocations`, `refunds` —
 > ноль и минус не запишутся даже ошибкой кода. Начисления (`charges`) без CHECK намеренно: сторно — минус.
 
+> **v2.12 (07.10.2026, поручение владельца, ADR-151; план `plans/finance-payments-direct-2026-10-07.md`).
+> Схема и миграции не менялись: правила поверх полей, которые уже были.**
+> - **Аннулирование платежа.** `Payment.status = VOIDED` ставит команда `POST /finance/payments/:id/void`
+>   (право `refunds`): только проведённый платёж без возвратов и без фискального чека (§26), все его счета
+>   открыты. Аннулированный платёж из баланса счёта, остатков кассы (§21) и сумм отчётов выпадает, строка
+>   остаётся в ленте со статусом «аннулирован». Запрос оплаты (§24), закрытый этим платежом, снова ждёт оплаты.
+> - **Замена платежа.** `POST /finance/payments/:id/replace`: старый `VOIDED`, новый `COMPLETED` с тем же
+>   `paid_at` одной транзакцией под блокировкой строки платежа и счетов; без `allocations` сумма ложится на
+>   единственный счёт старого платежа, групповой платёж без распределения отклоняется словами. Запрос оплаты
+>   переводится на новый платёж. Журнал: `finance.payment.void`, `finance.payment.replaced`.
+> - **Цена проживания вручную.** `PATCH /reservations/:number/items/:itemId` с `price` пишет
+>   `ReservationItem.price`; начисление `ACCOMMODATION` переписывает система тем же `ensureFolioWithAccommodation`,
+>   что при смене дат, `Reservation.total_amount` пересчитывается по неотменённым проживаниям. Вниз только с
+>   правом `refunds` (как корректировка на уменьшение, ADR-107); отменённое, незаезд и выехавшее не меняются.
+>   При смене дат или категории цена снова считается по тарифу: ручная цена не закрепляется. Журнал
+>   `reservation.item.price`.
+> - **Скидка** это `ADJUSTMENT` со знаком минус и подписью «Скидка N% на проживание» или «Скидка: причина»;
+>   процент считается от действующего начисления за проживание целыми тиынами с отбрасыванием остатка
+>   (`discountMinor` в домене). Отдельной сущности у скидки нет.
+> - Возврат (`Refund`) по-прежнему не аннулируется (Q-278); дата платежа при замене не меняется (Q-277).
+
 ## 7. Channel Manager
 
 > **Назначение ячейки броням из каналов (Q-094, 10.09.2026):** при приёме ревизии `new` проживание получает
@@ -721,6 +745,27 @@ channel_rate_id
 > **09.09.2026, реализовано (миграция `20260909000004`):** таблица `channel_mappings` по схеме выше плюс `property_id`,
 > `created_at/updated_at`; UNIQUE(provider, provider_rate_plan_id). Строка без `provider_room_type_id` = маппинг самого объекта.
 > Клиент — `packages/integrations/src/channex`, оркестрация — `apps/api/src/channels` (домен Channex не видит).
+
+> **01.10.2026, утверждено владельцем для нескольких организаций и филиалов.** Один служебный аккаунт
+> Channex WETOP может содержать несколько объектов. Каждая гостиница `Property` имеет 0 или 1
+> сопоставление уровня объекта для провайдера Channex и 0 или более сопоставлений её категорий и
+> тарифов. `channel_mappings.property_id` всегда указывает на гостиницу-владельца, а
+> `provider_property_id` на её отдельный объект Channex. Один объект Channex не связывается с двумя
+> гостиницами WETOP. `external_events.property_id` и `channel_outbox.property_id` обязательны для
+> **новых** событий и задач; старые строки с NULL не приписываются объекту автоматически.
+> Обработка webhook, ленты, очереди, полной выгрузки и отображение статуса идут по этой паре ID,
+> с проверкой принадлежности организации и выбранного филиала. Действующая модель полей позволяет
+> начать без миграции; уникальность пары и дальнейшее ограничение NULL проверяются отдельно после
+> аудита существующих данных и подготовки отката. Ключ API остаётся серверным секретом WETOP;
+> организации не получают его и не видят объекты других организаций.
+
+> **01.10.2026, дополнение для настройки новых объектов, утверждено владельцем.** `Property`
+> получает `country_code` (ISO 3166-1 alpha-2, nullable), `city` (nullable) и
+> `channex_property_type` (значение из каталога Channex, nullable). Для существующего Luxx Aparts
+> миграция устанавливает `KZ`, `Алматы`, `hostel`; для остальных объектов значения не угадываются.
+> Эти поля редактирует владелец в «Настройках объекта». Перед созданием объекта Channex все три
+> значения обязательны; если какого-то нет, подключение не начинается. Они не меняют адрес,
+> валюту, timezone и расчёт бронирования.
 
 ### ChannelOutbox (техническая очередь, 09.09.2026)
 
@@ -1107,6 +1152,8 @@ resolved_by       GUARD (исчезла после починки или сам�
 | `user_id` | `uuid` FK → `users` | |
 | `organization_id` | `uuid` FK → `organizations` | |
 | `created_at` | `timestamptz` NOT NULL | |
+| `phone` | `varchar(16)` | v2.10 (Q-244): рабочий телефон в этой организации, `+` и 10–15 цифр (CHECK); NULL: не указан |
+| `position` | `varchar(100)` | v2.10 (Q-244): должность свободным текстом («Старший администратор»); права даёт роль, не должность |
 
 PK составной (`user_id`, `organization_id`). Ролей нет намеренно: ADR-023 в этой части в силе.
 
@@ -1441,7 +1488,7 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 | `rates` | Тарифы и цены; сменить тариф у существующей брони (Q-200); назначить брони без тарифа тариф с мягким штрафом (Q-201) | да | да | — |
 | `channels` | Менеджер каналов и синхронизация Channex | да | да | — |
 | `settings` | Настройки гостиницы, правила отмены, услуги, интеграции, сайт и его аналитика, первичная настройка объекта | да | да | — |
-| `journal` | Журнал действий | да | да | — |
+| `journal` | Журнал операций (решение владельца 05.10.2026) | да | нет | нет |
 | `seller` | ИИ-продавец: инструкция, знания, подключения, проверка, агенты | да | да | — |
 | `staff` | Сотрудники и приглашения; управляющий приглашает и отключает только администраторов | да | да | — |
 | `owner` | Приглашать управляющих и менять роль, напоминание о продлении платного расширения | да | — | — |
@@ -2536,7 +2583,9 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
 **Чего раздел не вводит:** кассовых смен (их нет и у гостиницы), пересчёта валют, зарплат и комиссий
 мастеров, эквайринга.
 
-## 22. Задачи стойки (ПРЕДЛОЖЕНИЕ 03.10.2026, НЕ УТВЕРЖДЕНО; Q-249)
+## 22. Задачи стойки (УТВЕРЖДЕНО владельцем 03.10.2026 — «давай да делай что надо», «доводи до рабочего состояния»; ADR-145, Q-249)
+
+**Утверждение 03.10.2026, уточнения при миграции `20261003000049_desk_tasks`:** (1) `organization_id` не хранится: изоляция по `property_id` через `app_property_visible`, как у кассы §21, организацию даёт объект; (2) `due_time` — текст «HH:MM» с CHECK, как `properties.check_in_time`, а не тип TIME; (3) автор закрытия — `done_by_id`, CHECK «нет `done_at` — нет и `done_by_id`». Видимость (Q-249-б): все роли объекта видят и закрывают задачи объекта, право `desk`.
 
 Поручение-образец: экран Lite PMS «Новая задача» (что сделать, описание, срок, повтор, приоритет,
 ответственный, уведомление) и счётчик «Задачи» в панели дня. Предложение сознательно уже образца.
@@ -2570,7 +2619,7 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
 `due_date` не позже сегодня. **«Дни рождения» из образца вообще не требуют модели**: `guests.birth_date`
 уже есть, счётчик и список именинников — выборка; можно сделать отдельным маленьким срезом до задач.
 
-Срезы — `plans/desk-tasks-2026-10-03.md`. Код и миграции не начинаются до «утверждаю» владельца.
+Срезы — `plans/desk-tasks-2026-10-03.md`.
 
 ## 23. Загрузка конкурентов (УТВЕРЖДЕНО поручением владельца 03.10.2026 «реализуй полностью»; ADR-142)
 
@@ -2645,6 +2694,10 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
    отметка оплаты по уведомлению банка) появятся после документации в `/docs` (Q-262), без изменения таблицы:
    у запроса добавится только внешний идентификатор.
 6. Журнал: `finance.payment_request.created`, `.paid`, `.cancelled`.
+7. **Запрос это второстепенный путь (07.10.2026, ADR-151).** Оплату на месте, на терминале и переводом стойка
+   принимает без запроса, одним шагом; запрос нужен, когда гостю отправляют счёт заранее (5–6 раз в период).
+   Аннулирование платежа по запросу (§6 v2.12) возвращает запрос в `PENDING` (`payment_id = null`,
+   `closed_at = null`), замена платежа переводит `payment_id` на новый платёж, статус `PAID` остаётся.
 
 **Миграция** `20261003000046_payment_requests` с `down.sql`; на рабочей базе применяет владелец.
 
@@ -2695,3 +2748,485 @@ seller_agents, `organization_id`, `property_id` (выводятся из аге�
 5. Адаптер облачной кассы добавит внешний идентификатор и состояние отправки, не меняя смысла строки.
 
 **Миграция** `20261003000048_fiscal_receipts` с `down.sql`; на рабочей базе применяет владелец.
+
+
+## MV1 amendment, 04.10.2026, утверждён владельцем
+
+BusinessVertical расширяется FOOD_SERVICE. Canonical источник только Business.vertical, без нового vertical на Organization/Location. HOSPITALITY доступен, BEAUTY/FOOD_SERVICE PILOT, публичная регистрация закрыта до operational acceptance. MV1 не меняет Beauty tables, financial logic и Hospitality Guest. Новые Food tables не вводятся. Additive enum migration с guarded down; при FOOD_SERVICE rows откат останавливается без потери данных. Production migration отдельно.
+
+### MV2 registration execution, 04.10.2026
+
+Утверждённый MV2 использует существующие Organization/Business/Location/User/Membership, без schema migration. Первый Business получает явный canonical vertical в атомарной регистрации; Location наследует его через FK. Только Hospitality создаёт Property. Verification и resend не пересоздают Business/Location. Старый hotelName-only запрос поддерживается как Hospitality compatibility; новые Beauty/Food flows требуют verified Business/Location context.
+
+### MV3 OnboardingProgress, утверждено владельцем 04.10.2026
+
+Для серверного resume предлагается `OnboardingProgress` / `onboarding_progress`: `location_id` UUID PK/FK -> Location (0..1 state на Location); `flow_version` integer; `current_step` varchar(50); `draft` JSONB с валидируемым содержимым текущего adapter; `completed_at` nullable timestamptz; `updated_at` timestamptz. Не добавлять vertical или organization_id: ownership выводится через существующую цепочку Location -> Business -> Organization, RLS проверяет эту цепочку. State не является источником прав или vertical. Domain данные создаются только настоящим adapter после валидации. Миграция и rollback должны быть отдельным reviewable срезом. Владелец явно подтвердил серверную OnboardingProgress в ответ на предложение модели.
+
+## 27. Бар и товарный учет (УТВЕРЖДЕНО владельцем 04.10.2026)
+
+План: `plans/bar-inventory-2026-10-04.md`. Владелец ответом «давай делай» 04.10.2026 утвердил
+рекомендованные варианты Q-BAR-1...Q-BAR-8.
+
+Предлагаемые сущности:
+
+| Сущность | Назначение | Ключевые правила |
+| --- | --- | --- |
+| `bar_products` | Карточка товара | Объект, код, название, штрихкод, единица, наценка по умолчанию в basis points, текущая цена продажи в minor units, минимальный остаток, `active` |
+| `bar_suppliers` | Поставщик | Объект, название, контакты, реквизиты без секретов, `active` |
+| `bar_receipts` | Шапка прихода | Поставщик, номер и дата документа, дата приемки, `DRAFT`, `POSTED`, `REVERSED`, валюта, итог в minor units, автор и время |
+| `bar_receipt_lines` | Строка прихода | Товар, количество как decimal-safe, цена за единицу, итог, наценка, рассчитанная цена продажи |
+| `bar_stock_lots` | Партия и себестоимость | Строка прихода, принятое и оставшееся количество, цена закупки, срок годности при наличии |
+| `bar_stock_movements` | Неизменяемая лента остатка | `RECEIPT`, `SALE`, `WRITE_OFF`, `SALE_RETURN`, `INVENTORY_ADJUSTMENT`, количество со знаком, партия, источник, автор, UTC timestamp |
+| `bar_sales` / `bar_sale_lines` | Розничная продажа | Опциональная связь с Folio/Charge или CashOperation/Payment, снимок цены и себестоимости, статус, ключ повтора |
+| `bar_supplier_payments` | Оплата закупки | Приход, связанная кассовая операция, сумма в minor units, дата, автор |
+
+Важные инварианты:
+
+1. Проведенный приход не редактируется, только сторнируется.
+2. Каждое движение имеет источник, автора, время и аудит.
+3. Остаток не хранится как единственное изменяемое число. Он сходится с лентой движений и партиями.
+4. Приход товара не равен оплате поставщику. Денежный расход создается при оплате.
+5. Суммы хранятся только в integer minor units. Количество и проценты хранятся в decimal-safe виде, не float.
+6. Продажа и списание не могут уменьшить остаток ниже нуля без отдельного утвержденного режима.
+7. Себестоимость продажи и цена продажи фиксируются снимком на момент операции.
+
+### MV4 acceptance: Beauty v1 boundaries (2026-10-04, утверждено владельцем)
+
+MV4 принимает существующую модель §19.1 и миграции 44/45. Новых сущностей, полей, связей или enum нет.
+Статусы Appointment сохраняются: BOOKED, CONFIRMED, DONE, NO_SHOW, CANCELLED. Одна запись:
+Customer + BeautyService + Employee + Location. Exclusion по Employee действует между всеми филиалами;
+CANCELLED/NO_SHOW интервал не удерживают. Цена и валюта Appointment остаются snapshot.
+
+Authenticated Beauty API требует явный проверенный ACTIVE Business с vertical BEAUTY, для филиальных
+операций также проверенный ACTIVE Location этого Business. Первый салон или филиал не выбирается автоматически.
+EmployeeService является явным допуском к услуге: пустой список не разрешает все услуги.
+CustomerBusiness определяет видимость Customer в списке Business; создание Appointment атомарно
+создаёт/подтверждает эту связь для Customer своей Organization. Архивный клиент не получает новую запись.
+Organization READ_ONLY запрещает мутации. Архитектурное основание: ADR-MV4 в DECISIONS.md.
+
+### BAR Property boundary repair (2026-10-05, утверждено владельцем)
+
+BAR-REPAIR-2, migration 56 после неизменённой migration 55. Новых сущностей, полей,
+связей, цен или stock/FIFO правил нет. База проверяет ownership при INSERT и UPDATE
+relation fields независимо от RLS и роли, включая wetop_service с BYPASSRLS.
+
+1. Property принадлежность после INSERT неизменяема для bar_categories, bar_products,
+   bar_suppliers, bar_receipts, bar_stock_lots, bar_stock_movements, bar_sales.
+   Для другого объекта создаётся новая сущность. Присваивание прежнего property_id допустимо.
+2. Категория продукта (если задана) и обязательный поставщик прихода принадлежат той же Property.
+3. bar_receipt_lines: receipt.property = product.property.
+4. bar_stock_lots: property = product.property = receipt_line.receipt.property;
+   product = receipt_line.product.
+5. bar_stock_movements: property = product.property; если lot задан, lot.property = property
+   и lot.product = product. Изменение родителя не может разрушать равенство с уже связанным потомком.
+6. bar_sale_lines: sale.property = product.property, включая смену sale_id или product_id.
+7. bar_supplier_payments: receipt.property = cash_operation.property.
+8. bar_sales: заданные Folio, CashOperation и Charge через Folio принадлежат Property продажи.
+   Если одновременно заданы folio_id и charge_id, Charge.folio_id = BarSale.folio_id.
+
+Guards остаются SECURITY INVOKER; SECURITY DEFINER запрещён. Путь каждой новой функции
+закреплён: current_schema(), public, pg_temp (public без повторения).
+source_type/source_id движений остаются существующей ссылкой источника; отдельная
+polymorphic ownership система не вводится. Это отдельный audit item, не новая модель.
+
+### BAR external parent ownership (2026-10-05, approved Q-BAR-REVERSE-PARENTS)
+
+Only updates breaking an existing BAR reference are denied. CashOperation.property_id
+must preserve payment Receipt.property and Sale.property. Charge.folio_id must preserve
+Sale.property and an explicit Sale.folio_id. Folio.reservation_item_id,
+ReservationItem.reservation_id and Reservation.property_id must preserve the derived
+Property of every direct folio sale and indirect charge sale. Same-property relinks and
+unreferenced external rows remain mutable. No Hospitality/cashbox global immutability.
+Concurrent parent mutation and BAR create/relink must preserve these invariants.
+
+BAR link writes also fence referenced parent tuple versions, preserving all field values,
+so a stale REPEATABLE READ parent transaction must retry instead of missing a new link.
+
+Valid external reparenting with BAR dependencies fences the new ancestor tuple versions
+too, so an older ancestor snapshot cannot miss the relocated BAR dependency.
+
+## 28. Food Service v1 (MV6, approved by owner 2026-10-05)
+
+Location -> DiningArea -> DiningTable; Location -> ServicePeriod; Location + existing Customer -> RestaurantReservation -> optional TableAssignment -> DiningTable. Business.vertical is the only vertical source, FOOD_SERVICE required. No new guest/customer identity, POS, payments or UI.
+
+- DiningArea: UUID id, locationId FK, name varchar(200), sortOrder int default 0, active default true, createdAt/updatedAt timestamptz.
+- DiningTable: UUID id, areaId FK, name varchar(100), capacity int > 0, sortOrder int default 0, active default true, timestamps. Unique(areaId,name). No duplicate location/tenant.
+- ServicePeriod: UUID id, locationId FK, name varchar(100), weekday smallint 0..6 (Sunday=0), timeFrom/timeTo TIME, endsNextDay boolean, defaultDurationMinutes int > 0, active, timestamps. Same-day end > start; overnight ends on following date. Local calendar belongs to Location.timezone.
+- RestaurantReservation: UUID id, locationId/customerId/servicePeriodId FKs, startsAt/endsAt timestamptz, partySize int > 0, status, source, notes nullable, creationKey varchar(200), creationFingerprint varchar(64), createdById nullable user FK, timestamps. Unique(locationId,creationKey); indexes locationId+startsAt, customerId, status, servicePeriodId. Server derives endsAt from ServicePeriod; whole interval inside local service window.
+- TableAssignment: reservationId UUID PK/FK, tableId FK, assignedAt timestamptz, assignedById nullable user FK, updatedAt. One table maximum; history only in audit.
+
+Status: BOOKED -> CONFIRMED/SEATED/CANCELLED/NO_SHOW; CONFIRMED -> SEATED/CANCELLED/NO_SHOW; SEATED -> COMPLETED. Terminal cannot mutate. DESK initially BOOKED, optional table. WALK_IN initially SEATED, table required. No ONLINE enum or route.
+
+Assignment requires active same-Location table/area, capacity >= partySize, no intersecting [startsAt,endsAt) BOOKED/CONFIRMED/SEATED assignments. Unassign only BOOKED/CONFIRMED. Move recalculates duration and revalidates capacity/overlap atomically. Status+updatedAt guards stale writes; audit rolls back with failure. Customer must be non-archived and same Organization; CustomerBusiness upsert and new customer are atomic with create.
+
+All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.
+
+## 29. Маркетинг: управляемый сайт (v2.11, УТВЕРЖДЕНО владельцем 06.10.2026 как целевая архитектура, поэтапное внедрение; ADR-149, Q-272)
+
+> **Статус (Q-272 закрыт владельцем 06.10.2026).** §29 утверждён как целевая архитектура и вводится по срезам.
+> Владелец сайта `Location`, не более одного неархивного сайта на Location; `TrackedSite` остаётся идентичностью
+> аналитики и брони и не становится CMS; версии неизменяемы; `latest_version_id` это голова черновика,
+> `published_version_id` это опубликованная версия; журнал публикаций отдельной таблицей только на дописывание (MKT7);
+> v0 только `HOSPITALITY`. Хранение: опубликованные версии навсегда, неопубликованные черновые можно удалять старше
+> 90 дней, сохраняя не меньше 50 последних версий сайта; очистка не реализована и появится отдельным срезом.
+>
+> **Что уже в базе (MKT3, миграции `20261006000060_marketing_site_core` и `20261006000061_marketing_site_grants`):** только `marketing_sites` (§29.2) и
+> `marketing_site_versions` (§29.3, без `generation_run_id`). Остальные таблицы приходят своими срезами:
+> `marketing_site_publications` и `site_domains` в MKT7, `generation_runs` и колонка `generation_run_id` в MKT6,
+> `site_assets` в MKT8. Временных заменителей нет. Формат содержимого версии: `docs/marketing/sitespec-v0.md`.
+> Архитектура и жизненные циклы: `docs/marketing/README.md`.
+>
+> **Публичный рантайм (MKT4, 06.10.2026, таблиц и миграций нет):** `GET /sites-runtime/current` читает сайт только в
+> `PUBLISHED` и версию только по `published_version_id`, одним запросом с цепочкой Location `ACTIVE` → Business `ACTIVE`
+> `HOSPITALITY` → объект этого Location той же организации; `latest_version_id`, история и чтение версии по id
+> рантайму недоступны. Хосты до `site_domains` (MKT7) разрешает только карта dev и test, боевое разрешение выключено;
+> `primaryHost` в ответе `null`. Цена «от» (`B-FROMPRICE`, Q-276 RESOLVED OWNER 07.10.2026) не хранится нигде: её
+> считает `GET /w/from-prices` по `tracked_sites.booking_rate_plan_id`, `daily_rates` и `restrictions.stop_sell` за 30 ночей
+> при `capacity_adults`; это подсказка тарифа, а не обещание мест. План: `plans/mkt4-public-site-runtime-2026-10-06.md`.
+>
+> **Публикация, превью и домены (MKT7, 07.10.2026; Q-271 и Q-275 RESOLVED OWNER 07.10.2026):** миграции
+> `20261007000064_marketing_publication_domains` (таблицы `marketing_site_publications` §29.4 и `site_domains` §29.6,
+> колонка `locations.booking_tracked_site_id` §29.11, начальное заполнение указателя) и
+> `20261007000065_marketing_publication_grants` (только права, для восстановления копии), обе с `down.sql`. Хост сайта
+> строится от `SITES_BASE_DOMAIN` (отдельный registrable domain, не `wetop.ai`); боевое разрешение хоста в рантайме идёт
+> через строку `site_domains` в `ACTIVE`, `primaryHost` в ответе рантайма настоящий. Свои домены (`CUSTOM`) есть только в
+> схеме, их проверка и сертификаты в MKT10. Контракт: `docs/marketing/site-publication-v0.md`, план
+> `plans/mkt7-publication-preview-domains-2026-10-07.md`.
+>
+> **Изображения (MKT8, 07.10.2026; Q-270 RESOLVED OWNER 07.10.2026):** миграции `20261007000066_site_assets` (таблица
+> `site_assets` §29.5, CHECK, частичный UNIQUE повтора, триггер `site_asset_guard`, RLS FORCE) и
+> `20261007000067_site_asset_grants` (только права, без `DELETE`), обе с `down.sql`. Хранилище приватный S3 в Казахстане;
+> в базе только ключ объекта. Контракт `docs/marketing/site-assets-v0.md`, план `plans/mkt8-site-assets-2026-10-07.md`.
+>
+> **Лицензированный конструктор (MKT9.2, 08.10.2026, ТЗ владельца; кода на рабочей базе нет, миграции применяет
+> владелец):** миграции `20261008000068_licensed_site_builder` и `20261008000069_licensed_site_builder_grants` (только
+> права), обе с `down.sql`. Проект конструктора это филиал: **один филиал, один сайт навсегда** (полный UNIQUE
+> `marketing_sites.location_id` без условия, архив филиал не освобождает; §29.15). Новое: лицензия конструктора на
+> филиал (§29.12), разговорные задачи ИИ без версий (§29.13), закладки версий (§29.14), знания проекта (§29.15).
+> Контракт `docs/marketing/licensed-site-builder-v0.md`, план `plans/mkt9-2-licensed-lovable-builder-2026-10-08.md`.
+
+### 29.1 Что уже есть и не дублируется
+
+| Уже есть | Где | Что остаётся там |
+|---|---|---|
+| `TrackedSite` | §11, `schema.prisma:1434-1457` | `public_key`, `hosts[]` (allowlist счётчика и виджета), `status`, `booking_enabled`, `booking_rate_plan_id`, связь с `web_sessions`/`web_pageviews`/`web_events` |
+| Цепочка владения | §18, `schema.prisma:45-125` | Organization → Business → Location → Property (Hospitality) |
+| Аналитика | §11 | сессии, просмотры, события, воронка, связь сессии с бронью |
+| Бронь с сайта | §11 v1.2, ADR-026 | `/w/*`, тариф виджета, источник `WEBSITE` |
+
+`MarketingSite` не хранит копий `public_key`, `booking_enabled`, `booking_rate_plan_id`, хостов аналитики, сессий и
+событий. Публичный ключ рантайм получает через связь `tracked_site_id` в момент разрешения хоста.
+
+### 29.2 `MarketingSite` (утверждено, в базе с MKT3)
+
+Управляемый сайт WETOP одного филиала.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `location_id` | UUID NOT NULL FK → `locations` ON DELETE RESTRICT | владелец; берётся из проверенного scope, не из тела запроса |
+| `tracked_site_id` | UUID NULL UNIQUE FK → `tracked_sites` ON DELETE SET NULL | заводится или привязывается при первой публикации Hospitality; для вертикали без `Property` остаётся NULL, пока `TrackedSite` не научится владению через Location (будущий срез) |
+| `name` | VARCHAR(120) NOT NULL | внутреннее имя в стойке |
+| `slug` | VARCHAR(40) NOT NULL | `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, UNIQUE глобально среди неархивных; основа платформенного поддомена; зарезервированные слова (`RESERVED_SITE_SLUGS`, `docs/marketing/README.md` §6) запрещает и база, CHECK `marketing_sites_slug_reserved` |
+| `state` | enum `MarketingSiteState` | `DRAFT`, `PUBLISHED`, `PAUSED`, `ARCHIVED` (§29.8) |
+| `latest_version_id` | UUID NULL FK → `marketing_site_versions` | голова черновика, последняя сохранённая версия |
+| `published_version_id` | UUID NULL FK → `marketing_site_versions` | то, что видит рантайм; NULL у ни разу не опубликованного |
+| `created_by_id` | UUID NULL FK → `users` | |
+| `created_at`, `updated_at` | timestamptz | |
+| `archived_at` | timestamptz NULL | |
+
+Ограничения (кандидаты):
+- не более одного неархивного сайта на Location (частичный UNIQUE по `location_id` WHERE `state <> 'ARCHIVED'`); снять,
+  если владелец захочет несколько сайтов филиала;
+- версии по указателям принадлежат этому же сайту (триггер или составной FK);
+- для Hospitality: `tracked_sites.property_id` связанного `TrackedSite` это `Property` того же `Location`
+  (триггер принадлежности, как у Food и Beauty); это закрывает BOOK-4 на уровне данных; **сделано в MKT3** в
+  `marketing_site_guard`, хотя связь MKT3 ещё не ставит: MKT7 берёт уже безопасную колонку;
+- `published_version_id` NOT NULL при `state IN ('PUBLISHED','PAUSED')`.
+
+### 29.3 `MarketingSiteVersion` (утверждено, в базе с MKT3)
+
+Неизменяемый снимок `SiteSpec`.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK → `marketing_sites` ON DELETE RESTRICT | |
+| `revision` | INT NOT NULL | 1, 2, 3… внутри сайта; UNIQUE (`site_id`, `revision`) |
+| `parent_version_id` | UUID NULL FK → эта же таблица | от какой версии сделана правка |
+| `schema_version` | VARCHAR(20) NOT NULL | значение `SiteSpec.schemaVersion`, например `site-spec/0`; CHECK `(spec ->> 'schemaVersion') IS NOT DISTINCT FROM schema_version` |
+| `spec` | JSONB NOT NULL | документ `SiteSpec`, объект. Допустимый размер один: 256 КБ канонической записи, держит проверка документа и API. CHECK в базе `octet_length(spec::text) <= 393216` (384 КБ) только грубая страховка, не второй допустимый размер: `jsonb::text` не каноническая запись и выходит до полутора раз длиннее |
+| `spec_hash` | CHAR(64) NOT NULL | sha256 канонической записи; ключ кэша рантайма |
+| `source` | enum `SiteVersionSource` | `MANUAL` (ручная правка), `AI` (результат `GenerationRun`), `IMPORT` (перенос готового документа, например при смене версии схемы). С MKT6 (миграция `…062`) CHECK `marketing_site_versions_source_provenance`: `MANUAL` только без `generation_run_id`, `AI` только с ним; `IMPORT` по-прежнему не проходит и откроется в срезе, где появится путь импорта |
+| `generation_run_id` | UUID NULL UNIQUE FK → `generation_runs` ON DELETE RESTRICT | в базе с MKT6: обязателен при `source = 'AI'`, запрещён при `MANUAL`; задача только своего сайта (триггер `marketing_site_version_run_guard`); одна задача создаёт не больше одной версии |
+| `created_by_id` | UUID NULL FK → `users` | NULL только у системного импорта |
+| `created_at` | timestamptz | |
+
+**Что значит «неизменяемая».** После вставки строку не меняют и не удаляют командами приложения: `UPDATE` и
+`DELETE` запрещает триггер, как у `audit_logs` (`20260925000022_integrity_guards`). В таблицу попадает только
+документ, прошедший проверку схемы `SiteSpec` той версии, что указана в `schema_version`.
+
+**Как правится черновик.** Правки не меняют версию, а создают новую: сохранение принимает `baseRevision`; если оно
+не равно `revision` версии `latest_version_id`, ответ 409 (кто-то сохранил раньше); иначе в одной транзакции
+вставляется версия `revision + 1` с `parent_version_id = latest_version_id`, и `latest_version_id` переставляется на неё.
+Невалидный документ не сохраняется вовсе (ошибки показываются в редакторе). Ссылки на ассеты проверяются при
+сохранении и повторно при публикации.
+
+**Как публикация ссылается на версию.** `published_version_id` указывает на одну из версий сайта. Публикация и откат
+только переставляют указатель и пишут строку `marketing_site_publications`; сама версия не меняется. Откат допускается
+только на версию того же сайта, которая раньше была опубликована (есть в журнале), и только после повторной проверки
+схемы и ссылок; рантайм видит её лишь после перестановки указателя.
+
+Хранение (Q-272, решение владельца 06.10.2026): версии, которые хоть раз были опубликованы, хранятся всегда;
+неопубликованные черновые можно удалять старше 90 дней, сохраняя не меньше 50 последних версий сайта. Очистки в
+MKT3 нет, и сторож неизменяемости исключения для неё не делает: способ удаления решается срезом очистки.
+
+**Как это держит база (MKT3).** Триггер `marketing_site_version_immutable` отклоняет `UPDATE` и `DELETE` версии
+(пропускает только обнуление `created_by_id` по `ON DELETE SET NULL`), у ролей `wetop_app` и `wetop_service` на версиях
+отозваны `UPDATE` и `DELETE`, на сайтах `DELETE` (отдельной миграцией прав 061, как Food 059: восстановление копии
+повторяет только миграции без DDL). Триггер `marketing_site_version_guard`: версия без родителя только
+с `revision = 1`, родитель того же сайта, `revision` ровно на 1 больше родителя. Триггер `marketing_site_guard`:
+`latest_version_id` и `published_version_id` указывают только на версии этого сайта, `location_id` не меняется.
+CHECK: формат `slug`, `published_version_id` задан при `PUBLISHED` и `PAUSED`, `archived_at` задан ровно при
+`ARCHIVED`. Частичные UNIQUE: один неархивный сайт на `location_id`, неархивный `slug` глобально. После ревью владельца
+(06.10.2026) добавлено: `tracked_site_id`, если задан, ведёт на `TrackedSite` объекта того же филиала (триггер
+`marketing_site_guard`); зарезервированные адреса запрещены CHECK; `schema_version` совпадает с `schemaVersion`
+документа; источник версии пока только `MANUAL`.
+
+### 29.4 `MarketingSitePublication` (утверждено, в базе с MKT7)
+
+Журнал переключений, только дописывается. Нужен для отката (список ранее опубликованных версий) и для разбора
+инцидентов; хранить это полем в неизменяемой версии нельзя.
+
+| Поле | Тип |
+|---|---|
+| `id` | UUID PK |
+| `site_id` | UUID NOT NULL FK |
+| `action` | enum `PUBLISH`, `ROLLBACK`, `PAUSE`, `RESUME`, `ARCHIVE` |
+| `version_id` | UUID NULL FK → `marketing_site_versions` (NULL у `PAUSE`/`ARCHIVE`) |
+| `previous_version_id` | UUID NULL |
+| `actor_id` | UUID NULL FK → `users` |
+| `created_at` | timestamptz |
+
+`UPDATE`/`DELETE` запрещены триггером. Решение владельца 06.10.2026 (ревью MKT1A): таблица остаётся отдельной.
+Откат и история публикаций это данные предметной области, они не должны зависеть от разбора JSON общего журнала
+`audit_logs`; запись в `audit_logs` при этом тоже делается, как у любого действия.
+
+Что держит база (MKT7): CHECK `marketing_site_publications_shape` (у `PUBLISH`, `ROLLBACK`, `RESUME` версия есть, у
+`PAUSE` и `ARCHIVE` её нет); версия и прежняя версия только своего сайта (триггер `marketing_site_publication_guard`);
+журнал только дописывается (триггер `marketing_site_publication_immutable`, единственное исключение: `actor_id`
+становится NULL при удалении человека); `wetop_app` и `wetop_service` получают только SELECT и INSERT.
+
+### 29.5 `SiteAsset` (утверждено, в базе с MKT8; Q-270 RESOLVED OWNER 07.10.2026)
+
+Изображение управляемого сайта. Хранилище: приватный S3-совместимый бакет физически в Казахстане (PS Cloud после
+письменного подтверждения, иначе Cloud24); полей поставщика, бакета и адреса в модели нет.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | ссылка из `SiteSpec` (`assetId`) |
+| `location_id` | UUID NOT NULL FK → `locations` RESTRICT | владелец, не меняется; ассет чужого Location в `SiteSpec` отклоняется |
+| `kind` | enum `IMAGE`, `LOGO`, `FAVICON` | не меняется после `READY` |
+| `status` | enum `UPLOADING`, `PROCESSING`, `READY`, `REJECTED`, `DELETED` | v0 заводит строку сразу `READY` (обработка синхронная); `DELETED` конечный |
+| `source` | enum `UPLOAD`, `CHANNEX_IMPORT` | не меняется; изображения, созданные ИИ, вне v0 |
+| `mime_type` | VARCHAR(40) | тип **хранимой** копии: `image/webp` у картинки и логотипа, `image/png` у фавиконки (CHECK) |
+| `storage_ref` | VARCHAR(500) UNIQUE | ровно `site-assets/<location_id>/<id>/<sha256>.webp|png` (CHECK); не URL и не секрет |
+| `byte_size` | INT | от 1 до 10 МиБ |
+| `width`, `height` | INT NOT NULL | после обработки: картинка до 2400, логотип до 1600, фавиконка ровно 512×512 (CHECK) |
+| `sha256` | CHAR(64) | hex в нижнем регистре, от готовых байтов; повтор той же картинки того же вида в Location даёт тот же ассет |
+| `default_alt` | JSONB NULL | объект `LocalizedText` (ru, kk, en, до 150 знаков), подсказка ALT; ALT в секции главнее |
+| `created_by_id` | UUID NULL FK → `users` SET NULL | |
+| `created_at`, `updated_at`, `deleted_at` | timestamptz | `deleted_at` задан тогда и только тогда, когда `DELETED` |
+
+Индексы: UNIQUE `storage_ref`; частичный UNIQUE `(location_id, kind, sha256) WHERE status <> 'DELETED'`;
+`(location_id, status)`. Триггер `site_asset_guard`: вставка без `DELETED`; владелец, источник и время создания не
+меняются; вид, байты, ключ и размеры не меняются после `READY`; переходы `UPLOADING → PROCESSING | READY | REJECTED`,
+`PROCESSING → READY | REJECTED`, `READY → DELETED`, `REJECTED → DELETED`.
+
+Удаление: только переходом в `DELETED` (у ролей приложения нет `DELETE`). Ассет хоть раз опубликованной версии остаётся
+в хранилище: библиотека его прячет, текущий сайт и откат видят; ассет только из черновиков удаляется и из хранилища. Тип
+файла проверяется по содержимому, EXIF и GPS снимаются, сырой файл не хранится нигде (`docs/marketing/site-assets-v0.md`).
+
+### 29.6 `SiteDomain` (утверждено, в базе с MKT7; `CUSTOM` только в схеме до MKT10)
+
+Хост сайта и жизненный цикл владения им. Отдельно от `TrackedSite.hosts`: там allowlist для счётчика и виджета, здесь
+право сайта отвечать на хост.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK → `marketing_sites` | |
+| `host` | VARCHAR(253) | нормализован: нижний регистр, без порта, без конечной точки, punycode; UNIQUE среди строк со статусом не `REMOVED`/`FAILED` |
+| `kind` | enum `PLATFORM_SUBDOMAIN`, `CUSTOM` | |
+| `is_primary` | BOOLEAN | не более одного основного на сайт (частичный UNIQUE); остальные хосты отдают 301 на основной |
+| `status` | enum `PENDING`, `VERIFYING`, `VERIFIED`, `ACTIVE`, `FAILED`, `REMOVED` | §29.8 |
+| `verification_method` | enum `DNS_TXT`, `HTTP_FILE` NULL | у платформенного поддомена NULL |
+| `verification_token` | VARCHAR(64) NULL | публичный по смыслу (кладётся в DNS), не секрет |
+| `verified_at`, `activated_at`, `removed_at` | timestamptz NULL | |
+| `last_check_at` | timestamptz NULL | |
+| `failure_code` | VARCHAR(40) NULL | словарь кодов, без ответа поставщика целиком |
+| `provider_ref` | VARCHAR(200) NULL | непрозрачная ссылка на запись у поставщика сертификатов, если он понадобится |
+| `created_at`, `updated_at` | timestamptz | |
+
+Синхронизация: при переходе в `ACTIVE` хост добавляется в `tracked_sites.hosts` связанного `TrackedSite`, при `REMOVED`
+убирается. Родительский домен платформенных поддоменов в `hosts` не кладётся никогда: `hostMatches` пускает любой
+поддомен (`packages/domain/src/web-analytics/source.ts:84-91`).
+
+Что держит база (MKT7): вставка только в `PENDING`; сайт, хост и вид не меняются; переходы §29.8 по виду (триггер
+`site_domain_guard`; у платформенного поддомена только `PENDING → ACTIVE` и `→ REMOVED`, проверка владения ему не
+нужна, CHECK `site_domains_platform_unverified`); формат хоста CHECK `site_domains_host_format`; частичные UNIQUE
+`site_domains_host_live_key` (живой хост один на всю установку, `REMOVED` и `FAILED` хост освобождают) и
+`site_domains_primary_key` (один основной на сайт среди неснятых); `activated_at` и `removed_at` обязательны в своих
+состояниях. Строку создаёт публикация: хост `<slug>.<SITES_BASE_DOMAIN>`, DNS и маршрут Worker это заранее заведённая
+wildcard-инфраструктура, API Cloudflare при публикации не вызывается. Архив переводит домены сайта в `REMOVED`.
+
+### 29.7 `GenerationRun` (утверждено, в базе с MKT6)
+
+Сохранённая задача генерации ИИ, она же очередь в Postgres (миграции `20261007000062_generation_run_core`, права
+`…063_generation_run_grants`; контракт `docs/marketing/site-generation-v0.md`). MKT6 ставит только `INITIAL`.
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | UUID PK | |
+| `site_id` | UUID NOT NULL FK | |
+| `type` | enum `INITIAL`, `SECTION`, `PATCH`, `SEO` | первая сборка из брифа, одна секция заново, правка командой, SEO-предложение |
+| `status` | enum `QUEUED`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED` | §29.8 |
+| `request_key` | UUID NOT NULL | повтор того же запроса не ставит вторую задачу; UNIQUE (`site_id`, `request_key`) |
+| `requested_by_id` | UUID NULL FK → `users` | |
+| `base_version_id` | UUID NULL FK → `marketing_site_versions` | от какой версии правка |
+| `output_version_id` | UUID NULL FK → `marketing_site_versions` | версия-результат при `SUCCEEDED` |
+| `brief_hash` | CHAR(64) NULL | хэш собранного брифа; сам бриф строится заново из данных |
+| `instruction` | VARCHAR(2000) NULL | текст команды человека (данные, не инструкция системе); срок хранения как у черновиков |
+| `model` | VARCHAR(100) NULL | имя модели, без ключа и адреса поставщика |
+| `tokens_input`, `tokens_output`, `tokens_cached` | INT NULL | для бюджета (Q-274 закрыт 07.10): агрегат по всем фактическим вызовам модели в run, включая неудачные и повторы; расход `tokens_input + tokens_output`, `tokens_cached` входит в input |
+| `attempts` | INT NOT NULL DEFAULT 0 | предел кандидат 3 |
+| `next_attempt_at` | timestamptz NULL | в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут) |
+| `dispatched_at` | timestamptz NULL | **добавлено в MKT6**: запрос к ИИ ушёл, расход ещё не записан; падение воркера в это время даёт `USAGE_UNAVAILABLE`, а не повтор (Q-274: неизвестный расход не считается нулём) |
+| `error_code` | VARCHAR(40) NULL | словарь (CHECK): `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `BUDGET_EXCEEDED`, `TIMEOUT`, `REJECTED_CONTENT`, `USAGE_UNAVAILABLE`, `BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, `BUDGET_DAY_CHANGED` |
+| `error_message` | VARCHAR(500) NULL | замаскированный текст для человека |
+| `created_at`, `started_at`, `finished_at` | timestamptz | |
+
+Не хранится: собранный промпт целиком, ответ модели целиком (только принятая версия), ключи, адреса поставщика.
+
+**MKT9 (07.10.2026, без миграции).** API ставит `PATCH` и `SECTION` (`docs/marketing/site-editor-v0.md` §6).
+`base_version_id` равен голове сайта при постановке; `brief_hash` сервер собирает сам. `instruction` у `PATCH` это текст
+человека (обрезан, без управляющих символов кроме перевода строки, до 1800 знаков); у `SECTION` версионированный конверт:
+первая строка канонический JSON `{"pageId":"…","sectionId":"…","v":1}`, после перевода строки текст человека как есть
+(до 1500 знаков, пусто значит команда по умолчанию). Текст не экранируется, поэтому конверт гарантированно не длиннее
+`VARCHAR(2000)`; разбирают его только `encodeSectionInstruction` и `decodeSectionInstruction` домена. Текст команды
+наружу не отдаётся и в журнал не пишется. Успешная правка даёт версию `base.revision + 1` с родителем `base`, только если
+голова всё ещё `base` (иначе `BASE_VERSION_CHANGED`).
+
+Что держит база (MKT6): вставка только `QUEUED`; переходы §29.8 (триггер `generation_run_guard`); форма состояния
+(CHECK `generation_runs_status_shape`: `QUEUED` без версии и конца, `RUNNING` с началом, `SUCCEEDED` с версией, концом и без
+ошибки, `FAILED` с концом и кодом, `CANCELLED` с концом); токены целые, не меньше нуля, `tokens_cached <= tokens_input`,
+сумма только растёт; `attempts` от 0 до 3 и только растёт; сайт, вид, ключ, бриф, команда, база, автор и первое начало
+не меняются; `base_version_id` и `output_version_id` только версии своего сайта, итоговая ссылается на эту задачу.
+UNIQUE (`site_id`, `request_key`), UNIQUE `output_version_id`.
+Образец исполнения: очередь в Postgres с воркером, как `channel_outbox` (`apps/api/src/channels/outbox.worker.ts:35-70`).
+Таблица `wizard_jobs` (`schema.prisma:1985-2000`) не переиспользуется: она про мастер продавца и кодом не используется.
+
+### 29.8 Жизненные циклы (три отдельных, не одним статусом)
+
+`MarketingSite.state`:
+
+```
+(создан) → DRAFT ──publish──→ PUBLISHED ──pause──→ PAUSED ──resume──→ PUBLISHED
+                                  │  ↑ publish/rollback (меняют только указатель)
+DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
+```
+
+«Сгенерирован», «превью», «правится черновик» не состояния сайта: это факты версий и задач. Сайт в `PUBLISHED`
+продолжает получать новые черновые версии; рантайм их не видит до следующей публикации.
+
+`GenerationRun.status`: `QUEUED → RUNNING → SUCCEEDED | FAILED`; `RUNNING → QUEUED` при повторной попытке;
+`QUEUED → CANCELLED | FAILED` (`FAILED` без вызова модели, например при восстановлении). Конечные: `SUCCEEDED`, `FAILED`,
+`CANCELLED`; переходы держит триггер `generation_run_guard`.
+
+`SiteDomain.status`: платформенный поддомен `PENDING → ACTIVE` при публикации; свой домен
+`PENDING → VERIFYING → VERIFIED → ACTIVE`, `VERIFYING → FAILED` (можно начать заново новой строкой);
+`ACTIVE → REMOVED`, `PENDING|VERIFIED|FAILED → REMOVED`.
+
+### 29.9 Изоляция (MKT3, MKT6, MKT7 и MKT8 сделано)
+
+Все шесть таблиц в `RLS_TENANT_TABLES` (с MKT8 и `site_assets`). Политика через цепочку, как у Food (`20261005000058_food_service_domain/migration.sql:207-211`):
+`EXISTS (locations l JOIN businesses b ON b.id = l.business_id WHERE l.id = <location_id строки> AND b.organization_id = app_current_org())`;
+для дочерних таблиц через `marketing_sites`. Функции триггеров закрепляют `search_path` (`current_schema(), public, pg_temp`).
+`marketing_site_publications` и `site_domains` (MKT7): политика через свой сайт, FORCE; журнал без UPDATE и DELETE,
+домены без DELETE (снятие только переходом в `REMOVED`).
+`site_assets` (MKT8): политика по цепочке Location → Business → организация, как у сайта, FORCE; `wetop_app` и
+`wetop_service` без `DELETE`. Рантайм читает служебным путём только строки по id ссылок текущей или превью-версии.
+`generation_runs` (MKT6): политика через свой сайт, FORCE; `wetop_app` только читает и ставит задачу (SELECT, INSERT),
+состояние, расход и результат меняет воркер служебным путём; `wetop_service` без `DELETE`.
+Публичному рантайму роль `wetop_app` не выдаётся: он читает через узкий служебный путь API только **текущую**
+опубликованную версию сайта, разрешённого по хосту, и безопасные публичные факты его Location
+(`docs/marketing/README.md` §4.2, §4.4). Чтения версии по `id`, в том числе ранее опубликованной, у служебного ключа
+рантайма нет; откат переставляет `published_version_id` только через управление.
+
+### 29.11 Канонический сайт брони филиала (Q-275, вариант Б; в базе с MKT7)
+
+`locations.booking_tracked_site_id` UUID NULL FK → `tracked_sites` ON DELETE SET NULL, индекс. Один явный сайт брони
+на филиал гостиницы; ИИ-продавец (`bookingSiteForAgent`) берёт только его и проверяет, что сайт принадлежит именно
+объекту этого филиала, `ACTIVE`, с включённой бронью и тарифом брони; запасного пути «самый ранний сайт» нет, пустой
+или негодный указатель значит «котировки нет». Триггер `location_booking_site_guard` не даёт указать сайт объекта
+другого филиала. Начальное заполнение `location_booking_backfill()` ставит указатель только филиалу, у которого ровно
+один подходящий сайт; ноль или несколько оставляют NULL. Первая публикация управляемого сайта занимает указатель, только
+если он пуст и других подходящих сайтов у объекта нет; уже выбранный сайт (даже приостановленный) она не заменяет. Выбор вручную: страница
+«Маркетинг → Публикация сайта» (`PUT /marketing/site/booking-source`).
+
+### 29.12 `SiteBuilderEntitlement`: лицензия конструктора филиала (MKT9.2)
+
+`site_builder_entitlements`: `location_id` PK и FK → `locations` ON DELETE RESTRICT; `status ExtensionStatus`
+(`TRIAL`, `ACTIVE`, `OFF`); `active_until timestamptz NULL` (пусто: бессрочно; у `TRIAL` обязателен, CHECK
+`site_builder_entitlements_trial_until`); `note varchar(300)` (номер счёта, без персональных данных); `updated_by` FK →
+`users` ON DELETE SET NULL; `created_at`, `updated_at`. Триггер `site_builder_entitlement_guard`: только филиал
+гостиничного бизнеса, филиал строки не меняется. Действует, если `TRIAL` или `ACTIVE` и срок не вышел (те же правила, что
+у расширений организации §16.3). Выдаёт, продлевает и выключает только главный администратор платформы служебной ролью;
+`wetop_app` только `SELECT`; удаления нет ни у кого, выключение это `OFF`. Заполнение миграцией: `ACTIVE` без срока
+только филиалам, у которых сайт уже был. Запись в конструкторе (создание сайта, сохранение, восстановление, весь ИИ,
+картинки, публикация, возобновление, откат, знания, закладки) требует действующей лицензии в той же транзакции; пауза,
+архив и выбор сайта брони не требуют. Опубликованный сайт лицензия не выключает. Воркер ИИ перепроверяет лицензию перед
+платным вызовом и без неё завершает задачу `LICENSE_UNAVAILABLE` (код добавлен в CHECK `generation_runs_error_code`).
+
+### 29.13 `SiteAiRun`: разговор с ИИ сайта (MKT9.2)
+
+`site_ai_runs`: режим `SiteAiRunMode` (`CHAT`, `PLAN`, `DESIGN`), состояние `SiteAiRunStatus` (`QUEUED`, `RUNNING`,
+`SUCCEEDED`, `FAILED`), `request_key` (UNIQUE с `site_id`), `requested_by_id`, `base_version_id` (только версия этого
+сайта, триггер), `brief_hash`, `user_text varchar(4000)` (не пустой), `assistant_text varchar(12000)`, `payload jsonb`
+(проверенная структура ответа по режиму, до 32 КиБ, CHECK `site_ai_runs_payload_size`), модель, токены (как у
+`generation_runs`, кэш часть входа), попытки до трёх, `next_attempt_at`, `dispatched_at`, код и текст ошибки (тот же
+словарь плюс `LICENSE_UNAVAILABLE`), время создания, начала и конца. Триггер `site_ai_run_guard`: новая только в
+`QUEUED`, переходы как у сборки без `CANCELLED`, конечное состояние не меняется, запрос человека, режим, ключ, база,
+бриф и автор не меняются, токены и попытки только растут. **Версий не создаёт никогда**: колонки выходной версии нет,
+сборка по плану идёт обычной задачей `generation_runs` с `request_key`, равным id плана (второй не будет). Промпт и сырой
+ответ модели не хранятся. `wetop_app` `SELECT, INSERT`; воркер `UPDATE`; удаления нет. Общие правила с
+`generation_runs`: одна активная задача ИИ на сайт, платные вызовы организации по одному, один дневной пул токенов
+организации, неизвестный расход останавливает ИИ сайта организации до следующих суток UTC, 10 запросов в час на
+человека в организации на все режимы. История разговора для модели (доводка 08.10) собирается из этих строк и успешных
+`generation_runs` того же сайта при каждом вызове и нигде не хранится; ответ на вопросы плана хранит самодостаточный
+`user_text` (исходная просьба, вопросы, ответы), связи с родительской задачей в схеме нет.
+
+### 29.14 `MarketingSiteVersionBookmark`: закладка версии (MKT9.2)
+
+`marketing_site_version_bookmarks`: `id`, `site_id` FK, `version_id` FK, `label varchar(120)` (не пустая),
+`created_by_id`, `created_at`; UNIQUE `(site_id, version_id)`. Триггер `marketing_site_bookmark_guard`: версия этого
+сайта, сайт и версия закладки не меняются, не больше 20 закладок на сайт (замок по сайту против гонки). Человек с правом
+`settings` ставит, переименовывает и снимает при действующей лицензии.
+
+### 29.15 Один филиал, один сайт; знания проекта (MKT9.2)
+
+Частичный UNIQUE `marketing_sites_location_active_key` (MKT3) заменён полным `marketing_sites_location_id_key` без
+условия: у филиала один сайт навсегда, архивный сайт филиал не освобождает, нового проекта, копии и ремикса нет;
+эксперименты это новые версии того же сайта. Миграция сначала проверяет, что ни у одного филиала нет двух сайтов, и
+иначе останавливается с перечнем филиалов, ничего не исправляя сама. В Prisma `Location.marketingSite MarketingSite?`.
+`marketing_sites.builder_instructions varchar(5000) NULL`: знания проекта, постоянные указания ИИ этого сайта; это
+данные для модели (старшинство: правила системы, правила SiteSpec, бриф, знания, запрос человека), в журнал пишется
+только длина.
+
+### 29.10 Чего в модели нет
+
+Страниц и секций отдельными таблицами (они внутри `SiteSpec`), пользовательского CSS и JavaScript, отзывов, блога,
+формы обратной связи, оплаты на сайте, изображений, созданных ИИ, сайтов Beauty и Food (возможны позже без смены
+владельца, `docs/marketing/README.md` §8).
+С MKT9.2 также нет: второго проекта, копии или ремикса сайта филиала, нескольких черновиков, параллельной очереди ИИ,
+своего кода и своей базы у сайта, автопубликации ИИ, промптов и сырых ответов модели в базе.

@@ -96,16 +96,10 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
     expect(guilty).toEqual([]);
   });
   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола', () => {
-    // размытие подложки у липкой шапки и выпадающих меню — слой над страницей, правило его не запрещает
-    //
-    // Исключение с 23.09.2026 (DESIGN.md §20, ADR-069): свет за стеклом — два закреплённых слоя под
-    // страницей, и живут они только в `app/glass.css`, только на `body::before` и `body::after`.
-    // Всё остальное правило держит по-прежнему: «шар» на кнопке или карточке снова красный.
-    const glow = (r: { file: string; selector: string }) =>
-      r.file === 'app/glass.css' && /^body::(before|after)$/.test(r.selector.trim());
-    expect(
-      offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}px/.test(r.body) && !glow(r)),
-    ).toEqual([]);
+    // размытие подложки у липкой шапки и выпадающих меню: слой над страницей, правило его не запрещает.
+    // Свет за стеклом (`glass.css`, `body::before/after`) снят 01.10 и удалён вместе с файлом в MV8.5 DS0b,
+    // исключений больше нет: «шар» на любом блоке красный.
+    expect(offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}px/.test(r.body))).toEqual([]);
   });
   /**
    * Храповик (§3, §14): чего много и что чинится по экрану вместе с макетами — « · » как разделитель
@@ -184,5 +178,34 @@ describe('план дизайн-системы §10: попутные дефек
     const dead = offenders((r) => /(^|[\s,])\.(topbar|record-nav)(\b|__)/.test(r.selector));
     expect(dead).toEqual([]);
     expect(workspaceCss).not.toMatch(/\.record-nav/);
+  });
+});
+
+describe('DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid)', () => {
+  // примитивы с MV8.5 DS0b живут в components.css (один владелец на селектор)
+  const globalsCss = readFileSync(join(SRC, 'app', 'components.css'), 'utf8');
+  const uiSource = readFileSync(join(SRC, 'components', 'ui.tsx'), 'utf8');
+  it('наведение меняет фон, а не текст или границу', () => {
+    const hover = globalsCss.match(/\.inp:hover[^{]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(hover).toMatch(/background:/);
+    expect(hover).not.toMatch(/(?:^|\s)(?:color|border-color):/);
+  });
+
+  it('отключённое поле приглушено прозрачностью, а серый фон остаётся признаком readOnly', () => {
+    const disabled = globalsCss.match(/\.inp:disabled\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(disabled).toMatch(/opacity:/);
+    expect(disabled).not.toMatch(/background:/);
+  });
+
+  it('поле ввода имеет стили disabled и aria-invalid', () => {
+    expect(globalsCss).toMatch(/\.inp:disabled/);
+    expect(globalsCss).toMatch(/\.inp\[aria-invalid=["']true["']\]/);
+  });
+
+  it('Field связывает hint и error с контролом', () => {
+    expect(uiSource).toContain('controlId');
+    expect(uiSource).toContain("'aria-describedby'");
+    expect(uiSource).toContain("'aria-invalid'");
+    expect(uiSource).toContain('htmlFor={controlId}');
   });
 });

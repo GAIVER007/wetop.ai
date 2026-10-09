@@ -19,6 +19,9 @@ const FIELDS = [
   'address',
   'phone',
   'email',
+  'countryCode',
+  'city',
+  'channexPropertyType',
   'checkInTime',
   'checkOutTime',
 ] as const;

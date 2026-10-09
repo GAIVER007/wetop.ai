@@ -147,9 +147,15 @@ jobs:
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
         run: npm run test:schema -- --refresh
-      - name: Сквозные тесты
+      - name: Мастер настройки, сохранение и восстановление в браузере
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx playwright test --config tests/onboarding/playwright.config.ts
+      - name: Сквозные тесты
+        # Вошедшим пользователем (решение владельца 07.10.2026): после MV8 стойка без входа не угадывает гостиницу
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          E2E_AUTH: '1'
         run: npx playwright test --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -202,6 +208,61 @@ jobs:
         with:
           name: ui-visual-diffs-${{ matrix.shard }}
           path: test-results/design-system-*/**/*.png
+          if-no-files-found: ignore
+
+  ui-vertical:
+    name: UI · ${{ matrix.suite }}
+    needs: fast
+    # Наборы салона, ресторана и филиалов (MV8.5 DS0a, решение владельца 07.10.2026): до этого их axe
+    # и ширины 390/1440 гонялись только руками. Три набора идут параллельно с `db` и `ui-shard`,
+    # стена гейта почти не растёт; минуты каждого записаны в отчёте среза. Подставные API наборов
+    # читают схему pms_test локальной базы, поэтому у задачи своя служба postgres, как у `db`.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [beauty-ui, food-ui, branches-ui]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: База pms_dev и схема pms_test с миграциями
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+          npm run test:schema
+      - run: npx playwright install --with-deps chromium
+      - name: Браузерный набор на подставном API и настоящей схеме
+        run: npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-vertical-${{ matrix.suite }}
+          path: |
+            tests/${{ matrix.suite }}/test-results
+            test-results
           if-no-files-found: ignore
 
   ui:

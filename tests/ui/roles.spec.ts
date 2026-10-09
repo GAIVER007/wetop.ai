@@ -48,6 +48,7 @@ test('администратор: в меню — работа с гостями
       '/reservations',
       '/guests',
       '/finance',
+      '/bar',
       '/market',
       '/ai-agents',
       '/reports',
@@ -68,8 +69,7 @@ test('администратор: закрытые разделы по адре�
   await asRole(request, 'STAFF');
   const main = page.getByRole('main');
   for (const [route, title, text] of [
-    ['/rates', 'Тарифы', '«Тарифы и цены»: доступ есть у владельца и управляющего.'],
-    ['/journal', 'Журнал', '«Журнал действий»: доступ есть у владельца и управляющего.'],
+    ['/journal', 'Журнал', '«Журнал операций»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
       '/hotel-settings',
@@ -83,12 +83,12 @@ test('администратор: закрытые разделы по адре�
     ],
   ] as const) {
     await page.goto(route);
-    const refusal = main.getByTestId('no-access');
+    const refusal = page.getByTestId('no-access').filter({ visible: true });
     await expect(refusal).toContainText(text);
     await expect(refusal).toContainText('Ваша роль — администратор');
     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
-    if (route === '/rates') await shot(page, 'no-access-administrator');
+    if (route === '/journal') await shot(page, 'no-access-administrator');
   }
 
   // из карточки брони в журнал администратору не ведёт
@@ -135,11 +135,20 @@ test('администратор принимает оплату, но возв�
   // finance.controller.test.ts («роли в деньгах»)
   await asRole(request, 'STAFF');
   await pay('оплата администратора');
-  await expect(main.getByTestId('refund-form')).toHaveCount(0);
-  await expect(main.getByRole('columnheader', { name: 'Возврат', exact: true })).toHaveCount(0);
+  // с 07.10.2026 возврат раскрывается кнопкой «Вернуть» (план finance-payments-direct): у администратора нет ни её,
+  // ни «Изменить» с «Аннулировать»
+  await expect(main.getByTestId('refund-btn')).toHaveCount(0);
+  await expect(main.getByTestId('payment-void')).toHaveCount(0);
+  // колонка действий у оплат появляется только с правом возврата; у начислений она есть у всех ролей:
+  // «Изменить цену» проживания (ADR-151) доступна администратору, сторно (`void-…`) нет
+  await expect(
+    main.getByRole('table', { name: 'Оплаты' }).getByRole('columnheader', { name: 'Действия', exact: true }),
+  ).toHaveCount(0);
+  await expect(main.locator('[data-testid^="void-"]')).toHaveCount(0);
 
   await asRole(request, 'MANAGER');
   await pay('оплата управляющего');
+  await main.getByTestId('refund-btn').first().click();
   await expect(main.getByTestId('refund-form').first()).toBeVisible();
 });
 
@@ -205,21 +214,22 @@ test('администратор меняет даты и продлевает �
   await expect(main.getByLabel('Тариф для продления')).toBeVisible();
 });
 
-test('управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их', async ({
+test('управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их', async ({
   page,
   request,
 }) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
   await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).toContain('/rates');
+  await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
-  for (const href of ['/journal', '/channels', '/hotel-settings', '/team', '/connections'])
+  for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
+  expect(links).not.toContain('/journal');
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Управляющий');
 
-  await page.goto('/rates');
+  await page.goto('/rooms/categories');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);
 
   // команда — на странице «Сотрудники» (TEAM1); приглашение — панелью из шапки
@@ -314,7 +324,7 @@ for (const width of [1440, 390]) {
       for (const [role, route] of [
         ['OWNER', '/profile/access'],
         ['MANAGER', '/profile/access'],
-        ['STAFF', '/rates'],
+        ['STAFF', '/journal'],
       ] as const) {
         await asRole(request, role);
         await page.goto(route);

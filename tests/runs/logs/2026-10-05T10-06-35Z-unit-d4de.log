@@ -1,0 +1,16 @@
+# Модульные (unit) · 05.10.2026 15:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит e86c0af (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T10-06-35Z-unit-d4de.json' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 158ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  03:06:44
+   Duration  847ms (transform 49%, tests 36%, import 13%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T10-06-35Z-unit-d4de.json
+
+# код выхода 0 · 10 с

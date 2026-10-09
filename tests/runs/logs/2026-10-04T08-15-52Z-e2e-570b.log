@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 04.10.2026 13:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac3da76 (claude/mobile-rest-screens), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/desktop-compact.spec.ts' '--workers=1'
+Error: Timed out waiting 60000ms from config.webServer.
+
+
+# код выхода 1 · 44 мин 14 с

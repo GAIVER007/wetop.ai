@@ -15,8 +15,8 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  // Главная пересобрана в компактный дашборд владельца (ea9dd3c): плитки — .owner-stat
-  await expect(page.locator('.owner-stat').first()).toBeVisible();
+  // Утверждённая Главная показывает поступления в общем денежном блоке.
+  await expect(page.getByTestId('owner-paid')).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -34,7 +34,8 @@ test('shell: панель, меню профиля, поиск', async ({ page }
   await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('tour-restart')).toBeHidden();
-  await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
+  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  await page.keyboard.press('Control+k');
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();
   await search.getByLabel('Запрос').fill('Тест');
@@ -140,6 +141,7 @@ test('новые страницы и обе темы: адаптивность �
     '/channels/sync',
     '/journal',
     '/incidents',
+    '/marketing',
     '/website',
     '/website/analytics',
     '/management/analytics',
@@ -235,8 +237,8 @@ test('список броней: выборка названа, пустой р�
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
   await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
-  // слово о брони в единственном числе (ADR-106, Q-135); «Подтверждены» осталось именем фильтра
-  await expect(row).toContainText('подтверждена');
+  // слово статуса из реестра (DS1a); группа «Подтверждённые» осталась именем отбора
+  await expect(row).toContainText('Подтверждена');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
   const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();

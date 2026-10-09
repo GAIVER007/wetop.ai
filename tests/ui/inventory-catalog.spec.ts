@@ -64,10 +64,10 @@ test('таблица показывает расположение, состоя
       .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
   await expect(row('R09')).toContainText('заблокирована');
   await expect(row('R09')).toContainText('ремонт: кондиционер');
-  await expect(row('R01')).toContainText('требует уборки');
+  await expect(row('R01')).toContainText('Требует уборки');
   await expect(row('R01')).toContainText('Корпус Основной');
   await expect(row('R02')).toContainText('в продаже');
-  await expect(row('R02')).toContainText('проверено');
+  await expect(row('R02')).toContainText('Проверено');
   // категории — заголовками групп с числом мест и вместимостью (как список категорий),
   // а не колонкой, где имя повторяется в каждой из 88 строк (упрощение фонда 02.10)
   const groupHead = main.getByTestId('category-group');
@@ -199,7 +199,7 @@ test('панель места: факты, сейчас и следующее, �
   await expect(main.getByTestId('unit-row')).toHaveCount(16);
   // уборка из панели — тем же блоком, что в карточке
   await drawer.getByTestId('hk-DIRTY').click();
-  await expect(drawer.getByTestId('unit-hk')).toHaveText('требует уборки');
+  await expect(drawer.getByTestId('unit-hk')).toHaveText('Требует уборки');
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect(page).toHaveURL(/\/inventory\?kind=ROOM$/);
@@ -207,7 +207,7 @@ test('панель места: факты, сейчас и следующее, �
     main
       .getByTestId('unit-row')
       .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) }),
-  ).toContainText('требует уборки');
+  ).toContainText('Требует уборки');
   // прямой заход по адресу — полная карточка с теми же фактами, без панели
   await page.goto('/units/R09');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('R09');

@@ -67,6 +67,7 @@ async function setup(page: Page, options: Setup) {
   const booked: Array<Record<string, unknown>> = [];
   let turnstileLoads = 0;
   const answers = [...(options.bookAnswers ?? [{ status: 201, body: DONE }])];
+  if (options.turnstileScript !== 'blocked') await page.addInitScript(FAKE_TURNSTILE);
   await page.route('https://hotel.test/**', (route) =>
     route.fulfill({
       contentType: 'text/html; charset=utf-8',
@@ -83,6 +84,8 @@ async function setup(page: Page, options: Setup) {
     if (url.pathname === '/w/book') {
       booked.push(route.request().postDataJSON() as Record<string, unknown>);
       const answer = answers.shift() ?? { status: 201, body: DONE };
+      // статус 0: обрыв сети: ответа нет, исход для виджета неизвестен
+      if (answer.status === 0) return route.abort();
       return route.fulfill({ status: answer.status, json: answer.body });
     }
     return route.fulfill({ status: 404, json: {} });
@@ -119,7 +122,10 @@ const solve = (page: Page, token: string) =>
 const tsState = (page: Page) =>
   page.evaluate(
     () =>
-      (window as unknown as { __ts?: { renders: number; resets: number } }).__ts,
+      (window as unknown as { __ts?: { renders: number; resets: number } }).__ts ?? {
+        renders: 0,
+        resets: 0,
+      },
   );
 
 test('с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book', async ({
@@ -135,7 +141,7 @@ test('с ключом: поиск цен без проверки, кнопка �
   await fillGuest(page);
   const submit = page.locator('[data-pmsw="submit"]');
   await expect(submit).toBeDisabled();
-  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
   const opts = await page.evaluate(
     () => (window as unknown as { __ts: { opts: Record<string, unknown> } }).__ts.opts,
   );
@@ -161,14 +167,14 @@ test('токен одноразовый: после отказа проверк�
   });
   await openGuestForm(page);
   await fillGuest(page);
-  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
   await solve(page, 'tok-old');
   const submit = page.locator('[data-pmsw="submit"]');
   await submit.click();
 
   await expect(page.locator('[data-pmsw="msg"]')).toContainText('Проверка устарела');
   await expect(submit).toBeDisabled();
-  expect((await tsState(page))?.resets).toBe(1);
+  expect((await tsState(page)).resets).toBe(1);
 
   await solve(page, 'tok-new');
   await expect(submit).toBeEnabled();
@@ -180,7 +186,7 @@ test('токен одноразовый: после отказа проверк�
 test('токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки', async ({ page }) => {
   await setup(page, { siteKey: 'site-key-not-real' });
   await openGuestForm(page);
-  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
   await solve(page, 'tok-1');
   await expect(page.locator('[data-pmsw="submit"]')).toBeEnabled();
   await page.evaluate(() =>
@@ -214,4 +220,85 @@ test('скрипт Cloudflare не загрузился (блокировщик,
   await expect(page.locator('[data-pmsw="msg"]')).toContainText('Не удалось загрузить проверку');
   await expect(page.locator('[data-pmsw="submit"]')).toBeDisabled();
   expect(s.booked).toHaveLength(0);
+});
+
+// MKT1B BOOK-2: ключ создания означает одну логическую попытку брони, а не один HTTP-запрос
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const keyOf = (b: Record<string, unknown>) => b['creationKey'] as string;
+
+test('ключ создания: UUID v4; повтор той же формы после обрыва сети уходит с тем же ключом', async ({ page }) => {
+  const s = await setup(page, { siteKey: null, bookAnswers: [{ status: 0, body: null }, { status: 201, body: DONE }] });
+  await openGuestForm(page);
+  await fillGuest(page);
+  const submit = page.locator('[data-pmsw="submit"]');
+  await submit.click();
+  await expect(page.locator('[data-pmsw="msg"]')).toBeVisible();
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+  expect(s.booked).toHaveLength(2);
+  expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+  expect(keyOf(s.booked[1]!)).toBe(keyOf(s.booked[0]!));
+});
+
+test('ключ создания: после отказа проверки новый токен, но тот же ключ', async ({ page }) => {
+  const s = await setup(page, {
+    siteKey: 'site-key-not-real',
+    bookAnswers: [
+      { status: 403, body: { message: 'Проверка устарела: пройдите её ещё раз' } },
+      { status: 201, body: DONE },
+    ],
+  });
+  await openGuestForm(page);
+  await fillGuest(page);
+  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await solve(page, 'tok-old');
+  const submit = page.locator('[data-pmsw="submit"]');
+  await submit.click();
+  await expect(submit).toBeDisabled();
+  // ждём, пока виджет получит 403 и сбросит проверку: кнопка гаснет уже от щелчка, и новый токен,
+  // решённый до ответа сервера, сброс стёр бы, а кнопка осталась бы выключенной (CI #145 и #148)
+  await expect.poll(() => tsState(page).then((t) => t.resets)).toBe(1);
+  await solve(page, 'tok-new');
+  await submit.click();
+  await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+  expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+  expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+  expect(keyOf(s.booked[1]!)).toBe(keyOf(s.booked[0]!));
+});
+
+test('ключ создания: форму изменили после сбоя: новая попытка с новым ключом', async ({ page }) => {
+  const s = await setup(page, {
+    siteKey: null,
+    bookAnswers: [
+      { status: 500, body: { message: 'Сервер недоступен' } },
+      { status: 201, body: DONE },
+    ],
+  });
+  await openGuestForm(page);
+  await fillGuest(page);
+  const submit = page.locator('[data-pmsw="submit"]');
+  await submit.click();
+  await expect(page.locator('[data-pmsw="msg"]')).toContainText('Сервер недоступен');
+  await page.locator('[data-pmsw="comment"]').fill('Приеду после полуночи');
+  await submit.click();
+  await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+  expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+  expect(keyOf(s.booked[1]!)).toMatch(UUID_V4);
+  expect(keyOf(s.booked[1]!)).not.toBe(keyOf(s.booked[0]!));
+});
+
+test('ключ создания: после подтверждённой брони следующая бронь: новый ключ', async ({ page }) => {
+  const s = await setup(page, { siteKey: null });
+  await openGuestForm(page);
+  await fillGuest(page);
+  await page.locator('[data-pmsw="submit"]').click();
+  await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+  // гость ищет снова и бронирует то же самое ещё раз: это новая бронь, а не повтор
+  await openGuestForm(page);
+  await fillGuest(page);
+  await page.locator('[data-pmsw="submit"]').click();
+  await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+  expect(s.booked).toHaveLength(2);
+  expect(keyOf(s.booked[1]!)).not.toBe(keyOf(s.booked[0]!));
 });

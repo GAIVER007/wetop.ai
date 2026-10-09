@@ -1,0 +1,166 @@
+# Интеграционные (integration) · 06.10.2026 23:13 Алматы · vm
+# коммит 3d7a1b2 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-13-44Z-integration-412a.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 2122  - 10/06/2026, 6:13:50 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:146:7 {
+  expected: 133029,
+  length: 133029,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+[Nest] 2122  - 10/06/2026, 6:13:50 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:146:7 {
+  expected: 268401,
+  length: 268401,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+[Nest] 2122  - 10/06/2026, 6:13:50 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:146:7 {
+  expected: 382085,
+  length: 382085,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+[Nest] 2122  - 10/06/2026, 6:13:50 PM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5)
+    at /home/user/wetop.ai/tests/integration/marketing-site.test.ts:146:7 {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ❯ |integration| tests/integration/marketing-site.test.ts (37 tests | 2 failed) 1034ms
+   ❯ MKT3 marketing site core (37)
+     ✓ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       ✓ указателя нет: 409 «Выберите филиал» 53ms
+       ✓ выбран только бизнес: 409 «Выберите филиал» 35ms
+       ✓ чужой филиал: 403, без отката в организацию 12ms
+       ✓ архивный филиал: 403, без отката в организацию 15ms
+       ✓ архивный бизнес: 403, без отката в организацию 8ms
+       ✓ филиал из другого бизнеса: 403, без отката в организацию 8ms
+       ✓ несуществующий филиал: 403, без отката в организацию 8ms
+       ✓ салон и ресторан: 403 4ms
+       ✓ без права settings (администратор): 403 2ms
+     ✓ создание сайта (6)
+       ✓ сайта нет: пустой ответ, черновика нет 59ms
+       ✓ тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400 24ms
+       ✓ неверный и зарезервированный адрес: 400 13ms
+       ✓ создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 47ms
+       ✓ адрес занят сайтом другого филиала: 409, без молчаливой замены 29ms
+       ✓ чужой филиал той же организации видит только свой сайт 18ms
+     ✓ версии (6)
+       ✓ первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 37ms
+       ✓ устаревшая ревизия: 409, новой версии нет 15ms
+       ✓ неверный документ: 400 со списком ошибок, версия не пишется 16ms
+       ✓ следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 31ms
+       ✓ два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 55ms
+       ✓ у сайта без версий годится только baseRevision 0: иначе 409 17ms
+     ✓ база: изоляция, неизменяемость, принадлежность (7)
+       ✓ чужая организация не видит ни сайтов, ни версий; своя видит свои 19ms
+       ✓ API чужой организации не видит сайт и не может писать в него 10ms
+       ✓ роль приложения не меняет и не удаляет версии 7ms
+       ✓ даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 4ms
+       ✓ указатели сайта и родитель версии не ведут на другой сайт 9ms
+       ✓ организация только для чтения не пишет: 403, читать может 23ms
+       ✓ филиал сайта не меняется после создания 2ms
+     ✓ база: инварианты MKT3 без API (поручение владельца по ревью) (5)
+       ✓ tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL 14ms
+       ✓ зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит 4ms
+       ✓ версия мимо API (3)
+         ✓ schema_version совпадает с schemaVersion документа 6ms
+         ✓ до MKT6 источник только MANUAL: AI и IMPORT отклонены 6ms
+         ✓ страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит 25ms
+     ❯ размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) (4)
+       × документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется 32ms
+       × SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413 12ms
+       ✓ тело больше транспортного предела 300 КБ: 413, версия не пишется 12ms
+       ✓ другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется
+AssertionError: {"statusCode":413,"message":"request entity too large"}: expected 413 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 413
+
+ ❯ tests/integration/marketing-site.test.ts:610:64
+    608|         const base = revision + (pages === 2 ? 0 : 1);
+    609|         const r = await call('POST', '/marketing/site/versions', { bod…
+    610|         expect(r.status, JSON.stringify(r.body).slice(0, 300)).toBe(20…
+       |                                                                ^
+    611|         expect(r.body.version.revision).toBe(base + 1);
+    612|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413
+AssertionError: expected 413 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 413
+
+ ❯ tests/integration/marketing-site.test.ts:624:24
+    622|       expect(bytes(body)).toBeLessThanOrEqual(SITE_VERSION_BODY_LIMIT);
+    623|       const r = await call('POST', '/marketing/site/versions', { body …
+    624|       expect(r.status).toBe(400);
+       |                        ^
+    625|       expect(r.body.errors).toEqual([expect.objectContaining({ path: '…
+    626|       expect(await db.marketingSiteVersion.count({ where: { siteId, re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 35 passed (37)
+   Start at  18:13:45
+   Duration  4.70s (transform 42%, tests 35%, import 23%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-13-44Z-integration-412a.json
+
+# код выхода 1 · 6 с

@@ -106,11 +106,20 @@ for (const theme of ['light', 'dark'] as const) {
 
     // 6. Вид: компактный и подробный; мышь уводим с сетки, чтобы на снимке не было наведения
     await page.mouse.move(0, 0);
-    await main.getByLabel('Вид строк календаря').selectOption('compact');
+    await main
+      .getByRole('group', { name: 'Вид строк календаря' })
+      .getByRole('button', { name: 'Компактный', exact: true })
+      .click();
     await shot('view-compact', false);
-    await main.getByLabel('Вид строк календаря').selectOption('detailed');
+    await main
+      .getByRole('group', { name: 'Вид строк календаря' })
+      .getByRole('button', { name: 'Подробный', exact: true })
+      .click();
     await shot('view-detailed', false);
-    await main.getByLabel('Вид строк календаря').selectOption('normal');
+    await main
+      .getByRole('group', { name: 'Вид строк календаря' })
+      .getByRole('button', { name: 'Обычный', exact: true })
+      .click();
 
     // 7. Телефон: строка и окошко с категорией и местами
     await page.setViewportSize({ width: 390, height: 844 });

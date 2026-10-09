@@ -1,0 +1,33 @@
+# Модульные (unit) · 05.10.2026 20:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 124346a (codex/staff-owner-journal-release)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-23-19Z-unit-7c93.json' 'tests/unit/auto-deploy.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 18473ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 1300ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 417ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 960ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 744ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 1107ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 935ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 764ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2449ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1026ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1171ms
+     ✓ локальные правки в клоне — не затирает их 663ms
+     ✓ историю ветки переписали — не выкладывает поверх 1093ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3081ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1029ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 992ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 741ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  08:23:20
+   Duration  18.57s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T15-23-19Z-unit-7c93.json
+
+# код выхода 0 · 19 с

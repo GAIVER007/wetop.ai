@@ -1,0 +1,135 @@
+# Сквозные (e2e) · 04.10.2026 20:32 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:99709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:99769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:86:1 › empty setup through real UI, persisted appointment, move, confirm, complete (8.8s)
+  ✓  2 tests/beauty-ui/beauty.spec.ts:167:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (3.4s)
+  ✓  3 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (6.5s)
+  ✓  4 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (6.4s)
+  ✘  5 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 390 light, keyboard, axe, no overflow (3.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 390 light, keyboard, axe, no overflow
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#dae7f5",
+    +               "contrastRatio": 4.4,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#596a80",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.4 (foreground color: #596a80, background color: #dae7f5, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<dialog class=\"ui-overlay ui-drawer \" aria-labelledby=\"_R_2eatpeuqqlb_\" open=\"\">",
+    +                 "target": Array [
+    +                   ".ui-drawer",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<button class=\"btn\">+ Новая запись</button>",
+    +                 "target": Array [
+    +                   "#main-content > .beauty-bar > .btn",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.4 (foreground color: #596a80, background color: #dae7f5, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<dt>Время</dt>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div:nth-child(4) > dt",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      234 |         );
+      235 |       });
+    > 236 |       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+          |                                                                     ^
+      237 |       await page.screenshot({ path: `${shots}/drawer-${width}-${theme}.png`, fullPage: true });
+      238 |       await page.keyboard.press('Escape');
+      239 |       await expect(page.getByRole('dialog')).toBeHidden();
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/beauty-ui/beauty.spec.ts:236:69
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 390 light, keyboard, axe, no overflow
+  2 did not run
+  4 passed (33.4s)
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 34 с

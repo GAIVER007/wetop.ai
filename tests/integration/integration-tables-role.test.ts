@@ -43,8 +43,11 @@ describe.skipIf(!url)(
       // Роль без входа (миграция) на свежей локальной базе: как у `rls-isolation`, вход включается здесь; чужую базу не трогаем
       await enableLocalAppLogin(url!);
       admin = createPrismaClient(url);
-      organizationId = (await admin.property.findFirstOrThrow({ select: { organizationId: true } }))
-        .organizationId;
+      // объект засева: самый ранний. Без порядка Postgres отдаёт строки как лягут, и после чужих тестов
+      // (например, `market-occupancy` оставляет свои объекты) первым мог оказаться объект без менеджера каналов
+      organizationId = (
+        await admin.property.findFirstOrThrow({ orderBy: { createdAt: 'asc' }, select: { organizationId: true } })
+      ).organizationId;
       app = createPrismaClient(url, undefined, { of: databaseTenant, appConnectionString: appUrl });
       const original = pg.Client.prototype.query as (...a: unknown[]) => unknown;
       const spy = vi.spyOn(pg.Client.prototype, 'query').mockImplementation(function (
@@ -193,8 +196,10 @@ describe.skipIf(!url)(
         publisher as never,
         service(),
       );
-      const before = process.env['INTEGRATION_PROPERTY_ID'];
-      process.env['INTEGRATION_PROPERTY_ID'] = property.id;
+      // Multi-property routing requires an explicit property mapping, rather than the legacy installation env.
+      const mapping = await admin.channelMapping.create({
+        data: { propertyId: property.id, provider: 'channex', providerPropertyId: 'chx-role-test' },
+      });
       let events: Array<{ user: string; sql: string }>;
       try {
         await asOrg(async () => {
@@ -205,9 +210,8 @@ describe.skipIf(!url)(
         // срез до очистки: она идёт ролью владельца базы и в перехват тоже попадает
         events = seen.filter((s) => /external_events/.test(s.sql));
       } finally {
-        if (before === undefined) delete process.env['INTEGRATION_PROPERTY_ID'];
-        else process.env['INTEGRATION_PROPERTY_ID'] = before;
         await admin.externalEvent.deleteMany({ where: { externalEventId: revisionId } });
+        await admin.channelMapping.delete({ where: { id: mapping.id } });
       }
       expect(events.length).toBeGreaterThan(0);
       // локально служебный пул подключается ролью владельца базы, на сервере — wetop_service; важно одно: не wetop_app

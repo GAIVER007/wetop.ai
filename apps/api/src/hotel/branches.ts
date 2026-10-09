@@ -12,7 +12,11 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { createBeautyLocationInChain, createPropertyInChain, NEW_PROPERTY_DEFAULTS } from '@pms/database';
+import {
+  createBeautyLocationInChain,
+  createPropertyInChain,
+  NEW_PROPERTY_DEFAULTS,
+} from '@pms/database';
 import {
   currentOrganizationId,
   currentRole,
@@ -35,8 +39,8 @@ const select = {
   _count: { select: { inventoryUnits: true, accommodationTypes: true } },
 } as const;
 
-/** Филиал салона: у него нет объекта, поля те же живут на Location (DATA_MODEL §19, Q-256) */
-const beautySelect = {
+/** Current metadata for selectable Beauty/Food Locations without Property. */
+const locationSelect = {
   id: true,
   name: true,
   address: true,
@@ -45,7 +49,7 @@ const beautySelect = {
   businessId: true,
 } as const;
 
-/** Что показывает и создаёт этот модуль: гостиница с объектом или салон без него (ADR-141, Q-254) */
+/** Creation contract remains Hospitality/Beauty; Food is exposed only by the read projection. */
 export type BranchVertical = 'HOSPITALITY' | 'BEAUTY';
 
 /** Вертикаль из тела запроса. Не указана, значит гостиница, как было до среза B2 (Q-256) */
@@ -55,22 +59,25 @@ export function parseBranchVertical(raw: unknown): BranchVertical {
   throw new BadRequestException('Выберите направление: гостиница или салон красоты');
 }
 
-/** Филиал салона в той же форме, что гостиничный: экран и переключатель филиала читают одно поле */
-function beautyBranch(row: {
-  id: string;
-  name: string;
-  address: string | null;
-  currency: string;
-  timezone: string;
-  businessId: string;
-}) {
+/** Canonical read shape for Beauty/Food Locations, without Hospitality inventory. */
+function locationBranch(
+  row: {
+    id: string;
+    name: string;
+    address: string | null;
+    currency: string;
+    timezone: string;
+    businessId: string;
+  },
+  vertical: 'BEAUTY' | 'FOOD_SERVICE' = 'BEAUTY',
+) {
   return {
     id: row.id,
     name: row.name,
     address: row.address,
     currency: row.currency,
     timezone: row.timezone,
-    vertical: 'BEAUTY' as const,
+    vertical,
     locationId: row.id,
     location: { businessId: row.businessId },
     _count: { inventoryUnits: 0, accommodationTypes: 0 },
@@ -99,19 +106,25 @@ export class BranchesService {
       select,
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
-    // Филиалы салонов: у них объекта нет вовсе (DATA_MODEL §19), поэтому берутся прямо из Location
-    const salons = await this.prisma.db.location.findMany({
+    // Beauty/Food selectable Locations have no Property; keep current Location metadata authoritative.
+    const locations = await this.prisma.db.location.findMany({
       where: {
         status: 'ACTIVE',
-        business: { organizationId, status: 'ACTIVE', vertical: 'BEAUTY' },
+        business: {
+          organizationId,
+          status: 'ACTIVE',
+          vertical: { in: ['BEAUTY', 'FOOD_SERVICE'] },
+        },
         property: null,
       },
-      select: beautySelect,
+      select: { ...locationSelect, business: { select: { vertical: true } } },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
     const items = [
       ...properties.map((item) => ({ ...item, vertical: 'HOSPITALITY' as const })),
-      ...salons.map(beautyBranch),
+      ...locations.map((row) =>
+        locationBranch(row, row.business.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : 'BEAUTY'),
+      ),
     ];
     return { organization, items, canCreate: currentRole() === 'OWNER' };
   }
@@ -196,7 +209,7 @@ export class BranchesService {
       await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
       const existing = await tx.location.findFirst({
         where: { id: data.id, business: { organizationId } },
-        select: beautySelect,
+        select: locationSelect,
       });
       if (existing) {
         if (
@@ -208,7 +221,7 @@ export class BranchesService {
           throw new ConflictException(
             'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.',
           );
-        return beautyBranch(existing);
+        return locationBranch(existing);
       }
       const location = await createBeautyLocationInChain(tx, organizationId, {
         id: data.id,
@@ -232,7 +245,7 @@ export class BranchesService {
           },
         },
       });
-      return beautyBranch({ ...location, address: location.address ?? null });
+      return locationBranch({ ...location, address: location.address ?? null });
     });
   }
 }
@@ -251,7 +264,9 @@ export class BranchesController {
   async overview(@Query('from') from: string, @Query('to') to: string) {
     const { items } = await this.service.list();
     const rows = [];
-    for (const branch of items) {
+    // Сводка гостиничная (решение владельца 06.10.2026, вариант A): показатели DashboardService есть только у филиала с
+    // объектом. Салон и ресторан сюда не входят и нулями не показываются: их метрики относятся к MV9.
+    for (const branch of items.filter((item) => item.vertical === 'HOSPITALITY')) {
       const stats = await withReportLocation(branch.location.businessId, branch.locationId, () =>
         this.dashboard.dashboard(from, to),
       );

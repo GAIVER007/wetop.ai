@@ -8,8 +8,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { normalizeClockTime } from '@pms/domain';
-import { Alert, Field, Input, Panel } from '../../components/ui';
+import { CHANNEX_PROPERTY_TYPES, normalizeClockTime } from '@pms/domain';
+import { Alert, Field, Input, Panel, Select } from '../../components/ui';
 import type { HotelSettings } from '../../lib/hotel-api';
 import { saveHotelSettings, type SettingsActionResult } from './actions';
 import { SETTINGS_FORM_ID, useSaveReport } from './settings-save';
@@ -119,8 +119,40 @@ function SettingsForm({
   );
 }
 
-const GENERAL = ['name', 'phone', 'email', 'address', 'legalName', 'bin'] as const;
+const GENERAL = [
+  'name',
+  'phone',
+  'email',
+  'address',
+  'countryCode',
+  'city',
+  'channexPropertyType',
+  'legalName',
+  'bin',
+] as const;
 const STAY = ['checkInTime', 'checkOutTime'] as const;
+const PROPERTY_TYPE_LABELS: Record<(typeof CHANNEX_PROPERTY_TYPES)[number], string> = {
+  apart_hotel: 'Апарт-отель',
+  apartment: 'Апартаменты',
+  boat: 'Размещение на судне',
+  camping: 'Кемпинг',
+  capsule_hotel: 'Капсульный отель',
+  chalet: 'Шале',
+  country_house: 'Загородный дом',
+  farm_stay: 'Проживание на ферме',
+  guest_house: 'Гостевой дом',
+  holiday_home: 'Дом для отдыха',
+  holiday_park: 'Парк отдыха',
+  homestay: 'Проживание в доме',
+  hostel: 'Хостел',
+  hotel: 'Отель',
+  inn: 'Мини-отель',
+  lodge: 'Лодж',
+  motel: 'Мотель',
+  resort: 'Курортный отель',
+  riad: 'Риад',
+  ryokan: 'Рёкан',
+};
 
 export function GeneralSettingsForm({ property }: { property: Property }) {
   return (
@@ -145,6 +177,39 @@ export function GeneralSettingsForm({ property }: { property: Property }) {
             </div>
           </Panel>
           <RegionalSettings property={property} />
+          <Panel className="settings-block" aria-labelledby="settings-channex-location">
+            <h2 id="settings-channex-location">Расположение для каналов продаж</h2>
+            <p className="settings-note">
+              Эти данные нужны перед подключением объекта к менеджеру каналов.
+            </p>
+            <div className="settings-fields">
+              <Field label="Страна (код ISO)">
+                <Input
+                  name="countryCode"
+                  maxLength={2}
+                  placeholder="KZ"
+                  defaultValue={value('countryCode')}
+                />
+              </Field>
+              <Field label="Город">
+                <Input name="city" maxLength={100} defaultValue={value('city')} />
+              </Field>
+              <Field label="Тип размещения" className="settings-fields__wide">
+                <Select
+                  key={value('channexPropertyType')}
+                  name="channexPropertyType"
+                  defaultValue={value('channexPropertyType')}
+                >
+                  <option value="">Выберите тип</option>
+                  {CHANNEX_PROPERTY_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {PROPERTY_TYPE_LABELS[type]}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+          </Panel>
           <Panel className="settings-block" aria-labelledby="settings-legal">
             <h2 id="settings-legal">Юридическое лицо</h2>
             <p className="settings-note">Печатаются в договоре и счёте гостя.</p>

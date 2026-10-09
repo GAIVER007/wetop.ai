@@ -1,6 +1,7 @@
 'use client';
+import { landingForVertical, type WebVertical } from '../lib/vertical-landing';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
@@ -44,6 +45,29 @@ export function TopNav({
   desk?: Promise<DeskShell>;
 }) {
   const path = usePathname() ?? '';
+  const router = useRouter();
+  const shell = desk ? use(desk) : null;
+  const scopeKey = shell?.scopeKey ?? 'unresolved';
+  const [blockedScope, setBlockedScope] = useState<string | null>(null);
+  const scopeSwitching = blockedScope === scopeKey;
+  useEffect(() => {
+    const begin = () => {
+      setBlockedScope(scopeKey);
+      setSearch(false);
+      setMenu(false);
+      setProfile(false);
+    };
+    const failed = () => setBlockedScope(null);
+    window.addEventListener('wetop-scope-switch', begin);
+    window.addEventListener('wetop-scope-switch-failed', failed);
+    return () => {
+      window.removeEventListener('wetop-scope-switch', begin);
+      window.removeEventListener('wetop-scope-switch-failed', failed);
+    };
+  }, [scopeKey]);
+  const beauty = shell?.vertical === 'BEAUTY';
+  const food = shell?.vertical === 'FOOD_SERVICE';
+  const hospitality = !scopeSwitching && !beauty && !food && !shell?.access.unknown;
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
@@ -75,21 +99,23 @@ export function TopNav({
           local.select();
           return;
         }
-        setSearch((s) => !s);
+        if (food) router.push('/table-reservations');
+        else if (beauty) router.push('/appointments');
+        else setSearch((s) => !s);
       }
       if (e.key === 'Escape') setProfile(false);
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [path]);
+  }, [path, beauty, food, router]);
   useEffect(() => {
     setProfile(false);
   }, [path]);
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   return (
-    <DataFreshnessProvider>
-      <div className="workspace">
-        <a className="skip-link" href="#main-content">
+    <DataFreshnessProvider enabled={hospitality}>
+      <div className="workspace" data-scope-switching={scopeSwitching || undefined}>
+        <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
         <header className="workspace-header">
@@ -101,7 +127,11 @@ export function TopNav({
             >
               <Icon name="menu" />
             </button>
-            <Link className="workspace-brand" href="/today" aria-label="WETOP, Главная">
+            <Link
+              className="workspace-brand"
+              href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
+              aria-label="WETOP, Главная"
+            >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
                 WETOP<span>.AI</span>
@@ -118,11 +148,25 @@ export function TopNav({
             <button
               className="workspace-search"
               data-tour="search"
-              aria-label="Найти гостя или бронь"
-              onClick={() => setSearch(true)}
+              aria-label={
+                food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
+              }
+              onClick={() =>
+                food
+                  ? router.push('/table-reservations')
+                  : beauty
+                    ? router.push('/appointments')
+                    : setSearch(true)
+              }
             >
               <Icon name="search" />
-              <span className="workspace-search-full">Поиск гостя, брони, номера...</span>
+              <span className="workspace-search-full">
+                {food
+                  ? 'Поиск бронирования или гостя'
+                  : beauty
+                    ? 'Поиск записи или клиента'
+                    : 'Поиск гостя, брони, номера...'}
+              </span>
               <span className="workspace-search-short" aria-hidden="true">
                 Поиск
               </span>
@@ -176,16 +220,18 @@ export function TopNav({
                       onClick={() => setProfile(false)}
                     />
                     <div className="profile-dropdown" id="profile-dropdown">
-                      <button
-                        data-testid="tour-restart"
-                        onClick={() => {
-                          setProfile(false);
-                          window.dispatchEvent(new Event(TOUR_RESTART_EVENT));
-                        }}
-                      >
-                        <Icon name="help" />
-                        Обучение работе в WETOP
-                      </button>
+                      {hospitality && (
+                        <button
+                          data-testid="tour-restart"
+                          onClick={() => {
+                            setProfile(false);
+                            window.dispatchEvent(new Event(TOUR_RESTART_EVENT));
+                          }}
+                        >
+                          <Icon name="help" />
+                          Обучение работе в WETOP
+                        </button>
+                      )}
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />
@@ -210,7 +256,15 @@ export function TopNav({
               <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
             </div>
           )}
-          {children}
+          <div className="workspace-content" hidden={scopeSwitching}>
+            {children}
+          </div>
+          {scopeSwitching && (
+            <main id="scope-switch-status" tabIndex={-1}>
+              <h1>Сегодня</h1>
+              <p role="status">Переключаем филиал…</p>
+            </main>
+          )}
         </div>
         {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">
@@ -230,12 +284,14 @@ export function TopNav({
         >
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
-        <Suspense fallback={<GlobalSearch open={search} close={() => setSearch(false)} />}>
-          <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+        <Suspense fallback={null}>
+          {hospitality && (
+            <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+          )}
         </Suspense>
         {/* Обучение (ADR-100): само — один раз на Главной, повтор — из меню профиля */}
         <Suspense fallback={null}>
-          <ProductTour desk={desk} path={path} />
+          {hospitality && <ProductTour desk={desk} path={path} />}
         </Suspense>
       </div>
     </DataFreshnessProvider>
@@ -254,7 +310,7 @@ function BottomNavLinks({
 }: {
   access: NavigationAccess;
   path: string;
-  vertical?: 'HOSPITALITY' | 'BEAUTY' | undefined;
+  vertical?: WebVertical | undefined;
 }) {
   return phoneNavigationFor(vertical)
     .filter((item) => allowedItem(item, access))
@@ -263,6 +319,7 @@ function BottomNavLinks({
         key={n.href}
         href={n.href}
         className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
+        aria-current={activeNavigation(path)?.href === n.href ? 'page' : undefined}
       >
         <Icon name={n.icon} />
         <span>{n.label}</span>
@@ -273,7 +330,11 @@ function BottomNavLinks({
 function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
   const shell = desk ? use(desk) : null;
   return (
-    <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} vertical={shell?.vertical} />
+    <BottomNavLinks
+      access={shell?.access ?? CLOSED_ACCESS}
+      path={path}
+      vertical={shell?.vertical}
+    />
   );
 }
 
@@ -323,10 +384,15 @@ function GrantedReadOnly({ desk }: { desk: Promise<DeskShell> | undefined }) {
   if (!shell?.readOnly) return null;
   return (
     <div className="read-only-banner" role="status" data-testid="read-only-banner">
-      <strong>Пробный период закончился — оплатите подписку.</strong>{' '}
+      <strong>
+        {shell.vertical === 'FOOD_SERVICE'
+          ? 'Режим только для чтения'
+          : 'Пробный период закончился, оплатите подписку.'}
+      </strong>{' '}
       <span>
-        Данные доступны для просмотра, изменения — после оплаты. Счёт и реквизиты выставит WETOP — напишите в чат
-        помощника справа внизу.
+        {shell?.vertical !== 'HOSPITALITY'
+          ? 'Данные доступны для просмотра. Для продления подписки обратитесь в поддержку WETOP.'
+          : 'Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу.'}
       </span>
     </div>
   );

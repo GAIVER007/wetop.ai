@@ -45,6 +45,8 @@ export function BranchSwitcher({
   }
   function choose(branchId: string) {
     setError('');
+    setOpen(false);
+    window.dispatchEvent(new Event('wetop-scope-switch'));
     switchTo(async () => {
       try {
         const data = new FormData();
@@ -54,6 +56,7 @@ export function BranchSwitcher({
         setOpen(false);
         close?.();
       } catch {
+        window.dispatchEvent(new Event('wetop-scope-switch-failed'));
         setError('Не удалось переключить филиал. Обновите список и повторите.');
       }
     });
@@ -81,6 +84,7 @@ export function BranchSwitcher({
         ref={trigger}
         className="workspace-property"
         aria-label="Выбрать филиал"
+        disabled={switching}
         aria-expanded={open}
         aria-controls={id}
         onClick={() => {

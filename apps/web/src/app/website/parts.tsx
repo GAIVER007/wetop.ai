@@ -3,6 +3,11 @@ import type { TrackedSiteCard } from '../../lib/api';
 import { EmptyState, Notice, Stack } from '../../components/ui';
 import { WEBSITE_TABS, WEBSITE_TITLE, type WebsiteView } from '../../lib/website';
 
+/** Сайт объекта, продукт «Маркетинга» (MKT2): над заголовком ссылка в хаб, тем же приёмом, что у «Каналов продаж» */
+export function MarketingCrumb() {
+  return <Link href="/marketing">Маркетинг</Link>;
+}
+
 /** Вкладки модуля — ссылки со своим адресом, как у «ИИ-продавца» и «Настроек гостиницы» (`.settings-tabs`) */
 export function WebsiteTabs({ current }: { current: WebsiteView }) {
   return (
@@ -19,6 +24,19 @@ export function WebsiteTabs({ current }: { current: WebsiteView }) {
       ))}
     </nav>
   );
+}
+
+/**
+ * MKT7: сайт счётчика управляемого сайта WETOP настраивает только публикация. Здесь его не правят и не удаляют
+ * (API ответит 409 MANAGED_SITE_READ_ONLY), поэтому вместо формы строка со ссылкой туда, где он настраивается
+ */
+export function ManagedSitesNotice({ cards }: { cards: TrackedSiteCard[] }) {
+  return cards.map((card) => (
+    <Notice tone="muted" key={card.site.id} data-testid="website-managed-site">
+      «{card.site.name}» это сайт WETOP: домены, пауза и бронь настраиваются в{' '}
+      <Link href="/marketing/site">«Маркетинг → Публикация сайта»</Link>.
+    </Notice>
+  ));
 }
 
 /**

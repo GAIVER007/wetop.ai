@@ -25,10 +25,17 @@ const FreshnessContext = createContext<{ data: Freshness | null; failed: boolean
 });
 
 /** Один опрос на оболочку, включая открытое мобильное меню. Не переживает выход из приложения. */
-export function DataFreshnessProvider({ children }: { children: ReactNode }) {
+export function DataFreshnessProvider({
+  children,
+  enabled = true,
+}: {
+  children: ReactNode;
+  enabled?: boolean;
+}) {
   const [data, setData] = useState<Freshness | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (!enabled) return;
     let alive = true;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -54,9 +61,13 @@ export function DataFreshnessProvider({ children }: { children: ReactNode }) {
       controller.abort();
       clearTimeout(timer);
     };
-  }, []);
+  }, [enabled]);
 
-  return <FreshnessContext.Provider value={{ data, failed }}>{children}</FreshnessContext.Provider>;
+  return (
+    <FreshnessContext.Provider value={{ data: enabled ? data : null, failed: enabled && failed }}>
+      {children}
+    </FreshnessContext.Provider>
+  );
 }
 
 /**

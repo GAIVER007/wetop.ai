@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 04.10.2026 20:34 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:237) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:86:1 › empty setup through real UI, persisted appointment, move, confirm, complete (11.2s)
+  ✓  2 tests/beauty-ui/beauty.spec.ts:167:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (5.1s)
+  ✓  3 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (13.1s)
+  ✓  4 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (8.2s)
+  ✓  5 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 390 light, keyboard, axe, no overflow (6.4s)
+  ✓  6 tests/beauty-ui/beauty.spec.ts:206:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (6.2s)
+  ✓  7 tests/beauty-ui/beauty.spec.ts:263:1 › archived service and employee preserve historical calendar appointments (2.0s)
+  ✓  8 tests/beauty-ui/beauty.spec.ts:291:1 › TimeOff from employee drawer, server denial and timezone persisted (4.0s)
+  ✓  9 tests/beauty-ui/beauty.spec.ts:319:1 › Beauty onboarding completion opens calendar and resumes there (1.7s)
+
+  9 passed (1.1m)
+
+# код выхода 0 · 1 мин 7 с

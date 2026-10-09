@@ -1,112 +1,44 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
-import { resolvePeriod } from '@pms/domain';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { requireVertical } from '../../lib/vertical-guard';
+import { SCOPE_COOKIE, scopeHeader } from '../../lib/scope-pointer';
+import { authRequired } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { hotelApi, hotelToday } from '../../lib/hotel-api';
-import { ApiError } from '../../lib/api';
-import { Page } from '../../components/page';
-import { Alert } from '../../components/ui';
-import { OwnerFinance, OwnerOperations } from './owner-dashboard';
-import { DashboardRefresh } from './owner-controls';
-import './owner-dashboard.css';
+import { BeautyToday } from './beauty-today';
+import {
+  TODAY_VERTICALS,
+  anonymousHospitalityAllowed,
+  todayScreen,
+  unresolvedTarget,
+} from './dispatch';
+import { FoodToday } from './food-today';
+import { TodayScopeContent } from './scope-content';
+import { HospitalityToday } from './hospitality-today';
+import './desk.css';
 
-async function CurrencyFinance({
-  period,
-  today,
-}: {
-  period: ReturnType<typeof resolvePeriod>;
-  today: string;
-}) {
-  const hotel = await hotelApi.settings().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
-  });
-  if (!hotel)
-    return (
-      <div className="owner-finance">
-        <Alert>Не удалось загрузить валюту объекта. Обновите страницу.</Alert>
-      </div>
-    );
-  return <OwnerFinance period={period} currency={hotel.property.currency} today={today} />;
-}
+/**
+ * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
+ * выбранного филиала; без него гостиница не угадывается, человек идёт через выбор филиала (SCOPE-HARDENING).
+ */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const sp = normalizeSearchParams(await searchParams);
-  const today = await hotelToday();
-  const period = resolvePeriod(
-    {
-      // «Сегодня» уже показывают виджеты сверху; деньгам по умолчанию нужен отрезок, где есть что сравнить
-      preset: sp.period ?? (sp.from || sp.to || sp.date ? undefined : 'month'),
-      from: sp.from,
-      to: sp.to,
-      date: sp.date,
-    },
-    today,
-  );
-  return (
-    <Page
-      title="Главная"
-      width="full"
-      actions={<DashboardRefresh />}
-    >
-      <div className="owner-dashboard" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <div className="owner-operations owner-panel" role="status">
-              Загружаем данные гостиницы…
-            </div>
-          }
-        >
-          <OwnerOperations date={today} />
-        </Suspense>
-      <div className="owner-toolbar">
-        <h2>Деньги и аналитика</h2>
-        <nav aria-label="Период финансов">
-          {[
-            ['today', 'Сегодня'],
-            ['week', '7 дней'],
-            ['month', 'Месяц'],
-          ].map(([id, label]) => (
-            <Link
-              key={id}
-              href={`/today?period=${id}`}
-              aria-current={period.preset === id ? 'page' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <form action="/today" key={`${period.from}|${period.to}`}>
-          <input type="hidden" name="period" value="custom" />
-          <input
-            aria-label="Начало периода"
-            type="date"
-            name="from"
-            defaultValue={period.from}
-            required
-          />
-          <span>—</span>
-          <input
-            aria-label="Конец периода"
-            type="date"
-            name="to"
-            defaultValue={period.to}
-            required
-          />
-          <button className="btn btn--secondary">Показать</button>
-        </form>
-      </div>
-      {period.error && <Alert>{period.error}</Alert>}
-        <Suspense
-          key={`${period.from}|${period.to}`}
-          fallback={
-            <div className="owner-finance owner-panel" role="status">
-              Загружаем финансы…
-            </div>
-          }
-        >
-          <CurrencyFinance period={period} today={today} />
-        </Suspense>
-      </div>
-    </Page>
-  );
+  const me = await requireVertical(TODAY_VERTICALS);
+  const { screen, key } = todayScreen(me, {
+    allowAnonymousHospitality: anonymousHospitalityAllowed({
+      authRequired: authRequired(),
+      nodeEnv: process.env.NODE_ENV,
+    }),
+  });
+  if (screen === 'UNRESOLVED') {
+    const pointer = (await cookies()).get(SCOPE_COOKIE)?.value;
+    redirect(unresolvedTarget(Boolean(scopeHeader(pointer)['x-wetop-scope'])));
+  }
+  const content =
+    screen === 'BEAUTY' ? (
+      <BeautyToday />
+    ) : screen === 'FOOD_SERVICE' ? (
+      <FoodToday />
+    ) : (
+      <HospitalityToday sp={normalizeSearchParams(await searchParams)} />
+    );
+  return <TodayScopeContent key={key}>{content}</TodayScopeContent>;
 }

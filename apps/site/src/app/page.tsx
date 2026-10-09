@@ -8,6 +8,7 @@ import { Features } from '../components/landing/features';
 import { Hero } from '../components/landing/hero';
 import { LatestPosts } from '../components/landing/latest-posts';
 import { Market } from '../components/landing/market';
+import { MobileHomeNav } from '../components/landing/mobile-home-nav';
 import { Sales } from '../components/landing/sales';
 import { Start } from '../components/landing/start';
 import { Team } from '../components/landing/team';
@@ -40,6 +41,7 @@ export default function HomePage() {
       <FAQ />
       <Company />
       <LatestPosts />
+      <MobileHomeNav />
     </div>
   );
 }

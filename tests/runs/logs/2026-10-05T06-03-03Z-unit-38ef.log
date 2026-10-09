@@ -1,0 +1,30 @@
+# Модульные (unit) · 05.10.2026 11:03 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-03-03Z-unit-38ef.json' 'packages/domain/src/food/food.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| packages/domain/src/food/food.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/food.test.ts [ packages/domain/src/food/food.test.ts ]
+Error: Cannot find module './food' imported from /Users/urijzapojnov/wetop-mv1-20261004/packages/domain/src/food/food.test.ts
+ ❯ packages/domain/src/food/food.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { parseFoodCatalog, parseFoodCreate, foodEnd, foodNext, foodCap…
+       | ^
+      3| const id='11111111-1111-4111-8111-111111111111';
+      4| const period={weekday:1,timeFrom:'18:00',timeTo:'02:00',endsNextDay:tr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:03:04
+   Duration  118ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-03-03Z-unit-38ef.json
+
+# код выхода 1 · 2 с

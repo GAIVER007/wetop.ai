@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import { FundTabs } from './fund-tabs';
 import './fund.css';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import './inventory.css';
 
 /** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
 export default async function InventoryPage() {
+  await requireVertical(['HOSPITALITY']);
   const [summary, units, categories] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),

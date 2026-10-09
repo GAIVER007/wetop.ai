@@ -1,0 +1,122 @@
+# Сквозные (e2e) · 05.10.2026 17:40 Алматы · MacBook-Air-Urij.local
+# коммит 87fea09 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:93640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+(node:93704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '540417228'
+[WebServer] }
+[WebServer] (node:93669) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (12.5s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (9.3s)
+  ✓   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (1.1m)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (3.4s)
+  ✓   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (2.9s)
+  ✓   6 tests/food-ui/food.spec.ts:297:1 › READ_ONLY and STAFF permissions on real API (2.0s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   7 tests/food-ui/food.spec.ts:324:1 › server branch switch isolates Food businesses and locations and other verticals (13.8s)
+  ✓   8 tests/food-ui/food.spec.ts:370:1 › pagination beyond 100 and previous local day keep table occupied after reload (4.3s)
+  ✘   9 tests/food-ui/food.spec.ts:438:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (11.7s)
+(node:94324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/food-ui/food.spec.ts:535:1 › API unavailable renders LoadError instead of free tables (1.4s)
+  ✓  11 tests/food-ui/food.spec.ts:543:1 › creation 503 keeps the draft and retry key; invalid period stays inline (2.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '540417228'
+[WebServer] }
+[WebServer] (node:94379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/food-ui/food.spec.ts:573:1 › Food excludes every registered foreign workspace route before API requests (30.5s)
+  ✓  13 tests/food-ui/food.spec.ts:612:1 › marker guarded cleanup (137ms)
+
+
+  1) tests/food-ui/food.spec.ts:438:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "Нельзя уменьшить вместимость"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+
+
+      498 |   await d.getByLabel('Вместимость').fill('1');
+      499 |   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
+    > 500 |   await expect(d.getByRole('alert')).toContainText('Нельзя уменьшить вместимость');
+          |                                      ^
+      501 |   await expect(d.getByLabel('Вместимость')).toHaveValue('1');
+      502 |   await d.getByRole('button', { name: 'Закрыть: Изменить: Стол', exact: true }).click();
+      503 |   for (const kind of ['table', 'area', 'period']) {
+        at /Users/urijzapojnov/wetop-mv7-20261005/tests/food-ui/food.spec.ts:500:38
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:438:1 › assignment reassign unassign edit and capacity conflicts stay in drawer
+  12 passed (2.8m)
+
+# код выхода 1 · 2 мин 50 с

@@ -49,15 +49,6 @@ test('пустые экраны без «Legacy» и «импорта», с де
   await control(request, { empty: true });
   const main = page.getByRole('main');
 
-  await page.goto('/rates');
-  const rates = main.getByTestId('rates-empty');
-  await expect(rates).toContainText('Категорий ещё нет');
-  await expect(rates).not.toContainText(/Legacy|импорт/);
-  await expect(rates.getByRole('link', { name: 'Создать категорию' })).toHaveAttribute(
-    'href',
-    '/rooms/categories',
-  );
-
   await page.goto('/inventory');
   await expect(main.getByText('Номерной фонд пока пуст')).toBeVisible();
   await expect(main).not.toContainText(/Legacy|загрузки фонда/);
@@ -119,7 +110,7 @@ test('владелец и управляющий правят сведения �
 
   await form.getByLabel('Почта').fill('не почта');
   await save.click();
-  await expect(form.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(form.getByRole('alert')).toContainText('Почта в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
 
   await control(request, { role: 'MANAGER' });

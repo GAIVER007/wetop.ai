@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 05.10.2026 14:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2b27116 (HEAD), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-services.spec.ts' 'finance-cash.spec.ts' 'workspace.spec.ts' 'mobile-adaptation.spec.ts' '--grep' 'доступность и снимки, dark|касса: плитки|финансы: неверные|финансы F1:|узкий телефон: плитки' '--workers=1'
+[WebServer] (node:91832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:91929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (3.5s)
+  ✓  2 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, dark (2.8s)
+  ✓  3 tests/ui/mobile-adaptation.spec.ts:99:1 › узкий телефон: плитки финансов встают в одну колонку (934ms)
+  ✓  4 tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы (924ms)
+  ✓  5 tests/ui/workspace.spec.ts:1613:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (1.6s)
+
+  5 passed (15.4s)
+
+# код выхода 0 · 16 с

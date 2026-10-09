@@ -10,6 +10,7 @@ import { ReservationsModule } from './reservations.module';
 import { ReservationsService } from './reservations.service';
 import { withSignedInUser } from '../auth/request-context';
 import {
+  ADJUSTMENT_DOWN_MESSAGE,
   RATE_PLAN_CHANGE_MESSAGE,
   RATE_PLAN_SOFT_MESSAGE,
   type MembershipRole,
@@ -1640,6 +1641,31 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  it('цена проживания (план finance-payments-direct 07.10.2026): PATCH price переписывает цену и сумму брони, не число и ноль — 400, отменённое — 422', async () => {
+    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    expect(created.body.totalAmountMinor).toBe('2200000');
+    const priced = await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/${itemId}`)
+      .send({ price: '20000' })
+      .expect(200);
+    expect(priced.body.items[0].priceMinor).toBe('2000000');
+    expect(priced.body.totalAmountMinor).toBe('2000000');
+    expect(fake.state.audits.at(-1)).toMatchObject({ action: 'reservation.item.price' });
+    for (const price of ['x', '0', '-100', '12.345']) {
+      await request(app.getHttpServer())
+        .patch(`/reservations/${n}/items/${itemId}`)
+        .send({ price })
+        .expect(400);
+    }
+    await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).expect(200);
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/${itemId}`)
+      .send({ price: '25000' })
+      .expect(422);
+  });
+
   it('групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K»', async () => {
     const post = (b: object) => request(app.getHttpServer()).post('/reservations').send(b);
     const group = (quantity: number, over: Record<string, unknown> = {}) =>
@@ -1742,6 +1768,17 @@ describe('manual reservation API', () => {
       const kept = await as('STAFF', () => service().changeDates(n, stay));
       expect(kept.departureDate).toBe('2026-09-18');
       expect(planOf(n)).toBe('p1');
+    });
+
+    it('цену проживания вниз меняют владелец и управляющий, администратор — только вверх (ADR-107)', async () => {
+      const { n, itemId } = await book();
+      await expect(
+        as('STAFF', () => service().updateItem(n, itemId, { price: '15000' })),
+      ).rejects.toThrow(ADJUSTMENT_DOWN_MESSAGE);
+      const up = await as('STAFF', () => service().updateItem(n, itemId, { price: '30000' }));
+      expect(up.items[0]!.priceMinor).toBe('3000000');
+      const down = await as('MANAGER', () => service().updateItem(n, itemId, { price: '15000' }));
+      expect(down.items[0]!.priceMinor).toBe('1500000');
     });
 
     it('управляющий тариф меняет', async () => {

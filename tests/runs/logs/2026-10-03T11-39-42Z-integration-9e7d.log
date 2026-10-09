@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 03.10.2026 16:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (claude/team-phone-position), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-39-42Z-integration-9e7d.json' 'tests/integration/manager-role.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/be7dbaba-d278-4972-8a50-82e1d3565ac9/scratchpad/integrate
+
+No test files found, exiting with code 0
+
+filter: tests/integration/manager-role.test.ts
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T11-39-42Z-integration-9e7d.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect ECONNREFUSED 127.0.0.1:55433
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:56:18
+     54|   const log = opts.log ?? (() => undefined);
+     55|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     56|   const client = await pool.connect();
+       |                  ^
+     57|   try {
+     58|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest ../../../../../../../Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 55433 }
+
+
+
+
+# код выхода 1 · 15 с

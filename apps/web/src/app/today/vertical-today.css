@@ -1,0 +1,63 @@
+/* «Сегодня» салона и ресторана (MV8): плитки, внимание, ближайшие записи и брони */
+@layer sections {
+  .vertical-today {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .vertical-today .stats {
+    margin-bottom: 0;
+  }
+  .vertical-today__attention,
+  .vertical-today__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .vertical-today__attention li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: var(--touch-target);
+    padding: 4px 0 4px 16px;
+    border-left: 3px solid var(--warning);
+  }
+  .vertical-today__attention li + li {
+    margin-top: 8px;
+  }
+  .vertical-today__rows li {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    min-height: var(--touch-target);
+    padding: 8px 0;
+  }
+  .vertical-today__rows li + li {
+    border-top: 1px solid var(--border);
+  }
+  .vertical-today__time {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-medium);
+  }
+  .vertical-today__who {
+    display: grid;
+    min-width: 0;
+  }
+  .vertical-today__who > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .vertical-today__who span,
+  .vertical-today__status {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 600px) {
+    .vertical-today__rows li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+  }
+}

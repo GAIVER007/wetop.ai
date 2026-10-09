@@ -6,7 +6,17 @@ import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
-import { Alert, Badge, Button, Field, Input, Select, Stat, Table, Textarea } from '../../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Field,
+  Input,
+  Select,
+  Stat,
+  Table,
+  Textarea,
+} from '../../components/ui';
 import { METHOD_RU } from './labels';
 import { displayDate } from '../../lib/display-date';
 import {
@@ -16,11 +26,12 @@ import {
   createCashCategoryAction,
   toggleCashCategoryAction,
   voidCashOperationAction,
+  voidPaymentAction,
   type CashActionResult,
 } from './cash-actions';
 
 const NONE: CashActionResult = { error: null, ok: 0 };
-type Drawer = 'income' | 'expense' | 'transfer' | 'categories' | 'reconcile' | null;
+type Drawer = 'operation' | 'income' | 'expense' | 'transfer' | 'categories' | 'reconcile' | null;
 
 /**
  * Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md): остатки по способам за всё время,
@@ -33,7 +44,9 @@ export function CashPanel({
   cashOpsHref,
   editable,
   maySettings,
+  quickOnly = false,
 }: {
+  quickOnly?: boolean;
   cash: CashBalances;
   categories: CashCategory[];
   /** вкладка «Операции» с отбором «Касса» — общая лента вместо второго списка */
@@ -53,56 +66,121 @@ export function CashPanel({
     setDrawer(null);
   };
   return (
-    <section className="finance-block cash" aria-label="Касса" data-testid="finance-cash">
+    <section
+      className={quickOnly ? 'cash-quick' : 'finance-block cash'}
+      aria-label={quickOnly ? 'Быстрые действия кассы' : 'Касса'}
+      data-testid={quickOnly ? 'cash-quick' : 'finance-cash'}
+    >
       <div className="cash-toolbar">
-        {editable && (
+        {quickOnly && editable && (
+          <>
+            <Button type="button" onClick={() => open('operation')}>
+              <Icon name="plus" />
+              Новая операция
+            </Button>
+            <Button type="button" tone="secondary" onClick={() => open('transfer')}>
+              Новый перевод
+            </Button>
+          </>
+        )}
+        {!quickOnly && editable && (
           <>
             <Button type="button" onClick={() => open('income')} data-testid="cash-income-btn">
               <Icon name="plus" />
               Поступление
             </Button>
-            <Button type="button" tone="secondary" onClick={() => open('expense')} data-testid="cash-expense-btn">
+            <Button
+              type="button"
+              tone="secondary"
+              onClick={() => open('expense')}
+              data-testid="cash-expense-btn"
+            >
               <Icon name="receipt" />
               Расход
             </Button>
-            <Button type="button" tone="secondary" onClick={() => open('transfer')} data-testid="cash-transfer-btn">
+            <Button
+              type="button"
+              tone="secondary"
+              onClick={() => open('transfer')}
+              data-testid="cash-transfer-btn"
+            >
               <Icon name="refresh" />
               Перевод
             </Button>
-            <Button type="button" tone="secondary" onClick={() => open('reconcile')} data-testid="cash-reconcile-btn">
+            <Button
+              type="button"
+              tone="secondary"
+              onClick={() => open('reconcile')}
+              data-testid="cash-reconcile-btn"
+            >
               <Icon name="check" />
               Сверить
             </Button>
           </>
         )}
-        {maySettings && (
-          <Button type="button" tone="ghost" onClick={() => open('categories')} data-testid="cash-categories-btn">
+        {!quickOnly && maySettings && (
+          <Button
+            type="button"
+            tone="ghost"
+            onClick={() => open('categories')}
+            data-testid="cash-categories-btn"
+          >
             Статьи
           </Button>
         )}
-        <span className="settings-save-state settings-save-state--saved" role="status" data-testid="cash-saved">
+        <span
+          className="settings-save-state settings-save-state--saved"
+          role="status"
+          data-testid={quickOnly ? 'cash-quick-saved' : 'cash-saved'}
+        >
           {saved ? `✓ ${saved}` : ''}
         </span>
       </div>
-      <div className="cash-tiles" data-testid="cash-tiles">
-        <Stat label="Всего в кассе" value={formatMoney(cash.totalMinor, cur)} testId="cash-total" />
-        {cash.balances.map((b) => (
-          <Stat
-            key={b.method}
-            label={METHOD_RU[b.method] ?? b.method}
-            value={formatMoney(b.balanceMinor, cur)}
-            testId={`cash-${b.method}`}
-          />
-        ))}
-      </div>
-      <ReconciliationStatus cash={cash} />
-      <p className="finance-note">
-        Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.{' '}
-        <Link href={cashOpsHref} data-testid="cash-ops-link">
-          Движения кассы за период — во вкладке «Операции»
-        </Link>
-        .
-      </p>
+      {!quickOnly && (
+        <>
+          <div className="cash-tiles" data-testid="cash-tiles">
+            <Stat
+              label="Всего в кассе"
+              value={formatMoney(cash.totalMinor, cur)}
+              testId="cash-total"
+            />
+            {cash.balances.map((b) => (
+              <Stat
+                key={b.method}
+                label={METHOD_RU[b.method] ?? b.method}
+                value={formatMoney(b.balanceMinor, cur)}
+                testId={`cash-${b.method}`}
+              />
+            ))}
+          </div>
+          <ReconciliationStatus cash={cash} />
+          <p className="finance-note">
+            Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.{' '}
+            <Link href={cashOpsHref} data-testid="cash-ops-link">
+              Движения кассы за период — во вкладке «Операции»
+            </Link>
+            .
+          </p>
+        </>
+      )}
+      {drawer === 'operation' && (
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title="Новая операция"
+          onClose={() => setDrawer(null)}
+        >
+          <div className="cash-toolbar">
+            <Button type="button" onClick={() => open('income')}>
+              Поступление
+            </Button>
+            <Button type="button" tone="secondary" onClick={() => open('expense')}>
+              Расход
+            </Button>
+          </div>
+        </Overlay>
+      )}
       {drawer === 'income' || drawer === 'expense' ? (
         <Overlay
           open
@@ -120,17 +198,35 @@ export function CashPanel({
         </Overlay>
       ) : null}
       {drawer === 'transfer' && (
-        <Overlay open drawer className="settings-service-drawer" title="Перевод между способами" onClose={() => setDrawer(null)}>
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title="Перевод между способами"
+          onClose={() => setDrawer(null)}
+        >
           <TransferForm onCancel={() => setDrawer(null)} onSaved={onSaved} />
         </Overlay>
       )}
       {drawer === 'categories' && (
-        <Overlay open drawer className="settings-service-drawer" title="Статьи кассы" onClose={() => setDrawer(null)}>
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title="Статьи кассы"
+          onClose={() => setDrawer(null)}
+        >
           <Categories categories={categories} />
         </Overlay>
       )}
       {drawer === 'reconcile' && (
-        <Overlay open drawer className="settings-service-drawer" title="Сверка кассы" onClose={() => setDrawer(null)}>
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title="Сверка кассы"
+          onClose={() => setDrawer(null)}
+        >
           <ReconcileForm cash={cash} onCancel={() => setDrawer(null)} onSaved={onSaved} />
         </Overlay>
       )}
@@ -148,7 +244,10 @@ function deltaText(expectedMinor: string, countedMinor: string, cur: string): st
 /** Последняя сверка по способам (§21.4): наличные показываются всегда — их и пересчитывают */
 function ReconciliationStatus({ cash }: { cash: CashBalances }) {
   const byMethod = new Map(cash.reconciliations.map((r) => [r.method, r]));
-  const methods = ['CASH', ...cash.reconciliations.map((r) => r.method).filter((m) => m !== 'CASH')];
+  const methods = [
+    'CASH',
+    ...cash.reconciliations.map((r) => r.method).filter((m) => m !== 'CASH'),
+  ];
   return (
     <ul className="cash-reconciliation-status" data-testid="cash-reconciliation-status">
       {methods.map((method) => {
@@ -339,7 +438,13 @@ function OperationForm({
   );
 }
 
-function TransferForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: (text: string) => void }) {
+function TransferForm({
+  onCancel,
+  onSaved,
+}: {
+  onCancel: () => void;
+  onSaved: (text: string) => void;
+}) {
   const [state, action, pending] = useActionState(cashTransferAction, NONE);
   useSavedEffect(state, onSaved);
   return (
@@ -407,7 +512,9 @@ function Categories({ categories }: { categories: CashCategory[] }) {
               <td>{c.name}</td>
               <td>{c.kind === 'INCOME' ? 'Доход' : 'Расход'}</td>
               <td>
-                <Badge tone={c.active ? 'ok' : 'neutral'}>{c.active ? 'действует' : 'выключена'}</Badge>
+                <Badge tone={c.active ? 'ok' : 'neutral'}>
+                  {c.active ? 'действует' : 'выключена'}
+                </Badge>
               </td>
               <td>
                 <form action={toggleCashCategoryAction}>
@@ -423,6 +530,43 @@ function Categories({ categories }: { categories: CashCategory[] }) {
         </tbody>
       </Table>
     </div>
+  );
+}
+
+/** «Аннулировать» у платежа гостя в общей ленте: вопрос с суммой; с возвратом или чеком API откажет словами */
+export function VoidPaymentOperation({ id, summary }: { id: string; summary: string }) {
+  const { ask, dialog } = useConfirm();
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <>
+      {dialog}
+      <Button
+        type="button"
+        tone="ghost"
+        disabled={busy}
+        aria-busy={busy}
+        data-testid="payment-void"
+        onClick={async () => {
+          if (
+            !(await ask({
+              title: 'Аннулировать платёж?',
+              body: `${summary}. Платёж останется в ленте со статусом «аннулирован», сумма вернётся в остаток брони к оплате. Поменять способ или сумму можно в карточке брони.`,
+              confirmLabel: 'Аннулировать',
+              tone: 'danger',
+            }))
+          )
+            return;
+          setBusy(true);
+          const r = await voidPaymentAction(id);
+          setBusy(false);
+          setError(r.error);
+        }}
+      >
+        Аннулировать
+      </Button>
+      {error && <Alert>{error}</Alert>}
+    </>
   );
 }
 

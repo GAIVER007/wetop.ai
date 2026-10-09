@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 04.10.2026 20:45 Алматы · MacBook-Air-Urij.local
+# коммит 6974cb3 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 45
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/beauty-branch.spec.ts' '--grep' 'карточка объекта'
+[WebServer] (node:3377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:3440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен» (20.2s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен»
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.workspace-header').getByTestId('data-freshness')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.workspace-header').getByTestId('data-freshness') with timeout 15000ms
+      - waiting for locator('.workspace-header').getByTestId('data-freshness')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      83 |   await expect(header).toContainText('Студия Айна');
+      84 |   await expect(header).not.toContainText('Объект не загружен');
+    > 85 |   await expect(header.getByTestId('data-freshness')).toHaveCount(0);
+         |                                                      ^
+      86 | });
+      87 |
+      88 | test('салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки', async ({
+        at /Users/urijzapojnov/wetop-mv1-20261004/tests/ui/beauty-branch.spec.ts:85:54
+
+    Error Context: test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-карточка-объ-84c43-а-а-не-«объект-не-загружен»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен»
+
+# код выхода 1 · 29 с

@@ -1,6 +1,8 @@
 'use client';
 
-import { useSyncExternalStore, type ReactNode } from 'react';
+import { useSyncExternalStore, useState, type ReactNode } from 'react';
+
+import { Icon } from '../../components/icon';
 
 type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
@@ -29,7 +31,7 @@ export function FinanceWorkspace({
   services,
   cash,
 }: {
-  initialView: View;
+  initialView: View | null;
   overview: ReactNode;
   operations: ReactNode;
   debts: ReactNode;
@@ -42,6 +44,9 @@ export function FinanceWorkspace({
     () => '',
   );
   const active = tabs.find((tab) => tab.hash === hash)?.id ?? initialView;
+  const viewKey = `${initialView ?? ''}:${hash}`;
+  const [disclosure, setDisclosure] = useState<{ key: string; open: boolean } | null>(null);
+  const expanded = disclosure?.key === viewKey ? disclosure.open : active !== null;
   const choose = (index: number) => {
     const tab = tabs[index]!;
     window.history.pushState(null, '', tab.hash);
@@ -50,52 +55,64 @@ export function FinanceWorkspace({
   };
   const panels = { overview, operations, debts, services, cash };
   return (
-    <div className="finance-workspace">
-      <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">
-        {tabs.map((tab, index) => (
-          <button
+    <div className="finance-workspace finance-more">
+      <button
+        type="button"
+        className="finance-more__trigger"
+        aria-expanded={expanded}
+        aria-controls="finance-details"
+        onClick={() => setDisclosure({ key: viewKey, open: !expanded })}
+      >
+        <Icon name="chevron" />
+        Отчёты и управление
+      </button>
+      <div id="finance-details" hidden={!expanded}>
+        <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">
+          {tabs.map((tab, index) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`finance-tab-${tab.id}`}
+              aria-controls={`finance-panel-${tab.id}`}
+              aria-selected={active === tab.id}
+              tabIndex={active === tab.id || (active === null && index === 0) ? 0 : -1}
+              onClick={() => choose(index)}
+              onKeyDown={(event) => {
+                const next =
+                  event.key === 'ArrowRight'
+                    ? (index + 1) % tabs.length
+                    : event.key === 'ArrowLeft'
+                      ? (index + tabs.length - 1) % tabs.length
+                      : event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? tabs.length - 1
+                          : null;
+                if (next !== null) {
+                  event.preventDefault();
+                  choose(next);
+                }
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {tabs.map((tab) => (
+          <div
             key={tab.id}
-            type="button"
-            role="tab"
-            id={`finance-tab-${tab.id}`}
-            aria-controls={`finance-panel-${tab.id}`}
-            aria-selected={active === tab.id}
-            tabIndex={active === tab.id ? 0 : -1}
-            onClick={() => choose(index)}
-            onKeyDown={(event) => {
-              const next =
-                event.key === 'ArrowRight'
-                  ? (index + 1) % tabs.length
-                  : event.key === 'ArrowLeft'
-                    ? (index + tabs.length - 1) % tabs.length
-                    : event.key === 'Home'
-                      ? 0
-                      : event.key === 'End'
-                        ? tabs.length - 1
-                        : null;
-              if (next !== null) {
-                event.preventDefault();
-                choose(next);
-              }
-            }}
+            id={`finance-panel-${tab.id}`}
+            role="tabpanel"
+            aria-labelledby={`finance-tab-${tab.id}`}
+            hidden={active !== tab.id}
+            tabIndex={0}
+            className="finance-tab-panel"
           >
-            {tab.label}
-          </button>
+            {panels[tab.id]}
+          </div>
         ))}
       </div>
-      {tabs.map((tab) => (
-        <div
-          key={tab.id}
-          id={`finance-panel-${tab.id}`}
-          role="tabpanel"
-          aria-labelledby={`finance-tab-${tab.id}`}
-          hidden={active !== tab.id}
-          tabIndex={0}
-          className="finance-tab-panel"
-        >
-          {panels[tab.id]}
-        </div>
-      ))}
     </div>
   );
 }

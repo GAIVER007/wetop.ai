@@ -118,10 +118,10 @@ test('варианты оформления на первом экране: тр
   await shot(page, 'design-cards-light-1440');
   await cards.getByTestId('ed-design-apply').click();
   await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Дизайн').click();
   await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
   // выбор виден и в разговоре: карточки можно применить к черновику ещё раз
-  await tab(page, 'ИИ').click();
+  await tab(page, 'Редактор').click();
   await expect(ai(page).getByTestId('ed-design')).toBeVisible();
 });
 
@@ -175,14 +175,14 @@ test('закладки: звёздочка с подписью, закреплё
 
 test('знания проекта: сохраняются отдельно от черновика и переживают обновление', async ({ page }) => {
   await page.goto('/marketing/site/editor');
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Настройки').click();
   const box = main(page).getByTestId('ed-knowledge');
   await box.getByLabel('Что ИИ должен всегда учитывать на этом сайте').fill('Тон спокойный, без восклицаний');
   await box.getByTestId('ed-knowledge-save').click();
   await expect(box.getByTestId('ed-knowledge-state')).toHaveText('Знания проекта сохранены: ИИ учтёт их в следующих запросах');
   await expect(main(page).getByTestId('ed-dirty')).toHaveText('Все изменения сохранены');
   await page.reload();
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Настройки').click();
   await expect(main(page).getByTestId('ed-knowledge').getByLabel('Что ИИ должен всегда учитывать на этом сайте')).toHaveValue('Тон спокойный, без восклицаний');
 });
 
@@ -245,7 +245,7 @@ for (const theme of ['light', 'dark'] as const)
       await request.post(`${FIXTURE_API}/__test/reset`);
       await page.goto('/marketing/site/editor');
       await expect(main(page).getByTestId('ed-project')).toContainText('Luxx Aparts');
-      if (width === 390) await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+      if (width === 390) await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
       else await expect(frame(page).locator('#sec-hero')).toBeVisible();
       await mode(page, 'Чат').click();
       await ai(page).getByLabel('Спросите ИИ о сайте').fill('Что улучшить?');

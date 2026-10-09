@@ -318,12 +318,12 @@ function BottomNavLinks({
       <Link
         key={n.href}
         href={n.href}
-        // как в шапке и выдвижном меню: на /guests активны «Брони», своего пункта у «Гостей» нет (09.10.2026)
+        // как в шапке и выдвижном меню: на /reservations активен пункт «Гости и бронирования», своего пункта у «Броней» нет (09.10.2026)
         className={cx(activeMenuRoute(path) === n.href && 'is-active')}
         aria-current={activeMenuRoute(path) === n.href ? 'page' : undefined}
       >
         <Icon name={n.icon} />
-        <span>{n.label}</span>
+        <span>{n.shortLabel ?? n.label}</span>
       </Link>
     ));
 }

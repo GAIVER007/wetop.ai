@@ -11,6 +11,7 @@ import {
   buildDashboard,
   buildUnitStats,
   buildChannelEfficiency,
+  buildCashFlow,
   type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
@@ -66,6 +67,7 @@ import {
   type InviteRole,
   type MembershipRole,
   countGuestNights,
+  pickMainStay,
   summarizeGuestStays,
   upcomingBirthday,
   parseTaskInput,
@@ -954,6 +956,10 @@ function getGuest(id: string) {
             departureDate: it.departureDate,
             status: it.status,
             unitCode: it.unitCode,
+            // «Гости и бронирования»: гости проживания и позиция брони (услуги берутся из её счёта)
+            adults: it.adults,
+            children: it.children,
+            itemId: it.id,
             source: r.source,
             channel: r.channel ?? null,
             currency: r.currency,
@@ -3530,45 +3536,79 @@ function read(path: string, q: URLSearchParams): unknown {
   // Справочник «Гости v2»: гости собираются из карточек броней — «пустая база» остаётся пустой
   if (path === '/guests/directory') {
     const state = q.get('state') || 'ALL';
+    const view = q.get('view') || 'all';
     const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
     const page = Math.max(1, Number(q.get('page') || 1));
     const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
     const ids = [
       ...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : []))),
     ];
-    const all = ids
+    type FixtureGuest = NonNullable<ReturnType<typeof getGuest>>;
+    const factsOf = (g: FixtureGuest) =>
+      g.stays.map((s) => ({
+        status: s.status,
+        arrivalDate: s.arrivalDate,
+        departureDate: s.departureDate,
+        unitCode: s.unitCode,
+        accommodationTypeName: s.accommodationTypeName,
+        confirmationNumber: s.confirmationNumber,
+        adults: s.adults,
+        children: s.children,
+        source: s.source,
+        channel: s.channel,
+        currency: s.currency,
+        money:
+          s.chargedMinor === null
+            ? null
+            : {
+                chargedMinor: s.chargedMinor,
+                paidMinor: s.paidMinor ?? '0',
+                refundedMinor: s.refundedMinor ?? '0',
+                balanceMinor: s.balanceMinor ?? '0',
+              },
+      }));
+    // Те же определения, что SQL настоящего API: заезд сегодня это подтверждённое, заселённое или выехавшее
+    // проживание с заездом сегодня; выезд сегодня это заселён или выехал; «Требуют внимания»: четыре факта R2
+    const flagsOf = (g: FixtureGuest) => {
+      const f = { arrivesToday: false, departsToday: false, attention: false, debt: false };
+      for (const s of g.stays) {
+        const balance = s.balanceMinor === null ? 0n : BigInt(s.balanceMinor);
+        const live = s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT';
+        const planned = s.status === 'CONFIRMED' || s.status === 'TENTATIVE';
+        if (s.arrivalDate === today && (live || planned)) f.arrivesToday = true;
+        if (s.departureDate === today && live) f.departsToday = true;
+        if (
+          ((planned || s.status === 'CHECKED_IN') && !s.unitCode) ||
+          (planned && s.arrivalDate < today) ||
+          (live && balance > 0n) ||
+          balance < 0n
+        )
+          f.attention = true;
+        if (live && balance > 0n) f.debt = true;
+      }
+      return f;
+    };
+    const everyone = ids
       .flatMap((id) => {
         const g = getGuest(id);
         return g ? [g] : [];
       })
-      .filter(
-        (g) =>
-          !search ||
-          `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
-            .toLocaleLowerCase('ru')
-            .includes(search),
-      )
       .sort((a, b) =>
         `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'ru'),
       )
       .map((g) => ({
-        id: g.id,
-        firstName: g.firstName,
-        lastName: g.lastName,
-        middleName: g.middleName,
-        phone: g.phone,
-        email: g.email,
-        ...summarizeGuestStays(
-          g.stays.map((s) => ({
-            status: s.status,
-            arrivalDate: s.arrivalDate,
-            departureDate: s.departureDate,
-            unitCode: s.unitCode,
-            accommodationTypeName: s.accommodationTypeName,
-          })),
-          today,
-        ),
+        g,
+        flags: flagsOf(g),
+        stay: pickMainStay(factsOf(g), today),
+        summary: summarizeGuestStays(factsOf(g), today),
       }));
+    const all = everyone.filter(
+      ({ g }) =>
+        !search ||
+        `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+          .toLocaleLowerCase('ru')
+          .includes(search),
+    );
     // G7: отборы и порядок — те же правила, что SQL настоящего API (последний визит — выезд
     // последнего состоявшегося визита; визиты — заселён или выехал)
     const last = q.get('last') || '';
@@ -3583,36 +3623,118 @@ function read(path: string, q: URLSearchParams): unknown {
               ? [q.get('from') || '', q.get('to') || '']
               : null;
     const visits = q.get('visits') || '';
+    // «Гости и бронирования»: отборы про основное проживание, ту же бронь, что видна в строке
+    const sourceText = (q.get('source') || '').trim();
+    const sourceCode = ['DESK', 'PHONE', 'WHATSAPP', 'WALK_IN', 'INSTAGRAM', 'WEBSITE', 'OTA'].find(
+      (c) => c === sourceText.toUpperCase(),
+    );
+    const periodKind = q.get('period') || '';
+    const stayWindow: [string, string] | null =
+      periodKind === 'today'
+        ? [today, today]
+        : periodKind === '7d'
+          ? [today, add(today, 6)]
+          : periodKind === '30d'
+            ? [today, add(today, 29)]
+            : periodKind === 'range'
+              ? [q.get('periodFrom') || '', q.get('periodTo') || '']
+              : null;
     const filtered = all.filter(
-      (g) =>
+      ({ g, flags, stay, summary }) =>
         (!window ||
-          (g.last !== null &&
-            g.last.departureDate >= window[0] &&
-            g.last.departureDate <= window[1])) &&
+          (summary.last !== null &&
+            summary.last.departureDate >= window[0] &&
+            summary.last.departureDate <= window[1])) &&
         (visits === '1'
-          ? g.staysCount === 1
+          ? summary.staysCount === 1
           : visits === '2-5'
-            ? g.staysCount >= 2 && g.staysCount <= 5
+            ? summary.staysCount >= 2 && summary.staysCount <= 5
             : visits === '6+'
-              ? g.staysCount >= 6
-              : true),
+              ? summary.staysCount >= 6
+              : true) &&
+        (!sourceText ||
+          (sourceCode
+            ? stay?.source === sourceCode
+            : (stay?.channel ?? '').toLocaleLowerCase('ru').includes(sourceText.toLocaleLowerCase('ru')))) &&
+        (q.get('debt') !== '1' || flags.debt) &&
+        (q.get('fresh') !== '1' || summary.staysCount <= 1) &&
+        (q.get('nocontact') !== '1' || (!g.phone && !g.email)) &&
+        (!stayWindow ||
+          (stay !== null &&
+            stay.arrivalDate <= stayWindow[1] &&
+            stay.departureDate >= stayWindow[0])),
     );
     const sort = q.get('sort') || 'name';
     const tail = '9999-12-31';
     if (sort === 'next')
-      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+      filtered.sort((a, b) =>
+        (a.summary.next?.arrivalDate ?? tail).localeCompare(b.summary.next?.arrivalDate ?? tail),
+      );
     else if (sort === 'last')
-      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
-    else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
+      filtered.sort((a, b) =>
+        (b.summary.last?.departureDate ?? '').localeCompare(a.summary.last?.departureDate ?? ''),
+      );
+    else if (sort === 'visits') filtered.sort((a, b) => b.summary.staysCount - a.summary.staysCount);
     const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
-    for (const g of filtered) counts[g.state] += 1;
-    const rows = state === 'ALL' ? filtered : filtered.filter((g) => g.state === state);
+    for (const { summary } of filtered) counts[summary.state] += 1;
+    const inState = state === 'ALL' ? filtered : filtered.filter((x) => x.summary.state === state);
+    const inView = (x: (typeof everyone)[number], v: string) =>
+      v === 'today'
+        ? x.flags.arrivesToday || x.flags.departsToday
+        : v === 'inhouse'
+          ? x.summary.state === 'INHOUSE'
+          : v === 'expected'
+            ? x.summary.state === 'EXPECTED'
+            : v === 'departures'
+              ? x.flags.departsToday
+              : v === 'attention'
+                ? x.flags.attention
+                : true;
+    const views = Object.fromEntries(
+      ['all', 'today', 'inhouse', 'expected', 'departures', 'attention'].map((v) => [
+        v,
+        inState.filter((x) => inView(x, v)).length,
+      ]),
+    );
+    const rows = inState.filter((x) => inView(x, view));
+    // плитки не зависят от поиска и отборов; вчера считается по датам брони
+    const stays = everyone.flatMap(({ g }) => g.stays.map((s) => ({ guestId: g.id, ...s })));
+    const yesterday = add(today, -1);
+    const distinct = (list: Array<{ guestId: string }>) => new Set(list.map((x) => x.guestId)).size;
+    const kpi = {
+      all: everyone.length,
+      inhouse: everyone.filter((x) => x.summary.state === 'INHOUSE').length,
+      arrivalsToday: everyone.filter((x) => x.flags.arrivesToday).length,
+      departuresToday: everyone.filter((x) => x.flags.departsToday).length,
+      expected: everyone.filter((x) => x.summary.state === 'EXPECTED').length,
+      attention: everyone.filter((x) => x.flags.attention).length,
+      none: everyone.filter((x) => x.summary.state === 'NONE').length,
+      arrivalsYesterday: distinct(
+        stays.filter(
+          (s) => s.arrivalDate === yesterday && (s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT'),
+        ),
+      ),
+      departuresYesterday: distinct(
+        stays.filter((s) => s.departureDate === yesterday && s.status === 'CHECKED_OUT'),
+      ),
+    };
     return {
       total: rows.length,
       page,
       pageSize,
       counts,
-      rows: rows.slice((page - 1) * pageSize, page * pageSize),
+      views,
+      kpi,
+      rows: rows.slice((page - 1) * pageSize, page * pageSize).map(({ g, stay, summary }) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        stay,
+        ...summary,
+      })),
     };
   }
   // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
@@ -3656,6 +3778,73 @@ function read(path: string, q: URLSearchParams): unknown {
       middleName: g.middleName,
       phone: g.phone,
       email: g.email,
+      notes: g.notes,
+      ...(() => {
+        const facts = g.stays.map((s) => ({
+          status: s.status,
+          arrivalDate: s.arrivalDate,
+          departureDate: s.departureDate,
+          unitCode: s.unitCode,
+          accommodationTypeName: s.accommodationTypeName,
+          confirmationNumber: s.confirmationNumber,
+          adults: s.adults,
+          children: s.children,
+          source: s.source,
+          channel: s.channel,
+          currency: s.currency,
+          money:
+            s.chargedMinor === null
+              ? null
+              : {
+                  chargedMinor: s.chargedMinor,
+                  paidMinor: s.paidMinor ?? '0',
+                  refundedMinor: s.refundedMinor ?? '0',
+                  balanceMinor: s.balanceMinor ?? '0',
+                },
+        }));
+        const stay = pickMainStay(facts, today);
+        // услуги основного проживания: начисления вида SERVICE без сторно из счёта его позиции
+        const mainStay = stay
+          ? g.stays.find(
+              (s) =>
+                s.confirmationNumber === stay.confirmationNumber &&
+                s.arrivalDate === stay.arrivalDate &&
+                s.status === stay.status,
+            )
+          : undefined;
+        const mainCard = mainStay
+          ? cards.find((r) => r.confirmationNumber === mainStay.confirmationNumber)
+          : undefined;
+        const folio = mainCard
+          ? finance(mainCard).folios.find((f) => f.reservationItemId === mainStay!.itemId)
+          : undefined;
+        const services = (folio?.charges ?? [])
+          .filter((c) => c.kind === 'SERVICE' && !c.voidedAt)
+          .map((c) => ({
+            id: c.id,
+            description: c.description,
+            quantity: c.quantity,
+            amountMinor: c.amountMinor,
+            serviceDate: c.serviceDate,
+          }));
+        const visits = g.stays
+          .filter((s) => s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT')
+          .sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate))
+          .slice(0, 10)
+          .map((s) => ({
+            confirmationNumber: s.confirmationNumber,
+            arrivalDate: s.arrivalDate,
+            departureDate: s.departureDate,
+            nights: Math.max(
+              0,
+              Math.round((Date.parse(s.departureDate) - Date.parse(s.arrivalDate)) / 86400000),
+            ),
+            unitCode: s.unitCode,
+            accommodationTypeName: s.accommodationTypeName,
+            status: s.status,
+          }));
+        return { stay, services, visits };
+      })(),
       ...summarizeGuestStays(g.stays, today),
       nightsTotal: countGuestNights(g.stays),
       hasFolios: billed.length > 0,
@@ -3886,6 +4075,31 @@ function read(path: string, q: URLSearchParams): unknown {
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: picked.slice(0, limit),
       truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/cashflow') {
+    // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const feed = read('/finance/operations', new URLSearchParams({ from, to, limit: '20000' })) as {
+      truncated: boolean;
+      rows: Array<{
+        kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        localAt: string;
+        method: string;
+        amountMinor: string;
+        status: 'COMPLETED' | 'VOIDED';
+        category: string | null;
+      }>;
+    };
+    return {
+      currency: 'KZT',
+      ...buildCashFlow(
+        feed.rows.map((r) => ({ ...r, amountMinor: BigInt(r.amountMinor) })),
+        from,
+        to,
+      ),
+      truncated: feed.truncated,
     };
   }
   if (path === '/finance/cash') {

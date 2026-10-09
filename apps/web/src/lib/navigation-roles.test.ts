@@ -40,8 +40,8 @@ describe('меню по ролям', () => {
       // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
       '/finance',
       '/chessboard',
-      // «Гости» стали вкладкой внутри «Броней» (09.10.2026): страница /guests осталась, пункта меню нет
-      '/reservations',
+      // «Гости и бронирования» (09.10.2026): одна вкладка на месте «Броней» и «Гостей»
+      '/guests',
       '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/market',
@@ -53,7 +53,7 @@ describe('меню по ролям', () => {
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'finance',
       'chessboard',
-      'reservations',
+      'guests',
       'bar',
       'sales',
       'reports',

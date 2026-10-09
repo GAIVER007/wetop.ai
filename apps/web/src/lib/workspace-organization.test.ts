@@ -6,7 +6,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
     'finance',
     'chessboard',
-    'reservations',
+    'guests',
     'bar',
     'sales',
     'marketing',
@@ -39,17 +39,20 @@ it('phone bottom bar: the four leading tabs, every one a direct tab', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([
     '/finance',
     '/chessboard',
-    '/reservations',
+    '/guests',
     '/bar',
   ]);
 });
 
-// «Гости» переехали внутрь «Броней» (поручение владельца 09.10.2026): своей вкладки в меню нет,
-// раздел открывается вкладкой на страницах /reservations и /guests, подсветка меню остаётся на «Бронях»
-it('guests live inside the reservations section: no own menu tab, menu highlight stays on it', () => {
-  expect(menuSections.flatMap((s) => s.items.map((i) => i.href))).not.toContain('/guests');
-  expect(activeMenuRoute('/guests')).toBe('/reservations');
-  expect(activeMenuRoute('/guests/birthdays')).toBe('/reservations');
-  expect(activeMenuRoute('/guests/42')).toBe('/reservations');
-  expect(activeMenuRoute('/reservations')).toBe('/reservations');
+// «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,
+// классический список броней открывается кнопкой на экране и подсвечивает ту же вкладку
+it('guests and bookings are one menu tab: the reservations list has no tab of its own', () => {
+  const hrefs = menuSections.flatMap((s) => s.items.map((i) => i.href));
+  expect(hrefs).toContain('/guests');
+  expect(hrefs).not.toContain('/reservations');
+  expect(activeMenuRoute('/guests')).toBe('/guests');
+  expect(activeMenuRoute('/guests/birthdays')).toBe('/guests');
+  expect(activeMenuRoute('/guests/42')).toBe('/guests');
+  expect(activeMenuRoute('/reservations')).toBe('/guests');
+  expect(activeMenuRoute('/reservations/20260927-ABC123')).toBe('/guests');
 });

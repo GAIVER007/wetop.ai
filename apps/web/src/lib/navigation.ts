@@ -165,11 +165,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Брони и проживания за выбранный день.',
       },
       {
+        // «Гости и бронирования» (09.10.2026): один экран вместо вкладок «Брони» и «Гости»; список броней
+        // `/reservations` остаётся кнопкой внутри экрана, а в меню своего пункта у него нет
         href: '/guests',
         requires: 'desk',
-        label: 'Гости',
+        label: 'Гости и бронирования',
+        shortLabel: 'Брони', // на вкладке телефона 75 px «Гости и брони» переносится на две строки и поднимает панель
         icon: 'guests',
-        description: 'Карточки гостей и история проживания.',
+        description: 'Единая база гостей, бронирований и проживаний.',
       },
       {
         // Задачи стойки (DATA_MODEL §22, ADR-145): вход из панели «Сегодня» календаря, отдельного пункта меню нет
@@ -446,9 +449,9 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 export const menuSections: MenuSection[] = [
   direct('finance', '/finance', 'money'),
   direct('chessboard', '/chessboard', 'board'),
-  direct('reservations', '/reservations', 'booking'),
-  // «Гости» без своей вкладки в меню: раздел открывается вкладкой внутри «Броней»
-  // (поручение владельца 09.10.2026), адрес /guests и право прежние
+  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
+  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
+  direct('guests', '/guests', 'guests'),
   direct('bar', '/bar', 'receipt'),
   {
     id: 'sales',
@@ -640,8 +643,8 @@ export function activeMenuRoute(path: string): string | undefined {
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
-  // «Гости» внутри «Броней» (09.10.2026): своего пункта меню нет, подсвечивается вкладка раздела
-  if (route === '/guests') return '/reservations';
+  // «Гости и бронирования» (09.10.2026): брони и карточка брони подсвечивают тот же единственный пункт
+  if (route === '/reservations') return '/guests';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   return route;

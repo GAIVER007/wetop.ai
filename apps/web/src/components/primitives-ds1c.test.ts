@@ -56,6 +56,17 @@ describe('Stat', () => {
     const div = tags(h(Stat, { label: 'Долг', value: '5 ₸', tone: 'alarm', size: 'big' }))[0]!;
     expect(div.attrs['class']).toBe('stat stat--alarm stat--big');
   });
+  it('значок необязателен: с ним плитка получает круг слева и скрыта от читалки, без него прежняя', () => {
+    const withIcon = html(h(Stat, { label: 'Проживают', value: '24', icon: 'G', tone: 'success' }));
+    expect(withIcon).toMatch(/class="stat stat--tone-success stat--icon"/);
+    expect(withIcon).toMatch(/class="stat__icon" aria-hidden="true">G</);
+    expect(withIcon).toMatch(/class="stat__text"/);
+    expect(html(h(Stat, { label: 'Свободно', value: '3' }))).not.toMatch(/stat__icon|stat__text/);
+    // ссылка-плитка со значком тоже одна ссылка целиком
+    const link = tags(h(Stat, { label: 'Заезды', value: '4', icon: 'G', href: '/guests?view=today' }));
+    expect(link[0]!.tag).toBe('a');
+    expect(link[0]!.attrs['class']).toMatch(/\bstat--link\b.*\bstat--icon\b/);
+  });
   it('с href вся плитка одна ссылка, внутри других ссылок и кнопок нет', () => {
     const list = tags(h(Stat, { label: 'Заезды', value: '4', href: '/reservations?view=today' }));
     expect(list[0]!.tag).toBe('a');

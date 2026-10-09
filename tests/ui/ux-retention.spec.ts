@@ -75,7 +75,7 @@ test('нижняя панель телефона — в порядке боко�
   await page.goto('/finance');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Бар']);
+  ).toHaveText(['Финансы', 'Календарь', 'Гости и бронирования', 'Бар']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

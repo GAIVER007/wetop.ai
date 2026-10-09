@@ -45,12 +45,13 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(main.getByLabel('Поиск гостей')).toBeVisible();
   // ТЗ §40: бронь после срока не создать — действие не рисуется (общий флаг оболочки, как на «Бронях»)
   await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
-  // G3: щелчок открывает предпросмотр (чтение), из него — полная карточка
-  await main.getByTestId('guests-table').getByRole('link').first().click();
-  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
-  await expect(drawer.getByTestId('guest-preview')).toBeVisible();
-  await expect(drawer.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
-  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+  // панель справа открыта на первом госте (чтение): действий записи в ней нет, из неё ведёт ссылка в полную карточку
+  const panel = main.getByTestId('guest-panel');
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+  await expect(main.getByRole('toolbar', { name: 'Действия с отмеченными' }).getByText(/Заселить|Выселить/)).toHaveCount(0);
+  await panel.getByRole('tab', { name: 'История', exact: true }).click();
+  await panel.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\//);
   await expect(main.getByTestId('guest-head')).toBeVisible();
   // G4: карточка читается целиком — история проживаний на месте; «Редактировать» и «Новая бронь» не рисуются

@@ -50,8 +50,9 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     ]) {
       await expect(control).toBeVisible();
       const box = await control.boundingBox();
-      expect(box!.height).toBeGreaterThanOrEqual(44);
-      expect(box!.width).toBeGreaterThanOrEqual(44);
+      const label = String(control);
+      expect(box!.height, label).toBeGreaterThanOrEqual(44);
+      expect(box!.width, label).toBeGreaterThanOrEqual(44);
     }
     await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
     await expect(page.locator('.board-period-pop').getByText('По', { exact: true })).toBeVisible();
@@ -66,7 +67,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       .getByRole('button', { name: 'Обычный', exact: true });
     await expect(viewButton).toBeVisible();
     expect((await viewButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await filters.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
+    await filters.getByLabel('Категория в календаре').selectOption('ROOM');
     await filters.getByRole('button', { name: 'Применить', exact: true }).click();
     await expect(main.getByTestId('unit-row')).toHaveCount(16);
     // заданная категория — чипом с крестиком: поля категории в строке на телефоне нет

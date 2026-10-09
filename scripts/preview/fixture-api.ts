@@ -2,7 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -3118,6 +3118,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -4487,6 +4498,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4650,6 +4663,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -6957,6 +6971,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

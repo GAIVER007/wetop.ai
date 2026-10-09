@@ -8,17 +8,18 @@ import { Badge } from '../../components/ui';
 
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149; макет Marketing 2.0 владельца 09.10.2026, plans/mkt10-marketing-2-audit-2026-10-09.md):
- * три модуля одного вида (сайт, реклама, контент) и колонка результатов справа. Рабочий модуль пока один, «Сайт и SEO»:
- * главная кнопка открывает конструктор, прочие разделы сайта в меню «⋯». Реклама и контент ещё не построены, поэтому
- * у них «Скоро» без кнопок, а не «Подключить». Своих запросов к API у страницы нет (ADR-149): числа результатов хаб не
- * читает, и вместо выдуманных нулей стоит «Нет данных» с причиной. Направление берётся из `/auth/me` через
- * `requireVertical`, право `settings` проверяет общий `AccessGate`.
+ * три модуля одного вида (сайт, реклама, контент) и колонка результатов справа. У каждого модуля главная кнопка
+ * «Открыть» ведёт на его экран: сайт в конструктор, реклама и контент на свои экраны, где пока пустые состояния
+ * («Скоро», а не «Подключено»). Прочие разделы сайта в меню «⋯». Своих запросов к API у страницы нет (ADR-149): числа
+ * результатов хаб не читает, и вместо выдуманных нулей стоит «Нет данных» с причиной. Направление берётся из
+ * `/auth/me` через `requireVertical`, право `settings` проверяет общий `AccessGate`.
  */
 interface Module {
   key: 'site' | 'ads' | 'content';
   testId: string;
   title: string;
   icon: IconName;
+  href: string;
   text: string;
   caps: string[];
 }
@@ -29,24 +30,27 @@ const MODULES: Module[] = [
     testId: 'marketing-site',
     title: 'Сайт и SEO',
     icon: 'analytics',
-    text: 'Опишите словами, каким должен быть сайт гостиницы: ИИ соберёт его, вы поправите и опубликуете. Бронирование идёт прямо в WETOP.',
-    caps: ['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO и аналитика'],
+    href: '/marketing/site/editor',
+    text: 'Создайте сайт гостиницы с помощью ИИ, подключите онлайн-бронирование и продвигайте его в поиске.',
+    caps: ['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация'],
   },
   {
     key: 'ads',
     testId: 'marketing-ads',
     title: 'Реклама',
     icon: 'channels',
-    text: 'Рекламные кампании в Facebook и Instagram с ИИ-таргетологом. Без вашего подтверждения бюджет не тратится.',
-    caps: ['Подключение рекламных кабинетов', 'Кампании с подтверждением запуска', 'Расходы, заявки и брони'],
+    href: '/marketing/ads',
+    text: 'Запускайте рекламные кампании в Facebook и Instagram с помощью ИИ-таргетолога.',
+    caps: ['Подключение рекламных кабинетов', 'Автоматическая настройка и оптимизация', 'Подробная аналитика и отчёты'],
   },
   {
     key: 'content',
     testId: 'marketing-content',
     title: 'Контент',
     icon: 'journal',
-    text: 'Тексты, фото и видео для сайта и соцсетей с помощью ИИ, план публикаций и согласование.',
-    caps: ['Генерация текстов и изображений', 'Медиатека для сайта и рекламы', 'План публикаций'],
+    href: '/marketing/content',
+    text: 'Создавайте фото, тексты, видео и посты с помощью ИИ. Планируйте публикации во все соцсети.',
+    caps: ['Генерация фото и видео', 'Готовые шаблоны постов', 'Планировщик публикаций'],
   },
 ];
 
@@ -63,7 +67,7 @@ function ModuleCard({ module }: { module: Module }) {
   const headingId = `${module.testId}-title`;
   return (
     <section
-      className={live ? 'panel marketing-module marketing-module--live' : 'panel marketing-module'}
+      className={`panel marketing-module marketing-module--${module.key}`}
       aria-labelledby={headingId}
       data-testid="marketing-module"
     >
@@ -73,7 +77,7 @@ function ModuleCard({ module }: { module: Module }) {
             <Icon name={module.icon} />
           </span>
           <h2 id={headingId}>{module.title}</h2>
-          <Badge tone={live ? 'ok' : undefined} data-testid={`${module.testId}-status`}>
+          <Badge tone={live ? 'ok' : 'info'} data-testid={`${module.testId}-status`}>
             {live ? 'Доступно' : 'Скоро'}
           </Badge>
         </div>
@@ -87,17 +91,11 @@ function ModuleCard({ module }: { module: Module }) {
           ))}
         </ul>
         <div className="marketing-module__foot">
-          {live ? (
-            <>
-              <Link className="btn" href="/marketing/site/editor">
-                Открыть конструктор
-                <Icon name="arrow" width={16} aria-hidden="true" />
-              </Link>
-              <ActionMenu label={`Ещё действия: ${module.title}`} items={SITE_MENU} />
-            </>
-          ) : (
-            <span className="marketing-module__note">В разработке</span>
-          )}
+          <Link className="btn" href={module.href} aria-label={`Открыть: ${module.title}`}>
+            Открыть
+            <Icon name="arrow" width={16} aria-hidden="true" />
+          </Link>
+          {live && <ActionMenu label={`Ещё действия: ${module.title}`} items={SITE_MENU} />}
         </div>
       </div>
     </section>
@@ -109,7 +107,7 @@ export default async function MarketingPage() {
   return (
     <Page
       title="Маркетинг"
-      subtitle="Привлекайте гостей, развивайте сайт и продвигайте бизнес с помощью ИИ."
+      subtitle="Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ."
     >
       <div className="marketing-hub">
         <div className="marketing-hub__modules">
@@ -127,6 +125,7 @@ export default async function MarketingPage() {
             <dl className="marketing-results__list">
               {RESULTS.map((label) => (
                 <div key={label} className="marketing-results__row" data-testid="marketing-result">
+                  <span className="marketing-results__mark" aria-hidden="true" />
                   <dt>{label}</dt>
                   <dd>Нет данных</dd>
                 </div>
@@ -138,13 +137,18 @@ export default async function MarketingPage() {
             </p>
           </section>
           <section className="panel marketing-start" aria-labelledby="marketing-start-title">
-            <span className="marketing-module__icon" aria-hidden="true">
-              <Icon name="analytics" />
-            </span>
-            <div className="marketing-start__body">
-              <h2 id="marketing-start-title">Больше гостей, меньше рутины</h2>
-              <p>Начните с сайта: реклама и контент подключатся к нему, когда выйдут.</p>
+            <div className="marketing-start__head">
+              <span className="marketing-start__icon" aria-hidden="true">
+                <Icon name="send" />
+              </span>
+              <div className="marketing-start__body">
+                <h2 id="marketing-start-title">Больше гостей, меньше рутины</h2>
+                <p>Начните с сайта: реклама и контент подключатся к нему, когда выйдут.</p>
+              </div>
             </div>
+            <Link className="btn btn--secondary marketing-start__cta" href="/marketing/site/editor">
+              Начать с сайта
+            </Link>
           </section>
         </aside>
       </div>

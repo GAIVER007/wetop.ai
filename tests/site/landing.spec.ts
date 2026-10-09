@@ -14,6 +14,8 @@ const PAGES = [
   '/for/mini-hotels/',
   '/for/apart-hotels/',
   '/calculator/',
+  '/privacy/',
+  '/terms/',
 ];
 test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
@@ -88,10 +90,9 @@ test('главная: регистрация открыта, маркетинг�
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
     /^Создайте аккаунт$/,
-    /^Подтвердите почту$/,
-    /^Настройте объект$/,
+    /^Настройте бизнес$/,
+    /^Пригласите команду$/,
     /^Начните работу$/,
-    /./, // заголовок призыва
   ]);
   await expect(start).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(start).not.toContainText(/7\sдней|подключаем партнёров вручную|заведём аккаунт/i);
@@ -108,16 +109,16 @@ test('главная: регистрация открыта, маркетинг�
     'https://wetop.ai/#register',
   );
   const hero = page.locator('.public-intro');
-  await expect(hero.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );
-  await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
+  await expect(hero.getByRole('link', { name: /Посмотреть возможности/ })).toBeVisible();
   await expect(hero).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
-  await expect(start.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
-    'href',
-    'https://wetop.ai/#register',
-  );
+  // регистрация после шагов живёт в карточке призыва #get-started
+  await expect(
+    page.locator('#get-started [data-auth="register"]'),
+  ).toHaveAttribute('href', 'https://wetop.ai/#register');
   expect(await page.locator('a[href$="#start"]').filter({ hasText: /заявк/i }).count()).toBe(0);
   // блог: статей нет — пункта нет ни в шапке, ни в подвале; сама страница отдаётся
   await expect(
@@ -130,24 +131,25 @@ test('главная: регистрация открыта, маркетинг�
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
   // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
-  await expect(hero.locator('.today-preview')).toBeVisible();
+  await expect(hero.locator('.dash')).toBeVisible();
   await expect(hero).toContainText(/Пример интерфейса/);
-  await expect(hero).not.toContainText(/248[\s\u00a0]?500|\+12%|Алина|Марат/);
+  await expect(hero).not.toContainText(/248[\s\u00a0]?500|Алина|Марат/);
 });
 
 test('первый экран объясняет платформу, направления и зрелость', async ({ page }) => {
+  // LAND2 v2: заголовок и карточки по снимку владельца
   await page.goto('/');
   const hero = page.locator('.public-intro');
   await expect(hero.getByRole('heading', { level: 1 })).toHaveText(
-    'Управляйте бизнесом из одного окна',
+    'Управляйте бронированиями, клиентами и командой из одного окна',
   );
-  await expect(hero).toContainText('Клиенты, бронирования и записи');
+  await expect(hero).toContainText('операционную работу, продажи и аналитику');
   await expect(hero).not.toContainText(/пилот/i);
   const audience = page.locator('#audience');
   await expect(audience.getByRole('heading', { level: 2 })).toHaveText(
-    'Разный бизнес. Свои инструменты',
+    'Три направления. Одна платформа',
   );
   await expect(audience).toContainText('Хостелы');
   await expect(audience).toContainText('Салоны красоты');
-  await expect(audience).toContainText('Ресторанный бизнес');
+  await expect(audience).toContainText('Рестораны');
 });

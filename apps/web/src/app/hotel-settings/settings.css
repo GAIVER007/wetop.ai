@@ -517,6 +517,13 @@
     .object-settings .obj-banner {
       flex-wrap: wrap;
     }
+    /* цели на телефоне не ниже 44 px (DESIGN.md): поля формы объекта и текстовая кнопка примера */
+    .object-settings .inp {
+      min-height: 44px;
+    }
+    .object-settings .obj-preview__open {
+      min-height: 44px;
+    }
   }
   /* Окно «Предпросмотр карточки»: то, что гость прочтёт об объекте */
   .obj-sample {

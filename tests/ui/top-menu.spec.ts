@@ -210,7 +210,8 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Гости и бронирования', 'Бар']);
+    // на вкладке телефона у «Гостей и бронирований» короткая подпись shortLabel «Брони»
+    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Бар']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

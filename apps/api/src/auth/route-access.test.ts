@@ -50,6 +50,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /auth/members/:userId': 'staff',
   'PATCH /auth/members/:userId': 'owner',
   'PATCH /auth/members/:userId/details': 'staff',
+  'GET /auth/access-structure': 'staff',
+  'PUT /auth/members/:userId/scopes': 'staff',
+  'POST /auth/members/:userId/suspend': 'staff',
+  'POST /auth/members/:userId/resume': 'staff',
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
@@ -168,6 +172,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
+  // фото и договор объекта (ADR-156): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
@@ -205,6 +211,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
+  'GET /inventory/photos': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений
@@ -240,6 +249,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
+  'GET /finance/cashflow': 'reports',
   // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
   'GET /finance/cash': 'desk',
   'POST /finance/cash/categories': 'settings',
@@ -267,6 +277,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'PUT /inventory/categories/:code/photos': 'property',
   'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',
@@ -310,6 +321,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
   'PATCH /hotel/settings': 'settings',
+  'POST /hotel/media/photos': 'settings',
+  'DELETE /hotel/media/photos/:id': 'settings',
+  'POST /hotel/media/contract': 'settings',
+  'DELETE /hotel/media/contract': 'settings',
   // каталог услуг «Настроек объекта» (SET3): право `settings` включает «услуги»
   'GET /hotel/services': 'settings',
   'POST /hotel/services': 'settings',

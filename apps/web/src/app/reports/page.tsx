@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -14,6 +15,7 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Grid, SectionTitle, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
+import { ReportsTabs } from './reports-tabs';
 import '../directory.css';
 import './reports.css';
 
@@ -30,6 +32,7 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;
@@ -76,6 +79,7 @@ export default async function ReportsHubPage({
         ) : undefined
       }
     >
+      <ReportsTabs current="documents" />
       <section className="reports-controls" aria-label="Период">
         <form method="get" className="reports-toolbar" data-testid="reports-period-form">
           <Field inline label="С">
@@ -203,7 +207,7 @@ export default async function ReportsHubPage({
               value={d && formatPercent(d.occupancy.percent)}
               hint={
                 d
-                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.unitNights)} ночей`
+                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.sellableNights)} ночей к продаже`
                   : undefined
               }
             />

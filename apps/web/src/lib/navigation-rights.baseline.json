@@ -1,5 +1,5 @@
 {
-  "base": "7262f5060 (снят на d0eb1e623; подпись /team обновлена слиянием main, решения AccessGate прежние)",
+  "base": "f39b66092 (снят на d0eb1e623; из main пришли подписи /team и /guests и удаление /guests/[id]/preview, решения AccessGate прежние)",
   "paths": [
     "/",
     "/ai-agents",
@@ -34,7 +34,6 @@
     "/floor-plan",
     "/guests",
     "/guests/123",
-    "/guests/123/preview",
     "/guests/birthdays",
     "/help",
     "/hotel-settings",
@@ -543,7 +542,7 @@
     "/guests": {
       "rule": {
         "href": "/guests",
-        "label": "Гости",
+        "label": "Гости и бронирования",
         "requires": "desk"
       },
       "gate": {
@@ -558,22 +557,7 @@
     "/guests/123": {
       "rule": {
         "href": "/guests",
-        "label": "Гости",
-        "requires": "desk"
-      },
-      "gate": {
-        "owner": "unchecked",
-        "manager": "unchecked",
-        "staff": "unchecked",
-        "signedOut": "unchecked",
-        "unknown": "unchecked",
-        "platformAdmin": "unchecked"
-      }
-    },
-    "/guests/123/preview": {
-      "rule": {
-        "href": "/guests",
-        "label": "Гости",
+        "label": "Гости и бронирования",
         "requires": "desk"
       },
       "gate": {
@@ -588,7 +572,7 @@
     "/guests/birthdays": {
       "rule": {
         "href": "/guests",
-        "label": "Гости",
+        "label": "Гости и бронирования",
         "requires": "desk"
       },
       "gate": {

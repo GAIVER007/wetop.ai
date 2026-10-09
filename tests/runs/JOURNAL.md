@@ -7806,6 +7806,11 @@
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
 | 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
+| 09.10.2026 19:35 | typecheck | ✅ без ошибок | 1 мин 25 с | 848b33f +42 | [лог](logs/2026-10-09T14-35-57Z-typecheck-1a19.log) | Гости и бронирования: экран, панель, меню |
+| 09.10.2026 19:37 | lint | ✅ без ошибок | 51 с | 848b33f +42 | [лог](logs/2026-10-09T14-37-30Z-lint-d4e3.log) | Гости и бронирования: экран, панель, меню |
+| 09.10.2026 19:38 | unit | ❌ упало 7 из 4192, пропущено 3 | 3 мин 9 с | 848b33f +38 | [лог](logs/2026-10-09T14-38-27Z-unit-8c8e.log) | Гости и бронирования: экран, панель, меню |
+| 09.10.2026 19:46 | integration (частично: tests/integration/guest-directory.test.ts) | ✅ 2 из 2 | 8 с | 848b33f +8 | [лог](logs/2026-10-09T14-46-26Z-integration-4e20.log) | Гости и бронирования: справочник |
+| 09.10.2026 19:46 | unit | ❌ упало 1 из 4192, пропущено 3 | 2 мин 51 с | 848b33f +39 | [лог](logs/2026-10-09T14-46-40Z-unit-5cf9.log) | Гости и бронирования: после правок сторожей |
 | 09.10.2026 18:45 | typecheck | ✅ без ошибок | 56 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-45-37Z-typecheck-c9af.log) |  |
 | 09.10.2026 18:46 | lint | ✅ без ошибок | 36 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-46-34Z-lint-6011.log) |  |
 | 09.10.2026 18:47 | unit | ✅ 4162 из 4165, пропущено 3 | 2 мин 5 с | 5fd5597 +12 | [лог](logs/2026-10-09T13-47-11Z-unit-1cf1.log) |  |
@@ -7828,6 +7833,23 @@
 | 09.10.2026 19:02 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ✅ 27 из 27 | 15 с | 88b6e07 +1 | [лог](logs/2026-10-09T14-02-20Z-integration-decb.log) | детерминированный порядок филиалов в тесте лицензий (красный гейт #193 на 0fed8093) |
 | 09.10.2026 18:55 | unit | ✅ 4158 из 4161, пропущено 3 | 2 мин 12 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-55-39Z-unit-b219.log) |  |
 | 09.10.2026 18:57 | lint | ✅ без ошибок | 37 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-57-52Z-lint-9ddb.log) |  |
+| 09.10.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 5 мин 5 с | 35ada50 +1 | [лог](logs/2026-10-09T14-06-32Z-e2e-8a71.log) | хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных |
+| 09.10.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 7 из 7 | 3 мин 14 с | 35ada50 +3 | [лог](logs/2026-10-09T14-12-30Z-e2e-bfd7.log) | меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп |
+| 09.10.2026 19:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 1 из 7 | 43 с | 35ada50 +3 | [лог](logs/2026-10-09T14-15-58Z-e2e-747f.log) | хаб на компьютере и телефоне, доступность: dark |
+| 09.10.2026 19:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 35ada50 +3 | [лог](logs/2026-10-09T14-16-50Z-e2e-2593.log) |  |
+| 09.10.2026 19:17 | typecheck | ✅ без ошибок | 54 с | 35ada50 +3 | [лог](logs/2026-10-09T14-17-47Z-typecheck-1bb8.log) |  |
+| 09.10.2026 19:18 | lint | ✅ без ошибок | 35 с | 35ada50 +3 | [лог](logs/2026-10-09T14-18-42Z-lint-6458.log) |  |
+| 09.10.2026 19:25 | unit | ✅ 4158 из 4161, пропущено 3 | 2 мин 54 с | 4892f5c +1 | [лог](logs/2026-10-09T14-25-01Z-unit-4eb9.log) |  |
+| 09.10.2026 19:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.spec.ts tests/ui/top-menu.spe | ⏹ прерван | 8 мин 53 с | 35ada50 +3 | [лог](logs/2026-10-09T14-19-18Z-e2e-4f40.log) |  |
+| 09.10.2026 19:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.sp | ❌ код выхода 1 | 3 с | 4892f5c +1 | [лог](logs/2026-10-09T14-28-20Z-e2e-0912.log) | (ошибка вне тестов) |
+| 09.10.2026 19:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.sp | ⏹ прерван | 5 мин 56 с | fd95057 | [лог](logs/2026-10-09T14-28-56Z-e2e-07f6.log) |  |
+| 09.10.2026 19:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts -g Реклама\|хаб Marketing --workers=1) | ❌ упало 2 из 2 | 1 мин 18 с | 95476bc +1 | [лог](logs/2026-10-09T14-37-52Z-e2e-8bab.log) | хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни о |
+| 09.10.2026 19:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 8 | 1 мин 25 с | 95476bc +6 | [лог](logs/2026-10-09T14-39-13Z-e2e-7fe1.log) | хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни о |
+| 09.10.2026 19:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 8 из 8 | 1 мин 14 с | 95476bc +6 | [лог](logs/2026-10-09T14-43-04Z-e2e-51a7.log) |  |
+| 09.10.2026 19:45 | unit | ❌ упало 1 из 4161, пропущено 3 | 2 мин 1 с | 95476bc +5 | [лог](logs/2026-10-09T14-45-27Z-unit-a67c.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 09.10.2026 19:47 | unit (частично: scripts/design tests/unit/design-slop.test.ts) | ✅ 35 из 35 | 2 с | 95476bc +6 | [лог](logs/2026-10-09T14-47-36Z-unit-1baa.log) |  |
+| 09.10.2026 19:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/accessibility.spec.ts tests/ui/top-menu.spe | ❌ упало 1 из 50 | 8 мин 27 с | 95476bc +7 | [лог](logs/2026-10-09T14-47-44Z-e2e-f333.log) | экран /reservations/new?unit=M03: данные берутся одним запросом на путь |
+| 09.10.2026 19:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/requests.spec.ts --workers=1) | ✅ 32 из 32 | 1 мин 21 с | 95476bc +7 | [лог](logs/2026-10-09T14-56-16Z-e2e-8119.log) |  |
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
@@ -7842,3 +7864,13 @@
 | 09.10.2026 19:17 | typecheck | ❌ ошибок: 1 | 1 мин 2 с | f9f53f4 | [лог](logs/2026-10-09T14-17-19Z-typecheck-4447.log) | после слияния main: календарь |
 | 09.10.2026 19:18 | lint | ✅ без ошибок | 44 с | f9f53f4 | [лог](logs/2026-10-09T14-18-22Z-lint-521f.log) | после слияния main: календарь |
 | 09.10.2026 19:19 | typecheck | ✅ без ошибок | 45 с | f9f53f4 +1 | [лог](logs/2026-10-09T14-19-14Z-typecheck-8d65.log) | после слияния main: календарь, исправлена очистка масштаба |
+| 09.10.2026 19:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/booking-price-nights.spec.ts tests/ui/chessboard-calendar.spec.ts tests/ui/chessboard-card.spec.t | ⏹ прерван | 5 мин 15 с | 63d4d29 | [лог](logs/2026-10-09T14-20-24Z-e2e-679f.log) | календарь по образцу владельца на дереве после слияния main |
+| 09.10.2026 19:28 | typecheck | ✅ без ошибок | 52 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-28-14Z-typecheck-ae5d.log) |  |
+| 09.10.2026 19:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-compac | ❌ упало 1 из 16 | 3 мин 6 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-29-09Z-e2e-0cfd.log) | повторный щелчок по той же плашке закрывает панель, по другой переключает её |
+| 09.10.2026 19:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ✅ 9 из 9 | 1 мин 18 с | 63d4d29 +8 | [лог](logs/2026-10-09T14-32-27Z-e2e-a453.log) |  |
+| 09.10.2026 19:35 | unit | ❌ упало 14 из 4172, пропущено 3 | 3 мин 13 с | 63d4d29 +3 | [лог](logs/2026-10-09T14-35-47Z-unit-9b7f.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 09.10.2026 19:45 | typecheck | ✅ без ошибок | 1 мин 3 с | 48ed804 +5 | [лог](logs/2026-10-09T14-45-32Z-typecheck-9e60.log) |  |
+| 09.10.2026 19:46 | lint | ✅ без ошибок | 59 с | 48ed804 +5 | [лог](logs/2026-10-09T14-46-36Z-lint-3edb.log) |  |
+| 09.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ❌ код выхода 1 | 2 с | 1ea3433 +3 | [лог](logs/2026-10-09T14-49-35Z-e2e-d841.log) | (ошибка вне тестов) |
+| 09.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-card.spec.ts) | ✅ 10 из 10 | 1 мин 29 с | 1ea3433 +3 | [лог](logs/2026-10-09T14-49-58Z-e2e-94b6.log) |  |
+| 09.10.2026 19:52 | unit | ❌ упало 1 из 4172, пропущено 3 | 3 мин 2 с | 1ea3433 +2 | [лог](logs/2026-10-09T14-52-18Z-unit-fc60.log) | восстановление рабочей базы из копии (ADR-137) данные и все миграции прав одной транзакцией, права после данных и по порядку |

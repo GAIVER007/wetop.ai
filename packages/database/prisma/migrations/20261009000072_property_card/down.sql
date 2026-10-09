@@ -1,0 +1,23 @@
+-- Откат ADR-156: снимает колонки карточки объекта. Данные этих колонок теряются, остальное не затрагивается.
+ALTER TABLE "properties"
+  DROP CONSTRAINT IF EXISTS "properties_onsite_payment_check",
+  DROP CONSTRAINT IF EXISTS "properties_cancellation_rule_check",
+  DROP CONSTRAINT IF EXISTS "properties_deposit_rule_check",
+  DROP CONSTRAINT IF EXISTS "properties_min_guest_age_check",
+  DROP CONSTRAINT IF EXISTS "properties_quiet_hours_pair_check",
+  DROP COLUMN IF EXISTS "description",
+  DROP COLUMN IF EXISTS "website",
+  DROP COLUMN IF EXISTS "public_name",
+  DROP COLUMN IF EXISTS "early_check_in",
+  DROP COLUMN IF EXISTS "late_check_out",
+  DROP COLUMN IF EXISTS "children_allowed",
+  DROP COLUMN IF EXISTS "pets_allowed",
+  DROP COLUMN IF EXISTS "smoking_allowed",
+  DROP COLUMN IF EXISTS "onsite_payment",
+  DROP COLUMN IF EXISTS "cancellation_rule",
+  DROP COLUMN IF EXISTS "deposit_rule",
+  DROP COLUMN IF EXISTS "min_guest_age",
+  DROP COLUMN IF EXISTS "quiet_hours_from",
+  DROP COLUMN IF EXISTS "quiet_hours_to",
+  DROP COLUMN IF EXISTS "house_rules_note",
+  DROP COLUMN IF EXISTS "amenities";

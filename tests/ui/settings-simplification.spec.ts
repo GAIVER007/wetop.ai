@@ -30,7 +30,7 @@ test('короткое меню настроек ведёт в единый об
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Объект');
   // часы заезда и выезда — своей вкладкой (ADR-115), правила отмены — у тарифов
   await tabs.getByRole('link', { name: 'Проживание', exact: true }).click();
-  await expect(page.getByTestId('stay-settings')).toContainText('14:00');
+  await expect(page.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');
   await page.reload();
   await expect(tabs.getByRole('link', { name: 'Проживание' })).toHaveAttribute(
     'aria-current',

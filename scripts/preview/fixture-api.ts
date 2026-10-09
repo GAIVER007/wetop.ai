@@ -2,7 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -11,6 +11,7 @@ import {
   buildDashboard,
   buildUnitStats,
   buildChannelEfficiency,
+  buildCashFlow,
   type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
@@ -56,12 +57,17 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseMemberDetails,
+  parseScopeAssignments,
+  validateAssignments,
+  membershipRoleFor,
+  type ScopeAssignment,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
   type MembershipRole,
   countGuestNights,
+  pickMainStay,
   summarizeGuestStays,
   upcomingBirthday,
   parseTaskInput,
@@ -886,7 +892,22 @@ function seedAnalyticsHistory() {
  */
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
-let hotelOverrides: Record<string, string | null> = {};
+let hotelOverrides: Record<string, unknown> = {};
+// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+interface FixtureMedia {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  fileName: string | null;
+  byteSize: number;
+}
+let hotelMedia: FixtureMedia[] = [];
+let mediaStorageOff = false;
+let mediaSeq = 0;
+const PHOTO_PLACEHOLDER =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"><rect width="160" height="120" fill="#cfd8e6"/></svg>',
+  );
 /**
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
@@ -935,6 +956,10 @@ function getGuest(id: string) {
             departureDate: it.departureDate,
             status: it.status,
             unitCode: it.unitCode,
+            // «Гости и бронирования»: гости проживания и позиция брони (услуги берутся из её счёта)
+            adults: it.adults,
+            children: it.children,
+            itemId: it.id,
             source: r.source,
             channel: r.channel ?? null,
             currency: r.currency,
@@ -1717,7 +1742,12 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
     previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
   };
 }
-function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
+function dashboardPeriod(
+  from: string,
+  to: string,
+  fund: DashboardFund = 'all',
+  category?: string,
+): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
   const unassignedByCategory: Record<string, number> = {};
@@ -1758,13 +1788,14 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
       refundsMinor: 0n,
     },
     fund,
+    category ? { category } : {},
   );
 }
-function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all', category?: string) {
   const prev = previousPeriod(from, to);
   return {
-    current: dashboardPeriod(from, to, fund),
-    previous: dashboardPeriod(prev.from, prev.to, fund),
+    current: dashboardPeriod(from, to, fund, category),
+    previous: dashboardPeriod(prev.from, prev.to, fund, category),
   };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
@@ -2078,6 +2109,8 @@ interface FixtureMember {
   /** Телефон и должность (TEAM2, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended?: boolean;
 }
 interface FixtureInvite {
   id: string;
@@ -2085,13 +2118,39 @@ interface FixtureInvite {
   role: InviteRole;
   expiresAt: string;
   createdAt: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: ScopeAssignment[];
 }
+/** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
+const FIXTURE_STRUCTURE = {
+  businesses: [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'Гостиница Luxx',
+      vertical: 'HOSPITALITY',
+      locations: [
+        { id: '21111111-1111-4111-8111-111111111111', name: 'Главный филиал' },
+        { id: '22222222-2222-4222-8222-222222222222', name: 'Филиал Алматы' },
+      ],
+    },
+    {
+      id: '33333333-3333-4333-8333-333333333333',
+      name: 'Салон красоты',
+      vertical: 'BEAUTY',
+      locations: [{ id: '44444444-4444-4444-8444-444444444444', name: 'Салон на Абая' }],
+    },
+  ],
+};
+const uiScopes = new Map<string, ScopeAssignment[]>();
 let uiTeam: FixtureMember[] = [];
 /** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
 let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiMyDetails = { phone: null, position: null };
+  uiScopes.clear();
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -2157,6 +2216,10 @@ function teamView(me: UiUser) {
       const you = m.userId === me.id;
       return {
         ...m,
+        suspended: m.suspended === true,
+        suspendable: !you && canRemoveMember(uiRole, m.role),
+        scopes: uiScopes.get(m.userId) ?? [],
+        scopesEditable: !you && canRemoveMember(uiRole, m.role),
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
@@ -3040,6 +3103,11 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
+      // номера и места по единицам продажи (ADR-156): как считает API
+      capacity: {
+        rooms: units.filter((u) => u.kind === 'ROOM').length,
+        beds: units.filter((u) => u.kind === 'BED').length,
+      },
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
@@ -3118,6 +3186,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -3183,7 +3262,12 @@ function read(path: string, q: URLSearchParams): unknown {
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
       throw new Error('fund — all, rooms или beds');
-    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+    return dashboard(
+      q.get('from') || today,
+      q.get('to') || today,
+      fund as DashboardFund,
+      q.get('category') || undefined,
+    );
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
@@ -3452,45 +3536,79 @@ function read(path: string, q: URLSearchParams): unknown {
   // Справочник «Гости v2»: гости собираются из карточек броней — «пустая база» остаётся пустой
   if (path === '/guests/directory') {
     const state = q.get('state') || 'ALL';
+    const view = q.get('view') || 'all';
     const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
     const page = Math.max(1, Number(q.get('page') || 1));
     const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
     const ids = [
       ...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : []))),
     ];
-    const all = ids
+    type FixtureGuest = NonNullable<ReturnType<typeof getGuest>>;
+    const factsOf = (g: FixtureGuest) =>
+      g.stays.map((s) => ({
+        status: s.status,
+        arrivalDate: s.arrivalDate,
+        departureDate: s.departureDate,
+        unitCode: s.unitCode,
+        accommodationTypeName: s.accommodationTypeName,
+        confirmationNumber: s.confirmationNumber,
+        adults: s.adults,
+        children: s.children,
+        source: s.source,
+        channel: s.channel,
+        currency: s.currency,
+        money:
+          s.chargedMinor === null
+            ? null
+            : {
+                chargedMinor: s.chargedMinor,
+                paidMinor: s.paidMinor ?? '0',
+                refundedMinor: s.refundedMinor ?? '0',
+                balanceMinor: s.balanceMinor ?? '0',
+              },
+      }));
+    // Те же определения, что SQL настоящего API: заезд сегодня это подтверждённое, заселённое или выехавшее
+    // проживание с заездом сегодня; выезд сегодня это заселён или выехал; «Требуют внимания»: четыре факта R2
+    const flagsOf = (g: FixtureGuest) => {
+      const f = { arrivesToday: false, departsToday: false, attention: false, debt: false };
+      for (const s of g.stays) {
+        const balance = s.balanceMinor === null ? 0n : BigInt(s.balanceMinor);
+        const live = s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT';
+        const planned = s.status === 'CONFIRMED' || s.status === 'TENTATIVE';
+        if (s.arrivalDate === today && (live || planned)) f.arrivesToday = true;
+        if (s.departureDate === today && live) f.departsToday = true;
+        if (
+          ((planned || s.status === 'CHECKED_IN') && !s.unitCode) ||
+          (planned && s.arrivalDate < today) ||
+          (live && balance > 0n) ||
+          balance < 0n
+        )
+          f.attention = true;
+        if (live && balance > 0n) f.debt = true;
+      }
+      return f;
+    };
+    const everyone = ids
       .flatMap((id) => {
         const g = getGuest(id);
         return g ? [g] : [];
       })
-      .filter(
-        (g) =>
-          !search ||
-          `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
-            .toLocaleLowerCase('ru')
-            .includes(search),
-      )
       .sort((a, b) =>
         `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'ru'),
       )
       .map((g) => ({
-        id: g.id,
-        firstName: g.firstName,
-        lastName: g.lastName,
-        middleName: g.middleName,
-        phone: g.phone,
-        email: g.email,
-        ...summarizeGuestStays(
-          g.stays.map((s) => ({
-            status: s.status,
-            arrivalDate: s.arrivalDate,
-            departureDate: s.departureDate,
-            unitCode: s.unitCode,
-            accommodationTypeName: s.accommodationTypeName,
-          })),
-          today,
-        ),
+        g,
+        flags: flagsOf(g),
+        stay: pickMainStay(factsOf(g), today),
+        summary: summarizeGuestStays(factsOf(g), today),
       }));
+    const all = everyone.filter(
+      ({ g }) =>
+        !search ||
+        `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+          .toLocaleLowerCase('ru')
+          .includes(search),
+    );
     // G7: отборы и порядок — те же правила, что SQL настоящего API (последний визит — выезд
     // последнего состоявшегося визита; визиты — заселён или выехал)
     const last = q.get('last') || '';
@@ -3505,36 +3623,118 @@ function read(path: string, q: URLSearchParams): unknown {
               ? [q.get('from') || '', q.get('to') || '']
               : null;
     const visits = q.get('visits') || '';
+    // «Гости и бронирования»: отборы про основное проживание, ту же бронь, что видна в строке
+    const sourceText = (q.get('source') || '').trim();
+    const sourceCode = ['DESK', 'PHONE', 'WHATSAPP', 'WALK_IN', 'INSTAGRAM', 'WEBSITE', 'OTA'].find(
+      (c) => c === sourceText.toUpperCase(),
+    );
+    const periodKind = q.get('period') || '';
+    const stayWindow: [string, string] | null =
+      periodKind === 'today'
+        ? [today, today]
+        : periodKind === '7d'
+          ? [today, add(today, 6)]
+          : periodKind === '30d'
+            ? [today, add(today, 29)]
+            : periodKind === 'range'
+              ? [q.get('periodFrom') || '', q.get('periodTo') || '']
+              : null;
     const filtered = all.filter(
-      (g) =>
+      ({ g, flags, stay, summary }) =>
         (!window ||
-          (g.last !== null &&
-            g.last.departureDate >= window[0] &&
-            g.last.departureDate <= window[1])) &&
+          (summary.last !== null &&
+            summary.last.departureDate >= window[0] &&
+            summary.last.departureDate <= window[1])) &&
         (visits === '1'
-          ? g.staysCount === 1
+          ? summary.staysCount === 1
           : visits === '2-5'
-            ? g.staysCount >= 2 && g.staysCount <= 5
+            ? summary.staysCount >= 2 && summary.staysCount <= 5
             : visits === '6+'
-              ? g.staysCount >= 6
-              : true),
+              ? summary.staysCount >= 6
+              : true) &&
+        (!sourceText ||
+          (sourceCode
+            ? stay?.source === sourceCode
+            : (stay?.channel ?? '').toLocaleLowerCase('ru').includes(sourceText.toLocaleLowerCase('ru')))) &&
+        (q.get('debt') !== '1' || flags.debt) &&
+        (q.get('fresh') !== '1' || summary.staysCount <= 1) &&
+        (q.get('nocontact') !== '1' || (!g.phone && !g.email)) &&
+        (!stayWindow ||
+          (stay !== null &&
+            stay.arrivalDate <= stayWindow[1] &&
+            stay.departureDate >= stayWindow[0])),
     );
     const sort = q.get('sort') || 'name';
     const tail = '9999-12-31';
     if (sort === 'next')
-      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+      filtered.sort((a, b) =>
+        (a.summary.next?.arrivalDate ?? tail).localeCompare(b.summary.next?.arrivalDate ?? tail),
+      );
     else if (sort === 'last')
-      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
-    else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
+      filtered.sort((a, b) =>
+        (b.summary.last?.departureDate ?? '').localeCompare(a.summary.last?.departureDate ?? ''),
+      );
+    else if (sort === 'visits') filtered.sort((a, b) => b.summary.staysCount - a.summary.staysCount);
     const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
-    for (const g of filtered) counts[g.state] += 1;
-    const rows = state === 'ALL' ? filtered : filtered.filter((g) => g.state === state);
+    for (const { summary } of filtered) counts[summary.state] += 1;
+    const inState = state === 'ALL' ? filtered : filtered.filter((x) => x.summary.state === state);
+    const inView = (x: (typeof everyone)[number], v: string) =>
+      v === 'today'
+        ? x.flags.arrivesToday || x.flags.departsToday
+        : v === 'inhouse'
+          ? x.summary.state === 'INHOUSE'
+          : v === 'expected'
+            ? x.summary.state === 'EXPECTED'
+            : v === 'departures'
+              ? x.flags.departsToday
+              : v === 'attention'
+                ? x.flags.attention
+                : true;
+    const views = Object.fromEntries(
+      ['all', 'today', 'inhouse', 'expected', 'departures', 'attention'].map((v) => [
+        v,
+        inState.filter((x) => inView(x, v)).length,
+      ]),
+    );
+    const rows = inState.filter((x) => inView(x, view));
+    // плитки не зависят от поиска и отборов; вчера считается по датам брони
+    const stays = everyone.flatMap(({ g }) => g.stays.map((s) => ({ guestId: g.id, ...s })));
+    const yesterday = add(today, -1);
+    const distinct = (list: Array<{ guestId: string }>) => new Set(list.map((x) => x.guestId)).size;
+    const kpi = {
+      all: everyone.length,
+      inhouse: everyone.filter((x) => x.summary.state === 'INHOUSE').length,
+      arrivalsToday: everyone.filter((x) => x.flags.arrivesToday).length,
+      departuresToday: everyone.filter((x) => x.flags.departsToday).length,
+      expected: everyone.filter((x) => x.summary.state === 'EXPECTED').length,
+      attention: everyone.filter((x) => x.flags.attention).length,
+      none: everyone.filter((x) => x.summary.state === 'NONE').length,
+      arrivalsYesterday: distinct(
+        stays.filter(
+          (s) => s.arrivalDate === yesterday && (s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT'),
+        ),
+      ),
+      departuresYesterday: distinct(
+        stays.filter((s) => s.departureDate === yesterday && s.status === 'CHECKED_OUT'),
+      ),
+    };
     return {
       total: rows.length,
       page,
       pageSize,
       counts,
-      rows: rows.slice((page - 1) * pageSize, page * pageSize),
+      views,
+      kpi,
+      rows: rows.slice((page - 1) * pageSize, page * pageSize).map(({ g, stay, summary }) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        stay,
+        ...summary,
+      })),
     };
   }
   // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
@@ -3578,6 +3778,73 @@ function read(path: string, q: URLSearchParams): unknown {
       middleName: g.middleName,
       phone: g.phone,
       email: g.email,
+      notes: g.notes,
+      ...(() => {
+        const facts = g.stays.map((s) => ({
+          status: s.status,
+          arrivalDate: s.arrivalDate,
+          departureDate: s.departureDate,
+          unitCode: s.unitCode,
+          accommodationTypeName: s.accommodationTypeName,
+          confirmationNumber: s.confirmationNumber,
+          adults: s.adults,
+          children: s.children,
+          source: s.source,
+          channel: s.channel,
+          currency: s.currency,
+          money:
+            s.chargedMinor === null
+              ? null
+              : {
+                  chargedMinor: s.chargedMinor,
+                  paidMinor: s.paidMinor ?? '0',
+                  refundedMinor: s.refundedMinor ?? '0',
+                  balanceMinor: s.balanceMinor ?? '0',
+                },
+        }));
+        const stay = pickMainStay(facts, today);
+        // услуги основного проживания: начисления вида SERVICE без сторно из счёта его позиции
+        const mainStay = stay
+          ? g.stays.find(
+              (s) =>
+                s.confirmationNumber === stay.confirmationNumber &&
+                s.arrivalDate === stay.arrivalDate &&
+                s.status === stay.status,
+            )
+          : undefined;
+        const mainCard = mainStay
+          ? cards.find((r) => r.confirmationNumber === mainStay.confirmationNumber)
+          : undefined;
+        const folio = mainCard
+          ? finance(mainCard).folios.find((f) => f.reservationItemId === mainStay!.itemId)
+          : undefined;
+        const services = (folio?.charges ?? [])
+          .filter((c) => c.kind === 'SERVICE' && !c.voidedAt)
+          .map((c) => ({
+            id: c.id,
+            description: c.description,
+            quantity: c.quantity,
+            amountMinor: c.amountMinor,
+            serviceDate: c.serviceDate,
+          }));
+        const visits = g.stays
+          .filter((s) => s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT')
+          .sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate))
+          .slice(0, 10)
+          .map((s) => ({
+            confirmationNumber: s.confirmationNumber,
+            arrivalDate: s.arrivalDate,
+            departureDate: s.departureDate,
+            nights: Math.max(
+              0,
+              Math.round((Date.parse(s.departureDate) - Date.parse(s.arrivalDate)) / 86400000),
+            ),
+            unitCode: s.unitCode,
+            accommodationTypeName: s.accommodationTypeName,
+            status: s.status,
+          }));
+        return { stay, services, visits };
+      })(),
       ...summarizeGuestStays(g.stays, today),
       nightsTotal: countGuestNights(g.stays),
       hasFolios: billed.length > 0,
@@ -3808,6 +4075,31 @@ function read(path: string, q: URLSearchParams): unknown {
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: picked.slice(0, limit),
       truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/cashflow') {
+    // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const feed = read('/finance/operations', new URLSearchParams({ from, to, limit: '20000' })) as {
+      truncated: boolean;
+      rows: Array<{
+        kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        localAt: string;
+        method: string;
+        amountMinor: string;
+        status: 'COMPLETED' | 'VOIDED';
+        category: string | null;
+      }>;
+    };
+    return {
+      currency: 'KZT',
+      ...buildCashFlow(
+        feed.rows.map((r) => ({ ...r, amountMinor: BigInt(r.amountMinor) })),
+        from,
+        to,
+      ),
+      truncated: feed.truncated,
     };
   }
   if (path === '/finance/cash') {
@@ -4487,6 +4779,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §31): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4650,6 +4944,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -4709,6 +5004,8 @@ createServer(async (req, res) => {
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      hotelMedia = [];
+      mediaStorageOff = false;
       serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
@@ -4777,6 +5074,7 @@ createServer(async (req, res) => {
       channelCatalog =
         body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
+      if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
       // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
@@ -5191,6 +5489,10 @@ createServer(async (req, res) => {
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const view = (i: FixtureInvite) => ({
         ...i,
+        firstName: i.firstName ?? null,
+        lastName: i.lastName ?? null,
+        position: i.position ?? null,
+        scopes: i.scopes ?? [],
         acceptedAt: null,
         revocable: canInvite(uiRole, i.role),
       });
@@ -5209,12 +5511,33 @@ createServer(async (req, res) => {
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
         if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
+        // область и данные приглашения (DATA_MODEL §31.3): те же функции домена, что у API
+        const parsedScopes = parseScopeAssignments(body['scopes']);
+        if (!parsedScopes.ok) return send(400, { message: parsedScopes.message });
+        if (parsedScopes.assignments.length > 0) {
+          const check = validateAssignments({
+            actor: uiRole,
+            assignments: parsedScopes.assignments,
+            known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+              businessId: b.id,
+              locationIds: b.locations.map((l) => l.id),
+            })),
+          });
+          if (!check.ok) return send(400, { message: check.reason });
+        }
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
-          role,
+          role:
+            parsedScopes.assignments.length > 0
+              ? (membershipRoleFor(parsedScopes.assignments, role) as InviteRole)
+              : role,
           expiresAt: invitePreview.expiresAt,
           createdAt: new Date().toISOString(),
+          firstName: typeof body['firstName'] === 'string' ? body['firstName'] : null,
+          lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
+          position: null,
+          scopes: parsedScopes.assignments,
         };
         uiInvites.unshift(invite);
         return send(201, view(invite));
@@ -5251,6 +5574,61 @@ createServer(async (req, res) => {
       if (target.you) uiMyDetails = next;
       else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
       return send(200, { userId: target.userId, ...next });
+    }
+    // Бизнесы и филиалы для области доступа и замена назначений (DATA_MODEL §31.1)
+    if (path === '/auth/access-structure' && req.method === 'GET') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      return send(200, FIXTURE_STRUCTURE);
+    }
+    const scopesMatch = /^\/auth\/members\/([^/]+)\/scopes$/.exec(path);
+    if (scopesMatch && req.method === 'PUT') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const parsed = parseScopeAssignments(body['scopes']);
+      if (!parsed.ok) return send(400, { message: parsed.message });
+      const target = teamView(who).find((m) => m.userId === scopesMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      if (parsed.assignments.length > 0) {
+        const check = validateAssignments({
+          actor: uiRole,
+          assignments: parsed.assignments,
+          known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+            businessId: b.id,
+            locationIds: b.locations.map((l) => l.id),
+          })),
+        });
+        if (!check.ok) return send(400, { message: check.reason });
+        uiScopes.set(target.userId, parsed.assignments);
+        const next = membershipRoleFor(parsed.assignments, target.role) as InviteRole;
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role: next } : m));
+      } else uiScopes.delete(target.userId);
+      return send(200, { userId: target.userId, scopes: parsed.assignments });
+    }
+    // Приостановка и возобновление доступа (DATA_MODEL §31.2): круг тот же, что у отключения
+    const suspendMatch = /^\/auth\/members\/([^/]+)\/(suspend|resume)$/.exec(path);
+    if (suspendMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const target = teamView(who).find((m) => m.userId === suspendMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      const suspended = suspendMatch[2] === 'suspend';
+      uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, suspended } : m));
+      return send(200, { ok: true });
     }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
@@ -6822,12 +7200,64 @@ createServer(async (req, res) => {
       if (v.active !== undefined) row.active = v.active;
       return send(200, row);
     }
+    if (path === '/hotel/media' && req.method === 'GET') {
+      const view = (m: FixtureMedia, position: number) => ({
+        id: m.id,
+        kind: m.kind,
+        position,
+        fileName: m.fileName,
+        byteSize: m.byteSize,
+        width: m.kind === 'PHOTO' ? 160 : null,
+        height: m.kind === 'PHOTO' ? 120 : null,
+        alt: null,
+        url: m.kind === 'PHOTO' ? PHOTO_PLACEHOLDER : 'https://files.example.invalid/contract.pdf',
+      });
+      const contract = hotelMedia.find((m) => m.kind === 'CONTRACT');
+      return send(200, {
+        storage: mediaStorageOff ? 'OFF' : 'READY',
+        limits: { maxBytes: 10 * 1024 * 1024, maxPhotos: 20 },
+        photos: hotelMedia.filter((m) => m.kind === 'PHOTO').map(view),
+        contract: contract && can(uiRole, 'settings') ? view(contract, 0) : null,
+      });
+    }
+    if (path.startsWith('/hotel/media/')) {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      if (mediaStorageOff)
+        return send(503, { message: 'Хранилище файлов не включено. Обратитесь в поддержку WETOP.' });
+      if (req.method === 'POST' && (path === '/hotel/media/photos' || path === '/hotel/media/contract')) {
+        const kind = path.endsWith('contract') ? 'CONTRACT' : 'PHOTO';
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? null;
+        if (kind === 'CONTRACT' && !text.includes('%PDF-'))
+          return send(415, { message: 'Договор принимается только в формате PDF' });
+        if (kind === 'PHOTO' && hotelMedia.filter((m) => m.kind === 'PHOTO').length >= 20)
+          return send(400, { message: 'Не больше 20 фото на объект. Удалите лишние.' });
+        if (kind === 'CONTRACT') hotelMedia = hotelMedia.filter((m) => m.kind !== 'CONTRACT');
+        hotelMedia.push({
+          id: `00000000-0000-4000-8000-${String(++mediaSeq).padStart(12, '0')}`,
+          kind,
+          fileName: name ? Buffer.from(name, 'latin1').toString('utf8') : null,
+          byteSize: raw.length,
+        });
+        return send(201, {});
+      }
+      if (req.method === 'DELETE') {
+        const id = path.split('/')[4] ?? '';
+        const before = hotelMedia.length;
+        hotelMedia = hotelMedia.filter((m) =>
+          path.endsWith('/contract') ? m.kind !== 'CONTRACT' : m.id !== id,
+        );
+        return hotelMedia.length === before
+          ? send(404, { message: 'Файл не найден' })
+          : send(200, { deleted: true });
+      }
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
-      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, unknown>) };
       return send(200, {});
     }
     if (path === '/hotel/onboarding' && req.method === 'POST') {
@@ -6957,6 +7387,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

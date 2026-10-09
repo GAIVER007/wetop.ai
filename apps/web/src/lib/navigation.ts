@@ -1,5 +1,6 @@
 import type { WebVertical } from './vertical-landing';
 import {
+  ORGANIZATION_LEVEL_PERMISSIONS,
   can,
   parseMembershipRole,
   rolesWith,
@@ -21,6 +22,11 @@ export interface NavigationAccess {
    * `/auth/me` — не `null`, а `UNKNOWN_ACCESS` (`desk-shell.ts`).
    */
   role: MembershipRole | null;
+  /**
+   * У человека область доступа (DATA_MODEL §31.1): права уровня организации (команда, роли, журнал) ему закрыты,
+   * даже если роль в филиале управляющая. API это проверяет; стойка не показывает то, что API откажет.
+   */
+  restricted?: true;
   /**
    * Роль не узнали: `/auth/me` не ответил (сбой, тайм-аут). Меню и кнопки тогда — как у администратора, а страница по
    * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
@@ -159,11 +165,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Брони и проживания за выбранный день.',
       },
       {
+        // «Гости и бронирования» (09.10.2026): один экран вместо вкладок «Брони» и «Гости»; список броней
+        // `/reservations` остаётся кнопкой внутри экрана, а в меню своего пункта у него нет
         href: '/guests',
         requires: 'desk',
-        label: 'Гости',
+        label: 'Гости и бронирования',
+        shortLabel: 'Брони', // на вкладке телефона 75 px «Гости и брони» переносится на две строки и поднимает панель
         icon: 'guests',
-        description: 'Карточки гостей и история проживания.',
+        description: 'Единая база гостей, бронирований и проживаний.',
       },
       {
         // Задачи стойки (DATA_MODEL §22, ADR-145): вход из панели «Сегодня» календаря, отдельного пункта меню нет
@@ -466,7 +475,7 @@ const TEAM: MenuOptions = { label: 'Сотрудники и доступ', match
 
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
- * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони) одним щелчком; группы с несколькими
+ * то же меню выдвижное. Работа смены (Главная, Календарь, Гости и бронирования) одним щелчком; группы с несколькими
  * экранами («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
  */
 // Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
@@ -476,9 +485,9 @@ const hospitalityRegistry: MenuSection[] = [
   // задачи смены открываются из «Сегодня» (ADR-145), своего пункта у них нет
   direct('home', '/today', 'today', { match: ['/today', '/tasks'] }),
   direct('chessboard', '/chessboard', 'board'),
-  direct('reservations', '/reservations', 'booking', { match: ['/reservations', '/guests'] }),
-  // «Гости» без своей вкладки в меню: раздел открывается вкладкой внутри «Броней»
-  // (поручение владельца 09.10.2026), адрес /guests и право прежние, подсвечиваются «Брони»
+  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
+  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
+  direct('guests', '/guests', 'guests', { match: ['/guests', '/reservations'] }),
   direct('finance', '/finance', 'money', { label: 'Финансы' }),
   direct('bar', '/bar', 'receipt'),
   {
@@ -656,6 +665,7 @@ export function activeItem(
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
+  if (access.restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;
   return access.role === null || can(access.role, permission);
 }
 
@@ -727,7 +737,7 @@ export function menuSectionsFor(
  */
 export function deskAccessOf(
   me: {
-    user: { platformAdmin?: boolean; role?: string } | null;
+    user: { platformAdmin?: boolean; role?: string; restricted?: boolean } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
   } | null,
 ): NavigationAccess {
@@ -737,6 +747,7 @@ export function deskAccessOf(
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
+    ...(me.user.restricted === true ? { restricted: true as const } : {}),
   };
 }
 

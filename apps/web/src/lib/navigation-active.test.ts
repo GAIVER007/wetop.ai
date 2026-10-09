@@ -38,10 +38,10 @@ const HOSPITALITY: Array<[string[], string | null]> = [
       '/reservations/',
       '/reservations?status=new#top',
     ],
-    'reservations>/reservations',
+    'guests>/guests',
   ],
-  // «Гости» живут вкладкой внутри «Броней» (поручение владельца 09.10.2026, после плана DS2)
-  [['/guests', '/guests/123', '/guests/123/preview', '/guests/birthdays'], 'reservations>/reservations'],
+  // «Гости и бронирования» одной вкладкой (поручение владельца 09.10.2026, после плана DS2): брони подсвечивают её
+  [['/guests', '/guests/123', '/guests/123/preview', '/guests/birthdays'], 'guests>/guests'],
   [['/finance'], 'finance>/finance'],
   [['/bar'], 'bar>/bar'],
   [['/inventory', '/rooms', '/rooms/categories', '/rates', '/units/R01'], 'inventory>/inventory'],
@@ -141,9 +141,9 @@ describe('activeItem: матрица активного пункта (DS2 §12)'
       href: '/channels',
     });
     expect(activeItem('/reservations/ABC', 'HOSPITALITY', everyone)).toMatchObject({
-      sectionId: 'reservations',
-      itemId: 'reservations',
-      href: '/reservations',
+      sectionId: 'guests',
+      itemId: 'guests',
+      href: '/guests',
     });
   });
 

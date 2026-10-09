@@ -35,6 +35,7 @@ import {
   sessionExpiry,
   sessionState,
   type MembershipRole,
+  type ScopeAssignment,
   type UserStatus,
 } from '@pms/domain';
 import { NEW_PROPERTY_DEFAULTS, createPropertyInChain } from '@pms/database';
@@ -58,6 +59,11 @@ export interface SignedInUser {
   role: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа». Данных чужих гостиниц это не открывает */
   platformAdmin: boolean;
+  /**
+   * Назначения по бизнесам и филиалам (DATA_MODEL §31.1). Нет поля: человек работает во всей организации. Есть:
+   * только там, где назначен, а `role` это старшая из назначенных; роль в месте даёт `roleAt`.
+   */
+  scopes?: ScopeAssignment[];
 }
 
 /** Организация сессии — то, что показывает экран входа: имя, состояние и пробный период (ADR-046, §13.1). */
@@ -116,6 +122,10 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 }
 
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
+/** Вход закрыт приостановкой доступа (DATA_MODEL §31.2): человек в команде, но его не пускают, пока владелец не вернёт доступ */
+export const ACCESS_SUSPENDED_MESSAGE =
+  'Доступ приостановлен. Обратитесь к владельцу или управляющему организации.';
+
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
 /** Проверки и хеши паролей всего процесса — через одну очередь (аудит 26.09, С-5). */
@@ -125,6 +135,7 @@ const checkPasswordQueued = verifyPasswordQueued;
 interface Access {
   role: MembershipRole;
   platformAdmin: boolean;
+  scopes: ScopeAssignment[];
 }
 
 const visible = (
@@ -138,6 +149,8 @@ const visible = (
   organizationId,
   role: access.role,
   platformAdmin: access.platformAdmin,
+  // назначения только когда они есть: у человека без области ответ прежний
+  ...(access.scopes.length > 0 ? { scopes: access.scopes } : {}),
 });
 
 /**
@@ -233,7 +246,7 @@ export class AuthService {
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },
-          include: { memberships: { orderBy: { createdAt: 'asc' }, take: 1 } },
+          include: { memberships: { orderBy: { createdAt: 'asc' } } },
         })
       : null;
 
@@ -274,7 +287,10 @@ export class AuthService {
     if (user.emailVerifiedAt === null) throw new ForbiddenException(VERIFY_PENDING_MESSAGE);
 
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
-    const organizationId = user.memberships[0]?.organizationId;
+    // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
+    const active = user.memberships.find((m) => m.status === 'ACTIVE');
+    if (!active && user.memberships.length > 0) throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
+    const organizationId = active?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);
 
@@ -579,9 +595,10 @@ export class AuthService {
           organizationId: found.row.organizationId,
         },
       },
-      select: { role: true },
+      select: { role: true, status: true },
     });
-    if (!membership) return null;
+    // приостановленный, как отключённый: сессия не действует (DATA_MODEL §31.2)
+    if (!membership || membership.status !== 'ACTIVE') return null;
     return { session: found.row, user: found.row.user };
   }
 
@@ -599,14 +616,26 @@ export class AuthService {
    * ключу: читаются при каждом запросе, и отозванная отметка или сменённая роль действуют сразу, без нового входа.
    */
   private async access(userId: string, organizationId: string): Promise<Access> {
-    const [membership, admin] = await Promise.all([
+    const [membership, admin, scopeRows] = await Promise.all([
       this.prisma.db.membership.findUnique({
         where: { userId_organizationId: { userId, organizationId } },
         select: { role: true },
       }),
       this.prisma.db.platformAdmin.findUnique({ where: { userId }, select: { revokedAt: true } }),
+      this.prisma.db.membershipScope.findMany({
+        where: { userId, organizationId },
+        orderBy: { createdAt: 'asc' },
+        select: { role: true, businessId: true, locationId: true },
+      }),
     ]);
     return {
+      scopes: scopeRows
+        .filter((r) => r.role !== 'OWNER')
+        .map((r) => ({
+          role: r.role as 'MANAGER' | 'STAFF',
+          businessId: r.businessId,
+          locationId: r.locationId,
+        })),
       // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет
       role: membership?.role ?? 'STAFF',
       platformAdmin: admin !== null && admin.revokedAt === null,

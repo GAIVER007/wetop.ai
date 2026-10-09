@@ -5,7 +5,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(menuSections.map((s) => s.id)).toEqual([
     'home',
     'chessboard',
-    'reservations',
+    'guests',
     'finance',
     'bar',
     'sales',
@@ -39,17 +39,17 @@ it('phone bottom bar: the four leading tabs, every one a direct tab', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([
     '/today',
     '/chessboard',
-    '/reservations',
+    '/guests',
     '/finance',
   ]);
 });
 
-// «Гости» переехали внутрь «Броней» (поручение владельца 09.10.2026): своей вкладки в меню нет,
-// раздел открывается вкладкой на страницах /reservations и /guests, подсветка меню остаётся на «Бронях»
-it('guests live inside the reservations section: no own menu tab, menu highlight stays on it', () => {
-  expect(menuSections.flatMap((s) => s.items.map((i) => i.href))).not.toContain('/guests');
-  expect(activeItem('/guests', 'HOSPITALITY', CLOSED_ACCESS)).toMatchObject({ sectionId: 'reservations', href: '/reservations' });
-  expect(activeItem('/guests/birthdays', 'HOSPITALITY', CLOSED_ACCESS)).toMatchObject({ sectionId: 'reservations', href: '/reservations' });
-  expect(activeItem('/guests/42', 'HOSPITALITY', CLOSED_ACCESS)).toMatchObject({ sectionId: 'reservations', href: '/reservations' });
-  expect(activeItem('/reservations', 'HOSPITALITY', CLOSED_ACCESS)).toMatchObject({ sectionId: 'reservations', href: '/reservations' });
+// «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,
+// классический список броней открывается кнопкой на экране и подсвечивает ту же вкладку
+it('guests and bookings are one menu tab: the reservations list has no tab of its own', () => {
+  const hrefs = menuSections.flatMap((s) => s.items.map((i) => i.href));
+  expect(hrefs).toContain('/guests');
+  expect(hrefs).not.toContain('/reservations');
+  for (const path of ['/guests', '/guests/birthdays', '/guests/42', '/reservations', '/reservations/20260927-ABC123'])
+    expect(activeItem(path, 'HOSPITALITY', CLOSED_ACCESS), path).toMatchObject({ sectionId: 'guests', href: '/guests' });
 });

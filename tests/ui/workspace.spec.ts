@@ -302,7 +302,8 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+  // бронь, начавшаяся до окна, помечена значком «назад» и признаком data-continues
+  await expect(page.locator('.board-stay-caption[data-continues]').first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
   await boardFilter(page, { category: 'MALE' });

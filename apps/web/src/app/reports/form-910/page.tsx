@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { halfYearMonths, incomeFor910 } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
@@ -35,6 +36,7 @@ export default async function Form910Page({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const year = /^\d{4}$/.test(sp.year ?? '') ? Number(sp.year) : Number(today.slice(0, 4));

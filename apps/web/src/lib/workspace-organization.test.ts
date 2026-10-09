@@ -13,7 +13,6 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'reports',
     'inventory',
     'settings',
-    'platform',
   ]);
   // «Отчёты» — группа: хаб REP1 и «Аналитика» вместе (поручение владельца 03.10)
   expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
@@ -21,7 +20,6 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'marketing',
     'reports',
     'settings',
-    'platform',
   ]);
   expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
     '/market',
@@ -34,6 +32,8 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(
     menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),
   ).toBe(true);
+  // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-ORG-PAGE)
+  expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs, every one a direct tab', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([

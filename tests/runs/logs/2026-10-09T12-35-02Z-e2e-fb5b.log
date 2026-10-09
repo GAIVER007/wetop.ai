@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 09.10.2026 17:35 Алматы · vm
+# коммит 8940508 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/branches.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/trial-read-only.spec.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/platform-support.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 58 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.5s)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (7.0s)
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (10.4s)
+  ✓   4 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.1s)
+  ✓   5 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.5s)
+  ✓   6 tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы (22.6s)
+  ✓   7 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (4.9s)
+  ✓   8 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (4.8s)
+  ✓   9 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.5s)
+  ✓  10 tests/ui/platform-access.spec.ts:88:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (6.6s)
+  ✓  11 tests/ui/platform-access.spec.ts:110:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  12 tests/ui/platform-access.spec.ts:149:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (6.5s)
+  ✓  13 tests/ui/platform-access.spec.ts:177:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  14 tests/ui/platform-access.spec.ts:197:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.0s)
+  ✓  15 tests/ui/platform-access.spec.ts:220:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (8.5s)
+  ✓  16 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, light, 1440px (15.2s)
+  ✓  17 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, dark, 1440px (17.0s)
+  ✓  18 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, light, 390px (14.8s)
+  ✓  19 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, dark, 390px (15.0s)
+  ✓  20 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (5.4s)
+  ✓  21 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (7.0s)
+  ✓  22 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (4.0s)
+  ✓  23 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (11.2s)
+  ✓  24 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.8s)
+  ✓  25 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.6s)
+  ✓  26 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (16.9s)
+  ✓  27 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (18.4s)
+  ✓  28 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (17.4s)
+  ✓  29 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (17.1s)
+  ✓  30 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.9s)
+  ✓  31 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  32 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.5s)
+  ✓  33 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (8.5s)
+  ✓  34 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (9.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  35 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (6.5s)
+  ✓  36 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (4.0s)
+  ✓  37 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.3s)
+  ✓  38 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.8s)
+  ✓  39 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.9s)
+  ✓  40 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (7.0s)
+  ✓  41 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (6.9s)
+  ✓  42 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (4.1s)
+  ✓  43 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (2.2s)
+  ✓  44 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (6.3s)
+  ✓  45 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.8s)
+  ✓  46 tests/ui/site-builder-licensed.spec.ts:106:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (10.3s)
+  ✓  47 tests/ui/site-builder-licensed.spec.ts:128:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (4.0s)
+  ✓  48 tests/ui/site-builder-licensed.spec.ts:160:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (4.3s)
+  ✓  49 tests/ui/site-builder-licensed.spec.ts:176:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (3.1s)
+  ✓  50 tests/ui/site-builder-licensed.spec.ts:197:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (6.6s)
+  ✓  51 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light (20.2s)
+  ✓  52 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark (19.8s)
+  ✓  53 tests/ui/top-menu.spec.ts:56:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.0s)
+  ✓  54 tests/ui/top-menu.spec.ts:129:1 › вложенные адреса подсвечивают свою вкладку (6.2s)
+  ✓  55 tests/ui/top-menu.spec.ts:165:3 › шапка ровная, без прокрутки вбок и доступная: light (4.8s)
+  ✓  56 tests/ui/top-menu.spec.ts:165:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.9s)
+  ✓  57 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (14.6s)
+  ✓  58 tests/ui/trial-read-only.spec.ts:75:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (4.1s)
+
+  58 passed (8.3m)
+
+# код выхода 0 · 8 мин 17 с

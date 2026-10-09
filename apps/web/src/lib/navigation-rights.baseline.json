@@ -1,5 +1,5 @@
 {
-  "base": "d0eb1e623",
+  "base": "7262f5060 (снят на d0eb1e623; подпись /team обновлена слиянием main, решения AccessGate прежние)",
   "paths": [
     "/",
     "/ai-agents",
@@ -1293,7 +1293,7 @@
     "/team": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники",
+        "label": "Сотрудники и доступ",
         "requires": "staff"
       },
       "gate": {

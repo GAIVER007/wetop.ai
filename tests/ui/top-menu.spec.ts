@@ -168,7 +168,7 @@ test('DS2a: адреса без своего пункта подсвечиваю
   page,
   request,
 }) => {
-  // «Платформа» видна только вошедшему главному администратору
+  // «Организации» и «Техподдержка» видны только вошедшему главному администратору
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -202,7 +202,7 @@ test('DS2a: адреса без своего пункта подсвечиваю
   // «Филиалы» и «Техподдержка» уже в реестре, но пункта меню у них до DS2b нет: горит группа, ссылки нет
   for (const [path, group] of [
     ['/branches', 'Настройки'],
-    ['/platform/support', 'Платформа'],
+    ['/platform/support', 'Настройки'],
   ] as const) {
     await page.goto(path);
     await expect(menu.getByRole('button', { name: group, exact: true })).toHaveClass(/has-current-page/);

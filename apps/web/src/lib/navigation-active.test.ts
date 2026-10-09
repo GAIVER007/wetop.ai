@@ -69,8 +69,8 @@ const HOSPITALITY: Array<[string[], string | null]> = [
   [['/branches'], 'settings>/branches'],
   [['/journal'], 'settings>/journal'],
   [['/incidents'], 'settings>/incidents'],
-  [['/platform'], 'platform>/platform'],
-  [['/platform/support', '/platform/support/knowledge'], 'platform>/platform/support'],
+  [['/platform'], 'settings>/platform'],
+  [['/platform/support', '/platform/support/knowledge'], 'settings>/platform/support'],
   [['/profile', '/profile/access'], 'account>/profile'],
   [['/help'], 'account>/help'],
   // граница сегмента и экраны других направлений
@@ -156,7 +156,7 @@ describe('activeItem: матрица активного пункта (DS2 §12)'
     expect(at('/incidents', 'HOSPITALITY', staff)).toBe('settings>/incidents');
     expect(at('/branches', 'HOSPITALITY', staff)).toBe('settings>/branches');
     expect(at('/journal', 'FOOD_SERVICE', staff)).toBeNull();
-    // «Платформа» видна только главному администратору
+    // «Организации» и «Техподдержка» видны только главному администратору
     const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
     expect(at('/platform/support', 'HOSPITALITY', owner)).toBeNull();
     expect(at('/platform', 'HOSPITALITY', owner)).toBeNull();

@@ -23,11 +23,25 @@ export interface OrganizationSummary {
   createdAt: Date;
   members: number;
   owners: string[];
+  /** Владелец заведён, но пароль ещё не задал (организацию создал главный администратор): ему можно выслать ссылку */
+  ownerPending: boolean;
   aiSeller: ExtensionRow | null;
 }
 
 export interface ExtensionsRepository {
   aiSeller(organizationId: string): Promise<ExtensionRow | null>;
+  /** Название организации (ORG1, ADR-ORG1): изменение и строка журнала одной транзакцией */
+  rename(input: { organizationId: string; name: string; by: string | null; now: Date }): Promise<void>;
+  /**
+   * Архив вместо удаления (ORG1, ADR-ORG1): статус `SUSPENDED`, люди организации не входят, данные целы. Прежний статус
+   * остаётся в журнале (`before`): по нему идёт возврат. Статус и строка журнала — одной транзакцией.
+   */
+  archive(input: { organizationId: string; by: string | null; now: Date }): Promise<void>;
+  /**
+   * Возврат из архива: статус, который был до него (последняя запись `organization.archived`). Не нашли или он снова
+   * `SUSPENDED` — «только чтение»: платный доступ сам не появляется, его ставит «Оплата получена».
+   */
+  restore(input: { organizationId: string; by: string | null; now: Date }): Promise<void>;
   organizations(): Promise<OrganizationSummary[]>;
   organization(id: string): Promise<OrganizationSummary | null>;
   /** Изменение и строка журнала — одной транзакцией: без записи в журнале расширение не меняется */
@@ -86,6 +100,70 @@ export class PrismaExtensionsRepository implements ExtensionsRepository {
           action: 'organization.status_changed',
           ...(before ? { before: { status: before.status } } : {}),
           after: { status: input.status, note: input.note },
+        },
+      });
+    });
+  }
+
+  async rename(input: { organizationId: string; name: string; by: string | null; now: Date }): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      const before = await tx.organization.findUnique({
+        where: { id: input.organizationId },
+        select: { name: true },
+      });
+      await tx.organization.update({ where: { id: input.organizationId }, data: { name: input.name } });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'organization.renamed',
+          ...(before ? { before: { name: before.name } } : {}),
+          after: { name: input.name },
+        },
+      });
+    });
+  }
+
+  async archive(input: { organizationId: string; by: string | null; now: Date }): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      const before = await tx.organization.findUnique({
+        where: { id: input.organizationId },
+        select: { status: true },
+      });
+      await tx.organization.update({ where: { id: input.organizationId }, data: { status: 'SUSPENDED' } });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'organization.archived',
+          ...(before ? { before: { status: before.status } } : {}),
+          after: { status: 'SUSPENDED' },
+        },
+      });
+    });
+  }
+
+  async restore(input: { organizationId: string; by: string | null; now: Date }): Promise<void> {
+    await this.prisma.db.$transaction(async (tx) => {
+      const archived = await tx.auditLog.findFirst({
+        where: { entityType: 'organization', entityId: input.organizationId, action: 'organization.archived' },
+        orderBy: { createdAt: 'desc' },
+        select: { before: true },
+      });
+      const was = (archived?.before as { status?: unknown } | null)?.status;
+      const status: OrganizationStatus =
+        was === 'TRIAL' || was === 'ACTIVE' || was === 'READ_ONLY' ? was : 'READ_ONLY';
+      await tx.organization.update({ where: { id: input.organizationId }, data: { status } });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'organization.restored',
+          before: { status: 'SUSPENDED' },
+          after: { status },
         },
       });
     });
@@ -154,7 +232,8 @@ const SUMMARY = {
   memberships: {
     where: { role: 'OWNER' as const },
     orderBy: { createdAt: 'asc' as const },
-    select: { user: { select: { email: true } } },
+    // хеш пароля в ответ не идёт: из него считается только «задан или нет»
+    select: { user: { select: { email: true, passwordHash: true } } },
   },
   extensions: {
     where: { extension: KIND },
@@ -169,7 +248,7 @@ function summary(row: {
   trialEndsAt: Date | null;
   createdAt: Date;
   _count: { memberships: number };
-  memberships: Array<{ user: { email: string } }>;
+  memberships: Array<{ user: { email: string; passwordHash: string } }>;
   extensions: ExtensionRow[];
 }): OrganizationSummary {
   return {
@@ -180,6 +259,7 @@ function summary(row: {
     createdAt: row.createdAt,
     members: row._count.memberships,
     owners: row.memberships.map((m) => m.user.email),
+    ownerPending: row.memberships.some((m) => m.user.passwordHash === ''),
     aiSeller: row.extensions[0] ?? null,
   };
 }

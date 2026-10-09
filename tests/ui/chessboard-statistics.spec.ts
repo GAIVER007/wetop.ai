@@ -15,13 +15,14 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    // сводка по образцу Lite PMS (06.10): две колонки, без дней рождения, задач и скобок
+    // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     await expect(panel.getByText('Задачи')).toHaveCount(0);
     const panelBox = await panel.boundingBox();
     expect(panelBox!.height).toBeLessThanOrEqual(280);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
-    await expect(panel.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(panel.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
+    await expect(panel.getByTestId('day-departures')).toHaveText(String(day.counts.departures));
     const board = await (
       await get(`${FIXTURE_API}/chessboard?from=${day.date}&to=${day.date}`)
     ).json();
@@ -85,7 +86,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
     const AxeBuilder = (await import('@axe-core/playwright')).default;
-    const results = await new AxeBuilder({ page }).include('.board-day-panel').analyze();
+    const results = await new AxeBuilder({ page }).include('.board-kpis').analyze();
     expect(results.violations).toEqual([]);
     await expect(panel.getByTestId('day-occupancy')).toHaveText('8%');
     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
@@ -102,7 +103,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/chessboard');
     const AxeBuilder = (await import('@axe-core/playwright')).default;
     const results = await new AxeBuilder({ page })
-      .include('.board-day-panel')
+      .include('.board-kpis')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations).toEqual([]);

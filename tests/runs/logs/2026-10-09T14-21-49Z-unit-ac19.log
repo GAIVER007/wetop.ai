@@ -1,0 +1,31 @@
+# Модульные (unit) · 09.10.2026 19:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/test-journal-entries), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-21-49Z-unit-ac19.json' 'tests/unit/test-journal-merge.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/journal-wt
+
+ ❯ |unit| tests/unit/test-journal-merge.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/test-journal-merge.test.ts [ tests/unit/test-journal-merge.test.ts ]
+Error: Cannot find module '../../tools/journal' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/journal-wt/tests/unit/test-journal-merge.test.ts
+ ❯ tests/unit/test-journal-merge.test.ts:6:1
+      4| import { join } from 'node:path';
+      5| import { afterEach, describe, expect, it } from 'vitest';
+      6| import { JOURNAL_FILE, JOURNAL_MD, JOURNAL_MD_HEADER, runId, type RunR…
+       | ^
+      7| import { writeRunRecord } from '../../tools/journal-files';
+      8|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:21:50
+   Duration  83ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-21-49Z-unit-ac19.json
+
+# код выхода 1 · 1 с

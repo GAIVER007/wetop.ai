@@ -100,7 +100,11 @@ test('телефон: сводка и управление оставляют с
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
   const navigation = await page.locator('.bottom-navigation').boundingBox();
   expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
-  await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+  // с 09.10 период живёт в раскрывашке «Октябрь 2026 ▾» только полями «С» и «По» (образец владельца), готовых
+  // периодов в ней нет; длина окна 7 / 14 / 30 дней стоит в своей раскрывашке
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {

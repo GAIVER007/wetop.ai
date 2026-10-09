@@ -75,7 +75,7 @@ test('нижняя панель телефона — в порядке боко�
   await page.goto('/finance');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Гости']);
+  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Бар']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {
@@ -101,7 +101,8 @@ test('владелец и управляющий правят сведения �
   const form = page.getByTestId('hotel-settings-form');
   const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
   await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');
-  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  // валюта стоит полем только для чтения (ADR-156)
+  await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await save.click();
   await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');

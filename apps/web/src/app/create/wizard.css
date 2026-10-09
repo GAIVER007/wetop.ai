@@ -156,6 +156,100 @@
     border-radius: var(--radius-sm);
     margin-bottom: var(--space-4);
   }
+  /* O1 (09.10.2026): первый экран, выбор сценария, опрос, баннер возврата, «В начало» */
+  .guest-wizard__progress [data-done] span {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--surface);
+  }
+  .guest-wizard__scenario,
+  .guest-wizard__survey fieldset {
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .guest-wizard__scenario legend,
+  .guest-wizard__survey legend {
+    font-size: var(--text-sm);
+    padding: 0;
+    margin-bottom: var(--space-2);
+  }
+  .guest-wizard__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .guest-wizard__chips button {
+    min-height: var(--touch-target);
+    padding: 0 var(--space-4);
+    background: var(--surface-muted);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+  }
+  .guest-wizard__chips button[aria-checked='true'] {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .guest-wizard__url {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+    font-size: var(--text-sm);
+  }
+  .guest-wizard__url input,
+  .guest-wizard__survey textarea {
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    min-height: var(--touch-target);
+  }
+  .guest-wizard__field-error {
+    color: var(--danger);
+    font-size: var(--text-sm);
+    margin: var(--space-2) 0 0;
+  }
+  .guest-wizard__actions--stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .guest-wizard__link {
+    min-height: var(--touch-target);
+    background: transparent;
+    border: 0;
+    color: var(--primary);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .guest-wizard__found {
+    color: var(--primary);
+    font-style: normal;
+    font-size: var(--text-xs);
+    margin-left: var(--space-2);
+  }
+  .guest-wizard__resume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    background: var(--primary-soft);
+    border-radius: var(--radius-control);
+  }
+  .guest-wizard__home {
+    position: fixed;
+    left: var(--space-4);
+    bottom: var(--space-4);
+  }
+
   @media (max-width: 800px) {
     .guest-wizard__layout {
       grid-template-columns: minmax(0, 1fr);
@@ -165,6 +259,16 @@
     }
   }
   @media (max-width: 480px) {
+    .guest-wizard__actions--sticky {
+      position: sticky;
+      bottom: 0;
+      padding: var(--space-4) 0;
+      background: var(--surface);
+    }
+    .guest-wizard__home {
+      position: static;
+      margin-top: var(--space-4);
+    }
     .guest-wizard {
       padding: var(--space-4);
     }

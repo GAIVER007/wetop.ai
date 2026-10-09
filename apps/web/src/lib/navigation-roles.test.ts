@@ -40,8 +40,8 @@ describe('меню по ролям', () => {
       // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
       '/finance',
       '/chessboard',
+      // «Гости» стали вкладкой внутри «Броней» (09.10.2026): страница /guests осталась, пункта меню нет
       '/reservations',
-      '/guests',
       '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/market',
@@ -54,7 +54,6 @@ describe('меню по ролям', () => {
       'finance',
       'chessboard',
       'reservations',
-      'guests',
       'bar',
       'sales',
       'reports',
@@ -67,6 +66,17 @@ describe('меню по ролям', () => {
     expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
+  });
+
+  it('«Организации» главного администратора лежат в «Настройках», отдельной вкладки «Платформа» нет', () => {
+    const sections = menuSectionsFor(access('OWNER', true));
+    expect(sections.map((s) => s.id)).not.toContain('platform');
+    const settings = sections.find((s) => s.id === 'settings');
+    expect(settings?.items.map((i) => i.href)).toContain('/platform');
+    expect(settings?.items.find((i) => i.href === '/platform')?.label).toBe('Организации');
+    // без отметки пункта нет нигде, у любой роли
+    for (const role of ['OWNER', 'MANAGER', 'STAFF'] as const)
+      expect(hrefs(access(role))).not.toContain('/platform');
   });
 
   it('никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется', () => {
@@ -98,6 +108,8 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/channels/events/rev-1')?.requires).toBe('channels');
     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('settings');
     expect(routeRule('/journal')?.requires).toBe('journal');
+    // пункта меню у «Гостей» нет (вкладка «Броней», 09.10.2026), право страницы прежнее
+    expect(routeRule('/guests')?.requires).toBe('desk');
     expect(routeRule('/finance')?.requires).toBe('reports');
     expect(routeRule('/bar')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');

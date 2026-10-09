@@ -149,7 +149,6 @@ test('сеансы открываются в профиле, команда в �
 });
 test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
   await page.goto('/login');
-  // редизайн сайта 07.10 (ed80ef40) переименовал вкладку «Получить доступ» в «Регистрация»
   await dialog(page).getByRole('tab', { name: 'Регистрация', exact: true }).click();
   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   await expect(

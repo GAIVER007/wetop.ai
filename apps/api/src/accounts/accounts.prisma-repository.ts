@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { MembershipRole } from '@pms/domain';
+import { membershipRoleFor, type MembershipRole, type ScopeAssignment } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import type {
   AccountRecord,
@@ -8,6 +8,7 @@ import type {
   InviteRecord,
   MemberRecord,
   MemberWrite,
+  OrganizationStructure,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -34,6 +35,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
         email: true,
         status: true,
         memberships: {
+          // приостановленный член в организацию не входит (§31.2)
+          where: { status: 'ACTIVE' },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
@@ -116,14 +119,15 @@ export class PrismaAccountsRepository implements AccountsRepository {
             email: true,
             status: true,
             // членств у человека одно-два: роль берём у организации этой сессии
-            memberships: { select: { organizationId: true, role: true } },
+            memberships: { select: { organizationId: true, role: true, status: true } },
           },
         },
         organization: { select: { id: true, name: true, status: true, trialEndsAt: true } },
       },
     });
     if (!row) return null;
-    const role = row.user.memberships.find((m) => m.organizationId === row.organization.id)?.role;
+    const membership = row.user.memberships.find((m) => m.organizationId === row.organization.id);
+    const role = membership?.role;
     return {
       userId: row.user.id,
       email: row.user.email,
@@ -136,7 +140,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
       // членство сняли — прав владельца точно нет, а `member: false` сессию и вовсе не пустит
       role: role ?? 'STAFF',
       userStatus: row.user.status,
-      member: role !== undefined,
+      // приостановленного сессия не пускает так же, как отключённого (§31.2)
+      member: role !== undefined && membership?.status === 'ACTIVE',
     };
   }
 
@@ -174,9 +179,21 @@ export class PrismaAccountsRepository implements AccountsRepository {
     expiresAt: Date;
     createdBy: string;
     role: MembershipRole;
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+    position?: string | null;
+    scopes?: ScopeAssignment[];
   }): Promise<InviteRecord> {
     return this.prisma.db.$transaction(async (tx) => {
-      const row = await tx.invite.create({ data: input, select: INVITE_SELECT });
+      const { scopes, ...rest } = input;
+      const row = await tx.invite.create({
+        data: {
+          ...rest,
+          ...(scopes && scopes.length > 0 ? { scopes: scopes.map(plainScope) } : {}),
+        },
+        select: INVITE_SELECT,
+      });
       await tx.auditLog.create({
         data: {
           organizationId: input.organizationId,
@@ -184,7 +201,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'invite.created',
-          after: { inviteId: row.id, role: input.role },
+          after: { inviteId: row.id, role: input.role, scopes: input.scopes?.length ?? 0 },
         },
       });
       return toInviteRecord(row);
@@ -253,9 +270,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
       });
       if (!claimed.count) return null;
       const invite = await tx.invite.findUniqueOrThrow({ where: { id: input.id } });
+      const invitedName = [invite.firstName, invite.lastName].filter(Boolean).join(' ') || null;
       const user = await tx.user.upsert({
         where: { email: invite.email },
-        create: { email: invite.email, status: 'ACTIVE' },
+        create: { email: invite.email, status: 'ACTIVE', name: invitedName },
         update: {},
         select: { id: true, status: true, passwordHash: true },
       });
@@ -263,10 +281,65 @@ export class PrismaAccountsRepository implements AccountsRepository {
         where: {
           userId_organizationId: { userId: user.id, organizationId: invite.organizationId },
         },
-        create: { userId: user.id, organizationId: invite.organizationId, role: invite.role },
+        create: {
+          userId: user.id,
+          organizationId: invite.organizationId,
+          role: invite.role,
+          phone: invite.phone,
+          position: invite.position,
+        },
         update: {},
         select: { role: true },
       });
+      // назначения приглашения (DATA_MODEL §31.3): бизнес или филиал могли архивироваться, пока приглашение ждало
+      const wanted = parseStoredScopes(invite.scopes);
+      if (wanted.length > 0) {
+        const [businesses, locations] = await Promise.all([
+          tx.business.findMany({
+            where: {
+              organizationId: invite.organizationId,
+              status: 'ACTIVE',
+              id: { in: wanted.map((w) => w.businessId) },
+            },
+            select: { id: true },
+          }),
+          tx.location.findMany({
+            where: {
+              status: 'ACTIVE',
+              id: { in: wanted.flatMap((w) => (w.locationId ? [w.locationId] : [])) },
+            },
+            select: { id: true, businessId: true },
+          }),
+        ]);
+        const live = wanted.filter(
+          (w) =>
+            businesses.some((b) => b.id === w.businessId) &&
+            (w.locationId === null ||
+              locations.some((l) => l.id === w.locationId && l.businessId === w.businessId)),
+        );
+        // только для нового члена: уже состоящему область не меняется (как и роль)
+        const existing = await tx.membershipScope.count({
+          where: { organizationId: invite.organizationId, userId: user.id },
+        });
+        if (live.length > 0 && existing === 0) {
+          await tx.membershipScope.createMany({
+            data: live.map((w) => ({
+              organizationId: invite.organizationId,
+              userId: user.id,
+              role: w.role,
+              businessId: w.businessId,
+              locationId: w.locationId,
+              createdBy: invite.createdBy,
+            })),
+          });
+          await tx.membership.update({
+            where: {
+              userId_organizationId: { userId: user.id, organizationId: invite.organizationId },
+            },
+            data: { role: membershipRoleFor(live, invite.role) },
+          });
+        }
+      }
       const passwordTokenIssued = user.status === 'ACTIVE' && user.passwordHash === '';
       if (passwordTokenIssued) {
         await tx.passwordReset.updateMany({
@@ -368,6 +441,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           createdAt: true,
           phone: true,
           position: true,
+          status: true,
           user: { select: { id: true, email: true, name: true, lastLoginAt: withLastLogin } },
         },
       });
@@ -376,6 +450,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       createdAt: Date;
       phone: string | null;
       position: string | null;
+      status: 'ACTIVE' | 'SUSPENDED';
       user: { id: string; email: string; name: string | null; lastLoginAt?: Date | null };
     }>;
     try {
@@ -385,6 +460,19 @@ export class PrismaAccountsRepository implements AccountsRepository {
       // список сотрудников важнее даты входа — отдаём без неё, а не роняем экран «Сотрудники»
       rows = await query(false);
     }
+    const scopeRows = await this.prisma.db.membershipScope.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'asc' },
+      select: { userId: true, role: true, businessId: true, locationId: true },
+    });
+    const scopesOf = (userId: string): ScopeAssignment[] =>
+      scopeRows
+        .filter((r) => r.userId === userId && r.role !== 'OWNER')
+        .map((r) => ({
+          role: r.role as 'MANAGER' | 'STAFF',
+          businessId: r.businessId,
+          locationId: r.locationId,
+        }));
     return rows.map((m) => ({
       userId: m.user.id,
       email: m.user.email,
@@ -394,7 +482,76 @@ export class PrismaAccountsRepository implements AccountsRepository {
       lastLoginAt: m.user.lastLoginAt ?? null,
       phone: m.phone,
       position: m.position,
+      suspended: m.status === 'SUSPENDED',
+      scopes: scopesOf(m.user.id),
     }));
+  }
+
+  async organizationStructure(organizationId: string): Promise<OrganizationStructure> {
+    const rows = await this.prisma.db.business.findMany({
+      where: { organizationId, status: 'ACTIVE' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        name: true,
+        vertical: true,
+        locations: {
+          where: { status: 'ACTIVE' },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+          select: { id: true, name: true },
+        },
+      },
+    });
+    return { businesses: rows };
+  }
+
+  async replaceMemberScopes(input: {
+    organizationId: string;
+    userId: string;
+    assignments: ScopeAssignment[];
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
+    return this.prisma.db.$transaction(async (tx) => {
+      const role = await lockedRole(tx, input.organizationId, input.userId);
+      if (!role) return { outcome: 'missing', role: null };
+      if (!input.roles.includes(role)) return { outcome: 'role', role };
+      const key = { organizationId: input.organizationId, userId: input.userId };
+      const before = await tx.membershipScope.findMany({
+        where: key,
+        select: { role: true, businessId: true, locationId: true },
+        orderBy: { createdAt: 'asc' },
+      });
+      await tx.membershipScope.deleteMany({ where: key });
+      if (input.assignments.length > 0) {
+        await tx.membershipScope.createMany({
+          data: input.assignments.map((a) => ({
+            ...key,
+            role: a.role,
+            businessId: a.businessId,
+            locationId: a.locationId,
+            createdBy: input.by,
+          })),
+        });
+        await tx.membership.update({
+          where: { userId_organizationId: key },
+          data: { role: membershipRoleFor(input.assignments, role) },
+        });
+      }
+      await tx.auditLog.create({
+        data: {
+          organizationId: input.organizationId,
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'membership.scope.updated',
+          before: { userId: input.userId, scopes: before.map(plainScope) },
+          after: { userId: input.userId, scopes: input.assignments.map(plainScope) },
+        },
+      });
+      return { outcome: 'done', role };
+    });
   }
 
   async removeMember(input: {
@@ -501,6 +658,47 @@ export class PrismaAccountsRepository implements AccountsRepository {
     });
   }
 
+  async setMemberSuspended(input: {
+    organizationId: string;
+    userId: string;
+    suspended: boolean;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
+    return this.prisma.db.$transaction(async (tx) => {
+      const role = await lockedRole(tx, input.organizationId, input.userId);
+      if (!role) return { outcome: 'missing', role: null };
+      if (!input.roles.includes(role)) return { outcome: 'role', role };
+      const at = new Date();
+      await tx.membership.update({
+        where: {
+          userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
+        },
+        data: input.suspended
+          ? { status: 'SUSPENDED', suspendedAt: at, suspendedBy: input.by }
+          : { status: 'ACTIVE', suspendedAt: null, suspendedBy: null },
+      });
+      if (input.suspended)
+        await tx.session.updateMany({
+          where: { userId: input.userId, organizationId: input.organizationId, revokedAt: null },
+          data: { revokedAt: at },
+        });
+      await tx.auditLog.create({
+        data: {
+          organizationId: input.organizationId,
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: input.suspended ? 'membership.suspended' : 'membership.resumed',
+          before: { userId: input.userId, suspended: !input.suspended },
+          after: { userId: input.userId, suspended: input.suspended },
+        },
+      });
+      return { outcome: 'done', role };
+    });
+  }
+
   async issuePasswordSetToken(input: {
     email: string;
     tokenHash: string;
@@ -531,8 +729,37 @@ const INVITE_SELECT = {
   acceptedAt: true,
   createdAt: true,
   role: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  position: true,
+  scopes: true,
   organization: { select: { name: true } },
 } as const;
+
+/** Назначение простым объектом: в jsonb и журнал */
+const plainScope = (s: { role: string; businessId: string; locationId: string | null }) => ({
+  role: s.role,
+  businessId: s.businessId,
+  locationId: s.locationId,
+});
+
+/** Назначения из `invites.scopes` (jsonb): что не по форме, отбрасывается, а не роняет принятие */
+function parseStoredScopes(raw: unknown): ScopeAssignment[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ScopeAssignment[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const o = item as Record<string, unknown>;
+    if ((o.role !== 'MANAGER' && o.role !== 'STAFF') || typeof o.businessId !== 'string') continue;
+    out.push({
+      role: o.role,
+      businessId: o.businessId,
+      locationId: typeof o.locationId === 'string' ? o.locationId : null,
+    });
+  }
+  return out;
+}
 
 function toInviteRecord(row: {
   id: string;
@@ -542,6 +769,11 @@ function toInviteRecord(row: {
   acceptedAt: Date | null;
   createdAt: Date;
   role: MembershipRole;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  position: string | null;
+  scopes: unknown;
   organization: { name: string };
 }): InviteRecord {
   return {
@@ -553,6 +785,11 @@ function toInviteRecord(row: {
     acceptedAt: row.acceptedAt,
     createdAt: row.createdAt,
     role: row.role,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    phone: row.phone,
+    position: row.position,
+    scopes: parseStoredScopes(row.scopes),
   };
 }
 

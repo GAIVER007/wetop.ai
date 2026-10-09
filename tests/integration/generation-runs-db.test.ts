@@ -76,7 +76,7 @@ describe.skipIf(!url)('MKT6 generation_runs: инварианты базы', () 
   /** Задача, доведённая до RUNNING, как её берёт воркер */
   async function running(attempt: Attempt, siteId: string): Promise<string> {
     const id = await insertRun(attempt, siteId);
-    await setRun(attempt, id, `status = 'RUNNING', attempts = 1, started_at = now(), next_attempt_at = now()`);
+    await setRun(attempt, id, `status = 'RUNNING', attempts = 1, started_at = now(), next_attempt_at = now() - interval '1 second'`);
     return id;
   }
 
@@ -173,7 +173,7 @@ describe.skipIf(!url)('MKT6 generation_runs: инварианты базы', () 
       const queued = await insertRun(attempt, siteA1);
       await expect(setRun(attempt, queued, `status = 'SUCCEEDED', finished_at = now()`)).rejects.toThrow(/generation_runs/);
       const run = await running(attempt, siteA1);
-      await setRun(attempt, run, `status = 'QUEUED', next_attempt_at = now()`);
+      await setRun(attempt, run, `status = 'QUEUED', next_attempt_at = now() - interval '1 second'`);
       await setRun(attempt, run, `status = 'RUNNING', attempts = 2`);
       await expect(setRun(attempt, run, `status = 'CANCELLED', finished_at = now()`)).rejects.toThrow(/переход/);
       const version = await insertVersion(attempt, siteA1, 'AI', run);

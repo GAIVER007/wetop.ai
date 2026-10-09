@@ -382,7 +382,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       ] as const) {
         await setScope(page, scope);
         await page.goto('/today');
-        await expect(page.getByTestId(testId), JSON.stringify(control)).toBeVisible();
+        // Экран дня ищем в <main>: на медленном раннере `next dev` оставляет вне <main> скрытую копию потокового
+        // фрагмента той же страницы (release-checks #188 и #189), и строгий поиск по всей странице находил два элемента
+        await expect(page.getByRole('main').getByTestId(testId), JSON.stringify(control)).toBeVisible();
         await expect(page.getByTestId('today-error')).toHaveCount(0);
       }
     }

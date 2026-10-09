@@ -61,20 +61,25 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
     'Финансы',
     'Календарь',
     'Брони',
-    'Гости',
     'Бар',
     'Продажи',
     'Маркетинг',
     'Отчёты',
     'Номерной фонд',
     'Настройки',
-    'Платформа',
   ]);
   await expect(footer).toContainText('Владелец · главный администратор');
+  // «Организации» лежат в «Настройках» (поручение владельца 09.10.2026), вкладки «Платформа» больше нет
+  await expect(
+    page.locator('.workspace-header').getByRole('button', { name: 'Платформа', exact: true }),
+  ).toHaveCount(0);
   await page
     .locator('.workspace-header')
-    .getByRole('button', { name: 'Платформа', exact: true })
+    .getByRole('button', { name: 'Настройки', exact: true })
     .click();
+  await expect(
+    page.locator('.workspace-header .topmenu').getByRole('link', { name: 'Организации' }),
+  ).toBeVisible();
   await shot(page, 'menu-platform-admin');
 });
 
@@ -221,7 +226,6 @@ test('«Платформа → Организации»: главный адми
 
   await control(request, { platformAdmin: true });
   await page.goto('/platform');
-  await page.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   const table = page.getByTestId('platform-organizations');
   await expect(table).toContainText('Luxx Aparts');
   await expect(table).toContainText('Хостел «Пример»');

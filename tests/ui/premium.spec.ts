@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
@@ -98,7 +98,7 @@ test('новые фильтры шахматки, список броней и �
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await kind('Койки');
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
-  await main.getByLabel('Места в календаре').selectOption('FREE');
+  await boardFilter(page, { state: 'FREE' });
   const count = await page.getByTestId('unit-row').count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThan(72);

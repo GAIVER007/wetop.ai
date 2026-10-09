@@ -152,7 +152,7 @@ test('«только чтение»: каталог виден, добавить
   await expect(main.getByRole('button', { name: 'Добавить услугу' })).toHaveCount(0);
   await expect(main.getByTestId('services-table').getByRole('button')).toHaveCount(0);
   await page.goto('/hotel-settings/stay');
-  await expect(main.locator('input')).toHaveCount(0);
+  await expect(main.locator('input:enabled:not([readonly]):not([type=hidden])')).toHaveCount(0);
 });
 
 for (const theme of ['light', 'dark'] as const) {

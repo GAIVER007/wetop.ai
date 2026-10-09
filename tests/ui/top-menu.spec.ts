@@ -11,8 +11,8 @@ import { mkdirSync } from 'node:fs';
 const routes = [
   '/ai-agents',
   '/chessboard',
+  // «Гости» без пункта меню с 09.10.2026: раздел открывается вкладкой на странице «Брони»
   '/reservations',
-  '/guests',
   '/inventory',
   '/market',
   '/channels',
@@ -34,7 +34,6 @@ const TABS = [
   'Финансы',
   'Календарь',
   'Брони',
-  'Гости',
   'Бар',
   'Продажи',
   'Маркетинг',
@@ -203,7 +202,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Финансы', 'Календарь', 'Брони', 'Гости', 'Номерной фонд'])
+    for (const label of ['Финансы', 'Календарь', 'Брони', 'Бар', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
@@ -211,7 +210,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Гости']);
+    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Бар']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

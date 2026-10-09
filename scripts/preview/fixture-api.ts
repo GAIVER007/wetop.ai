@@ -2,7 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -26,7 +26,10 @@ import {
   extensionAccess,
   extensionDaysLeft,
   identityRole,
+  isOrganizationNameShaped,
+  normalizeOrganizationName,
   parseExtensionChange,
+  validEmail,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
   INVITE_ROLE_MESSAGE,
@@ -53,6 +56,10 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseMemberDetails,
+  parseScopeAssignments,
+  validateAssignments,
+  membershipRoleFor,
+  type ScopeAssignment,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -883,7 +890,22 @@ function seedAnalyticsHistory() {
  */
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
-let hotelOverrides: Record<string, string | null> = {};
+let hotelOverrides: Record<string, unknown> = {};
+// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+interface FixtureMedia {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  fileName: string | null;
+  byteSize: number;
+}
+let hotelMedia: FixtureMedia[] = [];
+let mediaStorageOff = false;
+let mediaSeq = 0;
+const PHOTO_PLACEHOLDER =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"><rect width="160" height="120" fill="#cfd8e6"/></svg>',
+  );
 /**
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
@@ -1714,7 +1736,12 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
     previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
   };
 }
-function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
+function dashboardPeriod(
+  from: string,
+  to: string,
+  fund: DashboardFund = 'all',
+  category?: string,
+): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
   const unassignedByCategory: Record<string, number> = {};
@@ -1755,13 +1782,14 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
       refundsMinor: 0n,
     },
     fund,
+    category ? { category } : {},
   );
 }
-function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all', category?: string) {
   const prev = previousPeriod(from, to);
   return {
-    current: dashboardPeriod(from, to, fund),
-    previous: dashboardPeriod(prev.from, prev.to, fund),
+    current: dashboardPeriod(from, to, fund, category),
+    previous: dashboardPeriod(prev.from, prev.to, fund, category),
   };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
@@ -2075,6 +2103,8 @@ interface FixtureMember {
   /** Телефон и должность (TEAM2, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended?: boolean;
 }
 interface FixtureInvite {
   id: string;
@@ -2082,13 +2112,39 @@ interface FixtureInvite {
   role: InviteRole;
   expiresAt: string;
   createdAt: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: ScopeAssignment[];
 }
+/** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
+const FIXTURE_STRUCTURE = {
+  businesses: [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'Гостиница Luxx',
+      vertical: 'HOSPITALITY',
+      locations: [
+        { id: '21111111-1111-4111-8111-111111111111', name: 'Главный филиал' },
+        { id: '22222222-2222-4222-8222-222222222222', name: 'Филиал Алматы' },
+      ],
+    },
+    {
+      id: '33333333-3333-4333-8333-333333333333',
+      name: 'Салон красоты',
+      vertical: 'BEAUTY',
+      locations: [{ id: '44444444-4444-4444-8444-444444444444', name: 'Салон на Абая' }],
+    },
+  ],
+};
+const uiScopes = new Map<string, ScopeAssignment[]>();
 let uiTeam: FixtureMember[] = [];
 /** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
 let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiMyDetails = { phone: null, position: null };
+  uiScopes.clear();
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -2154,6 +2210,10 @@ function teamView(me: UiUser) {
       const you = m.userId === me.id;
       return {
         ...m,
+        suspended: m.suspended === true,
+        suspendable: !you && canRemoveMember(uiRole, m.role),
+        scopes: uiScopes.get(m.userId) ?? [],
+        scopesEditable: !you && canRemoveMember(uiRole, m.role),
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
@@ -2199,6 +2259,19 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
+// ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
+const platformNames = new Map<string, string>();
+const platformArchived = new Map<string, string>();
+// ORG2 (ADR-ORG2): организации, созданные главным администратором; письмо владельцу и время последней ссылки
+interface FixtureCreatedOrg {
+  id: string;
+  name: string;
+  ownerEmail: string;
+  createdAt: string;
+}
+const platformCreated: FixtureCreatedOrg[] = [];
+const platformLinkAt = new Map<string, number>();
+let platformMailOn = true;
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2223,6 +2296,11 @@ function resetAccess() {
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
+  platformNames.clear();
+  platformArchived.clear();
+  platformCreated.length = 0;
+  platformLinkAt.clear();
+  platformMailOn = true;
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2242,22 +2320,34 @@ const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: ui
 const platformOrganizations = () => [
   {
     id: 'ui-org',
-    name: uiUser.organization.name,
-    status: platformStatuses.get('ui-org') ?? 'ACTIVE',
+    name: platformNames.get('ui-org') ?? uiUser.organization.name,
+    status: platformArchived.has('ui-org') ? 'SUSPENDED' : (platformStatuses.get('ui-org') ?? 'ACTIVE'),
     trialEndsAt: null,
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
+    ownerPending: false,
   },
   {
     id: 'ui-org-2',
-    name: 'Хостел «Пример»',
-    status: platformStatuses.get('ui-org-2') ?? 'TRIAL',
+    name: platformNames.get('ui-org-2') ?? 'Хостел «Пример»',
+    status: platformArchived.has('ui-org-2') ? 'SUSPENDED' : (platformStatuses.get('ui-org-2') ?? 'TRIAL'),
     trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
+    ownerPending: false,
   },
+  ...platformCreated.map((c) => ({
+    id: c.id,
+    name: platformNames.get(c.id) ?? c.name,
+    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'TRIAL'),
+    trialEndsAt: new Date(Date.now() + 14 * DAY_MS).toISOString(),
+    createdAt: c.createdAt,
+    members: 1,
+    owners: [c.ownerEmail],
+    ownerPending: true,
+  })),
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
@@ -3007,6 +3097,11 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
+      // номера и места по единицам продажи (ADR-156): как считает API
+      capacity: {
+        rooms: units.filter((u) => u.kind === 'ROOM').length,
+        beds: units.filter((u) => u.kind === 'BED').length,
+      },
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
@@ -3085,6 +3180,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -3150,7 +3256,12 @@ function read(path: string, q: URLSearchParams): unknown {
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
       throw new Error('fund — all, rooms или beds');
-    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+    return dashboard(
+      q.get('from') || today,
+      q.get('to') || today,
+      fund as DashboardFund,
+      q.get('category') || undefined,
+    );
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
@@ -4454,6 +4565,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §31): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4617,6 +4730,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -4676,6 +4790,8 @@ createServer(async (req, res) => {
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      hotelMedia = [];
+      mediaStorageOff = false;
       serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
@@ -4744,6 +4860,7 @@ createServer(async (req, res) => {
       channelCatalog =
         body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
+      if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
       // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
@@ -4842,6 +4959,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if ('platformMail' in body) platformMailOn = body['platformMail'] !== 'off';
       if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
@@ -5157,6 +5275,10 @@ createServer(async (req, res) => {
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const view = (i: FixtureInvite) => ({
         ...i,
+        firstName: i.firstName ?? null,
+        lastName: i.lastName ?? null,
+        position: i.position ?? null,
+        scopes: i.scopes ?? [],
         acceptedAt: null,
         revocable: canInvite(uiRole, i.role),
       });
@@ -5175,12 +5297,33 @@ createServer(async (req, res) => {
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
         if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
+        // область и данные приглашения (DATA_MODEL §31.3): те же функции домена, что у API
+        const parsedScopes = parseScopeAssignments(body['scopes']);
+        if (!parsedScopes.ok) return send(400, { message: parsedScopes.message });
+        if (parsedScopes.assignments.length > 0) {
+          const check = validateAssignments({
+            actor: uiRole,
+            assignments: parsedScopes.assignments,
+            known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+              businessId: b.id,
+              locationIds: b.locations.map((l) => l.id),
+            })),
+          });
+          if (!check.ok) return send(400, { message: check.reason });
+        }
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
-          role,
+          role:
+            parsedScopes.assignments.length > 0
+              ? (membershipRoleFor(parsedScopes.assignments, role) as InviteRole)
+              : role,
           expiresAt: invitePreview.expiresAt,
           createdAt: new Date().toISOString(),
+          firstName: typeof body['firstName'] === 'string' ? body['firstName'] : null,
+          lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
+          position: null,
+          scopes: parsedScopes.assignments,
         };
         uiInvites.unshift(invite);
         return send(201, view(invite));
@@ -5217,6 +5360,61 @@ createServer(async (req, res) => {
       if (target.you) uiMyDetails = next;
       else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
       return send(200, { userId: target.userId, ...next });
+    }
+    // Бизнесы и филиалы для области доступа и замена назначений (DATA_MODEL §31.1)
+    if (path === '/auth/access-structure' && req.method === 'GET') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      return send(200, FIXTURE_STRUCTURE);
+    }
+    const scopesMatch = /^\/auth\/members\/([^/]+)\/scopes$/.exec(path);
+    if (scopesMatch && req.method === 'PUT') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const parsed = parseScopeAssignments(body['scopes']);
+      if (!parsed.ok) return send(400, { message: parsed.message });
+      const target = teamView(who).find((m) => m.userId === scopesMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      if (parsed.assignments.length > 0) {
+        const check = validateAssignments({
+          actor: uiRole,
+          assignments: parsed.assignments,
+          known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+            businessId: b.id,
+            locationIds: b.locations.map((l) => l.id),
+          })),
+        });
+        if (!check.ok) return send(400, { message: check.reason });
+        uiScopes.set(target.userId, parsed.assignments);
+        const next = membershipRoleFor(parsed.assignments, target.role) as InviteRole;
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role: next } : m));
+      } else uiScopes.delete(target.userId);
+      return send(200, { userId: target.userId, scopes: parsed.assignments });
+    }
+    // Приостановка и возобновление доступа (DATA_MODEL §31.2): круг тот же, что у отключения
+    const suspendMatch = /^\/auth\/members\/([^/]+)\/(suspend|resume)$/.exec(path);
+    if (suspendMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const target = teamView(who).find((m) => m.userId === suspendMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      const suspended = suspendMatch[2] === 'suspend';
+      uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, suspended } : m));
+      return send(200, { ok: true });
     }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
@@ -5736,7 +5934,7 @@ createServer(async (req, res) => {
       }
       const items = [branch, ...fixtureBranches];
       if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
-      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
+      return send(200, { organization: { id: 'ui-org', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
@@ -5775,6 +5973,70 @@ createServer(async (req, res) => {
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
+      }
+      // ORG2 (ADR-ORG2, Q-283): создание организации и ссылка владельцу, те же слова отказа, что у API
+      if (path === '/platform/organizations' && req.method === 'POST') {
+        const name = body['name'];
+        if (typeof name !== 'string' || !isOrganizationNameShaped(name))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        const rawEmail = body['ownerEmail'];
+        const ownerEmail = typeof rawEmail === 'string' ? validEmail(rawEmail) : null;
+        if (!ownerEmail) return send(400, { message: 'Почта владельца: введите адрес вида имя@домен' });
+        const vertical = body['vertical'] ?? 'HOSPITALITY';
+        if (vertical !== 'HOSPITALITY' && vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE')
+          return send(400, { message: 'Выберите направление бизнеса' });
+        if (vertical !== 'HOSPITALITY')
+          return send(403, { message: 'Направление пока доступно только участникам пилота' });
+        const taken = ['admin@wetop.test', 'owner@example.com', ...platformCreated.map((c) => c.ownerEmail)];
+        if (taken.includes(ownerEmail)) return send(409, { message: 'Эта почта уже зарегистрирована' });
+        const id = `ui-org-new-${platformCreated.length + 1}`;
+        platformCreated.push({ id, name: normalizeOrganizationName(name), ownerEmail, createdAt: new Date().toISOString() });
+        if (platformMailOn) platformLinkAt.set(id, Date.now());
+        return send(201, {
+          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === id)!),
+          ownerLinkSent: platformMailOn,
+        });
+      }
+      const ownerLink = /^\/platform\/organizations\/([^/]+)\/owner-link$/.exec(path);
+      if (ownerLink && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(ownerLink[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (!org.ownerPending) return send(409, { message: 'Владелец уже задал пароль: ссылка не нужна' });
+        if (platformLinkAt.has(org.id))
+          return send(429, { message: 'Письмо уже отправляли: повторить можно через несколько минут' });
+        if (platformMailOn) platformLinkAt.set(org.id, Date.now());
+        return send(201, { organization: platformOrganizationJson(org), ownerLinkSent: platformMailOn });
+      }
+      // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
+      const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);
+      if (rename && req.method === 'PATCH') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(rename[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const raw = body['name'];
+        if (typeof raw !== 'string' || !isOrganizationNameShaped(raw))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        platformNames.set(org.id, normalizeOrganizationName(raw));
+        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
+      }
+      const archive = /^\/platform\/organizations\/([^/]+)\/(archive|restore)$/.exec(path);
+      if (archive && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(archive[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (archive[2] === 'archive') {
+          // свою организацию в архив убрать нельзя: сессия главного администратора перестала бы действовать
+          if (org.id === 'ui-org')
+            return send(409, {
+              message: 'Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе',
+            });
+          if (org.status === 'SUSPENDED') return send(409, { message: 'Организация уже в архиве' });
+          platformArchived.set(org.id, org.status);
+        } else {
+          if (org.status !== 'SUSPENDED') return send(409, { message: 'Организация не в архиве' });
+          const was = platformArchived.get(org.id) ?? 'READ_ONLY';
+          platformArchived.delete(org.id);
+          platformStatuses.set(org.id, was);
+        }
+        return send(201, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
       }
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET')
@@ -6724,12 +6986,64 @@ createServer(async (req, res) => {
       if (v.active !== undefined) row.active = v.active;
       return send(200, row);
     }
+    if (path === '/hotel/media' && req.method === 'GET') {
+      const view = (m: FixtureMedia, position: number) => ({
+        id: m.id,
+        kind: m.kind,
+        position,
+        fileName: m.fileName,
+        byteSize: m.byteSize,
+        width: m.kind === 'PHOTO' ? 160 : null,
+        height: m.kind === 'PHOTO' ? 120 : null,
+        alt: null,
+        url: m.kind === 'PHOTO' ? PHOTO_PLACEHOLDER : 'https://files.example.invalid/contract.pdf',
+      });
+      const contract = hotelMedia.find((m) => m.kind === 'CONTRACT');
+      return send(200, {
+        storage: mediaStorageOff ? 'OFF' : 'READY',
+        limits: { maxBytes: 10 * 1024 * 1024, maxPhotos: 20 },
+        photos: hotelMedia.filter((m) => m.kind === 'PHOTO').map(view),
+        contract: contract && can(uiRole, 'settings') ? view(contract, 0) : null,
+      });
+    }
+    if (path.startsWith('/hotel/media/')) {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      if (mediaStorageOff)
+        return send(503, { message: 'Хранилище файлов не включено. Обратитесь в поддержку WETOP.' });
+      if (req.method === 'POST' && (path === '/hotel/media/photos' || path === '/hotel/media/contract')) {
+        const kind = path.endsWith('contract') ? 'CONTRACT' : 'PHOTO';
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? null;
+        if (kind === 'CONTRACT' && !text.includes('%PDF-'))
+          return send(415, { message: 'Договор принимается только в формате PDF' });
+        if (kind === 'PHOTO' && hotelMedia.filter((m) => m.kind === 'PHOTO').length >= 20)
+          return send(400, { message: 'Не больше 20 фото на объект. Удалите лишние.' });
+        if (kind === 'CONTRACT') hotelMedia = hotelMedia.filter((m) => m.kind !== 'CONTRACT');
+        hotelMedia.push({
+          id: `00000000-0000-4000-8000-${String(++mediaSeq).padStart(12, '0')}`,
+          kind,
+          fileName: name ? Buffer.from(name, 'latin1').toString('utf8') : null,
+          byteSize: raw.length,
+        });
+        return send(201, {});
+      }
+      if (req.method === 'DELETE') {
+        const id = path.split('/')[4] ?? '';
+        const before = hotelMedia.length;
+        hotelMedia = hotelMedia.filter((m) =>
+          path.endsWith('/contract') ? m.kind !== 'CONTRACT' : m.id !== id,
+        );
+        return hotelMedia.length === before
+          ? send(404, { message: 'Файл не найден' })
+          : send(200, { deleted: true });
+      }
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
-      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, unknown>) };
       return send(200, {});
     }
     if (path === '/hotel/onboarding' && req.method === 'POST') {
@@ -6859,6 +7173,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

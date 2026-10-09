@@ -42,13 +42,20 @@ test('организации: филиал создаётся прямо в ра
   await page.waitForURL('**/finance');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
-  await expect(page.locator('summary').filter({ hasText: 'Добавить объект / филиал' })).toHaveCount(
-    0,
-  );
+  await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.reload();
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить объект / филиал' }).click();
+  // одна страница: организация, итоги, филиалы и таблица всех организаций видны сразу, без раскрывашек
+  await expect(main.getByRole('heading', { name: 'Организации', level: 1 })).toBeVisible();
+  await expect(main.getByRole('region', { name: 'Итоги по филиалам' })).toBeVisible();
+  await expect(main.getByTestId('platform-organizations')).toBeVisible();
+  // служебные ID на экран не выводятся, «реквизитов» и «объекта / филиала» в словах нет
+  await expect(main).not.toContainText('ID филиала');
+  await expect(main).not.toContainText('ID:');
+  await expect(main).not.toContainText('Реквизиты организации');
+  await expect(main).not.toContainText('объект / филиал');
+  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
   await main.getByLabel('Название филиала').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
@@ -56,25 +63,20 @@ test('организации: филиал создаётся прямо в ра
   await expect(
     main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
   ).toBeVisible();
-  await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
-  ).toBeVisible();
-  await expect(main.getByTestId('platform-organizations')).not.toBeVisible();
-  await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
-  await expect(main.getByTestId('platform-organizations')).toBeVisible();
+  // показатели стоят прямо в карточке филиала
+  await expect(main.getByText('Загрузка').first()).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `reports/organizations-page-2026-10-09/organizations-${width}.png`,
+      fullPage: true,
+    });
   }
-  await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: 'reports/branches-2026-10-01/platform-branches.png',
-    fullPage: true,
-  });
   await main.getByRole('button', { name: 'Открыть филиал', exact: true }).click();
   await page.waitForURL('**/today');
 });

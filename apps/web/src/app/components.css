@@ -2617,6 +2617,216 @@
   }
 
   /* ---------- MV8.5 DS1c (DESIGN.md §8.2): доля, сетка формы, период, день ---------- */
+  /*
+   * Кольцо долей (RPT2.2c-3, DESIGN.md §8.2 `DonutShare`): оттенки одного цвета графика, не палитра. Дуги рисуются
+   * обводкой окружности; смысл держит список справа (имя, доля, сумма), кольцо скрыто от программы чтения.
+   */
+  .donut {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-6);
+  }
+  .donut__ring {
+    position: relative;
+    width: 148px;
+    height: 148px;
+  }
+  /* без событий: иначе проверка контраста принимает ограничивающий квадрат дуги за фон под текстом центра */
+  .donut__ring svg {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .donut__seg {
+    fill: none;
+    stroke-width: 18;
+  }
+  .donut__seg--0,
+  .donut__swatch--0 {
+    stroke: var(--chart-1);
+    background: var(--chart-1);
+  }
+  .donut__seg--1,
+  .donut__swatch--1 {
+    stroke: color-mix(in srgb, var(--chart-1) 72%, var(--surface));
+    background: color-mix(in srgb, var(--chart-1) 72%, var(--surface));
+  }
+  .donut__seg--2,
+  .donut__swatch--2 {
+    stroke: color-mix(in srgb, var(--chart-1) 50%, var(--surface));
+    background: color-mix(in srgb, var(--chart-1) 50%, var(--surface));
+  }
+  .donut__seg--3,
+  .donut__swatch--3 {
+    stroke: color-mix(in srgb, var(--chart-1) 32%, var(--surface));
+    background: color-mix(in srgb, var(--chart-1) 32%, var(--surface));
+  }
+  .donut__seg--4,
+  .donut__swatch--4 {
+    stroke: color-mix(in srgb, var(--chart-1) 18%, var(--surface));
+    background: color-mix(in srgb, var(--chart-1) 18%, var(--surface));
+  }
+  /* текст целиком внутри просвета кольца: внутренний диаметр 96 из 148 px, под текст не попадает ни одна дуга */
+  .donut__center {
+    position: absolute;
+    inset: 26px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: grid;
+    place-content: center;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .donut__center strong {
+    font-size: var(--text-md);
+    font-variant-numeric: tabular-nums;
+  }
+  .donut__center span {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .donut__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .donut__legend li {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .donut__swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border);
+  }
+  .donut__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .donut__share,
+  .donut__amount {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .donut__amount {
+    color: var(--muted);
+    min-width: 7ch;
+  }
+  @media (max-width: 600px) {
+    .donut {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+    }
+    .donut__legend {
+      width: 100%;
+    }
+  }
+  /*
+   * Линейный график (RPT2.2c-3, DESIGN.md §8.2 `LineChart`): одна-две линии на `--chart-1` и `--chart-2`, вторая пунктиром.
+   * Рисунок скрыт от программы чтения; смысл в списке под графиком и в таблице значений `.sr-only`.
+   */
+  .line {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .line__plot {
+    position: relative;
+    height: 200px;
+    padding-left: var(--space-16);
+  }
+  .line__plot svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .line__ticks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--space-16) - var(--space-2));
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    text-align: right;
+  }
+  /* пять равных делений от нуля до верха шкалы: расставляет сама колонка, без строки стиля */
+  .line__ticks li {
+    line-height: 1;
+    white-space: nowrap;
+    font-size: var(--text-xs);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .line__grid {
+    stroke: var(--border-soft);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .line__series path {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .line__series--0 path {
+    stroke: var(--chart-1);
+  }
+  .line__series--1 path {
+    stroke: var(--chart-2);
+  }
+  .line__series path.is-dashed {
+    stroke-dasharray: 6 4;
+  }
+  .line__series path.line__dot {
+    stroke-width: 7;
+  }
+  .line__x {
+    display: flex;
+    justify-content: space-between;
+    padding-left: var(--space-16);
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .line__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    font-size: var(--text-sm);
+  }
+  .line__legend li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .line__legend strong {
+    font-variant-numeric: tabular-nums;
+  }
+  .line__swatch {
+    width: 20px;
+    height: 0;
+    border-top: 2px solid var(--chart-1);
+  }
+  .line__swatch--1 {
+    border-top-color: var(--chart-2);
+  }
+  .line__swatch.is-dashed {
+    border-top-style: dashed;
+  }
   .share-bar {
     --share-fill: var(--chart-1);
     --share-track: var(--chart-1-soft);
@@ -2727,4 +2937,138 @@
       min-width: 0;
     }
   }
+
+  /* Выключатель, чип-флажок, поле со значком (ADR-156, DESIGN.md §8.3) */
+  .switch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--control-h);
+    cursor: pointer;
+  }
+  .switch__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--muted);
+  }
+  .switch__text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .switch__label {
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+  .switch__hint {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .switch__track {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 24px;
+    border: 1px solid var(--border-input);
+    border-radius: 9999px;
+    background: var(--surface-muted);
+    transition: background-color var(--duration-fast) ease;
+  }
+  .switch__track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--surface-solid);
+    border: 1px solid var(--border-input);
+    transition: transform var(--duration-fast) ease;
+  }
+  .switch:hover .switch__track {
+    background: var(--row-hover);
+  }
+  .switch__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .chip__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .switch__input:checked + .switch__track {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .switch__input:checked + .switch__track::after {
+    border-color: var(--primary);
+    transform: translateX(16px);
+  }
+  .switch__input:focus-visible + .switch__track {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .switch__input:disabled + .switch__track {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .chip--dashed {
+    border-style: dashed;
+    color: var(--muted);
+  }
+  .chip--check {
+    position: relative;
+  }
+  .chip--check:has(.chip__input:checked) {
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .chip--check:has(.chip__input:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .chip--check:has(.chip__input:disabled) {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .field-icon {
+    position: relative;
+    display: block;
+    min-width: 0;
+  }
+  .field-icon > svg {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .field-icon > .inp {
+    width: 100%;
+    padding-left: var(--space-10);
+  }
+  @media (max-width: 600px) {
+    .switch {
+      min-height: 44px;
+    }
+    .chip--check {
+      min-height: 44px;
+    }
+  }
 }
+

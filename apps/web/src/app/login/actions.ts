@@ -3,7 +3,7 @@ import { scopeResolvePath } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
-import { ApiError, authApi } from '../../lib/api';
+import { ApiError, authApi, type AuthInviteExtra, type AuthScope } from '../../lib/api';
 import {
   clearScopeCookie,
   clearSessionCookie,
@@ -192,13 +192,17 @@ export interface InviteActionResult {
  * Пригласить по почте с ролью (срез 13, этап 7; роль — ADR-107). Ошибки формы и отказ по роли приходят текстом из API;
  * без сессии — тоже текстом. Непонятная роль из формы — отказ теми же словами, что у API, а не приглашение администратора.
  */
-export async function inviteAction(email: string, role: string): Promise<InviteActionResult> {
+export async function inviteAction(
+  email: string,
+  role: string,
+  extra: AuthInviteExtra = {},
+): Promise<InviteActionResult> {
   const token = await sessionToken();
   if (!token) return { error: 'Сеанс закончился. Войдите заново.', email: null };
   const invited = parseInviteRole(role);
   if (!invited) return { error: INVITE_ROLE_MESSAGE, email: null };
   try {
-    const invite = await authApi.invite(token, email, invited, await clientInfo());
+    const invite = await authApi.invite(token, email, invited, await clientInfo(), extra);
     revalidatePath('/profile/access');
     revalidatePath('/team');
     return { error: null, email: invite.email };
@@ -230,9 +234,49 @@ export async function revokeInviteAction(id: string): Promise<TeamActionResult> 
   return teamAction(async (token) => authApi.revokeInvite(token, id, await clientInfo()));
 }
 
+/**
+ * Отправить приглашение заново (STAFF2.3a): старая ссылка отзывается, на ту же почту уходит новая с тем же сроком в 7
+ * суток и той же ролью. Если новое не ушло, слова об этом: старое уже отозвано.
+ */
+export async function resendInviteAction(
+  id: string,
+  email: string,
+  role: string,
+  extra: AuthInviteExtra = {},
+): Promise<TeamActionResult> {
+  const invited = parseInviteRole(role);
+  if (!invited) return { error: INVITE_ROLE_MESSAGE };
+  const revoked = await revokeInviteAction(id);
+  if (revoked.error) return revoked;
+  const sent = await inviteAction(email, invited, extra);
+  return sent.error
+    ? { error: `Старое приглашение отозвано, новое не отправлено: ${sent.error}` }
+    : { error: null };
+}
+
 /** Отключить сотрудника: членство удаляется, его сеансы в этой организации гаснут */
 export async function removeMemberAction(userId: string): Promise<TeamActionResult> {
   return teamAction(async (token) => authApi.removeMember(token, userId, await clientInfo()));
+}
+
+/** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §31.1) */
+export async function setMemberScopesAction(
+  userId: string,
+  scopes: AuthScope[],
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberScopes(token, userId, scopes, await clientInfo()),
+  );
+}
+
+/** Приостановить или возобновить доступ сотрудника: он остаётся в команде, его сеансы гаснут (DATA_MODEL §31.2) */
+export async function setMemberSuspendedAction(
+  userId: string,
+  suspended: boolean,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberSuspended(token, userId, suspended, await clientInfo()),
+  );
 }
 
 /** Сменить роль между управляющим и администратором — только владелец */

@@ -133,7 +133,10 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
     await db.user.create({ data: { id: user, email: `mkt92-${user}@example.invalid`, passwordHash: 'x' } });
     await db.business.create({ data: { id: business, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
     // имя филиала равно имени объекта: соседний набор Platform P1 сверяет их у всех объектов базы
-    await db.location.create({ data: { id: location, businessId: business, name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    // порядок списка филиалов в API: `createdAt`, затем `id`. Без явного времени два `create` подряд иногда попадали в одну
+    // миллисекунду, и порядок решал случайный uuid: тест краснел через раз (гейт на коммите 0fed8093). Время задаём руками
+    const earlier = new Date(Date.now() - 60_000);
+    await db.location.create({ data: { id: location, businessId: business, name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT', createdAt: earlier } });
     await db.location.create({ data: { id: other, businessId: business, name: 'Marina', timezone: 'Asia/Almaty', currency: 'KZT' } });
     await db.property.create({ data: { id: property, organizationId: org, locationId: location, name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT', checkInTime: '14:00', checkOutTime: '12:00' } });
     const cat = await db.accommodationType.create({ data: { propertyId: property, code: 'cat-a', name: 'Номер', kind: 'PRIVATE_ROOM', capacityAdults: 2 } });
@@ -422,7 +425,7 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       const r = await ask(w, 'CHAT', 'Привет');
       for (let i = 0; i < 3; i += 1) {
         fake.state.replies.push({ status: 'ok', result: { answer: 'x', html: '<b>bad</b>' }, model: 'openai/a', usage: usage(10, 10) });
-        await sql.query(`UPDATE site_ai_runs SET next_attempt_at = now() WHERE id = $1 AND status = 'QUEUED'`, [r.body.run.id]);
+        await sql.query(`UPDATE site_ai_runs SET next_attempt_at = now() - interval '1 second' WHERE id = $1 AND status = 'QUEUED'`, [r.body.run.id]);
         await worker.tick();
       }
       expect(await aiRun(r.body.run.id)).toMatchObject({ status: 'FAILED', errorCode: 'SCHEMA_INVALID', assistantText: null, payload: null, tokensInput: 30 });

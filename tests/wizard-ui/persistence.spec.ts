@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
+import { wizardStandDatabaseUrl } from '../tools/seed-local';
 
 test('анонимный браузер → Next proxy → Nest → PostgreSQL → reload', async ({ page }) => {
-  const db = createPrismaClient('postgresql://postgres@127.0.0.1:55432/pmslocal', 'public');
+  const db = createPrismaClient(wizardStandDatabaseUrl(), 'public');
   let token: string | null = null;
   try {
     await page.goto('/create?ref=loopback-e2e');
@@ -68,7 +69,10 @@ test('прокси не принимает чужой Origin, неизвестн
   ).toBe(401);
   expect(
     (
-      await request.post('/api/wizard', { data: { operation: 'open', ref: 'a'.repeat(25000) } })
+      // потолок прокси считается в БАЙТАХ (48 000, SEC-4: 24 000 знаков русского текста дают до 48 000
+      // байт) и проверяется до чтения тела. Прежние 25 000 ASCII-знаков в него укладывались, и тест
+      // ждал отказа от запроса, который по правилу законен
+      await request.post('/api/wizard', { data: { operation: 'open', ref: 'a'.repeat(60_000) } })
     ).status(),
   ).toBe(413);
 });

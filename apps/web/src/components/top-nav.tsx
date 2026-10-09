@@ -14,7 +14,7 @@ import { cx } from './ui';
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
-  activeNavigation,
+  activeMenuRoute,
   allowedItem,
   phoneNavigationFor,
   type NavigationAccess,
@@ -318,8 +318,9 @@ function BottomNavLinks({
       <Link
         key={n.href}
         href={n.href}
-        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-        aria-current={activeNavigation(path)?.href === n.href ? 'page' : undefined}
+        // как в шапке и выдвижном меню: на /guests активны «Брони», своего пункта у «Гостей» нет (09.10.2026)
+        className={cx(activeMenuRoute(path) === n.href && 'is-active')}
+        aria-current={activeMenuRoute(path) === n.href ? 'page' : undefined}
       >
         <Icon name={n.icon} />
         <span>{n.label}</span>

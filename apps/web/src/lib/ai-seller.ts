@@ -24,10 +24,12 @@ import { pluralRu } from './plural';
 
 /** Вкладки раздела — четыре экрана по макету владельца 26.09.2026 (план `plans/seller-prompt-window-2026-09-26.md`) */
 export const SELLER_TABS = [
+  { view: 'overview', href: '/ai-seller/overview', label: 'Обзор' },
   { view: '', href: '/ai-seller', label: 'Настройка' },
   { view: 'dialogs', href: '/ai-seller/dialogs', label: 'Диалоги' },
   { view: 'knowledge', href: '/ai-seller/knowledge', label: 'Знания' },
   { view: 'connections', href: '/ai-seller/connections', label: 'Подключения' },
+  { view: 'analytics', href: '/ai-seller/analytics', label: 'Аналитика' },
 ] as const;
 
 export type SellerView = (typeof SELLER_TABS)[number]['view'];

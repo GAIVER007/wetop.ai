@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 09.10.2026 20:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bdd5e4 (claude/sales2-impl), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller-overview.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, аналитика (2.3s)
+  ✓   2 tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (1.7s)
+  ✓   3 tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (1.3s)
+  ✓   4 tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (846ms)
+  ✓   5 tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (1.0s)
+  ✓   6 tests/ui/ai-seller-overview.spec.ts:83:1 › аналитика: сводка недоступна, сказано словами (710ms)
+  ✓   7 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, light, 1440px (1.7s)
+  ✓   8 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, light, 390px (1.7s)
+  ✓   9 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, dark, 1440px (2.1s)
+  ✓  10 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, dark, 390px (1.8s)
+  ✓  11 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, light, 1440px (1.5s)
+  ✓  12 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, light, 390px (1.8s)
+  ✓  13 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, dark, 1440px (1.6s)
+  ✓  14 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, dark, 390px (1.7s)
+
+  14 passed (28.0s)
+
+# код выхода 0 · 29 с

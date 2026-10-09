@@ -57,6 +57,7 @@ import {
   SellerPromptForm,
   WhatsAppForm,
 } from '../forms';
+import { AnalyticsView, OverviewView } from './overview';
 import '../ai-seller.css';
 
 /**
@@ -155,6 +156,7 @@ export default async function AiSellerPage({
           view={view}
           mode={one(query.mode)}
           id={one(query.id)}
+          days={one(query.days)}
           owner={mayAccess(access, 'owner')}
         />
       </Suspense>
@@ -181,11 +183,13 @@ async function SellerScreen({
   view,
   mode,
   id,
+  days,
   owner,
 }: {
   view: SellerView;
   mode: string;
   id: string;
+  days: string;
   /** Платные расширения — владельческое (ADR-107): напоминание о продлении только ему */
   owner: boolean;
 }) {
@@ -205,10 +209,12 @@ async function SellerScreen({
           {reminder}
         </Alert>
       )}
+      {view === 'overview' && <OverviewView status={status.value} />}
       {view === '' && <SetupView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} />}
+      {view === 'analytics' && <AnalyticsView days={days} />}
     </Stack>
   );
 }

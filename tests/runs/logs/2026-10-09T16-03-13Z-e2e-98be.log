@@ -1,0 +1,401 @@
+# Сквозные (e2e) · 09.10.2026 21:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bdd5e4 (claude/sales2-impl), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/ai-seller-overview.spec.ts' 'tests/ui/sales-hub.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 44 tests using 2 workers
+
+  ✓   2 tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, аналитика (4.8s)
+  ✓   1 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (6.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓   3 tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (5.6s)
+  ✓   4 tests/ui/ai-seller.spec.ts:109:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (7.4s)
+  ✓   5 tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (14.1s)
+  ✓   6 tests/ui/ai-seller.spec.ts:140:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (10.9s)
+  ✓   7 tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (8.7s)
+  ✓   8 tests/ui/ai-seller.spec.ts:170:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (11.5s)
+  ✓   9 tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (24.8s)
+  ✓  11 tests/ui/ai-seller-overview.spec.ts:83:1 › аналитика: сводка недоступна, сказано словами (7.1s)
+  ✘  10 tests/ui/ai-seller.spec.ts:187:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (42.0s)
+  ✓  12 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, light, 1440px (44.1s)
+  ✓  13 tests/ui/ai-seller.spec.ts:224:1 › продавец недоступен — метка, причина и обещание повтора (20.8s)
+  ✓  14 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, light, 390px (23.7s)
+  ✓  16 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, dark, 1440px (12.1s)
+  ✓  17 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: overview, dark, 390px (10.7s)
+  ✘  15 tests/ui/ai-seller.spec.ts:235:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (29.8s)
+  ✓  18 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, light, 1440px (29.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  20 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, light, 390px (49.6s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  19 tests/ui/ai-seller.spec.ts:254:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (1.6m)
+  ✓  21 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, dark, 1440px (31.0s)
+  ✓  22 tests/ui/ai-seller.spec.ts:268:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (17.0s)
+  ✓  23 tests/ui/ai-seller-overview.spec.ts:92:7 › доступность и снимки: analytics, dark, 390px (17.3s)
+  ✘  25 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (43.0s)
+  ✘  24 tests/ui/ai-seller.spec.ts:305:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (1.1m)
+  ✘  26 tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (37.2s)
+  ✓  27 tests/ui/ai-seller.spec.ts:348:1 › карточка диалога по неизвестному id не падает, а говорит словами (30.3s)
+  ✓  28 tests/ui/sales-hub.spec.ts:90:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (11.4s)
+  ✓  30 tests/ui/sales-hub.spec.ts:99:1 › нет предложений: конверсия это знак пропуска, а не 0 % (19.8s)
+  ✓  31 tests/ui/sales-hub.spec.ts:109:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (41.2s)
+  ✓  32 tests/ui/sales-hub.spec.ts:122:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (16.8s)
+  ✓  33 tests/ui/sales-hub.spec.ts:133:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (8.2s)
+  ✘  29 tests/ui/ai-seller.spec.ts:354:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (2.0m)
+  ✓  34 tests/ui/sales-hub.spec.ts:146:1 › администратор смены открывает хаб (38.9s)
+  ✓  35 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 1440px (47.7s)
+  ✘  36 tests/ui/ai-seller.spec.ts:382:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (1.0m)
+  ✓  37 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 390px (51.2s)
+  ✓  38 tests/ui/ai-seller.spec.ts:397:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (48.1s)
+  ✓  39 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 1440px (46.1s)
+  ✓  40 tests/ui/ai-seller.spec.ts:415:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (55.1s)
+  ✓  41 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 390px (57.5s)
+  ✘  42 tests/ui/ai-seller.spec.ts:447:1 › снимки экранов раздела (1.2m)
+  ✓  43 tests/ui/ai-seller.spec.ts:475:1 › Все агенты возвращает в единый каталог, а не только к черновикам (40.7s)
+  ✓  44 tests/ui/ai-seller.spec.ts:484:1 › закрытое расширение: администратор видит действие для управления доступом (11.7s)
+
+
+  1) tests/ui/ai-seller.spec.ts:187:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Инструкция продавцу' })
+    Timeout: 15000ms
+    - Expected  -  1
+    + Received  + 16
+
+    - Отвечай на «вы», коротко.
+    + Разговор по шагам
+    + - При подборе размещения уточняй только недостающие даты, количество гостей и тип размещения. Для справочного вопроса подбор не начинай.
+    + - Подбери подходящий вариант и расскажи о нём.
+    + - При желании оформить бронь используй контакт канала и только проверенные действия платформы.
+    +
+    + Стиль
+    + - Сначала ответь прямо на вопрос: обычно достаточно 1–3 коротких предложений.
+    + - Не повторяй уже известные сведения, приветствия и рекламные предложения. Не добавляй список своих возможностей к каждому ответу.
+    + - Задавай не больше одного необходимого уточняющего вопроса за сообщение, только если без него нельзя помочь. Не спрашивай повторно то, что уже известно из диалога. Если нужны даты и тип номера, сначала уточни только даты; не объединяй два вопроса в один.
+    + - Не запрашивай телефон у пользователя. Контакт бери из канала связи, а данные вошедшего пользователя — из авторизованного контекста системы. Не проси повторить уже известные имя, контакты или объект. Если контекст недоступен, не выдумывай его и не запрашивай телефон вместо восстановления подключения.
+    + - Не выдумывай цены, доступность, причины ошибок или выполненные действия. Если проверенных данных нет, кратко скажи об этом и предложи следующий шаг.
+    + - Подробности давай по просьбе: тогда объясняй полно, по шагам, без искусственного ограничения длины.
+    + - О передаче специалисту или создании заявки говори в прошедшем времени только после подтверждения системой. Иначе предложи передачу.
+    + - Обращайся к гостю на «вы», отвечай коротко, эмодзи — без эмодзи.
+    + - Отвечай на языке гостя: русский.
+    +
+
+    Call log:
+      - Expect "toHaveValue" getByRole('textbox', { name: 'Инструкция продавцу' }) with timeout 15000ms
+      - waiting for getByRole('textbox', { name: 'Инструкция продавцу' })
+        31 × locator resolved to <textarea rows="10" class="inp" name="text" required="" maxlength="20000" data-testid="seller-prompt-text" aria-labelledby="seller-prompt-title">Разговор по шагам↵- При подборе размещения уточня…</textarea>
+           - unexpected value "Разговор по шагам
+    - При подборе размещения уточняй только недостающие даты, количество гостей и тип размещения. Для справочного вопроса подбор не начинай.
+    - Подбери подходящий вариант и расскажи о нём.
+    - При желании оформить бронь используй контакт канала и только проверенные действия платформы.
+    
+    Стиль
+    - Сначала ответь прямо на вопрос: обычно достаточно 1–3 коротких предложений.
+    - Не повторяй уже известные сведения, приветствия и рекламные предложения. Не добавляй список своих возможностей к каждому ответу.
+    - Задавай не больше одного необходимого уточняющего вопроса за сообщение, только если без него нельзя помочь. Не спрашивай повторно то, что уже известно из диалога. Если нужны даты и тип номера, сначала уточни только даты; не объединяй два вопроса в один.
+    - Не запрашивай телефон у пользователя. Контакт бери из канала связи, а данные вошедшего пользователя — из авторизованного контекста системы. Не проси повторить уже известные имя, контакты или объект. Если контекст недоступен, не выдумывай его и не запрашивай телефон вместо восстановления подключения.
+    - Не выдумывай цены, доступность, причины ошибок или выполненные действия. Если проверенных данных нет, кратко скажи об этом и предложи следующий шаг.
+    - Подробности давай по просьбе: тогда объясняй полно, по шагам, без искусственного ограничения длины.
+    - О передаче специалисту или создании заявки говори в прошедшем времени только после подтверждения системой. Иначе предложи передачу.
+    - Обращайся к гостю на «вы», отвечай коротко, эмодзи — без эмодзи.
+    - Отвечай на языке гостя: русский.
+    "
+
+
+      201 |     'Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.',
+      202 |   );
+    > 203 |   await expect(instruction(page)).toHaveValue('Отвечай на «вы», коротко.');
+          |                                   ^
+      204 |   await expect(page.getByTestId('seller-prompt-state')).toHaveText(
+      205 |     'Сохранено, но ещё не у продавца',
+      206 |   );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:203:35
+
+    Error Context: test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-не-подк-809d8-охраняется-заранее-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:235:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-state')
+    Expected substring: "отклонил правки"
+    Received string:    "не настроенПродавец ещё не настроен"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-state') with timeout 15000ms
+      - waiting for getByTestId('seller-state')
+        31 × locator resolved to <span class="seller-state" data-testid="seller-state">…</span>
+           - unexpected value "не настроенПродавец ещё не настроен"
+
+
+      245 |   });
+      246 |   await page.goto('/ai-seller');
+    > 247 |   await expect(page.getByTestId('seller-state')).toContainText('отклонил правки');
+          |                                                  ^
+      248 |   const reason = page.getByTestId('seller-state-reason');
+      249 |   await expect(reason).toContainText('«Инструкция»');
+      250 |   await expect(reason).toContainText('нажмите «Сохранить и применить» во вкладке «Настройка»');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:247:50
+
+    Error Context: test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-отклони-19fde-о-делать-повтора-не-обещаем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller.spec.ts:305:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('seller-dialog-mode')
+    Expected: "ведёт человек"
+    Received: "нужен человек"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('seller-dialog-mode') with timeout 15000ms
+      - waiting for getByTestId('seller-dialog-mode')
+        31 × locator resolved to <span class="badge badge--warn" data-testid="seller-dialog-mode">нужен человек</span>
+           - unexpected value "нужен человек"
+
+
+      334 |   await page.getByTestId('dialog-takeover').click();
+      335 |   await expect(page.getByTestId('dialog-mode-result')).toContainText('Диалог ваш');
+    > 336 |   await expect(page.getByTestId('seller-dialog-mode')).toHaveText('ведёт человек');
+          |                                                        ^
+      337 |
+      338 |   await page
+      339 |     .getByTestId('dialog-reply-text')
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:336:56
+
+    Error Context: test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller.spec.ts:354:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByTestId('seller-llm-key-clear')
+
+
+      375 |   // «Снять ключ» возвращает ход на ключ платформы
+      376 |   await page.goto('/ai-seller/connections');
+    > 377 |   await page.getByTestId('seller-llm-key-clear').click();
+          |                                                  ^
+      378 |   await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
+      379 |   await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+      380 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:377:50
+
+    Error Context: test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-seller.spec.ts:382:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-llm-key-state')
+    Expected substring: "····7890"
+    Received string:    "Ключ не задан: продавец ходит ключом платформы."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-llm-key-state') with timeout 15000ms
+      - waiting for getByTestId('seller-llm-key-state')
+        22 × locator resolved to <p data-testid="seller-llm-key-state">Ключ не задан: продавец ходит ключом платформы.</p>
+           - unexpected value "Ключ не задан: продавец ходит ключом платформы."
+
+
+      384 |   await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+      385 |   await page.getByTestId('seller-llm-key-save').click();
+    > 386 |   await expect(page.getByTestId('seller-llm-key-state')).toContainText('····7890');
+          |                                                          ^
+      387 |   await page.goto('/ai-seller');
+      388 |   await fillInstruction(page, 'Отвечай на «вы», коротко.');
+      389 |   await saveInstruction(page);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:386:58
+
+    Error Context: test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-ключ-и-инструкци-6c485-ет-остаются-окно-и-проверка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-seller.spec.ts:447:1 › снимки экранов раздела ─────────────────────────────────────
+
+    Error: Timeout 15000ms exceeded while waiting on the predicate
+
+      31 |     if ((await button.getAttribute('aria-current')) !== 'step') await button.click();
+      32 |     expect(await button.getAttribute('aria-current')).toBe('step');
+    > 33 |   }).toPass({ timeout: 15_000 });
+         |      ^
+      34 | };
+      35 | /** Раскрывашка «Подключений» (1. Модель ИИ … 4. Чат на сайте): открыть группу по названию */
+      36 | const openConnection = (page: Page, name: string) =>
+        at openStep (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:33:6)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller.spec.ts:470:9
+
+    Error Context: test-results/ai-seller-снимки-экранов-раздела/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-снимки-экранов-раздела/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-снимки-экранов-раздела/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/sales$/
+    Received string:  "http://127.0.0.1:3127/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3127/today"
+
+
+      51 |   await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
+      52 |   await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();
+    > 53 |   await expect(page).toHaveURL(/\/sales$/);
+         |                      ^
+      54 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
+      55 |
+      56 |   const kpis = page.getByTestId('sales-kpis');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:53:22
+
+    Error Context: test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/market\?add=1/
+    Received string:  "http://127.0.0.1:3127/sales"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3127/sales"
+
+
+      84 |   await expect(page.getByTestId('sales-recs')).toContainText('Рынок почти полон');
+      85 |   await recs.getByRole('link', { name: /Добавить конкурента/ }).click();
+    > 86 |   await expect(page).toHaveURL(/\/market\?add=1/);
+         |                      ^
+      87 |   await expect(page.getByRole('dialog')).toBeVisible();
+      88 | });
+      89 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:86:22
+
+    Error Context: test-results/sales-hub-три-карточки-кон-3ce45-дации-кнопки-ведут-в-модули/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-три-карточки-кон-3ce45-дации-кнопки-ведут-в-модули/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-три-карточки-кон-3ce45-дации-кнопки-ведут-в-модули/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/ai-seller.spec.ts:187:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) 
+    tests/ui/ai-seller.spec.ts:235:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем 
+    tests/ui/ai-seller.spec.ts:305:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+    tests/ui/ai-seller.spec.ts:354:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+    tests/ui/ai-seller.spec.ts:382:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка 
+    tests/ui/ai-seller.spec.ts:447:1 › снимки экранов раздела ──────────────────────────────────────
+    tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+    tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули 
+  36 passed (14.6m)
+
+# код выхода 1 · 14 мин 35 с

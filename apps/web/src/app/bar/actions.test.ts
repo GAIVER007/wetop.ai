@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
+import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, scanBarReceiptAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
 import { barApi } from '../../lib/api';
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
-  barApi: { createCategory: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn() },
+  barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn(), updateProduct: vi.fn() },
 }));
 
 describe('форма прихода бара', () => {
@@ -24,6 +24,44 @@ describe('форма прихода бара', () => {
       lines: [{ productId: 'product-1', quantityUnits: '12', unitCostMinor: '15050', markupBasis: 3525 }],
     }));
     expect(barApi.postReceipt).toHaveBeenCalledWith('receipt-1');
+  });
+
+  it('строка «новый товар» сначала создаёт карточку с ценой по наценке, вверх до 10 тенге', async () => {
+    vi.mocked(barApi.createProduct).mockResolvedValue({ id: 'product-new', code: 'SOK-YABLOCHNYY-1L', name: 'Сок яблочный 1л', categoryId: null, barcode: '4870007654321', unitsPerPackage: 1, markupBasis: 3500, salePrice: '106000', minimumStockUnits: '0', active: true });
+    vi.mocked(barApi.createReceipt).mockResolvedValue({ id: 'receipt-2', status: 'DRAFT' });
+    const fd = new FormData();
+    Object.entries({
+      lineCount: '2', supplierId: 'supplier-1', documentNumber: 'SF-8', documentDate: '2026-10-09',
+      receivedDate: '2026-10-09',
+      'productId.0': 'product-1', 'quantityUnits.0': '2', 'unitCost.0': '100', 'markup.0': '0',
+      'productId.1': '', 'newName.1': 'Сок яблочный 1л', 'newCode.1': 'SOK-YABLOCHNYY-1L', 'newBarcode.1': '4870007654321',
+      'quantityUnits.1': '10', 'unitCost.1': '780', 'markup.1': '35.00',
+    }).forEach(([key, value]) => fd.set(key, value));
+    const result = await createBarReceiptAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBeNull();
+    // 780 тенге + 35 % = 1053 тенге, вверх до 10 тенге = 1060 тенге = 106000 тиын (Q-BAR-2)
+    expect(barApi.createProduct).toHaveBeenCalledWith(expect.objectContaining({
+      code: 'SOK-YABLOCHNYY-1L', name: 'Сок яблочный 1л', barcode: '4870007654321',
+      markupBasis: 3500, salePriceMinor: '106000', minimumStockUnits: '0', unitsPerPackage: 1,
+    }));
+    expect(barApi.createReceipt).toHaveBeenCalledWith(expect.objectContaining({
+      lines: [
+        { productId: 'product-1', quantityUnits: '2', unitCostMinor: '10000', markupBasis: 0 },
+        { productId: 'product-new', quantityUnits: '10', unitCostMinor: '78000', markupBasis: 3500 },
+      ],
+    }));
+  });
+
+  it('строка без товара и без названия не уходит в API', async () => {
+    const fd = new FormData();
+    Object.entries({
+      lineCount: '1', supplierId: 'supplier-1', documentNumber: 'SF-9', documentDate: '2026-10-09',
+      receivedDate: '2026-10-09', 'productId.0': '', 'quantityUnits.0': '1', 'unitCost.0': '10', 'markup.0': '0',
+    }).forEach(([key, value]) => fd.set(key, value));
+    const result = await createBarReceiptAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toContain('Строка 1');
+    expect(barApi.createProduct).not.toHaveBeenCalled();
+    expect(barApi.createReceipt).not.toHaveBeenCalled();
   });
 
   it('не пропускает float и не отправляет запрос', async () => {
@@ -78,8 +116,48 @@ describe('форма прихода бара', () => {
     expect(barApi.createCategory).toHaveBeenCalledWith({ name: 'Напитки', defaultMarkupBasis: 3525 });
   });
 
+  it('скан: принимает только картинки и отдаёт разобранный документ', async () => {
+    const scan = { supplierId: null, supplierName: 'ИП Иванов', documentNumber: 'SF-1', documentDate: '2026-10-09', lines: [{ productId: null, name: 'Сок', barcode: null, quantityUnits: '2', unitCostMinor: '78000' }], warnings: [] };
+    vi.mocked(barApi.scanReceipt).mockResolvedValue(scan);
+    const fd = new FormData();
+    fd.set('document', new File(['fake'], 'invoice.jpg', { type: 'image/jpeg' }));
+    const result = await scanBarReceiptAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBeNull();
+    expect(result.scan).toEqual(scan);
+    expect(result.message).toContain('новых товаров: 1');
+    expect(barApi.scanReceipt).toHaveBeenCalledWith(expect.objectContaining({ fileName: 'invoice.jpg', mediaType: 'image/jpeg', dataBase64: expect.any(String) }));
+  });
+
+  it('скан: PDF и пустой файл не уходят в API', async () => {
+    const pdf = new FormData();
+    pdf.set('document', new File(['fake'], 'invoice.pdf', { type: 'application/pdf' }));
+    expect((await scanBarReceiptAction({ error: null, ok: 0 }, pdf)).error).toContain('PDF');
+    const empty = new FormData();
+    expect((await scanBarReceiptAction({ error: null, ok: 0 }, empty)).error).toContain('Выберите фото');
+    expect(barApi.scanReceipt).not.toHaveBeenCalled();
+  });
+
+  it('карточка товара: поля уходят в PATCH, цена отдельным маршрутом в minor units', async () => {
+    const row = { id: 'product-1', code: 'COLA-05', name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567', unitsPerPackage: 12, markupBasis: 3500, salePrice: '75000', minimumStockUnits: '8', active: true };
+    vi.mocked(barApi.updateProduct).mockResolvedValue(row);
+    vi.mocked(barApi.setProductPrice).mockResolvedValue(row);
+    const fd = new FormData();
+    Object.entries({
+      id: 'product-1', name: 'Cola 0,5 ж/б', categoryId: '', barcode: '4870001234567',
+      unitsPerPackage: '12', markup: '35.00', minimumStockUnits: '8', salePrice: '750',
+    }).forEach(([key, value]) => fd.set(key, value));
+    const { updateBarProductAction } = await import('./actions');
+    const result = await updateBarProductAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBeNull();
+    expect(barApi.updateProduct).toHaveBeenCalledWith('product-1', {
+      name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+      unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    });
+    expect(barApi.setProductPrice).toHaveBeenCalledWith('product-1', '75000');
+  });
+
   it('сохраняет свою цену продажи в minor units', async () => {
-    vi.mocked(barApi.setProductPrice).mockResolvedValue({ id: 'product-1', code: 'WATER', name: 'Вода', categoryId: null, unitsPerPackage: 1, markupBasis: null, salePrice: '85000', minimumStockUnits: '0', active: true });
+    vi.mocked(barApi.setProductPrice).mockResolvedValue({ id: 'product-1', code: 'WATER', name: 'Вода', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, salePrice: '85000', minimumStockUnits: '0', active: true });
     const fd = new FormData();
     fd.set('id', 'product-1'); fd.set('salePrice', '850');
     const result = await setBarProductPriceAction({ error: null, ok: 0 }, fd);

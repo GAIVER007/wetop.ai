@@ -1,0 +1,93 @@
+# Сквозные (e2e) · 09.10.2026 20:34 Алматы · vm
+# коммит c8aaf0a (claude/fervent-mayer-8xg2nf)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/platform-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 45 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (3.3s)
+  ✓   2 tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (2.9s)
+  ✓   3 tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (3.5s)
+  ✓   4 tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (2.6s)
+  ✓   5 tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.6s)
+  ✓   6 tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.1s)
+  ✓   7 tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.7s)
+  ✓   8 tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.7s)
+  ✓   9 tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (5.2s)
+  ✓  10 tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (2.2s)
+  ✓  11 tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (5.6s)
+  ✓  12 tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (5.8s)
+  ✓  13 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (5.2s)
+  ✓  14 tests/ui/navigation.spec.ts:92:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.4s)
+  ✓  15 tests/ui/navigation.spec.ts:119:1 › все пункты меню открывают существующие страницы (21.8s)
+  ✓  16 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: light (4.5s)
+  ✓  17 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: dark (4.6s)
+  ✓  18 tests/ui/navigation.spec.ts:222:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (3.1s)
+  ✓  19 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.3s)
+  ✓  20 tests/ui/platform-access.spec.ts:86:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.3s)
+  ✓  21 tests/ui/platform-access.spec.ts:108:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.8s)
+  ✓  22 tests/ui/platform-access.spec.ts:147:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.8s)
+  ✓  23 tests/ui/platform-access.spec.ts:175:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  24 tests/ui/platform-access.spec.ts:195:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.8s)
+  ✓  25 tests/ui/platform-access.spec.ts:218:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (8.5s)
+  ✓  26 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, light, 1440px (14.6s)
+  ✓  27 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, dark, 1440px (14.3s)
+  ✓  28 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, light, 390px (13.9s)
+  ✓  29 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, dark, 390px (13.7s)
+  ✓  30 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.8s)
+  ✓  31 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  32 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.3s)
+  ✓  33 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.7s)
+  ✓  34 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (9.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  35 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (7.8s)
+  ✓  36 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.8s)
+  ✓  37 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.3s)
+  ✓  38 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.4s)
+  ✓  39 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.4s)
+  ✓  40 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (6.2s)
+  ✓  41 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.9s)
+  ✓  42 tests/ui/top-menu.spec.ts:54:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.1s)
+  ✓  43 tests/ui/top-menu.spec.ts:127:1 › вложенные адреса подсвечивают свою вкладку (5.2s)
+  ✓  44 tests/ui/top-menu.spec.ts:163:3 › шапка ровная, без прокрутки вбок и доступная: light (4.6s)
+  ✓  45 tests/ui/top-menu.spec.ts:163:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.2s)
+
+  45 passed (4.7m)
+
+# код выхода 0 · 4 мин 46 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 09.10.2026 21:54 Алматы · vm
+# коммит aa4bef8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T16-54-21Z-unit-b39a.json' 'scripts/design' 'apps/web/src/app/bar'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 16ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (13 tests) 85ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 57ms
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  16:54:22
+   Duration  562ms (transform 67%, tests 19%, import 12%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-09T16-54-21Z-unit-b39a.json
+
+# код выхода 0 · 2 с

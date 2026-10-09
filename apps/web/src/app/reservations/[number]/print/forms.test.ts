@@ -156,7 +156,7 @@ describe('печатные формы: словари и расчёты', () => 
     const party = propertyParty({ name, legalName, address, checkInTime, checkOutTime });
     expect([party.bin, party.phone, party.email]).toEqual(['___', '___', '___']);
   });
-  /** ADR-156: «Публичное имя для документов» из настроек объекта печатается в договоре и счёте вместо названия */
+  /** ADR-158: «Публичное имя для документов» из настроек объекта печатается в договоре и счёте вместо названия */
   it('публичное имя объекта печатается вместо названия; пустое — название как было', () => {
     const base = { name: 'Тестовый хостел', legalName: null, address: null, checkInTime: '14:00', checkOutTime: '12:00' };
     expect(propertyParty({ ...base, publicName: ' Тестовый хостел Центр ' }).name).toBe('Тестовый хостел Центр');

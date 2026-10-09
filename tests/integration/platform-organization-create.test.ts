@@ -78,7 +78,7 @@ describe.skipIf(!url)('создание организации главным а
     await db.$disconnect();
   });
 
-  /** Форма окна «Создать организацию» (ADR-156), приведённая тем же разбором, что у API */
+  /** Форма окна «Создать организацию» (ADR-159), приведённая тем же разбором, что у API */
   const form = (over: Record<string, unknown>): OrganizationCreate & { by: string } => {
     const parsed = parseOrganizationCreate({
       id: randomUUID(),

@@ -120,7 +120,8 @@ test('шахматка: легенда называет значки уборк�
   const legend = page.getByTestId('board-legend');
   await expect(legend).toContainText('требует уборки');
   await expect(legend).toContainText('убрано, ждёт проверки');
-  await expect(legend).toContainText('проверена, доступна');
+  // подпись зелёной точки в легенде календаря с 09.10.2026: «зелёная точка у места: проверено, доступно»
+  await expect(legend).toContainText('проверено, доступно');
 });
 
 test('карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку', async ({

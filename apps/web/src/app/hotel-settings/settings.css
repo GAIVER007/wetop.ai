@@ -205,4 +205,513 @@
       margin: 0;
     }
   }
+  /* «Настройки объекта» по верстке владельца (ADR-158): три колонки карточек, правила строками, предпросмотр справа */
+  .object-settings .obj-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-crumbs [aria-current='page'] {
+    color: var(--text);
+  }
+  .object-settings .settings-form,
+  .object-settings .settings-stack {
+    display: block;
+    width: 100%;
+  }
+  .object-settings .obj-fieldset {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .object-settings .obj-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .object-settings .obj-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .object-settings .obj-col {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    min-width: 0;
+  }
+  .object-settings .obj-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .object-settings .obj-card__head h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+    overflow-wrap: anywhere;
+  }
+  .object-settings .obj-card__sub {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+  .object-settings .obj-card__icon {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .object-settings .obj-card__note {
+    margin: var(--space-4) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+  .object-settings .obj-counted {
+    position: relative;
+    display: block;
+  }
+  .object-settings .obj-counted .inp {
+    width: 100%;
+    resize: vertical;
+  }
+  .object-settings .obj-counted__n {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  .object-settings .obj-amenities {
+    gap: var(--space-2);
+  }
+  .object-settings .obj-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .object-settings .obj-banner > svg {
+    flex: none;
+    margin-top: var(--space-1);
+  }
+  .object-settings .obj-banner p {
+    display: grid;
+    flex: 1;
+    gap: var(--space-1);
+    margin: 0;
+    min-width: 0;
+    color: var(--text);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-banner p span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .object-settings .obj-banner__link {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--primary);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+  }
+  .object-settings .obj-rules {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .object-settings .obj-rule {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr);
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+  }
+  .object-settings .obj-rule__label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-rule__label > svg {
+    flex: none;
+    color: var(--muted);
+  }
+  .object-settings .obj-rule__control {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    justify-items: stretch;
+  }
+  .object-settings .obj-rule__control .switch {
+    justify-content: flex-end;
+  }
+  .object-settings .obj-age,
+  .object-settings .obj-quiet {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .object-settings .obj-age .inp,
+  .object-settings .obj-quiet .inp {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+  .object-settings .obj-age__unit {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-card--preview .obj-card__head {
+    margin-bottom: var(--space-2);
+  }
+  .object-settings .obj-preview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .object-settings .obj-preview__photo {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .object-settings .obj-preview__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .object-settings .obj-preview__empty {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--muted);
+  }
+  .object-settings .obj-preview__body {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .object-settings .obj-preview__title {
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+  }
+  .object-settings .obj-preview__line,
+  .object-settings .obj-preview__times span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-preview__times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+  .object-settings .obj-preview__amenities,
+  .object-settings .obj-sample__amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .object-settings .obj-preview__amenities li {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .object-settings .obj-preview__open {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-1);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--primary);
+    font: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .object-settings .obj-preview__open:hover {
+    text-decoration: underline;
+  }
+  .object-settings .obj-checklist,
+  .object-settings .obj-links {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+  .object-settings .obj-checklist li,
+  .object-settings .obj-links li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .object-settings .obj-links li {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .object-settings .obj-links li span {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 1279px) {
+    .object-settings .obj-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .object-settings .obj-grid > .obj-col:nth-child(3) {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 960px) {
+    .object-settings .obj-grid,
+    .object-settings .obj-grid--two,
+    .object-settings .obj-grid > .obj-col:nth-child(3) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .object-settings .obj-rule {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+      padding: var(--space-2) 0;
+    }
+    .object-settings .obj-rule__control .switch {
+      justify-content: flex-start;
+    }
+    .object-settings .obj-banner {
+      flex-wrap: wrap;
+    }
+  }
+  /* Окно «Предпросмотр карточки»: то, что гость прочтёт об объекте */
+  .obj-sample {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .obj-sample h3 {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+  .obj-sample p {
+    margin: 0;
+  }
+  .obj-sample__photos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .obj-sample__photos img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-control);
+    object-fit: cover;
+  }
+  .obj-sample__rules {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+  }
+  .obj-sample__rules > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: var(--text-sm);
+  }
+  .obj-sample__rules dt {
+    color: var(--muted);
+  }
+  .obj-sample__rules dd {
+    margin: 0;
+    text-align: right;
+  }
+  .obj-sample__note {
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    font-size: var(--text-sm);
+    white-space: pre-line;
+  }
+  .obj-sample__amenities li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+  }
+  /* Шапка и вкладки как на верстке: заголовок слева, действия справа, вкладки с линией под рядом */
+  .object-settings .page__head {
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .object-settings .page__heading {
+    flex: 1 1 480px;
+    min-width: 0;
+  }
+  .object-settings .page__subtitle {
+    max-width: 760px;
+    margin-top: var(--space-1);
+    line-height: 1.4;
+  }
+  .object-settings .page__actions {
+    flex: none;
+    margin-left: auto;
+  }
+  .object-settings .tabs {
+    width: 100%;
+    gap: var(--space-4);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+  .object-settings .tabs__item {
+    padding: var(--space-2) var(--space-2);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+  }
+  .object-settings .tabs__item:hover {
+    background: transparent;
+    color: var(--primary);
+  }
+  .object-settings .tabs__item[aria-current='page'] {
+    border-color: transparent transparent var(--primary);
+    background: transparent;
+    color: var(--primary);
+  }
+  .object-settings .field-icon > .inp {
+    padding-left: var(--space-10);
+  }
+  .object-settings .settings-note a,
+  .object-settings .obj-card__sub a {
+    text-decoration: underline;
+  }
+  /* Фото и договор объекта внутри карточек (ADR-158, §32.3) */
+  .object-settings .obj-media {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .object-settings .obj-media__title {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-photos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .object-settings .obj-photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .object-settings .obj-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .object-settings .obj-photo--add {
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px dashed var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font: inherit;
+    font-size: var(--text-xs);
+    text-align: center;
+    cursor: pointer;
+  }
+  .object-settings .obj-photo--add small {
+    color: var(--muted);
+  }
+  .object-settings .obj-photo__remove {
+    position: absolute;
+    top: var(--space-1);
+    right: var(--space-1);
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--surface);
+    cursor: pointer;
+  }
+  .object-settings .obj-photo__remove--inline {
+    position: static;
+    margin-left: auto;
+  }
+  .object-settings .obj-file {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    font-size: var(--text-sm);
+  }
+  .object-settings .obj-file__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .object-settings .obj-file__size {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .object-settings .obj-photos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
 }
+

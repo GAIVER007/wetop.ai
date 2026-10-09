@@ -1,0 +1,263 @@
+# Сквозные (e2e) · 09.10.2026 20:11 Алматы · vm
+# коммит c1fd258 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 41 tests using 1 worker
+
+  ✓   1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.2s)
+  ✓   2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (5.9s)
+  ✓   3 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.6s)
+  ✓   4 tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (5.9s)
+  ✓   5 tests/ui/marketing.spec.ts:221:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.5s)
+  ✓   6 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: light (13.1s)
+  ✓   7 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: dark (12.5s)
+  ✓   8 tests/ui/marketing.spec.ts:298:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (5.9s)
+  ✓   9 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (4.0s)
+  ✓  10 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (1.9s)
+  ✓  11 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (6.0s)
+  ✓  12 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.4s)
+  ✓  13 tests/ui/site-builder-licensed.spec.ts:106:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (10.1s)
+  ✓  14 tests/ui/site-builder-licensed.spec.ts:128:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (3.8s)
+  ✓  15 tests/ui/site-builder-licensed.spec.ts:160:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (3.7s)
+  ✓  16 tests/ui/site-builder-licensed.spec.ts:176:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (2.5s)
+  ✓  17 tests/ui/site-builder-licensed.spec.ts:197:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (6.4s)
+  ✘  18 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light (17.2s)
+  ✘  19 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark (17.7s)
+  ✘  20 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (16.9s)
+  ✓  21 tests/ui/site-editor.spec.ts:90:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (2.6s)
+  ✓  22 tests/ui/site-editor.spec.ts:108:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (3.0s)
+  ✓  23 tests/ui/site-editor.spec.ts:123:1 › восстановить старую версию как новый черновик (2.7s)
+  ✓  24 tests/ui/site-editor.spec.ts:136:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (2.5s)
+  ✓  25 tests/ui/site-editor.spec.ts:154:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (2.8s)
+  ✓  26 tests/ui/site-editor.spec.ts:172:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.6s)
+  ✓  27 tests/ui/site-editor.spec.ts:191:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (2.8s)
+  ✓  28 tests/ui/site-editor.spec.ts:209:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (1.6s)
+  ✓  29 tests/ui/site-editor.spec.ts:219:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.3s)
+  ✓  30 tests/ui/site-editor.spec.ts:241:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (1.8s)
+  ✓  31 tests/ui/site-editor.spec.ts:254:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (6.8s)
+  ✓  32 tests/ui/site-editor.spec.ts:280:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (5.9s)
+  ✓  33 tests/ui/site-editor.spec.ts:298:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (5.7s)
+  ✓  34 tests/ui/site-editor.spec.ts:315:1 › первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор (5.4s)
+  ✓  35 tests/ui/site-editor.spec.ts:336:1 › первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте (4.8s)
+  ✓  36 tests/ui/site-editor.spec.ts:349:3 › окно «Создать сайт»: снимки и доступность, light (4.1s)
+  ✓  37 tests/ui/site-editor.spec.ts:349:3 › окно «Создать сайт»: снимки и доступность, dark (4.2s)
+  ✘  38 tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: light (2.0m)
+  ✘  39 tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (2.2s)
+  ✓  40 tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: dark (6.0s)
+  ✘  41 tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (2.0s)
+
+
+  1) tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light ─
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "BUTTON.ed-tab",
+    +   "BUTTON.ed-tab ed-tab--narrow",
+    + ]
+
+      252 |       await ai(page).getByTestId('ed-ai-send').click();
+      253 |       await expect(ai(page).getByTestId('ed-ai-answer')).toBeVisible();
+    > 254 |       expect(await wide()).toEqual([]);
+          |                            ^
+      255 |       await clean(page);
+      256 |       await shot(page, `editor-chat-${theme}-${width}`);
+      257 |
+        at /home/user/wetop.ai/tests/ui/site-builder-licensed.spec.ts:254:28
+
+    Error Context: test-results/site-builder-licensed-сним-97e09-ть-ключевых-состояний-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-builder-licensed-сним-97e09-ть-ключевых-состояний-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-builder-licensed-сним-97e09-ть-ключевых-состояний-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark ──
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "BUTTON.ed-tab",
+    +   "BUTTON.ed-tab ed-tab--narrow",
+    + ]
+
+      252 |       await ai(page).getByTestId('ed-ai-send').click();
+      253 |       await expect(ai(page).getByTestId('ed-ai-answer')).toBeVisible();
+    > 254 |       expect(await wide()).toEqual([]);
+          |                            ^
+      255 |       await clean(page);
+      256 |       await shot(page, `editor-chat-${theme}-${width}`);
+      257 |
+        at /home/user/wetop.ai/tests/ui/site-builder-licensed.spec.ts:254:28
+
+    Error Context: test-results/site-builder-licensed-сним-b77c2-сть-ключевых-состояний-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-builder-licensed-сним-b77c2-сть-ключевых-состояний-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-builder-licensed-сним-b77c2-сть-ключевых-состояний-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').visible().getByTestId('ed-bar').getByRole('tab')
+    Timeout: 15000ms
+    - Expected  - 1
+    + Received  + 0
+
+      Array [
+        "Редактор",
+        "Страницы",
+        "Дизайн",
+        "Настройки",
+    -   "Просмотр",
+      ]
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByTestId('ed-bar').getByRole('tab') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('ed-bar').getByRole('tab')
+        33 × locator resolved to 4 elements
+
+
+      44 |   await expect(m.getByTestId('ed-save')).toBeDisabled();
+      45 |   // раскладка по макету Marketing 2.0: вкладки в верхней полосе, «Опубликовать» ведёт на публикацию, назад к модулям
+    > 46 |   await expect(m.getByTestId('ed-bar').getByRole('tab')).toHaveText(['Редактор', 'Страницы', 'Дизайн', 'Настройки', 'Просмотр']);
+         |                                                          ^
+      47 |   await expect(m.getByTestId('editor-publication-link')).toHaveText('Опубликовать');
+      48 |   await expect(m.getByTestId('editor-publication-link')).toHaveAttribute('href', '/marketing/site');
+      49 |   await expect(m.getByRole('link', { name: 'Назад к модулям', exact: true })).toHaveAttribute('href', '/marketing');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:46:58
+
+    Error Context: test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: light ──────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('button', { name: 'Заменить изображение' }).first()
+
+
+      402 |       await page.keyboard.press('Escape');
+      403 |       await page.keyboard.press('Escape');
+    > 404 |       await main(page).getByRole('button', { name: 'Заменить изображение' }).first().click();
+          |                                                                                      ^
+      405 |       await expect(page.getByTestId('ed-asset-picker')).toBeVisible();
+      406 |       await audit();
+      407 |       await page.screenshot({ path: `${SHOTS}/picker-${theme}-1440.png` });
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:404:86
+
+    Error Context: test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "BUTTON.ed-tab 440",
+    +   "BUTTON.ed-tab ed-tab--narrow 547",
+    + ]
+
+      441 |     await expect(m.getByTestId('ed-ai')).toBeVisible();
+      442 |     await expect(m.getByTestId('ed-preview-pane')).toBeHidden();
+    > 443 |     expect(await wide()).toEqual([]);
+          |                          ^
+      444 |     await page.screenshot({ path: `${SHOTS}/mobile-ai-${theme}-390.png`, fullPage: true });
+      445 |     await tab(page, 'Просмотр').click();
+      446 |     await expect(frame(page).locator('#sec-hero')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:443:26
+
+    Error Context: test-results/site-editor-редактор-на-те-76f92-лета-вбок-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-те-76f92-лета-вбок-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-те-76f92-лета-вбок-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "BUTTON.ed-tab 440",
+    +   "BUTTON.ed-tab ed-tab--narrow 547",
+    + ]
+
+      441 |     await expect(m.getByTestId('ed-ai')).toBeVisible();
+      442 |     await expect(m.getByTestId('ed-preview-pane')).toBeHidden();
+    > 443 |     expect(await wide()).toEqual([]);
+          |                          ^
+      444 |     await page.screenshot({ path: `${SHOTS}/mobile-ai-${theme}-390.png`, fullPage: true });
+      445 |     await tab(page, 'Просмотр').click();
+      446 |     await expect(frame(page).locator('#sec-hero')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:443:26
+
+    Error Context: test-results/site-editor-редактор-на-те-82d34-ылета-вбок-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-те-82d34-ылета-вбок-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-те-82d34-ылета-вбок-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light ──
+    tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark ───
+    tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+    tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: light ───────
+    tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light 
+    tests/ui/site-editor.spec.ts:422:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark 
+  35 passed (6.2m)
+
+# код выхода 1 · 6 мин 14 с

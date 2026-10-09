@@ -142,7 +142,18 @@ export function PublicationBoard({
               <Button
                 disabled={disabled}
                 data-testid="publication-publish"
-                onClick={() => run(() => publishAction(latest.id, ratePlan))}
+                onClick={async () => {
+                  // публикация сразу открывает сайт посетителям: спрашиваем, как у отката и архива (MKT10.2a)
+                  const where = (site.url ?? site.proposedUrl)?.replace(/^https:\/\//, '');
+                  const ok = await ask({
+                    title: `Опубликовать ревизию ${latest.revision}?`,
+                    body: site.published
+                      ? `Посетители сайта увидят её вместо ревизии ${site.published.revision}. Прежнюю можно вернуть откатом.`
+                      : `Сайт откроется посетителям${where ? ` по адресу ${where}` : ''}. Остановить его можно паузой.`,
+                    confirmLabel: 'Опубликовать',
+                  });
+                  if (ok) run(() => publishAction(latest.id, ratePlan));
+                }}
               >
                 Опубликовать ревизию {latest.revision}
               </Button>

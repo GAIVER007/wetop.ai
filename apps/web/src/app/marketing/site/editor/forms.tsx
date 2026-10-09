@@ -200,12 +200,32 @@ function NavList({ which, max, labelMax }: { which: 'header' | 'footer'; max: nu
   );
 }
 
-/** Настройки сайта: имя, слоган, языки, контакты, оформление, логотип, бронь, аналитика, SEO, навигация */
-export function SiteForm() {
+/**
+ * Форма сайта двумя вкладками редактора (макет Marketing 2.0): «Дизайн» это оформление, логотип и значок;
+ * «Настройки» это имя, слоган, языки, контакты, бронь, аналитика, SEO, юридические данные и навигация
+ */
+export function SiteForm({ part }: { part: 'design' | 'settings' }) {
   const c = useEditor();
   const analytics = getAt(c.spec, ['integrations', 'analytics', 'mode']);
   const pages = (c.spec['pages'] as Rec[] | undefined) ?? [];
   const legal = getAt(c.spec, ['site', 'legal']);
+  if (part === 'design')
+    return (
+      <div className="ed-form" data-testid="ed-design-form">
+        <h2 className="ed-form__title">Дизайн сайта</h2>
+      <Group title="Оформление" testId="ed-theme">
+        <div className="ed-grid">
+          {(Object.keys(THEME_OPTIONS) as Array<keyof typeof THEME_OPTIONS>).map((key) => (
+            <EnumField key={key} path={['theme', key]} label={THEME_LABEL[key]} options={THEME_OPTIONS[key]} />
+          ))}
+        </div>
+      </Group>
+      <Group title="Логотип и значок">
+        <ImageField path={['site', 'brand', 'logo']} label="Логотип" kind="LOGO" required={false} />
+        <FaviconField path={['site', 'brand', 'faviconAssetId']} />
+      </Group>
+      </div>
+    );
   return (
     <div className="ed-form" data-testid="ed-site-form">
       <h2 className="ed-form__title">Настройки сайта</h2>
@@ -222,17 +242,6 @@ export function SiteForm() {
         <GeoField />
       </Group>
       <SocialField />
-      <Group title="Оформление" testId="ed-theme">
-        <div className="ed-grid">
-          {(Object.keys(THEME_OPTIONS) as Array<keyof typeof THEME_OPTIONS>).map((key) => (
-            <EnumField key={key} path={['theme', key]} label={THEME_LABEL[key]} options={THEME_OPTIONS[key]} />
-          ))}
-        </div>
-      </Group>
-      <Group title="Логотип и значок">
-        <ImageField path={['site', 'brand', 'logo']} label="Логотип" kind="LOGO" required={false} />
-        <FaviconField path={['site', 'brand', 'faviconAssetId']} />
-      </Group>
       <Group title="Бронирование и аналитика" testId="ed-integrations">
         <EnumField
           path={['integrations', 'booking', 'mode']}

@@ -200,7 +200,8 @@ test('R2: телефон — списки отбора за «Фильтрами
   await page.goto('/reservations');
   const main = page.getByRole('main');
   await expect(main.getByLabel('Оплата', { exact: true })).toBeHidden();
-  expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(450);
+  // 450 был замером до вкладок «Брони | Гости» (09.10.2026), как в reservations-design.spec.ts: бюджет 515
+  expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(515);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);

@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, HEADER_GROWTH_PX, test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {
@@ -16,12 +16,12 @@ test('настройки: основные поля и сохранение по
   await page.goto('/hotel-settings');
   await expect(page.getByLabel('Название объекта')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  const size = await page.evaluate(() => ({
-    h: document.documentElement.scrollHeight,
-    v: innerHeight,
-  }));
-  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под форму то же
-  expect(size.h).toBeLessThanOrEqual(size.v + HEADER_GROWTH_PX + 1);
+  // До 09.10.2026 здесь был бюджет высоты всей страницы (экран + HEADER_GROWTH_PX). Карточка объекта по
+  // верстке владельца (ADR-158) это три колонки карточек на пяти вкладках, страница прокручивается по
+  // замыслу; на первом экране остаётся главное: название объекта видно без прокрутки
+  const name = await page.getByLabel('Название объекта').boundingBox();
+  const viewport = page.viewportSize()!;
+  expect(name!.y + name!.height).toBeLessThanOrEqual(viewport.height);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {

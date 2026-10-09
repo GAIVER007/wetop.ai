@@ -473,8 +473,68 @@
   .ed-top__actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-2);
     margin-left: auto;
+  }
+  /* вкладки в верхней полосе, как в макете Marketing 2.0: подчёркнутая текущая, без рамки сегментов */
+  .ed-top .ed-tabs {
+    flex: 0 1 auto;
+    border: 0;
+    border-radius: 0;
+    overflow-x: auto;
+  }
+  .ed-top .ed-tab {
+    flex: 0 0 auto;
+    padding: 0 var(--space-4);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+  }
+  .ed-top .ed-tab + .ed-tab {
+    border-left: 0;
+  }
+  .ed-top .ed-tab.is-on {
+    border-bottom-color: var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  /* узкий экран: пять вкладок строкой во всю ширину полосы, при нехватке места переносятся, а не уходят вбок */
+  @media (max-width: 960px) {
+    .ed-top .ed-tabs {
+      display: grid;
+      flex: 1 1 100%;
+      grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+      overflow: visible;
+    }
+    .ed-top .ed-tab {
+      padding: 0 var(--space-1);
+    }
+  }
+  /* чат ИИ тёмной панелью: data-theme="dark" на самой панели даёт тёмные токены, фон задаём явно */
+  .ed-chat {
+    display: grid;
+    gap: var(--space-4);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .ed-chat__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-weight: var(--weight-semibold);
+  }
+  .ed-chat__mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: var(--surface);
+    font-weight: var(--weight-semibold);
   }
   .site-editor {
     display: grid;

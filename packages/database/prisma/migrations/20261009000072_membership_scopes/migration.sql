@@ -86,6 +86,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END $$;
+-- search_path закреплён своей схемой, как у прочих функций (20261003000043_function_search_path)
+DO $$
+DECLARE s text := current_schema(); path text;
+BEGIN
+ path := CASE WHEN s = 'public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp', s) END;
+ EXECUTE format('ALTER FUNCTION %I.membership_scope_guard() SET search_path = %s', s, path);
+END $$;
 CREATE TRIGGER membership_scope_guard BEFORE INSERT OR UPDATE ON "membership_scopes"
   FOR EACH ROW EXECUTE FUNCTION membership_scope_guard();
 

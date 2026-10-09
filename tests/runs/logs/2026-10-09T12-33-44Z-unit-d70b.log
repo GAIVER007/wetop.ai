@@ -1,0 +1,23 @@
+# Модульные (unit) · 09.10.2026 17:33 Алматы · vm
+# коммит feba666 (claude/mv8-5-ds2a-navigation-registry), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-33-44Z-unit-d70b.json' 'apps/web/src/lib/navigation-active.test.ts' 'apps/web/src/lib/navigation-rights.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/lib/website-navigation.test.ts' 'apps/web/src/lib/seller-navigation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (18 tests) 14ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 39ms
+ ✓ |unit| apps/web/src/lib/navigation-active.test.ts (14 tests) 44ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 12ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 13ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 11ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 4ms
+
+ Test Files  8 passed (8)
+      Tests  59 passed (59)
+   Start at  12:33:45
+   Duration  2.19s (transform 75%, import 22%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-33-44Z-unit-d70b.json
+
+# код выхода 0 · 3 с

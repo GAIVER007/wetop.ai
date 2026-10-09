@@ -1,0 +1,50 @@
+# Сквозные (e2e) · 09.10.2026 17:31 Алматы · vm
+# коммит feba666 (claude/mv8-5-ds2a-navigation-registry), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/beauty-branch.spec.ts' '--workers=1' '-g' 'DS2a'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне (10.6s)
+  ✓  2 tests/ui/top-menu.spec.ts:168:1 › DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу (11.5s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/beauty
+    Call log:
+      - navigating to "http://127.0.0.1:3100/beauty", waiting until "commit"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:111:30)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:111:16
+
+    Error Context: test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне 
+  1 passed (35.5s)
+
+# код выхода 1 · 37 с

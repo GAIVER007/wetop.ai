@@ -150,7 +150,8 @@ describe('activeItem: матрица активного пункта (DS2 §12)'
     const staff = { ...CLOSED_ACCESS, role: 'STAFF' as const };
     expect(at('/team', 'HOSPITALITY', staff)).toBeNull();
     expect(at('/team', 'BEAUTY', staff)).toBeNull();
-    expect(at('/reports', 'HOSPITALITY', staff)).toBeNull();
+    expect(at('/hotel-settings', 'HOSPITALITY', staff)).toBeNull();
+    expect(at('/reports', 'HOSPITALITY', staff)).toBe('reports>/reports');
     expect(at('/incidents', 'HOSPITALITY', staff)).toBe('settings>/incidents');
     expect(at('/branches', 'HOSPITALITY', staff)).toBe('settings>/branches');
     expect(at('/journal', 'FOOD_SERVICE', staff)).toBeNull();

@@ -14,8 +14,9 @@ import { cx } from './ui';
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
-  activeNavigation,
+  activeItem,
   allowedItem,
+  menuSectionsFor,
   phoneNavigationFor,
   type NavigationAccess,
 } from '../lib/navigation';
@@ -271,7 +272,11 @@ export function TopNav({
           <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
             <GrantedBottomNav desk={desk} path={path} />
           </Suspense>
-          <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
+          <button
+            onClick={() => setMenu(true)}
+            aria-label="Ещё разделы"
+            className={cx(moreActive(path, shell) && 'is-active')}
+          >
             <Icon name="more" />
             <span>Ещё</span>
           </button>
@@ -312,19 +317,35 @@ function BottomNavLinks({
   path: string;
   vertical?: WebVertical | undefined;
 }) {
+  // без ответа API панель гостиничная (`phoneNavigationFor`), подсветка тоже; своего правила у панели нет (DS2a)
+  const active = activeItem(path, vertical ?? 'HOSPITALITY', access)?.href;
   return phoneNavigationFor(vertical)
     .filter((item) => allowedItem(item, access))
     .map((n) => (
       <Link
         key={n.href}
         href={n.href}
-        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-        aria-current={activeNavigation(path)?.href === n.href ? 'page' : undefined}
+        className={cx(active === n.href && 'is-active')}
+        aria-current={active === n.href ? 'page' : undefined}
       >
         <Icon name={n.icon} />
         <span>{n.label}</span>
       </Link>
     ));
+}
+
+/**
+ * «Ещё» горит, когда активный пункт (DS2a, `activeItem`) живёт в меню за этой кнопкой, а не в панели. Раздел, которого
+ * в меню ещё не видно (профиль гостиницы, «График» салона), кнопку не зажигает: за ней его не найти.
+ */
+function moreActive(path: string, shell: DeskShell | null): boolean {
+  const access = shell?.access ?? CLOSED_ACCESS;
+  const vertical = shell?.vertical ?? 'HOSPITALITY';
+  const active = activeItem(path, vertical, access);
+  if (!active) return false;
+  if (phoneNavigationFor(vertical).some((item) => item.href === active.href && allowedItem(item, access)))
+    return false;
+  return menuSectionsFor(access, vertical).some((section) => section.id === active.sectionId);
 }
 
 function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {

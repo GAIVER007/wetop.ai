@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import nextConfig from '../../next.config';
 import {
   CLOSED_ACCESS,
-  activeMenuRoute,
+  activeItem,
   activeNavigation,
   menuSectionsFor,
   navigationItems,
@@ -53,11 +53,14 @@ describe('сайт в меню — одно место (ADR-117)', () => {
   it('вкладки модуля подсвечивают один пункт меню: «Сайт и SEO» группы «Маркетинг»', () => {
     for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings']) {
       expect(activeNavigation(path)?.href).toBe('/website');
-      expect(activeMenuRoute(path)).toBe('/marketing');
+      expect(activeItem(path, 'HOSPITALITY', CLOSED_ACCESS)).toMatchObject({
+        sectionId: 'marketing',
+        href: '/marketing',
+      });
     }
-    expect(activeMenuRoute('/marketing')).toBe('/marketing');
+    expect(activeItem('/marketing', 'HOSPITALITY', CLOSED_ACCESS)?.href).toBe('/marketing');
     // соседний адрес с тем же началом к сайту не относится
-    expect(activeMenuRoute('/websites')).not.toBe('/marketing');
+    expect(activeItem('/websites', 'HOSPITALITY', CLOSED_ACCESS)?.href).not.toBe('/marketing');
   });
 });
 

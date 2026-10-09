@@ -86,6 +86,59 @@ test('в салоне меню без гостиничных разделов: �
   );
 });
 
+/**
+ * DS2a (план mv8-5-ds2-shell-navigation §12): подсветка меню салона по его собственному реестру. Раньше `/team`,
+ * `/beauty`, `/beauty/masters` и меню телефона у салона не подсвечивали ничего: правило смотрело в гостиничное меню.
+ */
+test('DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне', async ({ page, request }) => {
+  await signIn(page, request);
+  await createAndOpenSalon(page, 'Студия Айна');
+  const menu = page.locator('.topmenu');
+  const current = menu.locator('[aria-current="page"]');
+  await expect(current).toHaveText('Календарь');
+  await expect(menu.getByRole('link', { name: 'Сотрудники и доступ', exact: true })).toHaveAttribute(
+    'href',
+    '/team',
+  );
+  for (const [path, label] of [
+    ['/team', 'Сотрудники и доступ'],
+    ['/staff', 'Сотрудники и доступ'],
+    ['/beauty', 'Календарь'],
+    ['/beauty/masters', 'Мастера'],
+    ['/beauty/services', 'Услуги'],
+  ] as const) {
+    await page.goto(path);
+    // `/staff` переводит на `/team` потоком: без ожидания адреса переход обрывает следующий `goto` (TESTING.md, 24.09)
+    if (path === '/staff') await expect(page).toHaveURL(/\/team$/);
+    await expect(current, path).toHaveCount(1);
+    await expect(current, path).toHaveText(label);
+  }
+  // «График» уже в реестре, но вкладки у него до DS2b нет: не горит ничего
+  await page.goto('/beauty/schedule');
+  await expect(menu.locator('.has-current-page')).toHaveCount(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const bar = page.getByRole('navigation', { name: 'Основная навигация' });
+  const more = bar.getByRole('button', { name: 'Ещё разделы' });
+  await page.goto('/calendar');
+  await expect(bar.locator('[aria-current="page"]')).toHaveText('Календарь');
+  await expect(more).not.toHaveClass(/is-active/);
+  await page.goto('/team');
+  await expect(bar.locator('[aria-current="page"]')).toHaveCount(0);
+  await expect(more).toHaveClass(/is-active/);
+  await more.click();
+  const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
+  await expect(drawer.locator('[aria-current="page"]')).toHaveText('Сотрудники и доступ');
+  await expect(drawer.locator('.has-current-page')).toHaveCount(1);
+  // анимация окна ещё идёт: сквозь полупрозрачную панель axe мерит контраст неверно (TESTING.md)
+  await drawer.evaluate((el) =>
+    Promise.all(
+      (el.closest('.ui-overlay') ?? el).getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})),
+    ),
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
 test('карточка объекта показывает имя салона, а не «объект не загружен»', async ({
   page,
   request,

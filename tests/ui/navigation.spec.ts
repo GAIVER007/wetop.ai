@@ -118,6 +118,26 @@ test('меню телефона: вложенные адреса подсвеч�
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
+// DS2a: нижняя панель и «Ещё» берут подсветку у того же правила, что строка вкладок
+test('меню телефона: «Ещё» горит, когда раздел живёт за ней; панель — когда в ней', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const bar = page.getByRole('navigation', { name: 'Основная навигация' });
+  const more = bar.getByRole('button', { name: 'Ещё разделы' });
+  await page.goto('/reservations/new');
+  await expect(bar.locator('[aria-current="page"]')).toHaveText('Брони');
+  await expect(more).not.toHaveClass(/is-active/);
+  await page.goto('/units/R01');
+  await expect(bar.locator('[aria-current="page"]')).toHaveCount(0);
+  await expect(more).toHaveClass(/is-active/);
+  await more.click();
+  const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  await page.keyboard.press('Escape');
+  // профиль гостиницы в меню «Ещё» не живёт: кнопка не зажигается
+  await page.goto('/profile');
+  await expect(more).not.toHaveClass(/is-active/);
+});
+
 test('все пункты меню открывают существующие страницы', async ({ page }) => {
   test.setTimeout(180_000);
   await page.goto('/auth/fallback');

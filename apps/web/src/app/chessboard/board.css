@@ -2202,7 +2202,9 @@
     .board-period-menu > summary,
     .board-length-menu > summary,
     .board-scale a,
-    .board-length-pop a {
+    .board-length-pop a,
+    .board-toolbar .board-filters-open,
+    .board-toolbar .board-new {
       min-height: var(--touch-target);
     }
     .board-nav {

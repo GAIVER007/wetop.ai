@@ -24,15 +24,8 @@ test('клетка блокировки заштрихована и называ
   await expect(blocked).toBeVisible();
   const link = blocked.locator('a.board-block');
   await expect(link).toHaveCount(1);
-  // штриховка жива: background-image не сброшен инлайн-фоном
-  // tsconfig тестов без lib dom: глобал getComputedStyle берём через globalThis с узким типом
-  const image = await link.evaluate(
-    (el) =>
-      (
-        globalThis as unknown as { getComputedStyle(e: typeof el): { backgroundImage: string } }
-      ).getComputedStyle(el).backgroundImage,
-  );
-  expect(image).toContain('repeating-linear-gradient');
+  // с образца владельца 09.10.2026 (#317) блокировка это сплошная плашка со значком и словом, без штриховки
+  await expect(link.locator('.board-stay-glyph svg')).toHaveCount(1);
   // тип блокировки — словом, как на карточке ячейки; сырого кода нет
   await expect(link).toHaveAttribute('aria-label', /неисправна: нет матраса/);
   await expect(link).not.toHaveAttribute('aria-label', /OUT_OF_ORDER/);

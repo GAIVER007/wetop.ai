@@ -193,6 +193,10 @@ test('панель места: факты, сейчас и следующее, �
   );
   await expect(drawer.getByTestId('unit-place')).toContainText('Корпус Основной');
   await expect(drawer.getByTestId('unit-capacity')).toHaveText('2 гостя');
+  // создан и последнее изменение: моменты из базы по поясу объекта, не сырой UTC
+  await expect(drawer.getByTestId('unit-created')).toHaveText('12.01.2026 14:30');
+  await expect(drawer.getByTestId('unit-updated')).toHaveText('20.03.2026 10:24');
+  await expect(drawer.getByTestId('unit-channels')).toBeVisible();
   await expect(drawer.getByTestId('unit-state')).toContainText('заблокирована');
   await expect(drawer.getByTestId('unit-state')).toContainText('ремонт: кондиционер');
   // «Сейчас» и «Следующее проживание» живут на вкладке «Бронь / Гости»

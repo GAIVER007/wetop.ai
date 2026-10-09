@@ -1355,6 +1355,9 @@ export interface UnitCard {
     guestLabel: string;
   }>;
   housekeepingHistory: Array<{ at: string; from: string; to: string }>;
+  /** Заведено и последнее изменение, UTC ISO */
+  createdAt: string;
+  updatedAt: string;
 }
 async function deleteJson<T>(path: string): Promise<T> {
   const res = await backendFetch(path, { method: 'DELETE' });

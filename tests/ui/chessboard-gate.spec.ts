@@ -140,7 +140,11 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
 
   // включённый фильтр: категория номеров — показано 16 из 88, счётчик и «Сбросить» на виду
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await page.getByTestId('board-length-button').click();
+  await page
+    .getByRole('navigation', { name: 'Длина периода' })
+    .getByRole('link', { name: '7 дней', exact: true })
+    .click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await boardFilter(page, { category: 'ROOM' });
   await expect(page.getByTestId('unit-row')).toHaveCount(16);

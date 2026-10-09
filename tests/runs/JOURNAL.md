@@ -7821,3 +7821,7 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
+| 09.10.2026 19:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-a | ✅ 42 из 42 | 4 мин 21 с | e1a5145 | [лог](logs/2026-10-09T14-29-24Z-e2e-f588.log) | второе слияние main: бар, меню и роли |
+| 09.10.2026 19:33 | unit | ✅ 4185 из 4188, пропущено 3 | 2 мин 4 с | e1a5145 | [лог](logs/2026-10-09T14-33-50Z-unit-a8f5.log) | второе слияние main |
+| 09.10.2026 19:35 | lint | ✅ без ошибок | 36 с | e1a5145 | [лог](logs/2026-10-09T14-35-55Z-lint-d7db.log) | второе слияние main |
+| 09.10.2026 19:36 | typecheck | ✅ без ошибок | 42 с | e1a5145 | [лог](logs/2026-10-09T14-36-31Z-typecheck-1c78.log) | второе слияние main |

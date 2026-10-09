@@ -183,7 +183,7 @@ test('«только чтение» (ADR-102): места видны, назна
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto(`/chessboard?from=${today}&to=${add(today, 6)}`);
   await page
     .getByRole('main')

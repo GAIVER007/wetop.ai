@@ -42,7 +42,7 @@ test('верный пароль открывает рабочее место, в
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/today');
+  await expect(page).toHaveURL(APP + '/finance');
   // клик до гидратации шапки теряется (меню не открывается): повторяем, пока меню не раскрыто
   const profile = page.getByRole('button', { name: 'Меню администратора' });
   await expect(async () => {
@@ -68,7 +68,7 @@ test('сбой API сохраняет поля, повтор после восс
   await expect(dialog(page).getByLabel('Почта')).toHaveValue('admin@wetop.test');
   await request.post(API + '/__test/control', { data: { failPath: '' } });
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/today');
+  await expect(page).toHaveURL(APP + '/finance');
 });
 test('клавиатура, показ пароля и блокировка повторной отправки', async ({ page }) => {
   await page.goto('/login');
@@ -101,7 +101,7 @@ test('клавиатура, показ пароля и блокировка по
   } finally {
     release();
   }
-  await expect(page).toHaveURL(APP + '/today');
+  await expect(page).toHaveURL(APP + '/finance');
 });
 for (const theme of ['light', 'dark'] as const) {
   test('доступность формы и адаптивность — ' + theme, async ({ page }) => {
@@ -136,7 +136,7 @@ test('сеансы открываются в профиле, команда в �
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(APP + '/today');
+  await expect(page).toHaveURL(APP + '/finance');
   await page.goto('/profile/access');
   await expect(
     page.getByRole('heading', { name: 'Управление доступом', exact: true }),
@@ -172,7 +172,7 @@ test('до подтверждения письма сессии нет; ссыл
   await expect(dialog(page).getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
   await page.goto('/login/verify?token=ui-verify-1');
-  await expect(page).toHaveURL(APP + '/today');
+  await expect(page).toHaveURL(APP + '/finance');
   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
 });
 test('негодная ссылка подтверждения показывает отказ и возможность повтора', async ({ page }) => {

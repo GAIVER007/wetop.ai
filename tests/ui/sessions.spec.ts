@@ -15,7 +15,7 @@ async function login(page: import('@playwright/test').Page) {
   await main.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await main.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса', async ({

@@ -8,15 +8,15 @@ test.beforeEach(async ({ request }) => {
 });
 test('темы: system, мгновенное переключение, сохранение после перезагрузки', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-light.png` });
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  // Утверждённая Главная показывает поступления в общем денежном блоке.
-  await expect(page.getByTestId('owner-paid')).toBeVisible();
+  // Единые «Финансы» показывают деньги сводкой кассы (plans/finance-home-merge-2026-10-09.md).
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -25,16 +25,17 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 test('shell: панель, меню профиля, поиск', async ({ page }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   // панели слева нет (ADR-134): разделы в шапке, сворачивать нечего
-  await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Главная');
+  await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Финансы');
   // меню профиля упрощено 01.10 («Simplify account menu»): обучение и вход/выход, ссылки «Профиль и
   // предпочтения» больше нет
   await page.getByRole('button', { name: 'Меню администратора' }).click();
   await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('tour-restart')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
+  // поиск в шапке доступен и на стартовых «Финансах»: правило «скрыт на Главной» ушло вместе с ней
+  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeVisible();
   await page.keyboard.press('Control+k');
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();
@@ -127,7 +128,6 @@ test('новые страницы и обе темы: адаптивность �
     if (message.type() === 'error') errors.push(message.text());
   });
   const routes = [
-    '/today',
     '/chessboard',
     '/reservations',
     '/guests',
@@ -153,7 +153,7 @@ test('новые страницы и обе темы: адаптивность �
     for (const route of routes) {
       await page.goto(route);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-      if (width === 390 && route === '/today')
+      if (width === 390 && route === '/finance')
         await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
       const overflow = await page.evaluate(() => {
         const browser = globalThis as unknown as {
@@ -166,7 +166,7 @@ test('новые страницы и обе темы: адаптивность �
     }
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   for (const route of routes) {
     await page.goto(route);

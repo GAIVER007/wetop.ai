@@ -1,5 +1,5 @@
 {
-  "base": "f39b66092 (снят на d0eb1e623; из main пришли подписи /team и /guests и удаление /guests/[id]/preview, решения AccessGate прежние)",
+  "base": "5b1348cc6 (снят на d0eb1e623; из main пришли подписи /team, /guests, /today, /finance и удаление /guests/[id]/preview, решения AccessGate прежние)",
   "paths": [
     "/",
     "/ai-agents",
@@ -512,7 +512,7 @@
     "/finance": {
       "rule": {
         "href": "/finance",
-        "label": "Оплаты",
+        "label": "Финансы",
         "requires": "reports"
       },
       "gate": {
@@ -1292,7 +1292,7 @@
     "/today": {
       "rule": {
         "href": "/today",
-        "label": "Главная",
+        "label": "Сегодня",
         "requires": "desk"
       },
       "gate": {

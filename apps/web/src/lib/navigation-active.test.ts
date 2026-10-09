@@ -27,7 +27,7 @@ const at = (path: string, vertical: WebVertical, access: NavigationAccess = ever
 };
 
 const HOSPITALITY: Array<[string[], string | null]> = [
-  [['/today', '/today?date=2026-10-10', '/tasks'], 'home>/today'],
+  [['/today', '/today?date=2026-10-10', '/tasks'], 'finance>/finance'],
   [['/chessboard'], 'chessboard>/chessboard'],
   [
     [
@@ -164,7 +164,7 @@ describe('activeItem: матрица активного пункта (DS2 §12)'
     expect(at('/team', 'HOSPITALITY', CLOSED_ACCESS)).toBe('settings>/team');
     // ожидание и сбой /auth/me: как администратор
     expect(at('/team', 'HOSPITALITY', PENDING_ACCESS)).toBeNull();
-    expect(at('/today', 'HOSPITALITY', UNKNOWN_ACCESS)).toBe('home>/today');
+    expect(at('/today', 'HOSPITALITY', UNKNOWN_ACCESS)).toBe('finance>/finance');
   });
 });
 

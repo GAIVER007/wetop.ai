@@ -1,0 +1,126 @@
+# Сквозные (e2e) · 09.10.2026 17:31 Алматы · vm
+# коммит ce21ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы (18.1s)
+  ✘  2 tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы (16.1s)
+  ✘  3 tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет (16.2s)
+  ✓  4 tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы (1.4s)
+
+
+  1) tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Финансы', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Финансы', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Финансы', exact: true, level: 1 })
+
+
+      17 | test('финансы: один раздел с блоками Главной и деньгами кассы', async ({ page }) => {
+      18 |   await page.goto('/finance');
+    > 19 |   await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
+         |                                                                                       ^
+      20 |   const main = page.getByRole('main');
+      21 |   // блоки Главной на месте
+      22 |   const load = main.getByRole('region', { name: 'Загрузка сегодня', exact: true });
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:19:87
+
+    Error Context: test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы ──────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/finance(?:[?#]|$)/
+    Received string:  "http://127.0.0.1:3100/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/today"
+
+
+      61 | test('/today гостиницы перенаправляет в финансы', async ({ page }) => {
+      62 |   await page.goto('/today');
+    > 63 |   await expect(page).toHaveURL(/\/finance(?:[?#]|$)/);
+         |                      ^
+      64 |   await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
+      65 | });
+      66 |
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:63:22
+
+    Error Context: test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет ─────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab').first()
+    Expected: "Финансы"
+    Received: "Главная"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab').first() with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).locator('.topmenu__tab').first()
+        33 × locator resolved to <a href="/today" class="topmenu__tab" data-tour="section-home">Главная</a>
+           - unexpected value "Главная"
+
+
+      68 |   await page.goto('/finance');
+      69 |   const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
+    > 70 |   await expect(menu.locator('.topmenu__tab').first()).toHaveText('Финансы');
+         |                                                       ^
+      71 |   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).toHaveCount(0);
+      72 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Финансы');
+      73 | });
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:70:55
+
+    Error Context: test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы 
+    tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы ───────────
+    tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет ──────
+  1 passed (1.1m)
+
+# код выхода 1 · 1 мин 6 с

@@ -7816,3 +7816,5 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
+| 09.10.2026 19:15 | typecheck | ✅ без ошибок | 19 с | 2cbd5d0 | [лог](logs/2026-10-09T14-15-37Z-typecheck-abe8.log) |  |
+| 09.10.2026 19:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ✅ 9 из 9 | 29 с | 2cbd5d0 | [лог](logs/2026-10-09T14-15-57Z-e2e-7da1.log) |  |

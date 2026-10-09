@@ -125,6 +125,12 @@ test('карточка: район, тип и настройки монитор�
   await seed(request, false);
   await page.goto('/market');
   await page.getByTestId('market-add').click();
+  // две вкладки по макету; «AI-поиск» честно говорит, что источника пока нет, и поле выключено
+  await page.getByRole('tab', { name: 'AI-поиск' }).click();
+  const ai = page.getByTestId('market-ai-search');
+  await expect(ai).toContainText('когда подключён разрешённый источник данных');
+  await expect(ai.getByRole('textbox')).toBeDisabled();
+  await page.getByRole('tab', { name: 'Ручной выбор' }).click();
   await page.getByTestId('market-name').fill('Almaty Residence');
   await page.getByTestId('market-district').fill('Бостандык');
   await page.getByTestId('market-category').fill('Апартаменты');

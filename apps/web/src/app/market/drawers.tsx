@@ -8,6 +8,7 @@ import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
+import { Tabs } from '../../components/tabs';
 import { useToast } from '../../components/toast';
 import { useConfirm } from '../../components/use-confirm';
 import { Alert, Button, Field, Input, Select, Table, Textarea, cx } from '../../components/ui';
@@ -82,10 +83,40 @@ export function CompetitorButton({
           title={competitor ? competitor.name : 'Новый конкурент'}
           onClose={() => setOpen(false)}
         >
-          <CompetitorForm competitor={competitor} onClose={() => setOpen(false)} />
+          {competitor ? (
+            <CompetitorForm competitor={competitor} onClose={() => setOpen(false)} />
+          ) : (
+            <Tabs
+              label="Как добавить конкурента"
+              panels={[
+                { id: 'manual', label: 'Ручной выбор', content: <CompetitorForm onClose={() => setOpen(false)} /> },
+                { id: 'ai', label: 'AI-поиск', content: <AiSearchPanel /> },
+              ]}
+            />
+          )}
         </Overlay>
       )}
     </>
+  );
+}
+
+/**
+ * Вкладка «AI-поиск» из макета владельца. Источника, из которого можно честно искать соседние отели, пока нет:
+ * сайты бронирования мы автоматически не читаем (ADR-142 п. 7). Поэтому вкладка говорит это прямо, а поле поиска
+ * выключено; когда подключится разрешённый источник данных, найденные отели появятся здесь списком с «Добавить».
+ */
+function AiSearchPanel() {
+  return (
+    <div className="market-ai-search" data-testid="market-ai-search">
+      <Field label="Поиск соседних отелей">
+        <Input disabled placeholder="Название, район или адрес" aria-describedby="market-ai-note" />
+      </Field>
+      <p className="settings-note" id="market-ai-note">
+        Автоматический поиск включится, когда подключён разрешённый источник данных. Сайты бронирования
+        мы сами не читаем: их условия это запрещают. Сейчас добавьте отель на вкладке «Ручной выбор»:
+        район, тип и расстояние помогут сравнивать вас с ним.
+      </p>
+    </div>
   );
 }
 

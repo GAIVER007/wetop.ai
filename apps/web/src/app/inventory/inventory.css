@@ -682,6 +682,60 @@
       max-width: none;
       flex-basis: 45%;
     }
+    /* цели касания не ниже 44 px: переключатель вида живёт в `.inventory-filters`, куда правило
+       `.inventory-toolbar .segment-button` не доходит; название категории и флажки выбора мест тоже */
+    .inventory-filters .segment-button,
+    .inv-group-toggle {
+      min-height: 44px;
+    }
+    /* флажок выбора: цель 44 px, видимый квадрат 20 px (родной флажок в 44 px вырастает в громоздкий квадрат) */
+    .inventory-table .inv-check {
+      width: 48px;
+      padding-inline: 0;
+    }
+    .inventory-table .inv-check input {
+      appearance: none;
+      display: inline-grid;
+      place-content: center;
+      width: 44px;
+      height: 44px;
+      margin: 0;
+      background: none;
+      cursor: pointer;
+    }
+    .inventory-table .inv-check input::before,
+    .inventory-table .inv-check input::after {
+      content: '';
+      grid-area: 1 / 1;
+      place-self: center;
+    }
+    .inventory-table .inv-check input::before {
+      box-sizing: border-box;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-input);
+      border-radius: var(--radius-xs);
+      background: var(--surface);
+    }
+    .inventory-table .inv-check input:checked::before {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+    .inventory-table .inv-check input::after {
+      width: 10px;
+      height: 5px;
+      border-left: 2px solid var(--on-primary);
+      border-bottom: 2px solid var(--on-primary);
+      transform: translateY(-1px) rotate(-45deg);
+      opacity: 0;
+    }
+    .inventory-table .inv-check input:checked::after {
+      opacity: 1;
+    }
+    .inventory-table .inv-check input:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: -6px;
+    }
   }
   /* вкладки-счётчики и переключатель вида, как на снимке */
   .inventory-filters .inventory-kind button {

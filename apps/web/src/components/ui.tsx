@@ -215,6 +215,8 @@ type StatProps = {
   size?: 'sm' | 'md' | 'lg' | LegacyStatSize | undefined;
   /** изменение к прошлому периоду: форма `Delta` из `lib/dashboard-format.ts` */
   delta?: Delta | undefined;
+  /** значок слева от подписи («Гости и бронирования», 09.10.2026): круг цвета тона, плитка по-прежнему не заливается */
+  icon?: ReactNode | undefined;
 } & (
   | { href?: undefined; children?: ReactNode }
   /** плитка-ссылка целиком: внутри других ссылок и кнопок нет */
@@ -230,6 +232,7 @@ export function Stat({
   tone,
   size,
   delta,
+  icon,
   href,
   children,
 }: StatProps) {
@@ -240,8 +243,8 @@ export function Stat({
         : `stat--tone-${tone}`
       : false;
   const sizeClass = size && size !== 'md' && `stat--${size}`;
-  const className = cx('stat', toneClass, sizeClass, href && 'stat--link');
-  const body = (
+  const className = cx('stat', toneClass, sizeClass, href && 'stat--link', icon ? 'stat--icon' : false);
+  const text = (
     <>
       <div className="stat__label">{label}</div>
       <div className="stat__value" data-testid={testId}>
@@ -255,6 +258,16 @@ export function Stat({
       )}
       {hint && <div className={cx('stat__hint', hintTone === 'warn' && 'warn-text')}>{hint}</div>}
     </>
+  );
+  const body = icon ? (
+    <>
+      <span className="stat__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <div className="stat__text">{text}</div>
+    </>
+  ) : (
+    text
   );
   if (href)
     return (

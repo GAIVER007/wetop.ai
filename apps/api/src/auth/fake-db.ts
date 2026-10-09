@@ -22,6 +22,8 @@ export interface FakeMembership {
   organizationId: string;
   /** DATA_MODEL §16.1: в базе по умолчанию `STAFF` */
   role: 'OWNER' | 'STAFF';
+  /** DATA_MODEL §31.2: в базе по умолчанию `ACTIVE` */
+  status: 'ACTIVE' | 'SUSPENDED';
   createdAt: Date;
 }
 
@@ -136,6 +138,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     userId: u.id,
     organizationId: FAKE_ORG,
     role: i === 0 ? 'OWNER' : 'STAFF',
+    status: 'ACTIVE',
     createdAt: new Date('2026-09-15T00:00:00Z'),
   }));
   const platformAdmins: FakePlatformAdmin[] = [];
@@ -395,13 +398,18 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         return { count: hit.length };
       },
     },
+    membershipScope: {
+      async findMany() {
+        return [] as Array<{ role: string; businessId: string; locationId: string | null }>;
+      },
+    },
     membership: {
       async create({
         data,
       }: {
         data: { userId: string; organizationId: string; role?: 'OWNER' | 'STAFF' };
       }) {
-        const row: FakeMembership = { role: 'STAFF', ...data, createdAt: new Date() };
+        const row: FakeMembership = { role: 'STAFF', status: 'ACTIVE', ...data, createdAt: new Date() };
         memberships.push(row);
         return { ...row };
       },

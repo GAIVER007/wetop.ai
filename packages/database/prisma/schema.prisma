@@ -51,11 +51,12 @@ model Business {
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization   Organization       @relation(fields: [organizationId], references: [id])
-  locations      Location[]
-  customers      CustomerBusiness[]
-  employees      Employee[]
-  beautyServices BeautyService[]
+  organization     Organization       @relation(fields: [organizationId], references: [id])
+  locations        Location[]
+  membershipScopes MembershipScope[]
+  customers        CustomerBusiness[]
+  employees        Employee[]
+  beautyServices   BeautyService[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -90,6 +91,7 @@ model Location {
   business               Business                @relation(fields: [businessId], references: [id])
   property               Property?
   sellerAgents           SellerAgent[]
+  membershipScopes       MembershipScope[]
   employees              EmployeeLocation[]
   services               LocationService[]
   workingHours           WorkingHours[]
@@ -103,6 +105,32 @@ model Location {
   @@index([businessId])
   @@index([bookingTrackedSiteId])
   @@map("locations")
+}
+
+/// Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл в закрытом хранилище, в базе только ключ.
+model PropertyMedia {
+  id          String    @id @default(uuid()) @db.Uuid
+  propertyId  String    @map("property_id") @db.Uuid
+  /// PHOTO | CONTRACT (CHECK в базе)
+  kind        String    @db.VarChar(8)
+  position    Int       @default(0)
+  fileName    String?   @map("file_name") @db.VarChar(200)
+  mimeType    String    @map("mime_type") @db.VarChar(40)
+  storageRef  String    @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int       @map("byte_size")
+  width       Int?
+  height      Int?
+  sha256      String    @db.Char(64)
+  alt         String?   @db.VarChar(200)
+  createdById String?   @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([propertyId, kind])
+  @@map("property_media")
 }
 
 model Property {
@@ -131,6 +159,28 @@ model Property {
   checkInTime         String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime        String   @map("check_out_time")
+  /// Карточка объекта (ADR-156, DATA_MODEL §31): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
+  description         String?  @db.VarChar(500)
+  website             String?  @db.VarChar(300)
+  /// Имя в договоре и счёте гостя; пусто, пока не задано, тогда печатается name
+  publicName          String?  @map("public_name") @db.VarChar(200)
+  earlyCheckIn        Boolean  @default(false) @map("early_check_in")
+  lateCheckOut        Boolean  @default(false) @map("late_check_out")
+  childrenAllowed     Boolean  @default(true) @map("children_allowed")
+  petsAllowed         Boolean  @default(false) @map("pets_allowed")
+  smokingAllowed      Boolean  @default(false) @map("smoking_allowed")
+  /// CASH_CARD | CASH | CARD | TRANSFER (CHECK в базе)
+  onsitePayment       String   @default("CASH_CARD") @map("onsite_payment") @db.VarChar(12)
+  /// Подпись правила отмены для карточки (штраф считает тариф, Q-293): FREE_1D | FREE_3D | FREE_7D | NON_REFUNDABLE
+  cancellationRule    String   @default("FREE_1D") @map("cancellation_rule") @db.VarChar(16)
+  /// Подпись залога для карточки: NONE | FIRST_NIGHT | HALF | FULL
+  depositRule         String   @default("NONE") @map("deposit_rule") @db.VarChar(16)
+  minGuestAge         Int      @default(18) @map("min_guest_age") @db.SmallInt
+  quietHoursFrom      String?  @map("quiet_hours_from") @db.VarChar(5)
+  quietHoursTo        String?  @map("quiet_hours_to") @db.VarChar(5)
+  houseRulesNote      String?  @map("house_rules_note") @db.VarChar(500)
+  /// Коды удобств из каталога домена PROPERTY_AMENITIES
+  amenities           String[] @default([])
   /// Platform P1 (ADR-104, DATA_MODEL §18.4, v2.6): родитель объекта — филиал (1:1), NOT NULL с миграции
   /// 20260928000032; новый объект — через createPropertyInChain. organization_id остаётся, пока замок
   /// ADR-061 не переведён на цепочку Location → Business, и совпадает с организацией Business.
@@ -144,6 +194,7 @@ model Property {
   /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
   location            Location              @relation(fields: [locationId], references: [id], onDelete: Restrict)
   buildings           Building[]
+  media               PropertyMedia[]
   accommodationTypes  AccommodationType[]
   reservations        Reservation[]
   ratePlans           RatePlan[]
@@ -1838,7 +1889,7 @@ model SiteAsset {
   @@map("site_assets")
 }
 
-/// Фото категории размещения (DATA_MODEL §30, ADR-153, миграция …070): выбор до десяти изображений из библиотеки сайта
+/// Фото категории размещения (DATA_MODEL §31, ADR-153, миграция …070): выбор до десяти изображений из библиотеки сайта
 /// филиала (`SiteAsset`, вид IMAGE, тот же Location, что у объекта категории; проверяет триггер) с порядком. Файлов и
 /// хранилища у таблицы нет, загрузка остаётся в библиотеке. Права ролей: миграция …071.
 model AccommodationTypePhoto {
@@ -2005,19 +2056,20 @@ model Organization {
   trialEndsAt       DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  memberships    Membership[]
-  sessions       Session[]
-  invites        Invite[]
-  properties     Property[]
-  businesses     Business[]
-  userErrors     UserError[]
-  sellerProfiles SellerProfile[]
-  agents         SellerAgent[]
-  wizardDrafts   WizardDraft[]
-  extensions     OrganizationExtension[]
-  guests         Guest[]
-  auditLogs      AuditLog[]
-  customers      Customer[]
+  memberships      Membership[]
+  membershipScopes MembershipScope[]
+  sessions         Session[]
+  invites          Invite[]
+  properties       Property[]
+  businesses       Business[]
+  userErrors       UserError[]
+  sellerProfiles   SellerProfile[]
+  agents           SellerAgent[]
+  wizardDrafts     WizardDraft[]
+  extensions       OrganizationExtension[]
+  guests           Guest[]
+  auditLogs        AuditLog[]
+  customers        Customer[]
 
   sellerBookingIntents SellerBookingIntent[]
 
@@ -2047,6 +2099,7 @@ model User {
   sellerAgents                 SellerAgent[]
   wizardDrafts                 WizardDraft[]
   memberships                  Membership[]
+  membershipScopes             MembershipScope[]
   sessions                     Session[]
   invitesIssued                Invite[]                       @relation("InviteCreatedBy")
   passwordResets               PasswordReset[]
@@ -2074,6 +2127,7 @@ model User {
   generationRunsRequested      GenerationRun[]
   sitePublications             MarketingSitePublication[]
   siteAssetsCreated            SiteAsset[]
+  propertyMedia                PropertyMedia[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
@@ -2122,14 +2176,18 @@ enum MembershipRole {
 
 /// Человек в организации. Роль — §16.1: у самого раннего участника организации `OWNER` (миграция 20260925000020).
 model Membership {
-  userId         String         @map("user_id") @db.Uuid
-  organizationId String         @map("organization_id") @db.Uuid
-  role           MembershipRole @default(STAFF)
-  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  userId         String           @map("user_id") @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  role           MembershipRole   @default(STAFF)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   /// Рабочий телефон в этой организации, +E.164 (CHECK в миграции 044; DATA_MODEL v2.10, Q-244)
-  phone          String?        @db.VarChar(16)
+  phone          String?          @db.VarChar(16)
   /// Должность свободным текстом; права даёт роль, не должность
-  position       String?        @db.VarChar(100)
+  position       String?          @db.VarChar(100)
+  /// DATA_MODEL §31.2, Q-289: приостановка без удаления; прежние строки ACTIVE. suspended_at и suspended_by заполнены вместе
+  status         MembershipStatus @default(ACTIVE)
+  suspendedAt    DateTime?        @map("suspended_at") @db.Timestamptz(6)
+  suspendedBy    String?          @map("suspended_by") @db.Uuid
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
@@ -2137,6 +2195,36 @@ model Membership {
   @@id([userId, organizationId])
   @@index([organizationId])
   @@map("memberships")
+}
+
+/// Состояние членства (DATA_MODEL §31.2): приостановленный не входит и не занимает место по тарифу
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+/// Область доступа человека (DATA_MODEL §31.1, ADR-156). Нет строк: вся организация. Есть строки: только эти бизнесы и
+/// филиалы, роль из строки; `location_id` NULL: бизнес целиком. Частичные уникальные индексы и триггер
+/// `membership_scope_guard` (бизнес организации, филиал бизнеса, роль не OWNER) — в миграции …072, Prisma их не описывает.
+model MembershipScope {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  userId         String         @map("user_id") @db.Uuid
+  role           MembershipRole
+  businessId     String         @map("business_id") @db.Uuid
+  locationId     String?        @map("location_id") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?        @map("created_by") @db.Uuid
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  business     Business     @relation(fields: [businessId], references: [id])
+  location     Location?    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, userId])
+  @@index([businessId])
+  @@index([locationId])
+  @@map("membership_scopes")
 }
 
 /// Активная сессия. В куке подписанное значение, не сам id. «Выйти везде» проставляет revoked_at всем строкам.
@@ -2170,6 +2258,13 @@ model Invite {
   tokenHash      String         @unique @map("token_hash") @db.VarChar(64)
   expiresAt      DateTime       @map("expires_at") @db.Timestamptz(6)
   acceptedAt     DateTime?      @map("accepted_at") @db.Timestamptz(6)
+  /// DATA_MODEL §31.3, Q-290: что указал пригласивший; при принятии идёт в имя, телефон, должность и назначения человека
+  firstName      String?        @map("first_name") @db.VarChar(100)
+  lastName       String?        @map("last_name") @db.VarChar(100)
+  phone          String?        @db.VarChar(16)
+  position       String?        @db.VarChar(100)
+  /// `[{role, businessId, locationId|null}]`; NULL или пусто: вся организация
+  scopes         Json?
   createdBy      String         @map("created_by") @db.Uuid
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
 

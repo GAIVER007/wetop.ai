@@ -31,6 +31,7 @@ import { MarketingSiteModule } from './marketing-site/marketing-site.module';
 import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
+import { PropertyMediaModule } from './hotel/property-media';
 import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
@@ -56,6 +57,7 @@ import { DataConnectionModule } from './database/connection';
     MarketingSiteModule,
     SitesRuntimeModule,
     HotelModule,
+    PropertyMediaModule,
     ChessboardModule,
     ReservationsModule,
     ChannelsModule,

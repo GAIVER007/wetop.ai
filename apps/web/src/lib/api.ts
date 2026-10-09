@@ -1,6 +1,8 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
+import type { GuestMainStay } from '@pms/domain';
 export type { ActionPreview } from './action-preview';
+export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
 /**
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
@@ -233,9 +235,40 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+export interface PropertyMediaItem {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  position: number;
+  fileName: string | null;
+  byteSize: number;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  url: string | null;
+}
+export interface PropertyMediaList {
+  storage: 'READY' | 'OFF';
+  limits: { maxBytes: number; maxPhotos: number };
+  photos: PropertyMediaItem[];
+  contract: PropertyMediaItem | null;
+}
+export const propertyMediaApi = {
+  list: () => getJson<PropertyMediaList>('/hotel/media'),
+  upload: async (kind: 'photos' | 'contract', file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/hotel/media/${kind}`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removePhoto: (id: string) =>
+    sendJson<unknown>('DELETE', `/hotel/media/photos/${encodeURIComponent(id)}`, {}),
+  removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, string | null>) =>
+  update: (patch: Record<string, unknown>) =>
     sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
@@ -480,6 +513,8 @@ export interface SignedIn {
   role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
+  /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
+  restricted?: boolean;
 }
 
 /** Расширение «ИИ-продавец» организации (ADR-083, Q-183): `expired` — срок вышел, раздел только для чтения */
@@ -652,14 +687,35 @@ export const authApi = {
     email: string,
     role: InviteRole,
     info: AuthClientInfo,
+    extra: AuthInviteExtra = {},
   ): Promise<AuthInvite> => {
     const res = await backendFetch('/auth/invites', {
       method: 'POST',
       headers: authHeaders(info, token),
-      body: JSON.stringify({ email, role }),
+      body: JSON.stringify({ email, role, ...extra }),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
+  },
+  /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
+  accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
+    const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthAccessStructure;
+  },
+  /** Заменить назначения сотрудника; пустой список: вся организация. 400/403 словами */
+  setMemberScopes: async (
+    token: string,
+    userId: string,
+    scopes: AuthScope[],
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/scopes`, {
+      method: 'PUT',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ scopes }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Отозвать ожидающее приглашение (аудит 26.09, С-10): 404 — его нет или оно не по роли вошедшего */
   revokeInvite: async (token: string, id: string, info: AuthClientInfo): Promise<void> => {
@@ -682,6 +738,19 @@ export const authApi = {
       method: 'DELETE',
       headers: authHeaders(info, token),
     });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Приостановить или возобновить доступ (DATA_MODEL §31.2): человек остаётся в команде, не входит; 403 словами */
+  setMemberSuspended: async (
+    token: string,
+    userId: string,
+    suspended: boolean,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(
+      `/auth/members/${encodeURIComponent(userId)}/${suspended ? 'suspend' : 'resume'}`,
+      { method: 'POST', headers: authHeaders(info, token) },
+    );
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Роль между управляющим и администратором — только владелец */
@@ -1394,6 +1463,29 @@ export interface GuestDirectoryRow {
     confirmationNumber: string | null;
   } | null;
   lastCancelledAt: string | null;
+  /** «Гости и бронирования»: основное проживание строки (заселён, иначе ближайшее, иначе последнее); null, если проживания нет */
+  stay: GuestMainStay | null;
+}
+/** Быстрые виды над таблицей «Гостей и бронирований» */
+export type GuestDirectoryView =
+  | 'all'
+  | 'today'
+  | 'inhouse'
+  | 'expected'
+  | 'departures'
+  | 'attention';
+/** Плитки: вся база гостей организации без отборов; заезды и выезды ещё и за вчера */
+export interface GuestDirectoryKpi {
+  /** всего гостей в базе организации */
+  all: number;
+  inhouse: number;
+  arrivalsToday: number;
+  departuresToday: number;
+  expected: number;
+  attention: number;
+  none: number;
+  arrivalsYesterday: number;
+  departuresYesterday: number;
 }
 /** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история, долг из Folio */
 export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
@@ -1402,6 +1494,23 @@ export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
   hasFolios: boolean;
   debtMinor: string;
   currency: string;
+  notes: string | null;
+  visits: Array<{
+    confirmationNumber: string;
+    arrivalDate: string;
+    departureDate: string;
+    nights: number;
+    unitCode: string | null;
+    accommodationTypeName: string;
+    status: string;
+  }>;
+  services: Array<{
+    id: string;
+    description: string;
+    quantity: number;
+    amountMinor: string;
+    serviceDate: string | null;
+  }>;
 }
 export interface GuestDirectoryResult {
   total: number;
@@ -1415,6 +1524,9 @@ export interface GuestDirectoryResult {
     /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
     NONE: number;
   };
+  /** Числа быстрых видов при текущих поиске, отборах и статусе */
+  views: Record<GuestDirectoryView, number>;
+  kpi: GuestDirectoryKpi;
   rows: GuestDirectoryRow[];
 }
 /** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */
@@ -1612,6 +1724,27 @@ export interface PeriodDebts {
   }>;
   truncated: boolean;
 }
+/** Деньги за период по дням (RPT2.4a, ADR-155): поступления, возвраты, расходы и поток раздельно */
+export interface PeriodCashFlow {
+  from: string;
+  to: string;
+  currency: string;
+  truncated: boolean;
+  days: Array<{ date: string } & PeriodCashFlowSums>;
+  totals: PeriodCashFlowSums;
+  expensesByCategory: Array<{ category: string; amountMinor: string }>;
+}
+export interface PeriodCashFlowSums {
+  receiptsMinor: string;
+  receiptsCashMinor: string;
+  receiptsOffCashMinor: string;
+  refundsMinor: string;
+  refundsCashMinor: string;
+  netReceiptsMinor: string;
+  incomeMinor: string;
+  expenseMinor: string;
+  cashFlowMinor: string;
+}
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
 export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
@@ -1705,6 +1838,8 @@ export const financeApi = {
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  cashflow: (from: string, to: string) =>
+    getJson<PeriodCashFlow>(`/finance/cashflow?${new URLSearchParams({ from, to })}`),
   // касса (DATA_MODEL §21)
   cash: () => getJson<CashBalances>('/finance/cash'),
   createCashCategory: (body: unknown) =>
@@ -2988,6 +3123,37 @@ export interface AuthInvite {
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
+  /** Что указал пригласивший и назначения (DATA_MODEL §31.3); старый API этого не присылает */
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: AuthScope[];
+}
+
+/** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
+export interface AuthScope {
+  role: InviteRole;
+  businessId: string;
+  locationId: string | null;
+}
+
+/** Необязательное в приглашении: имя, фамилия, телефон, должность и область доступа */
+export interface AuthInviteExtra {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  position?: string;
+  scopes?: AuthScope[];
+}
+
+/** Бизнесы и филиалы организации для назначений */
+export interface AuthAccessStructure {
+  businesses: Array<{
+    id: string;
+    name: string;
+    vertical: string;
+    locations: Array<{ id: string; name: string }>;
+  }>;
 }
 
 /** Человек своей организации в блоке «Сотрудники» (ADR-107) */
@@ -3006,6 +3172,14 @@ export interface AuthMember {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ */
+  suspendable: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: AuthScope[];
+  /** Этот вошедший может заменить ему назначения */
+  scopesEditable: boolean;
 }
 
 export interface AuthInvitePreview {
@@ -3038,7 +3212,7 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
-  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §30) */
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §31) */
   setPhotos: (code: string, assetIds: string[]) =>
     sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
       assetIds,

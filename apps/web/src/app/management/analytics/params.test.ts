@@ -82,3 +82,21 @@ describe('адрес «Аналитики → Загрузка»', () => {
     );
   });
 });
+
+describe('те же вкладки под оболочкой «Отчёты» (RPT2.2c-1)', () => {
+  const today = '2026-09-20';
+  it('адреса вкладок строятся от /reports, умолчания в адрес не пишутся', () => {
+    const o = parseAnalyticsQuery({}, today, 'overview', '/reports');
+    expect(analyticsHref(o)).toBe('/reports/overview');
+    expect(analyticsHref(o, { fund: 'rooms' })).toBe('/reports/overview?fund=rooms');
+    const l = parseAnalyticsQuery({}, today, 'occupancy', '/reports');
+    expect(analyticsHref(l)).toBe('/reports/occupancy');
+    expect(analyticsHref(l, { compare: false })).toBe('/reports/occupancy?compare=0');
+    expect(analyticsHref(parseAnalyticsQuery({}, today, 'units', '/reports'))).toBe(
+      '/reports/units',
+    );
+  });
+  it('без базы адреса прежние, вкладка «Аналитики» не уезжает', () => {
+    expect(analyticsHref(parseAnalyticsQuery({}, today, 'overview'))).toBe('/management/analytics');
+  });
+});

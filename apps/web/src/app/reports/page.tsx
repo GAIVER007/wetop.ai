@@ -15,6 +15,7 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Grid, SectionTitle, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
+import { ReportsTabs } from './reports-tabs';
 import '../directory.css';
 import './reports.css';
 
@@ -78,6 +79,7 @@ export default async function ReportsHubPage({
         ) : undefined
       }
     >
+      <ReportsTabs current="documents" />
       <section className="reports-controls" aria-label="Период">
         <form method="get" className="reports-toolbar" data-testid="reports-period-form">
           <Field inline label="С">

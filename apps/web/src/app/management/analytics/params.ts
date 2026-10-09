@@ -40,6 +40,8 @@ export interface AnalyticsQuery {
   period: ResolvedPeriod;
   fund: DashboardFund;
   compare: boolean;
+  /** Оболочка «Отчёты» (RPT2.2c): вкладки те же, адреса от этой базы: `/reports/overview`, `/reports/occupancy`, `/reports/units` */
+  basePath?: string;
 }
 
 /**
@@ -59,7 +61,10 @@ export function analyticsHref(q: AnalyticsQuery, patch: Partial<AnalyticsQuery> 
   if (next.fund !== 'all') sp.set('fund', next.fund);
   if (!next.compare) sp.set('compare', '0');
   const s = sp.toString();
-  return s ? `${TAB_PATH[next.tab]}?${s}` : TAB_PATH[next.tab];
+  const path = next.basePath
+    ? `${next.basePath}/${next.tab === 'overview' ? 'overview' : next.tab}`
+    : TAB_PATH[next.tab];
+  return s ? `${path}?${s}` : path;
 }
 
 const addDays = (date: string, n: number) =>
@@ -80,11 +85,12 @@ export function parseAnalyticsQuery(
   sp: Record<string, string | undefined>,
   today: string,
   tab: AnalyticsTab = 'overview',
+  basePath?: string,
 ): AnalyticsQuery {
   const fund = DASHBOARD_FUNDS.includes(sp.fund as DashboardFund)
     ? (sp.fund as DashboardFund)
     : 'all';
-  const base = { tab, fund, compare: sp.compare !== '0' };
+  const base = { tab, fund, compare: sp.compare !== '0', ...(basePath ? { basePath } : {}) };
   const legacyDate = !sp.period && !sp.from && !sp.to && sp.date !== undefined;
   if (legacyDate && !isDate(sp.date!))
     return {

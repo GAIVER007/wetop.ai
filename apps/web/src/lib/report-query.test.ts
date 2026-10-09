@@ -76,11 +76,15 @@ describe('общий разбор периода и фильтров отчёт�
 });
 
 describe('страницы отчётов закрыты для салона и ресторана (находка аудита RPT2.1)', () => {
-  it.each(['page.tsx', 'form-910/page.tsx', 'print/page.tsx'])(
-    'reports/%s вызывает requireVertical',
-    (f) => {
-      const src = readFileSync(new URL(`../app/reports/${f}`, import.meta.url), 'utf8');
-      expect(src).toContain("requireVertical(['HOSPITALITY'])");
-    },
-  );
+  it.each([
+    'page.tsx',
+    'form-910/page.tsx',
+    'print/page.tsx',
+    'overview/page.tsx',
+    'occupancy/page.tsx',
+    'units/page.tsx',
+  ])('reports/%s вызывает requireVertical', (f) => {
+    const src = readFileSync(new URL(`../app/reports/${f}`, import.meta.url), 'utf8');
+    expect(src).toContain("requireVertical(['HOSPITALITY'])");
+  });
 });

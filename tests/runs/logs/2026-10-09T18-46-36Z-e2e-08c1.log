@@ -1,0 +1,83 @@
+# Сквозные (e2e) · 09.10.2026 23:46 Алматы · vm
+# коммит b0fe596 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/object-card.spec.ts' 'tests/ui/property-settings.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✓   1 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (30.4s)
+  ✓   2 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.8s)
+  ✓   3 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.8s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (3.9s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:111:1 › узкий телефон: плитки финансов встают в одну колонку (2.3s)
+  ✘   6 tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (13.6s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (16.6s)
+  ✓   8 tests/ui/object-card.spec.ts:24:1 › карточка объекта: все поля сохраняются и читаются обратно (10.7s)
+  ✓   9 tests/ui/object-card.spec.ts:76:1 › карточка объекта: снятие всех удобств и возврат значения гасят «есть изменения» (5.8s)
+  ✓  10 tests/ui/object-card.spec.ts:103:1 › карточка объекта: ошибки словами у поля и от API, ввод не пропадает (4.3s)
+  ✓  11 tests/ui/object-card.spec.ts:126:1 › предпросмотр карточки показывает ещё не сохранённые правки (3.9s)
+  ✓  12 tests/ui/object-card.spec.ts:148:1 › «Добавить услугу» раскрывает остальные удобства, номера и места считаются по фонду (3.2s)
+  ✓  13 tests/ui/object-card.spec.ts:164:1 › «Проживание» шлёт свои поля и не затирает «Основное» (9.0s)
+  ✓  14 tests/ui/object-card.spec.ts:187:1 › фото объекта: загрузка, показ в карточке справа, удаление (4.4s)
+  ✓  15 tests/ui/object-card.spec.ts:208:1 › договор объекта: только PDF, новый заменяет прежний, удаление (5.2s)
+  ✓  16 tests/ui/object-card.spec.ts:236:1 › хранилище файлов выключено: загрузки нет, причина сказана словами (3.5s)
+  ✓  17 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: light (24.4s)
+  ✓  18 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: dark (22.0s)
+  ✓  19 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (4.4s)
+  ✓  20 tests/ui/property-settings.spec.ts:75:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (6.1s)
+  ✓  21 tests/ui/property-settings.spec.ts:90:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (11.1s)
+  ✓  22 tests/ui/property-settings.spec.ts:150:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (6.2s)
+  ✓  23 tests/ui/property-settings.spec.ts:175:1 › данные объекта и каналов помещаются на экране ноутбука (3.1s)
+  ✓  24 tests/ui/property-settings.spec.ts:192:3 › снимки SET1 и доступность: light (16.9s)
+  ✓  25 tests/ui/property-settings.spec.ts:192:3 › снимки SET1 и доступность: dark (18.2s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+
+    Error: /hotel-settings: цели ниже 44 px — INPUT, INPUT, INPUT, INPUT, INPUT, INPUT, INPUT
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 9
+
+    - Array []
+    + Array [
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    + ]
+
+      150 |         .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+      151 |     );
+    > 152 |     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
+          |                                                                      ^
+      153 |   }
+      154 | });
+      155 |
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:152:70
+
+    Error Context: test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+  24 passed (4.2m)
+
+# код выхода 1 · 4 мин 16 с

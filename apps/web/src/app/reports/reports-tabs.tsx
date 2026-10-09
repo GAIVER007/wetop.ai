@@ -1,6 +1,6 @@
 import { Tabs } from '../../components/tabs';
 
-export type ReportsTab = 'overview' | 'occupancy' | 'units' | 'channels' | 'documents';
+export type ReportsTab = 'overview' | 'occupancy' | 'units' | 'finance' | 'channels' | 'documents';
 
 /**
  * Вкладки раздела «Отчёты» (RPT2.2c-1, `plans/reports-2-0-overview-2026-10-09.md`). «Обзор», «Загрузка» и
@@ -14,6 +14,7 @@ export function ReportsTabs({ current, fund = 'all' }: { current: ReportsTab; fu
     { id: 'overview', label: 'Обзор', href: `/reports/overview${q}` },
     { id: 'occupancy', label: 'Загрузка', href: `/reports/occupancy${q}` },
     { id: 'units', label: 'По номерам', href: `/reports/units${q}` },
+    { id: 'finance', label: 'Финансы', href: '/reports/finance' },
     { id: 'channels', label: 'Каналы', href: '/management/analytics/channels' },
     { id: 'documents', label: 'Документы', href: '/reports' },
   ];

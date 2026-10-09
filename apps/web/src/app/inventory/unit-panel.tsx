@@ -8,6 +8,7 @@ import { pluralRu } from '../../lib/plural';
 import { unitNow } from '../../lib/unit-now';
 import { housekeepingStatus } from '../../lib/status/housekeeping';
 import { UnitActions } from '../units/[code]/unit-actions';
+import type { ChannelMark } from './channel-marks';
 import { FundEditor } from './fund-editor';
 import { PhotoGallery } from './photo-gallery';
 import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
@@ -23,7 +24,7 @@ function Row({
   children,
   testId,
 }: {
-  icon: 'inventory' | 'guests' | 'clock' | 'check' | 'dirty' | 'rates';
+  icon: 'inventory' | 'guests' | 'clock' | 'check' | 'dirty' | 'rates' | 'channels';
   label: string;
   children: React.ReactNode;
   testId?: string;
@@ -44,6 +45,9 @@ export function UnitPanel({
   today,
   roomUnits,
   photos,
+  createdAt,
+  updatedAt,
+  channels,
 }: {
   unit: UnitCard;
   today: string;
@@ -51,6 +55,11 @@ export function UnitPanel({
   roomUnits: InventoryUnit[];
   /** Фото категории места из библиотеки сайта (§30); пусто, пока не выбраны */
   photos: CategoryPhoto[];
+  /** Уже в поясе объекта: «12.01.2026 14:30» */
+  createdAt: string;
+  updatedAt: string;
+  /** Каналы, на которые продаётся категория места; пусто, если сопоставления нет или канал не отвечает */
+  channels: ChannelMark[];
 }) {
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
@@ -85,6 +94,25 @@ export function UnitPanel({
         </Row>
         <Row icon="dirty" label="Состояние уборки" testId="unit-hk">
           <HousekeepingBadge status={unit.housekeepingStatus} />
+        </Row>
+        <Row icon="channels" label="Каналы продаж" testId="unit-channels">
+          {channels.length ? (
+            <span className="inv-channels">
+              {channels.map((c) => (
+                <span key={c.key} className="inv-channel" title={c.title}>
+                  {c.mark}
+                </span>
+              ))}
+            </span>
+          ) : (
+            '—'
+          )}
+        </Row>
+        <Row icon="clock" label="Создан" testId="unit-created">
+          {createdAt}
+        </Row>
+        <Row icon="clock" label="Последнее изменение" testId="unit-updated">
+          {updatedAt}
         </Row>
       </dl>
       <h3 className="unit-subhead">Быстрые действия</h3>

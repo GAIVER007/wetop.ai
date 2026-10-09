@@ -64,6 +64,13 @@ export class FinanceController {
     });
   }
 
+  /** Деньги за период по дням: поступления, возвраты, расходы и поток раздельно (RPT2.4a, ADR-155) */
+  @Access('reports')
+  @Get('cashflow')
+  cashflow(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodCashFlow(from, to);
+  }
+
   // ── Касса (DATA_MODEL §21): остатки, операции мимо броней, переводы, статьи ────────────────────
   /** Остатки по способам за всё время и статьи одним ответом; кассу ведёт смена — право стойки (Q-238) */
   @Get('cash')
@@ -98,9 +105,7 @@ export class FinanceController {
 
   /** Сверка кассы (§21.4): сверяет смена, как в старой системе */
   @Post('cash/reconciliations')
-  createCashReconciliation(
-    @Body() dto: Parameters<FinanceService['createCashReconciliation']>[0],
-  ) {
+  createCashReconciliation(@Body() dto: Parameters<FinanceService['createCashReconciliation']>[0]) {
     return this.service.createCashReconciliation(dto ?? {});
   }
 

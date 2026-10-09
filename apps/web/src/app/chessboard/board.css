@@ -2205,6 +2205,11 @@
     .board-length-pop a {
       min-height: var(--touch-target);
     }
+    .board-toolbar .board-search .inp,
+    .board-toolbar .board-filters-open {
+      min-height: var(--touch-target);
+      height: auto;
+    }
     .board-nav {
       position: relative;
     }

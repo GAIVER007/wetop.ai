@@ -13,7 +13,7 @@ import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
-/** Поставщики бара (ADR-153): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
+/** Поставщики бара (ADR-154): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
 export default async function BarSuppliersPage() {
   await requireVertical(['HOSPITALITY']);
   const [suppliers, receipts] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts())]);

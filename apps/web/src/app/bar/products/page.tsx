@@ -13,7 +13,7 @@ import '../bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
-/** Товары бара (ADR-153): каталог с остатками, ценой и минимумом; новый товар и категории здесь же. */
+/** Товары бара (ADR-154): каталог с остатками, ценой и минимумом; новый товар и категории здесь же. */
 export default async function BarProductsPage() {
   await requireVertical(['HOSPITALITY']);
   const [categories, stock] = await Promise.all([settle(barApi.categories()), settle(barApi.stock())]);

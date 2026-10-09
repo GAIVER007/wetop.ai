@@ -27,6 +27,8 @@ import {
   extensionAccess,
   extensionDaysLeft,
   identityRole,
+  isOrganizationNameShaped,
+  normalizeOrganizationName,
   parseExtensionChange,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
@@ -2200,6 +2202,9 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
+// ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
+const platformNames = new Map<string, string>();
+const platformArchived = new Map<string, string>();
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2224,6 +2229,8 @@ function resetAccess() {
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
+  platformNames.clear();
+  platformArchived.clear();
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2243,8 +2250,8 @@ const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: ui
 const platformOrganizations = () => [
   {
     id: 'ui-org',
-    name: uiUser.organization.name,
-    status: platformStatuses.get('ui-org') ?? 'ACTIVE',
+    name: platformNames.get('ui-org') ?? uiUser.organization.name,
+    status: platformArchived.has('ui-org') ? 'SUSPENDED' : (platformStatuses.get('ui-org') ?? 'ACTIVE'),
     trialEndsAt: null,
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
@@ -2252,8 +2259,8 @@ const platformOrganizations = () => [
   },
   {
     id: 'ui-org-2',
-    name: 'Хостел «Пример»',
-    status: platformStatuses.get('ui-org-2') ?? 'TRIAL',
+    name: platformNames.get('ui-org-2') ?? 'Хостел «Пример»',
+    status: platformArchived.has('ui-org-2') ? 'SUSPENDED' : (platformStatuses.get('ui-org-2') ?? 'TRIAL'),
     trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
@@ -5738,7 +5745,7 @@ createServer(async (req, res) => {
       }
       const items = [branch, ...fixtureBranches];
       if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
-      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
+      return send(200, { organization: { id: 'ui-org', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
@@ -5777,6 +5784,37 @@ createServer(async (req, res) => {
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
+      }
+      // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
+      const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);
+      if (rename && req.method === 'PATCH') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(rename[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const raw = body['name'];
+        if (typeof raw !== 'string' || !isOrganizationNameShaped(raw))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        platformNames.set(org.id, normalizeOrganizationName(raw));
+        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
+      }
+      const archive = /^\/platform\/organizations\/([^/]+)\/(archive|restore)$/.exec(path);
+      if (archive && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(archive[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (archive[2] === 'archive') {
+          // свою организацию в архив убрать нельзя: сессия главного администратора перестала бы действовать
+          if (org.id === 'ui-org')
+            return send(409, {
+              message: 'Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе',
+            });
+          if (org.status === 'SUSPENDED') return send(409, { message: 'Организация уже в архиве' });
+          platformArchived.set(org.id, org.status);
+        } else {
+          if (org.status !== 'SUSPENDED') return send(409, { message: 'Организация не в архиве' });
+          const was = platformArchived.get(org.id) ?? 'READ_ONLY';
+          platformArchived.delete(org.id);
+          platformStatuses.set(org.id, was);
+        }
+        return send(201, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
       }
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET')
@@ -6744,7 +6782,7 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
-    // Бар (ADR-153): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
+    // Бар (ADR-154): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
     {
       const barResponse = barFixture(path, req.method ?? 'GET', body);
       if (barResponse) return send(barResponse.status, barResponse.data);

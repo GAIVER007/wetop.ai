@@ -90,7 +90,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/write-offs': 'desk',
   'POST /bar/inventory-counts': 'desk',
   'POST /bar/receipts': 'desk',
-  // ИИ-скан накладной (ADR-153): читает документ и ничего не создаёт, право как у самого прихода
+  // ИИ-скан накладной (ADR-154): читает документ и ничего не создаёт, право как у самого прихода
   'POST /bar/receipts/scan': 'desk',
   'POST /bar/receipts/:id/post': 'desk',
   'POST /bar/receipts/:id/payments': 'desk',
@@ -374,6 +374,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // название, архив и возврат организации (ORG1, ADR-ORG1): только главный администратор
+  'PATCH /platform/organizations/:id': 'platform',
+  'POST /platform/organizations/:id/archive': 'platform',
+  'POST /platform/organizations/:id/restore': 'platform',
   // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
   'GET /platform/organizations/:id/site-builder': 'platform',
   'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',
@@ -425,6 +429,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
   'GET /wizard/quota': 'public',
+  'POST /wizard/survey': 'public',
+  'POST /wizard/event': 'public',
 };
 
 type Handler = (...args: unknown[]) => unknown;

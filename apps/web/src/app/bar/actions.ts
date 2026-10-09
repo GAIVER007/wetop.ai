@@ -23,7 +23,7 @@ const salePriceOf = (unitCostMinor: string, markupBasis: number) => {
   const exact = (raw + 9_999n) / 10_000n;
   return (((exact + 999n) / 1_000n) * 1_000n).toString();
 };
-/** Раздел живёт на пяти подстраницах (ADR-153): после записи обновляются все */
+/** Раздел живёт на пяти подстраницах (ADR-154): после записи обновляются все */
 const BAR_PATHS = ['/bar', '/bar/receipts', '/bar/receipts/new', '/bar/products', '/bar/suppliers', '/bar/operations'];
 const revalidateBar = () => { for (const path of BAR_PATHS) revalidatePath(path); };
 
@@ -180,7 +180,7 @@ export async function createBarProductAction(_previous: BarActionResult, fd: For
   } catch (error) { return { error: describe(error), ok: _previous.ok }; }
 }
 
-/** Карточка товара с обзора (ADR-153, макет владельца): поля карточки и, если заполнена, цена продажи */
+/** Карточка товара с обзора (ADR-154, макет владельца): поля карточки и, если заполнена, цена продажи */
 export async function updateBarProductAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
   try {
     const id = value(fd, 'id');

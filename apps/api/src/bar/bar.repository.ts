@@ -33,7 +33,7 @@ export interface BarProductInput {
   minimumStockUnits: bigint;
 }
 
-/** Правка карточки товара (ADR-153): без кода, цены и архива, у них свои маршруты и правила */
+/** Правка карточки товара (ADR-154): без кода, цены и архива, у них свои маршруты и правила */
 export interface BarProductPatch {
   name: string;
   categoryId: string | null;

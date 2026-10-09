@@ -10,7 +10,7 @@ import { toggleBarCatalogAction, updateBarProductAction, type BarActionResult } 
 import { STATUS_LABEL, STATUS_TONE, stockStatusOf, type StockStatus } from './stock-status';
 
 /**
- * «Товары и остатки» на обзоре бара (ADR-153, макет владельца 09.10.2026): поиск, отбор по категории и
+ * «Товары и остатки» на обзоре бара (ADR-154, макет владельца 09.10.2026): поиск, отбор по категории и
  * статусу, статус словом и цветом, карточка товара боковой панелью (§1 п. 5: контекст остаётся на экране).
  */
 

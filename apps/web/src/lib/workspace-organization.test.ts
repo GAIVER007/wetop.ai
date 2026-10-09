@@ -12,17 +12,15 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'reports',
     'inventory',
     'settings',
-    'platform',
   ]);
   // «Отчёты»: группа, хаб REP1 и «Аналитика» вместе (поручение владельца 03.10);
-  // «Финансы»: группа с 09.10 (ADR-153), «Оплаты и касса» и «Бар» вместе
+  // «Финансы»: группа с 09.10 (ADR-154), «Оплаты и касса» и «Бар» вместе
   expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
     'finance',
     'sales',
     'marketing',
     'reports',
     'settings',
-    'platform',
   ]);
   expect(menuSections.find((s) => s.id === 'finance')?.items.map((i) => i.href)).toEqual([
     '/finance',
@@ -39,6 +37,8 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(
     menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),
   ).toBe(true);
+  // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-ORG-PAGE)
+  expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([
@@ -47,7 +47,7 @@ it('phone bottom bar: the four leading tabs; a group tab opens its first item un
     '/reservations',
     '/finance',
   ]);
-  // «Финансы» в шапке — группа (ADR-153): панель телефона зовёт её именем группы, не «Оплаты и касса»
+  // «Финансы» в шапке — группа (ADR-154): панель телефона зовёт её именем группы, не «Оплаты и касса»
   expect(phoneNavigation[3]!.label).toBe('Финансы');
 });
 

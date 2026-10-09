@@ -159,7 +159,7 @@ const SITE_GENERATION_PATH = '/internal/site-generation';
 const SITE_EDIT_PATH = '/internal/site-edit';
 /** MKT9.2: разговор с ИИ сайта (Чат, План, Оформление), версий не создаёт */
 const SITE_ASSISTANT_PATH = '/internal/site-assistant';
-/** ADR-153: скан накладной бара (контракт `bar-receipt-scan/0`), вход без состояния, ключ только платформы */
+/** ADR-154: скан накладной бара (контракт `bar-receipt-scan/0`), вход без состояния, ключ только платформы */
 const BAR_RECEIPT_SCAN_PATH = '/internal/bar-receipt-scan';
 
 export class BotPanelClient {
@@ -325,7 +325,7 @@ export class BotPanelClient {
   }
 
   /**
-   * Скан накладной бара (ADR-153, `bar-receipt-scan/0`): фото документа и справочники объекта внутрь,
+   * Скан накладной бара (ADR-154, `bar-receipt-scan/0`): фото документа и справочники объекта внутрь,
    * строгий JSON строк наружу. Как генерация сайта: без организации и агента, ключ модели только платформы.
    * Внутри один вызов каскада с картинкой, поэтому таймаут генерации сайта.
    */

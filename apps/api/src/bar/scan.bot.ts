@@ -2,7 +2,7 @@ import { assistant } from '@pms/integrations';
 import { sellerConfigFromEnv } from '../ai-seller/seller.connection';
 
 /**
- * Узкий порт к боту для скана накладной бара (ADR-153, контракт `bar-receipt-scan/0`). Тот же экземпляр и
+ * Узкий порт к боту для скана накладной бара (ADR-154, контракт `bar-receipt-scan/0`). Тот же экземпляр и
  * служебный ключ, что у ИИ-продавца (`SELLER_URL`, `SELLER_SERVICE_KEY`), клиент без организации и агента:
  * ключ модели только платформы. Вход без состояния: ни платформа, ни бот ничего не записывают.
  */

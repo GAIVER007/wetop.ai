@@ -61,7 +61,7 @@ describe('меню по ролям', () => {
     ]);
   });
 
-  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-153)', () => {
+  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-154)', () => {
     const finance = menuSectionsFor(access('STAFF')).find((s) => s.id === 'finance');
     expect(finance?.label).toBe('Финансы');
     expect(finance?.direct).toBeUndefined();
@@ -73,6 +73,17 @@ describe('меню по ролям', () => {
     expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
+  });
+
+  it('«Организации» главного администратора лежат в «Настройках», отдельной вкладки «Платформа» нет', () => {
+    const sections = menuSectionsFor(access('OWNER', true));
+    expect(sections.map((s) => s.id)).not.toContain('platform');
+    const settings = sections.find((s) => s.id === 'settings');
+    expect(settings?.items.map((i) => i.href)).toContain('/platform');
+    expect(settings?.items.find((i) => i.href === '/platform')?.label).toBe('Организации');
+    // без отметки пункта нет нигде, у любой роли
+    for (const role of ['OWNER', 'MANAGER', 'STAFF'] as const)
+      expect(hrefs(access(role))).not.toContain('/platform');
   });
 
   it('никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется', () => {
@@ -108,7 +119,7 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/guests')?.requires).toBe('desk');
     expect(routeRule('/finance')?.requires).toBe('reports');
     expect(routeRule('/bar')?.requires).toBe('reports');
-    // подстраницы бара (ADR-153) наследуют право пункта по длинному совпадению пути
+    // подстраницы бара (ADR-154) наследуют право пункта по длинному совпадению пути
     expect(routeRule('/bar/receipts/new')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });

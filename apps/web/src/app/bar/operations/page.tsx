@@ -21,7 +21,7 @@ const MOVEMENT_LABEL: Record<string, string> = {
   INVENTORY_ADJUSTMENT: 'Инвентаризация',
 };
 
-/** Операции бара (ADR-153): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
+/** Операции бара (ADR-154): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
   await requireVertical(['HOSPITALITY']);
   const [stock, sales, movements] = await Promise.all([

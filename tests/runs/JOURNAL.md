@@ -7741,11 +7741,45 @@
 | 09.10.2026 17:36 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/guests-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-compact.spec.ts tests/ | ❌ упало 2 из 28 | 2 мин 32 с | 90d323d +12 | [лог](logs/2026-10-09T12-36-34Z-e2e-ff1b.log) | Гости вкладкой внутри Броней: экраны раздела после добавления вкладок |
 | 09.10.2026 17:40 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts --workers=1) | ✅ 4 из 4 | 45 с | 90d323d +13 | [лог](logs/2026-10-09T12-40-40Z-e2e-7d0f.log) | Бюджет телефона 515 после вкладок раздела |
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
+| 09.10.2026 17:25 | unit (частично: apps/web/src/lib/navigation-roles.test.ts) | ❌ упало 1 из 19 | 3 с | 8940508 +1 | [лог](logs/2026-10-09T12-25-25Z-unit-f5db.log) | красный: «Организации» ещё в отдельной вкладке «Платформа» |
+| 09.10.2026 17:25 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/desk-person.test.ts apps/web/src/lib/seller-navigation.test.ts apps/web/src/lib/navig | ✅ 40 из 40 | 3 с | 8940508 +2 | [лог](logs/2026-10-09T12-25-38Z-unit-684b.log) | зелёный: «Организации» в «Настройках» |
+| 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 2 из 14 | 2 мин 14 с | 8940508 +7 | [лог](logs/2026-10-09T12-28-22Z-e2e-6b2f.log) | организации: одна страница, «Организации» в «Настройках» |
+| 09.10.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 3 из 14 | 2 мин 4 с | 8940508 +7 | [лог](logs/2026-10-09T12-32-31Z-e2e-7ccf.log) | повтор: организации, одна страница; «Организации» в «Настройках» |
+| 09.10.2026 17:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ✅ 58 из 58 | 8 мин 17 с | 8940508 +7 | [лог](logs/2026-10-09T12-35-02Z-e2e-fb5b.log) | организации и меню, один поток (общее подставное API) |
+| 09.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 4 мин 58 с | 8940508 +1 | [лог](logs/2026-10-09T12-20-54Z-e2e-767a.log) | хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных |
+| 09.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-26-10Z-e2e-f41c.log) |  |
+| 09.10.2026 17:27 | typecheck | ✅ без ошибок | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-08Z-typecheck-6653.log) |  |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
+| 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |
+| 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |
+| 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts -g вкладки входа и регистрации --workers=1) | ❌ упало 1 из 1 | 1 мин 7 с | 6332d73 | [лог](logs/2026-10-09T13-28-36Z-e2e-5f1d.log) | вкладки входа и регистрации переключаются без перехода в приложение |
+| 09.10.2026 18:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 10 с | 6332d73 +1 | [лог](logs/2026-10-09T13-29-48Z-e2e-a8b3.log) |  |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
+| 09.10.2026 17:44 | typecheck | ✅ без ошибок | 1 мин 4 с | 072b71f | [лог](logs/2026-10-09T12-44-12Z-typecheck-86fe.log) |  |
+| 09.10.2026 17:45 | lint | ✅ без ошибок | 36 с | 072b71f | [лог](logs/2026-10-09T12-45-20Z-lint-44b1.log) |  |
+| 09.10.2026 17:45 | unit | ❌ упало 1 из 4151, пропущено 3 | 2 мин 9 с | 072b71f | [лог](logs/2026-10-09T12-45-56Z-unit-d541.log) | organizes the menu by tasks: desk screens first, groups only for multi-screen areas |
+| 09.10.2026 17:48 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts) | ✅ 21 из 21 | 3 с | 072b71f +1 | [лог](logs/2026-10-09T12-48-19Z-unit-9c1b.log) |  |
+| 09.10.2026 17:48 | unit | ✅ 4148 из 4151, пропущено 3 | 2 мин 6 с | 072b71f +1 | [лог](logs/2026-10-09T12-48-27Z-unit-dde2.log) |  |
+| 09.10.2026 17:50 | lint | ✅ без ошибок | 38 с | 072b71f +1 | [лог](logs/2026-10-09T12-50-34Z-lint-d0d9.log) |  |
+| 09.10.2026 17:51 | typecheck | ✅ без ошибок | 44 с | 072b71f +1 | [лог](logs/2026-10-09T12-51-13Z-typecheck-b602.log) |  |
+| 09.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts) | ✅ 18 из 18 | 2 мин 39 с | 072b71f +1 | [лог](logs/2026-10-09T12-52-09Z-e2e-8e7e.log) | финал: организации и меню, один поток |
 | 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
 | 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
 | 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |
+| 09.10.2026 18:07 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/desk-person.test.ts apps/web/src/lib/ | ✅ 43 из 43 | 10 с | 6aeba9c +8 | [лог](logs/2026-10-09T13-07-27Z-unit-68cc.log) | после слияния main (Гости в Брони) и моего переноса Организаций |
+| 09.10.2026 18:07 | typecheck | ✅ без ошибок | 1 мин | 6aeba9c +13 | [лог](logs/2026-10-09T13-07-42Z-typecheck-1824.log) |  |
+| 09.10.2026 18:08 | lint | ✅ без ошибок | 39 с | 6aeba9c +13 | [лог](logs/2026-10-09T13-08-43Z-lint-3591.log) |  |
+| 09.10.2026 18:09 | unit | ✅ 4149 из 4152, пропущено 3 | 2 мин 17 с | 6aeba9c +8 | [лог](logs/2026-10-09T13-09-23Z-unit-e726.log) |  |
+| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ❌ упало 1 из 48 | 6 мин 23 с | 6aeba9c +13 | [лог](logs/2026-10-09T13-11-59Z-e2e-8c1d.log) | после слияния main (Гости в Брони): меню, организации, брони |
+| 09.10.2026 18:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/roles.spec.ts) | ✅ 12 из 12 | 1 мин 32 с | 6aeba9c +14 | [лог](logs/2026-10-09T13-18-56Z-e2e-52a1.log) | roles: меню администратора без /guests (Гости внутри Броней) |
+| 09.10.2026 18:24 | unit (частично: apps/api/src/platform/platform.controller.test.ts) | ❌ упало 10 из 25 | 4 с | 0fed809 +1 | [лог](logs/2026-10-09T13-24-49Z-unit-13aa.log) | красный: ORG1 переименование, архив, возврат организации (маршрутов ещё нет) |
+| 09.10.2026 18:25 | unit (частично: apps/api/src/platform/platform.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 28 из 28 | 7 с | 0fed809 +4 | [лог](logs/2026-10-09T13-25-15Z-unit-4154.log) | зелёный: ORG1 переименование, архив, возврат организации |
+| 09.10.2026 18:26 | integration (частично: tests/integration/platform-extensions.test.ts) | ✅ 8 из 8 | 5 с | 0fed809 +5 | [лог](logs/2026-10-09T13-26-40Z-integration-6a55.log) | ORG1: переименование, архив, возврат на настоящей схеме |
+| 09.10.2026 18:33 | typecheck | ✅ без ошибок | 46 с | 0fed809 +13 | [лог](logs/2026-10-09T13-33-17Z-typecheck-a8a7.log) |  |
+| 09.10.2026 18:34 | lint | ✅ без ошибок | 39 с | 0fed809 +13 | [лог](logs/2026-10-09T13-34-05Z-lint-9ad7.log) |  |
+| 09.10.2026 18:34 | unit | ✅ 4159 из 4162, пропущено 3 | 2 мин 5 с | 0fed809 +11 | [лог](logs/2026-10-09T13-34-44Z-unit-158b.log) |  |
+| 09.10.2026 18:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/organizations-manage.spec.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec. | ✅ 45 из 45 | 6 мин 18 с | 0fed809 +12 | [лог](logs/2026-10-09T13-36-58Z-e2e-e98c.log) | ORG1: организации (название, архив, возврат), меню, платформа |
 | 09.10.2026 18:00 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 5 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-00-45Z-unit-d69b.log) | RED: автоперемотка release, гейт на пуш кода в main (ADR-152) |
 | 09.10.2026 18:03 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-03-09Z-unit-d328.log) | GREEN: автоперемотка release и гейт на пуш кода в main |
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
@@ -7770,3 +7804,20 @@
 | 09.10.2026 19:19 | lint | ✅ без ошибок | 35 с | 97364f8 +21 | [лог](logs/2026-10-09T14-19-49Z-lint-9886.log) | финал после чистки тире |
 | 09.10.2026 19:20 | typecheck | ✅ без ошибок | 44 с | 97364f8 +21 | [лог](logs/2026-10-09T14-20-24Z-typecheck-05e4.log) | финал после чистки тире |
 | 09.10.2026 19:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-a | ✅ 42 из 42 | 4 мин 36 с | 97364f8 +21 | [лог](logs/2026-10-09T14-21-14Z-e2e-93a3.log) | финал: бар по макету и меню на слитом дереве |
+| 09.10.2026 18:45 | typecheck | ✅ без ошибок | 56 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-45-37Z-typecheck-c9af.log) |  |
+| 09.10.2026 18:46 | lint | ✅ без ошибок | 36 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-46-34Z-lint-6011.log) |  |
+| 09.10.2026 18:47 | unit | ✅ 4162 из 4165, пропущено 3 | 2 мин 5 с | 5fd5597 +12 | [лог](logs/2026-10-09T13-47-11Z-unit-1cf1.log) |  |
+| 09.10.2026 18:50 | typecheck | ✅ без ошибок | 1 мин | a0173a0 +30 | [лог](logs/2026-10-09T13-50-51Z-typecheck-4c12.log) |  |
+| 09.10.2026 18:51 | lint | ✅ без ошибок | 39 с | a0173a0 +30 | [лог](logs/2026-10-09T13-51-51Z-lint-182a.log) |  |
+| 09.10.2026 18:52 | unit | ❌ упало 1 из 4172, пропущено 3 | 2 мин 9 с | a0173a0 +26 | [лог](logs/2026-10-09T13-52-31Z-unit-ce67.log) | С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 |
+| 09.10.2026 18:35 | typecheck | ✅ без ошибок | 45 с | de0cd1e | [лог](logs/2026-10-09T13-35-02Z-typecheck-cb8e.log) |  |
+| 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |
+| 09.10.2026 18:55 | typecheck | ✅ без ошибок | 44 с | 7652ebb | [лог](logs/2026-10-09T13-55-25Z-typecheck-702a.log) |  |
+| 09.10.2026 18:56 | lint | ✅ без ошибок | 40 с | 7652ebb | [лог](logs/2026-10-09T13-56-10Z-lint-c5f3.log) |  |
+| 09.10.2026 18:56 | unit | ❌ упало 1 из 4172, пропущено 3 | 2 мин 10 с | 7652ebb | [лог](logs/2026-10-09T13-56-51Z-unit-633d.log) | С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 |
+| 09.10.2026 19:02 | integration (частично: tests/integration/licensed-site-builder.test.ts) | ✅ 27 из 27 | 15 с | 88b6e07 +1 | [лог](logs/2026-10-09T14-02-20Z-integration-decb.log) | детерминированный порядок филиалов в тесте лицензий (красный гейт #193 на 0fed8093) |
+| 09.10.2026 18:55 | unit | ✅ 4158 из 4161, пропущено 3 | 2 мин 12 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-55-39Z-unit-b219.log) |  |
+| 09.10.2026 18:57 | lint | ✅ без ошибок | 37 с | d98c1e7 +1 | [лог](logs/2026-10-09T13-57-52Z-lint-9ddb.log) |  |
+| 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
+| 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
+| 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |

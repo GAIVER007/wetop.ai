@@ -13,7 +13,7 @@ const monthTo = new Date(Date.UTC(+today.slice(0, 4), +today.slice(5, 7), 0))
 
 /** «1 500 000 ₸», «−50 000,50 ₸» → минорные единицы строкой */
 function minorOf(text: string): string {
-  const clean = text.replace(/[\s ₸]/g, '').replace('−', '-');
+  const clean = text.replace(/[\s₸]/g, '').replace('−', '-');
   const neg = clean.startsWith('-');
   const [whole = '0', frac = ''] = clean.replace('-', '').split(',');
   const v = BigInt(whole || '0') * 100n + BigInt((frac + '00').slice(0, 2));

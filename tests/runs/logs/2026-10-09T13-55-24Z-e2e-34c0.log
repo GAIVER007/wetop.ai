@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 09.10.2026 18:55 Алматы · vm
+# коммит 97364f8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные (2.4s)
+  ✓  2 tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape (2.4s)
+  ✓  3 tests/ui/bar.spec.ts:95:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.0s)
+  ✓  4 tests/ui/bar.spec.ts:108:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.3s)
+  ✓  5 tests/ui/bar.spec.ts:140:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.8s)
+  ✓  6 tests/ui/bar.spec.ts:153:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (5.2s)
+  ✓  7 tests/ui/bar.spec.ts:180:1 › операции: списание с причиной, журнал продаж и лента движений (2.4s)
+  ✓  8 tests/ui/bar.spec.ts:194:3 › доступность и телефон: light (4.4s)
+  ✓  9 tests/ui/bar.spec.ts:194:3 › доступность и телефон: dark (4.4s)
+
+
+  1) tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      41 |   const quick = await m.locator('.bar-quick').boundingBox();
+      42 |   expect(quick!.y).toBeLessThan(900);
+    > 43 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+         |                                                                                             ^
+      44 |   // доска товаров: статус словом, товар на минимуме наверху
+      45 |   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+      46 |   await expect(board.locator('tbody tr').first()).toContainText('Вода 1 л');
+        at /home/user/wetop.ai/tests/ui/bar.spec.ts:43:93
+
+    Error Context: test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные 
+  8 passed (41.8s)
+
+# код выхода 1 · 43 с

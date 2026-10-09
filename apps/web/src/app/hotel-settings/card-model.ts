@@ -4,7 +4,7 @@ import type { IconName } from '../../components/icon';
 
 type Property = HotelSettings['property'];
 
-/** Значок удобства по коду каталога домена (ADR-156); новый код без значка получает общий «check» */
+/** Значок удобства по коду каталога домена (ADR-158); новый код без значка получает общий «check» */
 export const AMENITY_ICON: Record<string, IconName> = {
   wifi: 'wifi',
   parking: 'parking',
@@ -78,7 +78,7 @@ export const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) =>
   `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`,
 );
 
-/** Умолчания карточки на случай, когда старый API полей не прислал (DATA_MODEL §31.1) */
+/** Умолчания карточки на случай, когда старый API полей не прислал (DATA_MODEL §32.1) */
 export function withCardDefaults(p: Property): Required<
   Pick<
     Property,

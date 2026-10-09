@@ -429,7 +429,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     expect(await db.marketingSiteVersion.count({ where: { siteId: w.site } })).toBe(1);
 
     await save(w, 1, doc('Ручная правка'));
-    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() WHERE id = $1`, [queued.body.run.id]);
+    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() - interval '1 second' WHERE id = $1`, [queued.body.run.id]);
     await worker.tick();
     expect(fake.state.edits).toHaveLength(1);
     expect(await run(queued.body.run.id)).toMatchObject({ status: 'FAILED', errorCode: 'BASE_VERSION_CHANGED' });
@@ -469,7 +469,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     const right = doc('Первый');
     right.pages[0].sections[1].paragraphs = [t('Новый текст о гостинице.')];
     fake.state.replies.push({ status: 'ok', spec: right, model: 'openai/edit', usage: usage() });
-    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() WHERE id = $1`, [queued.body.run.id]);
+    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() - interval '1 second' WHERE id = $1`, [queued.body.run.id]);
     await worker.tick();
     expect(fake.state.edits[1]!.validationErrors).toEqual(expect.arrayContaining([{ path: '', code: 'outside_target' }]));
     const done = await run(queued.body.run.id);
@@ -488,7 +488,7 @@ describe.skipIf(!url)('MKT9 site editor', () => {
     fake.state.replies.push({ status: 'ok', spec: bad, model: 'openai/edit', usage: usage(800, 300) });
     await worker.tick();
     expect(await run(queued.body.run.id)).toMatchObject({ status: 'QUEUED', errorCode: 'SCHEMA_INVALID' });
-    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() WHERE id = $1`, [queued.body.run.id]);
+    await sql.query(`UPDATE generation_runs SET next_attempt_at = now() - interval '1 second' WHERE id = $1`, [queued.body.run.id]);
     await worker.tick();
     expect(fake.state.edits).toHaveLength(1);
     expect(await run(queued.body.run.id)).toMatchObject({ status: 'FAILED', errorCode: 'BUDGET_EXCEEDED' });

@@ -7685,8 +7685,18 @@
 | 09.10.2026 12:57 | typecheck | ❌ ошибок: 5 | 19 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-16Z-typecheck-8c97.log) | TS2307 |
 | 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
+| 09.10.2026 13:38 | unit | ✅ 4145 из 4149, пропущено 4 | 1 мин 13 с | abc7498 | [лог](logs/2026-10-09T08-38-34Z-unit-1f54.log) |  |
+| 09.10.2026 13:43 | integration | ❌ упало 3 из 961, пропущено 9 | 51 с | abc7498 | [лог](logs/2026-10-09T08-43-28Z-integration-8ff0.log) | справочник гостей: отборы визита, число визитов, порядок (integration) раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами |
+| 09.10.2026 13:49 | integration | ❌ упало 1 из 961, пропущено 9 | 51 с | abc7498 +4 | [лог](logs/2026-10-09T08-49-27Z-integration-56ad.log) | inventory editing persistence and isolation commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically |
+| 09.10.2026 13:50 | integration | ✅ 952 из 961, пропущено 9 | 50 с | abc7498 +4 | [лог](logs/2026-10-09T08-50-37Z-integration-6f34.log) |  |
+| 09.10.2026 13:52 | typecheck | ✅ без ошибок | 17 с | abc7498 +8 | [лог](logs/2026-10-09T08-52-47Z-typecheck-d7af.log) |  |
+| 09.10.2026 13:54 | e2e | ❌ упало 2 из 26 | 34 мин 19 с | f78f8c4 | [лог](logs/2026-10-09T08-54-50Z-e2e-3a5a.log) | страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 |
+| 09.10.2026 14:30 | e2e | ✅ 26 из 26 | 54 с | f78f8c4 | [лог](logs/2026-10-09T09-30-18Z-e2e-a5fe.log) |  |
 | 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |
 | 09.10.2026 14:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1) | ✅ 6 из 6 | 48 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-34-55Z-e2e-a29d.log) |  |
+| 09.10.2026 17:19 | typecheck | ✅ без ошибок | 19 с | 7307dea | [лог](logs/2026-10-09T12-19-23Z-typecheck-9ae9.log) |  |
+| 09.10.2026 17:19 | lint | ✅ без ошибок | 12 с | 7307dea | [лог](logs/2026-10-09T12-19-42Z-lint-ff5c.log) |  |
+| 09.10.2026 17:19 | unit | ✅ 4146 из 4150, пропущено 4 | 1 мин 12 с | 7307dea | [лог](logs/2026-10-09T12-19-55Z-unit-e4a4.log) |  |
 | 07.10.2026 17:38 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 8 из 8 | 1 мин 41 с | 867a391 | [лог](logs/2026-10-07T12-38-50Z-e2e-180f.log) | public intro: dark, 320 |
 | 07.10.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ⏹ прерван | 45 с | 867a391 +10 | [лог](logs/2026-10-07T12-42-45Z-e2e-c115.log) |  |
 | 07.10.2026 17:44 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 2 из 8 | 14 с | 867a391 +10 | [лог](logs/2026-10-07T12-44-20Z-e2e-0c60.log) | public intro: dark, 1440 |
@@ -7709,3 +7719,5 @@
 | 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 2 из 14 | 2 мин 14 с | 8940508 +7 | [лог](logs/2026-10-09T12-28-22Z-e2e-6b2f.log) | организации: одна страница, «Организации» в «Настройках» |
 | 09.10.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 3 из 14 | 2 мин 4 с | 8940508 +7 | [лог](logs/2026-10-09T12-32-31Z-e2e-7ccf.log) | повтор: организации, одна страница; «Организации» в «Настройках» |
 | 09.10.2026 17:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ✅ 58 из 58 | 8 мин 17 с | 8940508 +7 | [лог](logs/2026-10-09T12-35-02Z-e2e-fb5b.log) | организации и меню, один поток (общее подставное API) |
+| 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
+| 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |

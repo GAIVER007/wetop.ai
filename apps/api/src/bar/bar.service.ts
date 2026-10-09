@@ -65,6 +65,25 @@ export class BarService {
     if (!result) throw new NotFoundException('Товар не найден');
     return result;
   }
+  async updateProduct(id: string, raw: unknown) {
+    const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+    // цена и код не правятся этим маршрутом: у цены свой PATCH с аудитом до и после, а код это идентичность карточки
+    if ('salePriceMinor' in body || 'code' in body) throw new BadRequestException('Цена и код здесь не меняются');
+    const name = optionalText(body.name);
+    if (!name) throw new BadRequestException('Укажите название товара');
+    const categoryId = optionalText(body.categoryId);
+    if (categoryId && !uuid.test(categoryId)) throw new BadRequestException('Категория указана неверно');
+    const markupBasis = body.markupBasis === null || body.markupBasis === undefined
+      ? null
+      : Number(nonnegativeInteger(String(body.markupBasis), 'Наценка'));
+    const result = await this.repo.updateProduct(id, {
+      name, categoryId, barcode: optionalText(body.barcode),
+      unitsPerPackage: positiveNumber(body.unitsPerPackage, 'Единиц в упаковке'), markupBasis,
+      minimumStockUnits: nonnegativeInteger(body.minimumStockUnits, 'Минимальный остаток'),
+    });
+    if (!result) throw new NotFoundException('Товар не найден');
+    return result;
+  }
   async setProductPrice(id: string, raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const result = await this.repo.setProductPrice(id, integer(body.salePriceMinor, 'Цена продажи'));

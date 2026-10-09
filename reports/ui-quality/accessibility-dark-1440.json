@@ -96,14 +96,6 @@
     }
   },
   {
-    "route": "/rates",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/finance",
     "violations": [],
     "layout": {
@@ -193,6 +185,14 @@
   },
   {
     "route": "/connections/channex",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/marketing",
     "violations": [],
     "layout": {
       "viewport": 1440,

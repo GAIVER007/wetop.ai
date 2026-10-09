@@ -1,0 +1,153 @@
+# Сквозные (e2e) · 09.10.2026 17:53 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 38
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/bar.spec.ts:23:1 › обзор: вкладки, показатели, продажа и остатки одним экраном 1440×900 (88ms)
+  ✘  2 tests/ui/bar.spec.ts:51:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (64ms)
+  ✘  3 tests/ui/bar.spec.ts:64:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (63ms)
+  ✘  4 tests/ui/bar.spec.ts:96:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (74ms)
+  ✘  5 tests/ui/bar.spec.ts:109:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (72ms)
+  ✘  6 tests/ui/bar.spec.ts:136:1 › операции: списание с причиной, журнал продаж и лента движений (72ms)
+  ✘  7 tests/ui/bar.spec.ts:150:3 › доступность и телефон: light (104ms)
+  ✘  8 tests/ui/bar.spec.ts:150:3 › доступность и телефон: dark (82ms)
+
+
+  1) tests/ui/bar.spec.ts:23:1 › обзор: вкладки, показатели, продажа и остатки одним экраном 1440×900 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-обзор-вкладки-показате-6e4e6-атки-одним-экраном-1440×900/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-обзор-вкладки-показате-6e4e6-атки-одним-экраном-1440×900/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-обзор-вкладки-показате-6e4e6-атки-одним-экраном-1440×900/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/bar.spec.ts:51:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её ─
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-меню-«Бар»-живёт-в-гру-6ad53-адреса-бара-подсвечивают-её/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-меню-«Бар»-живёт-в-гру-6ad53-адреса-бара-подсвечивают-её/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-меню-«Бар»-живёт-в-гру-6ad53-адреса-бара-подсвечивают-её/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/bar.spec.ts:64:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-новый-приход-ИИ-скан-з-3b750-создаётся-вместе-с-приходом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/bar.spec.ts:96:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-скан-бережёт-руки-но-н-5b615--строки-добавляются-вручную/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/bar.spec.ts:109:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-приходы-оплата-долга-и-5a046-в-строке-поставщики-расчёты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-приходы-оплата-долга-и-5a046-в-строке-поставщики-расчёты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-приходы-оплата-долга-и-5a046-в-строке-поставщики-расчёты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/bar.spec.ts:136:1 › операции: списание с причиной, журнал продаж и лента движений ────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/bar.spec.ts:150:3 › доступность и телефон: light ─────────────────────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-доступность-и-телефон-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-доступность-и-телефон-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-доступность-и-телефон-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/bar.spec.ts:150:3 › доступность и телефон: dark ──────────────────────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/bar-доступность-и-телефон-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-доступность-и-телефон-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-доступность-и-телефон-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/bar.spec.ts:23:1 › обзор: вкладки, показатели, продажа и остатки одним экраном 1440×900 
+    tests/ui/bar.spec.ts:51:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её ──
+    tests/ui/bar.spec.ts:64:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом 
+    tests/ui/bar.spec.ts:96:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную 
+    tests/ui/bar.spec.ts:109:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты 
+    tests/ui/bar.spec.ts:136:1 › операции: списание с причиной, журнал продаж и лента движений ─────
+    tests/ui/bar.spec.ts:150:3 › доступность и телефон: light ──────────────────────────────────────
+    tests/ui/bar.spec.ts:150:3 › доступность и телефон: dark ───────────────────────────────────────
+
+# код выхода 1 · 31 с

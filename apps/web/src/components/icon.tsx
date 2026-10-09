@@ -84,6 +84,18 @@ import {
   Hotel,
   Utensils,
   Star,
+  Package,
+  Database,
+  ShoppingCart,
+  ChartColumn,
+  Coins,
+  Truck,
+  ArrowLeftRight,
+  Tag,
+  CircleMinus,
+  ArrowUp,
+  ArrowDown,
+  UserPlus,
 } from 'lucide-react';
 const icons = {
   arrival: LogIn,
@@ -173,6 +185,19 @@ const icons = {
   hotel: Hotel,
   kettle: Utensils,
   star: Star,
+  // бар по макету владельца (ADR-157, 09.10.2026): плитки показателей, действия строки и карточки товара
+  product: Package,
+  stock: Database,
+  cart: ShoppingCart,
+  chart: ChartColumn,
+  coins: Coins,
+  truck: Truck,
+  move: ArrowLeftRight,
+  tag: Tag,
+  writeoff: CircleMinus,
+  up: ArrowUp,
+  downArrow: ArrowDown,
+  addGuest: UserPlus,
 };
 export type IconName = keyof typeof icons;
 /** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */

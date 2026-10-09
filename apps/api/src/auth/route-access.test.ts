@@ -78,6 +78,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/products': 'settings',
   'PATCH /bar/products/:id/active': 'settings',
   'PATCH /bar/products/:id/price': 'settings',
+  'PATCH /bar/products/:id': 'settings',
   'GET /bar/suppliers': 'desk',
   'POST /bar/suppliers': 'settings',
   'PATCH /bar/suppliers/:id/active': 'settings',
@@ -93,6 +94,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/write-offs': 'desk',
   'POST /bar/inventory-counts': 'desk',
   'POST /bar/receipts': 'desk',
+  // ИИ-скан накладной (ADR-157): читает документ и ничего не создаёт, право как у самого прихода
+  'POST /bar/receipts/scan': 'desk',
   'POST /bar/receipts/:id/post': 'desk',
   'POST /bar/receipts/:id/payments': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`

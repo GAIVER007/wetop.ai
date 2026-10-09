@@ -62,6 +62,7 @@ import {
   WhatsAppForm,
 } from '../forms';
 import { AnalyticsView, OverviewView } from './overview';
+import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
 
 /**
@@ -224,6 +225,7 @@ async function SellerScreen({
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} />}
+      {view === 'scenarios' && <ScenariosView status={status.value} />}
       {view === 'analytics' && <AnalyticsView days={days} />}
     </Stack>
   );

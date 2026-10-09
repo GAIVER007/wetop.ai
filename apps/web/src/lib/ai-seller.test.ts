@@ -29,13 +29,14 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
 });
 
 describe('вкладки раздела (макет владельца 26.09.2026)', () => {
-  it('шесть экранов: обзор, настройка, диалоги, знания, подключения, аналитика (макет 09.10.2026)', () => {
+  it('семь экранов: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика (макет 09.10.2026)', () => {
     expect(SELLER_TABS.map((t) => t.label)).toEqual([
       'Обзор',
       'Настройка',
       'Диалоги',
       'Знания',
       'Подключения',
+      'Сценарии',
       'Аналитика',
     ]);
     expect(SELLER_TABS.map((t) => t.href)).toEqual([
@@ -44,6 +45,7 @@ describe('вкладки раздела (макет владельца 26.09.202
       '/ai-seller/dialogs',
       '/ai-seller/knowledge',
       '/ai-seller/connections',
+      '/ai-seller/scenarios',
       '/ai-seller/analytics',
     ]);
   });

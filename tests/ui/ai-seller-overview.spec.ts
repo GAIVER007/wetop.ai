@@ -21,10 +21,10 @@ test.afterEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
 
-test('вкладки по макету: обзор, настройка, диалоги, знания, подключения, аналитика', async ({ page }) => {
+test('вкладки по макету: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика', async ({ page }) => {
   await page.goto('/ai-seller/overview');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
-  await expect(tabs).toHaveText(['Обзор', 'Настройка', 'Диалоги', 'Знания', 'Подключения', 'Аналитика']);
+  await expect(tabs).toHaveText(['Обзор', 'Настройка', 'Диалоги', 'Знания', 'Подключения', 'Сценарии', 'Аналитика']);
   await expect(page.getByRole('link', { name: 'Обзор', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
@@ -86,14 +86,14 @@ test('аналитика: сводка недоступна, сказано сл
   await expect(page.getByTestId('seller-analytics-error')).toContainText('Не удалось посчитать аналитику');
 });
 
-for (const view of ['overview', 'analytics'] as const) {
+for (const view of ['overview', 'scenarios', 'analytics'] as const) {
   for (const theme of ['light', 'dark'] as const) {
     for (const width of [1440, 390]) {
       test(`доступность и снимки: ${view}, ${theme}, ${width}px`, async ({ page }) => {
         await page.emulateMedia({ colorScheme: theme });
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`/ai-seller/${view}`);
-        await expect(page.getByTestId(view === 'overview' ? 'seller-overview' : 'seller-analytics')).toBeVisible();
+        await expect(page.getByTestId(`seller-${view}`)).toBeVisible();
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations.map((v) => v.id)).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -103,3 +103,16 @@ for (const view of ['overview', 'analytics'] as const) {
     }
   }
 }
+
+test('сценарии: работает «Продажи», «Поддержка сайта» помечена «скоро», конструктор честно назван будущим', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller/scenarios');
+  const sales = page.getByTestId('seller-scenario-sales');
+  await expect(sales).toContainText('Продажи');
+  await expect(sales.getByRole('link', { name: 'Инструкция' })).toHaveAttribute('href', '/ai-seller');
+  await expect(sales.getByRole('link', { name: 'знания' })).toHaveAttribute('href', '/ai-seller/knowledge');
+  await expect(page.getByTestId('seller-scenario-support')).toContainText('скоро');
+  await expect(page.getByTestId('seller-scenarios')).toContainText('конструктор поведения готовится');
+  await expect(page.getByRole('link', { name: 'Сценарии', exact: true })).toHaveAttribute('aria-current', 'page');
+});

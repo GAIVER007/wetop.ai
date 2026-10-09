@@ -103,6 +103,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_assets',
   // Фото категорий размещения, через категорию (DATA_MODEL §30, ADR-153, миграция …070)
   'accommodation_type_photos',
+  // Фото и договор объекта, через объект (DATA_MODEL §32.3, ADR-157, миграция …076)
+  'property_media',
   // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
   'site_builder_entitlements',
   'site_ai_runs',

@@ -1,4 +1,4 @@
--- Откат ADR-156: снимает колонки карточки объекта. Данные этих колонок теряются, остальное не затрагивается.
+-- Откат ADR-157: снимает колонки карточки объекта. Данные этих колонок теряются, остальное не затрагивается.
 ALTER TABLE "properties"
   DROP CONSTRAINT IF EXISTS "properties_onsite_payment_check",
   DROP CONSTRAINT IF EXISTS "properties_cancellation_rule_check",

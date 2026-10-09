@@ -17,7 +17,7 @@ export interface SettingsActionResult {
   attempt?: number;
 }
 
-/** Поля «Настроек объекта» — ровно те, что API принимает (DATA_MODEL §1 и §31; валюта и пояс — только просмотр) */
+/** Поля «Настроек объекта» — ровно те, что API принимает (DATA_MODEL §1 и §32; валюта и пояс — только просмотр) */
 const TEXT_FIELDS = [
   'name',
   'legalName',
@@ -62,7 +62,7 @@ function kept(form: FormData, names: readonly Field[]): Record<string, string> {
 /**
  * Сохранить сведения объекта (ТЗ ux-retention п. 3.1): пустое необязательное поле — «нет значения». Уходят только
  * поля, которые есть в форме: у «Основного» и «Проживания» свои формы (ADR-115), и одна не должна стирать другую.
- * Карточка (ADR-156): выключатели приходят булевыми, удобства списком кодов, возраст числом.
+ * Карточка (ADR-157): выключатели приходят булевыми, удобства списком кодов, возраст числом.
  */
 export async function saveHotelSettings(
   prev: SettingsActionResult | null,
@@ -154,7 +154,7 @@ function mediaError(e: unknown): string {
   return 'Не удалось выполнить действие';
 }
 
-/** Загрузка фото или договора объекта: файл уходит в API стойки, не в хранилище из браузера (ADR-156, §31.3) */
+/** Загрузка фото или договора объекта: файл уходит в API стойки, не в хранилище из браузера (ADR-157, §32.3) */
 export async function uploadMediaAction(
   kind: 'photos' | 'contract',
   form: FormData,

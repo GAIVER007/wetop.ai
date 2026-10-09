@@ -23,7 +23,7 @@ export interface HotelSettings {
     currency: string;
     checkInTime: string;
     checkOutTime: string;
-    /** Карточка объекта (ADR-156, DATA_MODEL §31); старый API полей не шлёт, экран берёт умолчания */
+    /** Карточка объекта (ADR-157, DATA_MODEL §32); старый API полей не шлёт, экран берёт умолчания */
     description?: string | null;
     website?: string | null;
     publicName?: string | null;

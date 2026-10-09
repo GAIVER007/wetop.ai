@@ -235,7 +235,7 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
-/** Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+/** Фото и договор объекта (ADR-157, DATA_MODEL §32.3): файл идёт в API стойки, оттуда в закрытое хранилище */
 export interface PropertyMediaItem {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';

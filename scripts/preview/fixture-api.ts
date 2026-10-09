@@ -893,7 +893,7 @@ function seedAnalyticsHistory() {
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
 let hotelOverrides: Record<string, unknown> = {};
-// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+// фото и договор объекта (ADR-157): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
 interface FixtureMedia {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';
@@ -3103,7 +3103,7 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
-      // номера и места по единицам продажи (ADR-156): как считает API
+      // номера и места по единицам продажи (ADR-157): как считает API
       capacity: {
         rooms: units.filter((u) => u.kind === 'ROOM').length,
         beds: units.filter((u) => u.kind === 'BED').length,

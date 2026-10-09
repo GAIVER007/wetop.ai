@@ -4,7 +4,7 @@ import type { IconName } from '../../components/icon';
 
 type Property = HotelSettings['property'];
 
-/** Значок удобства по коду каталога домена (ADR-157); новый код без значка получает общий «check» */
+/** Значок удобства по коду каталога домена (ADR-158); новый код без значка получает общий «check» */
 export const AMENITY_ICON: Record<string, IconName> = {
   wifi: 'wifi',
   parking: 'parking',

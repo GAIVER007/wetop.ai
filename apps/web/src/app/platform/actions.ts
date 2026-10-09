@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
+import { organizationStatusLine } from '../../lib/platform';
 
 /**
  * «Платформа → Организации» (ADR-083): главный администратор включает, продлевает и выключает «ИИ-продавца»
@@ -127,5 +128,72 @@ export async function changeSiteBuilderAction(
     return { error: null, message: `Сохранено: конструктор сайта филиала «${saved.name}» ${word}`, attempt };
   } catch (e) {
     return { error: e instanceof ApiError || e instanceof Error ? e.message : 'Не удалось сохранить', message: null, attempt };
+  }
+}
+
+/**
+ * Название, архив и возврат организации (ORG1, ADR-ORG1, Q-282): «удалить» заменено архивом, данные не удаляются.
+ * Проверяет API, отказ его словами.
+ */
+export interface OrganizationActionResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+const failed = (e: unknown, attempt: number): OrganizationActionResult => ({
+  error: e instanceof ApiError || e instanceof Error ? e.message : String(e),
+  message: null,
+  attempt,
+});
+
+export async function renameOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+  form: FormData,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.rename(organizationId, String(form.get('name') ?? ''));
+    revalidatePath('/platform');
+    return { error: null, message: 'Название сохранено.', attempt };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function archiveOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.archive(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: 'Организация в архиве: люди не входят, данные сохранены. Вернуть можно в любой момент.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function restoreOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const saved = await platformApi.restore(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: `Организация возвращена, состояние: ${organizationStatusLine(saved).label}.`,
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
   }
 }

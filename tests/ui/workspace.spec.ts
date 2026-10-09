@@ -690,7 +690,11 @@ test('финансы: неверные даты можно исправить б
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
   await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
-  await expect(page.getByTestId('cash-period-income')).not.toHaveText('Нет данных');
+  // та же область, что строкой выше: без неё уходящая страница даёт второй `cash-period-income`,
+  // и строгий режим отказывается выбирать
+  await expect(page.getByRole('main').getByTestId('cash-period-income')).not.toHaveText(
+    'Нет данных',
+  );
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {

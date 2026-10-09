@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 09.10.2026 17:40 Алматы · vm
+# коммит 90d323d (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/reservations-design.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (4.7s)
+  ✓  2 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (6.3s)
+  ✓  3 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (10.8s)
+  ✓  4 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (10.3s)
+
+  4 passed (43.6s)
+
+# код выхода 0 · 45 с

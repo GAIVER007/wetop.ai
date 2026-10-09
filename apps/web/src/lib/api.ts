@@ -2689,6 +2689,15 @@ export const platformApi = {
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
     ),
+  /** Название организации (ORG1, ADR-ORG1) */
+  rename: (organizationId: string, name: string) =>
+    sendJson<PlatformOrganization>('PATCH', `/platform/organizations/${encodeURIComponent(organizationId)}`, { name }),
+  /** Архив вместо удаления (ORG1, ADR-ORG1, Q-282): люди не входят, данные целы */
+  archive: (organizationId: string) =>
+    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/archive`, {}),
+  /** Возврат из архива: прежний статус, а при его потере «только чтение» */
+  restore: (organizationId: string) =>
+    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/restore`, {}),
   /** Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY */
   changeStatus: (organizationId: string, body: { status: 'ACTIVE' | 'READ_ONLY'; note: string }) =>
     sendJson<PlatformOrganization>(
@@ -3010,6 +3019,10 @@ export const wizardApi = {
     sendJson<import('./wizard-types').WizardState>('PATCH', '/wizard/config', body, {
       'x-wizard-token': token,
     }),
+  survey: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/survey', body, { 'x-wizard-token': token }),
+  event: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/event', body, { 'x-wizard-token': token }),
 };
 
 export interface SellerAgentCard {

@@ -441,8 +441,14 @@ export const menuSections: MenuSection[] = [
   direct('chessboard', '/chessboard', 'board'),
   direct('reservations', '/reservations', 'booking'),
   direct('guests', '/guests', 'guests'),
-  direct('finance', '/finance', 'money', 'Финансы'),
-  direct('bar', '/bar', 'receipt'),
+  {
+    // «Бар» живёт внутри «Финансов» (ADR-152, поручение владельца 09.10.2026): товарно-денежный учёт
+    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
+    id: 'finance',
+    label: 'Финансы',
+    icon: 'money',
+    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
+  },
   {
     id: 'sales',
     label: 'Продажи',

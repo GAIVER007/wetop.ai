@@ -4,6 +4,7 @@ import request from 'supertest';
 import { expect, it } from 'vitest';
 import { BarController } from './bar.controller';
 import { BarService } from './bar.service';
+import { BarScanService } from './bar-scan.service';
 
 it('loads every empty Bar section without compiler-emitted constructor metadata, as in tsx production', async () => {
   const metadata = Reflect.getOwnMetadata('design:paramtypes', BarController);
@@ -14,7 +15,10 @@ it('loads every empty Bar section without compiler-emitted constructor metadata,
   try {
     const module = await Test.createTestingModule({
       controllers: [BarController],
-      providers: [{ provide: BarService, useValue: { ...service, report: async () => report } }],
+      providers: [
+        { provide: BarService, useValue: { ...service, report: async () => report } },
+        { provide: BarScanService, useValue: {} },
+      ],
     }).compile();
     const app = module.createNestApplication({ logger: false });
     try {

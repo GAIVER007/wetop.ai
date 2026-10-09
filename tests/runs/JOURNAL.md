@@ -7703,3 +7703,22 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:41 | unit (частично: apps/api/src/bar/bar-scan.test.ts) | ❌ код выхода 1 | 4 с | d0eb1e6 +20 | [лог](logs/2026-10-09T12-41-26Z-unit-31f3.log) | red: скан накладной до реализации |
+| 09.10.2026 17:42 | unit (частично: apps/api/src/bar/bar-scan.test.ts) | ✅ 8 из 8 | 4 с | d0eb1e6 +24 | [лог](logs/2026-10-09T12-42-56Z-unit-4928.log) | green: скан накладной, сопоставление и ошибки |
+| 09.10.2026 17:43 | unit (частично: apps/api/src/body-parsers.test.ts) | ❌ упало 1 из 5 | 2 с | d0eb1e6 +25 | [лог](logs/2026-10-09T12-43-24Z-unit-e7a6.log) | red: предел тела скана до реализации |
+| 09.10.2026 17:43 | unit (частично: apps/api/src/body-parsers.test.ts) | ✅ 5 из 5 | 2 с | d0eb1e6 +26 | [лог](logs/2026-10-09T12-43-48Z-unit-1171.log) | green: предел 12 МБ для скана |
+| 09.10.2026 17:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/bar.spec.ts) | ❌ упало 8 из 8 | 31 с | d0eb1e6 +38 | [лог](logs/2026-10-09T12-53-26Z-e2e-43cb.log) | бар: подстраницы и ИИ-скан, первый прогон |
+| 09.10.2026 17:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/bar.spec.ts) | ❌ упало 1 из 8 | 47 с | d0eb1e6 +38 | [лог](logs/2026-10-09T12-54-08Z-e2e-e3f5.log) | бар: подстраницы и ИИ-скан |
+| 09.10.2026 17:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/bar.spec.ts) | ✅ 8 из 8 | 46 с | d0eb1e6 +38 | [лог](logs/2026-10-09T12-55-04Z-e2e-94a8.log) | бар: подстраницы и ИИ-скан, зелёный |
+| 09.10.2026 17:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/roles.spec | ❌ упало 4 из 32 | 4 мин 7 с | d0eb1e6 +38 | [лог](logs/2026-10-09T12-56-00Z-e2e-7de6.log) | меню: Бар в группе Финансы |
+| 09.10.2026 18:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/roles.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 4 из 23 | 3 мин 5 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-01-06Z-e2e-ff3d.log) | проверка: падают ли отдельно |
+| 09.10.2026 18:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/roles.spec.ts) | ✅ 12 из 12 | 1 мин 37 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-05-04Z-e2e-1b7a.log) | проверка roles отдельно |
+| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/platform-access.spec.ts tests/ui/roles.spec.ts) | ❌ упало 5 из 23 | 2 мин 44 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-11-31Z-e2e-15d2.log) | повтор пары с правками: проверка на шум стенда |
+| 09.10.2026 18:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/u | ✅ 32 из 32 | 4 мин 4 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-15-04Z-e2e-c116.log) | меню: Бар в группе Финансы; один воркер, стенд UI общий |
+| 09.10.2026 18:21 | unit | ❌ упало 1 из 4164, пропущено 3 | 2 мин 15 с | d0eb1e6 +34 | [лог](logs/2026-10-09T13-21-29Z-unit-623b.log) | бар: подстраницы, скан, меню |
+| 09.10.2026 18:24 | unit | ✅ 4161 из 4164, пропущено 3 | 2 мин 9 с | d0eb1e6 +34 | [лог](logs/2026-10-09T13-24-04Z-unit-535d.log) | бар: подстраницы, скан, меню; удаления в индексе |
+| 09.10.2026 18:26 | typecheck | ✅ без ошибок | 1 мин 4 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-26-19Z-typecheck-1d6a.log) | бар: подстраницы и скан |
+| 09.10.2026 18:27 | lint | ❌ ошибок: 1 | 40 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-27-24Z-lint-7ae8.log) | бар: подстраницы и скан |
+| 09.10.2026 18:28 | lint | ✅ без ошибок | 39 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-28-16Z-lint-e589.log) | бар: подстраницы и скан |
+| 09.10.2026 18:29 | unit | ✅ 4161 из 4164, пропущено 3 | 2 мин 5 с | d0eb1e6 +34 | [лог](logs/2026-10-09T13-29-08Z-unit-5d9c.log) | бар: финальный, после снятия неиспользуемого импорта |
+| 09.10.2026 18:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts) | ✅ 8 из 8 | 40 с | d0eb1e6 +38 | [лог](logs/2026-10-09T13-31-14Z-e2e-834a.log) | бар: финальный прогон спека |

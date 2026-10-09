@@ -170,6 +170,150 @@
       grid-template-columns: 1fr 1fr;
     }
   }
+  /* ── Подстраницы бара (ADR-152) ───────────────────────────────────────── */
+  .bar-tabs {
+    margin-bottom: var(--space-4);
+  }
+  .bar-stats {
+    margin-bottom: var(--space-4);
+  }
+  .bar-quick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-4);
+  }
+  .bar-quick .section-title {
+    margin-top: 0;
+  }
+  .bar-muted {
+    color: var(--muted);
+    margin: 0 0 var(--space-2);
+  }
+  .bar-catalog-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-6);
+  }
+  .bar-category-form {
+    display: grid;
+    grid-template-columns: 1fr minmax(120px, 0.6fr) auto;
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .bar-category-form .bar-error,
+  .bar-category-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-supplier-panel {
+    margin-bottom: var(--space-6);
+  }
+  .bar-supplier-form {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .bar-supplier-form .bar-error,
+  .bar-supplier-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-supplier-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  /* ── ИИ-скан накладной ────────────────────────────────────────────────── */
+  .bar-scan {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-scan-row {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .bar-scan-input {
+    padding-top: var(--space-1);
+  }
+  .bar-scan-warnings {
+    margin: 0;
+    padding-left: var(--space-4);
+    color: var(--muted);
+  }
+  .bar-line-new {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .bar-line-tools {
+    display: flex;
+    gap: var(--space-1);
+    align-items: center;
+  }
+  .bar-line-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  /* Обзор в один экран на компьютере (DESIGN.md §4): прокручиваются только остатки */
+  @media (min-width: 961px) {
+    .workspace .page:has(> .bar-overview-stock) {
+      display: flex;
+      flex-direction: column;
+      height: calc(100dvh - var(--header-h, 100px));
+      overflow: hidden;
+    }
+    .workspace .page:has(> .bar-overview-stock) > * {
+      margin-top: 0;
+    }
+    .workspace .page > .bar-overview-stock {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .workspace .page > .bar-overview-stock .table-scroll {
+      flex: 1 1 0;
+      min-height: 0;
+      max-height: none;
+    }
+  }
+  @media (max-width: 960px) {
+    .bar-quick,
+    .bar-catalog-grid {
+      grid-template-columns: 1fr;
+    }
+    .bar-line-new {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .bar-scan-row,
+    .bar-category-form,
+    .bar-supplier-form,
+    .bar-line-new {
+      grid-template-columns: 1fr;
+    }
+    .bar-scan .btn,
+    .bar-supplier-form .btn,
+    .bar-category-form .btn,
+    .bar-line-actions .btn {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
   @media (max-width: 560px) {
     .bar-form-grid,
     .bar-line,

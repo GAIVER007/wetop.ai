@@ -1,61 +1,74 @@
+import Link from 'next/link';
 import { requireVertical } from '../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../lib/api';
-import { hotelToday } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { Page } from '../../components/page';
-import { Badge, Button, EmptyState, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Badge, EmptyState, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { ReceiptForm } from './receipt-form';
 import { SaleForm } from './sale-form';
-import { postBarReceiptAction, reverseBarSaleAction } from './actions';
-import { WriteOffForm } from './write-off-form';
-import { SupplierPaymentForm } from './supplier-payment-form';
 import { FolioSaleForm } from './folio-sale-form';
-import { InventoryCountForm } from './inventory-count-form';
-import { BarCatalogs } from './catalogs';
-import { ProductPriceForm } from './product-price-form';
+import { BarTabs } from './tabs';
 import './bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
+
+/**
+ * Обзор бара (ADR-152): показатели, продажа и остатки одним экраном. Журналы и справочники живут
+ * на своих вкладках: «Приходы», «Товары», «Поставщики», «Операции».
+ */
 export default async function BarPage() {
   await requireVertical(['HOSPITALITY']);
-  const [categories, products, suppliers, receipts, stock, sales, folios, movements, report, today] = await Promise.all([
-    settle(barApi.categories()), settle(barApi.products()), settle(barApi.suppliers()), settle(barApi.receipts()), settle(barApi.stock()), settle(barApi.sales()), settle(barApi.folios()), settle(barApi.movements()), settle(barApi.report()), hotelToday(),
+  const [products, stock, folios, report] = await Promise.all([
+    settle(barApi.products()), settle(barApi.stock()), settle(barApi.folios()), settle(barApi.report()),
   ]);
-  const error = [categories, products, suppliers, receipts, stock, sales, folios, movements, report].find((result) => !result.ok);
-  if (error && !error.ok) throw error.error;
-  if (!categories.ok || !products.ok || !suppliers.ok || !receipts.ok || !stock.ok || !sales.ok || !folios.ok || !movements.ok || !report.ok) return null;
-  const posted = receipts.value.filter((x) => x.status === 'POSTED');
-  return <Page width="wide" title="Бар" subtitle="Приходы, закупочная стоимость, наценка, остатки и долги поставщикам в одном разделе.">
-    <Stats min={190}>
-      <Stat label="Товары" value={products.value.filter((x) => x.active).length} hint="активных позиций" />
-      <Stat label="Закупки получено" value={formatMoney(report.value.purchasesMinor)} hint={`${posted.length} проведенных приходов`} />
-      <Stat label="Расходы поставщикам" value={formatMoney(report.value.supplierPaidMinor)} hint="фактически оплачено из кассы" />
-      <Stat label="Долг поставщикам" value={formatMoney(report.value.supplierDebtMinor)} tone={BigInt(report.value.supplierDebtMinor) > 0n ? 'warn' : undefined} />
+  const failed = [products, stock, folios, report].find((result) => !result.ok);
+  if (failed && !failed.ok) throw failed.error;
+  if (!products.ok || !stock.ok || !folios.ok || !report.ok) return null;
+  const low = (item: { availableUnits: string; minimumStockUnits: string }) =>
+    BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits);
+  const active = stock.value.filter((item) => item.active);
+  const lowCount = active.filter(low).length;
+  // товары, где остаток на минимуме или ниже, идут первыми: за ними и приходят на этот экран
+  const rows = [...active].sort((a, b) => (low(a) === low(b) ? a.name.localeCompare(b.name, 'ru') : low(a) ? -1 : 1));
+  return <Page width="wide" title="Бар" subtitle="Выручка, продажа и остатки на одном экране. Приходы, товары и поставщики: на вкладках." actions={<>
+    <Link className="btn btn--secondary" href="/bar/products" prefetch={false}>Новый товар</Link>
+    <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
+  </>}>
+    <BarTabs current="overview" />
+    <Stats min={190} className="bar-stats">
+      <Stat label="Товары" value={products.value.filter((item) => item.active).length} hint={lowCount > 0 ? `мало на складе: ${lowCount}` : 'активных позиций'} {...(lowCount > 0 ? { hintTone: 'warn' as const } : {})} />
       <Stat label="Выручка бара" value={formatMoney(report.value.revenueMinor)} hint={`валовая прибыль ${formatMoney(report.value.grossProfitMinor)}`} />
+      <Stat label="Закупки получено" value={formatMoney(report.value.purchasesMinor)} hint={`оплачено ${formatMoney(report.value.supplierPaidMinor)}`} />
+      <Stat label="Долг поставщикам" value={formatMoney(report.value.supplierDebtMinor)} tone={BigInt(report.value.supplierDebtMinor) > 0n ? 'warn' : undefined} hint="оплата, во вкладке «Приходы»" />
       <Stat label="Стоимость остатка" value={formatMoney(report.value.stockCostMinor)} hint={`списано ${formatMoney(report.value.writeOffMinor)}`} />
     </Stats>
-    <SectionTitle>Продажа без брони</SectionTitle>
-    <SaleForm stock={stock.value} />
-    <SectionTitle>Добавить в счет гостя</SectionTitle>
-    {folios.value.length === 0 ? <EmptyState icon={<Icon name="guests" />} title="Нет открытых счетов">Продажу можно записать без брони выше.</EmptyState> : <FolioSaleForm stock={stock.value} folios={folios.value} />}
-    <SectionTitle>Остатки</SectionTitle>
-    <Table><thead><tr><th>Товар</th><th>Остаток</th><th>Минимум</th><th>Своя цена продажи</th><th>Себестоимость остатка</th></tr></thead><tbody>{stock.value.map((item) => <tr key={item.id}><td><b>{item.name}</b><small>{item.code}</small></td><td><Badge tone={BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge></td><td>{item.minimumStockUnits} шт.</td><td><ProductPriceForm productId={item.id} salePrice={item.salePrice} /></td><td>{formatMoney(item.stockCostMinor)}</td></tr>)}</tbody></Table>
-    <SectionTitle>Списание</SectionTitle>
-    <WriteOffForm stock={stock.value} />
-    <SectionTitle>Инвентаризация</SectionTitle>
-    <InventoryCountForm stock={stock.value} />
-    <SectionTitle>Продажи</SectionTitle>
-    {sales.value.length === 0 ? <EmptyState icon={<Icon name="receipt" />} title="Продаж пока нет">Первую продажу можно записать выше.</EmptyState> : <Table><thead><tr><th>Дата</th><th>Товар</th><th>Выручка</th><th>Себестоимость</th><th>Прибыль</th><th>Статус</th><th /></tr></thead><tbody>{sales.value.map((sale) => <tr key={sale.id}><td>{sale.createdAt.slice(0, 10)}</td><td>{sale.lines.map((line) => `${line.product.name} × ${line.quantityUnits}`).join(', ')}</td><td>{formatMoney(sale.totalRevenue)}</td><td>{formatMoney(sale.totalCost)}</td><td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td><td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td><td>{sale.status === 'POSTED' && <div className="bar-return"><form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></form><form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></form></div>}</td></tr>)}</tbody></Table>}
-    <SectionTitle>Новый приход</SectionTitle>
-    <p className="bar-accounting-note"><b>Как учитываются деньги:</b> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p>
-    {products.value.length === 0 || suppliers.value.length === 0 ? <EmptyState icon={<Icon name="receipt" />} title="Сначала добавьте товары и поставщиков">Справочники доступны в настройках бара.</EmptyState> : <ReceiptForm products={products.value} suppliers={suppliers.value} today={today} />}
-    <SectionTitle>Приходы и долги</SectionTitle>
-    {receipts.value.length === 0 ? <EmptyState icon={<Icon name="receipt" />} title="Приходов пока нет">Занесите первую счет-фактуру выше.</EmptyState> : <Table><thead><tr><th>Документ</th><th>Поставщик</th><th>Позиций</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th /></tr></thead><tbody>{receipts.value.map((receipt) => <tr key={receipt.id}><td><b>{receipt.documentNumber}</b><small>{receipt.receivedDate.slice(0, 10)}</small></td><td>{receipt.supplier.name}</td><td>{receipt._count.lines}</td><td>{formatMoney(receipt.totalAmount)}</td><td>{formatMoney(receipt.paidAmount)}</td><td>{formatMoney(receipt.dueAmount)}</td><td><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведен' : 'Черновик'}</Badge></td><td>{receipt.status === 'DRAFT' ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form> : BigInt(receipt.dueAmount) > 0n ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} /> : <Badge tone="ok">Оплачено</Badge>}</td></tr>)}</tbody></Table>}
-    <SectionTitle>Движения</SectionTitle>
-    <Table><thead><tr><th>Время</th><th>Товар</th><th>Тип</th><th>Кол-во</th><th>Себестоимость</th><th>Причина</th></tr></thead><tbody>{movements.value.map((movement) => <tr key={movement.id}><td>{movement.createdAt.slice(0, 16).replace('T', ' ')}</td><td>{movement.product.name}</td><td>{movement.kind}</td><td>{movement.units}</td><td>{formatMoney(movement.amountMinor)}</td><td>{movement.note ?? '–'}</td></tr>)}</tbody></Table>
-    <SectionTitle>Справочники бара</SectionTitle>
-    <BarCatalogs categories={categories.value} products={products.value} suppliers={suppliers.value} />
+    <div className="bar-quick">
+      <section>
+        <SectionTitle>Продажа без брони</SectionTitle>
+        <SaleForm stock={stock.value} />
+      </section>
+      <section>
+        <SectionTitle>В счёт гостя</SectionTitle>
+        {folios.value.length === 0
+          ? <EmptyState icon={<Icon name="guests" />} title="Нет открытых счетов">Продажу можно записать без брони слева.</EmptyState>
+          : <FolioSaleForm stock={stock.value} folios={folios.value} />}
+      </section>
+    </div>
+    <section className="bar-overview-stock">
+      <SectionTitle>Остатки</SectionTitle>
+      {rows.length === 0
+        ? <EmptyState icon={<Icon name="inventory" />} title="Склад пуст">Занесите приход: вкладка «Приходы» или кнопка «Новый приход».</EmptyState>
+        : <Table density="compact" sticky="header" aria-label="Остатки бара">
+            <thead><tr><th>Товар</th><th>Остаток</th><th>Минимум</th><th>Цена продажи</th><th>Себестоимость остатка</th></tr></thead>
+            <tbody>{rows.map((item) => <tr key={item.id}>
+              <td><b>{item.name}</b><small>{item.code}</small></td>
+              <td><Badge tone={low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge></td>
+              <td>{item.minimumStockUnits} шт.</td>
+              <td>{formatMoney(item.salePrice)}</td>
+              <td>{formatMoney(item.stockCostMinor)}</td>
+            </tr>)}</tbody>
+          </Table>}
+    </section>
   </Page>;
 }

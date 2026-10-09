@@ -3393,6 +3393,13 @@ export interface BarSaleRow {
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
 export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
 export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+/** Строка накладной из ИИ-скана (ADR-152): товар найден по штрихкоду или названию, иначе `productId: null` */
+export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
+export interface BarScanResult {
+  supplierId: string | null; supplierName: string | null;
+  documentNumber: string | null; documentDate: string | null;
+  lines: BarScanLine[]; warnings: string[];
+}
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
@@ -3418,6 +3425,7 @@ export const barApi = {
   writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
   payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
   inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
+  scanReceipt: (body: { fileName: string; mediaType: string; dataBase64: string }) => sendJson<BarScanResult>('POST', '/bar/receipts/scan', body),
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */

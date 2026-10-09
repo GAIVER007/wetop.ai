@@ -1,6 +1,7 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
+import { barFixture, resetBarFixture } from './bar-fixture';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
 import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
@@ -4626,6 +4627,7 @@ createServer(async (req, res) => {
       fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
+      resetBarFixture();
       resetMarketingSiteFixture();
       resetSiteAssetsFixture();
       hits.clear();
@@ -6742,32 +6744,10 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
-    if (
-      req.method === 'GET' &&
-      [
-        '/bar/categories',
-        '/bar/products',
-        '/bar/suppliers',
-        '/bar/receipts',
-        '/bar/stock',
-        '/bar/sales',
-        '/bar/folios',
-        '/bar/movements',
-      ].includes(path)
-    ) {
-      return send(200, []);
-    }
-    if (path === '/bar/report' && req.method === 'GET') {
-      return send(200, {
-        purchasesMinor: '0',
-        supplierPaidMinor: '0',
-        revenueMinor: '0',
-        costMinor: '0',
-        grossProfitMinor: '0',
-        writeOffMinor: '0',
-        stockCostMinor: '0',
-        supplierDebtMinor: '0',
-      });
+    // Бар (ADR-152): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
+    {
+      const barResponse = barFixture(path, req.method ?? 'GET', body);
+      if (barResponse) return send(barResponse.status, barResponse.data);
     }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)

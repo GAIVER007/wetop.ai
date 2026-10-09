@@ -10,7 +10,7 @@ function setup() {
   const findMany = vi.fn().mockResolvedValue([]);
   const count = vi.fn().mockResolvedValue(0);
   const service = new HotelService({
-    db: { property: { findFirst }, ratePlan: { findMany }, accommodationType: { count } },
+    db: { property: { findFirst }, ratePlan: { findMany }, accommodationType: { count }, inventoryUnit: { count } },
   } as unknown as PrismaService);
   return { service, findFirst, findMany, count };
 }
@@ -25,7 +25,7 @@ describe('одновременное чтение настроек', () => {
     const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
     vi.stubEnv('HOTEL_SETTINGS_TTL_MS', '60000');
     const values = await Promise.all(Array.from({ length: 5 }, () => service.settings()));
-    expect(values).toEqual(Array(5).fill({ property, ratePlans: [], needsOnboarding: true }));
+    expect(values).toEqual(Array(5).fill({ property, ratePlans: [], needsOnboarding: true, capacity: { rooms: 0, beds: 0 } }));
     expect(findFirst).toHaveBeenCalledTimes(1);
     expect(findMany).toHaveBeenCalledTimes(1);
     now.mockReturnValue(61001);
@@ -47,6 +47,7 @@ describe('одновременное чтение настроек', () => {
       property,
       ratePlans: [],
       needsOnboarding: true,
+      capacity: { rooms: 0, beds: 0 },
     });
     expect(findFirst).toHaveBeenCalledTimes(2);
   });

@@ -1,7 +1,13 @@
 import 'reflect-metadata';
 import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { accessDeniedMessage, can } from '@pms/domain';
+import {
+  ORGANIZATION_LEVEL_PERMISSIONS,
+  RESTRICTED_ORGANIZATION_MESSAGE,
+  accessDeniedMessage,
+  can,
+  isRestricted,
+} from '@pms/domain';
 import { PLATFORM_ADMIN_ONLY } from '../platform/admin';
 import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
 import type { SignedInUser } from './auth.service';
@@ -36,6 +42,9 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException(PLATFORM_ADMIN_ONLY);
     }
     if (access === 'service') throw new ForbiddenException(SERVICE_KEY_ONLY);
+    // человеку с областью доступа организационные разделы закрыты, какая бы роль у него ни была в филиале (§31.1)
+    if (isRestricted(user.role, user.scopes ?? []) && ORGANIZATION_LEVEL_PERMISSIONS.includes(access))
+      throw new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE);
     if (can(user.role, access)) return true;
     throw new ForbiddenException(accessDeniedMessage(access));
   }

@@ -15,6 +15,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -36,7 +37,9 @@ import {
   MEMBER_SELF_MESSAGE,
   SESSION_ENDED_MESSAGE,
   type MembershipRole,
+  type ScopeAssignment,
 } from '@pms/domain';
+import type { OrganizationStructure } from './accounts.repository';
 import {
   AccountsService,
   type InvitePreview,
@@ -125,7 +128,7 @@ export class AccountsController {
   @Post('invites')
   @HttpCode(201)
   async createInvite(
-    @Body() body: { email?: unknown; role?: unknown },
+    @Body() body: { email?: unknown; role?: unknown } & Record<string, unknown>,
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<InviteJson> {
@@ -133,13 +136,17 @@ export class AccountsController {
       tokenFrom(cookie, authorization),
       body?.email,
       body?.role,
+      body,
     );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-107)
-    if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'owner')
+      throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     if (!outcome.ok && outcome.reason === 'manager-role')
       throw new ForbiddenException(INVITE_MANAGER_OWNER_ONLY_MESSAGE);
-    if (!outcome.ok && outcome.reason === 'role') throw new BadRequestException(INVITE_ROLE_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'invalid') throw new BadRequestException(outcome.message);
+    if (!outcome.ok && outcome.reason === 'role')
+      throw new BadRequestException(INVITE_ROLE_MESSAGE);
     if (!outcome.ok && outcome.reason === 'limit')
       throw new HttpException(INVITE_LIMIT_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     if (!outcome.ok) {
@@ -212,6 +219,77 @@ export class AccountsController {
     return { ok: true };
   }
 
+  /** Бизнесы и филиалы организации: из чего выбирают область доступа сотрудника (DATA_MODEL §31.1) */
+  @Access('staff')
+  @Get('access-structure')
+  async accessStructure(
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<OrganizationStructure> {
+    const out = await this.accounts.accessStructure(tokenFrom(cookie, authorization));
+    if (!out) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (out === 'staff') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    return out;
+  }
+
+  /** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §31.1) */
+  @Access('staff')
+  @Put('members/:userId/scopes')
+  async setMemberScopes(
+    @Param('userId') userId: string,
+    @Body() body: { scopes?: unknown },
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ userId: string; scopes: ScopeAssignment[] }> {
+    const out = await this.accounts.setMemberScopes(
+      tokenFrom(cookie, authorization),
+      userId,
+      body?.scopes,
+    );
+    if (!out) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (!out.ok)
+      throw 'message' in out ? new BadRequestException(out.message) : memberRefusal(out.reason);
+    return { userId, scopes: out.scopes };
+  }
+
+  /** Приостановить доступ без удаления (DATA_MODEL §31.2): человек не входит, сессии гаснут сразу */
+  @Access('staff')
+  @Post('members/:userId/suspend')
+  @HttpCode(200)
+  async suspendMember(
+    @Param('userId') userId: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.setMemberSuspended(
+      tokenFrom(cookie, authorization),
+      userId,
+      true,
+    );
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome !== 'ok') throw memberRefusal(outcome);
+    return { ok: true };
+  }
+
+  /** Вернуть доступ приостановленному одним действием */
+  @Access('staff')
+  @Post('members/:userId/resume')
+  @HttpCode(200)
+  async resumeMember(
+    @Param('userId') userId: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.setMemberSuspended(
+      tokenFrom(cookie, authorization),
+      userId,
+      false,
+    );
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome !== 'ok') throw memberRefusal(outcome);
+    return { ok: true };
+  }
+
   /** Роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
   @Access('owner')
   @Patch('members/:userId')
@@ -221,7 +299,11 @@ export class AccountsController {
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<{ userId: string; role: MembershipRole }> {
-    const outcome = await this.accounts.setMemberRole(tokenFrom(cookie, authorization), userId, body?.role);
+    const outcome = await this.accounts.setMemberRole(
+      tokenFrom(cookie, authorization),
+      userId,
+      body?.role,
+    );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (!outcome.ok) throw memberRefusal(outcome.reason);
     return outcome.member;
@@ -236,7 +318,11 @@ export class AccountsController {
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<{ userId: string; phone: string | null; position: string | null }> {
-    const outcome = await this.accounts.setMemberDetails(tokenFrom(cookie, authorization), userId, body);
+    const outcome = await this.accounts.setMemberDetails(
+      tokenFrom(cookie, authorization),
+      userId,
+      body,
+    );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (!outcome.ok)
       throw 'message' in outcome
@@ -294,6 +380,10 @@ interface InviteJson {
   createdAt: string;
   role: MembershipRole;
   revocable: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  position: string | null;
+  scopes: ScopeAssignment[];
 }
 
 interface MemberJson {
@@ -309,6 +399,10 @@ interface MemberJson {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  suspended: boolean;
+  suspendable: boolean;
+  scopes: ScopeAssignment[];
+  scopesEditable: boolean;
 }
 
 function memberJson(m: MemberView): MemberJson {
@@ -325,6 +419,10 @@ function memberJson(m: MemberView): MemberJson {
     phone: m.phone,
     position: m.position,
     detailsEditable: m.detailsEditable,
+    suspended: m.suspended,
+    suspendable: m.suspendable,
+    scopes: m.scopes,
+    scopesEditable: m.scopesEditable,
   };
 }
 
@@ -367,6 +465,10 @@ function inviteJson(i: InviteView): InviteJson {
     createdAt: i.createdAt.toISOString(),
     role: i.role,
     revocable: i.revocable,
+    firstName: i.firstName,
+    lastName: i.lastName,
+    position: i.position,
+    scopes: i.scopes,
   };
 }
 

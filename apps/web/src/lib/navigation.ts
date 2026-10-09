@@ -1,5 +1,6 @@
 import type { WebVertical } from './vertical-landing';
 import {
+  ORGANIZATION_LEVEL_PERMISSIONS,
   can,
   parseMembershipRole,
   rolesWith,
@@ -21,6 +22,11 @@ export interface NavigationAccess {
    * `/auth/me` — не `null`, а `UNKNOWN_ACCESS` (`desk-shell.ts`).
    */
   role: MembershipRole | null;
+  /**
+   * У человека область доступа (DATA_MODEL §31.1): права уровня организации (команда, роли, журнал) ему закрыты,
+   * даже если роль в филиале управляющая. API это проверяет; стойка не показывает то, что API откажет.
+   */
+  restricted?: true;
   /**
    * Роль не узнали: `/auth/me` не ответил (сбой, тайм-аут). Меню и кнопки тогда — как у администратора, а страница по
    * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
@@ -538,6 +544,7 @@ export function phoneNavigationFor(
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
+  if (access.restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;
   return access.role === null || can(access.role, permission);
 }
 
@@ -609,7 +616,7 @@ export function menuSectionsFor(
  */
 export function deskAccessOf(
   me: {
-    user: { platformAdmin?: boolean; role?: string } | null;
+    user: { platformAdmin?: boolean; role?: string; restricted?: boolean } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
   } | null,
 ): NavigationAccess {
@@ -619,6 +626,7 @@ export function deskAccessOf(
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
+    ...(me.user.restricted === true ? { restricted: true as const } : {}),
   };
 }
 

@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 09.10.2026 22:16 Алматы · vm
+# коммит 870dacc (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 78
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/team.spec.ts' 'tests/ui/staff.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/staff.spec.ts:12:1 › /staff ведёт на «Сотрудников»: старые ссылки живут (5.1s)
+  ✓   2 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (2.0s)
+  ✓   3 tests/ui/team.spec.ts:52:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (2.8s)
+  ✓   4 tests/ui/team.spec.ts:69:1 › ошибка приглашения — словами в панели, ввод не стирается (3.2s)
+  ✓   5 tests/ui/team.spec.ts:81:1 › «Отключить» — только после подтверждения с последствием (2.2s)
+  ✓   6 tests/ui/team.spec.ts:93:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (2.6s)
+  ✓   7 tests/ui/team.spec.ts:114:1 › неверный телефон: словами в панели, введённое не стирается (2.8s)
+  ✓   8 tests/ui/team.spec.ts:128:1 › управляющий: роль не меняет, приглашает только администраторов (2.0s)
+  ✓   9 tests/ui/team.spec.ts:144:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (953ms)
+  ✓  10 tests/ui/team.spec.ts:155:1 › администратору раздел закрыт: гейт и меню без пункта (1.9s)
+  ✓  11 tests/ui/team.spec.ts:164:3 › снимки TEAM1 и доступность: light (4.1s)
+  ✓  12 tests/ui/team.spec.ts:164:3 › снимки TEAM1 и доступность: dark (4.7s)
+  ✓  13 tests/ui/team.spec.ts:203:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (2.2s)
+  ✓  14 tests/ui/team.spec.ts:221:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (4.1s)
+  ✓  15 tests/ui/team.spec.ts:247:1 › «Роли и права»: администратору закрыто (1.6s)
+  ✓  16 tests/ui/team.spec.ts:255:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (2.0s)
+  ✓  17 tests/ui/team.spec.ts:270:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (2.6s)
+  ✓  18 tests/ui/team.spec.ts:291:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (1.8s)
+  ✓  19 tests/ui/team.spec.ts:307:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (3.6s)
+  ✓  20 tests/ui/team.spec.ts:332:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (2.7s)
+  ✓  21 tests/ui/team.spec.ts:345:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (2.6s)
+  ✓  22 tests/ui/team.spec.ts:363:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (2.3s)
+
+  22 passed (1.2m)
+
+# код выхода 0 · 1 мин 12 с

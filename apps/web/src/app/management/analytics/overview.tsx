@@ -99,7 +99,7 @@ function SharePanels({ c }: { c: DashboardPeriod }) {
   const srcTotal = sum(bySource);
   if (catTotal === 0n && srcTotal === 0n) return null;
   return (
-    <div className="pa-shares" data-testid="pa-shares">
+    <>
       {catTotal > 0n && c.categories.length > 1 && (
         <Panel title="Начислено по категориям" className="dash-panel">
           <DonutShare
@@ -126,7 +126,7 @@ function SharePanels({ c }: { c: DashboardPeriod }) {
           </p>
         </Panel>
       )}
-    </div>
+    </>
   );
 }
 
@@ -553,8 +553,8 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
       <div className="dash-grid dash-grid--chart pa-charts">
         <OccupancyPanel c={c} today={today} query={query} />
         <RevenuePanel c={c} today={today} query={query} />
+        <SharePanels c={c} />
       </div>
-      <SharePanels c={c} />
       <details className="pa-details">
         <summary>Подробности: ночи, средний чек, категории и источники</summary>
         <KpiRow c={c} p={p} detail />

@@ -393,13 +393,6 @@
     font-weight: var(--weight-semibold);
   }
   /* категория и детализация отчёта (RPT2.2c-3): отдельная строка над плитками */
-  /* не `.dash-grid`: у такой сетки на рабочей области своя прокрутка (workspace.css) */
-  .pa-shares {
-    display: grid;
-    gap: var(--space-4);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-    margin-bottom: var(--space-6);
-  }
   .pa-filters {
     margin-bottom: var(--space-4);
   }
@@ -507,6 +500,12 @@
   } /* «Загрузка» (AN2): пять плиток в ряд */
   .pa-kpis--occupancy {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  /* с отдельными плитками номеров и коек (ADR-155) число плиток переменное: ряд подстраивается, на узких экранах прежние колонки */
+  @media (min-width: 1280px) {
+    .analytics-page .kpi-grid.pa-kpis {
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
   }
   .pa-kpis .kpi__hint .pa-kpi-link {
     text-decoration: underline;

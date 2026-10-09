@@ -80,7 +80,7 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
         id="blocked"
         label="Заблокировано"
         value={formatInt(o.blockedNights)}
-        hint={`закрытые ${single ? 'места' : 'ночи'} остаются в фонде загрузки`}
+        hint={`закрыты для продажи, из загрузки вычтены`}
         delta={countDelta(o.blockedNights, prev.occupancy.blockedNights)}
         inverse
         compare={compare}

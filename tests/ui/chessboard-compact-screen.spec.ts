@@ -83,7 +83,8 @@ test('без сохранённого выбора вид «Компактный
     await page.reload();
     await expect(wrap).toHaveAttribute('data-density', view);
   }
-  // выбор в переключателе «Вид» запоминается
+  // выбор в переключателе «Вид» запоминается; с 09.10 переключатель живёт в окошке «Фильтры»
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
   await page
     .getByRole('group', { name: 'Вид строк календаря' })
     .getByRole('button', { name: 'Компактный', exact: true })

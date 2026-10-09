@@ -36,6 +36,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(main.getByLabel('Категория в календаре')).toBeHidden();
     await main.getByRole('button', { name: 'Даты', exact: true }).click();
+    // готовые периоды (7/14/30, месяц) с 09.10 живут в раскрытых «Датах»
     for (const control of [
       main.getByLabel('Календарь: с', { exact: true }),
       main.getByLabel('Календарь: по', { exact: true }),
@@ -43,7 +44,6 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
       main.getByRole('link', { name: '7 дней', exact: true }),
       toggle,
-      main.getByLabel('Вид строк календаря'),
     ]) {
       await expect(control).toBeVisible();
       const box = await control.boundingBox();
@@ -55,6 +55,12 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
+    // вид строк с 09.10 тоже в окошке: кнопки с целями 44 px
+    const viewButton = filters
+      .getByRole('group', { name: 'Вид строк календаря' })
+      .getByRole('button', { name: 'Обычный', exact: true });
+    await expect(viewButton).toBeVisible();
+    expect((await viewButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await filters.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
     await filters.getByRole('button', { name: 'Применить', exact: true }).click();
     await expect(main.getByTestId('unit-row')).toHaveCount(16);
@@ -217,6 +223,8 @@ test('по умолчанию видна текущая неделя с поне
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
+  // «7 дней» с 09.10 живёт в раскрытых «Датах» и отмечает текущую неделю
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'aria-current',
     'true',

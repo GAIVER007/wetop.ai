@@ -7,18 +7,18 @@ import { Icon } from '../../components/icon';
 
 /**
  * Ручной период раскрывается по запросу, чтобы оставлять место календарю.
- * Календарный месяц живёт здесь же (ТЗ «Шахматка v2» §7): в сегменте видов — rolling 7/14/30.
+ * Здесь же живут готовые периоды (ТЗ «Шахматка v2» §6–7): 7/14/30 дней и календарный месяц.
+ * Из строки управления их убрал владелец 09.10.2026: шапка календаря стала компактнее,
+ * а весь выбор дат собрался в одном месте.
  */
 export function BoardDateRange({
   from,
   to,
-  monthHref,
-  monthCurrent,
+  periods,
 }: {
   from: string;
   to: string;
-  monthHref?: string;
-  monthCurrent?: boolean;
+  periods?: ReadonlyArray<{ href: string; label: string; current?: boolean }>;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
@@ -47,14 +47,19 @@ export function BoardDateRange({
         <Button tone="secondary" type="submit">
           Применить
         </Button>
-        {monthHref && (
-          <Link
-            href={monthHref}
-            className="btn btn--secondary"
-            aria-current={monthCurrent ? 'true' : undefined}
-          >
-            Месяц
-          </Link>
+        {periods && periods.length > 0 && (
+          <span className="board-quick-periods" role="group" aria-label="Готовые периоды календаря">
+            {periods.map((p) => (
+              <Link
+                key={p.label}
+                href={p.href}
+                className="btn btn--secondary"
+                aria-current={p.current ? 'true' : undefined}
+              >
+                {p.label}
+              </Link>
+            ))}
+          </span>
         )}
       </form>
     </div>

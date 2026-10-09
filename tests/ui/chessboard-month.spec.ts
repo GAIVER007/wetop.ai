@@ -12,9 +12,11 @@ test('месяц: с первого по последнее число, вклю
   today.setUTCMonth(today.getUTCMonth() + 1, 0);
   const last = today.toISOString().slice(0, 10);
   await page.goto('/chessboard');
+  // Готовые периоды и «Месяц» живут внутри «Даты» (ТЗ «Шахматка v2» §7; с 09.10 там же 7/14/30).
+  // Ссылки стоят в перерисовываемой форме, поэтому после перехода на 14 дней дожидаемся его конца,
+  // иначе клик попадает в старый узел.
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByRole('link', { name: '14 дней', exact: true }).click();
-  // «Месяц» живёт внутри «Даты» (ТЗ «Шахматка v2» §7). Ссылка стоит в перерисовываемой форме,
-  // поэтому сначала дожидаемся конца перехода на 14 дней — иначе клик попадает в старый узел.
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByRole('link', { name: 'Месяц', exact: true }).click();
@@ -72,6 +74,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
 test('7 дней, 14 дней, произвольный период и возврат к месяцу', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByRole('link', { name: '14 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
@@ -96,13 +99,24 @@ test('7 дней, 14 дней, произвольный период и возв
   await expect(page.locator('th.is-today')).toHaveCount(1);
 });
 
-test('30 дней: окно от сегодня, «Месяц» ушёл из сегмента в «Даты»', async ({ page }) => {
+test('30 дней: окно от сегодня, готовые периоды живут в «Датах», а не в строке управления', async ({
+  page,
+}) => {
   const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
   await page.goto('/chessboard');
-  await expect(page.locator('.board-controls .seg a')).toHaveText(['7 дней', '14 дней', '30 дней']);
+  // сегмента 7/14/30 в строке управления больше нет: шапку разгрузил владелец 09.10.2026
+  await expect(page.locator('.board-controls .seg')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
+  await expect(page.locator('.board-quick-periods a')).toHaveText([
+    '7 дней',
+    '14 дней',
+    '30 дней',
+    'Месяц',
+  ]);
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', today);
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await expect(page.getByRole('link', { name: '30 дней', exact: true })).toHaveAttribute(
     'aria-current',
     'true',
@@ -123,6 +137,7 @@ test('30 дней: окно от сегодня, «Месяц» ушёл из с
 test('в месяце открываются брони, свободные даты и группы номеров', async ({ page }) => {
   await page.setViewportSize({ width: 812, height: 1000 });
   await page.goto('/chessboard');
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByRole('link', { name: '14 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await page.getByRole('button', { name: 'Даты', exact: true }).click();
@@ -173,6 +188,7 @@ for (const theme of ['light', 'dark'] as const) {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
     await page.goto('/chessboard');
+    await page.getByRole('button', { name: 'Даты', exact: true }).click();
     await page.getByRole('link', { name: '14 дней', exact: true }).click();
     await expect(page.getByTestId('date-col')).toHaveCount(14);
     await page.getByRole('button', { name: 'Даты', exact: true }).click();

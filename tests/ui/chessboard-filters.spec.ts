@@ -65,11 +65,11 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await page.goto(week(today));
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
-  // в строке — поиск, категория, места на первую дату, «Фильтры», вид; тип места ушёл в окошко
+  // в строке: поиск, категория, места на первую дату, «Фильтры»; тип места и вид ушли в окошко (вид 09.10)
   await expect(main.getByLabel('Поиск в календаре')).toBeVisible();
   await expect(main.getByLabel('Категория в календаре')).toBeVisible();
   await expect(main.getByLabel('Места в календаре')).toBeVisible();
-  await expect(main.getByLabel('Вид строк календаря')).toBeVisible();
+  await expect(main.locator('.board-toolbar').getByLabel('Вид строк календаря')).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Номера', exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Свободные', exact: true })).toHaveCount(0);
 
@@ -78,6 +78,8 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await open.click();
   const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   await expect(pop).toBeVisible();
+  // вид строк переехал в окошко (09.10): переключатель на месте
+  await expect(pop.getByRole('group', { name: 'Вид строк календаря' })).toBeVisible();
   // источники и статусы — только те, что есть на сетке
   const sources = pop.getByRole('group', { name: 'Источник' });
   await expect(sources.getByRole('button')).toHaveText(['Booking.com', 'Телефон', 'WhatsApp']);
@@ -253,8 +255,12 @@ test('§38: вид «Компактный / Обычный / Подробный�
 }) => {
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
-  // переключатель (DS1b): кнопки с aria-pressed вместо выпадающего списка
-  const view = main.getByRole('group', { name: 'Вид строк календаря' });
+  // переключатель (DS1b) с 09.10 живёт в окошке «Фильтры»: кнопки с aria-pressed, применяется сразу
+  const openFilters = () => main.getByRole('button', { name: /^Фильтры( \d+)?$/ }).click();
+  await openFilters();
+  const view = page
+    .getByRole('dialog', { name: 'Фильтры календаря' })
+    .getByRole('group', { name: 'Вид строк календаря' });
   const pick = (name: string) => view.getByRole('button', { name, exact: true });
   // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
   await expect(pick('Компактный')).toHaveAttribute('aria-pressed', 'true');
@@ -269,6 +275,7 @@ test('§38: вид «Компактный / Обычный / Подробный�
   expect(detailed).toBeGreaterThan(normal);
   await pick('Обычный').click();
   await page.reload();
+  await openFilters();
   await expect(pick('Обычный')).toHaveAttribute('aria-pressed', 'true');
   expect(await height()).toBe(normal);
 });

@@ -7703,3 +7703,5 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:23 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-filters.spec.ts tests/ui/mobile-adaptation.spec.ts) | ❌ упало 15 из 15 | 34 с | 90d323d +8 | [лог](logs/2026-10-09T12-23-35Z-e2e-bc70.log) | red: старые спеки на коде без сегмента 7/14/30 и «Вида» в шапке календаря |
+| 09.10.2026 17:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-filters.spec.ts tests/ui/mobile-adaptation.spec.ts) | ❌ упало 4 из 15 | 2 мин 5 с | 90d323d +8 | [лог](logs/2026-10-09T12-24-50Z-e2e-f0dc.log) | red: старые спеки на коде без сегмента 7/14/30 и «Вида» в шапке календаря |

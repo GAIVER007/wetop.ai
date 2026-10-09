@@ -247,13 +247,6 @@
   .board-controls .board-date-nav > .btn {
     margin-left: var(--space-2);
   }
-  .board-controls .board-period > .seg {
-    padding: var(--space-1);
-  }
-  .board-controls .board-period > .seg a {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-  }
   .board-controls .board-bar {
     margin-bottom: 0;
     margin-left: auto;
@@ -337,10 +330,18 @@
     background: var(--danger-soft);
     color: var(--danger);
   }
-  /* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
-  .board-range-form .btn[aria-current='true'] {
+  /* Готовые периоды (7/14/30 дней, месяц) в раскрытых «Датах»: текущий обведён основным цветом */
+  .board-range-form .btn[aria-current='true'],
+  .board-quick-periods .btn[aria-current='true'] {
     border-color: var(--primary);
     color: var(--primary);
+  }
+  .board-quick-periods {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    grid-column: 1 / -1;
   }
 
   /* ── поиск, категория, места, «Фильтры», вид в одну строку (ТЗ v2 §8) ── */
@@ -367,9 +368,7 @@
   .board-state {
     flex: 0 1 240px;
   }
-  .board-view {
-    flex: 0 0 auto;
-  } /* Неверный период: полоса «С / По / Показать» над объявлением */
+  /* Неверный период: полоса «С / По / Показать» над объявлением */
   .board-invalid-period {
     margin-bottom: var(--space-4);
   }
@@ -641,9 +640,6 @@
     margin-bottom: 0;
   }
   .board-top > .board-controls .board-bar {
-    margin-left: 0;
-  }
-  .board-top > .board-controls .board-period > .seg {
     margin-left: 0;
   }
   .board-day-panel {
@@ -1070,34 +1066,20 @@
     .board-range-form > .btn {
       grid-column: 1 / -1;
     }
-    /* Ширина по содержимому: своей строки сегменту больше не нужно, рядом встают «Даты» (03.10).
-     basis 0 по-прежнему нельзя: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` переключатель
-     сжимался до 13 px, а ссылки оставались с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
-    .board-period .seg {
-      flex: 0 1 auto;
-      min-width: 0;
-    }
-    .board-period .seg a {
-      display: inline-flex;
-      white-space: nowrap;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
+    /* Готовые периоды в раскрытых «Датах»: цели нажатия не ниже 44 px (axe target-size) */
+    .board-quick-periods .btn {
       min-height: var(--touch-target);
     }
     .board-date-nav .icon-button {
       width: var(--touch-target);
       height: var(--touch-target);
     }
-    /* телефон (§45): в строке поиск, «Фильтры», вид; категория и места — в окошке */
+    /* телефон (§45): в строке поиск и «Фильтры»; категория, места и вид в окошке */
     .board-search {
       flex: 1 1 100%;
     }
     .board-toolbar .board-category,
     .board-toolbar .board-state {
-      display: none;
-    }
-    .board-view > span {
       display: none;
     }
     .board-toolbar .inp,
@@ -2158,8 +2140,7 @@
     }
     /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
     .board-toolbar .board-category,
-    .board-toolbar .board-state,
-    .board-toolbar .board-view {
+    .board-toolbar .board-state {
       flex: 0 0 auto;
     }
     .board th.board__unit-head {

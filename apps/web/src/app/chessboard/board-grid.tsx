@@ -18,7 +18,7 @@ import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-pre
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
 import { useBoardPosition, type BoardSelection } from './board-position';
-import { BoardFiltersPopover, KIND_OPTIONS } from './board-filters-popover';
+import { BoardFiltersPopover, KIND_OPTIONS, type BoardView } from './board-filters-popover';
 import {
   NO_FILTERS,
   STAY_FLAGS,
@@ -64,7 +64,6 @@ import {
   type MoveQuestion,
 } from './drag-plan';
 import { Icon } from '../../components/icon';
-import { Segmented, type SegmentOption } from '../../components/segmented';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
@@ -77,14 +76,9 @@ import { statusText } from '../../lib/status/types';
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
 /** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
 const COLLAPSED_KEY = 'chessboard.collapsed-categories';
-/** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере */
+/** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере.
+ * Переключатель живёт в окошке «Фильтры» (поручение владельца 09.10.2026: шапку разгрузить). */
 const VIEW_KEY = 'wetop.chessboard.view';
-type BoardView = 'compact' | 'normal' | 'detailed';
-const VIEWS: ReadonlyArray<SegmentOption<BoardView>> = [
-  { value: 'compact', label: 'Компактный' },
-  { value: 'normal', label: 'Обычный' },
-  { value: 'detailed', label: 'Подробный' },
-];
 /** Совпадение плашки с поиском и условиями по броням (ТЗ v2 §41): подсвечена, приглушена или как есть */
 type Match = 'hit' | 'dim' | undefined;
 function stayMatch(
@@ -903,10 +897,6 @@ export function ChessboardGrid({
           Фильтры{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
-        <div className="board-view field field--inline">
-          <span aria-hidden="true">Вид</span>
-          <Segmented label="Вид строк календаря" value={view} options={VIEWS} onChange={pickView} />
-        </div>
         {/*
           Вторая строка — только когда что-то отобрано: снятые условия чипами, «Показано N из M» и
           «Сбросить». Без отбора строка схлопнута, но остаётся в дереве доступности: живая область
@@ -955,6 +945,8 @@ export function ChessboardGrid({
           stateOptions={stateOptions}
           stateLabel={stateLabel}
           unassigned={unassignedCount}
+          view={view}
+          onView={pickView}
           onApply={(next) => {
             setFilters(next);
             closeFilters(true);

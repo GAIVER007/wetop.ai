@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
+import { Segmented, type SegmentOption } from '../../components/segmented';
 import { Button, Select } from '../../components/ui';
 import type { ChessboardRow } from '../../lib/api';
 import {
@@ -24,12 +25,21 @@ export const KIND_OPTIONS: ReadonlyArray<readonly [BoardFilters['kind'], string]
   ['BED', 'Койки'],
 ];
 
+/** Вид строк (ТЗ v2 §38): из строки над сеткой переключатель убрал владелец 09.10.2026, живёт здесь */
+export type BoardView = 'compact' | 'normal' | 'detailed';
+export const VIEW_OPTIONS: ReadonlyArray<SegmentOption<BoardView>> = [
+  { value: 'compact', label: 'Компактный' },
+  { value: 'normal', label: 'Обычный' },
+  { value: 'detailed', label: 'Подробный' },
+];
+
 /**
  * Окошко «Фильтры» шахматки (ТЗ «Шахматка v2» §9). Правится черновик: «Применить» переносит его на
  * сетку, Escape, крестик и щелчок мимо закрывают без применения, «Сбросить» чистит черновик. Группы —
  * «Тип места», «Брони», «Источник» и «Статус брони»; источники и статусы — только те, что есть на
- * загруженной сетке. Под группами — ссылка на ящик «Брони без размещения» (PR 6), если такие есть. На
- * телефоне здесь же «Категория» и «Места»: в строке над сеткой для них нет места.
+ * загруженной сетке. Ниже вид строк (§38): применяется сразу, мимо черновика. Под группами ссылка
+ * на ящик «Брони без размещения» (PR 6), если такие есть. На телефоне здесь же «Категория» и «Места»:
+ * в строке над сеткой для них нет места.
  *
  * Окно в верхнем слое (Popover API), как предпросмотр брони: у панели над сеткой `backdrop-filter`, и
  * `fixed` внутри неё считался бы от неё. Место считается от кнопки «Фильтры» и пересчитывается при
@@ -45,6 +55,8 @@ export function BoardFiltersPopover({
   stateOptions,
   stateLabel,
   unassigned,
+  view,
+  onView,
   onApply,
   onClose,
 }: {
@@ -57,6 +69,8 @@ export function BoardFiltersPopover({
   stateOptions: ReadonlyArray<readonly [UnitState, string]>;
   stateLabel: string;
   unassigned: number;
+  view: BoardView;
+  onView: (view: BoardView) => void;
   onApply: (next: BoardFilters) => void;
   /** restoreFocus — вернуть курсор на «Фильтры» (клавиатура, крестик), но не при щелчке мимо */
   onClose: (restoreFocus: boolean) => void;
@@ -241,6 +255,18 @@ export function BoardFiltersPopover({
             (key) => draft.statuses.includes(key),
             (key) => toggle('statuses', key),
           )}
+        {/* Вид: настройка показа, не отбор. Меняет сетку сразу, «Применить» его не ждёт */}
+        <div className="board-filters-pop__group">
+          <p className="board-filters-pop__label" id={`${baseId}-view`}>
+            Вид строк
+          </p>
+          <Segmented
+            label="Вид строк календаря"
+            value={view}
+            options={VIEW_OPTIONS}
+            onChange={onView}
+          />
+        </div>
         {unassigned > 0 && (
           // ящик PR 6 слушает якорь: окошко закрывается, ящик открывается
           <a

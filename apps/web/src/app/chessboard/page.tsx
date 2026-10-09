@@ -6,7 +6,7 @@ import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
-import { Alert, Button, Legend, cx } from '../../components/ui';
+import { Alert, Button, Legend } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
 import { ChessboardGrid } from './board-grid';
@@ -201,40 +201,27 @@ export default async function ChessboardPage({
                 <Icon name="chevron" />
               </Link>
               <BoardTodayLink />
-            </span>{' '}
-            {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
-              «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-            <span className="seg" role="group" aria-label="Вид календаря">
-              <Link
-                href={weekHref()}
-                className={cx(isWeek && 'is-on')}
-                aria-current={isWeek ? 'true' : undefined}
-              >
-                7 дней
-              </Link>
-              <Link
-                href={window(14)}
-                className={cx(board.dates.length === 14 && 'is-on')}
-                aria-current={board.dates.length === 14 ? 'true' : undefined}
-              >
-                14 дней
-              </Link>
-              <Link
-                href={window(30)}
-                className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
-                aria-current={board.dates.length === 30 && !isMonth ? 'true' : undefined}
-              >
-                30 дней
-              </Link>
             </span>
           </div>
           <div className="board-bar">
+            {/* Готовые периоды (rolling 7/14/30, ТЗ «Шахматка v2» §6–7) и календарный месяц
+              живут в раскрывашке «Даты»: из строки управления их убрал владелец 09.10.2026,
+              чтобы шапка календаря стала компактнее. «30 дней» не подсвечивается на месяце
+              из 30 дней: это разные периоды. */}
             <BoardDateRange
               key={`${board.from}-${board.to}`}
               from={board.from}
               to={board.to}
-              monthHref={monthHref()}
-              monthCurrent={isMonth}
+              periods={[
+                { href: weekHref(), label: '7 дней', current: isWeek },
+                { href: window(14), label: '14 дней', current: board.dates.length === 14 },
+                {
+                  href: window(30),
+                  label: '30 дней',
+                  current: board.dates.length === 30 && !isMonth,
+                },
+                { href: monthHref(), label: 'Месяц', current: isMonth },
+              ]}
             />
             <BoardHelp title="Помощь">
               <div className="board-help-content">

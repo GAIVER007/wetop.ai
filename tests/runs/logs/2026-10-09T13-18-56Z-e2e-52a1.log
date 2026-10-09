@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 09.10.2026 18:18 Алматы · vm
+# коммит 6aeba9c (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (4.2s)
+  ✓   2 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (12.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   3 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.6s)
+  ✓   4 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.3s)
+  ✓   5 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.2s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓   6 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (7.5s)
+  ✓   7 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.5s)
+  ✓   8 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (3.2s)
+  ✓   9 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (7.1s)
+  ✓  10 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (7.3s)
+  ✓  11 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (6.4s)
+  ✓  12 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.9s)
+
+  12 passed (1.5m)
+
+# код выхода 0 · 1 мин 32 с

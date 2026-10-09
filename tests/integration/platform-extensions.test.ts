@@ -22,6 +22,7 @@ describe.skipIf(!url)('расширения организаций (integration,
   const mark = Date.now().toString(36);
   const orgA = randomUUID();
   const orgB = randomUUID();
+  const orgC = randomUUID();
   const owner = randomUUID();
   const staff = randomUUID();
   const now = new Date('2026-09-25T09:00:00.000Z');
@@ -41,6 +42,7 @@ describe.skipIf(!url)('расширения организаций (integration,
       data: [
         { id: orgA, name: `Тест расширений ${mark}` },
         { id: orgB, name: `Тест расширений, пустая ${mark}` },
+        { id: orgC, name: `Тест архива ${mark}`, status: 'ACTIVE' },
       ],
     });
     await db.user.createMany({
@@ -59,11 +61,11 @@ describe.skipIf(!url)('расширения организаций (integration,
 
   afterAll(async () => {
     if (!db) return;
-    await purgeAuditRows(db, { entityType: 'organization', entityId: { in: [orgA, orgB] } });
-    await db.organizationExtension.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-    await db.membership.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    await purgeAuditRows(db, { entityType: 'organization', entityId: { in: [orgA, orgB, orgC] } });
+    await db.organizationExtension.deleteMany({ where: { organizationId: { in: [orgA, orgB, orgC] } } });
+    await db.membership.deleteMany({ where: { organizationId: { in: [orgA, orgB, orgC] } } });
     await db.user.deleteMany({ where: { id: { in: [owner, staff] } } });
-    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
+    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB, orgC] } } });
     await db.$disconnect();
   });
 
@@ -130,5 +132,55 @@ describe.skipIf(!url)('расширения организаций (integration,
     );
     expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null });
     expect(await repo.organization(randomUUID())).toBeNull();
+  });
+
+  const trace = (id: string, action: string) =>
+    db.auditLog.findMany({
+      where: { entityType: 'organization', entityId: id, action },
+      orderBy: { createdAt: 'asc' },
+      select: { userId: true, before: true, after: true },
+    });
+
+  it('название: меняется и пишется в журнал, было и стало', async () => {
+    await repo.rename({ organizationId: orgC, name: `Тест архива, новое ${mark}`, by: owner, now });
+    expect(await repo.organization(orgC)).toMatchObject({ name: `Тест архива, новое ${mark}` });
+    const rows = await trace(orgC, 'organization.renamed');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      userId: owner,
+      before: { name: `Тест архива ${mark}` },
+      after: { name: `Тест архива, новое ${mark}` },
+    });
+  });
+
+  it('архив: статус SUSPENDED и журнал с прежним статусом; данные организации на месте', async () => {
+    await repo.archive({ organizationId: orgC, by: owner, now });
+    expect(await repo.organization(orgC)).toMatchObject({ status: 'SUSPENDED' });
+    const rows = await trace(orgC, 'organization.archived');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ userId: owner, before: { status: 'ACTIVE' }, after: { status: 'SUSPENDED' } });
+    // в архиве ничего не удалено: организация и всё прежнее название в списке
+    expect((await repo.organizations()).some((o) => o.id === orgC)).toBe(true);
+  });
+
+  it('возврат из архива: прежний статус и строка журнала', async () => {
+    await repo.restore({ organizationId: orgC, by: owner, now: new Date(now.getTime() + 60_000) });
+    expect(await repo.organization(orgC)).toMatchObject({ status: 'ACTIVE' });
+    const rows = await trace(orgC, 'organization.restored');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ userId: owner, before: { status: 'SUSPENDED' }, after: { status: 'ACTIVE' } });
+  });
+
+  it('второй архив и возврат берут статус из последней записи, а не из первой', async () => {
+    await repo.saveStatus({ organizationId: orgC, status: 'READ_ONLY', note: null, by: owner, now });
+    await repo.archive({ organizationId: orgC, by: owner, now: new Date(now.getTime() + 120_000) });
+    await repo.restore({ organizationId: orgC, by: owner, now: new Date(now.getTime() + 180_000) });
+    expect(await repo.organization(orgC)).toMatchObject({ status: 'READ_ONLY' });
+  });
+
+  it('записи об архиве нет: возврат в «только чтение», платный доступ сам не появляется', async () => {
+    await db.organization.update({ where: { id: orgB }, data: { status: 'SUSPENDED' } });
+    await repo.restore({ organizationId: orgB, by: owner, now });
+    expect(await repo.organization(orgB)).toMatchObject({ status: 'READ_ONLY' });
   });
 });

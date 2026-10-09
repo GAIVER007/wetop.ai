@@ -253,7 +253,7 @@
   .board-toolbar {
     gap: var(--space-2) var(--space-4);
     padding: var(--space-2) var(--space-4);
-    background: var(--glass-panel);
+    background: none;
     border: 1px solid var(--border);
     border-bottom: 0;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -2154,7 +2154,7 @@
     line-height: 1.2;
   }
   .board-kpi--occupancy .board-kpi__value {
-    font-size: calc(var(--text-xl) + 4px);
+    font-size: var(--text-2xl);
   }
   .board-kpi__label,
   .board-kpi__note {
@@ -2185,7 +2185,7 @@
   .board-empty {
     border-top: 1px solid var(--border);
   }
-  @media (max-width: 1199px) {
+  @media (max-width: 1279px) {
     .board-kpis {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -2223,8 +2223,15 @@
       justify-content: center;
       width: var(--touch-target);
       padding: 0;
-      font-size: 0;
       gap: 0;
+    }
+    .board-toolbar .board-new__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
     .board-toolbar .board-new svg {
       width: 20px;
@@ -2255,32 +2262,18 @@
    * неисправность. Смысл не держится на цвете: у каждого статуса свой значок и слово в подсказке.
    */
   .page--board {
-    --plate-living: #c6dcfb;
-    --plate-living-ink: #1d5fb8;
-    --plate-booked: #c0f0d0;
-    --plate-booked-ink: #17784a;
-    --plate-tentative: #fbeab8;
-    --plate-tentative-ink: #8a5a0a;
-    --plate-left: #e7ebf2;
-    --plate-left-ink: #536176;
-    --plate-repair: #f9cfd2;
-    --plate-repair-ink: #b3263c;
-    --plate-block: #dfe3ea;
-    --plate-block-ink: #536176;
-  }
-  [data-theme='dark'] .page--board {
-    --plate-living: #1d3d6b;
-    --plate-living-ink: #8ebdff;
-    --plate-booked: #174a30;
-    --plate-booked-ink: #7fdba6;
-    --plate-tentative: #4d3c14;
-    --plate-tentative-ink: #efc46a;
-    --plate-left: #283347;
-    --plate-left-ink: #a8b3c5;
-    --plate-repair: #52262f;
-    --plate-repair-ink: #ff9aa8;
-    --plate-block: #2d384b;
-    --plate-block-ink: #a8b3c5;
+    --plate-living: color-mix(in srgb, var(--primary) 22%, var(--surface-solid));
+    --plate-living-ink: color-mix(in srgb, var(--primary) 82%, var(--text));
+    --plate-booked: color-mix(in srgb, var(--success) 22%, var(--surface-solid));
+    --plate-booked-ink: color-mix(in srgb, var(--success) 82%, var(--text));
+    --plate-tentative: color-mix(in srgb, var(--warning) 22%, var(--surface-solid));
+    --plate-tentative-ink: color-mix(in srgb, var(--warning) 82%, var(--text));
+    --plate-left: color-mix(in srgb, var(--muted) 16%, var(--surface-solid));
+    --plate-left-ink: color-mix(in srgb, var(--muted) 90%, var(--text));
+    --plate-repair: color-mix(in srgb, var(--danger) 22%, var(--surface-solid));
+    --plate-repair-ink: color-mix(in srgb, var(--danger) 82%, var(--text));
+    --plate-block: color-mix(in srgb, var(--muted) 22%, var(--surface-solid));
+    --plate-block-ink: color-mix(in srgb, var(--muted) 90%, var(--text));
   }
   .board td[data-status='CHECKED_IN'] .board-stay-glyph {
     color: var(--plate-living-ink);
@@ -2344,7 +2337,7 @@
   }
   .board-wrap[data-density='normal'] .board-stay-line--meta {
     line-height: 14px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .board-wrap[data-density='normal'] .board-stay-menu {
     top: 5px;
@@ -2367,7 +2360,7 @@
     font-size: var(--text-md);
   }
   .board .board__wd {
-    font-size: 11px;
+    font-size: var(--text-xs);
     line-height: 14px;
   }
   .board th.is-today .board__d {
@@ -2452,7 +2445,7 @@
   }
 
   /* на широком экране колонке мест нужно место под полоску загрузки категории */
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     .board.board--week {
       --week-unit-width: 208px;
     }
@@ -2672,6 +2665,24 @@
     height: 10px;
     border-radius: 9999px;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent);
+  }
+  .board-legend-dot[data-plate='living'] {
+    background: var(--plate-living);
+  }
+  .board-legend-dot[data-plate='booked'] {
+    background: var(--plate-booked);
+  }
+  .board-legend-dot[data-plate='tentative'] {
+    background: var(--plate-tentative);
+  }
+  .board-legend-dot[data-plate='left'] {
+    background: var(--plate-left);
+  }
+  .board-legend-dot[data-plate='repair'] {
+    background: var(--plate-repair);
+  }
+  .board-legend-dot[data-plate='block'] {
+    background: var(--plate-block);
   }
   .board-legend-details {
     position: relative;

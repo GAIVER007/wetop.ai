@@ -112,6 +112,23 @@ function StayPanel({
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
+  // Щелчок мимо закрывает панель, как закрывало прежнее окно: она показывает одну бронь, а не висит всегда.
+  // Плашка переключает панель сама, окна и меню поверх страницы щелчком мимо не считаются.
+  useEffect(() => {
+    const onDown = (event: PointerEvent) => {
+      const hit = event.target instanceof Element ? event.target : null;
+      if (!hit || hit === document.documentElement || ref.current?.contains(hit)) return;
+      if (
+        hit.closest(
+          '[data-testid="stay-cell"], dialog, [role="dialog"], [role="alertdialog"], [role="menu"], [popover]',
+        )
+      )
+        return;
+      onClose(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [onClose]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
   const expected = EXPECTED.has(target.status);

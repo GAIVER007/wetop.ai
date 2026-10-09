@@ -6,7 +6,7 @@
     "apps/web/src/app/directory.css": 10,
     "apps/web/src/app/management/analytics/analytics.css": 15,
     "apps/web/src/app/premium.css": 92,
-    "apps/web/src/app/workspace.css": 49
+    "apps/web/src/app/workspace.css": 45
   },
   "uppercase": {
     "apps/web/src/app/components.css": 2
@@ -14,8 +14,7 @@
   "shadow-on-page": {
     "apps/web/src/app/components.css": 2,
     "apps/web/src/app/globals.css": 1,
-    "apps/web/src/app/premium.css": 2,
-    "apps/web/src/app/workspace.css": 1
+    "apps/web/src/app/premium.css": 2
   },
   "window-confirm": {},
   "dot-separator": {
@@ -34,7 +33,7 @@
     "apps/web/src/app/directory.css": 1,
     "apps/web/src/app/management/analytics/analytics.css": 3,
     "apps/web/src/app/premium.css": 17,
-    "apps/web/src/app/workspace.css": 12
+    "apps/web/src/app/workspace.css": 11
   },
   "z-index-literal": {
     "apps/web/src/app/chessboard/board.css": 7,
@@ -60,7 +59,7 @@
     "apps/web/src/app/ai-seller/agents/agents.css": 14,
     "apps/web/src/app/beauty/beauty.css": 40,
     "apps/web/src/app/channels/channels.css": 61,
-    "apps/web/src/app/chessboard/board.css": 30,
+    "apps/web/src/app/chessboard/board.css": 27,
     "apps/web/src/app/components.css": 128,
     "apps/web/src/app/connections/integrations.css": 15,
     "apps/web/src/app/directory.css": 87,
@@ -76,7 +75,7 @@
     "apps/web/src/app/status/status.css": 8,
     "apps/web/src/app/today/owner-dashboard.css": 104,
     "apps/web/src/app/today/vertical-today.css": 8,
-    "apps/web/src/app/workspace.css": 89
+    "apps/web/src/app/workspace.css": 85
   },
   "inline-style": {
     "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 4,
@@ -105,7 +104,7 @@
     "apps/web/src/app/ai-seller/ai-seller.css": 4,
     "apps/web/src/app/bar/bar.css": 2,
     "apps/web/src/app/channels/channels.css": 3,
-    "apps/web/src/app/chessboard/board.css": 4,
+    "apps/web/src/app/chessboard/board.css": 3,
     "apps/web/src/app/components.css": 7,
     "apps/web/src/app/connections/integrations.css": 1,
     "apps/web/src/app/create/wizard.css": 2,

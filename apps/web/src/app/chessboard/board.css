@@ -2202,10 +2202,13 @@
     .board-period-menu > summary,
     .board-length-menu > summary,
     .board-scale a,
-    .board-length-pop a,
-    .board-toolbar .board-filters-open,
-    .board-toolbar .board-new {
+    .board-length-pop a {
       min-height: var(--touch-target);
+    }
+    .board-toolbar .board-search .inp,
+    .board-toolbar .board-filters-open {
+      min-height: var(--touch-target);
+      height: auto;
     }
     .board-nav {
       position: relative;

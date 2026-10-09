@@ -132,8 +132,8 @@ for (const width of [1440, 390]) {
 
     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
-      // с макета календаря (#317) это плитка «Свободно» с подписью для читалки «Поиск свободных номеров»
-      const link = page.getByRole('link', { name: 'Поиск свободных номеров', exact: true });
+      // с 09.10 это карточка «Свободно»: ссылка со своим именем, текст внутри — число и «Свободно номеров»
+      const link = page.getByRole('link', { name: 'Поиск свободных номеров' });
       if (width === 390) {
         // The existing mobile calendar hides this desktop header action. Verify its destination,
         // then the actual mobile search, without forcing clicks on hidden controls.

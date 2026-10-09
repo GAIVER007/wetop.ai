@@ -2,36 +2,17 @@ import { requireVertical } from '../../lib/vertical-guard';
 import { FundTabs } from './fund-tabs';
 import './fund.css';
 import Link from 'next/link';
-import { api, channelsApi, inventoryEditorApi } from '../../lib/api';
+import { api, inventoryEditorApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
 import { AddMenu } from './add-menu';
+import { channelMarks } from './channel-marks';
 import { InventoryCatalog } from './inventory-catalog';
 import { InventorySummaryTiles } from './summary-tiles';
 import './inventory.css';
 
 /** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
-/** Каналы по возможности: внешний Channex или нехватка права не должны ронять экран фонда */
-async function channelMarks() {
-  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2500));
-  const [catalog, mapping] = await Promise.all([
-    Promise.race([channelsApi.catalog().catch(() => null), timeout]),
-    channelsApi.mapping().catch(() => []),
-  ]);
-  const channels = (catalog?.connections ?? [])
-    .filter((c) => c.active && c.removalDate === null)
-    .map((c) => ({
-      key: c.id,
-      title: c.channelTitle,
-      mark: c.shortCode ?? c.channelTitle.slice(0, 1),
-    }));
-  const mapped = [
-    ...new Set(mapping.map((m) => m.localAccommodationTypeCode).filter((c): c is string => !!c)),
-  ];
-  return { channels, mapped };
-}
-
 export default async function InventoryPage({
   searchParams,
 }: {

@@ -2,9 +2,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * План дизайн-системы §10 п. 3 и 4 (18.09.2026): клетка блокировки в календаре.
- *  — штриховка `.board-block` задана в CSS как `background-image`; инлайн-сокращение `background:` на
- *    той же клетке её сбрасывало, и блокировка выглядела как ровная заливка (вывод был по коду —
- *    здесь проверяется вычисленный стиль в браузере);
+ *  — с 09.10.2026 (образец владельца) блокировка — сплошная плашка со значком и словом вместо
+ *    штриховки: заливка задана инлайн как `backgroundColor` и не прозрачна (вычисленный стиль в
+ *    браузере), слово типа стоит на плашке;
  *  — подсказка блокировки называла тип сырым кодом (`OUT_OF_ORDER`, `MANAGEMENT`) — теперь словом,
  *    тем же, что на карточке ячейки.
  * Засев крайних случаев (`POST /__test/design-seed`) ставит M06 в OUT_OF_ORDER на вчера → завтра.
@@ -17,15 +17,24 @@ test.beforeEach(async ({ request }) => {
   expect(seeded.ok()).toBe(true);
 });
 
-test('клетка блокировки заштрихована и называет тип словом', async ({ page }) => {
+test('клетка блокировки залита плашкой и называет тип словом', async ({ page }) => {
   await page.goto('/chessboard');
   const row = page.getByRole('main').locator('[data-testid="unit-row"][data-unit-code="M06"]');
   const blocked = row.locator('td[data-state="BLOCKED"]').first();
   await expect(blocked).toBeVisible();
   const link = blocked.locator('a.board-block');
   await expect(link).toHaveCount(1);
-  // с образца владельца 09.10.2026 (#317) блокировка это сплошная плашка со значком и словом, без штриховки
-  await expect(link.locator('.board-stay-glyph svg')).toHaveCount(1);
+  // заливка плашки видна: цвет не прозрачный
+  // tsconfig тестов без lib dom: глобал getComputedStyle берём через globalThis с узким типом
+  const fill = await link.evaluate(
+    (el) =>
+      (
+        globalThis as unknown as { getComputedStyle(e: typeof el): { backgroundColor: string } }
+      ).getComputedStyle(el).backgroundColor,
+  );
+  expect(fill).not.toBe('rgba(0, 0, 0, 0)');
+  // слово типа на самой плашке (подпись одна на отрезок блокировки)
+  await expect(link.locator('.board-block-caption .board-stay-name')).toHaveText(/неисправна/i);
   // тип блокировки — словом, как на карточке ячейки; сырого кода нет
   await expect(link).toHaveAttribute('aria-label', /неисправна: нет матраса/);
   await expect(link).not.toHaveAttribute('aria-label', /OUT_OF_ORDER/);

@@ -187,7 +187,24 @@ const divide = (amount: bigint, by: number): string | null =>
 function restrictToFund(input: DashboardInput, fund: DashboardFund): DashboardInput {
   if (fund === 'all') return input;
   const kind = FUND_KIND[fund];
-  const categories = input.categories.filter((c) => c.kind === kind);
+  return restrictToCategories(
+    input,
+    input.categories.filter((c) => c.kind === kind),
+  );
+}
+
+/** Одна категория (RPT2.2c-2, фильтр отчёта): та же пересборка, что у типа фонда; код вне фонда даёт пустой фонд */
+function restrictToCategory(input: DashboardInput, code: string): DashboardInput {
+  return restrictToCategories(
+    input,
+    input.categories.filter((c) => c.code === code),
+  );
+}
+
+function restrictToCategories(
+  input: DashboardInput,
+  categories: DashboardInput['categories'],
+): DashboardInput {
   const codes = new Set(categories.map((c) => c.code));
   const days = input.days.map((d) => {
     const byCategory = Object.fromEntries(
@@ -215,14 +232,21 @@ function restrictToFund(input: DashboardInput, fund: DashboardFund): DashboardIn
   };
 }
 
+/** Отбор отчёта поверх типа фонда: категория (код). Источник сюда не входит: загрузка и начисления по источнику не делятся */
+export interface DashboardFilter {
+  category?: string;
+}
+
 export function buildDashboard(
   whole: DashboardInput,
   fund: DashboardFund = 'all',
+  filter: DashboardFilter = {},
 ): DashboardPeriod {
   const fundUnits = (kind: DashboardUnitKind) =>
     whole.categories.filter((c) => c.kind === kind).reduce((n, c) => n + c.units, 0);
   const funds = { rooms: fundUnits('ROOM'), beds: fundUnits('BED') };
-  const input = restrictToFund(whole, fund);
+  const byFund = restrictToFund(whole, fund);
+  const input = filter.category ? restrictToCategory(byFund, filter.category) : byFund;
   const dates = dateRange(input.from, input.to);
   if (input.days.length !== dates.length || input.days.some((d, i) => d.date !== dates[i]))
     throw new Error(

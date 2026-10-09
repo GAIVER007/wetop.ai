@@ -20,6 +20,19 @@ export function isLocalDatabase(url: string): boolean {
   }
 }
 
+/**
+ * Адрес базы для стенда мастера настройки (`tests/wizard-ui`).
+ *
+ * Рабочий адрес гостиницы сюда не наследуется: стенд пишет в базу анонимными запросами. Но порт
+ * не зашит, иначе задача гейта не запускается, когда умолчание занято соседней сессией
+ * (09.10.2026: на 55432 сидел Docker, база поднята на 55441). Петлевой адрес пропускает
+ * `isLocalDatabase`, любой другой заменяется умолчанием.
+ */
+export function wizardStandDatabaseUrl(): string {
+  const url = process.env['DATABASE_URL'] ?? '';
+  return isLocalDatabase(url) ? url : 'postgresql://postgres@127.0.0.1:55432/pmslocal';
+}
+
 export const LOCAL_PROPERTY = {
   // Имя — из константы: код ищет объект по нему (`findFirst({ where: { name } })`), и на dev-БД
   // схема `pms_test` получает копию настоящего объекта. Здесь это пустая коробка с тем же именем:

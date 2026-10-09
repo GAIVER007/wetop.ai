@@ -205,6 +205,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений

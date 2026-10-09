@@ -34,7 +34,7 @@ export interface BarProductInput {
   minimumStockUnits: bigint;
 }
 
-/** Правка карточки товара (ADR-156): без кода, цены и архива, у них свои маршруты и правила */
+/** Правка карточки товара (ADR-157): без кода, цены и архива, у них свои маршруты и правила */
 export interface BarProductPatch {
   name: string;
   categoryId: string | null;
@@ -184,7 +184,7 @@ export class PrismaBarRepository implements BarRepository {
       include: {
         category: true,
         lots: { where: { remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true, expiresOn: true } },
-        // последний проведённый приход товара (ADR-156, макет): поставщик, цена закупки и дата; у товара своего поставщика в модели нет
+        // последний проведённый приход товара (ADR-157, макет): поставщик, цена закупки и дата; у товара своего поставщика в модели нет
         receiptLines: {
           where: { receipt: { status: 'POSTED' } }, orderBy: { receipt: { receivedDate: 'desc' } }, take: 1,
           select: { unitCost: true, receipt: { select: { receivedDate: true, supplier: { select: { id: true, name: true } } } } },

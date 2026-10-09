@@ -10,7 +10,7 @@ import { BAR_SCAN_BOT, type BarScanBotRequest } from './scan.bot';
 import { SCAN_MEDIA_TYPES } from './bar-scan.service';
 import { PrismaService } from '../database/prisma.provider';
 
-/** ИИ-скан накладной (ADR-156): платформа сопоставляет ответ бота со справочниками и отвечает строками формы */
+/** ИИ-скан накладной (ADR-157): платформа сопоставляет ответ бота со справочниками и отвечает строками формы */
 describe('бар: скан накладной', () => {
   let app: INestApplication;
   let lastRequest: BarScanBotRequest | null = null;

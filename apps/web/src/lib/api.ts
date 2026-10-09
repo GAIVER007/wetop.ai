@@ -3566,7 +3566,7 @@ export interface BarReceiptRow {
 }
 export interface BarStockRow extends BarProductRow {
   availableUnits: string; stockCostMinor: string;
-  /** Последний проведённый приход (ADR-156): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
+  /** Последний проведённый приход (ADR-157): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
   lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
   /** Ближайший срок годности среди партий с остатком */
   nearestExpiry: string | null;
@@ -3580,7 +3580,7 @@ export interface BarMovementRow { id: string; productId: string; kind: 'RECEIPT'
 export interface BarReport {
   purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string;
   writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string;
-  /** Текущий месяц объекта к прошлому (ADR-156); прирост null, если в прошлом месяце не было сумм */
+  /** Текущий месяц объекта к прошлому (ADR-157); прирост null, если в прошлом месяце не было сумм */
   month?: {
     monthStart: string; purchasesMinor: string; purchasesPrevMinor: string; revenueMinor: string; revenuePrevMinor: string;
     grossProfitMinor: string; purchasesGrowth: number | null; revenueGrowth: number | null;
@@ -3588,7 +3588,7 @@ export interface BarReport {
   /** Популярные товары за последние 30 дней, штуки строкой */
   popular?: Array<{ productId: string; name: string; units: string }>;
 }
-/** Строка накладной из ИИ-скана (ADR-153): товар найден по штрихкоду или названию, иначе `productId: null` */
+/** Строка накладной из ИИ-скана (ADR-157): товар найден по штрихкоду или названию, иначе `productId: null` */
 export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
 export interface BarScanResult {
   supplierId: string | null; supplierName: string | null;

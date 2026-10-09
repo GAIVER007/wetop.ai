@@ -14,7 +14,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'settings',
   ]);
   // «Отчёты»: группа, хаб REP1 и «Аналитика» вместе (поручение владельца 03.10);
-  // «Финансы»: группа с 09.10 (ADR-156), «Оплаты и касса» и «Бар» вместе
+  // «Финансы»: группа с 09.10 (ADR-157), «Оплаты и касса» и «Бар» вместе
   expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
     'finance',
     'sales',
@@ -47,7 +47,7 @@ it('phone bottom bar: the four leading tabs; a group tab opens its first item un
     '/reservations',
     '/finance',
   ]);
-  // «Финансы» в шапке — группа (ADR-156): панель телефона зовёт её именем группы, не «Оплаты и касса»
+  // «Финансы» в шапке — группа (ADR-157): панель телефона зовёт её именем группы, не «Оплаты и касса»
   expect(phoneNavigation[3]!.label).toBe('Финансы');
 });
 

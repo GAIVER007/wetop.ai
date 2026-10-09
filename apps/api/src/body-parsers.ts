@@ -13,7 +13,7 @@ import express, { type NextFunction, type Request, type RequestHandler, type Res
  *
  * Остальной API живёт с прежними умолчаниями Nest: JSON до 100 КБ и urlencoded `extended: true` до 100 КБ.
  *
- * Скан накладной бара (ADR-156): `POST /bar/receipts/scan` несёт фото документа в base64: файл до 8 МБ,
+ * Скан накладной бара (ADR-157): `POST /bar/receipts/scan` несёт фото документа в base64: файл до 8 МБ,
  * в base64 это ~10,7 МБ плюс конверт JSON, транспортный предел 12 МБ. Продуктовый предел файла держит
  * `bar-scan.service.ts` (SCAN_MAX_BASE64), это разные числа, как у версии сайта.
  */

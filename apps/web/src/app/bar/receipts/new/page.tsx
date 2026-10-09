@@ -13,7 +13,7 @@ import '../../bar.css';
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /**
- * Новый приход (ADR-156): шапка документа, строки и ИИ-скан накладной. Товара нет в справочнике:
+ * Новый приход (ADR-157): шапка документа, строки и ИИ-скан накладной. Товара нет в справочнике:
  * карточка заводится прямо из строки и создаётся вместе с приходом.
  */
 export default async function BarNewReceiptPage() {

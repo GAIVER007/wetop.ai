@@ -1,0 +1,18 @@
+# Модульные (unit) · 09.10.2026 23:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac7fb2c (claude/kitchen-fs1)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-24-14Z-unit-1df3.json' 'packages/domain/src/food/menu.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen
+
+ ✓ |unit| packages/domain/src/food/menu.test.ts (12 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 28ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  11:24:15
+   Duration  1.42s (transform 62%, import 36%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-24-14Z-unit-1df3.json
+
+# код выхода 0 · 2 с

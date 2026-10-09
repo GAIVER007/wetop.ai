@@ -1,0 +1,168 @@
+# Сквозные (e2e) · 09.10.2026 23:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9816dcd (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' 'tests/food-ui/kitchen.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/food-ui/kitchen.spec.ts:43:1 › пустая кухня, категория из подсказки, блюдо с ценой и пометкой (6.4s)
+  ✘  2 tests/food-ui/kitchen.spec.ts:79:1 › стоп-лист, цена филиала и архив блюда переживают перезагрузку (15.8s)
+  ✘  3 tests/food-ui/kitchen.spec.ts:106:1 › повтор названия блюда отвечает понятной ошибкой в форме (16.4s)
+  ✘  4 tests/food-ui/kitchen.spec.ts:118:1 › снимки и axe в двух темах на 1440 и 390 (16.1s)
+  ✘  5 tests/food-ui/kitchen.spec.ts:154:1 › STAFF и READ_ONLY: кнопок записи нет, API отказывает (15.9s)
+
+
+  1) tests/food-ui/kitchen.spec.ts:43:1 › пустая кухня, категория из подсказки, блюдо с ценой и пометкой 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Кухня', level: 1 })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Кухня', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Кухня', level: 1 })
+
+
+      47 |   await reset(page, request);
+      48 |   await page.goto('/kitchen');
+    > 49 |   await expect(page.getByRole('heading', { level: 1, name: 'Кухня' })).toBeVisible();
+         |                                                                        ^
+      50 |   await expect(page.getByText('Добавьте первое блюдо')).toBeVisible();
+      51 |   await page.getByRole('button', { name: 'Категории', exact: true }).click();
+      52 |   await page.getByRole('button', { name: '+ Добавить категорию', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:49:72
+
+    Error Context: test-results/kitchen-пустая-кухня-катег-28d6a-ки-блюдо-с-ценой-и-пометкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kitchen-пустая-кухня-катег-28d6a-ки-блюдо-с-ценой-и-пометкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kitchen-пустая-кухня-катег-28d6a-ки-блюдо-с-ценой-и-пометкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/kitchen.spec.ts:79:1 › стоп-лист, цена филиала и архив блюда переживают перезагрузку 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Добавить блюдо', exact: true })
+
+
+      32 | }
+      33 | async function createDish(page: Page, name: string, price: string, hit = false) {
+    > 34 |   await page.getByRole('button', { name: '+ Добавить блюдо', exact: true }).click();
+         |                                                                             ^
+      35 |   const dialog = page.getByRole('dialog');
+      36 |   await dialog.getByLabel('Название', { exact: true }).fill(name);
+      37 |   await dialog.getByLabel('Цена продажи, ₸').fill(price);
+        at createDish (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:34:77)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:85:9
+
+    Error Context: test-results/kitchen-стоп-лист-цена-фил-0404e-юда-переживают-перезагрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kitchen-стоп-лист-цена-фил-0404e-юда-переживают-перезагрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kitchen-стоп-лист-цена-фил-0404e-юда-переживают-перезагрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/kitchen.spec.ts:106:1 › повтор названия блюда отвечает понятной ошибкой в форме ─
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Добавить блюдо', exact: true })
+
+
+      32 | }
+      33 | async function createDish(page: Page, name: string, price: string, hit = false) {
+    > 34 |   await page.getByRole('button', { name: '+ Добавить блюдо', exact: true }).click();
+         |                                                                             ^
+      35 |   const dialog = page.getByRole('dialog');
+      36 |   await dialog.getByLabel('Название', { exact: true }).fill(name);
+      37 |   await dialog.getByLabel('Цена продажи, ₸').fill(price);
+        at createDish (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:34:77)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:109:9
+
+    Error Context: test-results/kitchen-повтор-названия-бл-e8dc7-ет-понятной-ошибкой-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kitchen-повтор-названия-бл-e8dc7-ет-понятной-ошибкой-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kitchen-повтор-названия-бл-e8dc7-ет-понятной-ошибкой-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/kitchen.spec.ts:118:1 › снимки и axe в двух темах на 1440 и 390 ─────────────────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Добавить блюдо', exact: true })
+
+
+      32 | }
+      33 | async function createDish(page: Page, name: string, price: string, hit = false) {
+    > 34 |   await page.getByRole('button', { name: '+ Добавить блюдо', exact: true }).click();
+         |                                                                             ^
+      35 |   const dialog = page.getByRole('dialog');
+      36 |   await dialog.getByLabel('Название', { exact: true }).fill(name);
+      37 |   await dialog.getByLabel('Цена продажи, ₸').fill(price);
+        at createDish (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:34:77)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:121:9
+
+    Error Context: test-results/kitchen-снимки-и-axe-в-двух-темах-на-1440-и-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kitchen-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kitchen-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/kitchen.spec.ts:154:1 › STAFF и READ_ONLY: кнопок записи нет, API отказывает ────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Добавить блюдо', exact: true })
+
+
+      32 | }
+      33 | async function createDish(page: Page, name: string, price: string, hit = false) {
+    > 34 |   await page.getByRole('button', { name: '+ Добавить блюдо', exact: true }).click();
+         |                                                                             ^
+      35 |   const dialog = page.getByRole('dialog');
+      36 |   await dialog.getByLabel('Название', { exact: true }).fill(name);
+      37 |   await dialog.getByLabel('Цена продажи, ₸').fill(price);
+        at createDish (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:34:77)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/tests/food-ui/kitchen.spec.ts:157:9
+
+    Error Context: test-results/kitchen-STAFF-и-READ-ONLY-кнопок-записи-нет-API-отказывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kitchen-STAFF-и-READ-ONLY-кнопок-записи-нет-API-отказывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kitchen-STAFF-и-READ-ONLY-кнопок-записи-нет-API-отказывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/food-ui/kitchen.spec.ts:43:1 › пустая кухня, категория из подсказки, блюдо с ценой и пометкой 
+    tests/food-ui/kitchen.spec.ts:79:1 › стоп-лист, цена филиала и архив блюда переживают перезагрузку 
+    tests/food-ui/kitchen.spec.ts:106:1 › повтор названия блюда отвечает понятной ошибкой в форме ──
+    tests/food-ui/kitchen.spec.ts:118:1 › снимки и axe в двух темах на 1440 и 390 ──────────────────
+    tests/food-ui/kitchen.spec.ts:154:1 › STAFF и READ_ONLY: кнопок записи нет, API отказывает ─────
+
+# код выхода 1 · 1 мин 22 с

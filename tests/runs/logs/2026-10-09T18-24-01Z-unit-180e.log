@@ -1,0 +1,159 @@
+# Модульные (unit) · 09.10.2026 23:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9816dcd (HEAD)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-24-01Z-unit-180e.json' 'packages/domain/src/food/menu.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen
+
+ ❯ |unit| packages/domain/src/food/menu.test.ts (0 test)
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 2 failed) 7ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 5ms
+     ✓ does not expose Food to existing verticals 1ms
+     ✓ uses canonical landings and verified scope 0ms
+     × identifies isolated routes before API access 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 46ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 34ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 11ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/menu.test.ts [ packages/domain/src/food/menu.test.ts ]
+Error: Cannot find module './menu' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen/packages/domain/src/food/menu.test.ts
+ ❯ packages/domain/src/food/menu.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   effectiveMenuItem,
+      4|   parseLocationMenuItem,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(383) } to deeply equal { 'GET /onboarding': 'self', …(390) }
+
+- Expected
++ Received
+
+@@ -94,12 +94,10 @@
+    "GET /finance/reservations/:number/payment-requests": "desk",
+    "GET /finance/services": "desk",
+    "GET /finance/services-report": "reports",
+    "GET /food-service/areas": "desk",
+    "GET /food-service/customers": "desk",
+-   "GET /food-service/menu/categories": "desk",
+-   "GET /food-service/menu/items": "desk",
+    "GET /food-service/reservations": "desk",
+    "GET /food-service/service-periods": "desk",
+    "GET /food-service/tables": "desk",
+    "GET /guard/incidents": "desk",
+    "GET /guard/reconciliation": "desk",
+@@ -193,12 +191,10 @@
+    "PATCH /beauty/appointments/:id": "desk",
+    "PATCH /beauty/employees/:id": "property",
+    "PATCH /beauty/services/:id": "rates",
+    "PATCH /finance/cash/categories/:id": "settings",
+    "PATCH /food-service/areas/:id": "property",
+-   "PATCH /food-service/menu/categories/:id": "settings",
+-   "PATCH /food-service/menu/items/:id": "settings",
+    "PATCH /food-service/reservations/:id": "desk",
+    "PATCH /food-service/service-periods/:id": "property",
+    "PATCH /food-service/tables/:id": "property",
+    "PATCH /guests/:id": "desk",
+    "PATCH /hotel/services/:code": "settings",
+@@ -296,12 +292,10 @@
+    "POST /finance/payments/:id/refunds": "refunds",
+    "POST /finance/payments/:id/replace": "refunds",
+    "POST /finance/payments/:id/void": "refunds",
+    "POST /finance/reservations/:number/payment-requests": "desk",
+    "POST /food-service/areas": "property",
+-   "POST /food-service/menu/categories": "settings",
+-   "POST /food-service/menu/items": "settings",
+    "POST /food-service/reservations": "desk",
+    "POST /food-service/reservations/:id/status": "desk",
+    "POST /food-service/service-periods": "property",
+    "POST /food-service/tables": "property",
+    "POST /guard/alert/test": "settings",
+@@ -375,11 +369,10 @@
+    "PUT /auth/members/:userId/scopes": "staff",
+    "PUT /beauty/employees/:id/locations": "property",
+    "PUT /beauty/employees/:id/services": "property",
+    "PUT /beauty/employees/:id/working-hours": "property",
+    "PUT /beauty/services/:id/location": "rates",
+-   "PUT /food-service/menu/items/:id/location": "settings",
+    "PUT /food-service/reservations/:id/table": "desk",
+    "PUT /inventory/categories/:code/photos": "property",
+    "PUT /market/collector/competitors/:id/occupancy": "service",
+    "PUT /market/competitors/:id/occupancy": "rates",
+    "PUT /marketing/site/booking-source": "settings",
+
+ ❯ apps/api/src/auth/route-access.test.ts:506:20
+    504|       .map(([key]) => key);
+    505|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    506|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    507|   });
+    508|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/floor-plan', …(8) ] to deeply equal [ '/today', '/floor-plan', …(9) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,9 @@
+  [
+    "/today",
+    "/floor-plan",
+    "/table-reservations",
+-   "/kitchen",
+    "/customers",
+    "/dining-areas",
+    "/staff",
+    "/management/analytics",
+    "/journal",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected null to be 'FOOD_SERVICE' // Object.is equality
+
+- Expected:
+"FOOD_SERVICE"
+
++ Received:
+null
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:58:39
+     56|     expect(routeVertical('/floor-plan')).toBe('FOOD_SERVICE');
+     57|     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
+     58|     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+       |                                       ^
+     59|     expect(routeVertical('/calendar')).toBe('BEAUTY');
+     60|     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 4 passed (7)
+   Start at  11:24:03
+   Duration  2.48s (transform 53%, import 45%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-24-01Z-unit-180e.json
+
+# код выхода 1 · 4 с

@@ -186,7 +186,17 @@ describe.skipIf(!url)('Kitchen menu populated RLS and database constraints', () 
       await db.query('DELETE FROM menu_categories');
       await savepoint(async () => {
         await db.query(down);
-        await expect(db.query(`SELECT 1 FROM menu_items LIMIT 1`)).rejects.toThrow(/does not exist/);
+        // search_path дотягивается до public, поэтому отсутствие проверяется строго в текущей схеме
+        const schema = process.env.DATABASE_SCHEMA || 'public';
+        for (const table of tables)
+          expect(
+            (
+              await db.query(`SELECT 1 FROM pg_tables WHERE schemaname=$1 AND tablename=$2`, [
+                schema,
+                table,
+              ])
+            ).rowCount,
+          ).toBe(0);
       });
     }));
 });

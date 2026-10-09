@@ -69,7 +69,7 @@ test('пустая кухня, категория из подсказки, бл�
   await expect(card.getByText('2 200 ₸')).toBeVisible();
   await expect(card.getByText('В наличии', { exact: true })).toBeVisible();
   await expect(card.getByText('Хит', { exact: true })).toBeVisible();
-  await expect(card.getByText('Супы · 300 г')).toBeVisible();
+  await expect(card.getByText('Супы, 300 г')).toBeVisible();
   await page.getByRole('button', { name: 'Супы (1)', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Томатный суп' })).toBeVisible();
   await page.getByLabel('Поиск по блюдам').fill('стейк');

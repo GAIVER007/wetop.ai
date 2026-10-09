@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 09.10.2026 23:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac7fb2c (claude/kitchen-fs1), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-25-20Z-integration-3c52.json' 'tests/integration/kitchen-menu.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/kitchen
+
+ ✓ |integration| tests/integration/kitchen-menu.test.ts (4 tests) 35ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  11:25:21
+   Duration  826ms (transform 70%, import 21%, tests 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-25-20Z-integration-3c52.json
+
+# код выхода 0 · 1 с

@@ -144,8 +144,8 @@ export function KitchenBoard({ data }: { data: KitchenWorkspace }) {
                         {item.categoryId
                           ? (named.get(item.categoryId) ?? 'Без категории')
                           : 'Без категории'}
-                        {item.outputWeightGrams ? ` · ${item.outputWeightGrams} г` : ''}
-                        {item.prepTimeMinutes ? ` · ${item.prepTimeMinutes} мин` : ''}
+                        {item.outputWeightGrams ? `, ${item.outputWeightGrams} г` : ''}
+                        {item.prepTimeMinutes ? `, ${item.prepTimeMinutes} мин` : ''}
                       </span>
                     </div>
                     {itemBadge(item)}
@@ -153,7 +153,7 @@ export function KitchenBoard({ data }: { data: KitchenWorkspace }) {
                   <p>
                     <strong>{formatMoney(item.location.effectivePriceMinor, item.currency)}</strong>
                     {item.location.priceOverrideMinor !== null && (
-                      <span className="muted"> · цена филиала</span>
+                      <span className="muted">, цена филиала</span>
                     )}
                   </p>
                   {item.tags.length > 0 && (

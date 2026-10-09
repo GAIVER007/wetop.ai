@@ -146,7 +146,10 @@ test('главная кнопка: под курсором фон --primary-hove
     getComputedStyle(el).getPropertyValue('--primary-hover').trim(),
   );
   await button.hover();
-  const style = await button.evaluate((el) => {
+  // переход фона длится 180 мс: читаем цвет только после его конца, иначе на медленном раннере приходит
+  // промежуточный цвет (CI release-checks 37835129463: rgb(6, 77, 152) вместо rgb(6, 74, 146))
+  const style = await button.evaluate(async (el) => {
+    await Promise.all(el.getAnimations().map((a) => a.finished));
     const s = getComputedStyle(el);
     return { bg: s.backgroundColor, image: s.backgroundImage, filter: s.filter };
   });

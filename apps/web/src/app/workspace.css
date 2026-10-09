@@ -694,22 +694,6 @@
   .board-date-nav {
     gap: 6px;
   }
-  .board-period .seg {
-    padding: 3px;
-    background: var(--surface-muted);
-    border: 1px solid var(--border);
-    gap: 2px;
-  }
-  .board-period .seg a {
-    border: 0;
-    border-radius: 5px;
-    padding: 7px 13px;
-  }
-  .board-period .seg a.is-on {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: 0 1px 3px var(--overlay);
-  }
   .rotate-left {
     transform: rotate(180deg);
   }

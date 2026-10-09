@@ -7,12 +7,14 @@ import { Badge, Grid, SectionTitle, Stack } from '../../components/ui';
 
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149, plans/mkt2-marketing-hub-2026-10-06.md): первая точка входа в маркетинг WETOP.
- * Рабочий продукт пока один, «Сайт и SEO», и он открывает существующий раздел `/website` (адреса не менялись).
+ * Рабочий продукт пока один, «Сайт и SEO». Главное действие карточки с MKT9.2 это конструктор сайта
+ * (`/marketing/site/editor`): без сайта он сразу предлагает «Создать сайт», с сайтом открывает редактор. Прежний раздел
+ * `/website` (бронирование с сайта и аналитика) остался вторичной ссылкой, адреса не менялись.
  * Будущие продукты показаны статично: без ссылок, статусов «подключено» и чисел. Своих запросов к API у страницы нет:
  * проверка права (`settings`) общая, `AccessGate` по реестру меню, а направление (с MKT3 только Hospitality) берётся
  * из общего `/auth/me` оболочки через `requireVertical`.
  */
-const SITE_CAPABILITIES = ['Сайт объекта', 'Онлайн-бронирование', 'Аналитика посещений', 'SEO'];
+const SITE_CAPABILITIES = ['ИИ-конструктор', 'Сайт объекта', 'Онлайн-бронирование', 'Аналитика посещений', 'SEO'];
 
 const SOON: Array<{ title: string; text: string; icon: IconName }> = [
   { title: 'Реклама', text: 'Запуск и анализ рекламных кампаний.', icon: 'channels' },
@@ -45,8 +47,8 @@ export default async function MarketingPage() {
             </div>
           </div>
           <p className="marketing-product__text">
-            Создайте сайт гостиницы, подключите бронирование, аналитику и подготовьте его к
-            поисковым системам.
+            Опишите словами, каким должен быть сайт гостиницы: ИИ-конструктор соберёт черновик, вы
+            поправите его и опубликуете. Бронирование, аналитика и SEO подключаются здесь же.
           </p>
           <ul className="marketing-product__caps">
             {SITE_CAPABILITIES.map((cap) => (
@@ -57,11 +59,8 @@ export default async function MarketingPage() {
             ))}
           </ul>
           <div className="marketing-product__foot">
-            <Link className="btn" href="/website">
-              Открыть
-            </Link>
-            <Link className="btn btn--secondary" href="/marketing/site/editor">
-              Редактор
+            <Link className="btn" href="/marketing/site/editor">
+              Конструктор сайта
             </Link>
             <Link className="btn btn--secondary" href="/marketing/site">
               Публикация
@@ -69,7 +68,9 @@ export default async function MarketingPage() {
             <Link className="btn btn--secondary" href="/marketing/site/assets">
               Изображения
             </Link>
-            <span className="marketing-product__next">ИИ-конструктор: скоро</span>
+            <Link className="btn btn--secondary" href="/website">
+              Бронирование и аналитика
+            </Link>
           </div>
         </section>
         <section aria-labelledby="marketing-soon-title" data-testid="marketing-soon">

@@ -371,6 +371,13 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // название, архив и возврат организации (ORG1, ADR-ORG1): только главный администратор
+  'PATCH /platform/organizations/:id': 'platform',
+  'POST /platform/organizations/:id/archive': 'platform',
+  'POST /platform/organizations/:id/restore': 'platform',
+  // создание организации и ссылка «задайте пароль» её владельцу (ORG2, ADR-ORG2)
+  'POST /platform/organizations': 'platform',
+  'POST /platform/organizations/:id/owner-link': 'platform',
   // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
   'GET /platform/organizations/:id/site-builder': 'platform',
   'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',

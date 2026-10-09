@@ -1,0 +1,19 @@
+# Модульные (unit) · 09.10.2026 19:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/test-journal-entries), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-24-50Z-unit-30dc.json' 'tests/unit/test-journal-merge.test.ts' 'tests/unit/test-journal.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/journal-wt
+
+ ✓ |unit| tests/unit/test-journal.test.ts (22 tests) 7ms
+ ✓ |unit| tests/unit/test-journal-merge.test.ts (3 tests) 1408ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     ✓ нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 1273ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  07:24:51
+   Duration  1.83s (tests 68%, transform 26%, import 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-24-50Z-unit-30dc.json
+
+# код выхода 0 · 3 с

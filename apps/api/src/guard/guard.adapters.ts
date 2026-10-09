@@ -210,9 +210,17 @@ export class NestGuardProbes implements GuardProbes {
     );
   }
 
+  /** Архив `journal.jsonl` и записи `entries/*.json` (TESTING.md); нет ни того, ни другого, сигнала нет */
   failingSuites(): FailingSuite[] | null {
     const file = resolve(ROOT, 'tests/runs/journal.jsonl');
-    return existsSync(file) ? failingSuites(readFileSync(file, 'utf8')) : null;
+    const dir = resolve(ROOT, 'tests/runs/entries');
+    if (!existsSync(file) && !existsSync(dir)) return null;
+    const entries = existsSync(dir)
+      ? readdirSync(dir)
+          .filter((f) => f.endsWith('.json'))
+          .map((f) => readFileSync(resolve(dir, f), 'utf8'))
+      : [];
+    return failingSuites([existsSync(file) ? readFileSync(file, 'utf8') : '', ...entries].join('\n'));
   }
 
   /** В контейнере путь задаёт deploy/compose.yml; на Mac и в тестах его нет — копий там не снимают */

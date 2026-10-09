@@ -7727,3 +7727,8 @@
 | 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
 | 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
 | 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |
+| 09.10.2026 18:00 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 5 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-00-45Z-unit-d69b.log) | RED: автоперемотка release, гейт на пуш кода в main (ADR-152) |
+| 09.10.2026 18:03 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-03-09Z-unit-d328.log) | GREEN: автоперемотка release и гейт на пуш кода в main |
+| 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
+| 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
+| 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |

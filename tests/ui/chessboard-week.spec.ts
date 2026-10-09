@@ -66,9 +66,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       .getByRole('button', { name: 'Обычный', exact: true });
     await expect(viewButton).toBeVisible();
     expect((await viewButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await filters
-      .getByRole('combobox', { name: 'Категория в календаре', exact: true })
-      .selectOption('ROOM');
+    await filters.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
     await filters.getByRole('button', { name: 'Применить', exact: true }).click();
     await expect(main.getByTestId('unit-row')).toHaveCount(16);
     // заданная категория — чипом с крестиком: поля категории в строке на телефоне нет

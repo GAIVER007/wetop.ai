@@ -4,7 +4,7 @@ test('empty inventory can start a dorm category from the add menu', async ({ pag
   await request.post(`${FIXTURE_API}/__test/reset`);
   await request.post(`${FIXTURE_API}/__test/control`, { data: { empty: true } });
   await page.goto('/inventory');
-  await page.getByRole('button', { name: '+ Добавить', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить номер', exact: true }).click();
   await expect(
     page.getByRole('menuitem', { name: 'Комнату с койками', exact: true }),
   ).toBeEnabled();
@@ -38,9 +38,7 @@ test('location and operational filters intersect and survive reload', async ({ p
   await request.post(`${FIXTURE_API}/__test/reset`);
   await request.post(`${FIXTURE_API}/__test/design-seed`);
   await page.goto('/inventory');
-  await page.getByText('Расположение и состояние', { exact: true }).click();
-  await page.getByLabel('Фильтр по корпусу').selectOption('Основной');
-  await page.getByLabel('Фильтр по этажу').selectOption('1');
+  await page.getByLabel('Фильтр по корпусу и этажу').selectOption('Основной|1');
   await page.getByLabel('Фильтр по уборке').selectOption('DIRTY');
   await expect(page.getByTestId('unit-row')).toHaveCount(2);
   await expect(page.getByRole('link', { name: 'Открыть номер R01', exact: true })).toBeVisible();

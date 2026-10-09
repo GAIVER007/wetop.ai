@@ -1726,7 +1726,7 @@
       display: none;
     }
     .board-toolbar .inp {
-      font-size: var(--text-lg);
+      font-size: 16px;
     }
     .stay-preview {
       inset: auto 8px calc(8px + env(safe-area-inset-bottom)) !important; /* slop-allow: important на телефоне карточка внизу экрана, а stay-preview.tsx ставит left и top из JS */
@@ -1754,7 +1754,7 @@
     .free-menu__period .inp {
       min-height: 48px;
       width: 100%;
-      font-size: var(--text-lg);
+      font-size: 16px;
     }
   }
 
@@ -1770,7 +1770,7 @@
     .free-menu__arrival .inp {
       min-height: 48px;
       width: 100%;
-      font-size: var(--text-lg);
+      font-size: 16px;
     }
     .free-menu__summary {
       display: grid;
@@ -2185,7 +2185,7 @@
   .board-empty {
     border-top: 1px solid var(--border);
   }
-  @media (max-width: 1199px) {
+  @media (max-width: 1279px) {
     .board-kpis {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -2197,16 +2197,12 @@
     .board-nav-arrows .icon-button {
       width: var(--touch-target);
     }
-    /* «Фильтры» и «Новая бронь» тоже здесь: правило десктопа `.board-toolbar .board-filters-open` с высотой
-       `--control-h` стоит выше по файлу и держало кнопку в 38 px, а ниже она достаёт до цели нажатия */
     .board-nav .btn,
     .board-nav-arrows,
     .board-period-menu > summary,
     .board-length-menu > summary,
     .board-scale a,
-    .board-length-pop a,
-    .board-toolbar .board-filters-open,
-    .board-toolbar .board-new {
+    .board-length-pop a {
       min-height: var(--touch-target);
     }
     .board-nav {
@@ -2227,8 +2223,15 @@
       justify-content: center;
       width: var(--touch-target);
       padding: 0;
-      font-size: 0; /* slop-allow: font-literal прячет подпись кнопки, остаётся значок и имя для читалки */
       gap: 0;
+    }
+    .board-toolbar .board-new__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
     .board-toolbar .board-new svg {
       width: 20px;
@@ -2254,11 +2257,24 @@
 
   /*
    * Плашки по образцу владельца (09.10.2026): мягкие тона, значок статуса, имя и даты второй строкой.
-   * Цвета плашек живут только в календаре (общие `--st-*` остаются у каталога компонентов) и заданы токенами
-   * `--plate-*` в design/tokens.json, свои для светлой и тёмной темы: синий — проживает, зелёный — бронь,
-   * жёлтый — не подтверждена, серый — выехал и блок, красный — ремонт и неисправность. Смысл не держится
-   * на цвете: у каждого статуса свой значок и слово в подсказке.
+   * Цвета плашек живут только в календаре (общие `--st-*` остаются у каталога компонентов): синий —
+   * проживает, зелёный — бронь, жёлтый — не подтверждена, серый — выехал и блок, красный — ремонт и
+   * неисправность. Смысл не держится на цвете: у каждого статуса свой значок и слово в подсказке.
    */
+  .page--board {
+    --plate-living: color-mix(in srgb, var(--primary) 22%, var(--surface-solid));
+    --plate-living-ink: color-mix(in srgb, var(--primary) 82%, var(--text));
+    --plate-booked: color-mix(in srgb, var(--success) 22%, var(--surface-solid));
+    --plate-booked-ink: color-mix(in srgb, var(--success) 82%, var(--text));
+    --plate-tentative: color-mix(in srgb, var(--warning) 22%, var(--surface-solid));
+    --plate-tentative-ink: color-mix(in srgb, var(--warning) 82%, var(--text));
+    --plate-left: color-mix(in srgb, var(--muted) 16%, var(--surface-solid));
+    --plate-left-ink: color-mix(in srgb, var(--muted) 90%, var(--text));
+    --plate-repair: color-mix(in srgb, var(--danger) 22%, var(--surface-solid));
+    --plate-repair-ink: color-mix(in srgb, var(--danger) 82%, var(--text));
+    --plate-block: color-mix(in srgb, var(--muted) 22%, var(--surface-solid));
+    --plate-block-ink: color-mix(in srgb, var(--muted) 90%, var(--text));
+  }
   .board td[data-status='CHECKED_IN'] .board-stay-glyph {
     color: var(--plate-living-ink);
   }
@@ -2279,7 +2295,8 @@
   }
   .board-stay-dates {
     flex: none;
-    color: var(--text-2);
+    /* на синей плашке «проживает» чистый --text-2 даёт 4,48 вместо 4,5 (axe, светлая тема): чуть темнее к --text */
+    color: color-mix(in srgb, var(--text-2) 85%, var(--text));
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -2649,6 +2666,24 @@
     height: 10px;
     border-radius: 9999px;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent);
+  }
+  .board-legend-dot[data-plate='living'] {
+    background: var(--plate-living);
+  }
+  .board-legend-dot[data-plate='booked'] {
+    background: var(--plate-booked);
+  }
+  .board-legend-dot[data-plate='tentative'] {
+    background: var(--plate-tentative);
+  }
+  .board-legend-dot[data-plate='left'] {
+    background: var(--plate-left);
+  }
+  .board-legend-dot[data-plate='repair'] {
+    background: var(--plate-repair);
+  }
+  .board-legend-dot[data-plate='block'] {
+    background: var(--plate-block);
   }
   .board-legend-details {
     position: relative;

@@ -17,14 +17,14 @@ test.beforeEach(async ({ request }) => {
   expect(seeded.ok()).toBe(true);
 });
 
-test('клетка блокировки — сплошная плашка без штриховки и называет тип словом', async ({ page }) => {
+test('клетка блокировки заштрихована и называет тип словом', async ({ page }) => {
   await page.goto('/chessboard');
   const row = page.getByRole('main').locator('[data-testid="unit-row"][data-unit-code="M06"]');
   const blocked = row.locator('td[data-state="BLOCKED"]').first();
   await expect(blocked).toBeVisible();
   const link = blocked.locator('a.board-block');
   await expect(link).toHaveCount(1);
-  // с 09.10.2026 (образец владельца) блокировка это сплошная плашка со значком и словом, штриховки нет
+  // штриховка жива: background-image не сброшен инлайн-фоном
   // tsconfig тестов без lib dom: глобал getComputedStyle берём через globalThis с узким типом
   const image = await link.evaluate(
     (el) =>
@@ -32,7 +32,7 @@ test('клетка блокировки — сплошная плашка без
         globalThis as unknown as { getComputedStyle(e: typeof el): { backgroundImage: string } }
       ).getComputedStyle(el).backgroundImage,
   );
-  expect(image).toBe('none');
+  expect(image).toContain('repeating-linear-gradient');
   // тип блокировки — словом, как на карточке ячейки; сырого кода нет
   await expect(link).toHaveAttribute('aria-label', /неисправна: нет матраса/);
   await expect(link).not.toHaveAttribute('aria-label', /OUT_OF_ORDER/);

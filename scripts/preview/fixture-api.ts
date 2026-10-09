@@ -2,7 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -1722,7 +1722,12 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
     previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
   };
 }
-function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
+function dashboardPeriod(
+  from: string,
+  to: string,
+  fund: DashboardFund = 'all',
+  category?: string,
+): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
   const unassignedByCategory: Record<string, number> = {};
@@ -1763,13 +1768,14 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
       refundsMinor: 0n,
     },
     fund,
+    category ? { category } : {},
   );
 }
-function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all', category?: string) {
   const prev = previousPeriod(from, to);
   return {
-    current: dashboardPeriod(from, to, fund),
-    previous: dashboardPeriod(prev.from, prev.to, fund),
+    current: dashboardPeriod(from, to, fund, category),
+    previous: dashboardPeriod(prev.from, prev.to, fund, category),
   };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
@@ -3123,6 +3129,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -3188,7 +3205,12 @@ function read(path: string, q: URLSearchParams): unknown {
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
       throw new Error('fund — all, rooms или beds');
-    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+    return dashboard(
+      q.get('from') || today,
+      q.get('to') || today,
+      fund as DashboardFund,
+      q.get('category') || undefined,
+    );
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
@@ -4675,6 +4697,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4838,6 +4862,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -7145,6 +7170,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

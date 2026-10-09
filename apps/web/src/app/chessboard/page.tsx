@@ -310,7 +310,7 @@ export default async function ChessboardPage({
   const actions = (
     <Link className="btn board-new" href="/reservations/new">
       <Icon name="plus" />
-      Новая бронь
+      <span className="board-new__label">Новая бронь</span>
     </Link>
   );
   const kpis = day ? (
@@ -364,19 +364,15 @@ export default async function ChessboardPage({
             масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
         <ul className="board-legend-inline" aria-label="Цвета плашек">
           {[
-            ['var(--plate-living)', statusText(hospitalityStatus, 'CHECKED_IN')],
-            ['var(--plate-booked)', statusText(hospitalityStatus, 'CONFIRMED')],
-            ['var(--plate-tentative)', statusText(hospitalityStatus, 'TENTATIVE')],
-            ['var(--plate-left)', statusText(hospitalityStatus, 'CHECKED_OUT')],
-            ['var(--plate-repair)', 'ремонт, неисправна'],
-            ['var(--plate-block)', 'блок'],
-          ].map(([color, label]) => (
+            ['living', statusText(hospitalityStatus, 'CHECKED_IN')],
+            ['booked', statusText(hospitalityStatus, 'CONFIRMED')],
+            ['tentative', statusText(hospitalityStatus, 'TENTATIVE')],
+            ['left', statusText(hospitalityStatus, 'CHECKED_OUT')],
+            ['repair', 'ремонт, неисправна'],
+            ['block', 'блок'],
+          ].map(([plate, label]) => (
             <li key={label}>
-              <span
-                className="board-legend-dot"
-                style={{ backgroundColor: color /* slop-allow: inline-style цвет точки легенды берётся из токена плашки */ }}
-                aria-hidden="true"
-              />
+              <span className="board-legend-dot" data-plate={plate} aria-hidden="true" />
               {label!.charAt(0).toUpperCase() + label!.slice(1)}
             </li>
           ))}

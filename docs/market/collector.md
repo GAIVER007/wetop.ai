@@ -91,12 +91,16 @@ ANTHROPIC_API_KEY=… npm run market:eval
 стоимость» и записывает ответы в `recorded/`; по ним `scripts/market/pages.test.ts` проверяет разбор без сети.
 По умолчанию ставится самая дешёвая модель со 100 % совпадений, если такой нет, `claude-sonnet-5-5`.
 
-### Запуск по расписанию на Mac (предложение, не установлено)
+### Запуск по расписанию на Mac (не установлено)
 
-По образцу служб `scripts/ops/launchd/install.sh`: новое имя `market` с командой
-`"$NODE" --import tsx scripts/market/cli-collect.ts`, `KeepAlive` false и запуском раз в сутки (`StartCalendarInterval`,
-06:00 по Алматы, когда соседи обновили наличие на ночь; в `write_plist` сейчас есть только `StartInterval`, нужен
-второй ключ). Ключи в plist не пишутся: сборщику читать их из `.env`, как это делает `test:record`.
+```bash
+scripts/ops/launchd/install.sh --dry market
+```
+
+`--dry` собирает и проверяет plist во временной папке, ничего не загружает; без `--dry` служба ставится. Служба
+`kz.luxx.pms.market`: раз в сутки в 06:00 по часам Mac (`StartCalendarInterval`), `KeepAlive` и `RunAtLoad` выключены,
+команда `node --import tsx scripts/market/cli-collect.ts`. Ключи в plist не пишутся: сборщик берёт их из `.env`
+проекта. Без аргументов `install.sh` её не ставит, только по имени; видна в `status.sh`, снимается `uninstall.sh market`.
 Память: один браузер на прогон, страницы по очереди; пик Chromium на странице Ostrovok около 844 МБ (сумма по
 процессам, общая память посчитана несколько раз).
 

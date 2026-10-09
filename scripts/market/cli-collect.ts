@@ -4,10 +4,11 @@
  *   npm run market:collect -- [--dry-run] [--nights 14]
  *
  * Окружение: MARKET_COLLECT_URL (адрес API WETOP), MARKET_COLLECT_KEY (служебный ключ сборщика), ANTHROPIC_API_KEY,
- * необязательно MARKET_COLLECT_MODEL (по умолчанию claude-opus-5-5), MARKET_COLLECT_DELAY_MS (пауза между
+ * из окружения или `.env` проекта; необязательно MARKET_COLLECT_MODEL (по умолчанию claude-opus-5-5), MARKET_COLLECT_DELAY_MS (пауза между
  * страницами, по умолчанию 8000). Значения ключей вписывает владелец (SECURITY.md §3).
  */
 import Anthropic from '@anthropic-ai/sdk';
+import { existsSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import { collect } from './collect';
 import { claudeExtractor, collectorApi, pageReader } from './sources';
@@ -18,6 +19,8 @@ function arg(name: string): string | undefined {
 }
 
 async function main(): Promise<void> {
+  // по расписанию launchd ключей в окружении нет: берём их из .env проекта (уже заданные значения не перезаписываются)
+  if (existsSync('.env')) process.loadEnvFile('.env');
   const url = process.env['MARKET_COLLECT_URL'];
   const key = process.env['MARKET_COLLECT_KEY'];
   if (!url || !key) throw new Error('Нужны MARKET_COLLECT_URL и MARKET_COLLECT_KEY');

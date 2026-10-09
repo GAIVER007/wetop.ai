@@ -1,0 +1,25 @@
+# Модульные (unit) · 09.10.2026 20:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 10d6e79 (claude/market-ai-collector), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-54Z-unit-236d.json' 'tests/unit/launchd-install.test.ts' 'tests/unit/launchd-domain-guard.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| tests/unit/launchd-domain-guard.test.ts (4 tests) 2277ms
+   ✓ install.sh domain: две проверки до установки (4)
+     ✓ не поднимает вторую копию, когда туннель уже держит другой cloudflared 844ms
+     ✓ с заполненным конфигом и молчащим адресом обе проверки пропускают 856ms
+     ✓ ALLOW_SECOND_TUNNEL=1 — осознанный обход 554ms
+ ✓ |unit| tests/unit/launchd-install.test.ts (8 tests) 10538ms
+   ✓ launchd install.sh (8)
+     ✓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 3859ms
+     ✓ переустановка работающей задачи ждёт, пока старый процесс освободит порт 2752ms
+     ✓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 3738ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  08:30:55
+   Duration  10.66s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-54Z-unit-236d.json
+
+# код выхода 0 · 12 с

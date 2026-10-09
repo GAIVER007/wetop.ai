@@ -287,7 +287,7 @@ export function MembersTable({
                 {m.suspended ? (
                   <>
                     {' '}
-                    <Badge tone="warning" data-testid="member-suspended">
+                    <Badge tone="warn" data-testid="member-suspended">
                       Приостановлен
                     </Badge>
                   </>

@@ -211,7 +211,8 @@ describe('desk dashboard API', () => {
       .get('/desk/dashboard/units?from=2026-10-05&to=2026-10-06&fund=rooms')
       .expect(200);
     expect(rooms.body.rows).toHaveLength(2);
-    expect(rooms.body.totals).toMatchObject({ units: 2, percent: 50 });
+    // R2 закрыт обе ночи: из четырёх клетко-ночей к продаже две (ADR-154), обе заняты R1
+    expect(rooms.body.totals).toMatchObject({ units: 2, percent: 100 });
 
     await request(app.getHttpServer()).get('/desk/dashboard/units').expect(400);
     await request(app.getHttpServer())
@@ -243,12 +244,24 @@ describe('desk dashboard API', () => {
 
   it('эффективность каналов: строка канала, каналы без броней по запросу, сравнение и отборы проверяются', async () => {
     const r = await request(app.getHttpServer())
-      .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&compareFrom=2025-10-01&compareTo=2025-10-31')
+      .get(
+        '/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&compareFrom=2025-10-01&compareTo=2025-10-31',
+      )
       .expect(200);
     expect(r.body.current.rows).toEqual([
-      expect.objectContaining({ label: 'Booking.com', revenueMinor: '300000', nights: 1, revenueShare: 100 }),
+      expect.objectContaining({
+        label: 'Booking.com',
+        revenueMinor: '300000',
+        nights: 1,
+        revenueShare: 100,
+      }),
     ]);
-    expect(r.body.previous.totals).toEqual({ revenueMinor: '0', nights: 0, adrMinor: null, bookings: 0 });
+    expect(r.body.previous.totals).toEqual({
+      revenueMinor: '0',
+      nights: 0,
+      adrMinor: null,
+      bookings: 0,
+    });
     const all = await request(app.getHttpServer())
       .get('/desk/dashboard/channels?from=2026-10-01&to=2026-10-31&empty=1')
       .expect(200);

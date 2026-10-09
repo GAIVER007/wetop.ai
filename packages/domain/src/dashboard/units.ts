@@ -19,7 +19,7 @@ export interface UnitBoardTally {
 }
 
 export interface UnitStatRow extends UnitBoardTally {
-  /** Загрузка единицы: занято из дней периода, % с одним знаком — как у сводки */
+  /** Загрузка единицы: занято из дней периода без закрытых ночей (ADR-154), % с одним знаком — как у сводки */
   percent: number;
 }
 
@@ -63,7 +63,7 @@ export function buildUnitStats(
   const units =
     fund === 'all' ? input.units : input.units.filter((u) => u.kind === FUND_KIND[fund]);
   const rows = units
-    .map((u) => ({ ...u, percent: percent(u.occupiedNights, input.nights) }))
+    .map((u) => ({ ...u, percent: percent(u.occupiedNights, input.nights - u.blockedNights) }))
     .sort(
       (a, b) =>
         a.categoryName.localeCompare(b.categoryName, 'ru') || a.code.localeCompare(b.code, 'ru'),
@@ -83,7 +83,7 @@ export function buildUnitStats(
       unitNights,
       occupiedNights,
       blockedNights: sum('blockedNights'),
-      percent: percent(occupiedNights, unitNights),
+      percent: percent(occupiedNights, unitNights - sum('blockedNights')),
       arrivals: sum('arrivals'),
     },
     unassignedStays: input.unassignedStays,

@@ -207,7 +207,7 @@ export default async function ReportsHubPage({
               value={d && formatPercent(d.occupancy.percent)}
               hint={
                 d
-                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.unitNights)} ночей`
+                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.sellableNights)} ночей к продаже`
                   : undefined
               }
             />

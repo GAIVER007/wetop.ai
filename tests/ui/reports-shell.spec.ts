@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * Оболочка «Отчёты» (RPT2.2c-1, план `plans/reports-2-0-overview-2026-10-09.md`): вкладки раздела, «Обзор», «Загрузка» и
@@ -64,7 +64,7 @@ for (const theme of ['light', 'dark'] as const) {
 
 /** Ответ сводки прямо из подставного API: как его читает стойка (вход тестовым сотрудником) */
 async function dashboardJson(page: import('@playwright/test').Page, qs: Record<string, string>) {
-  const api = 'http://127.0.0.1:4311';
+  const api = FIXTURE_API;
   const login = await page.request.post(`${api}/auth/login`, {
     data: { email: 'admin@wetop.test', password: 'ui-test-parol' },
     headers: { 'x-wetop-test-client': '1' },

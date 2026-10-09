@@ -31,13 +31,13 @@ describe('разбивка дней по неделям и месяцам (RPT2.
     '2026-10-11',
   ].map((d) => day(d, 3, 6, 1, 2, '100000'));
 
-  it('по дням ничего не меняется, проценты считаются из ночей', () => {
+  it('по дням ничего не меняется, проценты считаются из доступных ночей', () => {
     const g = groupDaily(week, 'day');
     expect(g).toHaveLength(7);
     expect(g[0]).toMatchObject({
       from: '2026-10-05',
       to: '2026-10-05',
-      percent: 30,
+      percent: 33.3,
       partial: false,
     });
   });
@@ -51,7 +51,7 @@ describe('разбивка дней по неделям и месяцам (RPT2.
       occupied: 21,
       free: 42,
       blocked: 7,
-      percent: 30,
+      percent: 33.3,
       arrivals: 14,
       revenueMinor: '700000',
       partial: false,

@@ -70,7 +70,8 @@ export function groupDaily(
     out.set(start, b);
   }
   return [...out.values()].map(({ start, end, ...b }) => {
-    const nights = b.occupied + b.free + b.blocked;
+    // знаменатель: доступные к продаже ночи, закрытые вычтены (ADR-154)
+    const nights = b.occupied + b.free;
     return {
       ...b,
       percent: nights > 0 ? Math.round((b.occupied * 1000) / nights) / 10 : 0,

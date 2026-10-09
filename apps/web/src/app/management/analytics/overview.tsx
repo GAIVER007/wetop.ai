@@ -111,7 +111,7 @@ function KpiRow({
           hint={
             single
               ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
-              : `блокировки входят в фонд: ${formatInt(c.occupancy.blockedNights)} ночей закрыто`
+              : `от доступных к продаже ночей; закрыто для продажи: ${formatInt(c.occupancy.blockedNights)}`
           }
           delta={pointsDelta(
             c.occupancy.percent,
@@ -136,7 +136,7 @@ function KpiRow({
           id="nights"
           label="Продано ночей"
           value={formatInt(c.occupancy.occupiedNights)}
-          hint={`из ${formatInt(c.occupancy.unitNights)} ночей фонда`}
+          hint={`из ${formatInt(c.occupancy.sellableNights)} ночей, доступных к продаже`}
           delta={countDelta(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
           compare={compare}
         />

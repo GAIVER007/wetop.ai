@@ -144,6 +144,8 @@ export interface DashboardPeriod {
     occupiedNights: number;
     blockedNights: number;
     freeNights: number;
+    /** Доступно к продаже: ночи фонда минус закрытые (ADR-154, Q-282); знаменатель загрузки и RevPAR */
+    sellableNights: number;
     percent: number;
   };
   unassigned: number;
@@ -341,7 +343,7 @@ export function buildDashboard(
       freeNights: sumOf('free'),
       blockedNights: sumOf('blocked'),
       unassigned: input.unassignedByCategory[c.code] ?? 0,
-      percent: percent(occupied, catNights),
+      percent: percent(occupied, catNights - sumOf('blocked')),
       revenueMinor: s(revenue),
       adrMinor: divide(revenue, occupied),
     };
@@ -356,7 +358,7 @@ export function buildDashboard(
     occupied: d.occupied,
     free: d.free,
     blocked: d.blocked,
-    percent: percent(d.occupied, units),
+    percent: percent(d.occupied, units - d.blocked),
     arrivals: arrivals.filter((st) => st.arrivalDate === d.date).length,
     departures: departures.filter((st) => st.departureDate === d.date).length,
     revenueMinor: s(revenueByDay.get(d.date) ?? 0n),
@@ -381,7 +383,8 @@ export function buildDashboard(
       occupiedNights,
       blockedNights,
       freeNights,
-      percent: percent(occupiedNights, unitNights),
+      sellableNights: unitNights - blockedNights,
+      percent: percent(occupiedNights, unitNights - blockedNights),
     },
     unassigned: Object.values(input.unassignedByCategory).reduce((n, v) => n + v, 0),
     revenue: {
@@ -394,7 +397,7 @@ export function buildDashboard(
     payments: { totalMinor: s(paid), count: input.payments.length, byMethod },
     refundsMinor: s(input.refundsMinor),
     adrMinor: divide(accommodation, occupiedNights),
-    revparMinor: divide(accommodation, unitNights),
+    revparMinor: divide(accommodation, unitNights - blockedNights),
     arrivals: {
       count: arrivals.length,
       guests: arrivals.reduce((n, st) => n + st.adults + st.children, 0),

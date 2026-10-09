@@ -216,8 +216,8 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .filter({ hasText: 'Студия MKT3' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  // MV8: стартовая страница всех направлений `/today`
-  await page.waitForURL('**/finance');
+  // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
+  await page.waitForURL('**/today');
   await page.goto('/marketing');
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();

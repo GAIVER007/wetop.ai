@@ -1590,9 +1590,12 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
-  await main.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  // с 09.10 в main две ссылки «Сегодня» (навигация «Период обзора» в шапке и «Готовые периоды»
+  // у фильтров) — проверяем ровно фильтровую
+  const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
+  await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
-  await expect(main.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
+  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
   await expect(main.getByTestId('finance-period')).toContainText('За период с');
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });

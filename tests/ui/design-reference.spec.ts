@@ -44,9 +44,9 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main.getByTestId('date-col').first()).toBeVisible();
     await shot(page, 'chessboard-month-full', theme);
 
-    // главная (в документе ментора — «служба приёма»)
+    // главная (в документе ментора — «служба приёма»), с 09.10 объединена с «Финансами»
     await page.goto('/finance');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Финансы');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Обзор бизнеса');
     await shot(page, 'today', theme);
     await shot(page, 'today-full', theme, true);
 

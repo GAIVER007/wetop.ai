@@ -117,7 +117,10 @@ const solve = (page: Page, token: string) =>
     token,
   );
 const tsState = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __ts: { renders: number; resets: number } }).__ts);
+  page.evaluate(
+    () =>
+      (window as unknown as { __ts?: { renders: number; resets: number } }).__ts,
+  );
 
 test('с ключом: поиск цен без проверки, кнопка брони ждёт токена, токен уходит в /w/book', async ({
   page,
@@ -132,7 +135,7 @@ test('с ключом: поиск цен без проверки, кнопка �
   await fillGuest(page);
   const submit = page.locator('[data-pmsw="submit"]');
   await expect(submit).toBeDisabled();
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
   const opts = await page.evaluate(
     () => (window as unknown as { __ts: { opts: Record<string, unknown> } }).__ts.opts,
   );
@@ -158,14 +161,14 @@ test('токен одноразовый: после отказа проверк�
   });
   await openGuestForm(page);
   await fillGuest(page);
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
   await solve(page, 'tok-old');
   const submit = page.locator('[data-pmsw="submit"]');
   await submit.click();
 
   await expect(page.locator('[data-pmsw="msg"]')).toContainText('Проверка устарела');
   await expect(submit).toBeDisabled();
-  expect((await tsState(page)).resets).toBe(1);
+  expect((await tsState(page))?.resets).toBe(1);
 
   await solve(page, 'tok-new');
   await expect(submit).toBeEnabled();
@@ -177,7 +180,7 @@ test('токен одноразовый: после отказа проверк�
 test('токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки', async ({ page }) => {
   await setup(page, { siteKey: 'site-key-not-real' });
   await openGuestForm(page);
-  await expect.poll(() => tsState(page).then((t) => t.renders)).toBe(1);
+  await expect.poll(() => tsState(page).then((t) => t?.renders)).toBe(1);
   await solve(page, 'tok-1');
   await expect(page.locator('[data-pmsw="submit"]')).toBeEnabled();
   await page.evaluate(() =>

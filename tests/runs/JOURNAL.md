@@ -7724,3 +7724,6 @@
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
+| 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
+| 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
+| 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |

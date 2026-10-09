@@ -311,23 +311,24 @@ describe('estimateNightOccupancy', () => {
 });
 
 describe('platformNightUrl', () => {
-  it('адрес страницы соседа на одну ночь: даты заезда и выезда, двое взрослых', () => {
+  it('адрес страницы соседа на одну ночь: даты, один взрослый (хостел на двоих вариантов не показывает)', () => {
     const b = new URL(platformNightUrl('https://www.booking.com/hotel/kz/altyn.ru.html?aid=1', '2026-10-31')!);
     expect(b.hostname).toBe('www.booking.com');
     expect(b.searchParams.get('checkin')).toBe('2026-10-31');
     expect(b.searchParams.get('checkout')).toBe('2026-11-01');
-    expect(b.searchParams.get('group_adults')).toBe('2');
+    expect(b.searchParams.get('group_adults')).toBe('1');
     expect(b.searchParams.get('no_rooms')).toBe('1');
     expect(b.searchParams.get('aid')).toBe('1');
     const t = new URL(platformNightUrl('https://kz.trip.com/hotels/almaty-hotel-detail-1/', '2026-12-31')!);
     expect(t.searchParams.get('checkIn')).toBe('2026-12-31');
     expect(t.searchParams.get('checkOut')).toBe('2027-01-01');
+    expect(t.searchParams.get('adult')).toBe('1');
     // Ostrovok: даты одной строкой «ДД.ММ.ГГГГ-ДД.ММ.ГГГГ», служебные метки выдачи снимаются
     const o = new URL(
       platformNightUrl('https://ostrovok.ru/hotel/kazakhstan/almaty/mid1/x/?dates=01.01.2026-02.01.2026&room=s-1&search_chain_id=sr-1&q=354', '2026-10-31')!,
     );
     expect(o.searchParams.get('dates')).toBe('31.10.2026-01.11.2026');
-    expect(o.searchParams.get('guests')).toBe('2');
+    expect(o.searchParams.get('guests')).toBe('1');
     expect([...o.searchParams.keys()].sort()).toEqual(['dates', 'guests']);
     // площадка, которую сборщик пока не читает, и не площадка вовсе
     expect(platformNightUrl('https://www.airbnb.com/rooms/1', '2026-10-31')).toBeNull();

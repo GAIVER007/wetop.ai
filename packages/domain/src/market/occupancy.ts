@@ -440,7 +440,11 @@ export function estimateNightOccupancy(o: NightObservation, unitsTotal: number |
   return Math.round(((unitsTotal - free) / unitsTotal) * 10000);
 }
 
-/** Адрес страницы соседа на одну ночь для двух взрослых; площадку, которую сборщик не читает, не трогаем (null) */
+/**
+ * Адрес страницы соседа на одну ночь для одного взрослого: хостел продаёт койки по одной и на двоих вариантов не
+ * показывает (проба 09.10.2026: «Нет доступных вариантов» при свободных местах), а отель одному гостю показывает все
+ * номера. Площадку, которую сборщик не читает, не трогаем (null).
+ */
 export function platformNightUrl(url: string, night: string): string | null {
   const platform = competitorPlatform(url);
   const out = new URL(url);
@@ -448,7 +452,7 @@ export function platformNightUrl(url: string, night: string): string | null {
   if (platform === 'Booking.com') {
     out.searchParams.set('checkin', night);
     out.searchParams.set('checkout', next);
-    out.searchParams.set('group_adults', '2');
+    out.searchParams.set('group_adults', '1');
     out.searchParams.set('group_children', '0');
     out.searchParams.set('no_rooms', '1');
     return out.toString();
@@ -456,12 +460,12 @@ export function platformNightUrl(url: string, night: string): string | null {
   if (platform === 'Ostrovok') {
     // выдача кладёт в ссылку свою сессию поиска (room, search_chain_id, q): она не нужна и устаревает
     const ru = (iso: string) => iso.split('-').reverse().join('.');
-    return `${out.origin}${out.pathname}?dates=${ru(night)}-${ru(next)}&guests=2`;
+    return `${out.origin}${out.pathname}?dates=${ru(night)}-${ru(next)}&guests=1`;
   }
   if (platform === 'Trip.com') {
     out.searchParams.set('checkIn', night);
     out.searchParams.set('checkOut', next);
-    out.searchParams.set('adult', '2');
+    out.searchParams.set('adult', '1');
     return out.toString();
   }
   return null;

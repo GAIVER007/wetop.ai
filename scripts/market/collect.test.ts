@@ -87,6 +87,21 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
     expect(s.writes).toEqual([]);
   });
 
+  it('страница не загрузилась (таймаут): ночь без оценки, остальные ночи и соседи идут дальше', async () => {
+    const s = setup(
+      [altyn, { ...altyn, id: 'b', name: 'Хостел Рой' }],
+      (url) => {
+        if (url.includes('altyn') && new URL(url).searchParams.get('checkin') === '2026-10-10') throw new Error('page.goto: Timeout 45000ms exceeded');
+        return { status: 200, text: '' };
+      },
+      () => ({ status: 'sold_out', roomsLeft: null }),
+    );
+    const reports = await s.run();
+    expect(reports.map((r) => r.outcome)).toEqual(['written', 'written']);
+    expect(reports[0]?.nights.map((n) => n.status)).toEqual(['sold_out', 'unknown', 'sold_out']);
+    expect(s.writes[0]?.entries.map((e) => e.date)).toEqual(['2026-10-09', '2026-10-11']);
+  });
+
   it('модель увидела проверку на странице с кодом 200: то же самое, дальше не идёт', async () => {
     const s = setup([altyn], () => ({ status: 200, text: '' }), () => ({ status: 'blocked', roomsLeft: null }));
     const [report] = await s.run();

@@ -73,7 +73,7 @@ const SCHEMA = {
   additionalProperties: false,
 } as const;
 
-const SYSTEM = `You read the text of one hotel page on a booking platform (Booking.com or Trip.com), opened for a stay of exactly one night for two adults. Decide what a guest would see for that night and answer with JSON.
+const SYSTEM = `You read the text of one hotel page on a booking platform (Booking.com or Trip.com), opened for a stay of exactly one night for one adult. Decide what a guest would see for that night and answer with JSON.
 
 status:
 - "sold_out": the page says there are no rooms or no availability for these dates at this property.

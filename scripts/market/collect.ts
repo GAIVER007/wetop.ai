@@ -110,7 +110,16 @@ export async function collect(
     for (const night of nightsFrom(localDate(now, c.timezone), options.nights)) {
       if (!first) await sleep(options.delayMs);
       first = false;
-      const page = await deps.readPage(platformNightUrl(c.url, night)!);
+      // одна страница не открылась (таймаут, обрыв сети): эта ночь без оценки, прогон идёт дальше. Иначе падал
+      // весь прогон вместе с уже собранным (проба 09.10.2026, таймаут на 16.10 у пятого соседа)
+      const page = await deps.readPage(platformNightUrl(c.url, night)!).catch((e: unknown) => {
+        log(`${c.name}, ${night}: страница не открылась (${e instanceof Error ? e.message.split('\n')[0] : e})`);
+        return null;
+      });
+      if (page === null) {
+        report.nights.push({ date: night, status: 'unknown', bp: null });
+        continue;
+      }
       const observation: NightObservation = BLOCKED_HTTP.has(page.status)
         ? { status: 'blocked', roomsLeft: null }
         : await deps.extract(page.text, { name: c.name, night });

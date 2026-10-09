@@ -10,6 +10,7 @@ export default defineConfig({
           include: [
             'tests/integration/wizard-drafts.test.ts',
             'tests/integration/wizard-claim.test.ts',
+            'tests/integration/wizard-survey.test.ts',
           ],
           fileParallelism: false,
         },

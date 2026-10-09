@@ -205,6 +205,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
+  'GET /inventory/photos': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений
@@ -267,6 +270,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'PUT /inventory/categories/:code/photos': 'property',
   'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',

@@ -76,6 +76,38 @@ const fakeRepo: InventoryRepository = {
       },
     ];
   },
+  async trendSource() {
+    return {
+      today: '2026-10-09',
+      units: plan.units.map((u) => ({
+        code: u.code,
+        kind: u.kind,
+        createdAt: '2026-01-01',
+        housekeepingStatus: 'DIRTY' as const,
+      })),
+      blocks: [{ code: '9010', dateFrom: '2026-10-08', dateTo: '2026-10-12' }],
+      hkEvents: [],
+    };
+  },
+  async staysToday() {
+    return {
+      today: '2026-10-09',
+      byCode: new Map([
+        [
+          '9001',
+          [
+            {
+              confirmationNumber: 'T-1',
+              startDate: '2026-10-09',
+              endDate: '2026-10-11',
+              status: 'CONFIRMED',
+              guest: 'Тестов Т.',
+            },
+          ],
+        ],
+      ]),
+    };
+  },
 };
 
 describe('GET /inventory', () => {
@@ -155,5 +187,19 @@ describe('GET /inventory', () => {
       .get('/inventory/units?category=nope')
       .expect(200);
     expect(res.body).toEqual([]);
+  });
+
+  it('/inventory/trend отдаёт динамику за период и отклоняет чужой период', async () => {
+    const res = await request(app.getHttpServer()).get('/inventory/trend?days=7').expect(200);
+    expect(res.body).toMatchObject({ days: 7, from: '2026-10-02', to: '2026-10-09' });
+    expect(res.body.metrics.unavailable).toMatchObject({ now: 1, before: 0, delta: 1 });
+    await request(app.getHttpServer()).get('/inventory/trend?days=5').expect(400);
+  });
+
+  it('/inventory/occupancy: заезд сегодня и свободные места', async () => {
+    const res = await request(app.getHttpServer()).get('/inventory/occupancy').expect(200);
+    expect(res.body).toHaveLength(3);
+    expect(res.body[0]).toMatchObject({ code: '9001', state: 'ARRIVING', guest: 'Тестов Т.' });
+    expect(res.body[1]).toMatchObject({ code: '9010', state: 'FREE', guest: null });
   });
 });

@@ -82,10 +82,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/employees',
-        label: 'Сотрудники',
+        label: 'Мастера',
         icon: 'guests',
         requires: 'desk',
-        description: 'Сотрудники',
+        description: 'Мастера',
       },
       {
         href: '/services',

@@ -53,12 +53,12 @@ function Kpi({ icon, tone, label, value, hint, growth, alarm }: {
     <div className="bar-kpi-body">
       <div className="bar-kpi-label" title={label}>{label}</div>
       <div className="bar-kpi-value">{value}</div>
-      {growth !== undefined && growth !== null
-        ? <div className={cx('bar-kpi-hint', growth >= 0 ? 'bar-kpi-hint--up' : 'bar-kpi-hint--down')}>
-            <span className="bar-kpi-delta"><Icon name={growth >= 0 ? 'up' : 'downArrow'} width={14} height={14} /> {growth >= 0 ? '+' : '−'}{Math.abs(growth)}%</span> к прошлому месяцу
-          </div>
-        : hint && <div className="bar-kpi-hint">{hint}</div>}
     </div>
+    {growth !== undefined && growth !== null
+      ? <div className={cx('bar-kpi-hint', 'bar-kpi-hint--wide', growth >= 0 ? 'bar-kpi-hint--up' : 'bar-kpi-hint--down')}>
+          <span className="bar-kpi-delta"><Icon name={growth >= 0 ? 'up' : 'downArrow'} width={14} height={14} /> {growth >= 0 ? '+' : '−'}{Math.abs(growth)}%</span> к прошлому месяцу
+        </div>
+      : hint && <div className="bar-kpi-hint">{hint}</div>}
   </div>;
 }
 

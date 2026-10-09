@@ -201,12 +201,12 @@ export function StockBoard({ stock, categories, suppliers, movements, today, ini
   );
 }
 
-function Affix({ suffix, children }: { suffix: string; children: ReactNode }) {
+function Affix({ suffix, children }: { suffix: ReactNode; children: ReactNode }) {
   return <span className="bar-affix">{children}<span className="bar-affix-suffix" aria-hidden="true">{suffix}</span></span>;
 }
 
 function CardField({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return <div className="bar-card-field"><label htmlFor={htmlFor}>{label}</label>{children}</div>;
+  return <div className="bar-card-field"><label htmlFor={htmlFor} title={label}>{label}</label>{children}</div>;
 }
 
 function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff, onClose, onDelete }: {
@@ -261,8 +261,8 @@ function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff,
         <CardField label="Наценка" htmlFor={id('markup')}><Affix suffix="%"><Input id={id('markup')} inputMode="decimal" value={markup} onChange={(event) => { setMarkup(event.target.value); setMarkupTouched(true); }} placeholder="из категории" /></Affix></CardField>
         <input type="hidden" name="markup" value={product.markupBasis !== null || markupTouched ? markup : ''} />
         <CardField label="Себестоимость остатка" htmlFor={id('stock-cost')}><Affix suffix="₸"><Input id={id('stock-cost')} value={minorToInput(product.stockCostMinor)} readOnly /></Affix></CardField>
-        <CardField label="Последний приход" htmlFor={id('last')}><Input id={id('last')} value={dayRu(product.lastReceivedDate)} placeholder="нет" readOnly /></CardField>
-        <CardField label="Срок годности" htmlFor={id('expiry')}><Input id={id('expiry')} value={dayRu(product.nearestExpiry)} placeholder="не указан" readOnly /></CardField>
+        <CardField label="Последний приход" htmlFor={id('last')}><Affix suffix={<Icon name="board" width={16} height={16} />}><Input id={id('last')} value={dayRu(product.lastReceivedDate)} placeholder="нет" readOnly /></Affix></CardField>
+        <CardField label="Срок годности" htmlFor={id('expiry')}><Affix suffix={<Icon name="board" width={16} height={16} />}><Input id={id('expiry')} value={dayRu(product.nearestExpiry)} placeholder="не указан" readOnly /></Affix></CardField>
       </div>
       {priceNote && <p role="status" className="bar-muted">{priceNote}</p>}
       {state.error && <p role="alert" className="bar-error">{state.error}</p>}

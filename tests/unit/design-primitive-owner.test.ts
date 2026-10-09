@@ -30,7 +30,7 @@ export const PRIMITIVES = [
   'form-grid',
   'period-picker',
   'date-bar',
-  // ADR-154 (DESIGN.md §8.3): выключатель и поле со значком; чип-флажок живёт в `.chip--check`
+  // ADR-155 (DESIGN.md §8.3): выключатель и поле со значком; чип-флажок живёт в `.chip--check`
   'switch',
   'field-icon',
 ];

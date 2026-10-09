@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { RESET_BOARD_POSITION } from './board-position';
 
+/** Кнопка «Сегодня» в полосе календаря (образец владельца 09.10.2026): возврат к текущей неделе со сбросом прокрутки */
 export function BoardTodayLink() {
   return (
     <Link

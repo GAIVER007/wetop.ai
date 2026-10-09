@@ -105,7 +105,7 @@ model Location {
   @@map("locations")
 }
 
-/// Фото и договор объекта (ADR-154, DATA_MODEL §30.3): файл в закрытом хранилище, в базе только ключ.
+/// Фото и договор объекта (ADR-155, DATA_MODEL §31.3): файл в закрытом хранилище, в базе только ключ.
 model PropertyMedia {
   id          String    @id @default(uuid()) @db.Uuid
   propertyId  String    @map("property_id") @db.Uuid
@@ -157,7 +157,7 @@ model Property {
   checkInTime         String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime        String   @map("check_out_time")
-  /// Карточка объекта (ADR-154, DATA_MODEL §30): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
+  /// Карточка объекта (ADR-155, DATA_MODEL §31): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
   description         String?  @db.VarChar(500)
   website             String?  @db.VarChar(300)
   /// Имя в договоре и счёте гостя; пусто, пока не задано, тогда печатается name
@@ -280,6 +280,7 @@ model AccommodationType {
   dailyRates      DailyRate[]
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
+  photos          AccommodationTypePhoto[]
 
   sellerBookingIntents SellerBookingIntent[]
 
@@ -1880,9 +1881,28 @@ model SiteAsset {
 
   location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
   createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  typePhotos AccommodationTypePhoto[]
 
   @@index([locationId, status])
   @@map("site_assets")
+}
+
+/// Фото категории размещения (DATA_MODEL §31, ADR-153, миграция …070): выбор до десяти изображений из библиотеки сайта
+/// филиала (`SiteAsset`, вид IMAGE, тот же Location, что у объекта категории; проверяет триггер) с порядком. Файлов и
+/// хранилища у таблицы нет, загрузка остаётся в библиотеке. Права ролей: миграция …071.
+model AccommodationTypePhoto {
+  accommodationTypeId String   @map("accommodation_type_id") @db.Uuid
+  siteAssetId         String   @map("site_asset_id") @db.Uuid
+  position            Int      @db.SmallInt
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id], onDelete: Cascade)
+  siteAsset         SiteAsset         @relation(fields: [siteAssetId], references: [id], onDelete: Restrict)
+
+  @@id([accommodationTypeId, siteAssetId])
+  @@unique([accommodationTypeId, position])
+  @@index([siteAssetId])
+  @@map("accommodation_type_photos")
 }
 
 /// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.

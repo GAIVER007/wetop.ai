@@ -66,6 +66,7 @@ class FakeOrganizations implements Pick<ExtensionsRepository, 'organization'> {
           createdAt: new Date('2026-09-20T00:00:00.000Z'),
           members: 2,
           owners: ['vladelec@example.invalid'],
+          ownerPending: false,
           aiSeller: null,
         }
       : null;

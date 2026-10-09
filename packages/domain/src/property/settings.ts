@@ -16,7 +16,7 @@ export interface HotelSettingsPatch {
   countryCode?: string | null;
   city?: string | null;
   channexPropertyType?: string | null;
-  /** Карточка объекта (ADR-154, DATA_MODEL §30) */
+  /** Карточка объекта (ADR-155, DATA_MODEL §31) */
   description?: string | null;
   website?: string | null;
   publicName?: string | null;
@@ -38,7 +38,7 @@ export interface HotelSettingsPatch {
 export type HotelSettingsParse =
   { ok: true; value: HotelSettingsPatch } | { ok: false; reason: string };
 
-/** Способ оплаты на месте, подпись отмены и залога для карточки (ADR-154): подписи, не финансовая логика (Q-286) */
+/** Способ оплаты на месте, подпись отмены и залога для карточки (ADR-155): подписи, не финансовая логика (Q-286) */
 export const ONSITE_PAYMENTS = ['CASH_CARD', 'CASH', 'CARD', 'TRANSFER'] as const;
 export const CANCELLATION_RULES = ['FREE_1D', 'FREE_3D', 'FREE_7D', 'NON_REFUNDABLE'] as const;
 export const DEPOSIT_RULES = ['NONE', 'FIRST_NIGHT', 'HALF', 'FULL'] as const;
@@ -63,7 +63,7 @@ export const DEPOSIT_RULE_LABELS: Record<DepositRule, string> = {
   HALF: '50% от стоимости проживания',
   FULL: '100% от стоимости проживания',
 };
-/** Каталог удобств объекта: порядок каталога это порядок показа и хранения (DATA_MODEL §30.1) */
+/** Каталог удобств объекта: порядок каталога это порядок показа и хранения (DATA_MODEL §31.1) */
 export const PROPERTY_AMENITIES = [
   { code: 'wifi', label: 'Wi-Fi' },
   { code: 'parking', label: 'Парковка' },

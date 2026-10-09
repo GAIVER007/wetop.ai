@@ -101,7 +101,7 @@ test('владелец и управляющий правят сведения �
   const form = page.getByTestId('hotel-settings-form');
   const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
   await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');
-  // валюта стоит полем только для чтения (ADR-154)
+  // валюта стоит полем только для чтения (ADR-155)
   await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await save.click();

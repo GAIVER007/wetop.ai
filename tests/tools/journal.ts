@@ -10,8 +10,15 @@ import { narrowsTestSelection } from '@pms/domain';
  * уезжают в репозиторий, поэтому всё, что туда пишется, проходит maskSecrets.
  */
 
+/**
+ * Журнал прогонов: каждый прогон в своём файле `entries/<id>.json`, как лог в `logs/<id>.log`. Две ветки, которые
+ * обе гоняли тесты, сливаются без конфликта: дописывание в один общий файл GitHub сливать не умеет (`merge=union`
+ * из `.gitattributes` он не применяет, разбор PR #329, 09.10.2026). `journal.jsonl` и `JOURNAL.md` с 09.10.2026
+ * архив прогонов до перехода: читаются, но не пишутся и не переписываются.
+ */
 export const JOURNAL_FILE = 'tests/runs/journal.jsonl';
 export const JOURNAL_MD = 'tests/runs/JOURNAL.md';
+export const ENTRY_DIR = 'tests/runs/entries';
 export const LOG_DIR = 'tests/runs/logs';
 /** Журнал и логи в отпечаток кода не входят: иначе каждая запись делала бы код «изменённым» */
 export const NOT_CODE = 'tests/runs';
@@ -502,9 +509,16 @@ export function runId(startedAt: Date, suite: string, suffix: string): string {
   return `${startedAt.toISOString().slice(0, 19).replace(/:/g, '-')}Z-${suite}-${suffix}`;
 }
 
+/** Архив и записи одним текстом JSONL: дальше их читает тот же разбор, что и прежний журнал */
+export function joinJournal(archive: string, entries: readonly string[]): string {
+  return [archive, ...entries].map((t) => t.trim()).filter(Boolean).join('\n');
+}
+
 /** Журнал — список, куда только дописывают; после слияния двух машин в нём может быть мусор — пропускаем */
 export function parseJournal(text: string): RunRecord[] {
   const out: RunRecord[] = [];
+  // в архиве 91 прогон записан дважды и трижды побайтно: так склеивал их `merge=union` (разбор 09.10.2026)
+  const seen = new Set<string>();
   for (const line of text.split('\n')) {
     const s = line.trim();
     if (!s.startsWith('{')) continue;
@@ -517,12 +531,16 @@ export function parseJournal(text: string): RunRecord[] {
         typeof r.fingerprint === 'string' &&
         Array.isArray(r.args) &&
         (r.status === 'passed' || r.status === 'failed' || r.status === 'interrupted');
-      if (valid) out.push(r as RunRecord);
+      if (valid && !seen.has(String(r.id))) {
+        seen.add(String(r.id));
+        out.push(r as RunRecord);
+      }
     } catch {
       // строка испорчена (прерванная запись или слияние) — не повод терять остальной журнал
     }
   }
-  return out.sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+  // при равном времени (52 пары в архиве) порядок по id: архив и записи читаются в разном порядке, итог один
+  return out.sort((a, b) => a.startedAt.localeCompare(b.startedAt) || a.id.localeCompare(b.id));
 }
 
 const ALMATY = new Intl.DateTimeFormat('ru-RU', {
@@ -599,7 +617,7 @@ export function journalRow(r: RunRecord): string {
 
 export const JOURNAL_MD_HEADER = `# Журнал прогонов тестов
 
-Строки дописывает \`npm run test:record\` — по одной на прогон, старые не правятся. Что здесь доказано и когда
+Собран \`npm run test:journal\` из архива и записей \`tests/runs/entries/\`, по строке на прогон. Что здесь доказано и когда
 прогон можно не повторять — [TESTING.md](../../TESTING.md). Время — Алматы. «+N» у коммита — столько файлов
 набора было изменено и не закоммичено в момент запуска.
 

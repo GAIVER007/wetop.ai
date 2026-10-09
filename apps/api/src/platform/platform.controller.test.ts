@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
-import type { INestApplication } from '@nestjs/common';
+import { ConflictException, type INestApplication } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,13 +14,16 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
+import { OrganizationCreation, type OrganizationCreateInput } from './organization-creation';
 import { SiteBuilderLicenses } from './site-builder-licenses';
 import {
   PLATFORM_ADMIN_ONLY,
   PLATFORM_ALREADY_ARCHIVED,
+  PLATFORM_NAME_MESSAGE,
   PLATFORM_NOT_ARCHIVED,
   PLATFORM_NO_ORGANIZATION,
   PLATFORM_OWN_ORGANIZATION,
+  PLATFORM_OWNER_EMAIL_MESSAGE,
   PlatformController,
 } from './platform.controller';
 
@@ -85,6 +88,37 @@ class FakeExtensions implements ExtensionsRepository {
 
 const repo = new FakeExtensions();
 
+/** Создание организации (ORG2): подставная служба. Настоящая проверена на PostgreSQL в tests/integration */
+const NEW_ORG = '3b5d7f9a-2c4e-4a6b-8d0f-1a3c5e7a9b2d';
+class FakeCreation {
+  created: OrganizationCreateInput[] = [];
+  links: string[] = [];
+  failWith: Error | null = null;
+  sent = true;
+  async create(input: OrganizationCreateInput) {
+    if (this.failWith) throw this.failWith;
+    this.created.push(input);
+    repo.orgs.push({
+      id: NEW_ORG,
+      name: input.name,
+      status: 'TRIAL',
+      trialEndsAt: new Date('2026-10-23T00:00:00.000Z'),
+      createdAt: new Date('2026-10-09T00:00:00.000Z'),
+      members: 1,
+      owners: [input.ownerEmail],
+      ownerPending: true,
+      aiSeller: null,
+    });
+    return { organizationId: NEW_ORG, ownerLinkSent: this.sent };
+  }
+  async resendOwnerLink(organizationId: string) {
+    if (this.failWith) throw this.failWith;
+    this.links.push(organizationId);
+    return { ownerLinkSent: this.sent };
+  }
+}
+const creation = new FakeCreation();
+
 /** Лицензии конструктора сайта (MKT9.2): один гостиничный филиал организации, запись только в памяти */
 const LOCATION = '7e3a1c2b-9d4f-4e5a-8b6c-0a1b2c3d4e5f';
 class FakeLicenses {
@@ -136,6 +170,7 @@ beforeAll(async () => {
       // настоящая служба поверх подставного хранилища: смена расширения зовёт её слушателей (Э4)
       ExtensionsService,
       { provide: SiteBuilderLicenses, useValue: licenses },
+      { provide: OrganizationCreation, useValue: creation },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -158,6 +193,10 @@ beforeEach(() => {
   repo.archived = [];
   repo.restored = [];
   repo.before.clear();
+  creation.created = [];
+  creation.links = [];
+  creation.failWith = null;
+  creation.sent = true;
   licenses.saved = [];
   repo.orgs = [
     {
@@ -168,6 +207,7 @@ beforeEach(() => {
       createdAt: new Date('2026-09-25T00:00:00.000Z'),
       members: 2,
       owners: ['vladelec@example.invalid'],
+      ownerPending: false,
       aiSeller: null,
     },
   ];
@@ -207,6 +247,7 @@ describe('раздел «Платформа» — только главный а
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],
+        ownerPending: false,
         aiSeller: { access: 'off', status: null, activeUntil: null, daysLeft: null, note: null, updatedAt: null },
       },
     ]);
@@ -348,6 +389,7 @@ describe('организация: название, архив и возврат
       createdAt: new Date('2026-09-26T00:00:00.000Z'),
       members: 1,
       owners: ['sever@example.invalid'],
+      ownerPending: false,
       aiSeller: null,
     });
   });
@@ -426,5 +468,105 @@ describe('организация: название, архив и возврат
     repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
     await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-owner')).expect(403);
     expect(repo.restored).toHaveLength(0);
+  });
+});
+
+/**
+ * Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): организация, первый филиал и владелец без
+ * пароля одной транзакцией, владельцу уходит ссылка «задайте пароль». Токен наружу не отдаётся. Настоящая служба
+ * проверена на PostgreSQL (`tests/integration/platform-organization-create.test.ts`), здесь контракт контроллера.
+ */
+describe('создание организации', () => {
+  it('главный администратор создаёт: 201, название и почта приведены к одному виду, автор записан', async () => {
+    const res = await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ name: '  Хостел   «Новый»  ', ownerEmail: '  Vladelec.NEW@Example.invalid ' })
+      .expect(201);
+    expect(creation.created).toEqual([
+      { name: 'Хостел «Новый»', ownerEmail: 'vladelec.new@example.invalid', vertical: 'HOSPITALITY', by: ADMIN },
+    ]);
+    expect(res.body.ownerLinkSent).toBe(true);
+    expect(res.body.organization).toMatchObject({
+      id: NEW_ORG,
+      name: 'Хостел «Новый»',
+      status: 'TRIAL',
+      owners: ['vladelec.new@example.invalid'],
+      ownerPending: true,
+    });
+    expect(JSON.stringify(res.body)).not.toMatch(/token|link=|password/i);
+  });
+
+  it('направление салона принимается; письмо не ушло — организация создана, ownerLinkSent false', async () => {
+    creation.sent = false;
+    const res = await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ name: 'Салон «Лотос»', ownerEmail: 'lotos@example.invalid', vertical: 'BEAUTY' })
+      .expect(201);
+    expect(creation.created[0]).toMatchObject({ vertical: 'BEAUTY' });
+    expect(res.body.ownerLinkSent).toBe(false);
+  });
+
+  it('пустое, слишком длинное и не строка: 400 словами названия, ничего не создано', async () => {
+    for (const name of ['', '   ', 'я'.repeat(201), 42, null, undefined]) {
+      const res = await api()
+        .post('/platform/organizations')
+        .set(as('session-admin'))
+        .send({ name, ownerEmail: 'a@example.invalid' })
+        .expect(400);
+      expect(res.body.message).toBe(PLATFORM_NAME_MESSAGE);
+    }
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('почта владельца не адрес и неизвестное направление: 400, ничего не создано', async () => {
+    for (const ownerEmail of ['', 'без-собаки', 'a@', 7, undefined]) {
+      const res = await api()
+        .post('/platform/organizations')
+        .set(as('session-admin'))
+        .send({ name: 'Х', ownerEmail })
+        .expect(400);
+      expect(res.body.message).toBe(PLATFORM_OWNER_EMAIL_MESSAGE);
+    }
+    await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ name: 'Х', ownerEmail: 'a@example.invalid', vertical: 'SPACE' })
+      .expect(400);
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('отказ службы (почта занята, направление только для пилота) идёт наружу её словами', async () => {
+    creation.failWith = new ConflictException('Эта почта уже зарегистрирована');
+    const res = await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ name: 'Х', ownerEmail: 'a@example.invalid' })
+      .expect(409);
+    expect(res.body.message).toBe('Эта почта уже зарегистрирована');
+  });
+
+  it('владелец организации не создаёт чужие организации: 403; без входа 401', async () => {
+    await api().post('/platform/organizations').set(as('session-owner')).send({ name: 'Х', ownerEmail: 'a@example.invalid' }).expect(403);
+    await api().post('/platform/organizations').send({ name: 'Х', ownerEmail: 'a@example.invalid' }).expect(401);
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; нет такой организации 404; не идентификатор 400', async () => {
+    const res = await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-admin')).expect(201);
+    expect(res.body).toMatchObject({ ownerLinkSent: true, organization: { id: ORG } });
+    expect(creation.links).toEqual([ORG]);
+    await api().post('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00/owner-link').set(as('session-admin')).expect(404);
+    await api().post('/platform/organizations/abc/owner-link').set(as('session-admin')).expect(400);
+    expect(creation.links).toHaveLength(1);
+  });
+
+  it('ссылку владельцу выдаёт только главный администратор; отказ службы идёт наружу', async () => {
+    await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-owner')).expect(403);
+    expect(creation.links).toHaveLength(0);
+    creation.failWith = new ConflictException('Владелец уже задал пароль');
+    const res = await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe('Владелец уже задал пароль');
   });
 });

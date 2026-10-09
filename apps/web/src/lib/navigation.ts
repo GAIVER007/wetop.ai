@@ -360,7 +360,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
-        label: 'Сотрудники',
+        label: 'Сотрудники и доступ',
         icon: 'guests',
         description: 'Люди организации: роли, приглашения и доступ.',
       },

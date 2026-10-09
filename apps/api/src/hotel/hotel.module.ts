@@ -118,7 +118,7 @@ export class HotelService {
         currency: true,
         checkInTime: true,
         checkOutTime: true,
-        // карточка объекта (ADR-154, DATA_MODEL §30)
+        // карточка объекта (ADR-155, DATA_MODEL §31)
         description: true,
         website: true,
         publicName: true,

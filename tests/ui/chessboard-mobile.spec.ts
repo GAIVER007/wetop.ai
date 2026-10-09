@@ -193,14 +193,14 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy']) {
+    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'dirty', 'attention']) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (
       await request.get(`${FIXTURE_API}/desk/today`, { headers: { 'x-wetop-test-client': '1' } })
     ).json();
     await expect(stats.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
-    await expect(stats.getByTestId('day-inhouse')).toHaveText(String(day.counts.inHouse));
+    await expect(stats.getByTestId('day-departures')).toHaveText(String(day.counts.departures));
     await expect(stats.getByTestId('day-tasks')).toHaveCount(0);
     const grid = page.locator('.board-wrap');
     expect((await stats.boundingBox())!.y).toBeLessThan((await grid.boundingBox())!.y);

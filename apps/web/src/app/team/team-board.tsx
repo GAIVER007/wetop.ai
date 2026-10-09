@@ -12,7 +12,7 @@ import {
   type InviteRole,
   type MembershipRole,
 } from '@pms/domain';
-import { Alert, Button, Field, Input, Select, Table } from '../../components/ui';
+import { Alert, Button, Field, Input, Select, Stat, Stats, Table } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
@@ -87,7 +87,8 @@ function InviteForm({ role, onDone }: { role: MembershipRole; onDone: () => void
       }}
     >
       <p className="muted">
-        Ссылка-приглашение действует 7 дней. Роль определяет, что человек видит и может на стойке.
+        Ссылка-приглашение действует 7 дней. Должность определяет, что человек видит и может на
+        стойке.
       </p>
       <Field label="Почта приглашённого">
         <Input
@@ -101,11 +102,11 @@ function InviteForm({ role, onDone }: { role: MembershipRole; onDone: () => void
         />
       </Field>
       {roles.length > 1 ? (
-        <Field label="Роль приглашённого">
+        <Field label="Должность">
           <Select
             name="inviteRole"
-            // подпись вокруг списка добавила бы к имени выбранную роль: имя задаём явно (как в срезе 13)
-            aria-label="Роль приглашённого"
+            // подпись вокруг списка добавила бы к имени выбранную должность: имя задаём явно (как в срезе 13)
+            aria-label="Должность"
             value={inviteRole}
             onChange={(event) => setInviteRole(event.target.value as InviteRole)}
           >
@@ -118,7 +119,7 @@ function InviteForm({ role, onDone }: { role: MembershipRole; onDone: () => void
         </Field>
       ) : (
         <p className="muted" data-testid="invite-role-fixed">
-          Управляющий приглашает администраторов; управляющих приглашает владелец.
+          Должность: администратор. Управляющий приглашает администраторов; управляющих приглашает владелец.
         </p>
       )}
       {error && <Alert>{error}</Alert>}
@@ -147,6 +148,22 @@ function useTeamActions() {
   return { error, pending, run };
 }
 
+/** Сводка (STAFF2.2): считает только то, что API отдаёт; «доступ приостановлен» не показываем: данных нет */
+export function TeamStats({ members, invites }: { members: AuthMember[]; invites: AuthInvite[] }) {
+  const entered = members.filter((m) => m.lastLoginAt).length;
+  const managers = members.filter((m) => m.role === 'OWNER' || m.role === 'MANAGER').length;
+  const admins = members.filter((m) => m.role === 'STAFF').length;
+  return (
+    <Stats min={160} data-testid="team-stats" aria-label="Сводка по команде">
+      <Stat label="Сотрудников" value={members.length} testId="team-stat-total" />
+      <Stat label="Входили в систему" value={entered} testId="team-stat-entered" />
+      <Stat label="Ожидают ответа" value={invites.length} testId="team-stat-invites" />
+      <Stat label="Владелец и управляющие" value={managers} testId="team-stat-managers" />
+      <Stat label="Администраторы" value={admins} testId="team-stat-admins" />
+    </Stats>
+  );
+}
+
 const who = (m: AuthMember) => m.name ?? m.email;
 
 export function MembersTable({ members }: { members: AuthMember[] }) {
@@ -161,7 +178,7 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
           <tr>
             <th>Сотрудник</th>
             <th className="settings-col-wide">Телефон</th>
-            <th className="settings-col-wide">Роль</th>
+            <th className="settings-col-wide">Должность</th>
             <th className="settings-col-wide">В организации с</th>
             <th className="settings-col-wide">Был в системе</th>
             <th aria-label="Действия" />
@@ -192,7 +209,7 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
               <td className="settings-col-wide">
                 {m.roleEditable ? (
                   <Select
-                    aria-label={`Роль: ${who(m)}`}
+                    aria-label={`Должность: ${who(m)}`}
                     value={m.role}
                     disabled={pending}
                     onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
@@ -277,7 +294,7 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
         });
       }}
     >
-      <p className="muted">Права даёт роль, должность их не меняет.</p>
+      <p className="muted">Права даёт должность из списка (управляющий или администратор), подпись их не меняет.</p>
       <Field label="Телефон">
         <Input
           type="tel"
@@ -289,7 +306,7 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
           onChange={(event) => setPhone(event.target.value)}
         />
       </Field>
-      <Field label="Должность">
+      <Field label="Подпись под именем (необязательно)">
         <Input
           name="memberPosition"
           autoComplete="off"

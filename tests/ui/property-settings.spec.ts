@@ -67,7 +67,7 @@ test('один заголовок на трёх вкладках, без «Об�
   const general = main.getByTestId('stored-property');
   for (const section of ['Основная информация', 'Расположение и классификация', 'Юридические данные'])
     await expect(general.getByRole('heading', { name: section, level: 2 })).toBeVisible();
-  // «Основное» по верстке владельца (ADR-154) содержит и заезд с правилами; «Проживание» показывает их отдельно
+  // «Основное» по верстке владельца (ADR-155) содержит и заезд с правилами; «Проживание» показывает их отдельно
   await expect(main.getByTestId('stay-settings')).toBeVisible();
   await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveCount(0);
 });
@@ -99,7 +99,7 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(save).toBeDisabled();
   await expect(state).toHaveText('');
   await expect(form.getByLabel('Название объекта')).toHaveValue('Luxx Aparts');
-  // валюта и пояс только для чтения: меняет поддержка (ADR-154: поля стоят, но правки не принимают)
+  // валюта и пояс только для чтения: меняет поддержка (ADR-155: поля стоят, но правки не принимают)
   await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
 
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
@@ -177,7 +177,7 @@ test('данные объекта и каналов помещаются на э
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/hotel-settings');
   const form = page.getByTestId('hotel-settings-form');
-  // три колонки по верстке владельца (ADR-154): тип размещения в первом экране, юридические данные ниже
+  // три колонки по верстке владельца (ADR-155): тип размещения в первом экране, юридические данные ниже
   for (const [label, bottom] of [
     ['Тип размещения', 876],
     ['ИИН/БИН', 1100],

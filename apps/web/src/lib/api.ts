@@ -65,6 +65,41 @@ export interface InventoryUnit {
   block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
+export interface TrendValue {
+  now: number;
+  before: number;
+  delta: number;
+  /** null: в начале периода было 0, процент не определён */
+  percent: number | null;
+}
+/** Динамика сводки фонда за период (GET /inventory/trend) */
+export interface InventoryTrend {
+  days: number;
+  from: string;
+  to: string;
+  metrics: Record<
+    'totalUnits' | 'rooms' | 'beds' | 'onSale' | 'unavailable' | 'needsCleaning',
+    TrendValue
+  >;
+}
+/** Фото категории из библиотеки сайта (GET /inventory/photos): url подписан, null без хранилища */
+export interface CategoryPhoto {
+  assetId: string;
+  url: string | null;
+  alt: string | null;
+  width: number;
+  height: number;
+}
+/** Кто в месте сегодня (GET /inventory/occupancy) */
+export interface UnitOccupancy {
+  code: string;
+  state: 'FREE' | 'STAYING' | 'ARRIVING';
+  guest: string | null;
+  confirmationNumber: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
@@ -198,7 +233,7 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
-/** Фото и договор объекта (ADR-154, DATA_MODEL §30.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+/** Фото и договор объекта (ADR-155, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
 export interface PropertyMediaItem {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';
@@ -267,6 +302,9 @@ export const api = {
     getJson<{ storage: PiiStorage }>('/system/pii-storage')
       .then((r): PiiStorage => (r.storage === 'real' ? 'real' : 'pseudonymized'))
       .catch((): PiiStorage => 'pseudonymized'),
+  inventoryTrend: (days: 7 | 30 | 90) => getJson<InventoryTrend>(`/inventory/trend?days=${days}`),
+  inventoryPhotos: () => getJson<Record<string, CategoryPhoto[]>>('/inventory/photos'),
+  inventoryOccupancy: () => getJson<UnitOccupancy[]>('/inventory/occupancy'),
   inventoryUnits: (category?: string) =>
     getJson<InventoryUnit[]>(
       category ? `/inventory/units?category=${encodeURIComponent(category)}` : '/inventory/units',
@@ -2683,6 +2721,8 @@ export interface PlatformOrganization {
   createdAt: string;
   members: number;
   owners: string[];
+  /** Владелец заведён главным администратором и ещё не задал пароль: ему можно выслать ссылку */
+  ownerPending: boolean;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
 }
 
@@ -2719,6 +2759,16 @@ export const platformApi = {
       'PUT',
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
+    ),
+  /** Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): владельцу уходит ссылка «задайте пароль» */
+  create: (body: { name: string; ownerEmail: string; vertical: 'HOSPITALITY' | 'BEAUTY' }) =>
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>('POST', '/platform/organizations', body),
+  /** Ссылка владельцу ещё раз: только тому, кто пароль ещё не задал */
+  ownerLink: (organizationId: string) =>
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/owner-link`,
+      {},
     ),
   /** Название организации (ORG1, ADR-ORG1) */
   rename: (organizationId: string, name: string) =>
@@ -3011,6 +3061,11 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §31) */
+  setPhotos: (code: string, assetIds: string[]) =>
+    sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
+      assetIds,
+    }),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
     sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',

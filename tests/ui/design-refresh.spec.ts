@@ -19,7 +19,11 @@ test('финансы: деньги на первом экране, кнопки 
       .getByRole('button', { name: 'Все задачи', exact: true });
     await expect(attention).toBeAttached();
     if (width === 1440) {
-      await expect(risks).toBeInViewport({ ratio: 1 });
+      // по макету 09.10 карточка внимания стоит третьим рядом: на первом экране деньги и загрузка,
+      // внимание частично видно и достижимо прокруткой
+      await expect(page.getByTestId('cash-summary')).toBeInViewport();
+      await expect(risks).toBeInViewport({ ratio: 0.2 });
+      await attention.scrollIntoViewIfNeeded();
       await expect(attention).toBeInViewport();
     }
   }

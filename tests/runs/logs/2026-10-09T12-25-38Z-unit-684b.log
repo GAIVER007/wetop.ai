@@ -1,0 +1,19 @@
+# Модульные (unit) · 09.10.2026 17:25 Алматы · vm
+# коммит 8940508 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-25-38Z-unit-684b.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/desk-person.test.ts' 'apps/web/src/lib/seller-navigation.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (19 tests) 17ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 14ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 4ms
+
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  12:25:39
+   Duration  1.68s (transform 85%, import 14%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-25-38Z-unit-684b.json
+
+# код выхода 0 · 3 с

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API } from './fixtures';
+import { FIXTURE_API, openBoardFilters } from './fixtures';
 
 /**
  * Цикл уборки в календаре и в карточке ячейки (22.09.2026, поручение владельца по снимку: «построй логику
@@ -71,19 +71,22 @@ test('шахматка: цикл в строке — требует уборки
   // после проверки ячейка доступна: значка в строке нет, в уборке осталась одна M01
   await expect(glyph).toHaveCount(0);
   await expect(glyphs).toHaveCount(1);
-  // счётчик уборки — в пункте поля «Места» (PR 7 «Шахматки v2»)
-  await expect(main.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+  // счётчик уборки, в пункте поля «Места» окошка «Фильтры» (PR 7 «Шахматки v2», с 09.10 в окошке)
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
     'Уборка 1',
   );
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
 });
 
 test('шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено', async ({ page }) => {
   const main = page.getByRole('main');
   await page.goto('/chessboard');
   // «Уборка N» — пункт поля «Места» (PR 7 «Шахматки v2»), а не чип
-  const places = main.getByLabel('Места в календаре');
-  const cleaning = places.locator('option[value="cleaning"]');
+  const pop = await openBoardFilters(page);
+  const cleaning = pop.getByLabel('Места в календаре').locator('option[value="cleaning"]');
   await expect(cleaning).toHaveText('Уборка 2');
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
   const r01 = main.getByTestId('unit-row').filter({ hasText: /\bR01\b/ });
   await r01.getByTestId('unit-housekeeping').getByRole('button').click();
   await page
@@ -98,9 +101,13 @@ test('шахматка: «Уборка» в фильтрах считает вс
   ).toBeVisible();
   // строка обновляется через router.refresh() после ответа — ждём новый статус, а не читаем прежний
   await expect(r01.getByTestId('unit-housekeeping')).toHaveAttribute('data-status', 'CLEAN');
-  // убранная, но не проверенная ячейка всё ещё в списке уборки
-  await expect(cleaning).toHaveText('Уборка 2');
-  await places.selectOption('cleaning');
+  // убранная, но не проверенная ячейка всё ещё в списке уборки: счётчик читаем из окошка заново
+  const again = await openBoardFilters(page);
+  await expect(again.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+    'Уборка 2',
+  );
+  await again.getByLabel('Места в календаре').selectOption('cleaning');
+  await again.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(main.getByTestId('unit-row')).toHaveCount(2);
   const statuses = await main
     .getByTestId('unit-housekeeping')

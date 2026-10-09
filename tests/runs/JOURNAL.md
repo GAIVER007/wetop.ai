@@ -7710,3 +7710,5 @@
 | 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
 | 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |
 | 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |
+| 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts -g вкладки входа и регистрации --workers=1) | ❌ упало 1 из 1 | 1 мин 7 с | 6332d73 | [лог](logs/2026-10-09T13-28-36Z-e2e-5f1d.log) | вкладки входа и регистрации переключаются без перехода в приложение |
+| 09.10.2026 18:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 10 с | 6332d73 +1 | [лог](logs/2026-10-09T13-29-48Z-e2e-a8b3.log) |  |

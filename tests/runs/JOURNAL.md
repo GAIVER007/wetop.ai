@@ -7740,3 +7740,9 @@
 | 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
 | 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
 | 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |
+| 09.10.2026 18:07 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/desk-person.test.ts apps/web/src/lib/ | ✅ 43 из 43 | 10 с | 6aeba9c +8 | [лог](logs/2026-10-09T13-07-27Z-unit-68cc.log) | после слияния main (Гости в Брони) и моего переноса Организаций |
+| 09.10.2026 18:07 | typecheck | ✅ без ошибок | 1 мин | 6aeba9c +13 | [лог](logs/2026-10-09T13-07-42Z-typecheck-1824.log) |  |
+| 09.10.2026 18:08 | lint | ✅ без ошибок | 39 с | 6aeba9c +13 | [лог](logs/2026-10-09T13-08-43Z-lint-3591.log) |  |
+| 09.10.2026 18:09 | unit | ✅ 4149 из 4152, пропущено 3 | 2 мин 17 с | 6aeba9c +8 | [лог](logs/2026-10-09T13-09-23Z-unit-e726.log) |  |
+| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ❌ упало 1 из 48 | 6 мин 23 с | 6aeba9c +13 | [лог](logs/2026-10-09T13-11-59Z-e2e-8c1d.log) | после слияния main (Гости в Брони): меню, организации, брони |
+| 09.10.2026 18:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/roles.spec.ts) | ✅ 12 из 12 | 1 мин 32 с | 6aeba9c +14 | [лог](logs/2026-10-09T13-18-56Z-e2e-52a1.log) | roles: меню администратора без /guests (Гости внутри Броней) |

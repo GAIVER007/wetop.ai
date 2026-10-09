@@ -1,4 +1,3 @@
--- 🔴 ОТДЕЛЬНЫЙ РЕЛИЗ (DATA_MODEL §30, ADR-153): применять только после «да» владельца на §30; schema.prisma эту миграцию пока не опережает
 -- Фото категорий размещения (DATA_MODEL §30, ADR-153): категория выбирает до десяти готовых изображений из библиотеки
 -- сайта филиала (MKT8, `site_assets`), порядок хранится. Новых файлов и хранилища нет: загрузка остаётся в библиотеке.
 -- Права ролей отдельной миграцией 071 (как 066 и 067). Откат: down.sql. На рабочей базе применяет владелец.
@@ -14,16 +13,16 @@ CREATE TABLE "accommodation_type_photos" (
 );
 
 -- Порядок без повторов внутри категории; не больше десяти
-CREATE UNIQUE INDEX "accommodation_type_photos_position_key"
+CREATE UNIQUE INDEX "accommodation_type_photos_accommodation_type_id_position_key"
   ON "accommodation_type_photos"("accommodation_type_id", "position");
-CREATE INDEX "accommodation_type_photos_asset_idx" ON "accommodation_type_photos"("site_asset_id");
+CREATE INDEX "accommodation_type_photos_site_asset_id_idx" ON "accommodation_type_photos"("site_asset_id");
 ALTER TABLE "accommodation_type_photos"
   ADD CONSTRAINT "accommodation_type_photos_position" CHECK ("position" BETWEEN 0 AND 9);
 
 -- AddForeignKey
-ALTER TABLE "accommodation_type_photos" ADD CONSTRAINT "accommodation_type_photos_type_fkey"
+ALTER TABLE "accommodation_type_photos" ADD CONSTRAINT "accommodation_type_photos_accommodation_type_id_fkey"
   FOREIGN KEY ("accommodation_type_id") REFERENCES "accommodation_types"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "accommodation_type_photos" ADD CONSTRAINT "accommodation_type_photos_asset_fkey"
+ALTER TABLE "accommodation_type_photos" ADD CONSTRAINT "accommodation_type_photos_site_asset_id_fkey"
   FOREIGN KEY ("site_asset_id") REFERENCES "site_assets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- Фото берётся только из библиотеки филиала этого объекта и только как картинка (не логотип и не фавиконка).

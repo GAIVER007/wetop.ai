@@ -1,0 +1,48 @@
+# Модульные (unit) · 09.10.2026 18:45 Алматы · vm
+# коммит 97364f8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T13-45-40Z-unit-5910.json' 'apps/api/src/bar/bar.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/bar/bar.controller.test.ts (10 tests | 1 failed) 278ms
+   ❯ бар: приходы (BAR2) (10)
+     ✓ создает черновик и проводит его один раз 59ms
+     ✓ отклоняет пустой приход и сумму float 8ms
+     ✓ создает товар и поставщика, архивирует без удаления 25ms
+     × правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену 5ms
+     ✓ продает без брони и запрещает минусовой остаток 5ms
+     ✓ возвращает продажу и восстанавливает остаток только по флагу 4ms
+     ✓ списывает товар с причиной и не уходит в минус 7ms
+     ✓ принимает частичную оплату поставщику и запрещает переплату 6ms
+     ✓ добавляет товар в открытый счет гостя 4ms
+     ✓ фиксирует недостачу и блокирует излишек без цены 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar.controller.test.ts > бар: приходы (BAR2) > правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/bar/bar.controller.test.ts:123:8
+    121|       name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+    122|       unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    123|     }).expect(200);
+       |        ^
+    124|     expect(updated.body).toMatchObject({ name: 'Cola 0,5 ж/б', barcode…
+    125|     // цена правится своим маршрутом с аудитом до и после: здесь её нет
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  13:45:41
+   Duration  3.02s (transform 69%, import 21%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-10-09T13-45-40Z-unit-5910.json
+
+# код выхода 1 · 4 с

@@ -447,12 +447,18 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 // стоит первым; дальше работа смены, продажи, отчётность; фонд и настройки реже всего.
 // «Отчёты» и «Аналитика» объединены в одну группу: оба раздела — «посмотреть цифры».
 export const menuSections: MenuSection[] = [
-  direct('finance', '/finance', 'money'),
+  {
+    // «Бар» живёт внутри «Финансов» (ADR-157, поручение владельца 09.10.2026): товарно-денежный учёт
+    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
+    id: 'finance',
+    label: 'Финансы',
+    icon: 'money',
+    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
+  },
   direct('chessboard', '/chessboard', 'board'),
   // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
   // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
   direct('guests', '/guests', 'guests'),
-  direct('bar', '/bar', 'receipt'),
   {
     id: 'sales',
     label: 'Продажи',
@@ -526,10 +532,16 @@ export const foodMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
-/** Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134) */
+/**
+ * Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134).
+ * Группа («Финансы» с ADR-157) даёт панели свой первый пункт, но под именем группы:
+ * подпись пункта «Оплаты и касса» для вкладки панели длинна и уже смысла группы.
+ */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
-  .map((section) => section.items[0]!);
+  .map((section) =>
+    section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label },
+  );
 
 /**
  * То же для салона: разделы его вертикали (Q-254). Не передана, значит гостиница, как было до среза B2.

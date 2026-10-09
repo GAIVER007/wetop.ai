@@ -1,6 +1,7 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
+import { barFixture, resetBarFixture } from './bar-fixture';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
 import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
@@ -893,7 +894,7 @@ function seedAnalyticsHistory() {
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
 let hotelOverrides: Record<string, unknown> = {};
-// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+// фото и договор объекта (ADR-158): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
 interface FixtureMedia {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';
@@ -3103,7 +3104,7 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
-      // номера и места по единицам продажи (ADR-156): как считает API
+      // номера и места по единицам продажи (ADR-158): как считает API
       capacity: {
         rooms: units.filter((u) => u.kind === 'ROOM').length,
         beds: units.filter((u) => u.kind === 'BED').length,
@@ -3878,6 +3879,8 @@ function read(path: string, q: URLSearchParams): unknown {
           })),
       ),
       housekeepingHistory: [],
+      createdAt: '2026-01-12T09:30:00.000Z',
+      updatedAt: '2026-03-20T05:24:00.000Z',
     } satisfies UnitCard;
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };
@@ -4954,6 +4957,7 @@ createServer(async (req, res) => {
       fixtureAppointments.length = 0;
       resetMarket();
       resetAgentFixture();
+      resetBarFixture();
       resetMarketingSiteFixture();
       resetSiteAssetsFixture();
       hits.clear();
@@ -7270,32 +7274,10 @@ createServer(async (req, res) => {
       onboardingNeeded = false;
       return send(200, { ok: true, categories: cats.length, units });
     }
-    if (
-      req.method === 'GET' &&
-      [
-        '/bar/categories',
-        '/bar/products',
-        '/bar/suppliers',
-        '/bar/receipts',
-        '/bar/stock',
-        '/bar/sales',
-        '/bar/folios',
-        '/bar/movements',
-      ].includes(path)
-    ) {
-      return send(200, []);
-    }
-    if (path === '/bar/report' && req.method === 'GET') {
-      return send(200, {
-        purchasesMinor: '0',
-        supplierPaidMinor: '0',
-        revenueMinor: '0',
-        costMinor: '0',
-        grossProfitMinor: '0',
-        writeOffMinor: '0',
-        stockCostMinor: '0',
-        supplierDebtMinor: '0',
-      });
+    // Бар (ADR-157): состояние в памяти со сканом накладной, scripts/preview/bar-fixture.ts
+    {
+      const barResponse = barFixture(path, req.method ?? 'GET', body);
+      if (barResponse) return send(barResponse.status, barResponse.data);
     }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)

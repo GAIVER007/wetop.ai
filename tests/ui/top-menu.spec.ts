@@ -34,7 +34,6 @@ const TABS = [
   'Финансы',
   'Календарь',
   'Гости и бронирования',
-  'Бар',
   'Продажи',
   'Маркетинг',
   'Отчёты',
@@ -202,8 +201,11 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Финансы', 'Календарь', 'Гости и бронирования', 'Бар', 'Номерной фонд'])
+    for (const label of ['Календарь', 'Гости и бронирования', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
+    // «Финансы»: группа (ADR-157), раскрывается, внутри «Оплаты и касса» и «Бар»
+    await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
+    await expect(drawer.getByRole('link', { name: 'Бар', exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
@@ -211,7 +213,7 @@ for (const theme of ['light', 'dark'] as const) {
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
     // на вкладке телефона у «Гостей и бронирований» короткая подпись shortLabel «Брони»
-    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Бар']);
+    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

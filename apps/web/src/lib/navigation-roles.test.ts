@@ -37,12 +37,13 @@ describe('меню по ролям', () => {
 
   it('администратор: работа с гостями, продавец (диалоги), финансы и статистика, неисправности', () => {
     expect(hrefs(access('STAFF'))).toEqual([
-      // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
+      // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md);
+      // с ADR-157 это группа, «Бар» её пункт
       '/finance',
+      '/bar',
       '/chessboard',
       // «Гости и бронирования» (09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
-      '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/market',
       '/ai-agents',
@@ -54,11 +55,17 @@ describe('меню по ролям', () => {
       'finance',
       'chessboard',
       'guests',
-      'bar',
       'sales',
       'reports',
       'settings',
     ]);
+  });
+
+  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-157)', () => {
+    const finance = menuSectionsFor(access('STAFF')).find((s) => s.id === 'finance');
+    expect(finance?.label).toBe('Финансы');
+    expect(finance?.direct).toBeUndefined();
+    expect(finance?.items.map((i) => i.href)).toEqual(['/finance', '/bar']);
   });
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
@@ -112,6 +119,8 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/guests')?.requires).toBe('desk');
     expect(routeRule('/finance')?.requires).toBe('reports');
     expect(routeRule('/bar')?.requires).toBe('reports');
+    // подстраницы бара (ADR-157) наследуют право пункта по длинному совпадению пути
+    expect(routeRule('/bar/receipts/new')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 

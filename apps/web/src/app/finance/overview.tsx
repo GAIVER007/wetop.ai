@@ -93,7 +93,7 @@ export async function BizKpis({
       <Stat
         label={`Выручка ${periodLabel}`}
         value={money(income)}
-        icon="analytics"
+        icon={<Icon name="analytics" />}
         testId="biz-revenue"
         delta={moneyDelta(income, prevIncome)}
         hint="к прошлому периоду"
@@ -101,7 +101,7 @@ export async function BizKpis({
       <Stat
         label="Чистая прибыль"
         value={money(profit)}
-        icon="money"
+        icon={<Icon name="money" />}
         testId="biz-profit"
         delta={moneyDelta(profit, prevProfit)}
         hint="поступления минус расходы"
@@ -109,7 +109,7 @@ export async function BizKpis({
       <Stat
         label="Загрузка сегодня"
         value={percent === null ? 'Нет данных' : formatPercent(percent)}
-        icon="board"
+        icon={<Icon name="board" />}
         testId="biz-occupancy"
         delta={percent !== null && prev ? deltaPoints(percent, prev.occupancy.percent) : undefined}
         hint="к вчера"
@@ -117,7 +117,7 @@ export async function BizKpis({
       <Stat
         label="Заезды сегодня"
         value={counts ? String(counts.arrivals) : 'Нет данных'}
-        icon="arrival"
+        icon={<Icon name="arrival" />}
         testId="biz-arrivals-kpi"
         delta={counts ? intDelta(counts.arrivals, prev ? prev.arrivals.count : null) : undefined}
         hint="к вчера"
@@ -125,7 +125,7 @@ export async function BizKpis({
       <Stat
         label="Выезды сегодня"
         value={counts ? String(counts.departures) : 'Нет данных'}
-        icon="departure"
+        icon={<Icon name="departure" />}
         testId="biz-departures-kpi"
         delta={
           counts ? intDelta(counts.departures, prev ? prev.departures.count : null) : undefined
@@ -135,7 +135,7 @@ export async function BizKpis({
       <Stat
         label="К оплате / Долги"
         value={debts ? formatMoney(debts.balanceMinor, currency) : 'Нет данных'}
-        icon="card"
+        icon={<Icon name="card" />}
         testId="biz-due"
         tone={debts && BigInt(debts.balanceMinor) > 0n ? 'warning' : undefined}
         hint="остаток по броням периода"
@@ -143,7 +143,7 @@ export async function BizKpis({
       <Stat
         label="Свободно мест"
         value={summary ? String(summary.free) : 'Нет данных'}
-        icon="bed"
+        icon={<Icon name="bed" />}
         testId="biz-free"
         hint={summary ? `из ${total}` : 'данные фонда недоступны'}
       />

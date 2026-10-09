@@ -1247,7 +1247,6 @@
 
   /* Показатель */
   .stat {
-    position: relative;
     min-width: 0;
     padding: var(--space-4);
     border: 1px solid var(--border);
@@ -1256,22 +1255,6 @@
     box-shadow: none;
     backdrop-filter: none;
     text-align: left;
-  }
-  .stat__icon {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-sm);
-    background: var(--surface-muted);
-    color: var(--muted);
-  }
-  .stat__icon svg {
-    width: 16px;
-    height: 16px;
   }
   .stat__label {
     margin-bottom: 10px;

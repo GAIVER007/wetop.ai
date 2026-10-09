@@ -208,8 +208,12 @@ const DELTA_GLYPH = { up: '\u2191', down: '\u2193', flat: '\u2192' } as const;
 type StatProps = {
   label: ReactNode;
   value: ReactNode;
-  /** значок-подпись в углу плитки (обзор бизнеса, план finance-overview-2026-10-09): смысл держит label */
-  icon?: IconName | undefined;
+  /**
+   * Значок слева от подписи: круг цвета тона, плитка по-прежнему не заливается («Гости и
+   * бронирования» и «Обзор бизнеса», 09.10.2026). Готовый элемент, обычно `<Icon name=…/>`;
+   * смысл держит label, круг скрыт от программы чтения.
+   */
+  icon?: ReactNode | undefined;
   hint?: ReactNode;
   hintTone?: 'warn' | undefined;
   testId?: string | undefined;
@@ -217,8 +221,6 @@ type StatProps = {
   size?: 'sm' | 'md' | 'lg' | LegacyStatSize | undefined;
   /** изменение к прошлому периоду: форма `Delta` из `lib/dashboard-format.ts` */
   delta?: Delta | undefined;
-  /** значок слева от подписи («Гости и бронирования», 09.10.2026): круг цвета тона, плитка по-прежнему не заливается */
-  icon?: ReactNode | undefined;
 } & (
   | { href?: undefined; children?: ReactNode }
   /** плитка-ссылка целиком: внутри других ссылок и кнопок нет */
@@ -235,7 +237,6 @@ export function Stat({
   tone,
   size,
   delta,
-  icon,
   href,
   children,
 }: StatProps) {
@@ -249,11 +250,6 @@ export function Stat({
   const className = cx('stat', toneClass, sizeClass, href && 'stat--link', icon ? 'stat--icon' : false);
   const text = (
     <>
-      {icon && (
-        <span className="stat__icon" aria-hidden="true">
-          <Icon name={icon} />
-        </span>
-      )}
       <div className="stat__label">{label}</div>
       <div className="stat__value" data-testid={testId}>
         {value}

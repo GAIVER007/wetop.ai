@@ -13,7 +13,7 @@ import { assistant } from '@pms/integrations';
 import { BAR_REPOSITORY, type BarRepository } from './bar.repository';
 import { BAR_SCAN_BOT, type BarScanBot } from './scan.bot';
 
-/** Что принимает скан: вход моделей через OpenAI-совместимый роутер; PDF придёт отдельным срезом (ADR-154) */
+/** Что принимает скан: вход моделей через OpenAI-совместимый роутер; PDF придёт отдельным срезом (ADR-156) */
 export const SCAN_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 /** 8 МБ файла в base64 (×4/3) с небольшим запасом; транспортный предел: `body-parsers.ts` */
 export const SCAN_MAX_BASE64 = 11_200_000;

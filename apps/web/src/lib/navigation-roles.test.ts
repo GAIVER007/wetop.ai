@@ -61,7 +61,7 @@ describe('меню по ролям', () => {
     ]);
   });
 
-  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-154)', () => {
+  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-156)', () => {
     const finance = menuSectionsFor(access('STAFF')).find((s) => s.id === 'finance');
     expect(finance?.label).toBe('Финансы');
     expect(finance?.direct).toBeUndefined();
@@ -119,7 +119,7 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/guests')?.requires).toBe('desk');
     expect(routeRule('/finance')?.requires).toBe('reports');
     expect(routeRule('/bar')?.requires).toBe('reports');
-    // подстраницы бара (ADR-154) наследуют право пункта по длинному совпадению пути
+    // подстраницы бара (ADR-156) наследуют право пункта по длинному совпадению пути
     expect(routeRule('/bar/receipts/new')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });

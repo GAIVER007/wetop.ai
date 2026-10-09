@@ -211,7 +211,7 @@ for (const theme of ['light', 'dark'] as const) {
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
     for (const label of ['Главная', 'Календарь', 'Брони', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
-    // «Финансы»: группа (ADR-154), раскрывается, внутри «Оплаты и касса» и «Бар»
+    // «Финансы»: группа (ADR-156), раскрывается, внутри «Оплаты и касса» и «Бар»
     await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Бар', exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();

@@ -3455,7 +3455,7 @@ export interface BarReceiptRow {
 }
 export interface BarStockRow extends BarProductRow {
   availableUnits: string; stockCostMinor: string;
-  /** Последний проведённый приход (ADR-154): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
+  /** Последний проведённый приход (ADR-156): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
   lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
   /** Ближайший срок годности среди партий с остатком */
   nearestExpiry: string | null;
@@ -3469,7 +3469,7 @@ export interface BarMovementRow { id: string; productId: string; kind: 'RECEIPT'
 export interface BarReport {
   purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string;
   writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string;
-  /** Текущий месяц объекта к прошлому (ADR-154); прирост null, если в прошлом месяце не было сумм */
+  /** Текущий месяц объекта к прошлому (ADR-156); прирост null, если в прошлом месяце не было сумм */
   month?: {
     monthStart: string; purchasesMinor: string; purchasesPrevMinor: string; revenueMinor: string; revenuePrevMinor: string;
     grossProfitMinor: string; purchasesGrowth: number | null; revenueGrowth: number | null;

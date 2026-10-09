@@ -23,7 +23,7 @@ export class BarController {
   @Patch('products/:id/active') setProductActive(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductActive(id, body); }
   @Access('settings')
   @Patch('products/:id/price') setProductPrice(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductPrice(id, body); }
-  // правка карточки (ADR-154, макет владельца): название, категория, штрихкод, упаковка, наценка, минимум
+  // правка карточки (ADR-156, макет владельца): название, категория, штрихкод, упаковка, наценка, минимум
   @Access('settings')
   @Patch('products/:id') updateProduct(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.updateProduct(id, body); }
   @Get('suppliers') suppliers() { return this.service.suppliers(); }
@@ -43,7 +43,7 @@ export class BarController {
   @Post('write-offs') writeOff(@Body() body: unknown) { return this.service.writeOff(body); }
   @Post('inventory-counts') inventoryCount(@Body() body: unknown) { return this.service.inventoryCount(body); }
   @Post('receipts') createReceipt(@Body() body: unknown) { return this.service.createReceipt(body); }
-  // ИИ-скан накладной (ADR-154): фото внутрь, строки формы наружу; ничего не создаёт и не проводит
+  // ИИ-скан накладной (ADR-156): фото внутрь, строки формы наружу; ничего не создаёт и не проводит
   @Post('receipts/scan') scanReceipt(@Body() body: unknown) { return this.scan.scanReceipt(body); }
   @Post('receipts/:id/post') postReceipt(@Param('id', ParseUUIDPipe) id: string) { return this.service.postReceipt(id); }
   @Post('receipts/:id/payments') payReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.payReceipt(id, body); }

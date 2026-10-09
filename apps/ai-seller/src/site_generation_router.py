@@ -1,4 +1,4 @@
-"""Вход генерации сайта (MKT6), ИИ-правки (MKT9), разговора (MKT9.2) и скана накладной бара (ADR-154):
+"""Вход генерации сайта (MKT6), ИИ-правки (MKT9), разговора (MKT9.2) и скана накладной бара (ADR-156):
 POST /internal/site-generation, /internal/site-edit, /internal/site-assistant и /internal/bar-receipt-scan
 только по служебному ключу платформы.
 

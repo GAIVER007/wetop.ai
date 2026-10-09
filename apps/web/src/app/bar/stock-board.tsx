@@ -19,7 +19,7 @@ import { STATUS_LABEL, STATUS_TONE, markupPercent, recommendedPriceMinor, stockS
 import { suggestCode } from './receipts/new/new-receipt';
 
 /**
- * «Товары и остатки» с карточкой товара колонкой справа (ADR-154, макет владельца 09.10.2026). Слева доска
+ * «Товары и остатки» с карточкой товара колонкой справа (ADR-156, макет владельца 09.10.2026). Слева доска
  * и нижний ряд (приходы, популярные), справа карточка выбранного товара: таблица остаётся на экране (§1 п. 5).
  */
 const initial: BarActionResult = { error: null, ok: 0 };

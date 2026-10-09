@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 09.10.2026 20:04 Алматы · vm
+# коммит a99ca30 (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.2s)
+  ✓  2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.3s)
+  ✓  3 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.8s)
+  ✓  4 tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (6.8s)
+  ✓  5 tests/ui/marketing.spec.ts:221:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.8s)
+  ✓  6 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: light (13.2s)
+  ✓  7 tests/ui/marketing.spec.ts:243:3 › хаб на компьютере и телефоне, доступность: dark (13.5s)
+  ✓  8 tests/ui/marketing.spec.ts:298:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (6.0s)
+
+  8 passed (1.2m)
+
+# код выхода 0 · 1 мин 10 с

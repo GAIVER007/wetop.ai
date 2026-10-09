@@ -35,7 +35,7 @@ const units: UnitBoardTally[] = [
 const input = { from: '2026-10-01', to: '2026-10-10', nights: 10, units, unassignedStays: 2 };
 
 describe('buildUnitStats', () => {
-  it('строки по каждой единице: загрузка от дней периода без закрытых ночей (ADR-154), порядок — категория, затем код', () => {
+  it('строки по каждой единице: загрузка от дней периода без закрытых ночей (ADR-155), порядок — категория, затем код', () => {
     const s = buildUnitStats(input, 'all');
     expect(s.rows.map((r) => r.code)).toEqual(['B01', 'B02', 'R01']);
     const r01 = s.rows.find((r) => r.code === 'R01')!;

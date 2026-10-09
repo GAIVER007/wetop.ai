@@ -19,7 +19,7 @@ export interface UnitBoardTally {
 }
 
 export interface UnitStatRow extends UnitBoardTally {
-  /** Загрузка единицы: занято из дней периода без закрытых ночей (ADR-154), % с одним знаком — как у сводки */
+  /** Загрузка единицы: занято из дней периода без закрытых ночей (ADR-155), % с одним знаком — как у сводки */
   percent: number;
 }
 

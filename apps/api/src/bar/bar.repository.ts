@@ -227,7 +227,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async sellToFolio(input: BarFolioSaleInput) {
     const propertyId = await this.propertyId();
-    // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-284); без неё начисление выпадало из периодных отчётов
+    // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-292); без неё начисление выпадало из периодных отчётов
     const serviceDate = new Date(`${await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name)}T00:00:00Z`);
     return this.prisma.db.$transaction(async (tx) => {
       const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });

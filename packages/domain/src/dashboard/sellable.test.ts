@@ -3,7 +3,7 @@ import { buildDashboard, type DashboardInput } from './metrics';
 import { buildUnitStats } from './units';
 import { groupDaily } from './granularity';
 
-/** Закрытые для продажи ночи вычитаются из знаменателя загрузки (ADR-154, Q-282, `docs/metrics.md` §1) */
+/** Закрытые для продажи ночи вычитаются из знаменателя загрузки (ADR-155, Q-286, `docs/metrics.md` §1) */
 const input = (): DashboardInput => ({
   from: '2026-10-05',
   to: '2026-10-06',
@@ -38,7 +38,7 @@ const input = (): DashboardInput => ({
   refundsMinor: 0n,
 });
 
-describe('загрузка по доступным к продаже ночам (ADR-154)', () => {
+describe('загрузка по доступным к продаже ночам (ADR-155)', () => {
   it('знаменатель: фонд минус блокировки; закрытые ночи показаны отдельно', () => {
     const d = buildDashboard(input());
     expect(d.occupancy).toMatchObject({

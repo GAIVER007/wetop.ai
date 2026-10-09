@@ -70,7 +70,7 @@ export function groupDaily(
     out.set(start, b);
   }
   return [...out.values()].map(({ start, end, ...b }) => {
-    // знаменатель: доступные к продаже ночи, закрытые вычтены (ADR-154)
+    // знаменатель: доступные к продаже ночи, закрытые вычтены (ADR-155)
     const nights = b.occupied + b.free;
     return {
       ...b,

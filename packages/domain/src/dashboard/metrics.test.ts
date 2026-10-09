@@ -131,7 +131,7 @@ const input = (): DashboardInput => ({
 });
 
 describe('buildDashboard', () => {
-  it('загрузка — клетко-ночи шахматки: занято / (единиц × ночей − закрытые), ADR-154', () => {
+  it('загрузка — клетко-ночи шахматки: занято / (единиц × ночей − закрытые), ADR-155', () => {
     const d = buildDashboard(input());
     expect(d.nights).toBe(2);
     expect(d.units).toBe(5);
@@ -326,7 +326,7 @@ describe('buildDashboard: брони и тип фонда', () => {
     ]);
   });
 
-  it('койки: своя загрузка без закрытых ночей в знаменателе (ADR-154), своя средняя цена и свои отмены', () => {
+  it('койки: своя загрузка без закрытых ночей в знаменателе (ADR-155), своя средняя цена и свои отмены', () => {
     const d = buildDashboard(input(), 'beds');
     expect(d.units).toBe(3);
     expect(d.occupancy).toEqual({

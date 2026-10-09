@@ -211,7 +211,7 @@ describe('desk dashboard API', () => {
       .get('/desk/dashboard/units?from=2026-10-05&to=2026-10-06&fund=rooms')
       .expect(200);
     expect(rooms.body.rows).toHaveLength(2);
-    // R2 закрыт обе ночи: из четырёх клетко-ночей к продаже две (ADR-154), обе заняты R1
+    // R2 закрыт обе ночи: из четырёх клетко-ночей к продаже две (ADR-155), обе заняты R1
     expect(rooms.body.totals).toMatchObject({ units: 2, percent: 100 });
 
     await request(app.getHttpServer()).get('/desk/dashboard/units').expect(400);

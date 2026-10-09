@@ -69,7 +69,7 @@ test('по умолчанию — сегодняшний день: пять пл
   await expect(rank).toContainText('к среднему');
 });
 
-test('знаменатель по ADR-154: закрытое для продажи место вычитается из фонда загрузки', async ({ page }) => {
+test('знаменатель по ADR-155: закрытое для продажи место вычитается из фонда загрузки', async ({ page }) => {
   const main = page.getByRole('main');
   // закрываем одну свободную на сегодня койку женского номера
   const board = await (
@@ -102,7 +102,7 @@ test('знаменатель по ADR-154: закрытое для продаж�
   expect(block).toBeGreaterThanOrEqual(1);
   // места категории не теряются: занято + свободно + блок = весь фонд категории
   expect(occupied + freeNow + block).toBe(units);
-  // загрузка = занято / (фонд − закрытое для продажи), ADR-154; до 09.10.2026 было занято / весь фонд
+  // загрузка = занято / (фонд − закрытое для продажи), ADR-155; до 09.10.2026 было занято / весь фонд
   const expected = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
     Math.round((occupied / (units - block)) * 1000) / 10,
   );

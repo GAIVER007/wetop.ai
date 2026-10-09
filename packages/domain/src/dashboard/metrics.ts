@@ -144,7 +144,7 @@ export interface DashboardPeriod {
     occupiedNights: number;
     blockedNights: number;
     freeNights: number;
-    /** Доступно к продаже: ночи фонда минус закрытые (ADR-154, Q-282); знаменатель загрузки и RevPAR */
+    /** Доступно к продаже: ночи фонда минус закрытые (ADR-155, Q-286); знаменатель загрузки и RevPAR */
     sellableNights: number;
     percent: number;
   };

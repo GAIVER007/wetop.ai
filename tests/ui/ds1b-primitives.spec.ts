@@ -68,14 +68,17 @@ test('переключатель шахматки: ровно один выбр�
   page,
 }) => {
   await page.goto('/chessboard');
+  // с 09.10 переключатель вида живёт в окошке «Фильтры»: шапку календаря разгрузил владелец
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
   const group = page.getByRole('group', { name: 'Вид строк календаря' });
   const pressed = group.locator('[aria-pressed="true"]');
   await expect(pressed).toHaveCount(1);
-  await expect(pressed).toHaveText('Компактный');
+  // по умолчанию «Обычный» (образец владельца 09.10.2026)
+  await expect(pressed).toHaveText('Обычный');
   await pressed.focus();
   await page.keyboard.press('ArrowRight');
-  await expect(group.locator('[aria-pressed="true"]')).toHaveText('Обычный');
-  expect(await focused(page)).toBe('Обычный');
+  await expect(group.locator('[aria-pressed="true"]')).toHaveText('Подробный');
+  expect(await focused(page)).toBe('Подробный');
   await page.keyboard.press('End');
   await expect(group.locator('[aria-pressed="true"]')).toHaveText('Подробный');
   await page.keyboard.press('ArrowRight');
@@ -86,6 +89,7 @@ test('переключатель шахматки: ровно один выбр�
   await group.getByRole('button', { name: 'Обычный' }).click();
   await expect(group.locator('[aria-pressed="true"]')).toHaveCount(1);
   await page.reload();
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
   await expect(
     page
       .getByRole('group', { name: 'Вид строк календаря' })
@@ -177,8 +181,10 @@ for (const theme of ['light', 'dark'] as const) {
             .filter((e) => e.h < 44),
         );
       expect(small, route).toEqual([]);
+      // на /chessboard видимого .seg больше нет (вид строк с 09.10 в окошке «Фильтры»),
+      // поэтому в include добавлена строка календаря .board-toolbar: без единого совпадения axe падает
       const result = await new AxeBuilder({ page })
-        .include('.tabs, .chip-group, .seg, .toolbar')
+        .include('.tabs, .chip-group, .seg, .toolbar, .board-toolbar')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
         .analyze();
       expect(

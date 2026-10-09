@@ -60,7 +60,8 @@ test('меню телефона: работа смены прямыми ссыл
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Финансы');
+  // активная отметка на пункте группы «Финансы» (ADR-157)
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
   // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
   const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();

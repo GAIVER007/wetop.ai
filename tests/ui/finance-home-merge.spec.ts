@@ -119,7 +119,8 @@ test('меню: «Финансы» первой вкладкой, «Главно
   const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   await expect(menu.locator('.topmenu__tab').first()).toHaveText('Финансы');
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).toHaveCount(0);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Финансы');
+  // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
 });
 
 test('период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию', async ({ page }) => {

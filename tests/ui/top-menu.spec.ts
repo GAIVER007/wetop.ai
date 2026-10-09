@@ -67,7 +67,8 @@ test('строка вкладок в шапке: порядок, одна акт
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Финансы');
+  // активная отметка на пункте группы «Финансы» (ADR-157)
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
 
   const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
@@ -203,9 +204,11 @@ for (const theme of ['light', 'dark'] as const) {
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
     for (const label of ['Календарь', 'Гости и бронирования', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
-    // «Финансы»: группа (ADR-157), раскрывается, внутри «Оплаты и касса» и «Бар»
-    await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
-    await expect(drawer.getByRole('link', { name: 'Бар', exact: true })).toBeVisible();
+    // «Финансы»: группа (ADR-157); на /finance она уже раскрыта как активная, клик нужен только закрытой
+    const barLink = drawer.getByRole('link', { name: 'Бар', exact: true });
+    if (!(await barLink.isVisible()))
+      await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
+    await expect(barLink).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');

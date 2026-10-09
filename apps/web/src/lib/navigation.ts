@@ -164,7 +164,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/guests',
         requires: 'desk',
         label: 'Гости и бронирования',
-        shortLabel: 'Гости и брони',
+        shortLabel: 'Брони', // на вкладке телефона 75 px «Гости и брони» переносится на две строки и поднимает панель
         icon: 'guests',
         description: 'Единая база гостей, бронирований и проживаний.',
       },

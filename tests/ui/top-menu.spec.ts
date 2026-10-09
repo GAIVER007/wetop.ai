@@ -218,7 +218,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Главная', 'Календарь', 'Гости и брони', 'Финансы']);
+    await expect(bottom.locator('a')).toHaveText(['Главная', 'Календарь', 'Брони', 'Финансы']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

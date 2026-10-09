@@ -199,6 +199,11 @@ for (const scheme of ['light', 'dark'] as const)
       expect(page1.violations).toEqual([]);
       await panel.getByTestId('payment-row').first().getByTestId('payment-edit').click();
       await expect(page.getByTestId('payment-edit-form')).toBeVisible();
+      // axe меряет контраст сквозь анимацию открытия панели: ждём её конца, как `settled` в
+      // beauty-schedule.spec.ts (CI release-checks 37835129463: ложные 3,06 и 2,62 в тёмной теме)
+      await page.locator('dialog[open]').evaluate(async (el) => {
+        await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished));
+      });
       const drawer = await new AxeBuilder({ page }).include('dialog').analyze();
       expect(drawer.violations).toEqual([]);
       // страница не шире экрана на телефоне

@@ -105,6 +105,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'accommodation_type_photos',
   // Фото и договор объекта, через объект (DATA_MODEL §32.3, ADR-157, миграция …076)
   'property_media',
+  // Область доступа сотрудника, через членство (DATA_MODEL §31, ADR-156, миграция …072): политика rls_tenant есть, в список не попала
+  'membership_scopes',
   // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
   'site_builder_entitlements',
   'site_ai_runs',

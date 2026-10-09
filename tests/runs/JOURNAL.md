@@ -7714,3 +7714,12 @@
 | 09.10.2026 17:34 | lint | ✅ без ошибок | 34 с | 7939d7d +1 | [лог](logs/2026-10-09T12-34-58Z-lint-43e7.log) |  |
 | 09.10.2026 17:35 | unit | ✅ 4163 из 4166, пропущено 3 | 2 мин 39 с | 7939d7d | [лог](logs/2026-10-09T12-35-33Z-unit-c08c.log) |  |
 | 09.10.2026 17:47 | typecheck | ✅ без ошибок | 45 с | 7939d7d | [лог](logs/2026-10-09T12-47-52Z-typecheck-a2a7.log) |  |
+| 09.10.2026 17:49 | typecheck | ✅ без ошибок | 47 с | f1bb7be | [лог](logs/2026-10-09T12-49-40Z-typecheck-7dca.log) |  |
+| 09.10.2026 17:50 | lint | ✅ без ошибок | 36 с | f1bb7be | [лог](logs/2026-10-09T12-50-28Z-lint-e766.log) |  |
+| 09.10.2026 17:51 | unit | ✅ 4163 из 4166, пропущено 3 | 2 мин 5 с | f1bb7be | [лог](logs/2026-10-09T12-51-05Z-unit-420e.log) |  |
+| 09.10.2026 17:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/analyti | ✅ 193 из 193 | 17 мин 41 с | f1bb7be | [лог](logs/2026-10-09T12-53-25Z-e2e-b103.log) |  |
+| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/platform-access.spec.ts tests/ui/pla | ❌ упало 2 из 231 | 31 мин 48 с | f1bb7be | [лог](logs/2026-10-09T13-11-07Z-e2e-656a.log) | вкладки входа и регистрации переключаются без перехода в приложение |
+| 09.10.2026 18:42 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ✅ 11 из 15, пропущено 4 | 1 мин 46 с | f1bb7be | [лог](logs/2026-10-09T13-42-56Z-e2e-1790.log) |  |
+| 09.10.2026 18:44 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ✅ 15 из 19, пропущено 4 | 2 мин 38 с | f1bb7be | [лог](logs/2026-10-09T13-44-43Z-e2e-f217.log) |  |
+| 09.10.2026 18:47 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 39 из 39 | 2 мин 21 с | f1bb7be | [лог](logs/2026-10-09T13-47-22Z-e2e-0af2.log) |  |
+| 09.10.2026 18:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts tests/ui/support-kb.spec.ts --workers=1) | ❌ упало 1 из 27 | 2 мин 54 с | f1bb7be | [лог](logs/2026-10-09T13-49-58Z-e2e-f0e1.log) | вкладки входа и регистрации переключаются без перехода в приложение |

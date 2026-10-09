@@ -1,0 +1,76 @@
+# Сквозные (e2e) · 09.10.2026 18:49 Алматы · vm
+# коммит f1bb7be (claude/mv8-5-ds2a-navigation-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/support-kb.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 27 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.5s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.8s)
+  ✓   3 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.3s)
+  ✓   4 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.3s)
+  ✓   5 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (3.0s)
+  ✓   6 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (9.6s)
+  ✓   7 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (9.2s)
+  ✓   8 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.9s)
+  ✓   9 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (5.6s)
+  ✘  10 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.3s)
+  ✓  11 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (2.1s)
+  ✓  12 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (4.5s)
+  ✓  13 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.2s)
+  ✓  14 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (3.1s)
+  ✓  15 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (2.8s)
+  ✓  16 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (5.1s)
+  ✓  17 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.5s)
+  ✓  18 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (4.4s)
+  ✓  19 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (3.5s)
+  ✓  20 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (3.7s)
+  ✓  21 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (5.2s)
+  ✓  22 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.9s)
+  ✓  23 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (6.4s)
+  ✓  24 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (5.7s)
+  ✓  25 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (6.8s)
+  ✓  26 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (6.7s)
+  ✓  27 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (4.5s)
+
+
+  1) tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+      150 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      151 |   await page.goto('/login');
+    > 152 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      153 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      154 |   await expect(
+      155 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:152:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+  26 passed (2.9m)
+
+# код выхода 1 · 2 мин 54 с

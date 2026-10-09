@@ -7704,3 +7704,8 @@
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
+| 09.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 4 мин 58 с | 8940508 +1 | [лог](logs/2026-10-09T12-20-54Z-e2e-767a.log) | хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных |
+| 09.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-26-10Z-e2e-f41c.log) |  |
+| 09.10.2026 17:27 | typecheck | ✅ без ошибок | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-08Z-typecheck-6653.log) |  |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
+| 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |

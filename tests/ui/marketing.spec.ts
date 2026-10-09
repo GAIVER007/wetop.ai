@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 /**
  * MKT2 (ADR-149, plans/mkt2-marketing-hub-2026-10-06.md): хаб «Маркетинг» и совместимость с сайтом. Группа меню
  * «Маркетинг» отдельно от «Продаж», первый пункт «Сайт и SEO» ведёт в хаб `/marketing`; карточка «Сайт и SEO»
- * открывает существующий `/website`, адреса `/website/*` не менялись и подсвечивают «Маркетинг». Будущие продукты
+ * главной кнопкой открывает конструктор сайта (MKT9.2), `/website` осталось вторичной ссылкой, адреса `/website/*` не менялись и подсвечивают «Маркетинг». Будущие продукты
  * статичны: без ссылок, данных и чисел. Хаб ничего не спрашивает у API, кроме общих запросов оболочки.
  */
 const fixture = FIXTURE_API;
@@ -83,7 +83,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных', async ({
+test('хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных', async ({
   page,
   request,
 }) => {
@@ -104,14 +104,18 @@ test('хаб: карточка «Сайт и SEO» ведёт на /website, б�
   const site = hub.getByTestId('marketing-site');
   await expect(site.getByRole('heading', { name: 'Сайт и SEO', exact: true })).toBeVisible();
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
-  await expect(site).toContainText('ИИ-конструктор: скоро');
-  // «скоро» не кнопка: в карточке ровно одна ссылка, и это «Открыть»
-  // «Открыть» ведёт в /website, «Редактор» в редактор сайта (MKT9), «Публикация» на страницу публикации (MKT7),
-  // «Изображения» в библиотеку (MKT8)
-  await expect(site.getByRole('link')).toHaveCount(4);
-  await expect(site.getByRole('link', { name: 'Редактор', exact: true })).toHaveAttribute('href', '/marketing/site/editor');
+  // MKT9.2 выложен: конструктор больше не «скоро», он главное действие карточки
+  await expect(site).not.toContainText('скоро');
+  await expect(site.getByRole('listitem')).toContainText(['ИИ-конструктор']);
+  // ссылки по порядку: конструктор первым и главной кнопкой, затем публикация, изображения, бронирование и аналитика
+  const links = site.getByRole('link');
+  await expect(links).toHaveText(['Конструктор сайта', 'Публикация', 'Изображения', 'Бронирование и аналитика']);
+  const builder = site.getByRole('link', { name: 'Конструктор сайта', exact: true });
+  await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
+  await expect(builder).toHaveClass(/^btn$/);
   await expect(site.getByRole('link', { name: 'Публикация', exact: true })).toHaveAttribute('href', '/marketing/site');
   await expect(site.getByRole('link', { name: 'Изображения', exact: true })).toHaveAttribute('href', '/marketing/site/assets');
+  await expect(site.getByRole('link', { name: 'Бронирование и аналитика', exact: true })).toHaveAttribute('href', '/website');
   await expect(site.getByRole('button')).toHaveCount(0);
 
   const soon = hub.getByTestId('marketing-soon');
@@ -124,7 +128,7 @@ test('хаб: карточка «Сайт и SEO» ведёт на /website, б�
   await expect(soon.locator('a, button, [tabindex]')).toHaveCount(0);
   await expect(soon).not.toContainText(/\d/);
 
-  await site.getByRole('link', { name: 'Открыть', exact: true }).click();
+  await site.getByRole('link', { name: 'Бронирование и аналитика', exact: true }).click();
   await expect(page).toHaveURL(/\/website$/);
   await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(
     'Сайт и онлайн-бронирование',
@@ -171,9 +175,9 @@ for (const theme of ['light', 'dark'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      // кнопка «Открыть»: цель нажатия не меньше 44 px (DESIGN.md §11)
+      // главная кнопка «Конструктор сайта»: цель нажатия не меньше 44 px (DESIGN.md §11)
       const open = await main(page)
-        .getByRole('link', { name: 'Открыть', exact: true })
+        .getByRole('link', { name: 'Конструктор сайта', exact: true })
         .boundingBox();
       expect(open!.height).toBeGreaterThanOrEqual(width === 390 ? 44 : 32);
       const audit = await new AxeBuilder({ page })

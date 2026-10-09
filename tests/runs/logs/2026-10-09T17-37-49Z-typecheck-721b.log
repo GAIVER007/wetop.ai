@@ -1,0 +1,34 @@
+# Типы (typecheck) · 09.10.2026 22:37 Алматы · vm
+# коммит 03762c2 (claude/quirky-newton-qkhfgz)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/guests/page.tsx(194,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/app/guests/page.tsx(203,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/app/guests/page.tsx(212,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/app/guests/page.tsx(221,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/app/guests/page.tsx(230,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/app/guests/page.tsx(239,13): error TS2322: Type 'Element' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/components/primitives-ds1c.test.ts(60,70): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '"G"' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/components/primitives-ds1c.test.ts(66,62): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '"G"' is not assignable to type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined'.
+apps/web/src/components/ui.tsx(212,3): error TS2300: Duplicate identifier 'icon'.
+apps/web/src/components/ui.tsx(221,3): error TS2300: Duplicate identifier 'icon'.
+apps/web/src/components/ui.tsx(221,3): error TS2717: Subsequent property declarations must have the same type.  Property 'icon' must be of type '"search" | "link" | "wifi" | "parking" | "kitchen" | "transfer" | "breakfast" | "laundry" | "tv" | "elevator" | "iron" | "kettle" | "terrace" | "pool" | "gym" | "sauna" | "hotel" | ... 67 more ... | undefined', but here has type 'ReactNode'.
+apps/web/src/components/ui.tsx(231,3): error TS2300: Duplicate identifier 'icon'.
+apps/web/src/components/ui.tsx(238,3): error TS2300: Duplicate identifier 'icon'.
+
+# код выхода 1 · 53 с

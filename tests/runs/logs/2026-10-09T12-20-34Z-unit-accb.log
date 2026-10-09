@@ -1,0 +1,649 @@
+# Модульные (unit) · 09.10.2026 17:20 Алматы · vm
+# коммит d0eb1e6 (claude/mv8-5-ds2a-navigation-registry), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-20-34Z-unit-accb.json' 'apps/web/src/lib/navigation-active.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-rights.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 23ms
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests | 2 failed) 28ms
+   ❯ меню салона (8)
+     ✓ у филиала салона нет гостиничных разделов 6ms
+     × у филиала салона есть только то, что в нём работает 13ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 1ms
+     ✓ нижняя панель телефона тоже идёт по вертикали 1ms
+     ✓ первый пункт салона «Сегодня» на общем адресе /today (MV8) 1ms
+     × «Мастера» и «Сотрудники и доступ» в меню салона не путаются 2ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 1ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 1ms
+ ❯ |unit| apps/web/src/lib/navigation-active.test.ts (14 tests | 13 failed) 32ms
+   ❯ activeItem: матрица активного пункта (DS2 §12) (6)
+     × HOSPITALITY: каждый адрес подсвечивает свой пункт или ничего 9ms
+     × BEAUTY: каждый адрес подсвечивает свой пункт или ничего 1ms
+     × FOOD_SERVICE: каждый адрес подсвечивает свой пункт или ничего 1ms
+     × незнакомое или неизвестное направление не считается гостиницей 1ms
+     × возвращает пункт и его раздел 1ms
+     × пункт, закрытый роли, не подсвечивается 1ms
+   ❯ реестр меню (DS2a) (6)
+     × у каждого пункта есть id, подпись, адрес, иконка и право 1ms
+     × внутри направления id, адреса и подписи пунктов не повторяются, внутри группы тоже 1ms
+     × ни один адрес меню не ведёт на перенаправление: «Сотрудники и доступ» сразу на /team 2ms
+     × каждый адрес меню — настоящая страница приложения 1ms
+     × каждый префикс подсветки — целый адрес, не корень 1ms
+     ✓ пункты, скрытые до DS2b, в меню не видны: состав меню прежний 5ms
+   ❯ оболочка берёт подсветку только у activeItem (2)
+     × строка вкладок, меню в окне и нижняя панель 4ms
+     × меню в окне не берёт гостиничные разделы для подсветки 1ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 1 failed) 15ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 10ms
+     ✓ does not expose Food to existing verticals 2ms
+     ✓ uses canonical landings and verified scope 1ms
+     ✓ identifies isolated routes before API access 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > HOSPITALITY: каждый адрес подсвечивает свой пункт или ничего
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > BEAUTY: каждый адрес подсвечивает свой пункт или ничего
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > FOOD_SERVICE: каждый адрес подсвечивает свой пункт или ничего
+TypeError: activeItem is not a function
+ ❯ at apps/web/src/lib/navigation-active.test.ts:25:15
+     23| /** `раздел>адрес пункта` или `null`, если на этом адресе в направлени…
+     24| const at = (path: string, vertical: WebVertical, access: NavigationAcc…
+     25|   const hit = activeItem(path, vertical, access);
+       |               ^
+     26|   return hit ? `${hit.sectionId}>${hit.href}` : null;
+     27| };
+ ❯ apps/web/src/lib/navigation-active.test.ts:124:66
+ ❯ apps/web/src/lib/navigation-active.test.ts:124:51
+ ❯ apps/web/src/lib/navigation-active.test.ts:124:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > незнакомое или неизвестное направление не считается гостиницей
+TypeError: activeItem is not a function
+ ❯ apps/web/src/lib/navigation-active.test.ts:133:16
+    131|     for (const vertical of [undefined, null, 'RETAIL', ''] as unknown …
+    132|       for (const path of ['/today', '/reservations', '/team'])
+    133|         expect(activeItem(path, vertical, everyone)).toBeNull();
+       |                ^
+    134|   });
+    135|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > возвращает пункт и его раздел
+TypeError: activeItem is not a function
+ ❯ apps/web/src/lib/navigation-active.test.ts:137:12
+    135|
+    136|   it('возвращает пункт и его раздел', () => {
+    137|     expect(activeItem('/connections/channex', 'HOSPITALITY', everyone)…
+       |            ^
+    138|       sectionId: 'sales',
+    139|       itemId: 'channels',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > activeItem: матрица активного пункта (DS2 §12) > пункт, закрытый роли, не подсвечивается
+TypeError: activeItem is not a function
+ ❯ at apps/web/src/lib/navigation-active.test.ts:25:15
+     23| /** `раздел>адрес пункта` или `null`, если на этом адресе в направлени…
+     24| const at = (path: string, vertical: WebVertical, access: NavigationAcc…
+     25|   const hit = activeItem(path, vertical, access);
+       |               ^
+     26|   return hit ? `${hit.sectionId}>${hit.href}` : null;
+     27| };
+ ❯ apps/web/src/lib/navigation-active.test.ts:151:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > реестр меню (DS2a) > у каждого пункта есть id, подпись, адрес, иконка и право
+TypeError: menuRegistry is not a function
+ ❯ items apps/web/src/lib/navigation-active.test.ts:175:5
+    173|
+    174|   const items = (vertical: WebVertical) =>
+    175|     menuRegistry(vertical).flatMap((section) => section.items.map((ite…
+       |     ^
+    176|
+    177|   it('у каждого пункта есть id, подпись, адрес, иконка и право', () =>…
+ ❯ apps/web/src/lib/navigation-active.test.ts:179:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > реестр меню (DS2a) > внутри направления id, адреса и подписи пунктов не повторяются, внутри группы тоже
+TypeError: menuRegistry is not a function
+ ❯ items apps/web/src/lib/navigation-active.test.ts:175:5
+    173|
+    174|   const items = (vertical: WebVertical) =>
+    175|     menuRegistry(vertical).flatMap((section) => section.items.map((ite…
+       |     ^
+    176|
+    177|   it('у каждого пункта есть id, подпись, адрес, иконка и право', () =>…
+ ❯ apps/web/src/lib/navigation-active.test.ts:190:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > реестр меню (DS2a) > ни один адрес меню не ведёт на перенаправление: «Сотрудники и доступ» сразу на /team
+TypeError: menuRegistry is not a function
+ ❯ items apps/web/src/lib/navigation-active.test.ts:175:5
+    173|
+    174|   const items = (vertical: WebVertical) =>
+    175|     menuRegistry(vertical).flatMap((section) => section.items.map((ite…
+       |     ^
+    176|
+    177|   it('у каждого пункта есть id, подпись, адрес, иконка и право', () =>…
+ ❯ apps/web/src/lib/navigation-active.test.ts:202:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > реестр меню (DS2a) > каждый адрес меню — настоящая страница приложения
+TypeError: menuRegistry is not a function
+ ❯ items apps/web/src/lib/navigation-active.test.ts:175:5
+    173|
+    174|   const items = (vertical: WebVertical) =>
+    175|     menuRegistry(vertical).flatMap((section) => section.items.map((ite…
+       |     ^
+    176|
+    177|   it('у каждого пункта есть id, подпись, адрес, иконка и право', () =>…
+ ❯ apps/web/src/lib/navigation-active.test.ts:221:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > реестр меню (DS2a) > каждый префикс подсветки — целый адрес, не корень
+TypeError: menuRegistry is not a function
+ ❯ items apps/web/src/lib/navigation-active.test.ts:175:5
+    173|
+    174|   const items = (vertical: WebVertical) =>
+    175|     menuRegistry(vertical).flatMap((section) => section.items.map((ite…
+       |     ^
+    176|
+    177|   it('у каждого пункта есть id, подпись, адрес, иконка и право', () =>…
+ ❯ apps/web/src/lib/navigation-active.test.ts:226:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > оболочка берёт подсветку только у activeItem > строка вкладок, меню в окне и нижняя панель
+AssertionError: shell/top-menu.tsx: expected '\'use client\';\nimport Link from \'n…' to match /\bactiveItem\(/
+
+- Expected:
+/\bactiveItem\(/
+
++ Received:
+"'use client';
+import Link from 'next/link';
+import { Suspense, use, useEffect, useId, useRef, useState } from 'react';
+import {
+  CLOSED_ACCESS,
+  activeMenuRoute,
+  menuSectionsFor,
+  type MenuSection,
+} from '../../lib/navigation';
+import type { DeskShell } from '../../lib/desk-person';
+import { DataFreshness } from '../data-freshness';
+import { Icon } from '../icon';
+import { cx } from '../ui';
+
+/**
+ * Строка разделов в шапке (ADR-134, plans/workspace-top-navigation-2026-10-02.md): вкладки по задачам,
+ * активная подчёркнута; группа с несколькими экранами раскрывает список под вкладкой. Открытый список
+ * один; Escape закрывает его и возвращает фокус на вкладку, щелчок мимо, уход фокуса и переход закрывают.
+ * Список всегда в разметке (`hidden`), поэтому текущий пункт помечен `aria-current` и при закрытом списке.
+ * Справа строка пробного срока и свежесть Channex. До 960 px строки нет: меню телефона (`Sidebar`).
+ */
+export function TopMenu({
+  path,
+  desk,
+}: {
+  path: string;
+  /** Что открыто вошедшему (ADR-083): меню получает обещание и не задерживает страницу */
+  desk?: Promise<DeskShell> | undefined;
+}) {
+  const active = activeMenuRoute(path);
+  const [open, setOpen] = useState<string | null>(null);
+  const root = useRef<HTMLElement>(null);
+  const id = useId();
+  useEffect(() => {
+    setOpen(null);
+  }, [path]);
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !root.current?.contains(event.target)) setOpen(null);
+    };
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [open]);
+  const tabs: TabsProps = { id, active, open, setOpen };
+  return (
+    <nav
+      className=\"topmenu\"
+      aria-label=\"Разделы\"
+      ref={root}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !open) return;
+        const button = root.current?.querySelector<HTMLElement>(
+          `[aria-controls=\"${CSS.escape(`${id}-${open}`)}\"]`,
+        );
+        setOpen(null);
+        button?.focus();
+      }}
+      onBlur={(event) => {
+        if (
+          open &&
+          event.relatedTarget instanceof Node &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          setOpen(null);
+      }}
+    >
+      <div className=\"topmenu__tabs\">
+        {/* пока API не ответил — вкладки как у администратора: они появляются, а не исчезают (ADR-107) */}
+        <Suspense fallback={null}>
+          <GrantedTabs desk={desk} {...tabs} />
+        </Suspense>
+      </div>
+      <div className=\"topmenu__aside\">
+        <Suspense fallback={null}>
+          <GrantedTrial desk={desk} />
+        </Suspense>
+        {/* Свежесть данных Channex и очереди ARI: общий опрос оболочки, своего запроса нет */}
+        <span className=\"topmenu__freshness\">
+          <DataFreshness />
+        </span>
+      </div>
+    </nav>
+  );
+}
+
+interface TabsProps {
+  id: string;
+  active: string | undefined;
+  open: string | null;
+  setOpen: (value: string | null) => void;
+}
+
+function GrantedTabs({ desk, ...props }: TabsProps & { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <Tabs sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
+}
+
+function Tabs({ sections, id, active, open, setOpen }: TabsProps & { sections: MenuSection[] }) {
+  return (
+    <>
+      {sections.map((section) => {
+        const current = section.items.some((item) => item.href === active);
+        // Раздел из одного пункта: вкладка и есть ссылка
+        const single = section.direct ? section.items[0] : undefined;
+        if (single)
+          return (
+            <Link
+              key={section.id}
+              href={single.href}
+              prefetch={false}
+              className={cx('topmenu__tab', current && 'has-current-page')}
+              aria-current={current ? 'page' : undefined}
+              data-tour={`section-${section.id}`}
+            >
+              {section.label}
+            </Link>
+          );
+        const panelId = `${id}-${section.id}`;
+        const expanded = open === section.id;
+        return (
+          <div className=\"topmenu__group\" key={section.id}>
+            <button
+              type=\"button\"
+              className={cx('topmenu__tab', current && 'has-current-page')}
+              aria-expanded={expanded}
+              aria-controls={panelId}
+              data-tour={`section-${section.id}`}
+              onClick={() => setOpen(expanded ? null : section.id)}
+            >
+              <span>{section.label}</span>
+              <Icon className=\"topmenu__chevron\" name=\"down\" width={14} />
+            </button>
+            <div id={panelId} className=\"topmenu__list\" hidden={!expanded}>
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  className={cx('topmenu__link', item.href === active && 'is-active')}
+                  aria-current={item.href === active ? 'page' : undefined}
+                  onClick={() => setOpen(null)}
+                >
+                  <Icon name={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+/** Пробный период организации — на каждом экране, а не только на `/login` (ТЗ ux-retention п. 2.7) */
+function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const trial = desk ? use(desk).trial : null;
+  if (!trial) return null;
+  return (
+    <span className=\"topmenu__trial\" data-testid=\"trial-line\" data-tour=\"trial\">
+      <Icon name=\"clock\" width={16} />
+      <span>{trial}</span>
+    </span>
+  );
+}
+"
+
+ ❯ apps/web/src/lib/navigation-active.test.ts:253:25
+    251|     for (const file of ['shell/top-menu.tsx', 'shell/sidebar.tsx', 'to…
+    252|       const src = read(file);
+    253|       expect(src, file).toMatch(/\bactiveItem\(/);
+       |                         ^
+    254|       expect(src, file).not.toMatch(/\bactiveMenuRoute\b|\bactiveNavig…
+    255|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-active.test.ts > оболочка берёт подсветку только у activeItem > меню в окне не берёт гостиничные разделы для подсветки
+AssertionError: expected '\'use client\';\nimport Link from \'n…' not to match /\bmenuSections\b/
+
+- Expected:
+/\bmenuSections\b/
+
++ Received:
+"'use client';
+import Link from 'next/link';
+import { Suspense, use, useEffect, useId, useState } from 'react';
+import {
+  CLOSED_ACCESS,
+  activeMenuRoute,
+  menuSections,
+  menuSectionsFor,
+  type MenuSection,
+} from '../../lib/navigation';
+import type { DeskPerson, DeskShell } from '../../lib/desk-person';
+import { DataFreshness } from '../data-freshness';
+import { Icon } from '../icon';
+import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './property-block';
+import { cx } from '../ui';
+export type { PropertyIdentity } from './property-block';
+
+/**
+ * Меню телефона и планшета (до 960 px, окно «Навигация»): те же разделы, что в строке вкладок шапки
+ * (ADR-134), раздел из одного пункта прямой ссылкой, группа раскрывашкой; внизу пробный срок,
+ * свежесть Channex и кто вошёл.
+ */
+export function Sidebar({
+  path,
+  close,
+  property,
+  desk,
+}: {
+  path: string;
+  close?: () => void;
+  property?: PropertyIdentity | null;
+  /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
+  desk?: Promise<DeskShell> | undefined;
+}) {
+  const active = activeMenuRoute(path);
+  const activeSection = menuSections.find((section) =>
+    section.items.some((item) => item.href === active),
+  )?.id;
+  const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
+  const id = useId();
+  useEffect(() => {
+    if (activeSection) setExpanded(activeSection);
+  }, [activeSection, path]);
+  const links: LinksProps = { id, active, activeSection, expanded, setExpanded, close };
+  return (
+    <div className=\"sidebar-shell\">
+      <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
+        <GrantedProperty desk={desk} property={property} close={close} path={path} />
+      </Suspense>
+      <nav className=\"workspace-links\" aria-label=\"Разделы\">
+        {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
+        <Suspense fallback={null}>
+          <GrantedSectionLinks desk={desk} {...links} />
+        </Suspense>
+      </nav>
+      <div className=\"sidebar-bottom\">
+        <Suspense fallback={null}>
+          <GrantedTrial desk={desk} />
+        </Suspense>
+        {/* Свежесть данных Channex и очереди ARI. */}
+        <div className=\"sidebar-freshness\">
+          <DataFreshness />
+        </div>
+        <Link href=\"/profile\" className=\"workspace-footer\" onClick={() => close?.()}>
+          <Suspense fallback={<FooterPerson person={null} />}>
+            <GrantedFooterPerson desk={desk} />
+          </Suspense>
+          <Icon name=\"more\" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+interface LinksProps {
+  id: string;
+  active: string | undefined;
+  activeSection: string | undefined;
+  expanded: string | null;
+  setExpanded: (value: string | null) => void;
+  close: (() => void) | undefined;
+}
+
+function GrantedSectionLinks({
+  desk,
+  ...props
+}: LinksProps & { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return (
+    <SectionLinks
+      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      {...props}
+    />
+  );
+}
+
+function SectionLinks({
+  sections,
+  id,
+  active,
+  activeSection,
+  expanded,
+  setExpanded,
+  close,
+}: LinksProps & { sections: MenuSection[] }) {
+  return (
+    <>
+      {sections.map((section) => {
+        const open = expanded === section.id;
+        const selected = activeSection === section.id;
+        const panelId = `${id}-${section.id}`;
+        // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой
+        const single = section.direct ? section.items[0] : undefined;
+        if (single)
+          return (
+            <div className=\"sidebar-section\" key={section.id}>
+              <Link
+                href={single.href}
+                prefetch={false}
+                onClick={() => close?.()}
+                className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+                aria-current={single.href === active ? 'page' : undefined}
+              >
+                <Icon name={section.icon} />
+                <span>{section.label}</span>
+              </Link>
+            </div>
+          );
+        return (
+          <div className=\"sidebar-section\" key={section.id}>
+            <button
+              type=\"button\"
+              className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+              aria-label={section.label}
+              aria-expanded={open}
+              aria-controls={panelId}
+              onClick={() => setExpanded(open ? null : section.id)}
+            >
+              <Icon name={section.icon} />
+              <span>{section.label}</span>
+              <Icon className=\"sidebar-section-chevron\" name=\"down\" />
+            </button>
+            <div id={panelId} className=\"sidebar-section-links\" hidden={!open}>
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  onClick={() => close?.()}
+                  title={item.label}
+                  className={cx('workspace-link', item.href === active && 'is-active')}
+                  aria-current={item.href === active ? 'page' : undefined}
+                >
+                  <Icon name={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+/** Пробный период организации — на каждом экране, а не только на `/login` (ТЗ ux-retention п. 2.7) */
+function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const trial = desk ? use(desk).trial : null;
+  if (!trial) return null;
+  return (
+    <p className=\"sidebar-trial\" data-testid=\"trial-line\">
+      <Icon name=\"clock\" width={16} />
+      <span>{trial}</span>
+    </p>
+  );
+}
+
+function GrantedFooterPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <FooterPerson person={shell?.person ?? null} />;
+}
+
+/** Подпись внизу меню: кто вошёл и его роль; вошедшего нет — прежняя «Администратор» */
+function FooterPerson({ person }: { person: DeskPerson | null }) {
+  return (
+    <>
+      <span className=\"desk-avatar\">{person?.initials ?? 'АД'}</span>
+      <div>
+        <strong>{person?.name ?? 'Администратор'}</strong>
+        <span>{person?.caption ?? 'Рабочее пространство'}</span>
+      </div>
+    </>
+  );
+}
+"
+
+ ❯ apps/web/src/lib/navigation-active.test.ts:259:43
+    257|
+    258|   it('меню в окне не берёт гостиничные разделы для подсветки', () => {
+    259|     expect(read('shell/sidebar.tsx')).not.toMatch(/\bmenuSections\b/);
+       |                                           ^
+    260|   });
+    261| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/today', '/calendar', …(9) ] to deeply equal [ '/today', '/calendar', …(9) ]
+
+- Expected
++ Received
+
+@@ -3,11 +3,11 @@
+    "/calendar",
+    "/appointments",
+    "/customers",
+    "/employees",
+    "/services",
+-   "/team",
++   "/staff",
+    "/management/analytics",
+    "/journal",
+    "/help",
+    "/profile",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:38:29
+     36|   it('у филиала салона есть только то, что в нём работает', () => {
+     37|     // MV5 exposes only accepted operational screens.
+     38|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     39|       '/today',
+     40|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > «Мастера» и «Сотрудники и доступ» в меню салона не путаются
+AssertionError: expected undefined to be 'Сотрудники и доступ' // Object.is equality
+
+- Expected:
+"Сотрудники и доступ"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:89:33
+     87|     );
+     88|     expect(labels.get('/employees')).toBe('Мастера');
+     89|     expect(labels.get('/team')).toBe('Сотрудники и доступ');
+       |                                 ^
+     90|     const all = [...labels.values()];
+     91|     expect(new Set(all).size, all.join(', ')).toBe(all.length);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/floor-plan', …(8) ] to deeply equal [ '/today', '/floor-plan', …(8) ]
+
+- Expected
++ Received
+
+@@ -2,11 +2,11 @@
+    "/today",
+    "/floor-plan",
+    "/table-reservations",
+    "/customers",
+    "/dining-areas",
+-   "/team",
++   "/staff",
+    "/management/analytics",
+    "/journal",
+    "/help",
+    "/profile",
+  ]
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  16 failed | 12 passed (28)
+   Start at  12:20:35
+   Duration  1.91s (transform 84%, import 13%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-20-34Z-unit-accb.json
+
+# код выхода 1 · 3 с

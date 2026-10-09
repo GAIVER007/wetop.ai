@@ -7703,3 +7703,4 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:20 | unit (частично: apps/web/src/lib/navigation-active.test.ts apps/web/src/lib/navigation-beauty.test.ts apps/web/src/lib/navigation-food.test.ts apps/web/src/lib/ | ❌ упало 16 из 28 | 3 с | d0eb1e6 +5 | [лог](logs/2026-10-09T12-20-34Z-unit-accb.log) | activeItem: матрица активного пункта (DS2 §12) HOSPITALITY: каждый адрес подсвечивает свой пункт или ничего |

@@ -42,7 +42,7 @@ describe('меню салона', () => {
       '/customers',
       '/employees',
       '/services',
-      '/staff',
+      '/team',
       '/management/analytics',
       '/journal',
       '/help',
@@ -74,7 +74,7 @@ describe('меню салона', () => {
 
   /**
    * Мастер и учётная запись сотрудника это разные экраны: `/employees` ведёт каталог мастеров филиала
-   * (право `desk`, работа смены), `/staff` заводит учётные записи и роли (право `staff`). В общем реестре
+   * (право `desk`, работа смены), `/team` заводит учётные записи и роли (право `staff`). В общем реестре
    * маршрутов у `/employees` стояла подпись «Сотрудники», и рядом с «Сотрудники и доступ» в меню салона
    * она читалась как тот же раздел. Подпись исправлена в самом реестре, а не аргументом `direct` по
    * вертикали: `/employees` есть только у салона (у ресторана этого пункта нет вовсе), поэтому вторая
@@ -86,7 +86,7 @@ describe('меню салона', () => {
       menuSectionsFor(owner, 'BEAUTY').flatMap((s) => s.items.map((i) => [i.href, i.label] as const)),
     );
     expect(labels.get('/employees')).toBe('Мастера');
-    expect(labels.get('/staff')).toBe('Сотрудники и доступ');
+    expect(labels.get('/team')).toBe('Сотрудники и доступ');
     const all = [...labels.values()];
     expect(new Set(all).size, all.join(', ')).toBe(all.length);
   });

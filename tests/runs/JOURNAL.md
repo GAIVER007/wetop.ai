@@ -7671,6 +7671,17 @@
 | 09.10.2026 12:45 | typecheck | ✅ без ошибок | 42 с | fe8459d | [лог](logs/2026-10-09T07-45-53Z-typecheck-557d.log) |  |
 | 09.10.2026 12:46 | lint | ✅ без ошибок | 35 с | fe8459d | [лог](logs/2026-10-09T07-46-36Z-lint-7e20.log) |  |
 | 09.10.2026 12:47 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/team.spec.ts tests/ui/finance-card-acti | ✅ 42 из 42 | 3 мин 13 с | fe8459d | [лог](logs/2026-10-09T07-47-24Z-e2e-2c9e.log) |  |
+| 09.10.2026 12:58 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/finance-card-actions.spec.ts -g главная кнопка\|доступность «Счетов».*d | ✅ 20 из 20 | 1 мин 55 с | b795d88 | [лог](logs/2026-10-09T07-58-11Z-e2e-72fc.log) |  |
+| 09.10.2026 13:11 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/zz-race-probe.spec.ts --repeat-each=5 --workers=1) | ❌ упало 10 из 20 | 2 мин 6 с | b795d88 +1 | [лог](logs/2026-10-09T08-11-40Z-e2e-8f87.log) | зонд RED: цвет читается сразу |
+| 09.10.2026 13:14 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/finance-card-actions.spec.ts -g главная кнопка\|доступность «Счетов» -- | ✅ 50 из 50 | 4 мин 35 с | b795d88 +2 | [лог](logs/2026-10-09T08-14-06Z-e2e-581a.log) |  |
+| 09.10.2026 13:18 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/owner-dashboard-interactions.spec.ts:58 --repeat-each=20 --workers=1) | ✅ 20 из 20 | 3 мин 27 с | b795d88 +2 | [лог](logs/2026-10-09T08-18-41Z-e2e-3d69.log) |  |
+| 09.10.2026 13:22 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/owner-dashboard-interactions.spec.ts --workers=1) | ✅ 8 из 8 | 43 с | b795d88 +2 | [лог](logs/2026-10-09T08-22-10Z-e2e-4039.log) |  |
+| 09.10.2026 13:31 | typecheck | ✅ без ошибок | 51 с | 7409c12 | [лог](logs/2026-10-09T08-31-28Z-typecheck-0532.log) |  |
+| 09.10.2026 13:32 | lint | ✅ без ошибок | 47 с | 7409c12 | [лог](logs/2026-10-09T08-32-20Z-lint-874c.log) |  |
+| 09.10.2026 13:33 | unit | ✅ 4146 из 4149, пропущено 3 | 2 мин 27 с | 7409c12 | [лог](logs/2026-10-09T08-33-13Z-unit-319f.log) |  |
+| 09.10.2026 13:35 | integration | ✅ 961 из 961 | 3 мин 10 с | 7409c12 | [лог](logs/2026-10-09T08-35-58Z-integration-9fa9.log) |  |
+| 09.10.2026 13:00 | unit | ❌ код выхода 1 | 2 мин 32 с | b795d88 | [лог](logs/2026-10-09T08-00-13Z-unit-12a1.log) | (файл не выполнился) |
+| 09.10.2026 13:06 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 58 с | b795d88 +3 | [лог](logs/2026-10-09T08-06-34Z-unit-ef9b.log) |  |
 | 09.10.2026 12:57 | typecheck | ❌ ошибок: 5 | 19 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-16Z-typecheck-8c97.log) | TS2307 |
 | 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
@@ -7681,3 +7692,5 @@
 | 09.10.2026 13:52 | typecheck | ✅ без ошибок | 17 с | abc7498 +8 | [лог](logs/2026-10-09T08-52-47Z-typecheck-d7af.log) |  |
 | 09.10.2026 13:54 | e2e | ❌ упало 2 из 26 | 34 мин 19 с | f78f8c4 | [лог](logs/2026-10-09T08-54-50Z-e2e-3a5a.log) | страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 |
 | 09.10.2026 14:30 | e2e | ✅ 26 из 26 | 54 с | f78f8c4 | [лог](logs/2026-10-09T09-30-18Z-e2e-a5fe.log) |  |
+| 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |
+| 09.10.2026 14:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1) | ✅ 6 из 6 | 48 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-34-55Z-e2e-a29d.log) |  |

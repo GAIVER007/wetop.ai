@@ -408,7 +408,7 @@ export const navigationItems = navigation.flatMap((group) =>
 
 /**
  * Пункт меню направления (DS2a, план mv8-5-ds2-shell-navigation §12): канонический адрес `href`, свой `id` и префиксы
- * `match`, на которых он подсвечен (по умолчанию `[href]`). `hidden` — пункт уже есть в реестре и подсвечивается, но
+ * `match`, на которых он подсвечен (по умолчанию `[href]`). `hidden`: пункт уже есть в реестре и подсвечивается, но
  * в меню виден только с DS2b («График», «Филиалы», «Техподдержка», профиль гостиницы). Права `match` не даёт:
  * `routeRule` его не читает.
  */
@@ -487,7 +487,7 @@ const hospitalityRegistry: MenuSection[] = [
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
       menuItem('market', '/market'),
-      // подключение Channex — экран каналов, хоть и лежит под `/connections` (ADR-112)
+      // подключение Channex относится к каналам, хоть и лежит под `/connections` (ADR-112)
       menuItem('channels', '/channels', {
         match: ['/channels', '/channel-manager', '/connections/channex'],
       }),
@@ -539,7 +539,7 @@ const hospitalityRegistry: MenuSection[] = [
     ],
   },
   {
-    // профиль и справка гостиницы открываются из меню профиля, вкладки у них нет; в DS2b — общее меню профиля
+    // профиль и справка гостиницы открываются из меню профиля, вкладки у них нет; в DS2b переезжают в общее меню профиля
     id: 'account',
     label: 'Профиль',
     icon: 'guests',
@@ -553,7 +553,7 @@ const hospitalityRegistry: MenuSection[] = [
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
 const beautyRegistry: MenuSection[] = [
   direct('today', '/today', 'today', { label: 'Сегодня' }),
-  // `/beauty` — прежний вход салона, в DS2c станет перенаправлением на календарь (§14)
+  // `/beauty` это прежний вход салона, в DS2c станет перенаправлением на календарь (§14)
   direct('calendar', '/calendar', 'board', { match: ['/calendar', '/beauty'] }),
   direct('appointments', '/appointments', 'booking'),
   direct('customers', '/customers', 'guests'),
@@ -635,7 +635,7 @@ export interface ActiveItem {
  * Единственное правило активного пункта (DS2 §12). Путь без `?…`, `#…` и хвостового `/`; пункты только этого
  * направления и только открытые этой роли; префикс совпадает целым сегментом (`/reservations` с `/reservations/ABC`,
  * но не с `/reservations-old`); самый длинный выигрывает, при равенстве первый по порядку меню. Направление
- * незнакомо — ничего не подсвечено: гостиница по умолчанию здесь не угадывается.
+ * незнакомо: ничего не подсвечено, гостиница по умолчанию здесь не угадывается.
  */
 export function activeItem(
   path: string,

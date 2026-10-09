@@ -178,11 +178,11 @@ test('DS2a: адреса без своего пункта подсвечиваю
   await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
   const menu = menuOf(page);
   const current = menu.locator('[aria-current="page"]');
-  // карточка единицы — номерной фонд
+  // карточка единицы относится к номерному фонду
   await page.goto('/units/R01');
   await expect(current).toHaveCount(1);
   await expect(current).toHaveText('Номерной фонд');
-  // подключение Channex — «Каналы продаж», а не «Подключения» настроек
+  // подключение Channex подсвечивает «Каналы продаж», а не «Подключения» настроек
   await page.goto('/connections/channex');
   await expect(current).toHaveCount(1);
   await expect(current).toHaveText('Каналы продаж');

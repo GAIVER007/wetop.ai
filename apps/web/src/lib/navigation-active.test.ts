@@ -155,7 +155,7 @@ describe('activeItem: матрица активного пункта (DS2 §12)'
     expect(at('/incidents', 'HOSPITALITY', staff)).toBe('settings>/incidents');
     expect(at('/branches', 'HOSPITALITY', staff)).toBe('settings>/branches');
     expect(at('/journal', 'FOOD_SERVICE', staff)).toBeNull();
-    // «Платформа» — только главному администратору
+    // «Платформа» видна только главному администратору
     const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
     expect(at('/platform/support', 'HOSPITALITY', owner)).toBeNull();
     expect(at('/platform', 'HOSPITALITY', owner)).toBeNull();
@@ -211,7 +211,7 @@ describe('реестр меню (DS2a)', () => {
       ).not.toContain('/staff');
   });
 
-  it('каждый адрес меню — настоящая страница приложения', () => {
+  it('каждый адрес меню ведёт на настоящую страницу приложения', () => {
     const exists = (href: string) => {
       const dir = resolve(APP, `.${href}`);
       if (existsSync(resolve(dir, 'page.tsx'))) return true;
@@ -222,7 +222,7 @@ describe('реестр меню (DS2a)', () => {
       for (const { item } of items(vertical)) expect(exists(item.href), item.href).toBe(true);
   });
 
-  it('каждый префикс подсветки — целый адрес, не корень', () => {
+  it('каждый префикс подсветки это целый адрес, не корень', () => {
     for (const vertical of VERTICALS)
       for (const { item } of items(vertical))
         for (const prefix of item.match ?? []) expect(prefix, item.href).toMatch(/^\/[a-z][a-z0-9/-]*[a-z0-9]$/);

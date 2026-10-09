@@ -7710,3 +7710,7 @@
 | 09.10.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1 -g DS2a) | ✅ 1 из 1 | 31 с | feba666 +9 | [лог](logs/2026-10-09T12-32-23Z-e2e-d843.log) |  |
 | 09.10.2026 17:33 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1 -g DS2a) | ✅ 1 из 1 | 21 с | feba666 +9 | [лог](logs/2026-10-09T12-33-06Z-e2e-5721.log) |  |
 | 09.10.2026 17:33 | unit (частично: apps/web/src/lib/navigation-active.test.ts apps/web/src/lib/navigation-rights.test.ts apps/web/src/lib/navigation-beauty.test.ts apps/web/src/li | ✅ 59 из 59 | 3 с | feba666 +6 | [лог](logs/2026-10-09T12-33-44Z-unit-d70b.log) |  |
+| 09.10.2026 17:34 | typecheck | ✅ без ошибок | 54 с | 7939d7d | [лог](logs/2026-10-09T12-34-03Z-typecheck-413a.log) |  |
+| 09.10.2026 17:34 | lint | ✅ без ошибок | 34 с | 7939d7d +1 | [лог](logs/2026-10-09T12-34-58Z-lint-43e7.log) |  |
+| 09.10.2026 17:35 | unit | ✅ 4163 из 4166, пропущено 3 | 2 мин 39 с | 7939d7d | [лог](logs/2026-10-09T12-35-33Z-unit-c08c.log) |  |
+| 09.10.2026 17:47 | typecheck | ✅ без ошибок | 45 с | 7939d7d | [лог](logs/2026-10-09T12-47-52Z-typecheck-a2a7.log) |  |

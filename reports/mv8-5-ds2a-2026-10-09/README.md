@@ -1,6 +1,6 @@
 # MV8.5 DS2a: один реестр меню и одно правило активного пункта (09.10.2026)
 
-База: ветка начата от `origin/main` `d0eb1e623` (слияние PR #314, план DS2), перед PR в неё влит `main` `d98c1e78e`. `release` = `ecb0d629`, не тронут. API, база, миграции, права страниц не менялись.
+База: ветка начата от `origin/main` `d0eb1e623` (слияние PR #314, план DS2), перед PR в неё дважды влит `main` (последний раз `7262f5060`). `release` = `ecb0d629`, не тронут. API, база, миграции, права страниц не менялись.
 План: `plans/mv8-5-ds2-shell-navigation-2026-10-09.md` §12–§14, §16.2 (DS2a), с тремя уточнениями владельца от 09.10.
 
 Что сделано одной фразой: у каждого направления теперь свой реестр меню с `id` и префиксами подсветки, а строка вкладок, меню в окне, нижняя панель телефона и кнопка «Ещё» берут подсветку у одной функции `activeItem`. Состав меню, подписи, разметка, CSS и геометрия прежние; единственная видимая правка состава: ссылка «Сотрудники и доступ» у салона и ресторана ведёт сразу на `/team`.
@@ -25,7 +25,7 @@
 | Направление | Пункт | Раздел | Право |
 |---|---|---|---|
 | все три | «Филиалы» `/branches` | `settings` | `desk` (у всех ролей, `AccessGate` как и раньше страницу не проверяет) |
-| гостиница | «Техподдержка WETOP» `/platform/support` | `platform` | `platform` |
+| гостиница | «Техподдержка WETOP» `/platform/support` | `settings` (вкладку «Платформа» владелец снял в `main` 09.10, «Организации» теперь в «Настройках») | `platform` |
 | гостиница | «Профиль» `/profile`, «Помощь» `/help` | `account` | `desk` |
 | салон | «График» `/beauty/schedule` | `schedule` | `desk` |
 
@@ -72,8 +72,8 @@
 | `/branches` | settings>/branches | settings>/branches | settings>/branches |
 | `/journal` | settings>/journal | journal | journal |
 | `/incidents` | settings>/incidents | | |
-| `/platform` | platform>/platform | | |
-| `/platform/support`, `/platform/support/knowledge` | platform>/platform/support | нет | |
+| `/platform` | settings>/platform | | |
+| `/platform/support`, `/platform/support/knowledge` | settings>/platform/support | нет | |
 | `/profile`, `/profile/access` | account>/profile | profile>/profile | profile>/profile |
 | `/help` | account>/help | help>/help | help>/help |
 | `/calendar`, `/beauty`, `/beauty/` | нет | calendar>/calendar | нет |
@@ -84,13 +84,14 @@
 | `/services`, `/beauty/services` | | services>/services | |
 | `/floor-plan`, `/table-reservations`, `/dining-areas` | нет | нет | свой пункт |
 
-Роль закреплена тем же тестом: администратору (`STAFF`) не горят `/team` и `/hotel-settings`, горят `/incidents`, `/reports`, `/branches`; владельцу без отметки главного администратора не горит «Платформа»; без вошедшего (`CLOSED_ACCESS`) горит всё, как и меню; `PENDING_ACCESS` и `UNKNOWN_ACCESS` как администратор.
+Роль закреплена тем же тестом: администратору (`STAFF`) не горят `/team` и `/hotel-settings`, горят `/incidents`, `/reports`, `/branches`; владельцу без отметки главного администратора не горят «Организации» и «Техподдержка»; без вошедшего (`CLOSED_ACCESS`) горит всё, как и меню; `PENDING_ACCESS` и `UNKNOWN_ACCESS` как администратор.
 
 **Отступления от таблицы плана §12, все в пользу «состав меню в DS2a прежний»:**
 1. `/profile`, `/help` гостиницы: в плане «профиль». В DS2a это скрытый раздел `account`: вкладки у него нет, кнопка профиля в шапке DS2a не трогается (её переделка в DS2b). Видимой подсветки нет, как и раньше.
 2. `/profile`, `/help` салона и ресторана: вкладки «Помощь» и «Профиль» в их меню пока видимые (уходят в меню профиля в DS2b), поэтому горят свои вкладки.
 3. `/` в матрицу не входит: корень сам переводит на посадку направления.
 4. `/guests*` гостиницы: в плане «Гости». Пока шла работа, владелец убрал вкладку «Гости» (в `main`, 09.10), и `/guests` подсвечивает «Брони». При слиянии `main` это правило перенесено в реестр как `match` пункта «Брони» вместо удалённой `activeMenuRoute`; тест `workspace-organization.test.ts` из `main` переведён на `activeItem` с теми же ожиданиями.
+5. `/platform/support`: в плане «Платформа → Техподдержка» (В4). Вторым слиянием `main` пришло решение владельца снять вкладку «Платформа» и перенести «Организации» в «Настройки»; скрытая «Техподдержка» переехала туда же, и `/platform/support` зажигает «Настройки». Эталон сторожа прав при этом поменялся ровно в одном месте: подпись правила `/team` стала «Сотрудники и доступ» (правка `main`), решения `AccessGate` прежние; сторож прогнан и на `navigation.ts` из `main`, и на ветке, оба раза 2 из 2.
 
 ## 3. Потребители
 
@@ -122,7 +123,7 @@
 - `website-navigation.test.ts`: `activeMenuRoute` заменён на `activeItem`, проверка стала строже (раздел `marketing` плюс адрес `/marketing`).
 
 Новые UI-проверки:
-- `tests/ui/top-menu.spec.ts` «DS2a: адреса без своего пункта…»: `/units/R01`, `/connections/channex` (горит «Продажи», не «Настройки»), `/tasks`, `/staff` → `/team`, `/branches` и `/platform/support` (горит только группа, ссылки нет), `/reservations-old`;
+- `tests/ui/top-menu.spec.ts` «DS2a: адреса без своего пункта…»: `/units/R01`, `/connections/channex` (горит «Продажи», не «Настройки»), `/tasks`, `/staff` → `/team`, `/branches` и `/platform/support` (горит только группа «Настройки», ссылки нет), `/reservations-old`;
 - `tests/ui/navigation.spec.ts`: нижняя панель и «Ещё» на 390;
 - `tests/ui/beauty-branch.spec.ts` «DS2a: меню салона…»: `/team`, `/staff`, `/beauty`, `/beauty/masters`, `/beauty/services`, `/beauty/schedule` (не горит ничего), панель, «Ещё», меню в окне, axe;
 - `tests/food-ui/food.spec.ts` «DS2a: Food menu…» на настоящем API: `/customers`, `/team`, `/staff`, панель, «Ещё», меню в окне, 390 без прокрутки вбок, axe в светлой и тёмной теме.
@@ -149,33 +150,34 @@
 
 ## 7. Проверки
 
-Итоговый прогон на коде после слияния `main` (`17bcda3a`; следующие коммиты меняют только снимки и отчёт), через `npm run test:record`, логи в `tests/runs/logs/`. Первый прогон до слияния (на `f1bb7bec`) лежит там же: unit 4163/4166, UI 193/193 и 229/231.
+Итоговый прогон на коде после второго слияния `main` (`ce19a107`, база `main` `7262f5060`), через `npm run test:record`, логи в `tests/runs/logs/`. Ранние прогоны (до слияний на `f1bb7bec` и после первого на `17bcda3a`) лежат там же: на каждом DS2a-тесты зелёные, красные только от `main`.
 
 | Проверка | Лог | Итог |
 |---|---|---|
-| typecheck | `2026-10-09T13-59-36Z-typecheck-1a58.log` | чисто |
-| lint | `…14-00-24Z-lint-26fd.log` | чисто |
-| unit, полный | `…14-01-03Z-unit-3c62.log` | 4173 из 4177, 3 пропуска, **1 красный не DS2a** (ниже) |
+| typecheck | `2026-10-09T15-03-38Z-typecheck-13fa.log` | чисто |
+| lint | `…15-04-24Z-lint-40a8.log` | чисто |
+| unit, полный | `…15-05-03Z-unit-0b1b.log` | 4182 из 4199, 3 пропуска, **14 красных не DS2a** (ниже) |
+| сторож прав и навигационные unit | в том же логе | зелёные; сторож прав отдельно прогнан и на `navigation.ts` из `main` (2 из 2) |
 | сборка `apps/web` | вывод сборки | код выхода 0 |
-| UI, часть 1 (21 спек: ИИ-агенты и продавец, аналитика, `beauty-branch`, `branches`, каналы, шахматка, `loading-performance` (бюджет запросов шапки), `market`, `marketing`, `mobile-adaptation` и др.) | `…14-03-54Z-e2e-7463.log` | 193 из 193 |
-| UI, часть 2 (21 спек: `navigation`, `top-menu`, `accessibility` (axe по всем разделам, две темы, две ширины), `roles`, `platform-access`, `platform-support`, `team`, `staff`, `settings-simplification`, `workspace`, `login-access` и др.) | `…14-22-10Z-e2e-b344.log` | 229 из 232, **3 красных не DS2a** (ниже) |
-| `tests/beauty-ui` (настоящий API) | `…14-53-34Z-e2e-6e2d.log` | 11 из 15, 4 пропуска (спек съёмки DS1c, включается переменной) |
-| `tests/food-ui` (настоящий API) | `…14-55-17Z-e2e-4539.log` | 15 из 19, 4 пропуска (то же) |
-| `tests/branches-ui` (настоящий API, три направления) | `…14-57-45Z-e2e-f46e.log` | 39 из 39 |
+| UI, часть 1 (21 спек: ИИ-агенты и продавец, аналитика, `beauty-branch`, `branches`, каналы, шахматка, `loading-performance` (бюджет запросов шапки), `market`, `marketing`, `mobile-adaptation` и др.) | `…15-07-44Z-e2e-eb67.log` | 190 из 193, 3 красных не DS2a |
+| UI, часть 2 (21 спек: `navigation`, `top-menu`, `accessibility` (axe по всем разделам, две темы, две ширины), `roles`, `platform-access`, `platform-support`, `team`, `staff`, `settings-simplification`, `workspace`, `login-access` и др.) | `…15-27-14Z-e2e-6a42.log` | 230 из 233, 3 красных не DS2a |
+| `tests/beauty-ui` (настоящий API) | `…15-58-37Z-e2e-df25.log` | 11 из 15, 4 пропуска (спек съёмки DS1c, включается переменной) |
+| `tests/food-ui` (настоящий API) | `…16-00-16Z-e2e-5622.log` | 15 из 19, 4 пропуска (то же) |
+| `tests/branches-ui` (настоящий API, три направления) | `…16-02-45Z-e2e-25ee.log` | 39 из 39 |
 | `git diff --check` | | чисто, кроме машинных логов `tests/runs/logs` (хвостовые пробелы вывода Playwright, как у логов в `main`) |
 
-Красные, которые не от DS2a. Каждый проверен тем же тестом с четырьмя файлами оболочки из `main` `d98c1e78e` (без записи в журнал):
+**Красные, которые не от DS2a.** Каждый UI-тест прогнан повторно с четырьмя файлами оболочки из `main` `7262f5060` (без записи в журнал): красные и там.
 
-| Тест | Причина | На файлах `main` |
+| Тест | Откуда | На оболочке `main` |
 |---|---|---|
-| unit `tests/unit/no-hardcoded-utc5.test.ts` «стойка: даты и моменты по поясу объекта» | сторож находит зашитый пояс `Asia/Almaty` в `apps/web/src/app/create/regional.ts:25` (гостевой мастер, PR #327, пришёл в `main` 09.10) | файл тот же, красный и на `main` |
-| UI `roles.spec.ts:36` «администратор: в меню…» | ждёт в меню `/guests`, а вкладку «Гости» убрал `main` (решение владельца 09.10); спек не обновлён | красный |
-| UI `reservations-v2-r2.spec.ts:194` «телефон: таблица в первом экране» | первая строка таблицы «Броней» на 390 ниже бюджета (509 > 450): в `main` на страницу «Броней» добавлена вкладка «Гости» | красный |
-| UI `support-kb.spec.ts:117` «создание записи» | плавающий: на повторе зелёный и на ветке, и на файлах `main` | зелёный |
+| unit: `design-slop.test.ts` (9), `design-rules.test.ts` (3), `desk-glass.test.ts`, `scripts/design/build-tokens.test.ts` | сторожа дизайна находят нарушения в `app/chessboard/board.css`, `board-grid.tsx`, `page.tsx`, `workspace.css`: календарь PR #317 в `main`. Починка лежит в открытом PR #338 «Calendar: fix design guards after #317» | файлы не мои, DS2a их не трогает |
+| UI `chessboard-week.spec.ts:31`, `housekeeping.spec.ts:118`, `mobile-adaptation.spec.ts:92`, `workspace.spec.ts:294` | шахматка после того же PR #317 | красные |
+| UI `reservations-v2-r2.spec.ts:194` | страница «Броней» на 390 после вкладки «Гости» (`main`, 09.10): первая строка таблицы ниже бюджета | красный |
+| UI `support-kb.spec.ts:117` | плавающий | зелёный |
 
-Открытого PR с починкой первых трёх не нашёл; в DS2a их не чиню, чтобы не расширять срез (это тесты чужих изменений). `login-access.spec.ts:150`, красный в первом прогоне и на `d0eb1e623`, после слияния `main` зелёный.
+Чужую CSS календаря и экран «Броней» в DS2a не переношу: ТЗ среза запрещает CSS-правки и экраны вне навигации. Красный `roles.spec.ts:36` и `no-hardcoded-utc5` из промежуточного прогона `main` уже починил сам.
 
-Ни один существующий тест не ослаблен. Сторож прав (§4) зелёный на итоговом коде: снимок, снятый на `d0eb1e623`, совпадает и после слияния `main` (`main` убрал пункт меню «Гости», но не право страницы).
+Ни один существующий тест не ослаблен.
 
 ## 8. Что не входит и что осталось
 

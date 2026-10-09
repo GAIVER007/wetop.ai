@@ -7660,3 +7660,7 @@
 | 09.10.2026 13:14 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/finance-card-actions.spec.ts -g главная кнопка\|доступность «Счетов» -- | ✅ 50 из 50 | 4 мин 35 с | b795d88 +2 | [лог](logs/2026-10-09T08-14-06Z-e2e-581a.log) |  |
 | 09.10.2026 13:18 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/owner-dashboard-interactions.spec.ts:58 --repeat-each=20 --workers=1) | ✅ 20 из 20 | 3 мин 27 с | b795d88 +2 | [лог](logs/2026-10-09T08-18-41Z-e2e-3d69.log) |  |
 | 09.10.2026 13:22 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/owner-dashboard-interactions.spec.ts --workers=1) | ✅ 8 из 8 | 43 с | b795d88 +2 | [лог](logs/2026-10-09T08-22-10Z-e2e-4039.log) |  |
+| 09.10.2026 13:31 | typecheck | ✅ без ошибок | 51 с | 7409c12 | [лог](logs/2026-10-09T08-31-28Z-typecheck-0532.log) |  |
+| 09.10.2026 13:32 | lint | ✅ без ошибок | 47 с | 7409c12 | [лог](logs/2026-10-09T08-32-20Z-lint-874c.log) |  |
+| 09.10.2026 13:33 | unit | ✅ 4146 из 4149, пропущено 3 | 2 мин 27 с | 7409c12 | [лог](logs/2026-10-09T08-33-13Z-unit-319f.log) |  |
+| 09.10.2026 13:35 | integration | ✅ 961 из 961 | 3 мин 10 с | 7409c12 | [лог](logs/2026-10-09T08-35-58Z-integration-9fa9.log) |  |

@@ -15,6 +15,7 @@ import {
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
 import { SiteBuilderLicenses } from './site-builder-licenses';
+import { OrganizationsService } from './organizations.service';
 import { PLATFORM_ADMIN_ONLY, PLATFORM_NO_ORGANIZATION, PlatformController } from './platform.controller';
 
 /**
@@ -83,6 +84,15 @@ class FakeLicenses {
   }
 }
 const licenses = new FakeLicenses();
+
+/** Создание и обзор: настоящая арифметика проверена в organizations.service.test.ts, здесь только замок и маршруты */
+const organizationsService = {
+  create: vi.fn<(body: unknown) => Promise<{ organizationId: string; replay: boolean; mailSent: boolean }>>(
+    async () => ({ organizationId: ORG, replay: false, mailSent: true }),
+  ),
+  overview: vi.fn<(month?: string) => Promise<{ organizations: unknown[] }>>(async () => ({ organizations: [] })),
+  series: vi.fn<(month?: string) => Promise<unknown[]>>(async () => []),
+};
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -109,6 +119,7 @@ beforeAll(async () => {
       // настоящая служба поверх подставного хранилища: смена расширения зовёт её слушателей (Э4)
       ExtensionsService,
       { provide: SiteBuilderLicenses, useValue: licenses },
+      { provide: OrganizationsService, useValue: organizationsService },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -123,6 +134,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
+  vi.clearAllMocks();
   vi.stubEnv('AUTH_REQUIRED', '1');
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
@@ -133,7 +145,7 @@ beforeEach(() => {
       id: ORG,
       name: 'Хостел «Пример»',
       status: 'TRIAL',
-      trialEndsAt: new Date('2026-10-02T00:00:00.000Z'),
+      trialEndsAt: null,
       createdAt: new Date('2026-09-25T00:00:00.000Z'),
       members: 2,
       owners: ['vladelec@example.invalid'],
@@ -172,13 +184,46 @@ describe('раздел «Платформа» — только главный а
         id: ORG,
         name: 'Хостел «Пример»',
         status: 'TRIAL',
-        trialEndsAt: '2026-10-02T00:00:00.000Z',
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],
         aiSeller: { access: 'off', status: null, activeUntil: null, daysLeft: null, note: null, updatedAt: null },
       },
     ]);
+  });
+});
+
+describe('создание организации и сквозной обзор', () => {
+  const body = { id: ORG, name: 'Новая организация' };
+
+  it('владелец организации получает 403 на обзор, ряд и создание, ничего не вызвано', async () => {
+    await api().get('/platform/overview').set(as('session-owner')).expect(403);
+    await api().get('/platform/overview/series').set(as('session-owner')).expect(403);
+    await api().post('/platform/organizations').set(as('session-owner')).send(body).expect(403);
+    expect(organizationsService.create).not.toHaveBeenCalled();
+    expect(organizationsService.overview).not.toHaveBeenCalled();
+  });
+
+  it('служебный ключ создавать организации не может', async () => {
+    await api().post('/platform/organizations').set('x-wetop-service-key', SERVICE_KEY).send(body).expect(403);
+  });
+
+  it('главный администратор создаёт организацию: тело уходит в службу как есть', async () => {
+    const res = await api().post('/platform/organizations').set(as('session-admin')).send(body).expect(201);
+    expect(organizationsService.create).toHaveBeenCalledWith(body);
+    expect(res.body).toEqual({ organizationId: ORG, replay: false, mailSent: true });
+  });
+
+  it('обзор принимает месяц ГГГГ-ММ и отвергает всё остальное', async () => {
+    await api().get('/platform/overview?month=2026-09').set(as('session-admin')).expect(200);
+    expect(organizationsService.overview).toHaveBeenCalledWith('2026-09');
+    await api().get('/platform/overview?month=2026-13').set(as('session-admin')).expect(400);
+    await api().get('/platform/overview/series?month=сентябрь').set(as('session-admin')).expect(400);
+  });
+
+  it('в ответе организаций пробного периода нет вовсе', async () => {
+    const res = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
+    expect(JSON.stringify(res.body)).not.toMatch(/trialEndsAt/);
   });
 });
 

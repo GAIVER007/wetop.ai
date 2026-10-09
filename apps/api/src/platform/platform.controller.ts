@@ -8,11 +8,13 @@ import {
   Inject,
   NotFoundException,
   Param,
+  Post,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
-import { parseExtensionChange } from '@pms/domain';
+import { isMonth, parseExtensionChange } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
 import {
@@ -23,6 +25,7 @@ import {
 import { ExtensionsService, aiSellerView } from './extensions.service';
 import { SiteBuilderLicenses, licenseLocationView } from './site-builder-licenses';
 import { Access } from '../auth/access.decorator';
+import { OrganizationsService } from './organizations.service';
 
 export { PLATFORM_ADMIN_ONLY } from './admin';
 export const PLATFORM_NO_ORGANIZATION = 'Такой организации нет';
@@ -42,6 +45,7 @@ export class PlatformController {
     @Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
     @Inject(SiteBuilderLicenses) private readonly licenses: SiteBuilderLicenses,
+    @Inject(OrganizationsService) private readonly organizations_: OrganizationsService,
   ) {}
 
   @Get('organizations')
@@ -50,6 +54,37 @@ export class PlatformController {
     requirePlatformAdmin();
     const now = new Date();
     return { items: (await this.repo.organizations()).map((o) => organizationJson(o, now)) };
+  }
+
+  /**
+   * Сквозной обзор платформы: организации с бизнесами и филиалами, цифры за месяц (`?month=ГГГГ-ММ`, по умолчанию
+   * текущий) и последние действия. Деньги разных валют не складываются, показатель без источника это `null`.
+   */
+  @Get('overview')
+  @Header('Cache-Control', 'no-store')
+  async overview(@Query('month') month?: string) {
+    requirePlatformAdmin();
+    if (month !== undefined && !isMonth(month)) throw new BadRequestException('Месяц: ожидается ГГГГ-ММ');
+    return this.organizations_.overview(month);
+  }
+
+  /** Помесячный ряд по всем филиалам для диаграммы «Динамика»: отдельным запросом, он тяжелее обзора */
+  @Get('overview/series')
+  @Header('Cache-Control', 'no-store')
+  async overviewSeries(@Query('month') month?: string) {
+    requirePlatformAdmin();
+    if (month !== undefined && !isMonth(month)) throw new BadRequestException('Месяц: ожидается ГГГГ-ММ');
+    return { items: await this.organizations_.series(month) };
+  }
+
+  /**
+   * Создать организацию: бизнес выбранного направления, первый филиал и владелец, доступ на введённую почту. Сохраняется
+   * сразу и целиком, черновиков нет; повтор с тем же идентификатором возвращает уже созданное.
+   */
+  @Post('organizations')
+  async createOrganization(@Body() body: unknown) {
+    requirePlatformAdmin();
+    return this.organizations_.create(body);
   }
 
   /** Включить, продлить или выключить «ИИ-продавца» организации: статус, дата «до» и заметка (Q-183) */
@@ -126,7 +161,6 @@ function organizationJson(o: OrganizationSummary, now: Date) {
     id: o.id,
     name: o.name,
     status: o.status,
-    trialEndsAt: o.trialEndsAt?.toISOString() ?? null,
     createdAt: o.createdAt.toISOString(),
     members: o.members,
     owners: o.owners,

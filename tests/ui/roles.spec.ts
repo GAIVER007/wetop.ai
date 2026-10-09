@@ -43,10 +43,10 @@ test('администратор: в меню — работа с гостями
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
+      // «Гости» живут вкладкой внутри «Броней» (09.10.2026), своей ссылки в меню нет
       '/today',
       '/chessboard',
       '/reservations',
-      '/guests',
       '/finance',
       '/bar',
       '/market',

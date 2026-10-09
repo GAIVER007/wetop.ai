@@ -23,6 +23,9 @@ export class BarController {
   @Patch('products/:id/active') setProductActive(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductActive(id, body); }
   @Access('settings')
   @Patch('products/:id/price') setProductPrice(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductPrice(id, body); }
+  // правка карточки (ADR-153, макет владельца): название, категория, штрихкод, упаковка, наценка, минимум
+  @Access('settings')
+  @Patch('products/:id') updateProduct(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.updateProduct(id, body); }
   @Get('suppliers') suppliers() { return this.service.suppliers(); }
   @Access('settings')
   @Post('suppliers') createSupplier(@Body() body: unknown) { return this.service.createSupplier(body); }

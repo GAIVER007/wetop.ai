@@ -33,6 +33,16 @@ export interface BarProductInput {
   minimumStockUnits: bigint;
 }
 
+/** Правка карточки товара (ADR-153): без кода, цены и архива, у них свои маршруты и правила */
+export interface BarProductPatch {
+  name: string;
+  categoryId: string | null;
+  barcode: string | null;
+  unitsPerPackage: number;
+  markupBasis: number | null;
+  minimumStockUnits: bigint;
+}
+
 export interface BarSupplierInput {
   name: string;
   phone: string | null;
@@ -53,6 +63,7 @@ export interface BarRepository {
   createProduct(input: BarProductInput): Promise<unknown>;
   setProductActive(id: string, active: boolean): Promise<unknown | null>;
   setProductPrice(id: string, salePriceMinor: bigint): Promise<unknown | null>;
+  updateProduct(id: string, patch: BarProductPatch): Promise<unknown | null>;
   suppliers(): Promise<unknown[]>;
   createSupplier(input: BarSupplierInput): Promise<unknown>;
   setSupplierActive(id: string, active: boolean): Promise<unknown | null>;
@@ -114,6 +125,18 @@ export class PrismaBarRepository implements BarRepository {
     if (!existing) return null;
     const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: { active } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_product', entityId: id, action: 'bar.product.active_changed', after: { active } } });
+    return { ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
+  }
+  async updateProduct(id: string, patch: BarProductPatch) {
+    const propertyId = await this.propertyId();
+    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, propertyId } });
+    if (!existing) return null;
+    const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: {
+      name: patch.name, categoryId: patch.categoryId, barcode: patch.barcode,
+      unitsPerPackage: patch.unitsPerPackage, markupBasis: patch.markupBasis,
+      minimumStockUnits: patch.minimumStockUnits,
+    } });
+    await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_product', entityId: id, action: 'bar.product.updated', before: { name: existing.name, barcode: existing.barcode, minimumStockUnits: existing.minimumStockUnits.toString() }, after: { name: row.name, barcode: row.barcode, minimumStockUnits: row.minimumStockUnits.toString() } } });
     return { ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
   }
   async setProductPrice(id: string, salePriceMinor: bigint) {

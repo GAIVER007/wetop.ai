@@ -209,8 +209,11 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Главная', 'Календарь', 'Брони', 'Финансы', 'Номерной фонд'])
+    for (const label of ['Главная', 'Календарь', 'Брони', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
+    // «Финансы»: группа (ADR-153), раскрывается, внутри «Оплаты и касса» и «Бар»
+    await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
+    await expect(drawer.getByRole('link', { name: 'Бар', exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');

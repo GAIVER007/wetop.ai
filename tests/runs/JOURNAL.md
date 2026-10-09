@@ -7751,3 +7751,22 @@
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
 | 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
+| 09.10.2026 18:45 | unit (частично: apps/api/src/bar/bar.controller.test.ts) | ❌ упало 1 из 10 | 4 с | 97364f8 +1 | [лог](logs/2026-10-09T13-45-40Z-unit-5910.log) | red: правка карточки товара до реализации |
+| 09.10.2026 18:46 | unit (частично: apps/api/src/bar/bar.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 13 | 6 с | 97364f8 +5 | [лог](logs/2026-10-09T13-46-23Z-unit-8f3b.log) | green: правка карточки товара |
+| 09.10.2026 18:46 | unit (частично: apps/api/src/bar/bar.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 13 из 13 | 6 с | 97364f8 +5 | [лог](logs/2026-10-09T13-46-44Z-unit-94f1.log) | green: правка карточки товара |
+| 09.10.2026 18:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts) | ❌ упало 2 из 9 | 1 мин 42 с | 97364f8 +17 | [лог](logs/2026-10-09T13-52-59Z-e2e-5175.log) | обзор по макету владельца |
+| 09.10.2026 18:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts) | ❌ упало 1 из 9 | 43 с | 97364f8 +18 | [лог](logs/2026-10-09T13-55-24Z-e2e-34c0.log) | обзор по макету владельца |
+| 09.10.2026 18:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts) | ✅ 9 из 9 | 42 с | 97364f8 +18 | [лог](logs/2026-10-09T13-57-11Z-e2e-2f60.log) | обзор по макету владельца |
+| 09.10.2026 18:59 | unit | ✅ 4167 из 4170, пропущено 3 | 2 мин 4 с | 97364f8 +17 | [лог](logs/2026-10-09T13-59-19Z-unit-ce04.log) | бар: обзор по макету, слитое дерево |
+| 09.10.2026 19:01 | typecheck | ✅ без ошибок | 42 с | 97364f8 +18 | [лог](logs/2026-10-09T14-01-24Z-typecheck-4782.log) | слитое дерево с обзором по макету |
+| 09.10.2026 19:02 | lint | ✅ без ошибок | 35 с | 97364f8 +18 | [лог](logs/2026-10-09T14-02-07Z-lint-d727.log) | слитое дерево с обзором по макету |
+| 09.10.2026 19:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/u | ❌ упало 3 из 33 | 4 мин 54 с | 97364f8 +18 | [лог](logs/2026-10-09T14-02-49Z-e2e-bd8d.log) | слитое дерево: меню без Гостей и Бара, снимки пересняты |
+| 09.10.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/u | ✅ 33 из 33 | 3 мин 53 с | 97364f8 +20 | [лог](logs/2026-10-09T14-08-34Z-e2e-4ef2.log) | слитое дерево: меню и роли, снимки пересняты |
+| 09.10.2026 19:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts) | ✅ 9 из 9 | 44 с | 97364f8 +21 | [лог](logs/2026-10-09T14-13-04Z-e2e-2b88.log) | обзор по макету: финал с панелями операций |
+| 09.10.2026 19:13 | unit | ✅ 4167 из 4170, пропущено 3 | 2 мин 4 с | 97364f8 +18 | [лог](logs/2026-10-09T14-13-49Z-unit-2f2b.log) | финал: макет обзора |
+| 09.10.2026 19:15 | lint | ✅ без ошибок | 37 с | 97364f8 +21 | [лог](logs/2026-10-09T14-15-54Z-lint-3fb1.log) | финал: макет обзора |
+| 09.10.2026 19:16 | typecheck | ✅ без ошибок | 45 с | 97364f8 +21 | [лог](logs/2026-10-09T14-16-31Z-typecheck-029d.log) | финал: макет обзора |
+| 09.10.2026 19:17 | unit | ✅ 4167 из 4170, пропущено 3 | 2 мин 5 с | 97364f8 +18 | [лог](logs/2026-10-09T14-17-43Z-unit-1146.log) | финал после чистки тире |
+| 09.10.2026 19:19 | lint | ✅ без ошибок | 35 с | 97364f8 +21 | [лог](logs/2026-10-09T14-19-49Z-lint-9886.log) | финал после чистки тире |
+| 09.10.2026 19:20 | typecheck | ✅ без ошибок | 44 с | 97364f8 +21 | [лог](logs/2026-10-09T14-20-24Z-typecheck-05e4.log) | финал после чистки тире |
+| 09.10.2026 19:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-a | ✅ 42 из 42 | 4 мин 36 с | 97364f8 +21 | [лог](logs/2026-10-09T14-21-14Z-e2e-93a3.log) | финал: бар по макету и меню на слитом дереве |

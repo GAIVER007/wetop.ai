@@ -267,39 +267,177 @@
     flex-wrap: wrap;
     gap: var(--space-2);
   }
-  /* Обзор в один экран на компьютере (DESIGN.md §4): прокручиваются только остатки */
-  @media (min-width: 961px) {
-    .workspace .page:has(> .bar-overview-stock) {
-      display: flex;
-      flex-direction: column;
-      height: calc(100dvh - var(--header-h, 100px));
-      overflow: hidden;
-    }
-    .workspace .page:has(> .bar-overview-stock) > * {
-      margin-top: 0;
-    }
-    .workspace .page > .bar-overview-stock {
-      flex: 1 1 0;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    .workspace .page > .bar-overview-stock .table-scroll {
-      flex: 1 1 0;
-      min-height: 0;
-      max-height: none;
-    }
+  /* ── Обзор по макету владельца (09.10.2026): плитки, быстрая продажа, доска товаров, нижний ряд ── */
+  .bar-quick > * {
+    min-width: 0;
+  }
+  .bar-bottom > * {
+    min-width: 0;
+  }
+  .bar-quick-panel {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+  /* в половине экрана формы продажи складываются в две колонки, иначе их minmax шире панели */
+  .bar-quick .bar-sale-form,
+  .bar-quick .bar-folio-form {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bar-quick-panel > h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .bar-board {
+    margin-bottom: var(--space-4);
+  }
+  .bar-board-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .bar-board-head .section-title {
+    margin: 0;
+  }
+  .bar-board-filters {
+    display: grid;
+    grid-template-columns: minmax(240px, 1.6fr) minmax(150px, 1fr) minmax(150px, 1fr);
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .bar-board .table-scroll {
+    max-height: calc(100dvh - var(--header-h, 100px) - 360px);
+    min-height: 180px;
+    overflow-y: auto;
+  }
+  /* Карточка товара боковой панелью (§1 п. 5): таблица и показатели остаются на экране */
+  .bar-product-panel {
+    position: fixed;
+    top: var(--header-h, 100px);
+    right: 0;
+    bottom: 0;
+    width: min(400px, 100vw);
+    z-index: var(--layer-overlay);
+    background: var(--surface-solid);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-floating);
+    padding: var(--space-4);
+    overflow-y: auto;
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+  .bar-product-panel-head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .bar-product-panel-head h3 {
+    margin: 0 0 var(--space-1);
+  }
+  .bar-product-facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .bar-product-facts dt {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .bar-product-facts dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+  }
+  .bar-product-panel-form {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-product-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .bar-product-panel-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .bar-product-panel-archive {
+    justify-self: start;
+  }
+  .bar-bottom {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .bar-bottom-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .bar-bottom-head h3 {
+    margin: 0;
+  }
+  .bar-popular {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-1);
+    counter-reset: popular;
+  }
+  .bar-popular li {
+    counter-increment: popular;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 32px;
+    border-top: 1px solid var(--border-soft);
+    padding-top: var(--space-1);
+  }
+  .bar-popular li::before {
+    content: counter(popular);
+    color: var(--muted);
+    min-width: 20px;
+  }
+  .bar-popular li span {
+    flex: 1 1 auto;
   }
   @media (max-width: 960px) {
     .bar-quick,
-    .bar-catalog-grid {
+    .bar-catalog-grid,
+    .bar-bottom,
+    .bar-board-filters {
       grid-template-columns: 1fr;
+    }
+    .bar-board .table-scroll {
+      max-height: none;
+      min-height: 0;
     }
     .bar-line-new {
       grid-template-columns: 1fr 1fr;
     }
   }
   @media (max-width: 600px) {
+    .bar-product-panel-grid,
+    .bar-product-facts {
+      grid-template-columns: 1fr;
+    }
     .bar-scan-row,
     .bar-category-form,
     .bar-supplier-form,

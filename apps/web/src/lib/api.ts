@@ -3376,7 +3376,7 @@ export const sharedOnboardingApi = {
 
 export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
 export interface BarProductRow {
-  id: string; code: string; name: string; categoryId: string | null; unitsPerPackage: number;
+  id: string; code: string; name: string; categoryId: string | null; barcode: string | null; unitsPerPackage: number;
   markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
   category?: BarCategoryRow | null;
 }
@@ -3408,6 +3408,7 @@ export const barApi = {
   createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
   setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
   setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
+  updateProduct: (id: string, body: unknown) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}`, body),
   suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
   createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
   setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),

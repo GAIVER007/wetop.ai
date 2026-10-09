@@ -33,12 +33,14 @@ export default async function BarOperationsPage() {
   return <Page width="wide" title="Бар: операции" subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка.">
     <BarTabs current="operations" />
     <div className="bar-quick">
-      <section>
-        <SectionTitle>Списание</SectionTitle>
+      <section className="panel bar-quick-panel">
+        <h3>Списание</h3>
+        <p className="bar-muted">Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.</p>
         <WriteOffForm stock={stock.value} />
       </section>
-      <section>
-        <SectionTitle>Инвентаризация</SectionTitle>
+      <section className="panel bar-quick-panel">
+        <h3>Инвентаризация</h3>
+        <p className="bar-muted">Пересчёт по факту: недостача запишется движением с причиной.</p>
         <InventoryCountForm stock={stock.value} />
       </section>
     </div>

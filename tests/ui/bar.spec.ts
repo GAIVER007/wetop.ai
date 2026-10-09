@@ -20,25 +20,46 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('обзор: вкладки, показатели, продажа и остатки одним экраном 1440×900', async ({ page }) => {
+test('обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные', async ({ page }) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
-  // пять вкладок раздела, активен «Обзор»
+  // пять вкладок раздела, активен «Обзор»; действия шапки как в макете
   const tabs = m.getByRole('navigation', { name: 'Разделы бара' });
   await expect(tabs.getByRole('link')).toHaveText(['Обзор', 'Приходы', 'Товары', 'Поставщики', 'Операции']);
   await expect(tabs.getByRole('link', { name: 'Обзор' })).toHaveAttribute('aria-current', 'page');
-  // показатели: долг поставщикам подсвечен, мало на складе посчитано
-  await expect(m.getByText('Долг поставщикам')).toBeVisible();
-  await expect(m.getByText('мало на складе: 1')).toBeVisible();
-  // остатки: товар на минимуме первым и с предупреждением
-  const stock = m.getByRole('region', { name: 'Остатки бара' });
-  await expect(stock.locator('tbody tr').first()).toContainText('Вода 1 л');
-  // страница в один экран: прокручиваются только остатки (DESIGN.md §4)
-  const over = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
-  expect(over, `страница выше экрана на ${over} px`).toBeLessThanOrEqual(8);
+  await expect(m.getByRole('link', { name: 'Добавить товар' })).toBeVisible();
+  await expect(m.getByRole('link', { name: 'Приход', exact: true })).toBeVisible();
+  // семь плиток: остаток на складе суммой, долг и «заканчиваются» подсвечены
+  await expect(m.locator('.bar-stats .stat')).toHaveCount(7);
+  await expect(m.getByText('Остаток на складе')).toBeVisible();
+  await expect(m.locator('.stat', { hasText: 'Остаток на складе' })).toContainText('16 шт.');
+  await expect(m.locator('.stat', { hasText: 'Заканчиваются' })).toContainText('1');
+  // первый экран без прокрутки: показатели и быстрая продажа видны сразу, вбок ничего не уезжает
+  const quick = await m.locator('.bar-quick').boundingBox();
+  expect(quick!.y).toBeLessThan(900);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  // доска товаров: статус словом, товар на минимуме наверху
+  const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+  await expect(board.locator('tbody tr').first()).toContainText('Вода 1 л');
+  await expect(board.locator('tbody tr').first()).toContainText('Заканчивается');
+  // поиск и фильтр статуса сужают список
+  await m.getByLabel('Поиск товара').fill('cola');
+  await expect(board.locator('tbody tr')).toHaveCount(1);
+  await expect(board.locator('tbody tr').first()).toContainText('Cola 0,5');
+  await m.getByLabel('Поиск товара').fill('');
+  await m.getByLabel('Статус остатка').selectOption('low');
+  await expect(board.locator('tbody tr')).toHaveCount(1);
+  await m.getByLabel('Статус остатка').selectOption('');
+  // нижний ряд макета: приходы со статусом оплаты и популярные товары
+  await expect(m.getByText('Приходы от поставщиков')).toBeVisible();
+  const receiptsPanel = m.getByRole('region', { name: 'Последние приходы поставщиков' });
+  await expect(receiptsPanel.locator('tbody tr').first()).toContainText('SF-77');
+  await expect(receiptsPanel.locator('tbody tr').first()).toContainText('Оплачен частично');
+  await expect(m.getByRole('link', { name: 'Все приходы' })).toHaveAttribute('href', '/bar/receipts');
+  await expect(m.locator('.bar-popular li').first()).toContainText('Cola 0,5');
   // продажа без брони с обзора
   const sale = m.locator('.bar-sale-form').first();
   await sale.getByLabel('Товар').selectOption({ index: 1 });
@@ -46,6 +67,29 @@ test('обзор: вкладки, показатели, продажа и ост
   await sale.getByRole('button', { name: 'Продать' }).click();
   await expect(sale.getByRole('status')).toContainText('Продажа записана');
   await page.screenshot({ path: `${SHOTS}/overview-1440.png`, fullPage: true });
+});
+
+test('карточка товара боковой панелью: правка полей и цены, закрытие Escape', async ({ page }) => {
+  mkdirSync(SHOTS, { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/bar');
+  const m = main(page);
+  const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+  await board.locator('tbody tr', { hasText: 'Cola 0,5' }).getByRole('button', { name: 'Изменить' }).click();
+  const panel = page.getByRole('dialog', { name: 'Карточка товара Cola 0,5' });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByText('Текущий остаток')).toBeVisible();
+  await panel.getByLabel('Название товара').fill('Cola 0,5 ж/б');
+  await panel.getByLabel('Мин. остаток').fill('8');
+  await panel.getByLabel('Цена продажи, ₸').fill('750');
+  await page.screenshot({ path: `${SHOTS}/product-panel.png` });
+  await panel.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(panel.getByRole('status')).toContainText('Карточка товара сохранена');
+  await expect(board.locator('tbody tr', { hasText: 'Cola 0,5 ж/б' })).toContainText('750');
+  // Escape закрывает карточку, таблица остаётся
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: /Карточка товара/ })).toHaveCount(0);
+  await expect(board).toBeVisible();
 });
 
 test('меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её', async ({ page }) => {

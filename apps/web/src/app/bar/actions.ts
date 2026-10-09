@@ -180,6 +180,26 @@ export async function createBarProductAction(_previous: BarActionResult, fd: For
   } catch (error) { return { error: describe(error), ok: _previous.ok }; }
 }
 
+/** Карточка товара с обзора (ADR-153, макет владельца): поля карточки и, если заполнена, цена продажи */
+export async function updateBarProductAction(_previous: BarActionResult, fd: FormData): Promise<BarActionResult> {
+  try {
+    const id = value(fd, 'id');
+    const markup = value(fd, 'markup');
+    await barApi.updateProduct(id, {
+      name: value(fd, 'name'), categoryId: value(fd, 'categoryId') || null,
+      barcode: value(fd, 'barcode') || null, unitsPerPackage: Number(value(fd, 'unitsPerPackage') || '1'),
+      markupBasis: markup ? basis(markup) : null,
+      minimumStockUnits: value(fd, 'minimumStockUnits') || '0',
+    });
+    const salePrice = value(fd, 'salePrice');
+    if (salePrice) await barApi.setProductPrice(id, minor(salePrice, 'Цена продажи'));
+    revalidateBar();
+    return { error: null, ok: Date.now(), message: 'Карточка товара сохранена' };
+  } catch (error) {
+    return { error: describe(error), ok: _previous.ok };
+  }
+}
+
 export async function toggleBarCatalogAction(fd: FormData): Promise<void> {
   const id = value(fd, 'id');
   const active = value(fd, 'active') === 'true';

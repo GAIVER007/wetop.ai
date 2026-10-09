@@ -133,6 +133,21 @@ export function barFixture(
     row.active = body.active === true;
     return ok(row);
   }
+  const productMatch = /^\/bar\/products\/([^/]+)$/.exec(path);
+  if (method === 'PATCH' && productMatch) {
+    const product = products.find((item) => item.id === productMatch[1]);
+    if (!product) return { status: 404, data: { message: 'Товар не найден' } };
+    if (str(body.name) === '') return { status: 400, data: { message: 'Укажите название товара' } };
+    const category = categories.find((item) => item.id === body.categoryId) ?? null;
+    product.name = str(body.name);
+    product.categoryId = category?.id ?? null;
+    product.category = category;
+    product.barcode = strOrNull(body.barcode);
+    product.unitsPerPackage = Number(body.unitsPerPackage ?? product.unitsPerPackage);
+    product.markupBasis = body.markupBasis === null || body.markupBasis === undefined ? null : Number(body.markupBasis);
+    product.minimumStockUnits = str(body.minimumStockUnits) || product.minimumStockUnits;
+    return ok(product);
+  }
   const priceMatch = /^\/bar\/products\/([^/]+)\/price$/.exec(path);
   if (method === 'PATCH' && priceMatch) {
     const product = products.find((item) => item.id === priceMatch[1]);

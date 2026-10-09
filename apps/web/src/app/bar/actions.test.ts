@@ -5,7 +5,7 @@ import { barApi } from '../../lib/api';
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
-  barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn() },
+  barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn(), updateProduct: vi.fn() },
 }));
 
 describe('форма прихода бара', () => {
@@ -27,7 +27,7 @@ describe('форма прихода бара', () => {
   });
 
   it('строка «новый товар» сначала создаёт карточку с ценой по наценке, вверх до 10 тенге', async () => {
-    vi.mocked(barApi.createProduct).mockResolvedValue({ id: 'product-new', code: 'SOK-YABLOCHNYY-1L', name: 'Сок яблочный 1л', categoryId: null, unitsPerPackage: 1, markupBasis: 3500, salePrice: '106000', minimumStockUnits: '0', active: true });
+    vi.mocked(barApi.createProduct).mockResolvedValue({ id: 'product-new', code: 'SOK-YABLOCHNYY-1L', name: 'Сок яблочный 1л', categoryId: null, barcode: '4870007654321', unitsPerPackage: 1, markupBasis: 3500, salePrice: '106000', minimumStockUnits: '0', active: true });
     vi.mocked(barApi.createReceipt).mockResolvedValue({ id: 'receipt-2', status: 'DRAFT' });
     const fd = new FormData();
     Object.entries({
@@ -137,8 +137,27 @@ describe('форма прихода бара', () => {
     expect(barApi.scanReceipt).not.toHaveBeenCalled();
   });
 
+  it('карточка товара: поля уходят в PATCH, цена отдельным маршрутом в minor units', async () => {
+    const row = { id: 'product-1', code: 'COLA-05', name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567', unitsPerPackage: 12, markupBasis: 3500, salePrice: '75000', minimumStockUnits: '8', active: true };
+    vi.mocked(barApi.updateProduct).mockResolvedValue(row);
+    vi.mocked(barApi.setProductPrice).mockResolvedValue(row);
+    const fd = new FormData();
+    Object.entries({
+      id: 'product-1', name: 'Cola 0,5 ж/б', categoryId: '', barcode: '4870001234567',
+      unitsPerPackage: '12', markup: '35.00', minimumStockUnits: '8', salePrice: '750',
+    }).forEach(([key, value]) => fd.set(key, value));
+    const { updateBarProductAction } = await import('./actions');
+    const result = await updateBarProductAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBeNull();
+    expect(barApi.updateProduct).toHaveBeenCalledWith('product-1', {
+      name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+      unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    });
+    expect(barApi.setProductPrice).toHaveBeenCalledWith('product-1', '75000');
+  });
+
   it('сохраняет свою цену продажи в minor units', async () => {
-    vi.mocked(barApi.setProductPrice).mockResolvedValue({ id: 'product-1', code: 'WATER', name: 'Вода', categoryId: null, unitsPerPackage: 1, markupBasis: null, salePrice: '85000', minimumStockUnits: '0', active: true });
+    vi.mocked(barApi.setProductPrice).mockResolvedValue({ id: 'product-1', code: 'WATER', name: 'Вода', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, salePrice: '85000', minimumStockUnits: '0', active: true });
     const fd = new FormData();
     fd.set('id', 'product-1'); fd.set('salePrice', '850');
     const result = await setBarProductPriceAction({ error: null, ok: 0 }, fd);

@@ -74,6 +74,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/products': 'settings',
   'PATCH /bar/products/:id/active': 'settings',
   'PATCH /bar/products/:id/price': 'settings',
+  'PATCH /bar/products/:id': 'settings',
   'GET /bar/suppliers': 'desk',
   'POST /bar/suppliers': 'settings',
   'PATCH /bar/suppliers/:id/active': 'settings',

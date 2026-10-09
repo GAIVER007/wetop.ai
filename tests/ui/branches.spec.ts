@@ -46,6 +46,15 @@ test('организации: филиал создаётся прямо в ра
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.reload();
   const main = page.getByRole('main');
+  // одна страница: итоги, карточки организаций с филиалами и показателями видны сразу, подписки раскрываются ниже
+  await expect(main.getByRole('heading', { name: 'Организации и филиалы', level: 1 })).toBeVisible();
+  await expect(main.getByTestId('platform-totals')).toBeVisible();
+  await expect(main.getByTestId('platform-organization-cards')).toBeVisible();
+  // служебные ID на экран не выводятся, «реквизитов» и «объекта / филиала» в словах нет
+  await expect(main).not.toContainText('ID филиала');
+  await expect(main).not.toContainText('ID:');
+  await expect(main).not.toContainText('Реквизиты организации');
+  await expect(main).not.toContainText('объект / филиал');
   await main.locator('summary').filter({ hasText: 'Добавить филиал в' }).click();
   await main.getByLabel('Название филиала').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
@@ -58,22 +67,20 @@ test('организации: филиал создаётся прямо в ра
       .filter({ hasText: 'Luxx Aparts' })
       .getByText('Тестовый объект Север', { exact: true }),
   ).toBeVisible();
-  await expect(main.getByTestId('platform-organizations')).not.toBeVisible();
-  await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
-  await expect(main.getByTestId('platform-organizations')).toBeVisible();
+  // показатели стоят прямо в карточке филиала
+  await expect(main.getByText('Загрузка').first()).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: `reports/organizations-page-2026-10-09/organizations-${width}.png`,
+      fullPage: true,
+    });
   }
-  await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: 'reports/branches-2026-10-01/platform-branches.png',
-    fullPage: true,
-  });
   await page
     .getByTestId('platform-organization-card')
     .filter({ hasText: 'Luxx Aparts' })

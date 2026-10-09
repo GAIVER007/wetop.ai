@@ -231,6 +231,7 @@ model AccommodationType {
   dailyRates      DailyRate[]
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
+  photos          AccommodationTypePhoto[]
 
   sellerBookingIntents SellerBookingIntent[]
 
@@ -1831,9 +1832,28 @@ model SiteAsset {
 
   location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
   createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  typePhotos AccommodationTypePhoto[]
 
   @@index([locationId, status])
   @@map("site_assets")
+}
+
+/// Фото категории размещения (DATA_MODEL §30, ADR-153, миграция …070): выбор до десяти изображений из библиотеки сайта
+/// филиала (`SiteAsset`, вид IMAGE, тот же Location, что у объекта категории; проверяет триггер) с порядком. Файлов и
+/// хранилища у таблицы нет, загрузка остаётся в библиотеке. Права ролей: миграция …071.
+model AccommodationTypePhoto {
+  accommodationTypeId String   @map("accommodation_type_id") @db.Uuid
+  siteAssetId         String   @map("site_asset_id") @db.Uuid
+  position            Int      @db.SmallInt
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id], onDelete: Cascade)
+  siteAsset         SiteAsset         @relation(fields: [siteAssetId], references: [id], onDelete: Restrict)
+
+  @@id([accommodationTypeId, siteAssetId])
+  @@unique([accommodationTypeId, position])
+  @@index([siteAssetId])
+  @@map("accommodation_type_photos")
 }
 
 /// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.

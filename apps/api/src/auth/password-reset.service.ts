@@ -11,7 +11,6 @@ import {
   hashSessionToken,
   newSessionToken,
   validEmail,
-  invitationLetter,
   passwordResetLetter,
   resetExpiry,
   resetLink,
@@ -79,29 +78,6 @@ export class PasswordResetService {
       return;
     }
     this.lastSent.set(normalized, now.getTime());
-  }
-
-  /**
-   * Владельцу новой организации («Платформа → Организации»): письмо «вам открыли доступ» со ссылкой, где он задаёт
-   * пароль. Возвращает, ушло ли письмо: организация к этому моменту уже создана, отказ почты её не отменяет, а главный
-   * администратор получает понятный ответ и может повторить через «Забыли пароль» на странице входа.
-   */
-  async sendAccess(email: string, name: string | null, now = new Date()): Promise<boolean> {
-    if (!this.mailer) return false;
-    const user = await this.prisma.db.user.findUnique({ where: { email } });
-    if (!user || user.status === 'BLOCKED') return false;
-    const link = await this.issue(user.id, now);
-    const letter = invitationLetter({ name, link });
-    try {
-      await this.mailer.send({ to: email, subject: letter.subject, text: letter.text });
-      return true;
-    } catch {
-      await this.prisma.db.passwordReset.updateMany({
-        where: { userId: user.id, usedAt: null },
-        data: { usedAt: now },
-      });
-      return false;
-    }
   }
 
   /** Пароль по ссылке из письма. Ссылка одноразовая: после успеха она больше не работает. */

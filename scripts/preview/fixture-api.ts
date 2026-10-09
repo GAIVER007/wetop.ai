@@ -2,7 +2,7 @@
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -26,6 +26,8 @@ import {
   extensionAccess,
   extensionDaysLeft,
   identityRole,
+  isOrganizationNameShaped,
+  normalizeOrganizationName,
   parseExtensionChange,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
@@ -55,11 +57,12 @@ import {
   parseMemberDetails,
   parseHotelSettingsPatch,
   parseOrganizationCreate,
+  visibleStatus,
+  EMPTY_METRICS,
   type OverviewBranch,
   type OverviewOrganization,
   type PlatformOverview,
   type OverviewSeriesPoint,
-  EMPTY_METRICS,
   parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
@@ -1720,7 +1723,12 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
     previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
   };
 }
-function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
+function dashboardPeriod(
+  from: string,
+  to: string,
+  fund: DashboardFund = 'all',
+  category?: string,
+): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
   const unassignedByCategory: Record<string, number> = {};
@@ -1761,13 +1769,14 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
       refundsMinor: 0n,
     },
     fund,
+    category ? { category } : {},
   );
 }
-function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all', category?: string) {
   const prev = previousPeriod(from, to);
   return {
-    current: dashboardPeriod(from, to, fund),
-    previous: dashboardPeriod(prev.from, prev.to, fund),
+    current: dashboardPeriod(from, to, fund, category),
+    previous: dashboardPeriod(prev.from, prev.to, fund, category),
   };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
@@ -2205,8 +2214,25 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
-/** Организации, созданные окном «Создать организацию» на стенде: сбрасываются вместе с остальным */
-const platformCreated: OverviewOrganization[] = [];
+// ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
+const platformNames = new Map<string, string>();
+const platformArchived = new Map<string, string>();
+// ORG2 (ADR-ORG2): организации, созданные главным администратором; письмо владельцу и время последней ссылки
+interface FixtureCreatedOrg {
+  id: string;
+  name: string;
+  ownerEmail: string;
+  createdAt: string;
+  /** Окно «Создать организацию» (ADR-156): бизнес и первый филиал; их нет у организаций, заведённых иначе */
+  brand?: string;
+  vertical?: OverviewOrganization['businesses'][number]['vertical'];
+  currency?: string;
+  timezone?: string;
+  branch?: { name: string; address: string } | null;
+}
+const platformCreated: FixtureCreatedOrg[] = [];
+const platformLinkAt = new Map<string, number>();
+let platformMailOn = true;
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2231,7 +2257,11 @@ function resetAccess() {
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
+  platformNames.clear();
+  platformArchived.clear();
   platformCreated.length = 0;
+  platformLinkAt.clear();
+  platformMailOn = true;
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2251,27 +2281,34 @@ const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: ui
 const platformOrganizations = () => [
   {
     id: 'ui-org',
-    name: uiUser.organization.name,
-    status: platformStatuses.get('ui-org') ?? 'ACTIVE',
+    name: platformNames.get('ui-org') ?? uiUser.organization.name,
+    status: platformArchived.has('ui-org') ? 'SUSPENDED' : (platformStatuses.get('ui-org') ?? 'ACTIVE'),
+    trialEndsAt: null,
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
+    ownerPending: false,
   },
   {
     id: 'ui-org-2',
-    name: 'Хостел «Пример»',
-    status: platformStatuses.get('ui-org-2') ?? 'ACTIVE',
+    name: platformNames.get('ui-org-2') ?? 'Хостел «Пример»',
+    status: platformArchived.has('ui-org-2') ? 'SUSPENDED' : (platformStatuses.get('ui-org-2') ?? 'TRIAL'),
+    trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
+    ownerPending: false,
   },
-  ...platformCreated.map((o) => ({
-    id: o.id,
-    name: o.name,
-    status: platformStatuses.get(o.id) ?? o.status,
-    createdAt: o.createdAt,
+  ...platformCreated.map((c) => ({
+    id: c.id,
+    name: platformNames.get(c.id) ?? c.name,
+    // организации создаются сразу рабочими, пробного периода нет (ADR-156)
+    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'ACTIVE'),
+    trialEndsAt: null as string | null,
+    createdAt: c.createdAt,
     members: 1,
-    owners: o.owners,
+    owners: [c.ownerEmail],
+    ownerPending: true,
   })),
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
@@ -2548,8 +2585,11 @@ function resetSupport() {
 
 const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
   const row = platformExtensions.get(o.id);
+  const { trialEndsAt, ...rest } = o;
   return {
-    ...o,
+    ...rest,
+    // как у API: пробного периода на экране платформы нет, пробная работает до срока и затем только читает
+    status: visibleStatus(o.status, trialEndsAt ? new Date(trialEndsAt) : null, new Date()),
     aiSeller: {
       ...aiSellerView(o.id),
       note: row?.note ?? null,
@@ -2559,9 +2599,9 @@ const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[nu
 };
 
 /**
- * Сквозной обзор платформы на стенде («Платформа → Организации»): цифры вымышленные (ADR-010), но считаются теми же
- * формами, что у API. Своя организация стенда с её филиалами, «Хостел» с одним отелем, салон и ресторан для покрытия
- * трёх направлений (у ресторана денег в модели нет: null) и организации, созданные окном «Создать организацию».
+ * Сквозной обзор платформы на стенде («Платформа → Организации», ADR-156): цифры вымышленные (ADR-010), формы те же, что у
+ * API. Своя организация стенда с её филиалами, «Хостел» с одним отелем, салон и ресторан для покрытия трёх направлений
+ * (у ресторана денег в модели нет: null) и организации, созданные окном «Создать организацию».
  */
 const fixtureMetrics = (over: Partial<OverviewBranch['metrics']>) => ({ ...EMPTY_METRICS, ...over });
 function platformOverviewFixture(month: string): PlatformOverview {
@@ -2575,11 +2615,13 @@ function platformOverviewFixture(month: string): PlatformOverview {
     previous: EMPTY_METRICS,
     ...b,
   });
+  const base = platformOrganizations();
+  const statusOf = (id: string) => platformOrganizationJson(base.find((o) => o.id === id)!).status;
   const organizations: OverviewOrganization[] = [
     {
       id: 'ui-org',
-      name: uiUser.organization.name,
-      status: platformStatuses.get('ui-org') ?? 'ACTIVE',
+      name: platformNames.get('ui-org') ?? uiUser.organization.name,
+      status: statusOf('ui-org'),
       createdAt: '2026-09-01T04:00:00.000Z',
       owners: ['admin@wetop.test'],
       businesses: [{ id: 'ui-business', name: uiUser.organization.name, vertical: 'HOSPITALITY' }],
@@ -2599,8 +2641,8 @@ function platformOverviewFixture(month: string): PlatformOverview {
     },
     {
       id: 'ui-org-2',
-      name: 'Хостел «Пример»',
-      status: platformStatuses.get('ui-org-2') ?? 'ACTIVE',
+      name: platformNames.get('ui-org-2') ?? 'Хостел «Пример»',
+      status: statusOf('ui-org-2'),
       createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
       owners: ['owner@example.com'],
       businesses: [{ id: 'ui-business-2', name: 'Хостел «Пример»', vertical: 'HOSPITALITY' }],
@@ -2645,7 +2687,6 @@ function platformOverviewFixture(month: string): PlatformOverview {
           id: 'ui-location-food',
           name: 'Ресторан «Пример»',
           address: 'Алматы, пр. Вымышленный, 3',
-          currency: 'KZT',
           vertical: 'FOOD_SERVICE',
           // у ресторана денег в модели нет: null, а не ноль
           metrics: fixtureMetrics({ guests: 640, bookings: 210 }),
@@ -2653,7 +2694,29 @@ function platformOverviewFixture(month: string): PlatformOverview {
         }),
       ],
     },
-    ...platformCreated,
+    ...platformCreated.map(
+      (c): OverviewOrganization => ({
+        id: c.id,
+        name: platformNames.get(c.id) ?? c.name,
+        status: statusOf(c.id),
+        createdAt: c.createdAt,
+        owners: [c.ownerEmail],
+        businesses: [{ id: `business-${c.id}`, name: c.brand ?? c.name, vertical: c.vertical ?? 'HOSPITALITY' }],
+        branches: c.branch
+          ? [
+              branch({
+                id: `location-${c.id}`,
+                name: c.branch.name,
+                address: c.branch.address || null,
+                currency: c.currency ?? 'KZT',
+                timezone: c.timezone ?? 'Asia/Almaty',
+                vertical: c.vertical ?? 'HOSPITALITY',
+                businessId: `business-${c.id}`,
+              }),
+            ]
+          : [],
+      }),
+    ),
   ];
   const [y, m] = month.split('-').map(Number) as [number, number];
   const today = new Date().toISOString().slice(0, 10);
@@ -2665,13 +2728,13 @@ function platformOverviewFixture(month: string): PlatformOverview {
     organizations,
     series: [],
     activity: [
-      ...platformCreated.map((o, i) => ({
+      ...platformCreated.map((c, i) => ({
         id: `created-${i}`,
         at: new Date(Date.now() - 60_000).toISOString(),
         label: 'Новая организация',
-        detail: o.name,
-        organizationId: o.id,
-        organizationName: o.name,
+        detail: c.name,
+        organizationId: c.id,
+        organizationName: c.name,
       })),
       {
         id: 'seed-1',
@@ -3249,6 +3312,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -3314,7 +3388,12 @@ function read(path: string, q: URLSearchParams): unknown {
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
       throw new Error('fund — all, rooms или beds');
-    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+    return dashboard(
+      q.get('from') || today,
+      q.get('to') || today,
+      fund as DashboardFund,
+      q.get('category') || undefined,
+    );
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
@@ -4618,6 +4697,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4781,6 +4862,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -5006,6 +5088,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if ('platformMail' in body) platformMailOn = body['platformMail'] !== 'off';
       if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
@@ -5912,49 +5995,6 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
-      if (path === '/platform/overview' && req.method === 'GET') {
-        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
-        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return send(400, { message: 'Месяц: ожидается ГГГГ-ММ' });
-        return send(200, platformOverviewFixture(month));
-      }
-      if (path === '/platform/overview/series' && req.method === 'GET') {
-        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
-        return send(200, { items: platformSeriesFixture(month) });
-      }
-      // Создать организацию: те же правила ввода, что у API (parseOrganizationCreate), повтор по id не плодит дубль
-      if (path === '/platform/organizations' && req.method === 'POST') {
-        const parsed = parseOrganizationCreate(body);
-        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
-        const input = parsed.value;
-        const same = platformOrganizations().find((o) => o.id === input.id);
-        if (same) return send(same.name === input.name ? 201 : 409, same.name === input.name ? { organizationId: same.id, replay: true, mailSent: null } : { message: 'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.' });
-        if (platformOrganizations().some((o) => o.name.toLowerCase() === input.name.toLowerCase()))
-          return send(409, { message: 'Организация с таким названием уже есть' });
-        platformCreated.push({
-          id: input.id,
-          name: input.name,
-          status: 'ACTIVE',
-          createdAt: new Date().toISOString(),
-          owners: [input.owner.email],
-          businesses: [{ id: `business-${input.id}`, name: input.brand, vertical: input.vertical }],
-          branches: input.firstBranch
-            ? [
-                {
-                  id: `location-${input.id}`,
-                  name: input.firstBranch.name,
-                  address: input.firstBranch.address || null,
-                  currency: input.currency,
-                  timezone: input.timezone,
-                  vertical: input.vertical,
-                  businessId: `business-${input.id}`,
-                  metrics: EMPTY_METRICS,
-                  previous: EMPTY_METRICS,
-                },
-              ]
-            : [],
-        });
-        return send(201, { organizationId: input.id, replay: false, mailSent: true });
-      }
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);
@@ -5982,6 +6022,89 @@ createServer(async (req, res) => {
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
+      }
+      // ORG2 (ADR-ORG2, Q-283) и окно «Создать организацию» (ADR-156): те же правила ввода и слова отказа, что у API
+      if (path === '/platform/organizations' && req.method === 'POST') {
+        const parsed = parseOrganizationCreate(body);
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        const input = parsed.value;
+        const known = platformOrganizations().find((o) => o.id === input.id);
+        if (known) {
+          if (known.name !== input.name)
+            return send(409, { message: 'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.' });
+          return send(201, { organization: platformOrganizationJson(known), ownerLinkSent: false, replay: true });
+        }
+        if (platformOrganizations().some((o) => o.name.toLowerCase() === input.name.toLowerCase()))
+          return send(409, { message: 'Организация с таким названием уже есть' });
+        const taken = ['admin@wetop.test', 'owner@example.com', ...platformCreated.map((c) => c.ownerEmail)];
+        if (taken.includes(input.owner.email)) return send(409, { message: 'Эта почта уже зарегистрирована' });
+        platformCreated.push({
+          id: input.id,
+          name: input.name,
+          ownerEmail: input.owner.email,
+          createdAt: new Date().toISOString(),
+          brand: input.brand,
+          vertical: input.vertical,
+          currency: input.currency,
+          timezone: input.timezone,
+          branch: input.firstBranch,
+        });
+        if (platformMailOn) platformLinkAt.set(input.id, Date.now());
+        return send(201, {
+          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === input.id)!),
+          ownerLinkSent: platformMailOn,
+          replay: false,
+        });
+      }
+      if (path === '/platform/overview' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return send(400, { message: 'Месяц: ожидается ГГГГ-ММ' });
+        return send(200, platformOverviewFixture(month));
+      }
+      if (path === '/platform/overview/series' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        return send(200, { items: platformSeriesFixture(month) });
+      }
+      const ownerLink = /^\/platform\/organizations\/([^/]+)\/owner-link$/.exec(path);
+      if (ownerLink && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(ownerLink[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (!org.ownerPending) return send(409, { message: 'Владелец уже задал пароль: ссылка не нужна' });
+        if (platformLinkAt.has(org.id))
+          return send(429, { message: 'Письмо уже отправляли: повторить можно через несколько минут' });
+        if (platformMailOn) platformLinkAt.set(org.id, Date.now());
+        return send(201, { organization: platformOrganizationJson(org), ownerLinkSent: platformMailOn });
+      }
+      // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
+      const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);
+      if (rename && req.method === 'PATCH') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(rename[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const raw = body['name'];
+        if (typeof raw !== 'string' || !isOrganizationNameShaped(raw))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        platformNames.set(org.id, normalizeOrganizationName(raw));
+        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
+      }
+      const archive = /^\/platform\/organizations\/([^/]+)\/(archive|restore)$/.exec(path);
+      if (archive && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(archive[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (archive[2] === 'archive') {
+          // свою организацию в архив убрать нельзя: сессия главного администратора перестала бы действовать
+          if (org.id === 'ui-org')
+            return send(409, {
+              message: 'Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе',
+            });
+          if (org.status === 'SUSPENDED') return send(409, { message: 'Организация уже в архиве' });
+          platformArchived.set(org.id, org.status);
+        } else {
+          if (org.status !== 'SUSPENDED') return send(409, { message: 'Организация не в архиве' });
+          const was = platformArchived.get(org.id) ?? 'READ_ONLY';
+          platformArchived.delete(org.id);
+          platformStatuses.set(org.id, was);
+        }
+        return send(201, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
       }
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET')
@@ -7066,6 +7189,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

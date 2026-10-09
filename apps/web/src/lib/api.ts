@@ -65,6 +65,41 @@ export interface InventoryUnit {
   block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
+export interface TrendValue {
+  now: number;
+  before: number;
+  delta: number;
+  /** null: в начале периода было 0, процент не определён */
+  percent: number | null;
+}
+/** Динамика сводки фонда за период (GET /inventory/trend) */
+export interface InventoryTrend {
+  days: number;
+  from: string;
+  to: string;
+  metrics: Record<
+    'totalUnits' | 'rooms' | 'beds' | 'onSale' | 'unavailable' | 'needsCleaning',
+    TrendValue
+  >;
+}
+/** Фото категории из библиотеки сайта (GET /inventory/photos): url подписан, null без хранилища */
+export interface CategoryPhoto {
+  assetId: string;
+  url: string | null;
+  alt: string | null;
+  width: number;
+  height: number;
+}
+/** Кто в месте сегодня (GET /inventory/occupancy) */
+export interface UnitOccupancy {
+  code: string;
+  state: 'FREE' | 'STAYING' | 'ARRIVING';
+  guest: string | null;
+  confirmationNumber: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
@@ -236,6 +271,9 @@ export const api = {
     getJson<{ storage: PiiStorage }>('/system/pii-storage')
       .then((r): PiiStorage => (r.storage === 'real' ? 'real' : 'pseudonymized'))
       .catch((): PiiStorage => 'pseudonymized'),
+  inventoryTrend: (days: 7 | 30 | 90) => getJson<InventoryTrend>(`/inventory/trend?days=${days}`),
+  inventoryPhotos: () => getJson<Record<string, CategoryPhoto[]>>('/inventory/photos'),
+  inventoryOccupancy: () => getJson<UnitOccupancy[]>('/inventory/occupancy'),
   inventoryUnits: (category?: string) =>
     getJson<InventoryUnit[]>(
       category ? `/inventory/units?category=${encodeURIComponent(category)}` : '/inventory/units',
@@ -1795,9 +1833,14 @@ export interface DashboardView {
 }
 export const dashboardApi = {
   /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
-  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+  period: (from: string, to: string, fund: DashboardFund = 'all', category?: string) =>
     getJson<DashboardView>(
-      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+      `/desk/dashboard?${new URLSearchParams({
+        from,
+        to,
+        ...(fund === 'all' ? {} : { fund }),
+        ...(category ? { category } : {}),
+      })}`,
     ),
   /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
   units: (from: string, to: string, fund: DashboardFund = 'all') =>
@@ -2651,6 +2694,8 @@ export interface PlatformOrganization {
   createdAt: string;
   members: number;
   owners: string[];
+  /** Владелец заведён главным администратором и ещё не задал пароль: ему можно выслать ссылку */
+  ownerPending: boolean;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
 }
 
@@ -2672,11 +2717,11 @@ export interface PlatformSiteBuilderLocation {
   license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
 }
 
-/** Ответ на «Создать организацию»: письмо владельцу уходит, только если его учётной записи ещё не было */
+/** Ответ на «Создать организацию»: организация, ушла ли владельцу ссылка «задайте пароль», повтор ли это */
 export interface CreatedOrganizationResult {
-  organizationId: string;
+  organization: PlatformOrganization;
+  ownerLinkSent: boolean;
   replay: boolean;
-  mailSent: boolean | null;
 }
 
 export const platformApi = {
@@ -2704,6 +2749,22 @@ export const platformApi = {
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
     ),
+  /** Ссылка владельцу ещё раз: только тому, кто пароль ещё не задал */
+  ownerLink: (organizationId: string) =>
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/owner-link`,
+      {},
+    ),
+  /** Название организации (ORG1, ADR-ORG1) */
+  rename: (organizationId: string, name: string) =>
+    sendJson<PlatformOrganization>('PATCH', `/platform/organizations/${encodeURIComponent(organizationId)}`, { name }),
+  /** Архив вместо удаления (ORG1, ADR-ORG1, Q-282): люди не входят, данные целы */
+  archive: (organizationId: string) =>
+    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/archive`, {}),
+  /** Возврат из архива: прежний статус, а при его потере «только чтение» */
+  restore: (organizationId: string) =>
+    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/restore`, {}),
   /** Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY */
   changeStatus: (organizationId: string, body: { status: 'ACTIVE' | 'READ_ONLY'; note: string }) =>
     sendJson<PlatformOrganization>(
@@ -2986,6 +3047,11 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §30) */
+  setPhotos: (code: string, assetIds: string[]) =>
+    sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
+      assetIds,
+    }),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
     sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
@@ -3025,6 +3091,10 @@ export const wizardApi = {
     sendJson<import('./wizard-types').WizardState>('PATCH', '/wizard/config', body, {
       'x-wizard-token': token,
     }),
+  survey: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/survey', body, { 'x-wizard-token': token }),
+  event: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/event', body, { 'x-wizard-token': token }),
 };
 
 export interface SellerAgentCard {

@@ -51,6 +51,8 @@ export interface OrganizationsQuery {
   view: OrganizationView;
   q: string;
   month: string | undefined;
+  /** показывать организации в архиве (`SUSPENDED`) */
+  archived: boolean;
 }
 
 const VERTICAL_ICON: Record<OverviewVertical, IconName> = {
@@ -74,6 +76,7 @@ export function organizationsHref(current: OrganizationsQuery, patch: Partial<Or
   if (next.view !== 'cards') params.set('view', next.view);
   if (next.q) params.set('q', next.q);
   if (next.month) params.set('month', next.month);
+  if (next.archived) params.set('archived', '1');
   const text = params.toString();
   return text ? `/platform?${text}` : '/platform';
 }
@@ -106,7 +109,12 @@ export async function OrganizationsOverview({
       );
     return <LoadError testId="platform-error" {...loadErrorProps(loaded.error)} />;
   }
-  const data = loaded.value;
+  const all = loaded.value;
+  // архив вместо удаления: организации в архиве скрыты из итогов и карточек, пока их не попросили показать
+  const archivedCount = all.organizations.filter((o) => o.status === 'SUSPENDED').length;
+  const data: PlatformOverview = query.archived
+    ? all
+    : { ...all, organizations: all.organizations.filter((o) => o.status !== 'SUSPENDED') };
   const { branchesByLocation, currentOrganizationId } = await currentOrganization();
   const shown = selectOrganizations(data.organizations, query.vertical, query.sort, query.q);
   const counts = verticalCounts(data.organizations);
@@ -155,6 +163,11 @@ export async function OrganizationsOverview({
               </Chip>
             ))}
           </ChipGroup>
+          {archivedCount > 0 && (
+            <Chip href={organizationsHref(query, { archived: !query.archived })} selected={query.archived} size="sm">
+              Архив
+            </Chip>
+          )}
           <span className="org-toolbar__label" aria-hidden="true">Вид:</span>
           <ChipGroup as="nav" label="Вид" className="org-toolbar__tabs">
             <Chip href={organizationsHref(query, { view: 'cards' })} selected={query.view === 'cards'} size="sm">

@@ -205,6 +205,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
+  'GET /inventory/photos': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений
@@ -267,6 +270,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'PUT /inventory/categories/:code/photos': 'property',
   'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',
@@ -368,12 +372,18 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
-  'POST /platform/organizations': 'platform',
   'GET /platform/overview': 'platform',
   'GET /platform/overview/series': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // название, архив и возврат организации (ORG1, ADR-ORG1): только главный администратор
+  'PATCH /platform/organizations/:id': 'platform',
+  'POST /platform/organizations/:id/archive': 'platform',
+  'POST /platform/organizations/:id/restore': 'platform',
+  // создание организации и ссылка «задайте пароль» её владельцу (ORG2, ADR-ORG2)
+  'POST /platform/organizations': 'platform',
+  'POST /platform/organizations/:id/owner-link': 'platform',
   // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
   'GET /platform/organizations/:id/site-builder': 'platform',
   'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',
@@ -425,6 +435,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
   'GET /wizard/quota': 'public',
+  'POST /wizard/survey': 'public',
+  'POST /wizard/event': 'public',
 };
 
 type Handler = (...args: unknown[]) => unknown;

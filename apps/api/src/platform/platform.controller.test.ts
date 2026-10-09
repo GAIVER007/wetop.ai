@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
-import type { INestApplication } from '@nestjs/common';
+import { ConflictException, type INestApplication } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,9 +14,18 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
-import { SiteBuilderLicenses } from './site-builder-licenses';
+import { OrganizationCreation, type OrganizationCreateInput } from './organization-creation';
 import { OrganizationsService } from './organizations.service';
-import { PLATFORM_ADMIN_ONLY, PLATFORM_NO_ORGANIZATION, PlatformController } from './platform.controller';
+import { SiteBuilderLicenses } from './site-builder-licenses';
+import {
+  PLATFORM_ADMIN_ONLY,
+  PLATFORM_ALREADY_ARCHIVED,
+  PLATFORM_NAME_MESSAGE,
+  PLATFORM_NOT_ARCHIVED,
+  PLATFORM_NO_ORGANIZATION,
+  PLATFORM_OWN_ORGANIZATION,
+  PlatformController,
+} from './platform.controller';
 
 /**
  * Раздел «Платформа» (DATA_MODEL §16, ADR-083). Настоящие замок и автор запроса, подставное хранилище. Открыт только
@@ -31,6 +40,26 @@ class FakeExtensions implements ExtensionsRepository {
   orgs: OrganizationSummary[] = [];
   saved: Array<{ organizationId: string; change: ExtensionChange; by: string | null }> = [];
   statuses: Array<{ organizationId: string; status: string; note: string | null; by: string | null }> = [];
+  renamed: Array<{ organizationId: string; name: string; by: string | null }> = [];
+  archived: Array<{ organizationId: string; by: string | null }> = [];
+  restored: Array<{ organizationId: string; status: string; by: string | null }> = [];
+  /** статус до архива: так хранилище помнит, куда возвращать (в настоящем он лежит в журнале) */
+  before = new Map<string, OrganizationSummary['status']>();
+  async rename(input: { organizationId: string; name: string; by: string | null; now: Date }) {
+    this.renamed.push({ organizationId: input.organizationId, name: input.name, by: input.by });
+    this.orgs.find((o) => o.id === input.organizationId)!.name = input.name;
+  }
+  async archive(input: { organizationId: string; by: string | null; now: Date }) {
+    this.archived.push({ organizationId: input.organizationId, by: input.by });
+    const org = this.orgs.find((o) => o.id === input.organizationId)!;
+    this.before.set(org.id, org.status);
+    org.status = 'SUSPENDED';
+  }
+  async restore(input: { organizationId: string; by: string | null; now: Date }) {
+    const org = this.orgs.find((o) => o.id === input.organizationId)!;
+    org.status = this.before.get(org.id) ?? 'READ_ONLY';
+    this.restored.push({ organizationId: org.id, status: org.status, by: input.by });
+  }
   async saveStatus(input: {
     organizationId: string;
     status: 'ACTIVE' | 'READ_ONLY';
@@ -59,6 +88,43 @@ class FakeExtensions implements ExtensionsRepository {
 
 const repo = new FakeExtensions();
 
+/** Создание организации (ORG2): подставная служба. Настоящая проверена на PostgreSQL в tests/integration */
+const NEW_ORG = '3b5d7f9a-2c4e-4a6b-8d0f-1a3c5e7a9b2d';
+class FakeCreation {
+  created: OrganizationCreateInput[] = [];
+  links: string[] = [];
+  failWith: Error | null = null;
+  sent = true;
+  async create(input: OrganizationCreateInput) {
+    if (this.failWith) throw this.failWith;
+    this.created.push(input);
+    repo.orgs.push({
+      id: NEW_ORG,
+      name: input.name,
+      status: 'ACTIVE',
+      trialEndsAt: null,
+      createdAt: new Date('2026-10-09T00:00:00.000Z'),
+      members: 1,
+      owners: [input.owner.email],
+      ownerPending: true,
+      aiSeller: null,
+    });
+    return { organizationId: NEW_ORG, ownerLinkSent: this.sent, replay: false };
+  }
+  async resendOwnerLink(organizationId: string) {
+    if (this.failWith) throw this.failWith;
+    this.links.push(organizationId);
+    return { ownerLinkSent: this.sent };
+  }
+}
+const creation = new FakeCreation();
+
+/** Сквозной обзор: настоящая арифметика проверена в organizations.service.test.ts, здесь только замок и маршруты */
+const overviews = {
+  overview: vi.fn<(month?: string) => Promise<{ organizations: unknown[] }>>(async () => ({ organizations: [] })),
+  series: vi.fn<(month?: string) => Promise<unknown[]>>(async () => []),
+};
+
 /** Лицензии конструктора сайта (MKT9.2): один гостиничный филиал организации, запись только в памяти */
 const LOCATION = '7e3a1c2b-9d4f-4e5a-8b6c-0a1b2c3d4e5f';
 class FakeLicenses {
@@ -84,15 +150,6 @@ class FakeLicenses {
   }
 }
 const licenses = new FakeLicenses();
-
-/** Создание и обзор: настоящая арифметика проверена в organizations.service.test.ts, здесь только замок и маршруты */
-const organizationsService = {
-  create: vi.fn<(body: unknown) => Promise<{ organizationId: string; replay: boolean; mailSent: boolean }>>(
-    async () => ({ organizationId: ORG, replay: false, mailSent: true }),
-  ),
-  overview: vi.fn<(month?: string) => Promise<{ organizations: unknown[] }>>(async () => ({ organizations: [] })),
-  series: vi.fn<(month?: string) => Promise<unknown[]>>(async () => []),
-};
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -119,7 +176,8 @@ beforeAll(async () => {
       // настоящая служба поверх подставного хранилища: смена расширения зовёт её слушателей (Э4)
       ExtensionsService,
       { provide: SiteBuilderLicenses, useValue: licenses },
-      { provide: OrganizationsService, useValue: organizationsService },
+      { provide: OrganizationCreation, useValue: creation },
+      { provide: OrganizationsService, useValue: overviews },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -139,16 +197,25 @@ beforeEach(() => {
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
   repo.statuses = [];
+  repo.renamed = [];
+  repo.archived = [];
+  repo.restored = [];
+  repo.before.clear();
+  creation.created = [];
+  creation.links = [];
+  creation.failWith = null;
+  creation.sent = true;
   licenses.saved = [];
   repo.orgs = [
     {
       id: ORG,
       name: 'Хостел «Пример»',
       status: 'TRIAL',
-      trialEndsAt: null,
+      trialEndsAt: new Date('2026-10-02T00:00:00.000Z'),
       createdAt: new Date('2026-09-25T00:00:00.000Z'),
       members: 2,
       owners: ['vladelec@example.invalid'],
+      ownerPending: false,
       aiSeller: null,
     },
   ];
@@ -183,47 +250,14 @@ describe('раздел «Платформа» — только главный а
       {
         id: ORG,
         name: 'Хостел «Пример»',
-        status: 'ACTIVE',
+        status: 'READ_ONLY',
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],
+        ownerPending: false,
         aiSeller: { access: 'off', status: null, activeUntil: null, daysLeft: null, note: null, updatedAt: null },
       },
     ]);
-  });
-});
-
-describe('создание организации и сквозной обзор', () => {
-  const body = { id: ORG, name: 'Новая организация' };
-
-  it('владелец организации получает 403 на обзор, ряд и создание, ничего не вызвано', async () => {
-    await api().get('/platform/overview').set(as('session-owner')).expect(403);
-    await api().get('/platform/overview/series').set(as('session-owner')).expect(403);
-    await api().post('/platform/organizations').set(as('session-owner')).send(body).expect(403);
-    expect(organizationsService.create).not.toHaveBeenCalled();
-    expect(organizationsService.overview).not.toHaveBeenCalled();
-  });
-
-  it('служебный ключ создавать организации не может', async () => {
-    await api().post('/platform/organizations').set('x-wetop-service-key', SERVICE_KEY).send(body).expect(403);
-  });
-
-  it('главный администратор создаёт организацию: тело уходит в службу как есть', async () => {
-    const res = await api().post('/platform/organizations').set(as('session-admin')).send(body).expect(201);
-    expect(organizationsService.create).toHaveBeenCalledWith(body);
-    expect(res.body).toEqual({ organizationId: ORG, replay: false, mailSent: true });
-  });
-
-  it('обзор принимает месяц ГГГГ-ММ и отвергает всё остальное', async () => {
-    await api().get('/platform/overview?month=2026-09').set(as('session-admin')).expect(200);
-    expect(organizationsService.overview).toHaveBeenCalledWith('2026-09');
-    await api().get('/platform/overview?month=2026-13').set(as('session-admin')).expect(400);
-    await api().get('/platform/overview/series?month=сентябрь').set(as('session-admin')).expect(400);
-  });
-
-  it('в ответе организаций пробного периода нет вовсе', async () => {
-    const res = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
-    expect(JSON.stringify(res.body)).not.toMatch(/trialEndsAt/);
   });
 });
 
@@ -343,5 +377,236 @@ describe('лицензия конструктора сайта филиала (M
       .send({ status: 'ACTIVE' })
       .expect(404);
     expect(licenses.saved).toHaveLength(0);
+  });
+});
+
+/**
+ * Название, архив и возврат организации (ORG1, ADR-ORG1). «Удалить» заменено архивом: организация получает статус
+ * `SUSPENDED`, её люди не входят, данные целы; возврат ставит прежний статус. Свою организацию в архив убрать нельзя:
+ * главный администратор потерял бы доступ. Всё пишется в журнал с автором.
+ */
+const OTHER = '2a4b6c8d-1e3f-4a5b-9c7d-8e0f1a2b3c4d';
+describe('организация: название, архив и возврат', () => {
+  beforeEach(() => {
+    repo.orgs.push({
+      id: OTHER,
+      name: 'Гостиница «Север»',
+      status: 'ACTIVE',
+      trialEndsAt: null,
+      createdAt: new Date('2026-09-26T00:00:00.000Z'),
+      members: 1,
+      owners: ['sever@example.invalid'],
+      ownerPending: false,
+      aiSeller: null,
+    });
+  });
+
+  it('переименование: пробелы сжаты, записано с автором, в ответе новое название', async () => {
+    const res = await api()
+      .patch(`/platform/organizations/${OTHER}`)
+      .set(as('session-admin'))
+      .send({ name: '  Гостиница   «Север 2»  ' })
+      .expect(200);
+    expect(res.body.name).toBe('Гостиница «Север 2»');
+    expect(repo.renamed).toEqual([{ organizationId: OTHER, name: 'Гостиница «Север 2»', by: ADMIN }]);
+  });
+
+  it('то же название: ответ 200, лишней записи в журнале нет', async () => {
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({ name: ' Гостиница «Север» ' }).expect(200);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('пустое, слишком длинное и не строка: 400, ничего не записано', async () => {
+    for (const name of ['', '   ', 'я'.repeat(201), 42, null]) {
+      await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({ name }).expect(400);
+    }
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-admin')).send({}).expect(400);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('переименовывает только главный администратор; нет такой — 404; не идентификатор — 400', async () => {
+    await api().patch(`/platform/organizations/${OTHER}`).set(as('session-owner')).send({ name: 'Х' }).expect(403);
+    await api().patch('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00').set(as('session-admin')).send({ name: 'Х' }).expect(404);
+    await api().patch('/platform/organizations/abc').set(as('session-admin')).send({ name: 'Х' }).expect(400);
+    expect(repo.renamed).toHaveLength(0);
+  });
+
+  it('архив: статус SUSPENDED, автор записан, организация остаётся в списке', async () => {
+    const res = await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    expect(res.body.status).toBe('SUSPENDED');
+    expect(repo.archived).toEqual([{ organizationId: OTHER, by: ADMIN }]);
+    const list = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
+    expect(list.body.items.find((o: { id: string }) => o.id === OTHER).status).toBe('SUSPENDED');
+  });
+
+  it('свою организацию в архив убрать нельзя: 409, статус не тронут', async () => {
+    const res = await api().post(`/platform/organizations/${ORG}/archive`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe(PLATFORM_OWN_ORGANIZATION);
+    expect(repo.archived).toHaveLength(0);
+    expect(repo.orgs.find((o) => o.id === ORG)!.status).toBe('TRIAL');
+  });
+
+  it('уже в архиве — 409; нет такой — 404; владелец — 403', async () => {
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    const again = await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(409);
+    expect(again.body.message).toBe(PLATFORM_ALREADY_ARCHIVED);
+    await api().post('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00/archive').set(as('session-admin')).expect(404);
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-owner')).expect(403);
+    expect(repo.archived).toHaveLength(1);
+  });
+
+  it('возврат ставит прежний статус, а не «оплачено»', async () => {
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'TRIAL';
+    await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(201);
+    // на экране платформы пробная без срока выглядит как «работает»: слова «пробный» там нет
+    expect(res.body.status).toBe('ACTIVE');
+    expect(repo.restored).toEqual([{ organizationId: OTHER, status: 'TRIAL', by: ADMIN }]);
+  });
+
+  it('прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется', async () => {
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(201);
+    expect(res.body.status).toBe('READ_ONLY');
+  });
+
+  it('вернуть из архива можно только организацию из архива: иначе 409; владелец — 403', async () => {
+    const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe(PLATFORM_NOT_ARCHIVED);
+    repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+    await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-owner')).expect(403);
+    expect(repo.restored).toHaveLength(0);
+  });
+});
+
+/**
+ * Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): организация, первый филиал и владелец без
+ * пароля одной транзакцией, владельцу уходит ссылка «задайте пароль». Токен наружу не отдаётся. Настоящая служба
+ * проверена на PostgreSQL (`tests/integration/platform-organization-create.test.ts`), здесь контракт контроллера.
+ */
+/** Полная форма окна «Создать организацию»; поля переопределяются в тесте */
+const FORM = {
+  id: NEW_ORG,
+  name: 'Хостел «Новый»',
+  brand: 'Новый',
+  vertical: 'HOSPITALITY',
+  ownerName: 'Вера Образцова',
+  ownerEmail: 'vladelec.new@example.invalid',
+  phoneCountry: 'KZ',
+  ownerPhone: '700 123 45 67',
+  country: 'KZ',
+  city: 'Алматы',
+  timezone: 'Asia/Almaty',
+  currency: 'KZT',
+  createFirstBranch: true,
+  branchName: 'Новый Центр',
+  branchAddress: 'Алматы, ул. Пример, 1',
+};
+
+describe('сквозной обзор', () => {
+  it('владелец организации получает 403 на обзор и ряд, ничего не вызвано', async () => {
+    await api().get('/platform/overview').set(as('session-owner')).expect(403);
+    await api().get('/platform/overview/series').set(as('session-owner')).expect(403);
+    expect(overviews.overview).not.toHaveBeenCalled();
+  });
+
+  it('обзор принимает месяц ГГГГ-ММ и отвергает всё остальное', async () => {
+    await api().get('/platform/overview?month=2026-09').set(as('session-admin')).expect(200);
+    expect(overviews.overview).toHaveBeenCalledWith('2026-09');
+    await api().get('/platform/overview?month=2026-13').set(as('session-admin')).expect(400);
+    await api().get('/platform/overview/series?month=сентябрь').set(as('session-admin')).expect(400);
+  });
+
+  it('пробного периода в ответах платформы нет: пробная работает до срока, потом только чтение', async () => {
+    const res = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
+    expect(JSON.stringify(res.body)).not.toMatch(/trialEndsAt/);
+    expect(res.body.items[0].status).toBe('READ_ONLY');
+  });
+});
+
+describe('создание организации', () => {
+  it('главный администратор создаёт: 201, ввод приведён к одному виду, автор записан, организация работает сразу', async () => {
+    const res = await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ ...FORM, name: '  Хостел   «Новый»  ', ownerEmail: '  Vladelec.NEW@Example.invalid ' })
+      .expect(201);
+    expect(creation.created).toHaveLength(1);
+    expect(creation.created[0]).toMatchObject({
+      id: NEW_ORG,
+      name: 'Хостел «Новый»',
+      brand: 'Новый',
+      vertical: 'HOSPITALITY',
+      owner: { name: 'Вера Образцова', email: 'vladelec.new@example.invalid', phone: '+77001234567' },
+      firstBranch: { name: 'Новый Центр', address: 'Алматы, ул. Пример, 1' },
+      by: ADMIN,
+    });
+    expect(res.body.ownerLinkSent).toBe(true);
+    expect(res.body.organization).toMatchObject({
+      id: NEW_ORG,
+      name: 'Хостел «Новый»',
+      status: 'ACTIVE',
+      owners: ['vladelec.new@example.invalid'],
+      ownerPending: true,
+    });
+    // пробного периода нет ни в запросе, ни в ответе; ссылки и пароля в ответе тоже нет
+    expect(JSON.stringify(res.body)).not.toMatch(/token|link=|password|trial/i);
+  });
+
+  it('направление салона принимается; письмо не ушло: организация создана, ownerLinkSent false', async () => {
+    creation.sent = false;
+    const res = await api()
+      .post('/platform/organizations')
+      .set(as('session-admin'))
+      .send({ ...FORM, name: 'Салон «Лотос»', vertical: 'BEAUTY' })
+      .expect(201);
+    expect(creation.created[0]).toMatchObject({ vertical: 'BEAUTY' });
+    expect(res.body.ownerLinkSent).toBe(false);
+  });
+
+  it('пустое, слишком длинное и не строка: 400 словами названия, ничего не создано', async () => {
+    for (const name of ['', '   ', 'я'.repeat(201), 42, null, undefined]) {
+      const res = await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, name }).expect(400);
+      expect(res.body.message).toContain(PLATFORM_NAME_MESSAGE);
+    }
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('почта владельца не адрес и неизвестное направление: 400, ничего не создано', async () => {
+    for (const ownerEmail of ['', 'без-собаки', 'a@', 7, undefined]) {
+      const res = await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, ownerEmail }).expect(400);
+      expect(res.body.message).toContain('Почта владельца');
+    }
+    await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, vertical: 'SPACE' }).expect(400);
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('отказ службы (почта занята, название занято) идёт наружу её словами', async () => {
+    creation.failWith = new ConflictException('Эта почта уже зарегистрирована');
+    const res = await api().post('/platform/organizations').set(as('session-admin')).send(FORM).expect(409);
+    expect(res.body.message).toBe('Эта почта уже зарегистрирована');
+  });
+
+  it('владелец организации не создаёт чужие организации: 403; без входа 401', async () => {
+    await api().post('/platform/organizations').set(as('session-owner')).send(FORM).expect(403);
+    await api().post('/platform/organizations').send(FORM).expect(401);
+    expect(creation.created).toHaveLength(0);
+  });
+
+  it('ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; нет такой организации 404; не идентификатор 400', async () => {
+    const res = await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-admin')).expect(201);
+    expect(res.body).toMatchObject({ ownerLinkSent: true, organization: { id: ORG } });
+    expect(creation.links).toEqual([ORG]);
+    await api().post('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00/owner-link').set(as('session-admin')).expect(404);
+    await api().post('/platform/organizations/abc/owner-link').set(as('session-admin')).expect(400);
+    expect(creation.links).toHaveLength(1);
+  });
+
+  it('ссылку владельцу выдаёт только главный администратор; отказ службы идёт наружу', async () => {
+    await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-owner')).expect(403);
+    expect(creation.links).toHaveLength(0);
+    creation.failWith = new ConflictException('Владелец уже задал пароль');
+    const res = await api().post(`/platform/organizations/${ORG}/owner-link`).set(as('session-admin')).expect(409);
+    expect(res.body.message).toBe('Владелец уже задал пароль');
   });
 });

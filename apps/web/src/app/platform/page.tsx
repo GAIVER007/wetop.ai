@@ -21,7 +21,7 @@ import { hotelApi } from '../../lib/hotel-api';
 import { BranchForm } from '../branches/form';
 import { CreateOrganization } from './create-organization';
 import { DataConnectionPanel } from './data-connection';
-import { ExtensionForm, StatusForm } from './forms';
+import { ArchiveForm, ExtensionForm, OwnerLinkForm, RenameForm, StatusForm } from './forms';
 import { OrganizationsOverview, type OrganizationsQuery } from './organizations-view';
 import { SiteBuilderLicense } from './site-builder';
 import '../branches/branches.css';
@@ -47,6 +47,7 @@ export default async function PlatformPage({
     view: parseView(one(raw.view)),
     q: (one(raw.q) ?? '').slice(0, 100),
     month: month && isMonth(month) ? month : undefined,
+    archived: one(raw.archived) === '1',
   };
   const selected = one(raw.org) ?? '';
   return (
@@ -79,7 +80,7 @@ export default async function PlatformPage({
                 <AddBranch />
               </Suspense>
               <Suspense fallback={<LoadingState label="Загружаем подписки…" />}>
-                <Administration selected={selected} />
+                <Administration selected={selected} archived={query.archived} />
               </Suspense>
               <details className="panel">
                 <summary>Состояние системы</summary>
@@ -110,18 +111,27 @@ async function AddBranch() {
   );
 }
 
-/** Подписки и расширения: выбранная организация, форма оплаты, «ИИ-продавец», лицензии конструктора сайта */
-async function Administration({ selected }: { selected: string }) {
-  const loaded = await platformApi.organizations().then(
-    (value) => ({ ok: true as const, value }),
-    (error: unknown) => {
-      unstable_rethrow(error);
-      return { ok: false as const, error };
-    },
-  );
+/** Подписки и расширения: выбранная организация, название, архив, ссылка владельцу, оплата, «ИИ-продавец», лицензии сайта */
+async function Administration({ selected, archived }: { selected: string; archived: boolean }) {
+  const [loaded, branches] = await Promise.all([
+    platformApi.organizations().then(
+      (value) => ({ ok: true as const, value }),
+      (error: unknown) => {
+        unstable_rethrow(error);
+        return { ok: false as const, error };
+      },
+    ),
+    branchesApi.list().catch(() => null),
+  ]);
   // 403 и сбой загрузки уже показал обзор выше: здесь второго сообщения не нужно
   if (!loaded.ok) return null;
-  const card = loaded.value.items.find((o) => o.id === selected);
+  const items = loaded.value.items;
+  const card = items.find((o) => o.id === selected);
+  const ownId = branches?.organization.id ?? '';
+  // архив вместо удаления (ORG1, ADR-ORG1): организации в архиве скрыты, пока их не попросили показать
+  const archivedCount = items.filter((o) => o.status === 'SUSPENDED').length;
+  const visible = items.filter((o) => archived || o.status !== 'SUSPENDED' || o.id === selected);
+  const archivedParam = archived ? '&archived=1' : '';
   return (
     <details open={Boolean(card)} className="panel" id="org-admin">
       <summary>Подписки и администрирование</summary>
@@ -130,7 +140,17 @@ async function Administration({ selected }: { selected: string }) {
           Доступ организаций платформы и расширения. Выбор организации здесь не переключает рабочий филиал. Открыть
           организацию: «⋯» на её карточке, «Подписка и расширения».
         </p>
-        {card && <OrganizationCard organization={card} />}
+        {card && <OrganizationCard organization={card} own={card.id === ownId} />}
+        {archivedCount > 0 && (
+          <p>
+            <Link
+              href={`/platform?${[selected && `org=${selected}`, !archived && 'archived=1'].filter(Boolean).join('&')}#org-admin`}
+              prefetch={false}
+            >
+              {archived ? 'Скрыть архивные' : `Показать архивные (${archivedCount})`}
+            </Link>
+          </p>
+        )}
         <Table aria-label="Организации платформы" data-testid="platform-organizations">
           <thead>
             <tr>
@@ -142,15 +162,27 @@ async function Administration({ selected }: { selected: string }) {
             </tr>
           </thead>
           <tbody>
-            {loaded.value.items.map((o) => {
+            {visible.map((o) => {
               const status = organizationStatusLine(o);
               const seller = extensionLine(o.aiSeller);
               return (
                 <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
                   <td>
-                    <Link href={`/platform?org=${o.id}#org-admin`} prefetch={false}>
+                    <Link href={`/platform?org=${o.id}${archivedParam}#org-admin`} prefetch={false}>
                       {o.name}
                     </Link>
+                    {o.id === ownId && (
+                      <>
+                        {' '}
+                        <Badge tone="info">Ваша</Badge>
+                      </>
+                    )}
+                    {o.ownerPending && (
+                      <>
+                        {' '}
+                        <Badge tone="warn">ждёт пароля</Badge>
+                      </>
+                    )}
                     <span className="sub">, с {organizationSince(o.createdAt)}</span>
                   </td>
                   <td>
@@ -186,11 +218,12 @@ async function SystemState() {
   );
 }
 
-/** Выбранная организация: кто она и форма расширения «ИИ-продавец» */
-function OrganizationCard({ organization: o }: { organization: PlatformOrganization }) {
+/** Выбранная организация: кто она, доступ владельца, название, подписка, расширения, архив */
+function OrganizationCard({ organization: o, own }: { organization: PlatformOrganization; own: boolean }) {
   const seller = extensionLine(o.aiSeller);
+  const archived = o.status === 'SUSPENDED';
   return (
-    <Panel data-testid="platform-organization">
+    <Panel id="organization" data-testid="platform-organization">
       <SectionTitle first>{o.name}</SectionTitle>
       <Grid min={180}>
         <Fact label="Состояние" value={organizationStatusLine(o).label} />
@@ -198,30 +231,45 @@ function OrganizationCard({ organization: o }: { organization: PlatformOrganizat
         <Fact label="Людей" value={String(o.members)} />
         <Fact label="ИИ-продавец" value={`${seller.label}, ${seller.detail}`} />
       </Grid>
-      <SectionTitle>Подписка</SectionTitle>
-      <StatusForm
-        key={`status-${o.id}`}
+      {o.ownerPending && !archived && (
+        <>
+          <SectionTitle>Доступ владельца</SectionTitle>
+          <OwnerLinkForm key={`owner-${o.id}`} organizationId={o.id} owner={o.owners[0] ?? 'организации'} />
+        </>
+      )}
+      <SectionTitle>Название</SectionTitle>
+      <RenameForm key={o.id} organizationId={o.id} organizationName={o.name} />
+      {!archived && (
+        <>
+          <SectionTitle>Подписка</SectionTitle>
+          <StatusForm key={`status-${o.id}`} organizationId={o.id} organizationName={o.name} status={o.status} />
+          <SectionTitle>ИИ-продавец</SectionTitle>
+          {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
+          <ExtensionForm
+            key={o.id}
+            organizationId={o.id}
+            organizationName={o.name}
+            initial={extensionFormDefaults(o.aiSeller)}
+          />
+          <SectionTitle>Конструктор сайта</SectionTitle>
+          <p className="settings-note">
+            Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и
+            публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать»
+            пустой срок значит бессрочно.
+          </p>
+          <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
+            <SiteBuilderLicenses organizationId={o.id} />
+          </Suspense>
+        </>
+      )}
+      <SectionTitle>Архив</SectionTitle>
+      <ArchiveForm
+        key={`archive-${o.id}`}
         organizationId={o.id}
         organizationName={o.name}
-        status={o.status}
+        archived={archived}
+        own={own}
       />
-      <SectionTitle>ИИ-продавец</SectionTitle>
-      {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
-      <ExtensionForm
-        key={o.id}
-        organizationId={o.id}
-        organizationName={o.name}
-        initial={extensionFormDefaults(o.aiSeller)}
-      />
-      <SectionTitle>Конструктор сайта</SectionTitle>
-      <p className="settings-note">
-        Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и
-        публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать»
-        пустой срок значит бессрочно.
-      </p>
-      <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
-        <SiteBuilderLicenses organizationId={o.id} />
-      </Suspense>
     </Panel>
   );
 }

@@ -23,7 +23,7 @@ export function organizationsCsv(data: Pick<PlatformOverview, 'organizations' | 
     'Филиал',
     'Адрес',
     'Валюта',
-    `Доход за ${data.period.from} — ${data.period.to}`,
+    `Доход с ${data.period.from} по ${data.period.to}`,
     'Загрузка, %',
     'Гости',
     'Брони и записи',

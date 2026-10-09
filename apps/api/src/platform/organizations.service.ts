@@ -1,12 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   EMPTY_METRICS,
   PLATFORM_TIMEZONE,
   activityLabel,
   lastMonths,
   platformMonthPeriod,
-  parseOrganizationCreate,
   todayAt,
   type BranchMetrics,
   type OverviewActivity,
@@ -15,8 +14,7 @@ import {
   type OverviewSeriesPoint,
   type PlatformOverview,
 } from '@pms/domain';
-import { PasswordResetService } from '../auth/password-reset.service';
-import { currentUserId, withPlatformReport } from '../auth/request-context';
+import { withPlatformReport } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
 import { DashboardService } from '../dashboard/dashboard.service';
 import {
@@ -47,39 +45,12 @@ async function cached<T>(key: string, ttl: number, load: () => Promise<T>): Prom
 
 const num = (v: string | number | null | undefined): number => (v === null || v === undefined ? 0 : Number(v));
 
-export interface CreateOutcome {
-  organizationId: string;
-  replay: boolean;
-  /** Письмо новому владельцу: `null`, если учётная запись уже была и письмо не нужно */
-  mailSent: boolean | null;
-  /** Других организаций у учётной записи владельца: вход открывает первую, переключателя организаций пока нет */
-  ownerOtherOrganizations: number;
-}
-
 @Injectable()
 export class OrganizationsService {
   constructor(
     @Inject(OrganizationsRepository) private readonly repo: OrganizationsRepository,
     @Inject(DashboardService) private readonly dashboard: DashboardService,
-    @Inject(PasswordResetService) private readonly access: PasswordResetService,
   ) {}
-
-  async create(raw: unknown): Promise<CreateOutcome> {
-    requirePlatformAdmin();
-    const parsed = parseOrganizationCreate(raw);
-    if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-    const created = await this.repo.create(parsed.value, currentUserId());
-    let mailSent: boolean | null = null;
-    if (created.newOwner) {
-      mailSent = await this.access.sendAccess(created.newOwner.email, parsed.value.owner.name);
-    }
-    return {
-      organizationId: created.organizationId,
-      replay: created.replay,
-      mailSent,
-      ownerOtherOrganizations: created.ownerOtherOrganizations,
-    };
-  }
 
   async overview(month: string | undefined, now = new Date()): Promise<PlatformOverview> {
     requirePlatformAdmin();

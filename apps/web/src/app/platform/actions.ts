@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
+import { organizationStatusLine } from '../../lib/platform';
 
 /**
  * «Платформа → Организации» (ADR-083): главный администратор включает, продлевает и выключает «ИИ-продавца»
@@ -131,20 +132,86 @@ export async function changeSiteBuilderAction(
 }
 
 /**
- * Окно «Создать организацию» («Платформа → Организации»): сохраняется сразу и целиком, черновиков нет. Проверку полей
- * ведёт API; его слова возвращаются в окно, введённое остаётся на месте.
+ * Название, архив и возврат организации (ORG1, ADR-ORG1, Q-282): «удалить» заменено архивом, данные не удаляются.
+ * Проверяет API, отказ его словами.
+ */
+export interface OrganizationActionResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+const failed = (e: unknown, attempt: number): OrganizationActionResult => ({
+  error: e instanceof ApiError || e instanceof Error ? e.message : String(e),
+  message: null,
+  attempt,
+});
+
+export async function renameOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+  form: FormData,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.rename(organizationId, String(form.get('name') ?? ''));
+    revalidatePath('/platform');
+    return { error: null, message: 'Название сохранено.', attempt };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function archiveOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.archive(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: 'Организация в архиве: люди не входят, данные сохранены. Вернуть можно в любой момент.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function restoreOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const saved = await platformApi.restore(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: `Организация возвращена, состояние: ${organizationStatusLine(saved).label}.`,
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+/**
+ * Окно «Создать организацию» («Платформа → Организации», ADR-156): сохраняется сразу и целиком, черновиков нет. Проверку
+ * полей ведёт API; его слова возвращаются в окно, введённое остаётся на месте. Владелец сам задаёт пароль по ссылке
+ * из письма, токен наружу не идёт; письмо не ушло: организация создана, ссылку можно отправить ещё раз с её карточки.
  */
 export type CreateOrganizationResult =
-  | { ok: true; organizationId: string; replay: boolean; mailSent: boolean | null }
+  | { ok: true; organizationId: string; replay: boolean; ownerLinkSent: boolean }
   | { ok: false; error: string };
 
-export async function createOrganizationAction(
-  payload: Record<string, unknown>,
-): Promise<CreateOrganizationResult> {
+export async function createOrganizationAction(payload: Record<string, unknown>): Promise<CreateOrganizationResult> {
   try {
-    const created = await platformApi.createOrganization(payload);
+    const made = await platformApi.createOrganization(payload);
     revalidatePath('/platform');
-    return { ok: true, ...created };
+    return { ok: true, organizationId: made.organization.id, replay: made.replay, ownerLinkSent: made.ownerLinkSent };
   } catch (e) {
     return {
       ok: false,
@@ -153,5 +220,25 @@ export async function createOrganizationAction(
           ? e.message
           : 'Не удалось сохранить. Проверьте связь и обновите страницу перед повтором.',
     };
+  }
+}
+
+export async function sendOwnerLinkAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const sent = await platformApi.ownerLink(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: sent.ownerLinkSent
+        ? `Ссылка отправлена на ${sent.organization.owners[0] ?? 'почту владельца'}.`
+        : 'Письмо не ушло: почтовая служба не отвечает. Попробуйте позже.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
   }
 }

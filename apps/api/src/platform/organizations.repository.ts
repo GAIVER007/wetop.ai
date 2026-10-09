@@ -1,12 +1,7 @@
 import 'reflect-metadata';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import {
-  NEW_PROPERTY_DEFAULTS,
-  createBeautyLocationInChain,
-  createPropertyInChain,
-} from '@pms/database';
-import type { OrganizationCreate, OverviewVertical } from '@pms/domain';
-import { REGISTRATION_NAME_TAKEN_MESSAGE, visibleStatus } from '@pms/domain';
+import { Inject, Injectable } from '@nestjs/common';
+import type { OverviewVertical } from '@pms/domain';
+import { visibleStatus } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
 /** Дерево платформы: организации, их бизнесы и действующие филиалы. Броней, гостей и счетов здесь нет по построению */
@@ -42,18 +37,6 @@ export interface RawMetrics {
   guests: number;
 }
 
-export interface CreatedOrganization {
-  organizationId: string;
-  replay: boolean;
-  /** Почта владельца без учётной записи: ей уходит письмо, где задаётся пароль */
-  newOwner: { email: string } | null;
-  /**
-   * Сколько других организаций уже у учётной записи владельца. Вход открывает первую по времени (переключателя
-   * организаций пока нет), и главный администратор должен знать, что новая организация откроется не сразу.
-   */
-  ownerOtherOrganizations: number;
-}
-
 export interface AuditRow {
   id: string;
   action: string;
@@ -72,10 +55,6 @@ export const ACTIVITY_ACTIONS = [
   'extension.updated',
   'site_builder.entitlement_updated',
 ] as const;
-
-const OWNER_BLOCKED = 'Учётная запись с этой почтой заблокирована: откройте доступ на другую почту';
-const NAME_TAKEN = 'Организация с таким названием уже есть';
-const ID_TAKEN = 'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.';
 
 @Injectable()
 export class OrganizationsRepository {
@@ -216,112 +195,5 @@ export class OrganizationsRepository {
       organizationId: r.organizationId,
       organizationName: r.organization?.name ?? null,
     }));
-  }
-
-  /**
-   * Организация, бизнес выбранного направления, первый филиал и владелец одной транзакцией. Идентификатор запроса
-   * это идентификатор организации: повтор того же запроса возвращает уже созданное, а не плодит дубль. Организация
-   * начинает работать сразу (`ACTIVE`), пробного периода нет.
-   */
-  async create(input: OrganizationCreate, by: string | null): Promise<CreatedOrganization> {
-    return this.prisma.db.$transaction(async (tx) => {
-      const existing = await tx.organization.findUnique({
-        where: { id: input.id },
-        select: { id: true, name: true },
-      });
-      if (existing) {
-        if (existing.name !== input.name) throw new ConflictException(ID_TAKEN);
-        return { organizationId: existing.id, replay: true, newOwner: null, ownerOtherOrganizations: 0 };
-      }
-      const namesake = await tx.organization.findFirst({
-        where: { name: { equals: input.name, mode: 'insensitive' } },
-        select: { id: true },
-      });
-      if (namesake) throw new ConflictException(NAME_TAKEN);
-      if (input.vertical === 'HOSPITALITY' && input.firstBranch) {
-        const taken = await tx.property.findFirst({
-          where: { name: { equals: input.firstBranch.name, mode: 'insensitive' } },
-          select: { id: true },
-        });
-        if (taken) throw new ConflictException(REGISTRATION_NAME_TAKEN_MESSAGE);
-      }
-      const owner = await tx.user.findUnique({
-        where: { email: input.owner.email },
-        select: { id: true, status: true, _count: { select: { memberships: true } } },
-      });
-      if (owner?.status === 'BLOCKED') throw new ConflictException(OWNER_BLOCKED);
-
-      const org = await tx.organization.create({
-        data: { id: input.id, name: input.name, status: 'ACTIVE', reportingCurrency: input.currency },
-        select: { id: true },
-      });
-      const business = await tx.business.create({
-        data: { organizationId: org.id, name: input.brand, vertical: input.vertical },
-        select: { id: true },
-      });
-      const branch = input.firstBranch;
-      let locationId: string | null = null;
-      if (branch) {
-        const data = {
-          name: branch.name,
-          address: branch.address || null,
-          phone: input.owner.phone,
-          timezone: input.timezone,
-          currency: input.currency,
-        };
-        if (input.vertical === 'HOSPITALITY') {
-          // бизнес уже заведён с публичным названием: createPropertyInChain берёт самый ранний гостиничный
-          const property = await createPropertyInChain(tx, org.id, {
-            ...NEW_PROPERTY_DEFAULTS,
-            ...data,
-          });
-          locationId = property.locationId;
-        } else if (input.vertical === 'BEAUTY') {
-          locationId = (await createBeautyLocationInChain(tx, org.id, data)).id;
-        } else {
-          locationId = (await tx.location.create({ data: { businessId: business.id, ...data } })).id;
-        }
-      }
-      const userId =
-        owner?.id ??
-        (
-          await tx.user.create({
-            data: { email: input.owner.email, name: input.owner.name, status: 'ACTIVE', passwordHash: '' },
-            select: { id: true },
-          })
-        ).id;
-      await tx.membership.create({
-        data: { userId, organizationId: org.id, role: 'OWNER', phone: input.owner.phone },
-      });
-      await tx.auditLog.create({
-        data: {
-          organizationId: org.id,
-          userId: by,
-          entityType: 'organization',
-          entityId: org.id,
-          action: 'organization.created',
-          // БИН и сайт в модели данных пока без колонок: до решения по DATA_MODEL они живут здесь
-          after: {
-            name: input.name,
-            brand: input.brand,
-            vertical: input.vertical,
-            country: input.country,
-            city: input.city,
-            timezone: input.timezone,
-            currency: input.currency,
-            bin: input.bin,
-            website: input.website,
-            owner: input.owner.email,
-            locationId,
-          },
-        },
-      });
-      return {
-        organizationId: org.id,
-        replay: false,
-        newOwner: owner ? null : { email: input.owner.email },
-        ownerOtherOrganizations: owner?._count.memberships ?? 0,
-      };
-    });
   }
 }

@@ -31,7 +31,7 @@ test('владелец: таблица людей с ролями и датам�
   await signIn(page);
   await page.goto('/team');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   // вошедший владелец — первым, с отметкой «это вы»
@@ -59,7 +59,7 @@ test('приглашение — панелью из шапки: почта, р�
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
   await drawer.getByLabel('Почта приглашённого').fill('novyj-admin@example.com');
-  await drawer.getByLabel('Роль приглашённого', { exact: true }).selectOption('MANAGER');
+  await drawer.getByLabel('Должность', { exact: true }).selectOption('MANAGER');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение видно в списке ожидающих
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -103,7 +103,7 @@ test('телефон и должность (TEAM2, Q-244): «Изменить»:
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByRole('heading', { name: 'Юрий Тестов' })).toBeVisible();
   await drawer.getByLabel('Телефон').fill('8 701 555 44 33');
-  await drawer.getByLabel('Должность').fill('Старший администратор');
+  await drawer.getByLabel('Подпись под именем (необязательно)').fill('Старший администратор');
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(yurij).toContainText('Старший администратор');
@@ -120,11 +120,11 @@ test('неверный телефон: словами в панели, введ�
   await yurij.getByRole('button', { name: 'Изменить' }).click();
   const drawer = page.getByRole('dialog');
   await drawer.getByLabel('Телефон').fill('12-34');
-  await drawer.getByLabel('Должность').fill('Кассир');
+  await drawer.getByLabel('Подпись под именем (необязательно)').fill('Кассир');
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(drawer.getByRole('alert')).toContainText('Проверьте телефон');
   await expect(drawer.getByLabel('Телефон')).toHaveValue('12-34');
-  await expect(drawer.getByLabel('Должность')).toHaveValue('Кассир');
+  await expect(drawer.getByLabel('Подпись под именем (необязательно)')).toHaveValue('Кассир');
 });
 
 test('управляющий: роль не меняет, приглашает только администраторов', async ({ page, request }) => {
@@ -133,7 +133,7 @@ test('управляющий: роль не меняет, приглашает �
   await page.goto('/team');
   const main = page.getByRole('main');
   await expect(main.getByTestId('member-row')).toHaveCount(3);
-  await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+  await expect(main.getByRole('combobox', { name: /^Должность:/ })).toHaveCount(0);
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText('приглашает администраторов');
@@ -146,7 +146,7 @@ test('без сессии страница не уводит на вход: от
   await page.goto('/team');
   await expect(page).toHaveURL(/\/team$/);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
   await expect(main).toContainText('владелец и управляющий');
   await expect(main.getByRole('button', { name: 'Пригласить сотрудника' })).toHaveCount(0);
 });
@@ -181,7 +181,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.setViewportSize({ width: 1440, height: 900 });
     };
     await page.goto('/team');
-    await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+    await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
     const audit = await new AxeBuilder({ page })
       .include('main')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -198,3 +198,19 @@ for (const theme of ['light', 'dark'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test('«Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  const stats = main.getByTestId('team-stats');
+  await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
+  await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
+  // свободного текста «Должность» в приглашении нет: только выбор
+  await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
+});

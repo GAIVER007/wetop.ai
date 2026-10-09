@@ -1,33 +1,15 @@
 import 'reflect-metadata';
-import { BadRequestException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrganizationsService, clearOrganizationsCache } from './organizations.service';
 import type {
   AuditRow,
-  CreatedOrganization,
   OrganizationsRepository,
   RawMetrics,
   TreeOrganization,
 } from './organizations.repository';
 import { withSignedInUser } from '../auth/request-context';
 
-const ORG = '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
 const ADMIN = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
-const body = {
-  id: ORG,
-  name: 'Luxx Group',
-  brand: 'Luxx',
-  vertical: 'HOSPITALITY',
-  ownerName: 'Вячеслав Пример',
-  ownerEmail: 'owner@example.invalid',
-  phoneCountry: 'KZ',
-  ownerPhone: '+7 700 123 45 67',
-  country: 'KZ',
-  city: 'Алматы',
-  timezone: 'Asia/Almaty',
-  currency: 'KZT',
-};
-
 const day = (s: string) => new Date(`${s}T00:00:00Z`);
 const tree: TreeOrganization[] = [
   {
@@ -50,13 +32,7 @@ const tree: TreeOrganization[] = [
 ];
 
 class FakeRepo {
-  created: unknown[] = [];
-  next: CreatedOrganization = { organizationId: ORG, replay: false, newOwner: { email: 'owner@example.invalid' }, ownerOtherOrganizations: 0 };
   salonCalls: Array<{ from: string; to: string }> = [];
-  async create(input: unknown) {
-    this.created.push(input);
-    return this.next;
-  }
   async tree() {
     return tree;
   }
@@ -89,56 +65,18 @@ const period = (revenue: string, occupied: number, units: number, guests: number
 });
 
 let repo: FakeRepo;
-const access = { sendAccess: vi.fn(async () => true) };
 const dashboard = {
   dashboard: vi.fn(async () => ({ current: period('9000000', 30, 100, 40), previous: period('6000000', 20, 100, 30) })),
 };
 const service = () =>
-  new OrganizationsService(repo as unknown as OrganizationsRepository, dashboard as never, access as never);
+  new OrganizationsService(repo as unknown as OrganizationsRepository, dashboard as never);
 const asAdmin = <T>(fn: () => Promise<T>) =>
   withSignedInUser({ userId: ADMIN, organizationId: null, platformAdmin: true }, fn);
 
 beforeEach(() => {
   repo = new FakeRepo();
   clearOrganizationsCache();
-  access.sendAccess.mockClear();
   dashboard.dashboard.mockClear();
-});
-
-describe('создание организации', () => {
-  it('новому владельцу уходит письмо со ссылкой, организация создаётся без пробного периода', async () => {
-    const out = await asAdmin(() => service().create(body));
-    expect(out).toEqual({ organizationId: ORG, replay: false, mailSent: true, ownerOtherOrganizations: 0 });
-    expect(access.sendAccess).toHaveBeenCalledWith('owner@example.invalid', 'Вячеслав Пример');
-    expect(JSON.stringify(repo.created)).not.toMatch(/trial/i);
-  });
-
-  it('учётная запись уже есть: письма нет, доступ открыт членством', async () => {
-    repo.next = { organizationId: ORG, replay: false, newOwner: null, ownerOtherOrganizations: 1 };
-    const out = await asAdmin(() => service().create(body));
-    expect(out.mailSent).toBeNull();
-    // главный администратор узнаёт, что у этой почты уже есть другая организация
-    expect(out.ownerOtherOrganizations).toBe(1);
-    expect(access.sendAccess).not.toHaveBeenCalled();
-  });
-
-  it('повтор запроса письмо второй раз не шлёт', async () => {
-    repo.next = { organizationId: ORG, replay: true, newOwner: null, ownerOtherOrganizations: 0 };
-    expect((await asAdmin(() => service().create(body))).replay).toBe(true);
-    expect(access.sendAccess).not.toHaveBeenCalled();
-  });
-
-  it('письмо не ушло: организация создана, ответ говорит об этом', async () => {
-    access.sendAccess.mockResolvedValueOnce(false);
-    expect((await asAdmin(() => service().create(body))).mailSent).toBe(false);
-  });
-
-  it('плохой ввод: 400 со всеми ошибками, в базу ничего не пишется', async () => {
-    await expect(asAdmin(() => service().create({ ...body, ownerEmail: 'x', currency: 'XXX' }))).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(repo.created).toHaveLength(0);
-  });
 });
 
 describe('сквозной обзор', () => {

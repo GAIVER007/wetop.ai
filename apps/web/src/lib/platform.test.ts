@@ -40,7 +40,7 @@ describe('«Платформа → Организации»: слова табл
   it('состояние организации словами, без пробного периода', () => {
     expect(organizationStatusLine({ status: 'ACTIVE' }).label).toBe('работает');
     expect(organizationStatusLine({ status: 'READ_ONLY' }).label).toBe('только чтение');
-    expect(organizationStatusLine({ status: 'SUSPENDED' }).label).toBe('приостановлена');
+    expect(organizationStatusLine({ status: 'SUSPENDED' }).label).toBe('в архиве');
     expect(organizationStatusLine({ status: 'TRIAL' }).label).not.toMatch(/пробн/);
   });
 

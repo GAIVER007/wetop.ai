@@ -276,6 +276,44 @@ test('массовые действия: выбор мест и «Назначи
   );
 });
 
+test('фото категории: заглушка, выбор из библиотеки с порядком, галерея и сохранение', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory?kind=ROOM');
+  await page
+    .getByRole('main')
+    .getByRole('link', { name: 'Открыть номер R09', exact: true })
+    .click();
+  const drawer = page.getByRole('dialog', { name: 'Номер R09' });
+  await expect(drawer.getByTestId('unit-photo')).toContainText('Фото ещё не добавлены');
+  await drawer.getByRole('button', { name: 'Добавить фото категории' }).click();
+  const picker = page.getByRole('dialog', { name: /Фото категории:/ });
+  const items = picker.getByRole('button', { pressed: false });
+  await expect(items.first()).toBeVisible();
+  // порядок выбора и есть порядок показа: сначала второе, потом первое
+  const all = picker.locator('.photo-picker__item');
+  await all.nth(1).click();
+  await all.nth(0).click();
+  await expect(all.nth(1).locator('.photo-picker__order')).toHaveText('1');
+  await expect(all.nth(0).locator('.photo-picker__order')).toHaveText('2');
+  await expect(picker).toContainText('Выбрано 2 из 10');
+  const audit = await new AxeBuilder({ page })
+    .include('dialog[open]')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  await picker.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(picker).toHaveCount(0);
+  const photo = drawer.getByTestId('unit-photo');
+  await expect(photo.locator('img')).toBeVisible();
+  await expect(photo).toContainText('1/2');
+  await drawer.getByRole('button', { name: 'Следующее фото' }).click();
+  await expect(photo).toContainText('2/2');
+  await expect(drawer.getByRole('button', { name: 'Изменить фото категории' })).toBeVisible();
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`панель места доступна: ${theme}`, async ({ page, request }) => {
     await request.post(`${fixture}/__test/design-seed`);

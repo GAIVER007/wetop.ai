@@ -1,6 +1,13 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, inventoryEditorApi, reservationsApi, unitsApi } from '../../lib/api';
+import {
+  ApiError,
+  inventoryEditorApi,
+  reservationsApi,
+  siteAssetsApi,
+  unitsApi,
+  type SiteAssetView,
+} from '../../lib/api';
 
 const FUND_PATHS = [
   '/inventory',
@@ -89,4 +96,35 @@ export async function bulkHousekeepingAction(
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { done, skipped, reason };
+}
+
+/** Библиотека изображений филиала для выбора фото категории: только готовые картинки, без логотипов и фавиконок */
+export async function loadPhotoLibraryAction(): Promise<{
+  error: string | null;
+  assets: SiteAssetView[];
+  storageOff: boolean;
+}> {
+  try {
+    const lib = await siteAssetsApi.list();
+    return {
+      error: null,
+      storageOff: lib.storage === 'OFF',
+      assets: lib.assets.filter((a) => a.kind === 'IMAGE'),
+    };
+  } catch (e) {
+    return { error: failure(e), assets: [], storageOff: false };
+  }
+}
+
+export async function saveCategoryPhotosAction(
+  code: string,
+  assetIds: string[],
+): Promise<{ error: string | null }> {
+  try {
+    await inventoryEditorApi.setPhotos(code, assetIds);
+  } catch (e) {
+    return { error: failure(e) };
+  }
+  for (const path of FUND_PATHS) revalidatePath(path);
+  return { error: null };
 }

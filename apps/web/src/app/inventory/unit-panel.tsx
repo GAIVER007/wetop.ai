@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { InventoryUnit, UnitCard } from '../../lib/api';
+import type { CategoryPhoto, InventoryUnit, UnitCard } from '../../lib/api';
 import { Icon } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Badge } from '../../components/ui';
@@ -9,12 +9,13 @@ import { unitNow } from '../../lib/unit-now';
 import { housekeepingStatus } from '../../lib/status/housekeeping';
 import { UnitActions } from '../units/[code]/unit-actions';
 import { FundEditor } from './fund-editor';
+import { PhotoGallery } from './photo-gallery';
 import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
 
 /**
  * Панель места по снимку владельца 09.10: фото-блок, вкладки «Информация», «Койко-места», «Бронь / Гости»,
  * «История» и быстрые действия. Всё из `GET /units/:code` и списка мест; поля, которых в карточке нет
- * (дата создания, каналы места), не выдумываются. Фото появятся в срезе F3 (нужна модель, DATA_MODEL.md).
+ * (дата создания, каналы места), не выдумываются. Фото у категории (DATA_MODEL §30, ADR-153), выбираются из библиотеки сайта.
  */
 function Row({
   icon,
@@ -42,11 +43,14 @@ export function UnitPanel({
   unit,
   today,
   roomUnits,
+  photos,
 }: {
   unit: UnitCard;
   today: string;
   /** Места той же комнаты, включая это */
   roomUnits: InventoryUnit[];
+  /** Фото категории места из библиотеки сайта (§30); пусто, пока не выбраны */
+  photos: CategoryPhoto[];
 }) {
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
@@ -178,14 +182,13 @@ export function UnitPanel({
   );
   return (
     <div className="unit-drawer unit-panel" data-testid="unit-drawer">
-      <div className="unit-photo" role="img" aria-label="Фото места ещё не добавлены">
-        <Icon name="bed" width={40} height={40} />
-        <span>Фото ещё не добавлены</span>
-      </div>
+      <PhotoGallery
+        categoryCode={unit.accommodationTypeCode}
+        categoryName={unit.accommodationTypeName}
+        photos={photos}
+      />
       <p className="sub unit-panel-sub">
-        {unit.accommodationTypeName}
-        {' · '}
-        {unit.kind === 'BED' ? 'койко-место' : 'номер'}
+        {unit.accommodationTypeName}, {unit.kind === 'BED' ? 'койко-место' : 'номер'}
       </p>
       <Tabs
         label="Разделы места"

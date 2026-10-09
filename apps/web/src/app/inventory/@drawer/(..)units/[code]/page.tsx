@@ -18,9 +18,13 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
     .inventoryUnits()
     .then((all) => all.filter((u) => u.roomNumber === unit.roomNumber))
     .catch(() => []);
+  const photos = await api
+    .inventoryPhotos()
+    .then((all) => all[unit.accommodationTypeCode] ?? [])
+    .catch(() => []);
   return (
     <RouteDrawer title={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'} ${unit.code}`}>
-      <UnitPanel unit={unit} today={today} roomUnits={roomUnits} />
+      <UnitPanel unit={unit} today={today} roomUnits={roomUnits} photos={photos} />
     </RouteDrawer>
   );
 }

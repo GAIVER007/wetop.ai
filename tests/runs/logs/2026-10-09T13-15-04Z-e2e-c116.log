@@ -1,0 +1,88 @@
+# Сквозные (e2e) · 09.10.2026 18:15 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 38
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (6.2s)
+  ✓   2 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.5s)
+  ✓   3 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (22.1s)
+  ✓   4 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (4.6s)
+  ✓   5 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (4.7s)
+  ✓   6 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.5s)
+  ✓   7 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.8s)
+  ✓   8 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.9s)
+  ✓   9 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.9s)
+  ✓  10 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  11 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.7s)
+  ✓  12 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (8.6s)
+  ✓  13 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (13.9s)
+  ✓  14 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (13.2s)
+  ✓  15 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (13.7s)
+  ✓  16 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (14.1s)
+  ✓  17 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.7s)
+  ✓  18 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  19 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.2s)
+  ✓  20 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  21 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (9.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  22 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (8.0s)
+  ✓  23 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.7s)
+  ✓  24 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.2s)
+  ✓  25 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.9s)
+  ✓  26 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.7s)
+  ✓  27 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (6.5s)
+  ✓  28 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (6.4s)
+  ✓  29 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (5.8s)
+  ✓  30 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (6.2s)
+  ✓  31 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: light (4.6s)
+  ✓  32 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.4s)
+
+  32 passed (4.0m)
+
+# код выхода 0 · 4 мин 4 с

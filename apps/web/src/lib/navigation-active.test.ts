@@ -43,7 +43,7 @@ const HOSPITALITY: Array<[string[], string | null]> = [
   // «Гости и бронирования» одной вкладкой (поручение владельца 09.10.2026, после плана DS2): брони подсвечивают её
   [['/guests', '/guests/123', '/guests/123/preview', '/guests/birthdays'], 'guests>/guests'],
   [['/finance'], 'finance>/finance'],
-  [['/bar'], 'bar>/bar'],
+  [['/bar'], 'finance>/bar'],
   [['/inventory', '/rooms', '/rooms/categories', '/rates', '/units/R01'], 'inventory>/inventory'],
   [['/market'], 'sales>/market'],
   [

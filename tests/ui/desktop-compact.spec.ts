@@ -26,13 +26,12 @@ test.beforeEach(async ({ page, request }) => {
 
 test('ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы', async ({ page }) => {
   test.slow(); // обход 14 разделов: на холодном `next dev` первая сборка каждого занимает секунды
+  // «Финансы» с 09.10 — «Обзор бизнеса» (бывшая Главная + касса): раздел длинный и прокручивается
+  // намеренно, как «Отчёты» (DESIGN.md §4), поэтому в списке одноэкранных его нет
   for (const route of [
-    '/today',
     '/chessboard',
     '/reservations',
     '/guests',
-    '/finance',
-    '/finance?tab=cash',
     '/management/analytics',
     '/inventory',
     '/rooms/categories',

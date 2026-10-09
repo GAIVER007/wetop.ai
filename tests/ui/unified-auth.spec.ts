@@ -21,12 +21,14 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     await page.goto(path);
     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
     await login(page);
-    await expect(page).toHaveURL(`${APP}${path}`);
+    // гостиничный /today с 09.10 ведёт в единые «Финансы» (plans/finance-home-merge-2026-10-09.md)
+    const landed = path === '/today' ? '/finance' : path;
+    await expect(page).toHaveURL(`${APP}${landed}`);
     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
     await page.reload();
-    await expect(page).toHaveURL(`${APP}${path}`);
+    await expect(page).toHaveURL(`${APP}${landed}`);
   });
 }
 test('старые адреса открывают только формы на главной', async ({ page }) => {
@@ -46,7 +48,7 @@ test('сессия работает в новой вкладке; выход в�
 }) => {
   await page.goto('/login');
   await login(page);
-  await expect(page).toHaveURL(`${APP}/today`);
+  await expect(page).toHaveURL(`${APP}/finance`);
   const tab = await context.newPage();
   await tab.goto(`${APP}/profile/access`);
   await expect(
@@ -76,9 +78,9 @@ test('регистрация на главной → письмо → подтв
   await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
   await page.goto(`${APP}/login/verify?token=ui-verify-1`);
-  await expect(page).toHaveURL(`${APP}/today`);
+  await expect(page).toHaveURL(`${APP}/finance`);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
 });
 test('резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран', async ({
   browser,

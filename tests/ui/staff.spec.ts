@@ -14,7 +14,7 @@ test('/staff ведёт на «Сотрудников»: старые ссылк
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/staff');
   await expect(page).toHaveURL(/\/team$/);
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');

@@ -1,0 +1,435 @@
+# Сквозные (e2e) · 09.10.2026 21:05 Алматы · vm
+# коммит 45517ba (claude/quirky-newton-qkhfgz)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desk-tasks.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/fiscal-receipt.spec.ts' 'tests/ui/flat-surfaces.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/integrations-channex.spec.ts' 'tests/ui/integrations.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/market.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/owner-journal.spec.ts' 'tests/ui/pii-storage.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/platform-support.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 154 tests using 1 worker
+
+  ✓    1 tests/ui/desk-tasks.spec.ts:29:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (5.9s)
+  ✓    2 tests/ui/desk-tasks.spec.ts:77:1 › ошибка словами у формы, введённое не теряется (1.4s)
+  ✓    3 tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя (4.1s)
+  ✓    4 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: light (2.8s)
+  ✓    5 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: dark (2.7s)
+  ✓    6 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (2.7s)
+  ✓    7 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (2.0s)
+  ✓    8 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (2.3s)
+  ✓    9 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (2.0s)
+  ✓   10 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (2.9s)
+  ✓   11 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (2.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   12 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (4.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   13 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (3.9s)
+  ✓   14 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (3.5s)
+  ✓   15 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (3.7s)
+  ✓   16 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (3.5s)
+  ✓   17 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (2.5s)
+  ✓   18 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (3.9s)
+  ✓   19 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (3.8s)
+  ✓   20 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (3.3s)
+  ✓   21 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (3.7s)
+  ✓   22 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (3.3s)
+  ✓   23 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (3.3s)
+  ✓   24 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (2.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   25 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (2.9s)
+  ✓   26 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (4.5s)
+  ✓   27 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (4.2s)
+  ✓   28 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.9s)
+  ✓   29 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (1.8s)
+  ✓   30 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (1.9s)
+  ✓   31 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (6.3s)
+  ✓   32 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (6.3s)
+  ✓   33 tests/ui/finance-f2.spec.ts:186:1 › F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено» (2.5s)
+  ✓   34 tests/ui/fiscal-receipt.spec.ts:29:1 › гость попросил чек: номер из кассы ложится к платежу (2.6s)
+  ✓   35 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 1440px (3.3s)
+  ✓   36 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 390px (3.3s)
+  ✓   37 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 1440px (3.5s)
+  ✓   38 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 390px (3.4s)
+  ✓   39 tests/ui/flat-surfaces.spec.ts:2:1 › flat shared surfaces across application routes in both themes (18.8s)
+  ✓   40 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (3.9s)
+  ✓   41 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (1.8s)
+  ✓   42 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.1s)
+  ✓   43 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.2s)
+  ✓   44 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (7.6s)
+  ✓   45 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (5.0s)
+  ✓   46 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (4.3s)
+  ✓   47 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (3.4s)
+  ✓   48 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (9.2s)
+  ✓   49 tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (8.3s)
+  ✓   50 tests/ui/guests-design.spec.ts:494:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (2.3s)
+  ✓   51 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (4.3s)
+  ✓   52 tests/ui/integrations-channex.spec.ts:77:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (1.4s)
+  ✓   53 tests/ui/integrations-channex.spec.ts:94:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (1.0s)
+  ✓   54 tests/ui/integrations-channex.spec.ts:107:1 › интеграция у другой организации: проверить нельзя, это сказано словами (825ms)
+  ✓   55 tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (2.7s)
+  ✓   56 tests/ui/integrations-channex.spec.ts:130:1 › телефон: страница без прокрутки вбок (808ms)
+  ✓   57 tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (702ms)
+  ✓   58 tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (1.0s)
+  ✓   59 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, light (6.9s)
+  ✓   60 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, dark (7.4s)
+  ✓   61 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (3.1s)
+  ✓   62 tests/ui/integrations.spec.ts:79:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.0s)
+  ✓   63 tests/ui/integrations.spec.ts:97:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.2s)
+  ✓   64 tests/ui/integrations.spec.ts:118:1 › ключ Channex не задан — не подключено, а не «работает» (803ms)
+  ✓   65 tests/ui/integrations.spec.ts:126:1 › только чтение: список и состояние видны, подключение — после оплаты (2.7s)
+  ✓   66 tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт (3.2s)
+  ✓   67 tests/ui/integrations.spec.ts:151:1 › телефон: карточка без прокрутки вбок (832ms)
+  ✓   68 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, light (7.2s)
+  ✓   69 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, dark (9.0s)
+  ✓   70 tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений (3.6s)
+  ✓   71 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (3.5s)
+  ✓   72 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (3.8s)
+  ✓   73 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (2.6s)
+  ✓   74 tests/ui/inventory-catalog.spec.ts:96:1 › пустой поиск объясняется, сброс возвращает фонд (1.4s)
+  ✓   75 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: light (11.2s)
+  ✓   76 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: dark (12.2s)
+  ✓   77 tests/ui/inventory-catalog.spec.ts:140:1 › пустой фонд отличается от пустого поиска (1.1s)
+  ✓   78 tests/ui/inventory-catalog.spec.ts:148:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.3s)
+  ✓   79 tests/ui/inventory-catalog.spec.ts:170:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (5.0s)
+  ✓   80 tests/ui/inventory-catalog.spec.ts:218:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (3.2s)
+  ✓   81 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: light (4.9s)
+  ✓   82 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: dark (4.9s)
+  ✓   83 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.9s)
+  ✓   84 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (5.2s)
+  ✓   85 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.7s)
+  ✓   86 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.4s)
+  ✓   87 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (3.5s)
+  ✓   88 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (5.8s)
+  ✓   89 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (6.4s)
+  ✓   90 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.5s)
+  ✓   91 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (5.2s)
+  ✘   92 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.2s)
+  ✓   93 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✘   94 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (18.2s)
+  ✓   95 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (735ms)
+  ✓   96 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.3s)
+  ✓   97 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (2.0s)
+  ✓   98 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.4s)
+  ✓   99 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.8s)
+  ✓  100 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (7.5s)
+  ✓  101 tests/ui/manager-actions.spec.ts:204:1 › карточка: предварительная бронь названа словом, место за ней держится (1.2s)
+  ✓  102 tests/ui/manager-actions.spec.ts:223:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  103 tests/ui/manager-actions.spec.ts:239:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места (4.0s)
+  ✓  104 tests/ui/manager-actions.spec.ts:283:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (3.7s)
+  ✓  105 tests/ui/manager-actions.spec.ts:343:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.4s)
+  ✓  106 tests/ui/manager-actions.spec.ts:366:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.1s)
+  ✓  107 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (4.9s)
+  ✓  108 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (4.2s)
+  ✓  109 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (3.4s)
+  ✓  110 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (5.4s)
+  ✓  111 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (5.2s)
+  ✓  112 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  113 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (3.7s)
+  ✓  114 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.2s)
+  ✓  115 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (5.7s)
+  ✓  116 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (1.7s)
+  ✓  117 tests/ui/marketing.spec.ts:137:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (4.8s)
+  ✓  118 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: light (3.6s)
+  ✓  119 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: dark (3.6s)
+  ✘  120 tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (45.2s)
+  ✓  121 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (4.0s)
+  ✓  122 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (3.6s)
+  ✓  123 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.0s)
+  ✓  124 tests/ui/onboarding.spec.ts:80:1 › после запуска отеля «Финансы» без «Первых шагов» и без кнопки брони (1.9s)
+  ✓  125 tests/ui/onboarding.spec.ts:101:1 › у работающего отеля с бронями «Первых шагов» нет (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  126 tests/ui/onboarding.spec.ts:112:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (4.0s)
+  ✓  127 tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история (7.5s)
+  ✓  128 tests/ui/owner-journal.spec.ts:60:3 › MANAGER: журнал скрыт и прямой адрес закрыт (3.9s)
+  ✓  129 tests/ui/owner-journal.spec.ts:60:3 › STAFF: журнал скрыт и прямой адрес закрыт (3.0s)
+  ✓  130 tests/ui/pii-storage.spec.ts:18:1 › новая бронь без имени и контактов: компактная форма, бронь создаётся (2.3s)
+  ✓  131 tests/ui/pii-storage.spec.ts:43:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (2.4s)
+  ✓  132 tests/ui/pii-storage.spec.ts:66:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.2s)
+  ✓  133 tests/ui/pii-storage.spec.ts:106:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (2.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  134 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (5.7s)
+  ✓  135 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  136 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.4s)
+  ✓  137 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.3s)
+  ✓  138 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.5s)
+  ✓  139 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.2s)
+  ✓  140 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (8.2s)
+  ✓  141 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (11.9s)
+  ✓  142 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (12.4s)
+  ✓  143 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (13.1s)
+  ✓  144 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (12.4s)
+  ✓  145 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (6.0s)
+  ✓  146 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (9.5s)
+  ✓  147 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (5.5s)
+  ✓  148 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (10.8s)
+  ✓  149 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (3.3s)
+  ✓  150 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (3.1s)
+  ✓  151 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (15.6s)
+  ✓  152 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (15.0s)
+  ✓  153 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (14.2s)
+  ✓  154 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (14.0s)
+
+
+  1) tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+      150 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      151 |   await page.goto('/login');
+    > 152 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      153 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      154 |   await expect(
+      155 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:152:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3100/finance"
+    Received: "http://127.0.0.1:3100/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/login/verify?token=<скрыто>"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/today"
+
+
+      173 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+      174 |   await page.goto('/login/verify?token=<скрыто>');
+    > 175 |   await expect(page).toHaveURL(APP + '/finance');
+          |                      ^
+      176 |   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
+      177 | });
+      178 | test('негодная ссылка подтверждения показывает отказ и возможность повтора', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:175:22
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3100/today"
+    ============================================================
+
+      218 |     .click();
+      219 |   // MV8: стартовая страница всех направлений `/today`
+    > 220 |   await page.waitForURL('**/finance');
+          |              ^
+      221 |   await page.goto('/marketing');
+      222 |   await expect(page).toHaveURL(/\/today$/);
+      223 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:220:14
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+    tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+    tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+  151 passed (13.1m)
+
+# код выхода 1 · 13 мин 6 с

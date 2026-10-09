@@ -9,7 +9,6 @@ import { mkdirSync } from 'node:fs';
 // здесь: меню телефона и планшета «Навигация» из того же реестра и обход всех пунктов по страницам.
 const routes = [
   '/ai-agents',
-  '/today',
   '/chessboard',
   // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
   '/guests',
@@ -31,11 +30,11 @@ const routes = [
   '/incidents',
 ];
 
+// «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
 const SECTIONS = [
-  'Главная',
+  'Финансы',
   'Календарь',
   'Гости и бронирования',
-  'Финансы',
   'Продажи',
   'Маркетинг',
   'Отчёты',
@@ -51,7 +50,7 @@ test.beforeEach(async ({ request }) => {
 test('меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно', async ({
   page,
 }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
@@ -61,7 +60,8 @@ test('меню телефона: работа смены прямыми ссыл
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+  // активная отметка на пункте группы «Финансы» (ADR-157)
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
   // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
   const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();
@@ -122,7 +122,7 @@ test('все пункты меню открывают существующие �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   const tabs = menu.locator('.topmenu__tabs > *');
   for (let i = 0; i < (await tabs.count()); i++) {
@@ -172,7 +172,7 @@ for (const theme of ['light', 'dark'] as const) {
     page.on('pageerror', (error) => {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
-    await page.goto('/today');
+    await page.goto('/finance');
     for (const width of [320, 390, 768, 960]) {
       await page.setViewportSize({ width, height: 844 });
       await expect(page.locator('.topmenu')).toBeHidden();

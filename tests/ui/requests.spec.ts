@@ -45,6 +45,8 @@ for (const screen of [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
+  // «Загрузка конкурентов» (ADR-142): одна сводка /market/occupancy; история ночи только при открытой панели
+  '/market',
   '/management/analytics',
   '/management/analytics/occupancy',
   // «По номерам» (REP3): один запрос /desk/dashboard/units

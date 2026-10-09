@@ -67,6 +67,13 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Загрузка конкурентов');
   await expect(main.getByTestId('market-empty')).toContainText('Добавьте ближайших конкурентов');
+  // одна кнопка «Добавить» на экране и без строки дат: сравнивать пока не с кем
+  await expect(main.getByTestId('market-add')).toHaveCount(1);
+  await expect(main.getByTestId('market-form')).toHaveCount(0);
+  // шаги без обещаний сбора с площадок (Q-257 открыт)
+  await expect(main.getByTestId('market-steps')).toContainText('Загрузка соседей обновляется');
+  await expect(main.getByTestId('market-steps')).toContainText('вручную или сборщиком');
+  await expect(main.getByTestId('market-steps')).not.toContainText('Booking');
 
   // отказ словами у формы, введённое не теряется
   await main.getByTestId('market-empty').getByTestId('market-add').click();
@@ -82,6 +89,16 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
 
   const row = main.getByRole('row', { name: /Отель Тестовый/ });
   await expect(row).toContainText('300 м');
+  await expect(row).toContainText('вручную');
+  await expect(main.getByTestId('market-add')).toHaveCount(1);
+  await expect(main.getByTestId('market-form')).toBeVisible();
+  // ссылка на площадку: метка честно говорит, что сбора нет
+  await main.getByRole('button', { name: 'Изменить: Отель Тестовый' }).click();
+  await expect(page.getByLabel('Страница соседа на площадке (для будущего сбора)')).toBeVisible();
+  await page.getByTestId('market-url').fill('https://www.booking.com/hotel/kz/test.ru.html');
+  await page.getByTestId('market-save').click();
+  await expect(row).toContainText('Сбор не подключён');
+  await expect(row).not.toContainText('ИИ');
   await expect(row).toContainText('данных нет');
   await expect(main.getByTestId('market-insights')).toContainText('Нет данных: Отель Тестовый');
 

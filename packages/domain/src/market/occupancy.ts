@@ -393,3 +393,25 @@ export function buildNightHistory(input: {
     withMarket.length >= 2 ? withMarket.at(-1)!.marketBp! - withMarket[0]!.marketBp! : null;
   return { stayDate: input.stayDate, competitors: input.competitors, days: shown, pickupBp };
 }
+
+/**
+ * Площадка по ссылке конкурента: стойка подписывает «Сбор не подключён» у соседа со ссылкой на площадку. Будет ли
+ * сборщик читать площадки, не решено (Q-257 открыт; ADR-142 автоматический сбор с площадок запрещает).
+ */
+const PLATFORMS: Array<[RegExp, string]> = [
+  [/(^|\.)booking\.com$/, 'Booking.com'],
+  [/(^|\.)trip\.com$/, 'Trip.com'],
+  [/(^|\.)ostrovok\.ru$/, 'Ostrovok'],
+  [/(^|\.)airbnb\.[a-z.]+$/, 'Airbnb'],
+];
+
+export function competitorPlatform(url: string | null | undefined): string | null {
+  if (!url) return null;
+  let host: string;
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  return PLATFORMS.find(([re]) => re.test(host))?.[1] ?? null;
+}

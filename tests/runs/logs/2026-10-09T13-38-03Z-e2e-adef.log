@@ -1,0 +1,31 @@
+# Сквозные (e2e) · 09.10.2026 18:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3112eff (claude/market-honest-empty-state), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' 'tests/ui/theme-transition.spec.ts' 'tests/ui/requests.spec.ts' '-g' 'market|История|анимаций|тема применена|Продажах|рынок|только чтение|снимки|Заполнить' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (3.7s)
+  ✓   2 tests/ui/market.spec.ts:123:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (2.4s)
+  ✓   3 tests/ui/market.spec.ts:166:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (1.5s)
+  ✓   4 tests/ui/market.spec.ts:182:3 › снимки и доступность: light (2.9s)
+  ✓   5 tests/ui/market.spec.ts:182:3 › снимки и доступность: dark (2.9s)
+  ✓   6 tests/ui/market.spec.ts:222:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (1.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1318812177'
+[WebServer] }
+  ✓   7 tests/ui/market.spec.ts:250:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (2.0s)
+  ✓   8 tests/ui/requests.spec.ts:83:3 › экран /market: данные берутся одним запросом на путь (978ms)
+  ✓   9 tests/ui/requests.spec.ts:83:3 › экран /marketing: данные берутся одним запросом на путь (1.3s)
+  ✓  10 tests/ui/theme-transition.spec.ts:11:1 › после смены темы тема применена и переходов цвета в полёте нет (1.2s)
+  ✓  11 tests/ui/theme-transition.spec.ts:30:1 › axe замеряет после конца анимаций на странице (1.5s)
+
+  11 passed (28.1s)
+
+# код выхода 0 · 30 с

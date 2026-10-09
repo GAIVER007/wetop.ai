@@ -3,6 +3,7 @@ import {
   MarketInputError,
   buildMarketBoard,
   buildNightHistory,
+  competitorPlatform,
   demandLevel,
   formatOccupancy,
   marketDates,
@@ -274,5 +275,17 @@ describe('buildNightHistory', () => {
     const h = buildNightHistory({ stayDate: '2026-10-10', competitors: comps, readings: many, maxDays: 5 });
     expect(h.days).toHaveLength(5);
     expect(h.days.at(-1)!.observedOn).toBe('2026-09-09');
+  });
+});
+
+describe('competitorPlatform', () => {
+  it('площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера', () => {
+    expect(competitorPlatform('https://www.booking.com/hotel/kz/altyn.ru.html')).toBe('Booking.com');
+    expect(competitorPlatform('https://kz.trip.com/hotels/almaty-hotel-detail-1/')).toBe('Trip.com');
+    expect(competitorPlatform('https://ostrovok.ru/hotel/kazakhstan/almaty/x/')).toBe('Ostrovok');
+    expect(competitorPlatform('https://notbooking.com.evil.io/x')).toBeNull();
+    expect(competitorPlatform('https://altyn-hotel.kz/')).toBeNull();
+    expect(competitorPlatform(null)).toBeNull();
+    expect(competitorPlatform('не адрес')).toBeNull();
   });
 });

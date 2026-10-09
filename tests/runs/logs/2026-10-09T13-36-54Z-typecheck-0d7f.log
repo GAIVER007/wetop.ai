@@ -1,0 +1,20 @@
+# Типы (typecheck) · 09.10.2026 18:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3112eff (claude/market-honest-empty-state), незакоммиченных файлов набора: 9
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/market/page.tsx(27,3): error TS2440: Import declaration conflicts with local declaration of 'Grid'.
+apps/web/src/app/market/page.tsx(205,6): error TS2322: Type '{ children: Element[]; min: number; role: string; className: string; "data-testid": string; }' is not assignable to type 'IntrinsicAttributes & { view: MarketView; editable: boolean; nightHref: (date: string) => string; }'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & { view: MarketView; editable: boolean; nightHref: (date: string) => string; }'.
+
+# код выхода 1 · 18 с

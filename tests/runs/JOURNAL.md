@@ -7722,6 +7722,14 @@
 | 09.10.2026 17:36 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/guests-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-compact.spec.ts tests/ | ❌ упало 2 из 28 | 2 мин 32 с | 90d323d +12 | [лог](logs/2026-10-09T12-36-34Z-e2e-ff1b.log) | Гости вкладкой внутри Броней: экраны раздела после добавления вкладок |
 | 09.10.2026 17:40 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts --workers=1) | ✅ 4 из 4 | 45 с | 90d323d +13 | [лог](logs/2026-10-09T12-40-40Z-e2e-7d0f.log) | Бюджет телефона 515 после вкладок раздела |
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
+| 09.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 4 мин 58 с | 8940508 +1 | [лог](logs/2026-10-09T12-20-54Z-e2e-767a.log) | хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных |
+| 09.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-26-10Z-e2e-f41c.log) |  |
+| 09.10.2026 17:27 | typecheck | ✅ без ошибок | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-08Z-typecheck-6653.log) |  |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 39 с | 8940508 +3 | [лог](logs/2026-10-09T12-27-53Z-lint-5b36.log) |  |
+| 09.10.2026 17:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/requests.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts --w | ✅ 119 из 119 | 10 мин 1 с | 8940508 +3 | [лог](logs/2026-10-09T12-28-38Z-e2e-9eef.log) |  |
+| 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |
+| 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts -g вкладки входа и регистрации --workers=1) | ❌ упало 1 из 1 | 1 мин 7 с | 6332d73 | [лог](logs/2026-10-09T13-28-36Z-e2e-5f1d.log) | вкладки входа и регистрации переключаются без перехода в приложение |
+| 09.10.2026 18:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 10 с | 6332d73 +1 | [лог](logs/2026-10-09T13-29-48Z-e2e-a8b3.log) |  |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
 | 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
@@ -7732,3 +7740,5 @@
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
 | 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
+| 09.10.2026 18:35 | typecheck | ✅ без ошибок | 45 с | de0cd1e | [лог](logs/2026-10-09T13-35-02Z-typecheck-cb8e.log) |  |
+| 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |

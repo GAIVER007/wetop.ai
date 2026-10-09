@@ -57,6 +57,10 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseMemberDetails,
+  parseScopeAssignments,
+  validateAssignments,
+  membershipRoleFor,
+  type ScopeAssignment,
   parseHotelSettingsPatch,
   parseServiceInput,
   type ExtensionStatus,
@@ -887,7 +891,22 @@ function seedAnalyticsHistory() {
  */
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
-let hotelOverrides: Record<string, string | null> = {};
+let hotelOverrides: Record<string, unknown> = {};
+// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+interface FixtureMedia {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  fileName: string | null;
+  byteSize: number;
+}
+let hotelMedia: FixtureMedia[] = [];
+let mediaStorageOff = false;
+let mediaSeq = 0;
+const PHOTO_PLACEHOLDER =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"><rect width="160" height="120" fill="#cfd8e6"/></svg>',
+  );
 /**
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
@@ -2085,6 +2104,8 @@ interface FixtureMember {
   /** Телефон и должность (TEAM2, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended?: boolean;
 }
 interface FixtureInvite {
   id: string;
@@ -2092,13 +2113,39 @@ interface FixtureInvite {
   role: InviteRole;
   expiresAt: string;
   createdAt: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: ScopeAssignment[];
 }
+/** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
+const FIXTURE_STRUCTURE = {
+  businesses: [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'Гостиница Luxx',
+      vertical: 'HOSPITALITY',
+      locations: [
+        { id: '21111111-1111-4111-8111-111111111111', name: 'Главный филиал' },
+        { id: '22222222-2222-4222-8222-222222222222', name: 'Филиал Алматы' },
+      ],
+    },
+    {
+      id: '33333333-3333-4333-8333-333333333333',
+      name: 'Салон красоты',
+      vertical: 'BEAUTY',
+      locations: [{ id: '44444444-4444-4444-8444-444444444444', name: 'Салон на Абая' }],
+    },
+  ],
+};
+const uiScopes = new Map<string, ScopeAssignment[]>();
 let uiTeam: FixtureMember[] = [];
 /** Свои телефон и должность вошедшего: его строку собирает teamView, а не uiTeam */
 let uiMyDetails: { phone: string | null; position: string | null } = { phone: null, position: null };
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiMyDetails = { phone: null, position: null };
+  uiScopes.clear();
   uiTeam = [
     {
       userId: 'ui-manager',
@@ -2164,6 +2211,10 @@ function teamView(me: UiUser) {
       const you = m.userId === me.id;
       return {
         ...m,
+        suspended: m.suspended === true,
+        suspendable: !you && canRemoveMember(uiRole, m.role),
+        scopes: uiScopes.get(m.userId) ?? [],
+        scopesEditable: !you && canRemoveMember(uiRole, m.role),
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
@@ -3047,6 +3098,11 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
+      // номера и места по единицам продажи (ADR-156): как считает API
+      capacity: {
+        rooms: units.filter((u) => u.kind === 'ROOM').length,
+        beds: units.filter((u) => u.kind === 'BED').length,
+      },
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
@@ -4510,7 +4566,7 @@ function marketRoute(
   }
 }
 
-/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+/** Фото категорий (DATA_MODEL §31): код категории → порядок id картинок библиотеки */
 const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
@@ -4736,6 +4792,8 @@ createServer(async (req, res) => {
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      hotelMedia = [];
+      mediaStorageOff = false;
       serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
@@ -4804,6 +4862,7 @@ createServer(async (req, res) => {
       channelCatalog =
         body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
+      if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
       // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
@@ -5218,6 +5277,10 @@ createServer(async (req, res) => {
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const view = (i: FixtureInvite) => ({
         ...i,
+        firstName: i.firstName ?? null,
+        lastName: i.lastName ?? null,
+        position: i.position ?? null,
+        scopes: i.scopes ?? [],
         acceptedAt: null,
         revocable: canInvite(uiRole, i.role),
       });
@@ -5236,12 +5299,33 @@ createServer(async (req, res) => {
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
         if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
+        // область и данные приглашения (DATA_MODEL §31.3): те же функции домена, что у API
+        const parsedScopes = parseScopeAssignments(body['scopes']);
+        if (!parsedScopes.ok) return send(400, { message: parsedScopes.message });
+        if (parsedScopes.assignments.length > 0) {
+          const check = validateAssignments({
+            actor: uiRole,
+            assignments: parsedScopes.assignments,
+            known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+              businessId: b.id,
+              locationIds: b.locations.map((l) => l.id),
+            })),
+          });
+          if (!check.ok) return send(400, { message: check.reason });
+        }
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
-          role,
+          role:
+            parsedScopes.assignments.length > 0
+              ? (membershipRoleFor(parsedScopes.assignments, role) as InviteRole)
+              : role,
           expiresAt: invitePreview.expiresAt,
           createdAt: new Date().toISOString(),
+          firstName: typeof body['firstName'] === 'string' ? body['firstName'] : null,
+          lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
+          position: null,
+          scopes: parsedScopes.assignments,
         };
         uiInvites.unshift(invite);
         return send(201, view(invite));
@@ -5278,6 +5362,61 @@ createServer(async (req, res) => {
       if (target.you) uiMyDetails = next;
       else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
       return send(200, { userId: target.userId, ...next });
+    }
+    // Бизнесы и филиалы для области доступа и замена назначений (DATA_MODEL §31.1)
+    if (path === '/auth/access-structure' && req.method === 'GET') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      return send(200, FIXTURE_STRUCTURE);
+    }
+    const scopesMatch = /^\/auth\/members\/([^/]+)\/scopes$/.exec(path);
+    if (scopesMatch && req.method === 'PUT') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const parsed = parseScopeAssignments(body['scopes']);
+      if (!parsed.ok) return send(400, { message: parsed.message });
+      const target = teamView(who).find((m) => m.userId === scopesMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      if (parsed.assignments.length > 0) {
+        const check = validateAssignments({
+          actor: uiRole,
+          assignments: parsed.assignments,
+          known: FIXTURE_STRUCTURE.businesses.map((b) => ({
+            businessId: b.id,
+            locationIds: b.locations.map((l) => l.id),
+          })),
+        });
+        if (!check.ok) return send(400, { message: check.reason });
+        uiScopes.set(target.userId, parsed.assignments);
+        const next = membershipRoleFor(parsed.assignments, target.role) as InviteRole;
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role: next } : m));
+      } else uiScopes.delete(target.userId);
+      return send(200, { userId: target.userId, scopes: parsed.assignments });
+    }
+    // Приостановка и возобновление доступа (DATA_MODEL §31.2): круг тот же, что у отключения
+    const suspendMatch = /^\/auth\/members\/([^/]+)\/(suspend|resume)$/.exec(path);
+    if (suspendMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const target = teamView(who).find((m) => m.userId === suspendMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      const suspended = suspendMatch[2] === 'suspend';
+      uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, suspended } : m));
+      return send(200, { ok: true });
     }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
@@ -6849,12 +6988,64 @@ createServer(async (req, res) => {
       if (v.active !== undefined) row.active = v.active;
       return send(200, row);
     }
+    if (path === '/hotel/media' && req.method === 'GET') {
+      const view = (m: FixtureMedia, position: number) => ({
+        id: m.id,
+        kind: m.kind,
+        position,
+        fileName: m.fileName,
+        byteSize: m.byteSize,
+        width: m.kind === 'PHOTO' ? 160 : null,
+        height: m.kind === 'PHOTO' ? 120 : null,
+        alt: null,
+        url: m.kind === 'PHOTO' ? PHOTO_PLACEHOLDER : 'https://files.example.invalid/contract.pdf',
+      });
+      const contract = hotelMedia.find((m) => m.kind === 'CONTRACT');
+      return send(200, {
+        storage: mediaStorageOff ? 'OFF' : 'READY',
+        limits: { maxBytes: 10 * 1024 * 1024, maxPhotos: 20 },
+        photos: hotelMedia.filter((m) => m.kind === 'PHOTO').map(view),
+        contract: contract && can(uiRole, 'settings') ? view(contract, 0) : null,
+      });
+    }
+    if (path.startsWith('/hotel/media/')) {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      if (mediaStorageOff)
+        return send(503, { message: 'Хранилище файлов не включено. Обратитесь в поддержку WETOP.' });
+      if (req.method === 'POST' && (path === '/hotel/media/photos' || path === '/hotel/media/contract')) {
+        const kind = path.endsWith('contract') ? 'CONTRACT' : 'PHOTO';
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? null;
+        if (kind === 'CONTRACT' && !text.includes('%PDF-'))
+          return send(415, { message: 'Договор принимается только в формате PDF' });
+        if (kind === 'PHOTO' && hotelMedia.filter((m) => m.kind === 'PHOTO').length >= 20)
+          return send(400, { message: 'Не больше 20 фото на объект. Удалите лишние.' });
+        if (kind === 'CONTRACT') hotelMedia = hotelMedia.filter((m) => m.kind !== 'CONTRACT');
+        hotelMedia.push({
+          id: `00000000-0000-4000-8000-${String(++mediaSeq).padStart(12, '0')}`,
+          kind,
+          fileName: name ? Buffer.from(name, 'latin1').toString('utf8') : null,
+          byteSize: raw.length,
+        });
+        return send(201, {});
+      }
+      if (req.method === 'DELETE') {
+        const id = path.split('/')[4] ?? '';
+        const before = hotelMedia.length;
+        hotelMedia = hotelMedia.filter((m) =>
+          path.endsWith('/contract') ? m.kind !== 'CONTRACT' : m.id !== id,
+        );
+        return hotelMedia.length === before
+          ? send(404, { message: 'Файл не найден' })
+          : send(200, { deleted: true });
+      }
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
-      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, unknown>) };
       return send(200, {});
     }
     if (path === '/hotel/onboarding' && req.method === 'POST') {

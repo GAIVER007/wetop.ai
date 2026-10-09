@@ -70,6 +70,17 @@ describe('меню по ролям', () => {
     expect(hrefs(access('STAFF', true))).toContain('/platform');
   });
 
+  it('«Организации» главного администратора лежат в «Настройках», отдельной вкладки «Платформа» нет', () => {
+    const sections = menuSectionsFor(access('OWNER', true));
+    expect(sections.map((s) => s.id)).not.toContain('platform');
+    const settings = sections.find((s) => s.id === 'settings');
+    expect(settings?.items.map((i) => i.href)).toContain('/platform');
+    expect(settings?.items.find((i) => i.href === '/platform')?.label).toBe('Организации');
+    // без отметки пункта нет нигде, у любой роли
+    for (const role of ['OWNER', 'MANAGER', 'STAFF'] as const)
+      expect(hrefs(access(role))).not.toContain('/platform');
+  });
+
   it('никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется', () => {
     expect(hrefs(CLOSED_ACCESS)).toEqual(everything.filter((h) => !h.startsWith('/platform')));
   });

@@ -1,4 +1,3 @@
-import { BranchWorkspace } from '../branches/workspace';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { Page } from '../../components/page';
@@ -16,7 +15,7 @@ import {
   Table,
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { ApiError, platformApi, type PlatformOrganization } from '../../lib/api';
+import { ApiError, branchesApi, platformApi, type PlatformOrganization } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
 import {
   extensionFormDefaults,
@@ -25,15 +24,17 @@ import {
   organizationStatusLine,
 } from '../../lib/platform';
 import { ExtensionForm, StatusForm } from './forms';
+import { OwnOrganization } from './own-organization';
 import { SiteBuilderLicense } from './site-builder';
 import { DataConnectionPanel } from './data-connection';
 import { hotelApi } from '../../lib/hotel-api';
 import { unstable_rethrow } from 'next/navigation';
 
 /**
- * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
- * администратору — остальным API отвечает 403, и страница так и говорит. Брони, гости, счета и переписка чужих
- * гостиниц здесь не видны: в ответе API их нет по построению.
+ * «Настройки → Организации» (DATA_MODEL §16, ADR-083): своя организация с филиалами и их показателями, ниже все
+ * организации платформы с подпиской и расширением «ИИ-продавец». Только главному администратору: остальным API
+ * отвечает 403, и страница так и говорит. Брони, гости, счета и переписка чужих гостиниц здесь не видны: в ответе API
+ * их нет по построению.
  */
 export default async function PlatformPage({
   searchParams,
@@ -47,13 +48,23 @@ export default async function PlatformPage({
       className="branches-page"
       width="full"
       title="Организации"
-      subtitle="Ваши объекты и филиалы: добавление, управление и общая статистика."
+      subtitle="Ваша организация с филиалами и показателями, а ниже все организации платформы."
       actions={<RefreshButton />}
     >
       <Suspense fallback={<LoadingState label="Загружаем организации…" />}>
         <Organizations selected={selected} query={query} />
       </Suspense>
     </Page>
+  );
+}
+
+async function settle<T>(promise: Promise<T>) {
+  return promise.then(
+    (value) => ({ ok: true as const, value }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
 }
 
@@ -64,15 +75,12 @@ async function Organizations({
   selected: string;
   query: Record<string, string | string[] | undefined>;
 }) {
-  const loaded = await platformApi.organizations().then(
-    (value) => ({ ok: true as const, value }),
-    (error: unknown) => {
-      unstable_rethrow(error);
-      return { ok: false as const, error };
-    },
-  );
-  if (!loaded.ok) {
-    if (loaded.error instanceof ApiError && loaded.error.status === 403)
+  const [organizations, branches] = await Promise.all([
+    settle(platformApi.organizations()),
+    settle(branchesApi.list()),
+  ]);
+  if (!organizations.ok) {
+    if (organizations.error instanceof ApiError && organizations.error.status === 403)
       return (
         <EmptyState
           icon={<Icon name="shield" width={32} height={32} />}
@@ -83,22 +91,24 @@ async function Organizations({
           сервере.
         </EmptyState>
       );
-    return <LoadError testId="platform-error" {...loadErrorProps(loaded.error)} />;
+    return <LoadError testId="platform-error" {...loadErrorProps(organizations.error)} />;
   }
-  const items = loaded.value.items;
+  const items = organizations.value.items;
   const card = items.find((o) => o.id === selected);
+  const ownId = branches.ok ? branches.value.organization.id : '';
   return (
     <Stack>
-      <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
-        <BranchWorkspace query={query} createLabel="Добавить объект / филиал" />
-      </Suspense>
-      <details open={Boolean(card)} className="panel">
-        <summary>Подписки и администрирование</summary>
-        <p className="muted">
-          Доступ организаций платформы и расширения. Выбор организации здесь не переключает рабочий
-          филиал.
-        </p>
-        {card && <OrganizationCard organization={card} />}
+      {branches.ok ? (
+        <Suspense fallback={<LoadingState label="Считаем показатели филиалов…" />}>
+          <OwnOrganization data={branches.value} query={query} selected={selected} />
+        </Suspense>
+      ) : (
+        <LoadError testId="branches-load-error" {...loadErrorProps(branches.error)} />
+      )}
+      <Panel aria-labelledby="all-organizations-title">
+        <SectionTitle first id="all-organizations-title">
+          Все организации платформы
+        </SectionTitle>
         {items.length === 0 ? (
           <EmptyState
             icon={<Icon name="inventory" width={32} height={32} />}
@@ -124,9 +134,15 @@ async function Organizations({
                 return (
                   <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
                     <td>
-                      <Link href={`/platform?org=${o.id}`} prefetch={false}>
+                      <Link href={`/platform?org=${o.id}#organization`} prefetch={false}>
                         {o.name}
                       </Link>
+                      {o.id === ownId && (
+                        <>
+                          {' '}
+                          <Badge tone="info">Ваша</Badge>
+                        </>
+                      )}
                       <span className="sub">, с {organizationSince(o.createdAt)}</span>
                     </td>
                     <td>
@@ -144,7 +160,8 @@ async function Organizations({
             </tbody>
           </Table>
         )}
-      </details>
+        {card && <OrganizationCard organization={card} />}
+      </Panel>
       <details className="panel">
         <summary>Состояние системы</summary>
         <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
@@ -173,7 +190,7 @@ async function SystemState() {
 function OrganizationCard({ organization: o }: { organization: PlatformOrganization }) {
   const seller = extensionLine(o.aiSeller);
   return (
-    <Panel data-testid="platform-organization">
+    <Panel id="organization" data-testid="platform-organization">
       <SectionTitle first>{o.name}</SectionTitle>
       <Grid min={180}>
         <Fact label="Состояние" value={organizationStatusLine(o).label} />

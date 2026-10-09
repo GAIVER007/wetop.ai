@@ -1,0 +1,67 @@
+@layer sections {
+  /* «Организации» главного администратора (09.10.2026): своя организация с филиалами и показателями,
+     ниже все организации платформы. Отступы и размеры только из токенов. */
+  .org-own {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .org-own__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .org-own__title {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+  .org-own .stats {
+    margin: 0;
+  }
+  .org-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+  /* `.branches-page summary` обнуляет боковой отступ: кнопке из summary возвращаем отступ `.btn` */
+  .branches-page .org-add > summary {
+    display: inline-flex;
+    list-style: none;
+    padding: 0 var(--space-4);
+  }
+  .org-add > summary::-webkit-details-marker {
+    display: none;
+  }
+  .org-branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: var(--space-4);
+  }
+  .org-branch__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .org-branch__name {
+    overflow-wrap: anywhere;
+  }
+  .org-branch__stats {
+    margin-top: var(--space-2);
+  }
+  .org-branch__action {
+    margin-top: var(--space-2);
+  }
+  .org-note {
+    color: var(--muted);
+  }
+  @media (max-width: 600px) {
+    .org-period label {
+      flex: 1 1 130px;
+    }
+  }
+}

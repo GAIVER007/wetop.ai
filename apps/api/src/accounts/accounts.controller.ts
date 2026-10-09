@@ -15,6 +15,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -36,7 +37,9 @@ import {
   MEMBER_SELF_MESSAGE,
   SESSION_ENDED_MESSAGE,
   type MembershipRole,
+  type ScopeAssignment,
 } from '@pms/domain';
+import type { OrganizationStructure } from './accounts.repository';
 import {
   AccountsService,
   type InvitePreview,
@@ -125,7 +128,7 @@ export class AccountsController {
   @Post('invites')
   @HttpCode(201)
   async createInvite(
-    @Body() body: { email?: unknown; role?: unknown },
+    @Body() body: { email?: unknown; role?: unknown } & Record<string, unknown>,
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<InviteJson> {
@@ -133,6 +136,7 @@ export class AccountsController {
       tokenFrom(cookie, authorization),
       body?.email,
       body?.role,
+      body,
     );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-107)
@@ -140,6 +144,7 @@ export class AccountsController {
       throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     if (!outcome.ok && outcome.reason === 'manager-role')
       throw new ForbiddenException(INVITE_MANAGER_OWNER_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'invalid') throw new BadRequestException(outcome.message);
     if (!outcome.ok && outcome.reason === 'role')
       throw new BadRequestException(INVITE_ROLE_MESSAGE);
     if (!outcome.ok && outcome.reason === 'limit')
@@ -212,6 +217,39 @@ export class AccountsController {
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (outcome !== 'ok') throw memberRefusal(outcome);
     return { ok: true };
+  }
+
+  /** Бизнесы и филиалы организации: из чего выбирают область доступа сотрудника (DATA_MODEL §30.1) */
+  @Access('staff')
+  @Get('access-structure')
+  async accessStructure(
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<OrganizationStructure> {
+    const out = await this.accounts.accessStructure(tokenFrom(cookie, authorization));
+    if (!out) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (out === 'staff') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    return out;
+  }
+
+  /** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §30.1) */
+  @Access('staff')
+  @Put('members/:userId/scopes')
+  async setMemberScopes(
+    @Param('userId') userId: string,
+    @Body() body: { scopes?: unknown },
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ userId: string; scopes: ScopeAssignment[] }> {
+    const out = await this.accounts.setMemberScopes(
+      tokenFrom(cookie, authorization),
+      userId,
+      body?.scopes,
+    );
+    if (!out) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (!out.ok)
+      throw 'message' in out ? new BadRequestException(out.message) : memberRefusal(out.reason);
+    return { userId, scopes: out.scopes };
   }
 
   /** Приостановить доступ без удаления (DATA_MODEL §30.2): человек не входит, сессии гаснут сразу */
@@ -342,6 +380,10 @@ interface InviteJson {
   createdAt: string;
   role: MembershipRole;
   revocable: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  position: string | null;
+  scopes: ScopeAssignment[];
 }
 
 interface MemberJson {
@@ -359,6 +401,8 @@ interface MemberJson {
   detailsEditable: boolean;
   suspended: boolean;
   suspendable: boolean;
+  scopes: ScopeAssignment[];
+  scopesEditable: boolean;
 }
 
 function memberJson(m: MemberView): MemberJson {
@@ -377,6 +421,8 @@ function memberJson(m: MemberView): MemberJson {
     detailsEditable: m.detailsEditable,
     suspended: m.suspended,
     suspendable: m.suspendable,
+    scopes: m.scopes,
+    scopesEditable: m.scopesEditable,
   };
 }
 
@@ -419,6 +465,10 @@ function inviteJson(i: InviteView): InviteJson {
     createdAt: i.createdAt.toISOString(),
     role: i.role,
     revocable: i.revocable,
+    firstName: i.firstName,
+    lastName: i.lastName,
+    position: i.position,
+    scopes: i.scopes,
   };
 }
 

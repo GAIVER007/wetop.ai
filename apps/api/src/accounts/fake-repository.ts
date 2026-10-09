@@ -3,13 +3,14 @@
  * Ведёт себя как настоящее в том, что важно проверкам: считает коды за час, помнит попытки,
  * гасит использованный код, отзывает сессии.
  */
-import type { MembershipRole } from '@pms/domain';
+import { membershipRoleFor, type MembershipRole, type ScopeAssignment } from '@pms/domain';
 import type {
   AccountRecord,
   AccountsRepository,
   InviteRecord,
   MemberRecord,
   MemberWrite,
+  OrganizationStructure,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -152,6 +153,11 @@ export class FakeAccountsRepository implements AccountsRepository {
     expiresAt: Date;
     createdBy: string;
     role: MembershipRole;
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+    position?: string | null;
+    scopes?: ScopeAssignment[];
   }): Promise<InviteRecord> {
     this.seq += 1;
     const org = this.accounts.find((a) => a.organizationId === input.organizationId);
@@ -166,6 +172,11 @@ export class FakeAccountsRepository implements AccountsRepository {
       createdBy: input.createdBy,
       createdAt: new Date(),
       role: input.role,
+      firstName: input.firstName ?? null,
+      lastName: input.lastName ?? null,
+      phone: input.phone ?? null,
+      position: input.position ?? null,
+      scopes: input.scopes ?? [],
     };
     this.invites.push(stored);
     return toInviteRecord(stored);
@@ -196,11 +207,15 @@ export class FakeAccountsRepository implements AccountsRepository {
     );
     if (!invite) return null;
     invite.acceptedAt = input.now;
-    await this.joinOrganization({
+    const joined = await this.joinOrganization({
       email: invite.email,
       organizationId: invite.organizationId,
       role: invite.role,
     });
+    if (invite.scopes.length > 0) {
+      this.scopes.set(joined.userId, invite.scopes);
+      this.roleOverride.set(joined.userId, membershipRoleFor(invite.scopes, invite.role));
+    }
     const passwordTokenIssued = await this.issuePasswordSetToken({
       email: invite.email,
       tokenHash: input.passwordTokenHash,
@@ -298,6 +313,7 @@ export class FakeAccountsRepository implements AccountsRepository {
         phone: this.details.get(a.userId)?.phone ?? null,
         position: this.details.get(a.userId)?.position ?? null,
         suspended: this.suspended.has(a.userId),
+        scopes: this.scopes.get(a.userId) ?? [],
       }));
   }
 
@@ -354,6 +370,54 @@ export class FakeAccountsRepository implements AccountsRepository {
     const [gone] = this.accounts.splice(at, 1);
     this.gone.set(input.userId, gone!);
     this.removed.push({ organizationId: input.organizationId, userId: input.userId, by: input.by });
+    return { outcome: 'done', role };
+  }
+
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §30.1) и структура организации для тестов */
+  readonly scopes = new Map<string, ScopeAssignment[]>();
+  readonly scopeWrites: Array<{ userId: string; assignments: ScopeAssignment[]; by: string }> = [];
+  structure: OrganizationStructure = {
+    businesses: [
+      {
+        id: '11111111-1111-4111-8111-111111111111',
+        name: 'Гостиница',
+        vertical: 'HOSPITALITY',
+        locations: [
+          { id: '21111111-1111-4111-8111-111111111111', name: 'Филиал 1' },
+          { id: '22222222-2222-4222-8222-222222222222', name: 'Филиал 2' },
+        ],
+      },
+      {
+        id: '33333333-3333-4333-8333-333333333333',
+        name: 'Салон',
+        vertical: 'BEAUTY',
+        locations: [{ id: '44444444-4444-4444-8444-444444444444', name: 'Салон 1' }],
+      },
+    ],
+  };
+
+  async organizationStructure(): Promise<OrganizationStructure> {
+    return this.structure;
+  }
+
+  async replaceMemberScopes(input: {
+    organizationId: string;
+    userId: string;
+    assignments: ScopeAssignment[];
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    const a = this.accounts.find(
+      (x) => x.userId === input.userId && x.organizationId === input.organizationId,
+    );
+    if (!a) return { outcome: 'missing', role: null };
+    const role = this.roleOverride.get(input.userId) ?? a.role;
+    if (!input.roles.includes(role)) return { outcome: 'role', role };
+    if (input.assignments.length > 0) {
+      this.scopes.set(input.userId, input.assignments);
+      this.roleOverride.set(input.userId, membershipRoleFor(input.assignments, role));
+    } else this.scopes.delete(input.userId);
+    this.scopeWrites.push({ userId: input.userId, assignments: input.assignments, by: input.by });
     return { outcome: 'done', role };
   }
 
@@ -445,5 +509,10 @@ function toInviteRecord(i: StoredInvite): InviteRecord {
     acceptedAt: i.acceptedAt,
     createdAt: i.createdAt,
     role: i.role,
+    firstName: i.firstName,
+    lastName: i.lastName,
+    phone: i.phone,
+    position: i.position,
+    scopes: i.scopes,
   };
 }

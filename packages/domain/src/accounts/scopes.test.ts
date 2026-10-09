@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   isUnrestricted,
+  parseScopeAssignments,
   membershipRoleFor,
   roleAt,
   validateAssignments,
@@ -117,5 +118,40 @@ describe('validateAssignments', () => {
         { role: 'STAFF', businessId: B1, locationId: L1 },
       ]).ok,
     ).toBe(false);
+  });
+});
+
+describe('parseScopeAssignments', () => {
+  const B = '11111111-1111-4111-8111-111111111111';
+  const L = '22222222-2222-4222-8222-222222222222';
+  it('не передано или пусто: вся организация', () => {
+    expect(parseScopeAssignments(undefined)).toEqual({ ok: true, assignments: [] });
+    expect(parseScopeAssignments(null)).toEqual({ ok: true, assignments: [] });
+    expect(parseScopeAssignments([])).toEqual({ ok: true, assignments: [] });
+  });
+  it('разбирает бизнес целиком и филиал, роль в любом регистре', () => {
+    expect(
+      parseScopeAssignments([
+        { role: 'manager', businessId: B },
+        { role: 'STAFF', businessId: B, locationId: L },
+      ]),
+    ).toEqual({
+      ok: true,
+      assignments: [
+        { role: 'MANAGER', businessId: B, locationId: null },
+        { role: 'STAFF', businessId: B, locationId: L },
+      ],
+    });
+  });
+  it('владелец, не uuid, не список и слишком длинный список отклоняются', () => {
+    for (const bad of [
+      [{ role: 'OWNER', businessId: B }],
+      [{ role: 'STAFF', businessId: 'x' }],
+      [{ role: 'STAFF', businessId: B, locationId: 5 }],
+      'staff',
+      [null],
+      Array.from({ length: 51 }, () => ({ role: 'STAFF', businessId: B })),
+    ])
+      expect(parseScopeAssignments(bad).ok).toBe(false);
   });
 });

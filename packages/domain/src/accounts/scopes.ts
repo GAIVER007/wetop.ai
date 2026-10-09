@@ -105,3 +105,34 @@ export function validateAssignments(input: {
   }
   return { ok: true };
 }
+
+export const SCOPES_MESSAGE =
+  'Назначения: список из роли (управляющий или администратор), бизнеса и, если нужно, филиала.';
+export const SCOPES_MAX = 50;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Разбор назначений из тела запроса. Пусто или не передано: вся организация. Роль только `manager` или `staff`
+ * (владельцу область не назначают), бизнес и филиал это uuid; `locationId` не указан или null: бизнес целиком.
+ */
+export function parseScopeAssignments(
+  raw: unknown,
+): { ok: true; assignments: ScopeAssignment[] } | { ok: false; message: string } {
+  if (raw === undefined || raw === null) return { ok: true, assignments: [] };
+  if (!Array.isArray(raw) || raw.length > SCOPES_MAX) return { ok: false, message: SCOPES_MESSAGE };
+  const assignments: ScopeAssignment[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') return { ok: false, message: SCOPES_MESSAGE };
+    const o = item as Record<string, unknown>;
+    const role = typeof o.role === 'string' ? o.role.trim().toUpperCase() : '';
+    const businessId = o.businessId;
+    const locationId = o.locationId ?? null;
+    if (role !== 'MANAGER' && role !== 'STAFF') return { ok: false, message: SCOPES_MESSAGE };
+    if (typeof businessId !== 'string' || !UUID_RE.test(businessId))
+      return { ok: false, message: SCOPES_MESSAGE };
+    if (locationId !== null && (typeof locationId !== 'string' || !UUID_RE.test(locationId)))
+      return { ok: false, message: SCOPES_MESSAGE };
+    assignments.push({ role, businessId, locationId });
+  }
+  return { ok: true, assignments };
+}

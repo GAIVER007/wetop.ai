@@ -276,6 +276,27 @@ describe('AuthService.whoami', () => {
     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
   });
 
+  it('сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §30.2)', async () => {
+    const { auth, memberships } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+    memberships[0]!.status = 'ACTIVE';
+    await expect(auth.whoami(token, NOW)).resolves.not.toBeNull();
+  });
+
+  it('вход приостановленного закрыт с причиной словами, а не общим «неверный пароль»', async () => {
+    const { auth, memberships } = service();
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Доступ приостановлен');
+    memberships[0]!.status = 'ACTIVE';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).resolves.toHaveProperty('token');
+  });
+
   it('сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4)', async () => {
     const { auth, organizations } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);

@@ -116,6 +116,10 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 }
 
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
+/** Вход закрыт приостановкой доступа (DATA_MODEL §30.2): человек в команде, но его не пускают, пока владелец не вернёт доступ */
+export const ACCESS_SUSPENDED_MESSAGE =
+  'Доступ приостановлен. Обратитесь к владельцу или управляющему организации.';
+
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
 /** Проверки и хеши паролей всего процесса — через одну очередь (аудит 26.09, С-5). */
@@ -233,7 +237,7 @@ export class AuthService {
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },
-          include: { memberships: { orderBy: { createdAt: 'asc' }, take: 1 } },
+          include: { memberships: { orderBy: { createdAt: 'asc' } } },
         })
       : null;
 
@@ -274,7 +278,10 @@ export class AuthService {
     if (user.emailVerifiedAt === null) throw new ForbiddenException(VERIFY_PENDING_MESSAGE);
 
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
-    const organizationId = user.memberships[0]?.organizationId;
+    // приостановленный член в организацию не входит (DATA_MODEL §30.2): пароль он назвал верно, поэтому говорим причину
+    const active = user.memberships.find((m) => m.status === 'ACTIVE');
+    if (!active && user.memberships.length > 0) throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
+    const organizationId = active?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);
 
@@ -579,9 +586,10 @@ export class AuthService {
           organizationId: found.row.organizationId,
         },
       },
-      select: { role: true },
+      select: { role: true, status: true },
     });
-    if (!membership) return null;
+    // приостановленный, как отключённый: сессия не действует (DATA_MODEL §30.2)
+    if (!membership || membership.status !== 'ACTIVE') return null;
     return { session: found.row, user: found.row.user };
   }
 

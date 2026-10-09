@@ -4,6 +4,8 @@ import {
   buildMarketBoard,
   buildNightHistory,
   competitorPlatform,
+  estimateNightOccupancy,
+  platformNightUrl,
   demandLevel,
   formatOccupancy,
   marketDates,
@@ -287,5 +289,41 @@ describe('competitorPlatform', () => {
     expect(competitorPlatform('https://altyn-hotel.kz/')).toBeNull();
     expect(competitorPlatform(null)).toBeNull();
     expect(competitorPlatform('не адрес')).toBeNull();
+  });
+});
+
+describe('estimateNightOccupancy', () => {
+  it('оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно', () => {
+    // распродано: 100 %
+    expect(estimateNightOccupancy({ status: 'sold_out', roomsLeft: null }, 40)).toBe(10000);
+    // свободно 10 из 40: 75 %
+    expect(estimateNightOccupancy({ status: 'available', roomsLeft: 10 }, 40)).toBe(7500);
+    // площадка показала больше, чем номеров у соседа: не меньше нуля
+    expect(estimateNightOccupancy({ status: 'available', roomsLeft: 50 }, 40)).toBe(0);
+    // продаётся, но сколько осталось, не видно: не выдумываем
+    expect(estimateNightOccupancy({ status: 'available', roomsLeft: null }, 40)).toBeNull();
+    // без числа номеров процент не посчитать
+    expect(estimateNightOccupancy({ status: 'available', roomsLeft: 3 }, null)).toBeNull();
+    // страница закрыта проверкой или не разобрана
+    expect(estimateNightOccupancy({ status: 'blocked', roomsLeft: null }, 40)).toBeNull();
+    expect(estimateNightOccupancy({ status: 'unknown', roomsLeft: null }, 40)).toBeNull();
+  });
+});
+
+describe('platformNightUrl', () => {
+  it('адрес страницы соседа на одну ночь: даты заезда и выезда, двое взрослых', () => {
+    const b = new URL(platformNightUrl('https://www.booking.com/hotel/kz/altyn.ru.html?aid=1', '2026-10-31')!);
+    expect(b.hostname).toBe('www.booking.com');
+    expect(b.searchParams.get('checkin')).toBe('2026-10-31');
+    expect(b.searchParams.get('checkout')).toBe('2026-11-01');
+    expect(b.searchParams.get('group_adults')).toBe('2');
+    expect(b.searchParams.get('no_rooms')).toBe('1');
+    expect(b.searchParams.get('aid')).toBe('1');
+    const t = new URL(platformNightUrl('https://kz.trip.com/hotels/almaty-hotel-detail-1/', '2026-12-31')!);
+    expect(t.searchParams.get('checkIn')).toBe('2026-12-31');
+    expect(t.searchParams.get('checkOut')).toBe('2027-01-01');
+    // площадка, которую сборщик пока не читает, и не площадка вовсе
+    expect(platformNightUrl('https://ostrovok.ru/hotel/x/', '2026-10-31')).toBeNull();
+    expect(platformNightUrl('https://altyn-hotel.kz/', '2026-10-31')).toBeNull();
   });
 });

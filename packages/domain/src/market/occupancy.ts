@@ -415,3 +415,49 @@ export function competitorPlatform(url: string | null | undefined): string | nul
   }
   return PLATFORMS.find(([re]) => re.test(host))?.[1] ?? null;
 }
+
+/**
+ * Что ИИ-сборщик увидел на странице соседа на одну ночь (ADR-142, дополнение 09.10.2026): распродано, продаётся и
+ * сколько номеров можно забронировать, страница закрыта проверкой площадки или не разобрана.
+ */
+export interface NightObservation {
+  status: 'sold_out' | 'available' | 'blocked' | 'unknown';
+  /** сколько номеров можно забронировать на эту ночь, сумма по типам; null, если не видно */
+  roomsLeft: number | null;
+}
+
+/**
+ * Оценка загрузки ночи в базисных пунктах: распродано, 100 %; иначе доля занятых из числа номеров соседа. Площадка
+ * процент не показывает, видно только, что ещё продаётся, поэтому это оценка, а не точное число; где посчитать нечем,
+ * null: сборщик такую ночь не пишет, а не выдумывает.
+ * ponytail: площадка часто ограничивает выбор (например, до 10 номеров одного типа), и при большом остатке оценка
+ * загрузки выходит выше настоящей; уточнять, когда появятся данные для сверки с ручным вводом.
+ */
+export function estimateNightOccupancy(o: NightObservation, unitsTotal: number | null): number | null {
+  if (o.status === 'sold_out') return 10000;
+  if (o.status !== 'available' || o.roomsLeft === null || !unitsTotal) return null;
+  const free = Math.min(Math.max(o.roomsLeft, 0), unitsTotal);
+  return Math.round(((unitsTotal - free) / unitsTotal) * 10000);
+}
+
+/** Адрес страницы соседа на одну ночь для двух взрослых; площадку, которую сборщик не читает, не трогаем (null) */
+export function platformNightUrl(url: string, night: string): string | null {
+  const platform = competitorPlatform(url);
+  const out = new URL(url);
+  const next = plusDays(night, 1);
+  if (platform === 'Booking.com') {
+    out.searchParams.set('checkin', night);
+    out.searchParams.set('checkout', next);
+    out.searchParams.set('group_adults', '2');
+    out.searchParams.set('group_children', '0');
+    out.searchParams.set('no_rooms', '1');
+    return out.toString();
+  }
+  if (platform === 'Trip.com') {
+    out.searchParams.set('checkIn', night);
+    out.searchParams.set('checkOut', next);
+    out.searchParams.set('adult', '2');
+    return out.toString();
+  }
+  return null;
+}

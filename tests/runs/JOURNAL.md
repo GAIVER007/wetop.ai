@@ -7642,3 +7642,4 @@
 | 09.10.2026 01:06 | typecheck | ✅ без ошибок | 1 мин 31 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-06-33Z-typecheck-778b.log) |  |
 | 09.10.2026 01:08 | lint | ✅ без ошибок | 58 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-08-15Z-lint-40dc.log) |  |
 | 09.10.2026 01:09 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/reservations-compact.spec.ts tests/ui/r | ❌ упало 2 из 100 | 11 мин 57 с | e6dbd02 +6 | [лог](logs/2026-10-08T20-09-36Z-e2e-336e.log) | axe и эталонные снимки секций: light |
+| 09.10.2026 12:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts tests/ui/beauty-catalog.spec.ts tests/ui/beauty-schedule.spec.t | ✅ 31 из 31 | 4 мин 37 с | 9b24111 | [лог](logs/2026-10-09T07-34-14Z-e2e-42d2.log) | срез Beauty на main 9b241114 после DS0a-DS1c: экраны салона целы |

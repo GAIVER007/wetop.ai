@@ -11,6 +11,7 @@ import {
   buildDashboard,
   buildUnitStats,
   buildChannelEfficiency,
+  buildCashFlow,
   type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
@@ -4074,6 +4075,31 @@ function read(path: string, q: URLSearchParams): unknown {
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: picked.slice(0, limit),
       truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/cashflow') {
+    // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const feed = read('/finance/operations', new URLSearchParams({ from, to, limit: '20000' })) as {
+      truncated: boolean;
+      rows: Array<{
+        kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        localAt: string;
+        method: string;
+        amountMinor: string;
+        status: 'COMPLETED' | 'VOIDED';
+        category: string | null;
+      }>;
+    };
+    return {
+      currency: 'KZT',
+      ...buildCashFlow(
+        feed.rows.map((r) => ({ ...r, amountMinor: BigInt(r.amountMinor) })),
+        from,
+        to,
+      ),
+      truncated: feed.truncated,
     };
   }
   if (path === '/finance/cash') {

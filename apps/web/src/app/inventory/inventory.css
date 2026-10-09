@@ -682,6 +682,16 @@
       max-width: none;
       flex-basis: 45%;
     }
+    /* цели касания не ниже 44 px: переключатель вида живёт в `.inventory-filters`, куда правило
+       `.inventory-toolbar .segment-button` не доходит; название категории и флажки выбора мест тоже */
+    .inventory-filters .segment-button,
+    .inv-group-toggle {
+      min-height: 44px;
+    }
+    .inventory-table .inv-check input {
+      width: 44px;
+      height: 44px;
+    }
   }
   /* вкладки-счётчики и переключатель вида, как на снимке */
   .inventory-filters .inventory-kind button {

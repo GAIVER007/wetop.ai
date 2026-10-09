@@ -2,7 +2,7 @@ import type { DashboardPeriod } from '@pms/domain';
 type Row = { branch: { currency: string }; stats: Pick<DashboardPeriod, 'occupancy' | 'arrivals' | 'revenue' | 'payments' | 'refundsMinor'> };
 export function summarizeBranches(rows: readonly Row[]) {
   const occupied = rows.reduce((n, row) => n + row.stats.occupancy.occupiedNights, 0);
-  const capacity = rows.reduce((n, row) => n + row.stats.occupancy.unitNights, 0);
+  const capacity = rows.reduce((n, row) => n + row.stats.occupancy.sellableNights, 0);
   const guests = rows.reduce((n, row) => n + row.stats.arrivals.guests, 0);
   const currencies = new Map<string, { revenue: bigint; paid: bigint; refunded: bigint }>();
   for (const { branch, stats } of rows) {

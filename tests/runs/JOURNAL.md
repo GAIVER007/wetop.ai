@@ -7786,39 +7786,6 @@
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
 | 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
-| 09.10.2026 18:08 | unit (частично: packages/domain/src/market/occupancy.test.ts) | ❌ упало 1 из 20 | 1 с | 45455bc +28 | [лог](logs/2026-10-09T13-08-17Z-unit-280c.log) | competitorPlatform площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера |
-| 09.10.2026 18:08 | unit (частично: packages/domain/src/market/occupancy.test.ts) | ✅ 20 из 20 | 1 с | 45455bc +29 | [лог](logs/2026-10-09T13-08-24Z-unit-a365.log) |  |
-| 09.10.2026 18:09 | typecheck | ❌ ошибок: 302 | 14 с | 45455bc +50 | [лог](logs/2026-10-09T13-09-11Z-typecheck-a180.log) | TS2353 |
-| 09.10.2026 18:09 | typecheck | ❌ ошибок: 302 | 10 с | 45455bc +50 | [лог](logs/2026-10-09T13-09-39Z-typecheck-eaca.log) | TS2353 |
-| 09.10.2026 18:10 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts --workers=1 --timeout=120000) | ❌ упало 1 из 7 | 28 с | 45455bc +50 | [лог](logs/2026-10-09T13-10-27Z-e2e-874d.log) | «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса |
-| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000) | ✅ 1 из 1 | 9 с | 45455bc +50 | [лог](logs/2026-10-09T13-11-15Z-e2e-ae65.log) |  |
-| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=3) | ❌ упало 2 из 3 | 13 с | 45455bc +50 | [лог](logs/2026-10-09T13-11-30Z-e2e-f828.log) | «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса |
-| 09.10.2026 18:11 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=4) | ✅ 4 из 4 | 16 с | 45455bc +50 | [лог](logs/2026-10-09T13-11-53Z-e2e-5559.log) |  |
-| 09.10.2026 18:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=4) | ❌ упало 2 из 4 | 17 с | 45455bc +50 | [лог](logs/2026-10-09T13-12-37Z-e2e-1b07.log) | «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса |
-| 09.10.2026 18:13 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=5) | ❌ упало 2 из 5 | 18 с | 45455bc +50 | [лог](logs/2026-10-09T13-13-21Z-e2e-c1cc.log) | «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса |
-| 09.10.2026 18:13 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=5) | ✅ 5 из 5 | 25 с | 45455bc +50 | [лог](logs/2026-10-09T13-13-54Z-e2e-2dec.log) |  |
-| 09.10.2026 18:14 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts --workers=1 --timeout=120000) | ✅ 7 из 7 | 25 с | 45455bc +50 | [лог](logs/2026-10-09T13-14-27Z-e2e-0d0f.log) |  |
-| 09.10.2026 18:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g пункт в «Продажах» --workers=1 --timeout=120000) | ❌ упало 1 из 1 | 22 с | 45455bc +50 | [лог](logs/2026-10-09T13-15-00Z-e2e-c2b4.log) | пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку |
-| 09.10.2026 18:20 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ❌ упало 1 из 2 | 13 с | 45455bc +50 | [лог](logs/2026-10-09T13-20-19Z-e2e-4015.log) | axe замеряет после конца анимаций на странице |
-| 09.10.2026 18:20 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=5) | ❌ упало 5 из 5 | 16 с | 45455bc +50 | [лог](logs/2026-10-09T13-20-37Z-e2e-3c5c.log) | «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса |
-| 09.10.2026 18:21 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ❌ упало 1 из 2 | 11 с | 45455bc +50 | [лог](logs/2026-10-09T13-21-09Z-e2e-8bb0.log) | axe замеряет после конца анимаций на странице |
-| 09.10.2026 18:21 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts -g История ночи --workers=1 --timeout=120000 --repeat-each=5) | ✅ 5 из 5 | 22 с | 45455bc +50 | [лог](logs/2026-10-09T13-21-21Z-e2e-281d.log) |  |
-| 09.10.2026 18:22 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ✅ 2 из 2 | 12 с | 45455bc +50 | [лог](logs/2026-10-09T13-22-02Z-e2e-e3e0.log) |  |
-| 09.10.2026 18:22 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ❌ упало 1 из 2 | 9 с | 45455bc +50 | [лог](logs/2026-10-09T13-22-25Z-e2e-db96.log) | axe замеряет после конца анимаций на странице |
-| 09.10.2026 18:24 | typecheck | ✅ без ошибок | 19 с | 45455bc +50 | [лог](logs/2026-10-09T13-24-36Z-typecheck-0f8a.log) |  |
-| 09.10.2026 18:24 | lint | ❌ ошибок: 4521 | 1 мин 4 с | 45455bc +50 | [лог](logs/2026-10-09T13-24-56Z-lint-b221.log) | eslint |
-| 09.10.2026 18:26 | lint | ✅ без ошибок | 29 с | 45455bc +50 | [лог](logs/2026-10-09T13-26-29Z-lint-e461.log) |  |
-| 09.10.2026 18:27 | unit (частично: packages/domain/src/market/occupancy.test.ts) | ✅ 20 из 20 | 2 с | 45455bc +32 | [лог](logs/2026-10-09T13-27-04Z-unit-c87f.log) |  |
-| 09.10.2026 18:27 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts tests/ui/theme-transition.spec.ts tests/ui/requests.spec.ts -g market\|История\| | ✅ 10 из 10 | 38 с | 45455bc +50 | [лог](logs/2026-10-09T13-27-27Z-e2e-15e8.log) |  |
-| 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/guests-birthdays.spec.ts tests/ui/beauty-schedule.spec.ts tests/ui/analytics-units.spec.ts te | ✅ 28 из 28 | 1 мин 19 с | 45455bc +50 | [лог](logs/2026-10-09T13-28-29Z-e2e-d353.log) |  |
-| 09.10.2026 18:36 | typecheck | ❌ ошибок: 2 | 18 с | 3112eff +9 | [лог](logs/2026-10-09T13-36-54Z-typecheck-0d7f.log) | TS2440 |
-| 09.10.2026 18:37 | lint | ✅ без ошибок | 12 с | 3112eff +10 | [лог](logs/2026-10-09T13-37-12Z-lint-07a3.log) |  |
-| 09.10.2026 18:37 | unit (частично: packages/domain/src/market/occupancy.test.ts) | ✅ 20 из 20 | 1 с | 3112eff +5 | [лог](logs/2026-10-09T13-37-25Z-unit-e139.log) |  |
-| 09.10.2026 18:37 | typecheck | ✅ без ошибок | 15 с | 3112eff +9 | [лог](logs/2026-10-09T13-37-40Z-typecheck-4a5e.log) |  |
-| 09.10.2026 18:38 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts tests/ui/theme-transition.spec.ts tests/ui/requests.spec.ts -g market\|История\| | ✅ 11 из 11 | 30 с | 3112eff +9 | [лог](logs/2026-10-09T13-38-03Z-e2e-adef.log) |  |
-| 09.10.2026 18:38 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/guests-birthdays beauty-schedule analytics-units team finance-cash desk-tasks ds1c-primitives | ✅ 87 из 87 | 3 мин 27 с | 3112eff +9 | [лог](logs/2026-10-09T13-38-46Z-e2e-e259.log) |  |
-| 09.10.2026 18:42 | lint | ✅ без ошибок | 17 с | 3112eff +10 | [лог](logs/2026-10-09T13-42-31Z-lint-81ce.log) |  |
-| 09.10.2026 18:43 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts --workers=1 --timeout=120000) | ✅ 7 из 7 | 23 с | 3112eff +9 | [лог](logs/2026-10-09T13-43-10Z-e2e-4030.log) |  |
 | 09.10.2026 18:45 | typecheck | ✅ без ошибок | 56 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-45-37Z-typecheck-c9af.log) |  |
 | 09.10.2026 18:46 | lint | ✅ без ошибок | 36 с | 5fd5597 +13 | [лог](logs/2026-10-09T13-46-34Z-lint-6011.log) |  |
 | 09.10.2026 18:47 | unit | ✅ 4162 из 4165, пропущено 3 | 2 мин 5 с | 5fd5597 +12 | [лог](logs/2026-10-09T13-47-11Z-unit-1cf1.log) |  |
@@ -7836,8 +7803,6 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
-| 09.10.2026 19:15 | typecheck | ✅ без ошибок | 19 с | 2cbd5d0 | [лог](logs/2026-10-09T14-15-37Z-typecheck-abe8.log) |  |
-| 09.10.2026 19:15 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts tests/ui/theme-transition.spec.ts --workers=1 --timeout=120000) | ✅ 9 из 9 | 29 с | 2cbd5d0 | [лог](logs/2026-10-09T14-15-57Z-e2e-7da1.log) |  |
 | 09.10.2026 19:17 | typecheck | ❌ ошибок: 1 | 1 мин 2 с | f9f53f4 | [лог](logs/2026-10-09T14-17-19Z-typecheck-4447.log) | после слияния main: календарь |
 | 09.10.2026 19:18 | lint | ✅ без ошибок | 44 с | f9f53f4 | [лог](logs/2026-10-09T14-18-22Z-lint-521f.log) | после слияния main: календарь |
 | 09.10.2026 19:19 | typecheck | ✅ без ошибок | 45 с | f9f53f4 +1 | [лог](logs/2026-10-09T14-19-14Z-typecheck-8d65.log) | после слияния main: календарь, исправлена очистка масштаба |

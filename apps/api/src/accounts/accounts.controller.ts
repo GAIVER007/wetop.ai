@@ -219,7 +219,7 @@ export class AccountsController {
     return { ok: true };
   }
 
-  /** Бизнесы и филиалы организации: из чего выбирают область доступа сотрудника (DATA_MODEL §30.1) */
+  /** Бизнесы и филиалы организации: из чего выбирают область доступа сотрудника (DATA_MODEL §31.1) */
   @Access('staff')
   @Get('access-structure')
   async accessStructure(
@@ -232,7 +232,7 @@ export class AccountsController {
     return out;
   }
 
-  /** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §30.1) */
+  /** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §31.1) */
   @Access('staff')
   @Put('members/:userId/scopes')
   async setMemberScopes(
@@ -252,7 +252,7 @@ export class AccountsController {
     return { userId, scopes: out.scopes };
   }
 
-  /** Приостановить доступ без удаления (DATA_MODEL §30.2): человек не входит, сессии гаснут сразу */
+  /** Приостановить доступ без удаления (DATA_MODEL §31.2): человек не входит, сессии гаснут сразу */
   @Access('staff')
   @Post('members/:userId/suspend')
   @HttpCode(200)

@@ -35,7 +35,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         email: true,
         status: true,
         memberships: {
-          // приостановленный член в организацию не входит (§30.2)
+          // приостановленный член в организацию не входит (§31.2)
           where: { status: 'ACTIVE' },
           orderBy: { createdAt: 'asc' },
           take: 1,
@@ -140,7 +140,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       // членство сняли — прав владельца точно нет, а `member: false` сессию и вовсе не пустит
       role: role ?? 'STAFF',
       userStatus: row.user.status,
-      // приостановленного сессия не пускает так же, как отключённого (§30.2)
+      // приостановленного сессия не пускает так же, как отключённого (§31.2)
       member: role !== undefined && membership?.status === 'ACTIVE',
     };
   }
@@ -291,7 +291,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         update: {},
         select: { role: true },
       });
-      // назначения приглашения (DATA_MODEL §30.3): бизнес или филиал могли архивироваться, пока приглашение ждало
+      // назначения приглашения (DATA_MODEL §31.3): бизнес или филиал могли архивироваться, пока приглашение ждало
       const wanted = parseStoredScopes(invite.scopes);
       if (wanted.length > 0) {
         const [businesses, locations] = await Promise.all([

@@ -12,7 +12,7 @@ import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
- * Область доступа в выборе филиала (DATA_MODEL §30.1, STAFF2.3b S3) по настоящему HTTP: человек с назначением на один
+ * Область доступа в выборе филиала (DATA_MODEL §31.1, STAFF2.3b S3) по настоящему HTTP: человек с назначением на один
  * филиал видит в `/branches` только его; без назначений видит все; владелец видит все, назначения у него не действуют.
  */
 it('GET /branches отдаёт человеку с областью только его филиалы', async () => {

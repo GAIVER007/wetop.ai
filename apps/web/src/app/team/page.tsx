@@ -27,7 +27,7 @@ export default async function TeamPage() {
       ? await Promise.all([
           authApi.invites(token, info),
           authApi.members(token, info),
-          // область доступа (DATA_MODEL §30.1): нет структуры (старый API) — раздел без неё, как был
+          // область доступа (DATA_MODEL §31.1): нет структуры (старый API) — раздел без неё, как был
           authApi.accessStructure(token, info).catch(() => null),
         ])
       : [[], [], null];

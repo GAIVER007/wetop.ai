@@ -8,8 +8,8 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * STAFF2.3b (ADR-155, DATA_MODEL §30): область доступа держится ограничениями и триггером самой базы, а не аккуратностью
- * вызывающего. Красный до миграции 20261009000070_membership_scopes, зелёный после. Все люди и организации вымышленные
+ * STAFF2.3b (ADR-156, DATA_MODEL §31): область доступа держится ограничениями и триггером самой базы, а не аккуратностью
+ * вызывающего. Красный до миграции 20261009000072_membership_scopes, зелёный после. Все люди и организации вымышленные
  * (ADR-010), за собой тест убирает.
  */
 describe.skipIf(!url)('membership_scopes (integration, DATABASE_URL required)', () => {

@@ -470,7 +470,7 @@ describe('телефон и должность сотрудника', () => {
   });
 });
 
-describe('приостановка доступа (DATA_MODEL §30.2, Q-289)', () => {
+describe('приостановка доступа (DATA_MODEL §31.2, Q-289)', () => {
   const suspend = (token: string, userId: string) =>
     http().post(`/auth/members/${userId}/suspend`).set('Authorization', `Bearer ${token}`);
   const resume = (token: string, userId: string) =>
@@ -530,7 +530,7 @@ describe('приостановка доступа (DATA_MODEL §30.2, Q-289)', (
   });
 });
 
-describe('область доступа: назначения по бизнесам и филиалам (DATA_MODEL §30.1, Q-286, Q-287)', () => {
+describe('область доступа: назначения по бизнесам и филиалам (DATA_MODEL §31.1, Q-286, Q-287)', () => {
   const B1 = '11111111-1111-4111-8111-111111111111';
   const L1 = '21111111-1111-4111-8111-111111111111';
   const L2 = '22222222-2222-4222-8222-222222222222';

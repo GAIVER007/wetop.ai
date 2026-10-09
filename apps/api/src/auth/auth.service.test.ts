@@ -276,7 +276,7 @@ describe('AuthService.whoami', () => {
     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
   });
 
-  it('сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §30.2)', async () => {
+  it('сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §31.2)', async () => {
     const { auth, memberships } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     memberships[0]!.status = 'SUSPENDED';

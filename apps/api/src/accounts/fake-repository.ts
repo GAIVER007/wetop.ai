@@ -373,7 +373,7 @@ export class FakeAccountsRepository implements AccountsRepository {
     return { outcome: 'done', role };
   }
 
-  /** Назначения по бизнесам и филиалам (DATA_MODEL §30.1) и структура организации для тестов */
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1) и структура организации для тестов */
   readonly scopes = new Map<string, ScopeAssignment[]>();
   readonly scopeWrites: Array<{ userId: string; assignments: ScopeAssignment[]; by: string }> = [];
   structure: OrganizationStructure = {
@@ -421,7 +421,7 @@ export class FakeAccountsRepository implements AccountsRepository {
     return { outcome: 'done', role };
   }
 
-  /** Приостановленные (DATA_MODEL §30.2) и журнал приостановок для тестов */
+  /** Приостановленные (DATA_MODEL §31.2) и журнал приостановок для тестов */
   readonly suspended = new Set<string>();
   readonly suspensions: Array<{ userId: string; suspended: boolean; by: string }> = [];
 

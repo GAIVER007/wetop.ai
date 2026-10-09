@@ -60,7 +60,7 @@ export interface SignedInUser {
   /** Главный администратор платформы (§16.2): раздел «Платформа». Данных чужих гостиниц это не открывает */
   platformAdmin: boolean;
   /**
-   * Назначения по бизнесам и филиалам (DATA_MODEL §30.1). Нет поля: человек работает во всей организации. Есть:
+   * Назначения по бизнесам и филиалам (DATA_MODEL §31.1). Нет поля: человек работает во всей организации. Есть:
    * только там, где назначен, а `role` это старшая из назначенных; роль в месте даёт `roleAt`.
    */
   scopes?: ScopeAssignment[];
@@ -122,7 +122,7 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 }
 
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
-/** Вход закрыт приостановкой доступа (DATA_MODEL §30.2): человек в команде, но его не пускают, пока владелец не вернёт доступ */
+/** Вход закрыт приостановкой доступа (DATA_MODEL §31.2): человек в команде, но его не пускают, пока владелец не вернёт доступ */
 export const ACCESS_SUSPENDED_MESSAGE =
   'Доступ приостановлен. Обратитесь к владельцу или управляющему организации.';
 
@@ -287,7 +287,7 @@ export class AuthService {
     if (user.emailVerifiedAt === null) throw new ForbiddenException(VERIFY_PENDING_MESSAGE);
 
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
-    // приостановленный член в организацию не входит (DATA_MODEL §30.2): пароль он назвал верно, поэтому говорим причину
+    // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
     const active = user.memberships.find((m) => m.status === 'ACTIVE');
     if (!active && user.memberships.length > 0) throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
     const organizationId = active?.organizationId;
@@ -597,7 +597,7 @@ export class AuthService {
       },
       select: { role: true, status: true },
     });
-    // приостановленный, как отключённый: сессия не действует (DATA_MODEL §30.2)
+    // приостановленный, как отключённый: сессия не действует (DATA_MODEL §31.2)
     if (!membership || membership.status !== 'ACTIVE') return null;
     return { session: found.row, user: found.row.user };
   }

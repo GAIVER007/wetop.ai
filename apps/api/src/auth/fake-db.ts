@@ -22,7 +22,7 @@ export interface FakeMembership {
   organizationId: string;
   /** DATA_MODEL §16.1: в базе по умолчанию `STAFF` */
   role: 'OWNER' | 'STAFF';
-  /** DATA_MODEL §30.2: в базе по умолчанию `ACTIVE` */
+  /** DATA_MODEL §31.2: в базе по умолчанию `ACTIVE` */
   status: 'ACTIVE' | 'SUSPENDED';
   createdAt: Date;
 }

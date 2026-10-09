@@ -101,7 +101,7 @@ function InviteForm({
         event.preventDefault();
         start(async () => {
           setError('');
-          // область: выбранные места с одной должностью; «вся организация» — без назначений (DATA_MODEL §30.1)
+          // область: выбранные места с одной должностью; «вся организация» — без назначений (DATA_MODEL §31.1)
           const scopes =
             structure && restricted
               ? toScopes(structure, model).map((s) => ({ ...s, role: inviteRole }))
@@ -434,7 +434,7 @@ export function MembersTable({
   );
 }
 
-/** Область доступа сотрудника (DATA_MODEL §30.1): у каждого места своя роль; «Вся организация» снимает ограничение */
+/** Область доступа сотрудника (DATA_MODEL §31.1): у каждого места своя роль; «Вся организация» снимает ограничение */
 function ScopeForm({
   member,
   structure,

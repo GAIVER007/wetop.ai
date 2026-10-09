@@ -253,7 +253,7 @@ export async function removeMemberAction(userId: string): Promise<TeamActionResu
   return teamAction(async (token) => authApi.removeMember(token, userId, await clientInfo()));
 }
 
-/** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §30.1) */
+/** Заменить назначения сотрудника по бизнесам и филиалам; пустой список: вся организация (DATA_MODEL §31.1) */
 export async function setMemberScopesAction(
   userId: string,
   scopes: AuthScope[],
@@ -263,7 +263,7 @@ export async function setMemberScopesAction(
   );
 }
 
-/** Приостановить или возобновить доступ сотрудника: он остаётся в команде, его сеансы гаснут (DATA_MODEL §30.2) */
+/** Приостановить или возобновить доступ сотрудника: он остаётся в команде, его сеансы гаснут (DATA_MODEL §31.2) */
 export async function setMemberSuspendedAction(
   userId: string,
   suspended: boolean,

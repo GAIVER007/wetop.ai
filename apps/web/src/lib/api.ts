@@ -65,6 +65,41 @@ export interface InventoryUnit {
   block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
+export interface TrendValue {
+  now: number;
+  before: number;
+  delta: number;
+  /** null: в начале периода было 0, процент не определён */
+  percent: number | null;
+}
+/** Динамика сводки фонда за период (GET /inventory/trend) */
+export interface InventoryTrend {
+  days: number;
+  from: string;
+  to: string;
+  metrics: Record<
+    'totalUnits' | 'rooms' | 'beds' | 'onSale' | 'unavailable' | 'needsCleaning',
+    TrendValue
+  >;
+}
+/** Фото категории из библиотеки сайта (GET /inventory/photos): url подписан, null без хранилища */
+export interface CategoryPhoto {
+  assetId: string;
+  url: string | null;
+  alt: string | null;
+  width: number;
+  height: number;
+}
+/** Кто в месте сегодня (GET /inventory/occupancy) */
+export interface UnitOccupancy {
+  code: string;
+  state: 'FREE' | 'STAYING' | 'ARRIVING';
+  guest: string | null;
+  confirmationNumber: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
@@ -236,6 +271,9 @@ export const api = {
     getJson<{ storage: PiiStorage }>('/system/pii-storage')
       .then((r): PiiStorage => (r.storage === 'real' ? 'real' : 'pseudonymized'))
       .catch((): PiiStorage => 'pseudonymized'),
+  inventoryTrend: (days: 7 | 30 | 90) => getJson<InventoryTrend>(`/inventory/trend?days=${days}`),
+  inventoryPhotos: () => getJson<Record<string, CategoryPhoto[]>>('/inventory/photos'),
+  inventoryOccupancy: () => getJson<UnitOccupancy[]>('/inventory/occupancy'),
   inventoryUnits: (category?: string) =>
     getJson<InventoryUnit[]>(
       category ? `/inventory/units?category=${encodeURIComponent(category)}` : '/inventory/units',
@@ -442,7 +480,7 @@ export interface SignedIn {
   role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
-  /** У человека область доступа (DATA_MODEL §30.1): организационные разделы ему закрыты */
+  /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
   restricted?: boolean;
 }
 
@@ -626,7 +664,7 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
   },
-  /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §30.1) */
+  /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
   accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
     const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
@@ -669,7 +707,7 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
-  /** Приостановить или возобновить доступ (DATA_MODEL §30.2): человек остаётся в команде, не входит; 403 словами */
+  /** Приостановить или возобновить доступ (DATA_MODEL §31.2): человек остаётся в команде, не входит; 403 словами */
   setMemberSuspended: async (
     token: string,
     userId: string,
@@ -1831,9 +1869,14 @@ export interface DashboardView {
 }
 export const dashboardApi = {
   /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
-  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+  period: (from: string, to: string, fund: DashboardFund = 'all', category?: string) =>
     getJson<DashboardView>(
-      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+      `/desk/dashboard?${new URLSearchParams({
+        from,
+        to,
+        ...(fund === 'all' ? {} : { fund }),
+        ...(category ? { category } : {}),
+      })}`,
     ),
   /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
   units: (from: string, to: string, fund: DashboardFund = 'all') =>
@@ -2978,14 +3021,14 @@ export interface AuthInvite {
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
-  /** Что указал пригласивший и назначения (DATA_MODEL §30.3); старый API этого не присылает */
+  /** Что указал пригласивший и назначения (DATA_MODEL §31.3); старый API этого не присылает */
   firstName?: string | null;
   lastName?: string | null;
   position?: string | null;
   scopes?: AuthScope[];
 }
 
-/** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §30.1) */
+/** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
 export interface AuthScope {
   role: InviteRole;
   businessId: string;
@@ -3027,11 +3070,11 @@ export interface AuthMember {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
-  /** Доступ приостановлен (DATA_MODEL §30.2) */
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
   suspended: boolean;
   /** Этот вошедший может приостановить или возобновить его доступ */
   suspendable: boolean;
-  /** Назначения по бизнесам и филиалам (DATA_MODEL §30.1); пусто: вся организация */
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
   scopes: AuthScope[];
   /** Этот вошедший может заменить ему назначения */
   scopesEditable: boolean;
@@ -3067,6 +3110,11 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §30) */
+  setPhotos: (code: string, assetIds: string[]) =>
+    sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
+      assetIds,
+    }),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
     sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',

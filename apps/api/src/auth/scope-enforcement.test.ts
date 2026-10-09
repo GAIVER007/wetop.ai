@@ -17,7 +17,7 @@ import { currentAssignments, currentLocationId, currentRole } from './request-co
 import type { SignedInUser } from './auth.service';
 
 /**
- * Принуждение области доступа (DATA_MODEL §30.1, ADR-155, STAFF2.3b S3): человек с назначениями работает только в своих
+ * Принуждение области доступа (DATA_MODEL §31.1, ADR-156, STAFF2.3b S3): человек с назначениями работает только в своих
  * бизнесах и филиалах и с ролью этого места; организационные разделы ему закрыты. Проверяется сервером, а не стойкой.
  */
 const ORG = 'org-luxx';

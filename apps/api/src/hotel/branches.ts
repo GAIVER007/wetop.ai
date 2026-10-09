@@ -129,7 +129,7 @@ export class BranchesService {
         locationBranch(row, row.business.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : 'BEAUTY'),
       ),
     ];
-    // человек с областью доступа видит только свои бизнесы и филиалы (DATA_MODEL §30.1): остальных нет и в списке
+    // человек с областью доступа видит только свои бизнесы и филиалы (DATA_MODEL §31.1): остальных нет и в списке
     const role = currentRole() ?? 'STAFF';
     const assignments = currentAssignments();
     const visible = new Set(
@@ -286,7 +286,7 @@ export class BranchesController {
     for (const branch of items.filter(
       (item) =>
         item.vertical === 'HOSPITALITY' &&
-        // отчёты по месту: роль в этом филиале должна их открывать (DATA_MODEL §30.1)
+        // отчёты по месту: роль в этом филиале должна их открывать (DATA_MODEL §31.1)
         canAt(role, assignments, 'reports', {
           businessId: item.location.businessId,
           locationId: item.locationId,

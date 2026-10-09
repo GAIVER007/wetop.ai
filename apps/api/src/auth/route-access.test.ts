@@ -327,6 +327,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
   'GET /wizard/quota': 'public',
+  'POST /wizard/survey': 'public',
+  'POST /wizard/event': 'public',
 };
 
 type Handler = (...args: unknown[]) => unknown;

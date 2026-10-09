@@ -1,0 +1,423 @@
+# Сквозные (e2e) · 09.10.2026 21:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит d263add (claude/land2-landing-plan), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 69 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (1.4s)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (1.7s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (2.8s)
+  ✓   4 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (4.1s)
+  ✓   5 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (4.1s)
+  ✓   6 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (7.1s)
+  ✓   7 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (5.1s)
+  ✓   9 tests/site/homepage-blocks.spec.ts:63:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (2.0s)
+  ✓   8 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (3.8s)
+  ✓  10 tests/site/homepage-blocks.spec.ts:82:1 › первый экран: две кнопки в строку, направления сразу после Hero (4.0s)
+  ✓  11 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (7.4s)
+  ✓  12 tests/site/homepage-blocks.spec.ts:95:1 › карточки блоков читаются одной фразой, а не абзацем (4.2s)
+  ✓  13 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (779ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (866ms)
+  ✓  14 tests/site/homepage-blocks.spec.ts:110:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (2.3s)
+  ✓  16 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (1.2s)
+  ✓  17 tests/site/homepage-blocks.spec.ts:138:1 › первый экран: дашборд подписан примером и не имитирует кнопки (430ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:153:1 › на главной нет дорожной карты направлений и слова «пилот» (386ms)
+  ✓  20 tests/site/homepage-blocks.spec.ts:166:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (1.0s)
+  ✓  21 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (1.2s)
+  ✓  22 tests/site/homepage-blocks.spec.ts:188:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (400ms)
+  ✓  23 tests/site/homepage-blocks.spec.ts:214:1 › в текстах главной нет длинного тире и разделителя « · » (627ms)
+  ✓  24 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (1.4s)
+  ✓  25 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (4.2s)
+  ✓  26 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (1.7s)
+  ✓  27 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (3.9s)
+  ✓  18 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (34.4s)
+  ✘  28 tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах (18.8s)
+  ✓  29 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (3.7s)
+  ✓  31 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (3.1s)
+  ✓  30 tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (3.2s)
+  ✓  33 tests/site/landing.spec.ts:20:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (1.8s)
+  ✓  32 tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность (4.2s)
+  ✓  35 tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность (7.5s)
+  ✓  34 tests/site/landing.spec.ts:26:3 › / — открывается, доступна и без «TODO» на экране (9.9s)
+  ✓  36 tests/site/landing.spec.ts:41:3 › / — на телефоне нет горизонтальной прокрутки (7.5s)
+  ✘  37 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (19.5s)
+  ✓  38 tests/site/landing.spec.ts:26:3 › /blog/ — открывается, доступна и без «TODO» на экране (17.9s)
+  ✓  40 tests/site/landing.spec.ts:41:3 › /blog/ — на телефоне нет горизонтальной прокрутки (8.7s)
+  ✓  41 tests/site/landing.spec.ts:26:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (11.3s)
+  ✘  39 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (12.5s)
+  ✓  42 tests/site/landing.spec.ts:41:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (3.7s)
+  ✓  44 tests/site/landing.spec.ts:26:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (2.2s)
+  ✓  45 tests/site/landing.spec.ts:41:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (2.3s)
+  ✘  43 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (4.8s)
+  ✓  46 tests/site/landing.spec.ts:26:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (6.5s)
+  ✓  48 tests/site/landing.spec.ts:41:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (2.5s)
+  ✓  49 tests/site/landing.spec.ts:26:3 › /calculator/ — открывается, доступна и без «TODO» на экране (2.1s)
+  ✓  50 tests/site/landing.spec.ts:41:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (311ms)
+  ✘  47 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (2.8s)
+  ✓  51 tests/site/landing.spec.ts:26:3 › /privacy/ — открывается, доступна и без «TODO» на экране (1.4s)
+  ✓  52 tests/site/landing.spec.ts:41:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (543ms)
+  ✓  53 tests/site/landing.spec.ts:26:3 › /terms/ — открывается, доступна и без «TODO» на экране (2.6s)
+  ✓  55 tests/site/landing.spec.ts:41:3 › /terms/ — на телефоне нет горизонтальной прокрутки (390ms)
+  ✓  54 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (2.7s)
+  ✓  56 tests/site/landing.spec.ts:54:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (3.0s)
+  ✓  58 tests/site/landing.spec.ts:72:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (309ms)
+  ✓  57 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (4.9s)
+  ✓  59 tests/site/landing.spec.ts:85:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (3.1s)
+  ✓  61 tests/site/landing.spec.ts:139:1 › первый экран объясняет платформу, направления и зрелость (2.0s)
+  ✓  62 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (1.2s)
+  ✓  60 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (4.3s)
+  ✓  63 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (948ms)
+  ✓  65 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (497ms)
+  ✓  66 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (580ms)
+  ✓  64 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (2.7s)
+  ✓  67 tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile (2.5s)
+  ✓  68 tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog (2.3s)
+  ✓  69 tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each (11.0s)
+
+
+  1) tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах ───────────────────────
+
+    Error: dark
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast: 2",
+    + ]
+
+      250 |       result.violations.map((v) => `${v.id}: ${v.nodes.length}`),
+      251 |       colorScheme,
+    > 252 |     ).toEqual([]);
+          |       ^
+      253 |   }
+      254 | });
+      255 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:252:7
+
+    Error Context: test-results/homepage-blocks-блоки-доступны-в-обеих-темах/error-context.md
+
+  2) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#111319",
+    +               "contrastRatio": 2.76,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#244cdb",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"dash\" aria-hidden=\"false\">",
+    +                 "target": Array [
+    +                   ".dash",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"dash__more\">Показать все</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".dash__more",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-320/error-context.md
+
+  3) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#111319",
+    +               "contrastRatio": 2.76,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#244cdb",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"dash\" aria-hidden=\"false\">",
+    +                 "target": Array [
+    +                   ".dash",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"dash__more\">Показать все</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".dash__more",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  4) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#111319",
+    +               "contrastRatio": 2.76,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#244cdb",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"dash\" aria-hidden=\"false\">",
+    +                 "target": Array [
+    +                   ".dash",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"dash__more\">Показать все</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".dash__more",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-768/error-context.md
+
+  5) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#111319",
+    +               "contrastRatio": 2.76,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#244cdb",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"dash\" aria-hidden=\"false\">",
+    +                 "target": Array [
+    +                   ".dash",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.76 (foreground color: #244cdb, background color: #111319, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"dash__more\">Показать все</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".dash__more",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-1440/error-context.md
+
+  5 failed
+    tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах ────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ─────────────────────────────────
+  64 passed (3.8m)
+
+# код выхода 1 · 4 мин 6 с

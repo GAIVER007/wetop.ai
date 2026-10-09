@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 09.10.2026 20:04 Алматы · vm
+# коммит 0fbb533 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T15-04-53Z-integration-6017.json' 'tests/integration/bar-overview.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/bar-overview.test.ts (1 test | 1 failed) 326ms
+   ❯ бар: данные обзора на базе (1)
+     × последний проведённый приход даёт поставщика, закупку и дату; черновик их не меняет 321ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-overview.test.ts > бар: данные обзора на базе > последний проведённый приход даёт поставщика, закупку и дату; черновик их не меняет
+AssertionError: expected { …(16) } to match object { availableUnits: '24', …(5) }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "availableUnits": "24",
+-   "lastReceivedDate": "2026-10-03",
+-   "lastSupplier": {
+-     "id": "7c180979-e34a-4fad-8fa1-18b3b22ae877",
+-     "name": "Обзор 77280d3f второй",
+-   },
+-   "lastUnitCostMinor": "32000",
+-   "nearestExpiry": null,
+    "stockCostMinor": "744000",
+  }
+
+ ❯ tests/integration/bar-overview.test.ts:41:17
+     39|
+     40|     const row = ((await repo.stock()) as Array<Record<string, unknown>…
+     41|     expect(row).toMatchObject({
+       |                 ^
+     42|       availableUnits: '24',
+     43|       stockCostMinor: String(12n * 30000n + 12n * 32000n),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  15:04:54
+   Duration  3.97s (transform 61%, import 22%, tests 16%)
+
+JSON report written to /tmp/pms-test-2026-10-09T15-04-53Z-integration-6017.json
+
+# код выхода 1 · 5 с

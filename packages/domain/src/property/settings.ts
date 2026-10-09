@@ -16,10 +16,95 @@ export interface HotelSettingsPatch {
   countryCode?: string | null;
   city?: string | null;
   channexPropertyType?: string | null;
+  /** Карточка объекта (ADR-158, DATA_MODEL §32) */
+  description?: string | null;
+  website?: string | null;
+  publicName?: string | null;
+  earlyCheckIn?: boolean;
+  lateCheckOut?: boolean;
+  childrenAllowed?: boolean;
+  petsAllowed?: boolean;
+  smokingAllowed?: boolean;
+  onsitePayment?: OnsitePayment;
+  cancellationRule?: CancellationRule;
+  depositRule?: DepositRule;
+  minGuestAge?: number;
+  quietHoursFrom?: string | null;
+  quietHoursTo?: string | null;
+  houseRulesNote?: string | null;
+  amenities?: string[];
 }
 
 export type HotelSettingsParse =
   { ok: true; value: HotelSettingsPatch } | { ok: false; reason: string };
+
+/** Способ оплаты на месте, подпись отмены и залога для карточки (ADR-158): подписи, не финансовая логика (Q-293) */
+export const ONSITE_PAYMENTS = ['CASH_CARD', 'CASH', 'CARD', 'TRANSFER'] as const;
+export const CANCELLATION_RULES = ['FREE_1D', 'FREE_3D', 'FREE_7D', 'NON_REFUNDABLE'] as const;
+export const DEPOSIT_RULES = ['NONE', 'FIRST_NIGHT', 'HALF', 'FULL'] as const;
+export type OnsitePayment = (typeof ONSITE_PAYMENTS)[number];
+export type CancellationRule = (typeof CANCELLATION_RULES)[number];
+export type DepositRule = (typeof DEPOSIT_RULES)[number];
+export const ONSITE_PAYMENT_LABELS: Record<OnsitePayment, string> = {
+  CASH_CARD: 'Наличные и карта',
+  CASH: 'Только наличные',
+  CARD: 'Только карта',
+  TRANSFER: 'Банковский перевод',
+};
+export const CANCELLATION_RULE_LABELS: Record<CancellationRule, string> = {
+  FREE_1D: 'Бесплатная отмена за 1 день',
+  FREE_3D: 'Бесплатная отмена за 3 дня',
+  FREE_7D: 'Бесплатная отмена за 7 дней',
+  NON_REFUNDABLE: 'Без возврата',
+};
+export const DEPOSIT_RULE_LABELS: Record<DepositRule, string> = {
+  NONE: 'Без залога',
+  FIRST_NIGHT: 'Стоимость первой ночи',
+  HALF: '50% от стоимости проживания',
+  FULL: '100% от стоимости проживания',
+};
+/** Каталог удобств объекта: порядок каталога это порядок показа и хранения (DATA_MODEL §31.1) */
+export const PROPERTY_AMENITIES = [
+  { code: 'wifi', label: 'Wi-Fi' },
+  { code: 'parking', label: 'Парковка' },
+  { code: 'air_conditioning', label: 'Кондиционер' },
+  { code: 'kitchen', label: 'Кухня' },
+  { code: 'transfer', label: 'Трансфер' },
+  { code: 'breakfast', label: 'Завтрак' },
+  { code: 'laundry', label: 'Прачечная' },
+  { code: 'tv', label: 'Телевизор' },
+  { code: 'elevator', label: 'Лифт' },
+  { code: 'reception_24h', label: 'Круглосуточная стойка' },
+  { code: 'luggage_storage', label: 'Хранение багажа' },
+  { code: 'workspace', label: 'Рабочее место' },
+  { code: 'safe', label: 'Сейф' },
+  { code: 'hair_dryer', label: 'Фен' },
+  { code: 'iron', label: 'Утюг' },
+  { code: 'kettle', label: 'Чайник' },
+  { code: 'terrace', label: 'Терраса' },
+  { code: 'pool', label: 'Бассейн' },
+  { code: 'gym', label: 'Тренажёрный зал' },
+  { code: 'sauna', label: 'Сауна' },
+] as const;
+const AMENITY_CODES: readonly string[] = PROPERTY_AMENITIES.map((a) => a.code);
+const URL_MAX = 300;
+const NOTE_MAX = 500;
+
+/** Адрес сайта: без схемы значит https; только http и https, с точкой в имени узла, без логина и пробелов */
+export function normalizeWebsite(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  const raw = v.trim();
+  if (raw === '' || /\s/.test(raw)) return null;
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(withScheme);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+    if (url.username || url.password || !url.hostname.includes('.')) return null;
+    return withScheme;
+  } catch {
+    return null;
+  }
+}
 
 const LOCKED = new Set(['currency', 'timezone']);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,6 +150,19 @@ const text = (v: unknown): string | null => {
   if (v === null) return null;
   if (typeof v !== 'string') return null;
   const s = v.replace(/\s+/g, ' ').trim();
+  return s === '' ? null : s;
+};
+
+/** Текст с абзацами: пробелы в строках схлопываются, переводы строк остаются */
+const paragraph = (v: unknown): string | null => {
+  if (typeof v !== 'string') return null;
+  const s = v
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   return s === '' ? null : s;
 };
 
@@ -151,10 +249,97 @@ export function parseHotelSettingsPatch(raw: unknown): HotelSettingsParse {
         out[key] = s;
         break;
       }
+      case 'description':
+      case 'houseRulesNote': {
+        const s = paragraph(value);
+        if (s !== null && s.length > NOTE_MAX)
+          return { ok: false, reason: `Не длиннее ${NOTE_MAX} знаков` };
+        out[key] = s;
+        break;
+      }
+      case 'publicName': {
+        const s = text(value);
+        if (s !== null && s.length > 200)
+          return { ok: false, reason: 'Публичное имя: не длиннее 200 знаков' };
+        out.publicName = s;
+        break;
+      }
+      case 'website': {
+        if (value === null || (typeof value === 'string' && value.trim() === '')) {
+          out.website = null;
+          break;
+        }
+        const s = normalizeWebsite(value);
+        if (s === null)
+          return { ok: false, reason: 'Адрес сайта в виде https://example.kz' };
+        if (s.length > URL_MAX) return { ok: false, reason: `Адрес сайта не длиннее ${URL_MAX} знаков` };
+        out.website = s;
+        break;
+      }
+      case 'earlyCheckIn':
+      case 'lateCheckOut':
+      case 'childrenAllowed':
+      case 'petsAllowed':
+      case 'smokingAllowed': {
+        if (typeof value !== 'boolean') return { ok: false, reason: `${key}: только да или нет` };
+        out[key] = value;
+        break;
+      }
+      case 'onsitePayment': {
+        if (!ONSITE_PAYMENTS.includes(value as OnsitePayment))
+          return { ok: false, reason: 'Выберите способ оплаты на месте из списка' };
+        out.onsitePayment = value as OnsitePayment;
+        break;
+      }
+      case 'cancellationRule': {
+        if (!CANCELLATION_RULES.includes(value as CancellationRule))
+          return { ok: false, reason: 'Выберите правило отмены из списка' };
+        out.cancellationRule = value as CancellationRule;
+        break;
+      }
+      case 'depositRule': {
+        if (!DEPOSIT_RULES.includes(value as DepositRule))
+          return { ok: false, reason: 'Выберите залог из списка' };
+        out.depositRule = value as DepositRule;
+        break;
+      }
+      case 'minGuestAge': {
+        const n =
+          typeof value === 'number'
+            ? value
+            : typeof value === 'string' && /^\d{1,3}$/.test(value.trim())
+              ? Number(value)
+              : NaN;
+        if (!Number.isInteger(n) || n < 0 || n > 99)
+          return { ok: false, reason: 'Минимальный возраст гостя: целое от 0 до 99' };
+        out.minGuestAge = n;
+        break;
+      }
+      case 'quietHoursFrom':
+      case 'quietHoursTo': {
+        if (value === null || (typeof value === 'string' && value.trim() === '')) {
+          out[key] = null;
+          break;
+        }
+        const s = normalizeClockTime(value);
+        if (s === null) return { ok: false, reason: 'Тихие часы в виде 22:00' };
+        out[key] = s;
+        break;
+      }
+      case 'amenities': {
+        if (!Array.isArray(value) || value.some((c) => typeof c !== 'string' || !AMENITY_CODES.includes(c)))
+          return { ok: false, reason: 'Выберите удобства из списка' };
+        const chosen = new Set(value as string[]);
+        out.amenities = AMENITY_CODES.filter((c) => chosen.has(c));
+        break;
+      }
       default:
         return { ok: false, reason: `Неизвестное поле: ${key}` };
     }
   }
+  const quiet = [out.quietHoursFrom, out.quietHoursTo];
+  if ((out.quietHoursFrom !== undefined || out.quietHoursTo !== undefined) && (quiet[0] == null) !== (quiet[1] == null))
+    return { ok: false, reason: 'Тихие часы задаются парой: с какого и до какого времени' };
   if (Object.keys(out).length === 0) return { ok: false, reason: 'Нечего сохранять' };
   return { ok: true, value: out };
 }

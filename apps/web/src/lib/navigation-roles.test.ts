@@ -39,8 +39,8 @@ describe('меню по ролям', () => {
     expect(hrefs(access('STAFF'))).toEqual([
       '/today',
       '/chessboard',
-      // «Гости» стали вкладкой внутри «Броней» (09.10.2026): страница /guests осталась, пункта меню нет
-      '/reservations',
+      // «Гости и бронирования» (09.10.2026): одна вкладка на месте «Броней» и «Гостей»
+      '/guests',
       '/finance',
       '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
@@ -53,13 +53,19 @@ describe('меню по ролям', () => {
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
       'chessboard',
-      'reservations',
+      'guests',
       'finance',
-      'bar',
       'sales',
       'reports',
       'settings',
     ]);
+  });
+
+  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-157)', () => {
+    const finance = menuSectionsFor(access('STAFF')).find((s) => s.id === 'finance');
+    expect(finance?.label).toBe('Финансы');
+    expect(finance?.direct).toBeUndefined();
+    expect(finance?.items.map((i) => i.href)).toEqual(['/finance', '/bar']);
   });
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
@@ -67,6 +73,17 @@ describe('меню по ролям', () => {
     expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
+  });
+
+  it('«Организации» главного администратора лежат в «Настройках», отдельной вкладки «Платформа» нет', () => {
+    const sections = menuSectionsFor(access('OWNER', true));
+    expect(sections.map((s) => s.id)).not.toContain('platform');
+    const settings = sections.find((s) => s.id === 'settings');
+    expect(settings?.items.map((i) => i.href)).toContain('/platform');
+    expect(settings?.items.find((i) => i.href === '/platform')?.label).toBe('Организации');
+    // без отметки пункта нет нигде, у любой роли
+    for (const role of ['OWNER', 'MANAGER', 'STAFF'] as const)
+      expect(hrefs(access(role))).not.toContain('/platform');
   });
 
   it('никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется', () => {
@@ -102,6 +119,8 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/guests')?.requires).toBe('desk');
     expect(routeRule('/finance')?.requires).toBe('reports');
     expect(routeRule('/bar')?.requires).toBe('reports');
+    // подстраницы бара (ADR-157) наследуют право пункта по длинному совпадению пути
+    expect(routeRule('/bar/receipts/new')?.requires).toBe('reports');
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 

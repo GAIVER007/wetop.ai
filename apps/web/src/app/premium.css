@@ -1348,12 +1348,6 @@
       margin-bottom: 4px;
     }
   }
-  .board-period .seg a.is-on {
-    background: var(--surface-elevated);
-    color: var(--primary);
-    box-shadow: none;
-  }
-
   .sidebar-bottom {
     padding-top: 16px;
   }

@@ -79,9 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
         await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
-        // 450 был замером до вкладок раздела «Брони | Гости» (09.10.2026): ряд с целями касания
-        // 44 px и отступом прибавил ~60 px хрома, замер после него 509, бюджет 515
-        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(515);
+        // 450 был замером до кнопки «Гости» в шапке (09.10.2026, «Гости и бронирования»): на 390 px она
+        // сидит в одной строке с «Новой бронью» (431), на 320 px действия переносятся (465), бюджет 470
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(470);
         const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),

@@ -37,12 +37,18 @@ async function expectOccupancyDirection(page: Page, fund: string) {
   );
   expect(response.ok()).toBe(true);
   const { current, previous } = await response.json();
+  // при «Всех» первая плитка это загрузка номеров (ADR-155, Q-287): сравниваем её, а не общую
+  type Cat = { kind: string; unitNights: number; occupiedNights: number; blockedNights: number };
+  const pct = (p: { occupancy: { percent: number }; categories: Cat[] }) => {
+    if (fund !== 'all') return p.occupancy.percent;
+    const rows = p.categories.filter((c) => c.kind === 'ROOM');
+    const sellable = rows.reduce((n, c) => n + c.unitNights - c.blockedNights, 0);
+    return sellable > 0
+      ? Math.round((rows.reduce((n, c) => n + c.occupiedNights, 0) * 1000) / sellable) / 10
+      : 0;
+  };
   const direction =
-    current.occupancy.percent > previous.occupancy.percent
-      ? 'up'
-      : current.occupancy.percent < previous.occupancy.percent
-        ? 'down'
-        : 'flat';
+    pct(current) > pct(previous) ? 'up' : pct(current) < pct(previous) ? 'down' : 'flat';
   await expect(
     page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`),
   ).toBeVisible();
@@ -90,7 +96,8 @@ test('обзор за месяц: четыре основных показате
   const kpis = main.getByTestId('pa-kpis');
   for (const label of ['Загрузка', 'Начислено за проживание', 'Брони', 'Отмены'])
     await expect(kpis).toContainText(label);
-  await expect(kpis.locator('.kpi')).toHaveCount(4);
+  // «Загрузка номеров» и «Загрузка коек» вместо одной общей плитки (ADR-155, Q-287)
+  await expect(kpis.locator('.kpi')).toHaveCount(5);
   // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
   await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
@@ -160,7 +167,7 @@ test('база сравнения ноль — «нет данных», а не 
   // позапрошлый месяц — первый с историей: до него данных нет
   await page.goto(`/management/analytics?period=custom&from=${first(-2)}&to=${last(-2)}`);
   const kpis = main.getByTestId('pa-kpis');
-  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(4);
+  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(5);
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi-delta--none')).toHaveCount(2);
   await expect(kpis).not.toContainText('100 %');

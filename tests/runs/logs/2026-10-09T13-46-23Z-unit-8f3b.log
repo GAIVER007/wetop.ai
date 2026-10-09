@@ -1,0 +1,59 @@
+# Модульные (unit) · 09.10.2026 18:46 Алматы · vm
+# коммит 97364f8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T13-46-23Z-unit-8f3b.json' 'apps/api/src/bar/bar.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 9470  - 10/09/2026, 1:46:26 PM   ERROR [ExceptionsHandler] TypeError: Do not know how to serialize a BigInt
+    at JSON.stringify (<anonymous>)
+    at stringify (/home/user/wetop.ai/node_modules/express/lib/response.js:1034:12)
+    at ServerResponse.json (/home/user/wetop.ai/node_modules/express/lib/response.js:245:14)
+    at ExpressAdapter.reply (file:///home/user/wetop.ai/node_modules/@nestjs/platform-express/adapters/express-adapter.js:68:42)
+    at RouterResponseController.apply (file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-response-controller.js:13:36)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:200:48
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:59:13
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| apps/api/src/bar/bar.controller.test.ts (10 tests | 1 failed) 255ms
+   ❯ бар: приходы (BAR2) (10)
+     ✓ создает черновик и проводит его один раз 46ms
+     ✓ отклоняет пустой приход и сумму float 6ms
+     ✓ создает товар и поставщика, архивирует без удаления 24ms
+     × правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену 7ms
+     ✓ продает без брони и запрещает минусовой остаток 5ms
+     ✓ возвращает продажу и восстанавливает остаток только по флагу 4ms
+     ✓ списывает товар с причиной и не уходит в минус 8ms
+     ✓ принимает частичную оплату поставщику и запрещает переплату 6ms
+     ✓ добавляет товар в открытый счет гостя 4ms
+     ✓ фиксирует недостачу и блокирует излишек без цены 6ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 86ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar.controller.test.ts > бар: приходы (BAR2) > правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену
+Error: expected 200 "OK", got 500 "Internal Server Error"
+ ❯ apps/api/src/bar/bar.controller.test.ts:123:8
+    121|       name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+    122|       unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    123|     }).expect(200);
+       |        ^
+    124|     expect(updated.body).toMatchObject({ name: 'Cola 0,5 ж/б', barcode…
+    125|     // цена правится своим маршрутом с аудитом до и после: здесь её нет
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 12 passed (13)
+   Start at  13:46:24
+   Duration  5.27s (transform 71%, import 25%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-09T13-46-23Z-unit-8f3b.json
+
+# код выхода 1 · 6 с

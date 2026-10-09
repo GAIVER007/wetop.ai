@@ -12,8 +12,8 @@ const routes = [
   '/ai-agents',
   '/today',
   '/chessboard',
-  // «Гости» без пункта меню с 09.10.2026: раздел открывается вкладкой на странице «Брони»
-  '/reservations',
+  // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
+  '/guests',
   '/inventory',
   '/market',
   '/channels',
@@ -33,9 +33,8 @@ const routes = [
 const TABS = [
   'Главная',
   'Календарь',
-  'Брони',
+  'Гости и бронирования',
   'Финансы',
-  'Бар',
   'Продажи',
   'Маркетинг',
   'Отчёты',
@@ -210,8 +209,11 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Главная', 'Календарь', 'Брони', 'Финансы', 'Номерной фонд'])
+    for (const label of ['Главная', 'Календарь', 'Гости и бронирования', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
+    // «Финансы»: группа (ADR-157), раскрывается, внутри «Оплаты и касса» и «Бар»
+    await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
+    await expect(drawer.getByRole('link', { name: 'Бар', exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');

@@ -45,7 +45,7 @@ test('администратор: в меню — работа с гостями
     .toEqual([
       '/today',
       '/chessboard',
-      '/reservations',
+      // «Гости и бронирования» (поручение владельца 09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
       '/finance',
       '/bar',
@@ -240,7 +240,7 @@ test('управляющий: журнал и платформа закрыты;
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+  await expect(drawer.getByLabel('Должность', { exact: true })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
@@ -249,7 +249,7 @@ test('управляющий: журнал и платформа закрыты;
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
-  await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+  await expect(main.getByRole('combobox', { name: /^Должность:/ })).toHaveCount(0);
   // приглашение управляющего отозвать нельзя, администратора — можно
   const invites = main.getByTestId('invite-list');
   await expect(
@@ -276,7 +276,7 @@ test('владелец: зовёт управляющего и админист�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
-  const role = drawer.getByLabel('Роль приглашённого', { exact: true });
+  const role = drawer.getByLabel('Должность', { exact: true });
   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   await expect(role).toHaveValue('STAFF');
 
@@ -296,7 +296,7 @@ test('владелец: зовёт управляющего и админист�
 
   const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
   await expect(admin).toContainText('администратор');
-  await admin.getByRole('combobox', { name: 'Роль: Юрий Тестов' }).selectOption('MANAGER');
+  await admin.getByRole('combobox', { name: 'Должность: Юрий Тестов' }).selectOption('MANAGER');
   await expect(admin).toContainText('управляющий');
   await shot(page, 'team-owner');
 });

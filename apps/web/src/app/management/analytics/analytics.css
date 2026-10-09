@@ -393,6 +393,13 @@
     font-weight: var(--weight-semibold);
   }
   /* категория и детализация отчёта (RPT2.2c-3): отдельная строка над плитками */
+  /* не `.dash-grid`: у такой сетки на рабочей области своя прокрутка (workspace.css) */
+  .pa-shares {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    margin-bottom: var(--space-6);
+  }
   .pa-filters {
     margin-bottom: var(--space-4);
   }

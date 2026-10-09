@@ -140,3 +140,19 @@ test('детализация: по неделям столбиков столь�
   await page.getByTestId('pa-granularity').getByRole('link', { name: 'По дням' }).click();
   await expect(page).not.toHaveURL(/by=/);
 });
+
+test('кольца долей: по категориям и источникам, список держит смысл, доли в сумме дают 100 %', async ({
+  page,
+}) => {
+  await page.goto('/reports/overview');
+  for (const id of ['pa-donut-categories', 'pa-donut-sources']) {
+    const donut = page.getByTestId(id);
+    await expect(donut).toBeVisible();
+    const shares = await donut.locator('.donut__share').allInnerTexts();
+    expect(shares.length).toBeGreaterThan(1);
+    const sum = shares.reduce((n, t) => n + Number(t.replace(/[^\d,]/g, '').replace(',', '.')), 0);
+    expect(Math.round(sum * 10) / 10).toBe(100);
+    // кольцо не читается программой чтения: смысл только в списке
+    await expect(donut.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  }
+});

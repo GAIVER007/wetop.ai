@@ -5,6 +5,7 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { LoadError } from '../../../components/load-error';
 import { EmptyState, Panel, Skeleton, Table } from '../../../components/ui';
 import { DayBars, type DayBar } from '../../../components/day-bars';
+import { DonutShare } from '../../../components/donut-share';
 import { cx } from '../../../components/ui';
 import { formatInt, formatPercent, sourceLabel, wholeTenge } from '../../../lib/dashboard-format';
 import { displayDate } from '../../../lib/display-date';
@@ -81,6 +82,50 @@ function ReportFilters({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery
         </nav>
       )}
     </section>
+  );
+}
+
+/** Кольца долей (RPT2.2c-3): начислено за проживание по категориям и стоимость броней по источникам; смысл в списке рядом */
+function SharePanels({ c }: { c: DashboardPeriod }) {
+  const byCategory = c.categories.map((cat) => ({ label: cat.name, valueMinor: cat.revenueMinor }));
+  const bySource = c.sources.map((src) => ({
+    label: sourceLabel(src.source, src.channel),
+    valueMinor: src.amountMinor,
+  }));
+  const sum = (items: Array<{ valueMinor: string }>) =>
+    items.reduce((n, i) => (b(i.valueMinor) > 0n ? n + b(i.valueMinor) : n), 0n);
+  const catTotal = sum(byCategory);
+  const srcTotal = sum(bySource);
+  if (catTotal === 0n && srcTotal === 0n) return null;
+  return (
+    <div className="pa-shares" data-testid="pa-shares">
+      {catTotal > 0n && c.categories.length > 1 && (
+        <Panel title="Начислено по категориям" className="dash-panel">
+          <DonutShare
+            testId="pa-donut-categories"
+            items={byCategory}
+            centerValue={wholeTenge(catTotal.toString())}
+            centerLabel="за проживание"
+            amount={wholeTenge}
+          />
+          <p className="muted dash-note">Начисления за проживание по дню заезда.</p>
+        </Panel>
+      )}
+      {srcTotal > 0n && bySource.length > 1 && (
+        <Panel title="Источники по стоимости броней" className="dash-panel">
+          <DonutShare
+            testId="pa-donut-sources"
+            items={bySource}
+            centerValue={wholeTenge(srcTotal.toString())}
+            centerLabel="стоимость броней"
+            amount={wholeTenge}
+          />
+          <p className="muted dash-note">
+            Доля выручки; доля броней по числу показана ниже, в подробностях.
+          </p>
+        </Panel>
+      )}
+    </div>
   );
 }
 
@@ -515,6 +560,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
         <OccupancyPanel c={c} today={today} query={query} />
         <RevenuePanel c={c} today={today} query={query} />
       </div>
+      <SharePanels c={c} />
       <details className="pa-details">
         <summary>Подробности: ночи, средний чек, категории и источники</summary>
         <KpiRow c={c} p={p} detail />

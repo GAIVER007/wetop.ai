@@ -7837,3 +7837,4 @@
 | 09.10.2026 20:09 | unit | ✅ 4192 из 4195, пропущено 3 | 2 мин 2 с | 0fbb533 +14 | [лог](logs/2026-10-09T15-09-18Z-unit-e59b.log) | бар по макету: итог второй итерации |
 | 09.10.2026 20:11 | typecheck | ✅ без ошибок | 1 мин | 0fbb533 +16 | [лог](logs/2026-10-09T15-11-22Z-typecheck-4586.log) | бар по макету: итог |
 | 09.10.2026 20:12 | lint | ✅ без ошибок | 39 с | 0fbb533 +16 | [лог](logs/2026-10-09T15-12-23Z-lint-9866.log) | бар по макету: итог |
+| 09.10.2026 20:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/bar.spec.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/roles.spec | ✅ 53 из 53 | 11 мин 21 с | 0fbb533 +15 | [лог](logs/2026-10-09T15-13-07Z-e2e-e62e.log) | бар по макету: итог, UI бара, меню и доступность |

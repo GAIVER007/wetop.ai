@@ -180,7 +180,8 @@
   .gb-table tbody tr.is-active {
     background: var(--primary-soft);
   }
-  .gb-check {
+  /* два класса: общее правило ячеек таблицы экрана (`.gb-table td`) специфичнее одного */
+  .gb-table .gb-check {
     width: 32px;
     padding-right: 0;
   }

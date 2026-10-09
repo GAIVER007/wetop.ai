@@ -31,6 +31,8 @@ export async function POST(request: Request) {
     config?: unknown;
     revision?: unknown;
     step?: unknown;
+    answers?: unknown;
+    type?: unknown;
   };
   try {
     body = JSON.parse(raw);
@@ -62,6 +64,8 @@ export async function POST(request: Request) {
           step: body.step,
         }),
       );
+    if (body.operation === 'survey') return json(await wizardApi.survey(token, body.answers));
+    if (body.operation === 'event') return json(await wizardApi.event(token, { type: body.type }));
     return json({ message: 'Неизвестное действие' }, 400);
   } catch (error) {
     if (error instanceof ApiError) return json({ message: error.message }, error.status);

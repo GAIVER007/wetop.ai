@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getDictionary } from '../../i18n';
-import { registerLink } from '../../lib/site';
 import { Icon } from '../icon';
 
 /*
@@ -9,6 +8,12 @@ import { Icon } from '../icon';
  * направлением, `?vertical=`). Фото со снимка заменены рисунками на SVG: §19.9 запрещает стоки,
  * а кредитов на генерацию своих фото нет; при появлении фото меняется один блок `VerticalArt`.
  */
+const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
+  HOSPITALITY: '/for/hotels/',
+  BEAUTY: '/for/salons/',
+  FOOD_SERVICE: '/for/restaurants/',
+};
+
 export function Audience() {
   const t = getDictionary();
   return (
@@ -24,8 +29,6 @@ export function Audience() {
         <div className="verticals__grid">
           {t.intro.cards.map((card) => {
             const hospitality = card.id === 'HOSPITALITY';
-            const invite = new URL(registerLink().href);
-            if (!hospitality) invite.searchParams.set('vertical', card.id);
             return (
               <article className="verticals__card" key={card.id}>
                 <div className="verticals__head">
@@ -49,7 +52,7 @@ export function Audience() {
                   </ul>
                   <VerticalArt id={card.id} />
                 </div>
-                <a className="btn btn--secondary verticals__action" href={invite.href} data-auth="register">
+                <a className="btn btn--secondary verticals__action" href={DIRECTION[card.id]}>
                   {card.action}
                   <Icon name="arrowRight" size={16} />
                 </a>

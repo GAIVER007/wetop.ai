@@ -9,7 +9,9 @@ import { pageMetadata } from '../../../lib/metadata';
 import { registerLink } from '../../../lib/site';
 
 /*
- * Страницы по типам объектов: /for/hostels/, /for/mini-hotels/, /for/apart-hotels/ (срез D2 плана прямых продаж).
+ * Страницы «для кого»: три направления (/for/hotels/, /for/salons/, /for/restaurants/, поручение
+ * владельца 09.10.2026: подстраница с чётким описанием системы для каждого направления) и три типа
+ * гостиничных объектов (/for/hostels/, /for/mini-hotels/, /for/apart-hotels/, срез D2).
  * Собраны из блоков главной: `.page`, `.card-grid`, `.card`, `.tag-list`, `.cta`. Новых блоков нет (DESIGN.md §19.5).
  * Текст — только из продукта (§19.9): ни цифр клиентов, ни цен.
  */
@@ -17,7 +19,20 @@ export const dynamicParams = false;
 
 type Props = { params: Promise<{ segment: string }> };
 
-const SLUGS: SegmentSlug[] = ['hostels', 'mini-hotels', 'apart-hotels'];
+const SLUGS: SegmentSlug[] = [
+  'hotels',
+  'salons',
+  'restaurants',
+  'hostels',
+  'mini-hotels',
+  'apart-hotels',
+];
+
+/** Направление регистрации для CTA страницы: салоны и рестораны предвыбирают свою вертикаль. */
+const VERTICAL: Partial<Record<SegmentSlug, 'BEAUTY' | 'FOOD_SERVICE'>> = {
+  salons: 'BEAUTY',
+  restaurants: 'FOOD_SERVICE',
+};
 
 export function generateStaticParams(): Array<{ segment: SegmentSlug }> {
   return SLUGS.map((segment) => ({ segment }));
@@ -91,15 +106,17 @@ export default async function SegmentPage({ params }: Props) {
             <div className="cta__actions">
               <a
                 className="btn btn--primary btn--lg"
-                href={registerLink(undefined, 'HOSPITALITY').href}
+                href={registerLink(undefined, VERTICAL[segment as SegmentSlug] ?? 'HOSPITALITY').href}
                 data-auth="register"
               >
                 {t.nav.register}
                 <Icon name="arrowRight" size={18} />
               </a>
-              <Link className="link-arrow" href="/calculator/">
-                {t.calculator.link}
-              </Link>
+              {VERTICAL[segment as SegmentSlug] ? null : (
+                <Link className="link-arrow" href="/calculator/">
+                  {t.calculator.link}
+                </Link>
+              )}
               <Link className="link-arrow" href="/">
                 {t.segments.home}
               </Link>

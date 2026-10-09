@@ -1,4 +1,5 @@
 import { getDictionary } from '../../i18n';
+import { VerticalChips } from './vertical-chips';
 import { registerLink } from '../../lib/site';
 import { Icon } from '../icon';
 
@@ -7,6 +8,12 @@ import { Icon } from '../icon';
  * чипы направлений и дашборд-мокап справа (сайдбар, четыре метрики, ближайшие заезды, график недели).
  * Мокап — чистый HTML/CSS с вымышленными данными и подписью примера; интерактива в нём нет (§19.9).
  */
+const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
+  HOSPITALITY: '/for/hotels/',
+  BEAUTY: '/for/salons/',
+  FOOD_SERVICE: '/for/restaurants/',
+};
+
 export function Hero() {
   const t = getDictionary();
   const { dash } = t.hero;
@@ -31,14 +38,18 @@ export function Hero() {
               <Icon name="arrowDown" size={18} />
             </a>
           </div>
-          <ul className="public-intro__availability" aria-label={t.intro.availability}>
-            {t.intro.cards.map((card) => (
-              <li key={card.id}>
-                <Icon name={card.icon} size={16} />
-                <span>{card.title}</span>
-              </li>
-            ))}
-          </ul>
+          <VerticalChips
+            label={t.intro.availability}
+            items={t.intro.cards.map((card) => ({
+              id: card.id,
+              icon: card.icon,
+              title: card.title,
+              name: card.name,
+              text: card.text,
+              href: DIRECTION[card.id],
+              more: card.action,
+            }))}
+          />
           <p className="public-intro__note">{t.hero.note}</p>
         </div>
         <figure className="public-intro__figure">
@@ -104,13 +115,6 @@ export function Hero() {
               </div>
             </div>
           </div>
-          <span className="public-intro__annotation" aria-hidden="true">
-            <svg viewBox="0 0 60 40" className="public-intro__annotation-arrow">
-              <path d="M52 4C38 10 24 24 10 34" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M18 32l-9 3 2-9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {t.hero.annotation}
-          </span>
           <figcaption>{dash.label}</figcaption>
         </figure>
       </div>

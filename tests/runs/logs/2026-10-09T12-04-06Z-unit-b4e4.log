@@ -1,0 +1,45 @@
+# Модульные (unit) · 09.10.2026 17:04 Алматы · vm
+# коммит 75035ac (claude/profile-menu-ready), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-04-06Z-unit-b4e4.json' 'tests/unit/ui-profile-menu.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main
+
+ ❯ |unit| tests/unit/ui-profile-menu.test.ts (2 tests | 1 failed) 38ms
+   ❯ меню профиля в спеках UI открывается после оживления кнопки (2)
+     × название кнопки встречается только в помощнике openProfileMenu, не в спеках 34ms
+     ✓ помощник на месте: ждёт оживления и раскрытия меню 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-profile-menu.test.ts > меню профиля в спеках UI открывается после оживления кнопки > название кнопки встречается только в помощнике openProfileMenu, не в спеках
+AssertionError: меню профиля открывает openProfileMenu(page) из tests/ui/fixtures.ts: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "profile-menu-readiness.spec.ts:55",
++   "profile-menu-readiness.spec.ts:70",
++   "profile-menu-readiness.spec.ts:85",
++ ]
+
+ ❯ tests/unit/ui-profile-menu.test.ts:24:90
+     22|           .flatMap((line, index) => (line.includes(MENU) ? [`${file}:$…
+     23|       );
+     24|     expect(hits, 'меню профиля открывает openProfileMenu(page) из test…
+       |                                                                                          ^
+     25|       [],
+     26|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:04:08
+   Duration  344ms (transform 45%, tests 35%, import 14%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-04-06Z-unit-b4e4.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 09.10.2026 17:02 Алматы · vm
+# коммит 75035ac (claude/profile-menu-ready), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/profile-menu-readiness.spec.ts' '--repeat-each=5'
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.5s)
+  ✓   2 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (5.8s)
+  ✓   3 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.8s)
+  ✓   4 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.9s)
+  ✓   5 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (5.2s)
+  ✓   6 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.8s)
+  ✓   7 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.5s)
+  ✓   8 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (5.6s)
+  ✓   9 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.6s)
+  ✓  10 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.7s)
+  ✓  11 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (5.7s)
+  ✓  12 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.2s)
+  ✓  13 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.9s)
+  ✓  14 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (5.6s)
+  ✓  15 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.4s)
+
+  15 passed (1.3m)
+
+# код выхода 0 · 1 мин 22 с

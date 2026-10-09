@@ -47,7 +47,7 @@ test('прямая ссылка на категорию сохраняется, 
   // место открывается панелью справа поверх фонда (ADR-108, I2), адрес — карточки места
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).click();
   await expect(page).toHaveURL(/\/units\/R01/);
-  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R01' })).toBeVisible();
 });
 
 test('таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают', async ({
@@ -83,9 +83,9 @@ test('таблица показывает расположение, состоя
   // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
   await row('R02').locator('td').nth(3).click();
   await expect(page).toHaveURL(/\/units\/R02/);
-  await expect(page.getByRole('dialog', { name: 'Номер R02' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R02' })).toBeVisible();
   await page.goBack();
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   // кнопок «Редактировать» в строках больше нет — действия в меню «⋯»
   await expect(main.getByRole('button', { name: 'Редактировать', exact: true })).toHaveCount(0);
   await main.getByRole('button', { name: 'Действия: R03', exact: true }).click();
@@ -168,7 +168,7 @@ test('категория и тип пересекаются, фильтр дос
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/units\/R01/);
-  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R01' })).toBeVisible();
 });
 
 test('панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами', async ({
@@ -185,7 +185,7 @@ test('панель места: факты, сейчас и следующее, �
     .locator('td')
     .nth(3)
     .click();
-  const drawer = page.getByRole('dialog', { name: 'Номер R09' });
+  const drawer = page.getByRole('complementary', { name: 'Номер R09' });
   await expect(drawer).toBeVisible();
   await expect(page).toHaveURL(/\/units\/R09$/);
   await expect(drawer.getByTestId('unit-category')).toHaveText(
@@ -208,7 +208,7 @@ test('панель места: факты, сейчас и следующее, �
   await drawer.getByTestId('hk-DIRTY').click();
   await expect(drawer.getByTestId('unit-hk')).toHaveText('Требует уборки');
   await page.keyboard.press('Escape');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   await expect(page).toHaveURL(/\/inventory\?kind=ROOM$/);
   await expect(
     main
@@ -218,7 +218,7 @@ test('панель места: факты, сейчас и следующее, �
   // прямой заход по адресу — полная карточка с теми же фактами, без панели
   await page.goto('/units/R09');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('R09');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   await expect(page.getByRole('main').getByTestId('unit-facts')).toBeVisible();
 });
 
@@ -234,7 +234,7 @@ test('панель места: живущий гость — «живёт», о�
       .getByRole('main')
       .getByRole('link', { name: `Открыть номер ${code}`, exact: true })
       .click();
-    const drawer = page.getByRole('dialog', { name: `Номер ${code}` });
+    const drawer = page.getByRole('complementary', { name: `Номер ${code}` });
     await expect(drawer).toBeVisible();
     return drawer;
   };
@@ -259,7 +259,7 @@ test('массовые действия: выбор мест и «Назначи
   const bar = main.getByRole('region', { name: 'Массовые действия' });
   await expect(bar).toContainText('Выбрано 2 объекта');
   // выбор не открывает панель места
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   await bar.getByRole('button', { name: 'Назначить уборку' }).click();
   await expect(page.getByTestId('toast-stack')).toContainText('Назначена уборка: 2 места');
   await expect(bar).toHaveCount(0);
@@ -286,7 +286,7 @@ test('фото категории: заглушка, выбор из библи�
     .getByRole('main')
     .getByRole('link', { name: 'Открыть номер R09', exact: true })
     .click();
-  const drawer = page.getByRole('dialog', { name: 'Номер R09' });
+  const drawer = page.getByRole('complementary', { name: 'Номер R09' });
   await expect(drawer.getByTestId('unit-photo')).toContainText('Фото ещё не добавлены');
   await drawer.getByRole('button', { name: 'Добавить фото категории' }).click();
   const picker = page.getByRole('dialog', { name: /Фото категории:/ });
@@ -325,9 +325,9 @@ for (const theme of ['light', 'dark'] as const) {
         .getByRole('main')
         .getByRole('link', { name: 'Открыть номер R09', exact: true })
         .click();
-      await expect(page.getByRole('dialog', { name: 'Номер R09' })).toBeVisible();
+      await expect(page.getByRole('complementary', { name: 'Номер R09' })).toBeVisible();
       const audit = await new AxeBuilder({ page })
-        .include('dialog[open]')
+        .include('.fund-aside')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(audit.violations).toEqual([]);

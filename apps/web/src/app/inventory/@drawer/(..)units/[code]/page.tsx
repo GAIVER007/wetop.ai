@@ -2,7 +2,7 @@ import { requireVertical } from '../../../../../lib/vertical-guard';
 import { api, unitsApi } from '../../../../../lib/api';
 import { hotelToday } from '../../../../../lib/hotel-api';
 import { notFoundOn404 } from '../../../../../lib/page-error';
-import { RouteDrawer } from '../../../../../components/route-drawer';
+import { DockedPanel } from '../../../docked-panel';
 import { UnitPanel } from '../../../unit-panel';
 
 /**
@@ -23,8 +23,8 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
     .then((all) => all[unit.accommodationTypeCode] ?? [])
     .catch(() => []);
   return (
-    <RouteDrawer title={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'} ${unit.code}`}>
+    <DockedPanel title={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'} ${unit.code}`}>
       <UnitPanel unit={unit} today={today} roomUnits={roomUnits} photos={photos} />
-    </RouteDrawer>
+    </DockedPanel>
   );
 }

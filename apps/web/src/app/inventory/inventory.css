@@ -795,7 +795,8 @@
     height: 18px;
     accent-color: var(--primary);
   }
-  .inventory-row[aria-selected='true'] {
+  .inventory-row[aria-selected='true'],
+  .inventory-row[aria-current='true'] {
     background: var(--primary-soft);
   }
   .inv-bulk {
@@ -914,5 +915,63 @@
   }
   .photo-picker__actions .sub {
     margin-right: auto;
+  }
+  /* панель места колонкой справа от списка, на узком экране выезжает поверх */
+  .fund-split:has(.fund-aside) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 480px;
+    column-gap: var(--space-4);
+    align-items: start;
+  }
+  .fund-split:has(.fund-aside) .inv-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .fund-aside .tabs,
+  .fund-aside [role='tablist'] {
+    flex-wrap: nowrap;
+    font-size: var(--text-sm);
+  }
+  .fund-aside {
+    position: sticky;
+    top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - var(--space-8));
+    margin-top: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .fund-aside__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+  .fund-aside__head h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .fund-aside__body {
+    overflow-y: auto;
+    min-height: 0;
+  }
+  @media (max-width: 960px) {
+    .fund-split:has(.fund-aside) {
+      display: block;
+    }
+    .fund-aside {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: var(--layer-overlay);
+      width: min(480px, 100%);
+      max-height: none;
+      margin: 0;
+      border-radius: 0;
+    }
   }
 }

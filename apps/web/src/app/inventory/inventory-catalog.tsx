@@ -85,6 +85,7 @@ export function InventoryCatalog({
   const live = useSearchParams();
   const pathname = usePathname();
   const kept = useRef(live);
+  const openCode = pathname.startsWith('/units/') ? decodeURIComponent(pathname.slice(7)) : '';
   if (pathname === '/inventory') kept.current = live;
   const search = kept.current;
   const router = useRouter();
@@ -493,6 +494,7 @@ export function InventoryCatalog({
                       className="inventory-row"
                       onClick={(e) => rowClick(e, unit)}
                       aria-selected={selected.has(unit.code)}
+                      aria-current={openCode === unit.code ? 'true' : undefined}
                     >
                       <td className="inv-check">
                         <input

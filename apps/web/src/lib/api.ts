@@ -233,7 +233,7 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
-/** Фото и договор объекта (ADR-155, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+/** Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
 export interface PropertyMediaItem {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';
@@ -1864,9 +1864,14 @@ export interface DashboardView {
 }
 export const dashboardApi = {
   /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
-  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+  period: (from: string, to: string, fund: DashboardFund = 'all', category?: string) =>
     getJson<DashboardView>(
-      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+      `/desk/dashboard?${new URLSearchParams({
+        from,
+        to,
+        ...(fund === 'all' ? {} : { fund }),
+        ...(category ? { category } : {}),
+      })}`,
     ),
   /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
   units: (from: string, to: string, fund: DashboardFund = 'all') =>

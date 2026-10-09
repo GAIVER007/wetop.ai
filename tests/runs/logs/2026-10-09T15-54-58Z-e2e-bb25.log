@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 09.10.2026 20:54 Алматы · vm
+# коммит 5423260 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/housekeeping.spec.ts:118' 'tests/ui/mobile-adaptation.spec.ts:92' 'tests/ui/mobile-adaptation.spec.ts:120'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (2.8s)
+  ✓  2 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (3.5s)
+
+  2 passed (19.4s)
+
+# код выхода 0 · 21 с

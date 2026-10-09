@@ -30,7 +30,7 @@ export interface StoredProperty {
   /** v1.7 (ADR-082): контакты объекта для печатных форм */
   phone?: string | null;
   email?: string | null;
-  /** ADR-155: «Публичное имя для документов» из настроек объекта; пусто — печатается название */
+  /** ADR-156: «Публичное имя для документов» из настроек объекта; пусто — печатается название */
   publicName?: string | null;
   checkInTime: string;
   checkOutTime: string;

@@ -8,7 +8,7 @@ import type { SiteAssetStorage } from '../marketing-site/asset-storage';
 import type { HotelService } from './hotel.module';
 import { PHOTOS_MAX, PropertyMediaService, safeFileName } from './property-media';
 
-/** Фото и договор объекта (ADR-155, §31.3): права, хранилище, формат файла, замена договора */
+/** Фото и договор объекта (ADR-156, §31.3): права, хранилище, формат файла, замена договора */
 const png = () =>
   sharp({ create: { width: 40, height: 30, channels: 3, background: '#336699' } }).png().toBuffer();
 const pdf = Buffer.from('%PDF-1.4\n%вымышленный договор\n');

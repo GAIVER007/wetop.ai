@@ -105,7 +105,7 @@ model Location {
   @@map("locations")
 }
 
-/// Фото и договор объекта (ADR-155, DATA_MODEL §31.3): файл в закрытом хранилище, в базе только ключ.
+/// Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл в закрытом хранилище, в базе только ключ.
 model PropertyMedia {
   id          String    @id @default(uuid()) @db.Uuid
   propertyId  String    @map("property_id") @db.Uuid
@@ -157,7 +157,7 @@ model Property {
   checkInTime         String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime        String   @map("check_out_time")
-  /// Карточка объекта (ADR-155, DATA_MODEL §31): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
+  /// Карточка объекта (ADR-156, DATA_MODEL §31): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
   description         String?  @db.VarChar(500)
   website             String?  @db.VarChar(300)
   /// Имя в договоре и счёте гостя; пусто, пока не задано, тогда печатается name
@@ -169,7 +169,7 @@ model Property {
   smokingAllowed      Boolean  @default(false) @map("smoking_allowed")
   /// CASH_CARD | CASH | CARD | TRANSFER (CHECK в базе)
   onsitePayment       String   @default("CASH_CARD") @map("onsite_payment") @db.VarChar(12)
-  /// Подпись правила отмены для карточки (штраф считает тариф, Q-286): FREE_1D | FREE_3D | FREE_7D | NON_REFUNDABLE
+  /// Подпись правила отмены для карточки (штраф считает тариф, Q-293): FREE_1D | FREE_3D | FREE_7D | NON_REFUNDABLE
   cancellationRule    String   @default("FREE_1D") @map("cancellation_rule") @db.VarChar(16)
   /// Подпись залога для карточки: NONE | FIRST_NIGHT | HALF | FULL
   depositRule         String   @default("NONE") @map("deposit_rule") @db.VarChar(16)

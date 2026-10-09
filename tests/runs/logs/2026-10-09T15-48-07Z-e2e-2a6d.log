@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 09.10.2026 20:48 Алматы · vm
+# коммит 74f1583 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-gate.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (7.2s)
+  ✓  2 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (7.1s)
+  ✓  3 tests/ui/chessboard-gate.spec.ts:106:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (11.9s)
+
+  3 passed (38.2s)
+
+# код выхода 0 · 40 с

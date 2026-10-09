@@ -1,17 +1,182 @@
 import Link from 'next/link';
-import type { DashboardPeriod } from '@pms/domain';
+import { groupDaily, type DashboardBucket, type DashboardPeriod } from '@pms/domain';
 import { ApiError, dashboardApi } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
 import { LoadError } from '../../../components/load-error';
 import { EmptyState, Panel, Skeleton, Table } from '../../../components/ui';
-import { DayBars } from '../../../components/day-bars';
+import { DayBars, type DayBar } from '../../../components/day-bars';
+import { DonutShare } from '../../../components/donut-share';
+import { LineChart } from '../../../components/line-chart';
+import { cx } from '../../../components/ui';
 import { formatInt, formatPercent, sourceLabel, wholeTenge } from '../../../lib/dashboard-format';
 import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from './params';
 import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
+import { OccupancyTiles } from './occupancy-tiles';
 
 const b = (v: string) => BigInt(v);
+
+const shortMonth = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('ru-RU', { month: 'short', timeZone: 'UTC' });
+
+/** Столбик недели или месяца: начало, конец и подпись под ним */
+function bucketBar(k: DashboardBucket, g: 'week' | 'month'): Pick<DayBar, 'date' | 'to' | 'label'> {
+  return {
+    date: k.from,
+    to: k.to,
+    label: g === 'week' ? `${k.from.slice(8, 10)}.${k.from.slice(5, 7)}` : shortMonth(k.from),
+  };
+}
+const partialNote = (k: DashboardBucket) => (k.partial ? ' (неполный период)' : '');
+/** Высота по деньгам: доля от самого денежного столбика, тысячные доли целыми числами */
+function bucketHeight(value: string, all: DashboardBucket[]): number {
+  const max = all.reduce((m, k) => (b(k.revenueMinor) > m ? b(k.revenueMinor) : m), 0n);
+  return max > 0n ? Number((b(value) * 1000n) / max) / 10 : 0;
+}
+
+/** Категория и детализация (RPT2.2c-3): ссылки, значения живут в адресе */
+function ReportFilters({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery }) {
+  const grains = [
+    { id: undefined, label: 'По дням' },
+    { id: 'week', label: 'По неделям' },
+    { id: 'month', label: 'По месяцам' },
+  ] as const;
+  return (
+    <section
+      className="pa-toolbar__row pa-filters"
+      aria-label="Категория и детализация"
+      data-testid="pa-filters"
+    >
+      {c.categoryOptions.length > 1 && (
+        <nav className="seg" aria-label="Категория" data-testid="pa-category">
+          <Link
+            href={analyticsHref(query, { category: undefined })}
+            className={cx(!query.category && 'is-on')}
+            aria-current={!query.category ? 'page' : undefined}
+          >
+            Все категории
+          </Link>
+          {c.categoryOptions.map((o) => (
+            <Link
+              key={o.code}
+              href={analyticsHref(query, { category: o.code })}
+              className={cx(query.category === o.code && 'is-on')}
+              aria-current={query.category === o.code ? 'page' : undefined}
+            >
+              {o.name}
+            </Link>
+          ))}
+        </nav>
+      )}
+      {c.nights > 1 && (
+        <nav className="seg" aria-label="Детализация" data-testid="pa-granularity">
+          {grains.map((g) => (
+            <Link
+              key={g.label}
+              href={analyticsHref(query, { granularity: g.id })}
+              className={cx(query.granularity === g.id && 'is-on')}
+              aria-current={query.granularity === g.id ? 'page' : undefined}
+            >
+              {g.label}
+            </Link>
+          ))}
+        </nav>
+      )}
+    </section>
+  );
+}
+
+const compactTenge = new Intl.NumberFormat('ru-RU', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+const fullTenge = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+/** Тиыны в тенге для рисунка: только масштаб графика, денежных расчётов здесь нет */
+const toTenge = (minor: string | null) => (minor === null ? null : Number(BigInt(minor) / 100n));
+
+/** ADR и RevPAR линиями по точкам периода (RPT2.2c-3, ADR-155, Q-290): день, неделя или месяц, как выбрана детализация */
+function PricePanel({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery }) {
+  const g = query.granularity ?? 'day';
+  const buckets = groupDaily(c.daily, g);
+  if (c.nights < 2 || buckets.length < 2 || buckets.every((k) => k.adrMinor === null)) return null;
+  const axis = (k: DashboardBucket) =>
+    g === 'month' ? shortMonth(k.from) : `${k.from.slice(8, 10)}.${k.from.slice(5, 7)}`;
+  return (
+    <Panel title="ADR и RevPAR" className="dash-panel pa-wide">
+      <LineChart
+        testId="pa-chart-price"
+        labels={buckets.map((k) =>
+          k.to === k.from ? displayDate(k.from) : `${displayDate(k.from)} — ${displayDate(k.to)}`,
+        )}
+        axisLabels={buckets.map(axis)}
+        format={(v) => `${fullTenge.format(Math.round(v))} ₸`}
+        formatAxis={(v) => compactTenge.format(v)}
+        series={[
+          {
+            name: 'ADR',
+            values: buckets.map((k) => toTenge(k.adrMinor)),
+            summary: c.adrMinor ? wholeTenge(c.adrMinor) : 'нет данных',
+          },
+          {
+            name: 'RevPAR',
+            values: buckets.map((k) => toTenge(k.revparMinor)),
+            dashed: true,
+            summary: c.revparMinor ? wholeTenge(c.revparMinor) : 'нет данных',
+          },
+        ]}
+      />
+      <p className="muted dash-note">
+        Цена места делится по ночам проживания. ADR: выручка за ночи на занятые ночи, RevPAR: на
+        ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
+      </p>
+    </Panel>
+  );
+}
+
+/** Кольца долей (RPT2.2c-3): начислено за проживание по категориям и стоимость броней по источникам; смысл в списке рядом */
+function SharePanels({ c }: { c: DashboardPeriod }) {
+  const byCategory = c.categories.map((cat) => ({ label: cat.name, valueMinor: cat.revenueMinor }));
+  const bySource = c.sources.map((src) => ({
+    label: sourceLabel(src.source, src.channel),
+    valueMinor: src.amountMinor,
+  }));
+  const sum = (items: Array<{ valueMinor: string }>) =>
+    items.reduce((n, i) => (b(i.valueMinor) > 0n ? n + b(i.valueMinor) : n), 0n);
+  const catTotal = sum(byCategory);
+  const srcTotal = sum(bySource);
+  if (catTotal === 0n && srcTotal === 0n) return null;
+  return (
+    <>
+      {catTotal > 0n && c.categories.length > 1 && (
+        <Panel title="Начислено по категориям" className="dash-panel">
+          <DonutShare
+            testId="pa-donut-categories"
+            items={byCategory}
+            centerValue={wholeTenge(catTotal.toString())}
+            centerLabel="за проживание"
+            amount={wholeTenge}
+          />
+          <p className="muted dash-note">Начисления за проживание по дню заезда.</p>
+        </Panel>
+      )}
+      {srcTotal > 0n && bySource.length > 1 && (
+        <Panel title="Источники по стоимости броней" className="dash-panel">
+          <DonutShare
+            testId="pa-donut-sources"
+            items={bySource}
+            centerValue={wholeTenge(srcTotal.toString())}
+            centerLabel="стоимость броней"
+            amount={wholeTenge}
+          />
+          <p className="muted dash-note">
+            Доля выручки; доля броней по числу показана ниже, в подробностях.
+          </p>
+        </Panel>
+      )}
+    </>
+  );
+}
 
 /** Шесть плиток ТЗ §5: загрузка, выручка проживания, продано ночей, брони, отмены, средний чек */
 function KpiRow({
@@ -33,21 +198,14 @@ function KpiRow({
       data-testid={detail ? 'pa-kpis-detail' : 'pa-kpis'}
     >
       {!detail && (
-        <Tile
-          id="occupancy"
-          label="Загрузка"
-          value={formatPercent(c.occupancy.percent)}
-          hint={
+        <OccupancyTiles
+          c={c}
+          p={p}
+          hint={(o) =>
             single
-              ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
-              : `блокировки входят в фонд: ${formatInt(c.occupancy.blockedNights)} ночей закрыто`
+              ? `занято ${o.occupiedNights} из ${o.sellableNights} мест`
+              : `от доступных к продаже ночей; закрыто для продажи: ${formatInt(o.blockedNights)}`
           }
-          delta={pointsDelta(
-            c.occupancy.percent,
-            prev.occupancy.percent,
-            prev.occupancy.occupiedNights,
-          )}
-          compare={compare}
         />
       )}
       {!detail && (
@@ -65,7 +223,7 @@ function KpiRow({
           id="nights"
           label="Продано ночей"
           value={formatInt(c.occupancy.occupiedNights)}
-          hint={`из ${formatInt(c.occupancy.unitNights)} ночей фонда`}
+          hint={`из ${formatInt(c.occupancy.sellableNights)} ночей, доступных к продаже`}
           delta={countDelta(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
           compare={compare}
         />
@@ -163,7 +321,15 @@ function UnitEconomics({
   );
 }
 
-function OccupancyPanel({ c, today }: { c: DashboardPeriod; today: string }) {
+function OccupancyPanel({
+  c,
+  today,
+  query,
+}: {
+  c: DashboardPeriod;
+  today: string;
+  query: AnalyticsQuery;
+}) {
   const chessboard = `/chessboard?from=${c.from}&to=${c.to}`;
   if (c.nights === 1)
     return (
@@ -191,11 +357,19 @@ function OccupancyPanel({ c, today }: { c: DashboardPeriod; today: string }) {
       <DayBars
         testId="pa-chart-occupancy"
         today={today}
-        days={c.daily.map((d) => ({
-          date: d.date,
-          height: d.percent,
-          facts: `загрузка ${formatPercent(d.percent)}, занято ${d.occupied}, свободно ${d.free}, заблокировано ${d.blocked}`,
-        }))}
+        days={
+          query.granularity
+            ? groupDaily(c.daily, query.granularity).map((k) => ({
+                ...bucketBar(k, query.granularity!),
+                height: k.percent,
+                facts: `загрузка ${formatPercent(k.percent)}, занято ночей ${k.occupied}, свободно ${k.free}, заблокировано ${k.blocked}${partialNote(k)}`,
+              }))
+            : c.daily.map((d) => ({
+                date: d.date,
+                height: d.percent,
+                facts: `загрузка ${formatPercent(d.percent)}, занято ${d.occupied}, свободно ${d.free}, заблокировано ${d.blocked}`,
+              }))
+        }
       />
       <div className="bars-legend muted">
         <span>
@@ -210,7 +384,15 @@ function OccupancyPanel({ c, today }: { c: DashboardPeriod; today: string }) {
   );
 }
 
-function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
+function RevenuePanel({
+  c,
+  today,
+  query,
+}: {
+  c: DashboardPeriod;
+  today: string;
+  query: AnalyticsQuery;
+}) {
   const max = c.daily.reduce((m, d) => (b(d.revenueMinor) > m ? b(d.revenueMinor) : m), 0n);
   // высота — доля от самого денежного дня; тысячные доли целочисленно, без float над деньгами
   const height = (v: string) => (max > 0n ? Number((b(v) * 1000n) / max) / 10 : 0);
@@ -225,11 +407,19 @@ function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
         <DayBars
           testId="pa-chart-revenue"
           today={today}
-          days={c.daily.map((d) => ({
-            date: d.date,
-            height: height(d.revenueMinor),
-            facts: `начислено за проживание ${wholeTenge(d.revenueMinor)}, заездов ${d.arrivals}`,
-          }))}
+          days={
+            query.granularity
+              ? groupDaily(c.daily, query.granularity).map((k) => ({
+                  ...bucketBar(k, query.granularity!),
+                  height: bucketHeight(k.revenueMinor, groupDaily(c.daily, query.granularity!)),
+                  facts: `начислено за проживание ${wholeTenge(k.revenueMinor)}, заездов ${k.arrivals}${partialNote(k)}`,
+                }))
+              : c.daily.map((d) => ({
+                  date: d.date,
+                  height: height(d.revenueMinor),
+                  facts: `начислено за проживание ${wholeTenge(d.revenueMinor)}, заездов ${d.arrivals}`,
+                }))
+          }
         />
       )}
       <p className="muted dash-note pa-note-links">
@@ -355,7 +545,7 @@ const hasData = (c: DashboardPeriod) =>
 export async function Overview({ query, today }: { query: AnalyticsQuery; today: string }) {
   const { period, fund } = query;
   const view = await dashboardApi
-    .period(period.from, period.to, fund)
+    .period(period.from, period.to, fund, query.category)
     .catch((error: unknown) => (error instanceof ApiError ? error : Promise.reject(error)));
   if (view instanceof ApiError) return <LoadError testId="pa-error" {...loadErrorProps(view)} />;
   const c = view.current;
@@ -396,6 +586,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
     );
   return (
     <>
+      <ReportFilters c={c} query={query} />
       <KpiRow c={c} p={p} />
 
       {p && (
@@ -408,8 +599,10 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
         </p>
       )}
       <div className="dash-grid dash-grid--chart pa-charts">
-        <OccupancyPanel c={c} today={today} />
-        <RevenuePanel c={c} today={today} />
+        <OccupancyPanel c={c} today={today} query={query} />
+        <RevenuePanel c={c} today={today} query={query} />
+        <PricePanel c={c} query={query} />
+        <SharePanels c={c} />
       </div>
       <details className="pa-details">
         <summary>Подробности: ночи, средний чек, категории и источники</summary>

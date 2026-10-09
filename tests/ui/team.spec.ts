@@ -46,9 +46,7 @@ test('владелец: таблица людей с ролями и датам�
     .locator('.workspace-header .topmenu')
     .getByRole('button', { name: 'Настройки', exact: true })
     .click();
-  await expect(
-    page.locator('.workspace-header .topmenu a[href="/team"]'),
-  ).toBeVisible();
+  await expect(page.locator('.workspace-header .topmenu a[href="/team"]')).toBeVisible();
 });
 
 test('приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа»', async ({ page }) => {
@@ -127,7 +125,10 @@ test('неверный телефон: словами в панели, введ�
   await expect(drawer.getByLabel('Подпись под именем (необязательно)')).toHaveValue('Кассир');
 });
 
-test('управляющий: роль не меняет, приглашает только администраторов', async ({ page, request }) => {
+test('управляющий: роль не меняет, приглашает только администраторов', async ({
+  page,
+  request,
+}) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
   await page.goto('/team');
@@ -207,10 +208,177 @@ test('«Сотрудники и доступ»: сводка по команде
   const main = page.getByRole('main');
   const stats = main.getByTestId('team-stats');
   await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-active')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-suspended')).toHaveText('0');
   await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
   await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
+});
+
+test('«Роли и права»: вкладка только на чтение, права трёх ролей по таблице API', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  await page
+    .getByRole('navigation', { name: 'Сотрудники и контроль' })
+    .getByRole('link', { name: 'Роли и права' })
+    .click();
+  await expect(page).toHaveURL(/\/team\/roles$/);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+  await expect(main.getByTestId('roles-row')).toHaveCount(13);
+  const owner = main
+    .getByTestId('roles-row')
+    .filter({ hasText: 'Управляющие, роли и платные расширения' });
+  await expect(owner.locator('td').nth(1)).toHaveText('Да');
+  await expect(owner.locator('td').nth(2)).toHaveText('Нет');
+  await expect(owner.locator('td').nth(3)).toHaveText('Нет');
+  await expect(main.getByRole('button')).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual(
+    [],
+  );
+});
+
+test('«Роли и права»: администратору закрыто', async ({ page, request }) => {
+  await signIn(page);
+  await asRole(request, 'STAFF');
+  await page.goto('/team/roles');
+  await expect(page.getByRole('main')).toContainText('Нет доступа');
+  await expect(page.getByTestId('roles-table')).toHaveCount(0);
+});
+
+test('приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const invites = page.getByRole('main').getByTestId('invite-list');
+  const row = invites.locator('li', { hasText: 'zhdet@example.com' });
+  await expect(row).toContainText('администратор');
+  await row.getByRole('button', { name: 'Отправить заново' }).click();
+  await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toHaveCount(1);
+  await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
+    'администратор',
+  );
+});
+
+test('приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await yurij.getByRole('button', { name: 'Приостановить' }).click();
+  const confirm = page.getByRole('dialog');
+  await expect(confirm).toContainText('останется в команде');
+  await confirm.getByRole('button', { name: 'Приостановить' }).click();
+  await expect(yurij.getByTestId('member-suspended')).toHaveText('Приостановлен');
+  await expect(main.getByTestId('team-stat-suspended')).toHaveText('1');
+  await expect(main.getByTestId('team-stat-active')).toHaveText('2');
+  // из команды не ушёл
+  await expect(main.getByTestId('member-row')).toHaveCount(3);
+  await yurij.getByRole('button', { name: 'Возобновить' }).click();
+  await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
+  await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
+});
+
+test('приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await asRole(request, 'MANAGER');
+  await page.goto('/team');
+  const rows = page.getByRole('main').getByTestId('member-row');
+  await expect(
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Приостановить' }),
+  ).toHaveCount(0);
+  await expect(
+    rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Приостановить' }),
+  ).toHaveCount(1);
+});
+
+test('область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await expect(yurij.getByTestId('member-scope')).toHaveText('Вся организация');
+  await yurij.getByRole('button', { name: 'Доступ', exact: true }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Выбранные филиалы').check();
+  await drawer.getByLabel('Главный филиал: роль').selectOption('MANAGER');
+  await drawer.getByLabel('Филиал Алматы: роль').selectOption('STAFF');
+  await drawer.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(yurij.getByTestId('member-scope')).toHaveText('Главный филиал, Филиал Алматы');
+  // роль членства стала старшей из назначенных
+  await expect(yurij).toContainText('управляющий');
+  // вернуть на всю организацию
+  await yurij.getByRole('button', { name: 'Доступ', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Вся организация').check();
+  await page.getByRole('dialog').getByRole('button', { name: 'Сохранить' }).click();
+  await expect(yurij.getByTestId('member-scope')).toHaveText('Вся организация');
+});
+
+test('область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const yurij = page.getByRole('main').getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await yurij.getByRole('button', { name: 'Доступ', exact: true }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Выбранные филиалы').check();
+  await drawer.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(drawer.getByRole('alert')).toContainText('хотя бы одно место');
+});
+
+test('приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  await page.getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Имя', { exact: true }).fill('Айгерим');
+  await drawer.getByLabel('Фамилия').fill('Тестова');
+  await drawer.getByLabel('Почта приглашённого').fill('scoped@example.com');
+  await drawer.getByLabel('Телефон (необязательно)').fill('8 701 000 11 22');
+  await drawer.getByLabel('Выбранные филиалы').check();
+  await drawer.getByLabel('Филиал Алматы', { exact: true }).check();
+  await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('invite-list')).toContainText('scoped@example.com');
+});
+
+test('управляющий: «Доступ» только администраторам, в списке ролей один вариант', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await asRole(request, 'MANAGER');
+  await page.goto('/team');
+  const rows = page.getByRole('main').getByTestId('member-row');
+  await expect(
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Доступ', exact: true }),
+  ).toHaveCount(0);
+  await rows
+    .filter({ hasText: 'Юрий Тестов' })
+    .getByRole('button', { name: 'Доступ', exact: true })
+    .click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Выбранные филиалы').check();
+  await expect(drawer.getByLabel('Главный филиал: роль').locator('option')).toHaveText([
+    'Нет доступа',
+    'Администратор',
+  ]);
 });

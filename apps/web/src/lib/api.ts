@@ -511,6 +511,8 @@ export interface SignedIn {
   role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
+  /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
+  restricted?: boolean;
 }
 
 /** Расширение «ИИ-продавец» организации (ADR-083, Q-183): `expired` — срок вышел, раздел только для чтения */
@@ -683,14 +685,35 @@ export const authApi = {
     email: string,
     role: InviteRole,
     info: AuthClientInfo,
+    extra: AuthInviteExtra = {},
   ): Promise<AuthInvite> => {
     const res = await backendFetch('/auth/invites', {
       method: 'POST',
       headers: authHeaders(info, token),
-      body: JSON.stringify({ email, role }),
+      body: JSON.stringify({ email, role, ...extra }),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
+  },
+  /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
+  accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
+    const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthAccessStructure;
+  },
+  /** Заменить назначения сотрудника; пустой список: вся организация. 400/403 словами */
+  setMemberScopes: async (
+    token: string,
+    userId: string,
+    scopes: AuthScope[],
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/scopes`, {
+      method: 'PUT',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ scopes }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Отозвать ожидающее приглашение (аудит 26.09, С-10): 404 — его нет или оно не по роли вошедшего */
   revokeInvite: async (token: string, id: string, info: AuthClientInfo): Promise<void> => {
@@ -713,6 +736,19 @@ export const authApi = {
       method: 'DELETE',
       headers: authHeaders(info, token),
     });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Приостановить или возобновить доступ (DATA_MODEL §31.2): человек остаётся в команде, не входит; 403 словами */
+  setMemberSuspended: async (
+    token: string,
+    userId: string,
+    suspended: boolean,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(
+      `/auth/members/${encodeURIComponent(userId)}/${suspended ? 'suspend' : 'resume'}`,
+      { method: 'POST', headers: authHeaders(info, token) },
+    );
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Роль между управляющим и администратором — только владелец */
@@ -3016,6 +3052,37 @@ export interface AuthInvite {
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
+  /** Что указал пригласивший и назначения (DATA_MODEL §31.3); старый API этого не присылает */
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: AuthScope[];
+}
+
+/** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
+export interface AuthScope {
+  role: InviteRole;
+  businessId: string;
+  locationId: string | null;
+}
+
+/** Необязательное в приглашении: имя, фамилия, телефон, должность и область доступа */
+export interface AuthInviteExtra {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  position?: string;
+  scopes?: AuthScope[];
+}
+
+/** Бизнесы и филиалы организации для назначений */
+export interface AuthAccessStructure {
+  businesses: Array<{
+    id: string;
+    name: string;
+    vertical: string;
+    locations: Array<{ id: string; name: string }>;
+  }>;
 }
 
 /** Человек своей организации в блоке «Сотрудники» (ADR-107) */
@@ -3034,6 +3101,14 @@ export interface AuthMember {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ */
+  suspendable: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: AuthScope[];
+  /** Этот вошедший может заменить ему назначения */
+  scopesEditable: boolean;
 }
 
 export interface AuthInvitePreview {

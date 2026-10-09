@@ -25,6 +25,11 @@ export const PRIMITIVES = [
   'tabs',
   'chip',
   'toolbar',
+  // MV8.5 DS1c (DESIGN.md §8.2): доля, сетка формы, период и день
+  'share-bar',
+  'form-grid',
+  'period-picker',
+  'date-bar',
 ];
 const ROOT = resolve(import.meta.dirname, '../..');
 const SRC = resolve(ROOT, 'apps/web/src');

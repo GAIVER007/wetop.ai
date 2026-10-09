@@ -6,6 +6,9 @@ import { Icon, iconNames } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Chip, ChipGroup } from '../../components/chip';
 import { Toolbar } from '../../components/toolbar';
+import { FormGrid } from '../../components/form-grid';
+import { PeriodPicker } from '../../components/period-picker';
+import { ShareBar } from '../../components/share-bar';
 import {
   Alert,
   Badge,
@@ -28,6 +31,7 @@ import { DateInput } from '../../components/date-field';
 import {
   ChipDemo,
   ConfirmDemo,
+  DateBarDemo,
   DisabledTooltipDemo,
   ErrorDemo,
   MenuDemo,
@@ -378,13 +382,168 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         title="Плитка показателя"
         where="ui.tsx · Stat; белая, цвет только у значения, когда нужно действие"
       >
-        <State name="default">
+        <State name="default" note="тон чертой слева, плитка не заливается (DS1c)">
           <Stats min={150}>
             <Stat label="Заезды" value="20" hint="10 ожидают заселения" />
-            <Stat label="Свободно" value="19" hint="номеров и коек" />
-            <Stat label="Не заселены" value="4" tone="warn" hint="после 18:00 — незаезд" />
+            <Stat label="Загрузка" value="72 %" tone="info" hint="по календарю" />
+            <Stat label="Оплачено" value="1 240 000 ₸" tone="success" hint="за неделю" />
+            <Stat label="Не заселены" value="4" tone="warning" hint="после 18:00 незаезд" />
+            <Stat label="Долг уезжающих" value="155 357 ₸" tone="danger" hint="проверьте расчёт" />
+          </Stats>
+        </State>
+        <State name="selected" note="с изменением к прошлому периоду, размеры sm, md, lg">
+          <Stats min={150}>
+            <Stat
+              label="Загрузка"
+              value="72 %"
+              size="sm"
+              delta={{ direction: 'up', text: '+3,2 п.п.' }}
+            />
+            <Stat
+              label="Средняя цена ночи"
+              value="12 400 ₸"
+              delta={{ direction: 'down', text: '−4 %' }}
+            />
+            <Stat
+              label="Получено оплат"
+              value="3 180 000 ₸"
+              size="lg"
+              delta={{ direction: null, text: 'нет базы для сравнения' }}
+            />
+          </Stats>
+        </State>
+        <State name="hover" note="плитка-ссылка целиком: наведите или нажмите Tab">
+          <Stats min={150}>
+            <Stat label="Заезды сегодня" value="4" href="#kit-stat" hint="открыть список" />
+          </Stats>
+        </State>
+        <State name="disabled" note="прежний вид alarm и warn до DS4–DS7">
+          <Stats min={150}>
+            <Stat label="Не заселены" value="4" tone="warn" hint="после 18:00 незаезд" />
             <Stat label="Долг уезжающих" value="155 357 ₸" tone="alarm" hint="проверьте расчёт" />
           </Stats>
+        </State>
+      </Component>
+
+      <Component
+        id="sharebar"
+        title="Доля"
+        where="share-bar.tsx · ShareBar; родной progress с именем, число рядом; §8.2"
+      >
+        <State name="default">
+          <div className="stack">
+            <ShareBar label="Доля: Booking.com" value={0} max={100} showValue />
+            <ShareBar label="Доля: Сайт" value={37} max={100} showValue />
+            <ShareBar label="Доля: Стойка" value={100} max={100} showValue />
+            <ShareBar label="Доля: Звонки" value={50} max={100} showValue />
+          </div>
+        </State>
+        <State name="selected" note="тон по общей шкале; смысл держат имя и число, не цвет">
+          <div className="stack">
+            <ShareBar label="Доля: успех" value={64} tone="success" showValue />
+            <ShareBar label="Доля: внимание" value={48} tone="warning" showValue />
+            <ShareBar label="Доля: отказ" value={12} tone="danger" showValue />
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="form-grid"
+        title="Сетка формы и обязательность поля"
+        where="form-grid.tsx · FormGrid; ui.tsx · Field required; на телефоне одна колонка; §8.2"
+      >
+        <State name="default" note="required: знак и родное required; false: «необязательно»">
+          <FormGrid columns={2}>
+            <Field label="Имя" required controlId={`kit-${theme}-first-name`}>
+              <Input />
+            </Field>
+            <Field label="Отчество" required={false} controlId={`kit-${theme}-middle-name`}>
+              <Input />
+            </Field>
+          </FormGrid>
+        </State>
+        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена; плотность compact">
+          <FormGrid columns={3} density="compact">
+            <Field label="Телефон">
+              <Input />
+            </Field>
+            <Field label="Email">
+              <Input />
+            </Field>
+            <Field label="Комментарий">
+              <Input />
+            </Field>
+          </FormGrid>
+        </State>
+      </Component>
+
+      <Component
+        id="period-picker"
+        title="Период"
+        where="period-picker.tsx · PeriodPicker; готовые отрезки ссылками, поля «С» и «По»; применяет экран; §8.2"
+      >
+        <State name="default">
+          <form className="kit-form-inline" action="#">
+            <PeriodPicker
+              from="2026-09-10"
+              to="2026-09-16"
+              fromName={`${theme}-from`}
+              toName={`${theme}-to`}
+              presets={[
+                { label: 'Сегодня', href: '#today', selected: false },
+                { label: '7 дней', href: '#week', selected: true },
+                { label: '30 дней', href: '#month', selected: false },
+              ]}
+            />
+          </form>
+        </State>
+        <State name="error" note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)">
+          <form className="kit-form-inline" action="#">
+            <PeriodPicker
+              from="2026-09-24"
+              to="2026-09-10"
+              fromName={`${theme}-from-err`}
+              toName={`${theme}-to-err`}
+              errors={{ to: 'Дата «по» раньше даты «с»' }}
+            />
+          </form>
+        </State>
+      </Component>
+
+      <Component
+        id="date-bar"
+        title="День"
+        where="date-bar.tsx · DateBar; предыдущий и следующий день, поле «Дата», «Сегодня» по желанию; §8.2"
+      >
+        <State name="default" note="салон: с «Сегодня»">
+          <DateBarDemo withToday />
+        </State>
+        <State name="selected" note="ресторан: без «Сегодня»">
+          <DateBarDemo />
+        </State>
+      </Component>
+
+      <Component
+        id="overlay-size"
+        title="Размер окна и панели"
+        where="overlay.tsx · Overlay size; route-drawer.tsx · RouteDrawer size; md прежняя ширина; §8.2"
+      >
+        <State name="default" note="окно: sm 400, md 560, lg 760; панель: sm 400, md 480, lg 760">
+          <div className="stack">
+            {(['sm', 'md', 'lg'] as const).map((size) => (
+              <div
+                key={size}
+                className={`ui-overlay kit-overlay-static${size === 'md' ? '' : ` ui-overlay--${size}`}`}
+              >
+                <div className="overlay-heading">
+                  <b>Окно {size}</b>
+                </div>
+                <div className="overlay-content">
+                  <p className="hint">Поведение окна общее: Escape, щелчок мимо, возврат фокуса.</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </State>
       </Component>
 
@@ -458,6 +617,39 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                   <StatusBadge kind="hospitality" value="CANCELLED" />
                 </td>
                 <td className="num">—</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="default" note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)">
+          <Table
+            size="sm"
+            density="compact"
+            sticky="both"
+            caption="Загрузка по ночам: вы и конкуренты"
+            captionHidden
+          >
+            <thead>
+              <tr>
+                <th scope="col">Отель</th>
+                <th scope="col" className="num">
+                  12 окт.
+                </th>
+                <th scope="col" className="num">
+                  13 окт.
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Вы</th>
+                <td className="num">72 %</td>
+                <td className="num">80 %</td>
+              </tr>
+              <tr>
+                <th scope="row">Рынок</th>
+                <td className="num">65 %</td>
+                <td className="num">70 %</td>
               </tr>
             </tbody>
           </Table>

@@ -37,6 +37,11 @@
   .reservations-dates__fields[hidden] {
     display: none;
   }
+  /* общий PeriodPicker (MV8.5 DS1c) занимает всю строку раскрытых дат, раскладка прежняя */
+  .reservations-dates__fields > .period-picker {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
   .reservations-dates__fields .field--inline .inp {
     width: 148px;
   } /* Чипы — компактные (30 px): панель занимает две строки, таблица начинается в первом экране (§62) */

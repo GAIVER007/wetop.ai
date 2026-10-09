@@ -8,6 +8,7 @@ import { Tooltip } from '../../components/tooltip';
 import { Button } from '../../components/ui';
 import { Chip, ChipGroup } from '../../components/chip';
 import { Segmented } from '../../components/segmented';
+import { DateBar } from '../../components/date-bar';
 
 /** Живые примеры компонентов с состоянием: окно, уведомление, меню, подсказка. */
 export function ConfirmDemo() {
@@ -256,5 +257,25 @@ export function ChipDemo({ label }: { label: string }) {
         Номера
       </Chip>
     </ChipGroup>
+  );
+}
+
+/** День для страницы компонентов: тот же `DateBar`, дата меняется на месте, без адреса */
+export function DateBarDemo({ withToday }: { withToday?: boolean }) {
+  const start = '2026-10-12';
+  const [date, setDate] = useState(start);
+  const shift = (n: number) => {
+    const at = new Date(`${date}T12:00:00Z`);
+    at.setUTCDate(at.getUTCDate() + n);
+    return at.toISOString().slice(0, 10);
+  };
+  return (
+    <DateBar
+      date={date}
+      onDateChange={setDate}
+      onPrevious={() => setDate(shift(-1))}
+      onNext={() => setDate(shift(1))}
+      onToday={withToday ? () => setDate(start) : undefined}
+    />
   );
 }

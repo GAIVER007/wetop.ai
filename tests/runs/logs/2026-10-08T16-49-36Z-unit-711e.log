@@ -1,0 +1,74 @@
+# Модульные (unit) · 08.10.2026 21:49 Алматы · vm
+# коммит 4e8894b (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T16-49-36Z-unit-711e.json' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/components/primitives.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 313ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 30ms
+ ❯ |unit| apps/web/src/components/primitives-ds1c.test.ts (27 tests | 1 failed) 108ms
+   ✓ Stat (5)
+     ✓ изменение словами со знаком и стрелкой-глифом, без цвета направления 13ms
+     ✓ нет базы для сравнения: текст без стрелки 3ms
+     ✓ тон и размер по общей шкале 2ms
+     ✓ прежние alarm, warn, big, compact остаются и выглядят как раньше 1ms
+     ✓ с href вся плитка одна ссылка, внутри других ссылок и кнопок нет 4ms
+   ✓ ShareBar (2)
+     ✓ родной progress с именем, значением и пределом, число рядом 3ms
+     ✓ 0 и 100 без выхода за предел, без строки style 3ms
+   ✓ FormGrid (1)
+     ✓ колонки одним классом, без ширин в пикселях 1ms
+   ✓ DateBar (3)
+     ✓ кнопки с именами, поле «Дата» с видимой подписью и значением 7ms
+     ✓ без onToday кнопки «Сегодня» нет 3ms
+     ✓ значок назад из набора, без поворота стилем 2ms
+   ✓ PeriodPicker (2)
+     ✓ поля «С» и «По» с именами формы и отрезок готовыми ссылками 26ms
+     ✓ ошибка словами у отрезка, без кнопки применения: применяет экран 3ms
+   ✓ Overlay и RouteDrawer (3)
+     ✓ без size класс прежний, sm и lg добавляют свой 4ms
+     ✓ заголовок подписывает окно 1ms
+     ✓ исходник RouteDrawer передаёт size и не держит ширину своим селектором 1ms
+   ❯ Field required (3)
+     ✓ true: родное required у поля и знак после подписи, не только цветом 1ms
+     ✓ false: слово «необязательно», без required 1ms
+     × не задан: разметка прежняя 10ms
+   ✓ Table (4)
+     ✓ новое использование: плотность, липкость и подпись таблицы 1ms
+     ✓ с aria-label область прокрутки берёт то же имя 1ms
+     ✓ прежняя таблица без имени держит общее имя области 0ms
+     ✓ тип: новое использование без имени не собирается 3ms
+   ✓ ErrorState поверх EmptyState (3)
+     ✓ та же обёртка, что у EmptyState, с role=alert 6ms
+     ✓ отклонённый запрос: совет про адрес, без «Подключения API» 2ms
+     ✓ исходник ErrorState не держит своей разметки empty-state 1ms
+   ✓ главная кнопка (1)
+     ✓ наведение красит --primary-hover, фильтра и градиента нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/primitives-ds1c.test.ts > Field required > не задан: разметка прежняя
+AssertionError: expected '<label for="name" class="field">Имя<i…' to be '<label for="name" class="field">Имя<i…' // Object.is equality
+
+Expected: "<label for="name" class="field">Имя<input class="inp" name="firstName" id="name"/></label>"
+Received: "<label for="name" class="field">Имя<input class="inp" id="name" name="firstName"/></label>"
+
+ ❯ apps/web/src/components/primitives-ds1c.test.ts:221:21
+    219|   });
+    220|   it('не задан: разметка прежняя', () => {
+    221|     expect(field()).toBe(
+       |                     ^
+    222|       '<label for="name" class="field">Имя<input class="inp" name="fir…
+    223|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 49 passed (50)
+   Start at  16:49:37
+   Duration  3.12s (transform 66%, import 22%, tests 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-08T16-49-36Z-unit-711e.json
+
+# код выхода 1 · 5 с

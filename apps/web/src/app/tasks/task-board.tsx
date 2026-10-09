@@ -112,7 +112,7 @@ export function TaskBoard({
         })
       )}
       {open && (
-        <Overlay open drawer className="settings-service-drawer" title="Новая задача" onClose={() => setOpen(false)}>
+        <Overlay open drawer size="sm" title="Новая задача" onClose={() => setOpen(false)}>
           <TaskForm
             today={list.today}
             meId={meId}

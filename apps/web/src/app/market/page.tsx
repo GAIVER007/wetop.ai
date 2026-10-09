@@ -260,7 +260,7 @@ function Summary({ view }: { view: MarketView }) {
         label="Разница с рынком"
         value={s.gapBp === null ? '–' : formatPoints(round(s.gapBp, 10))}
         hint={s.gapBp === null ? 'нет данных' : s.gapBp < 0 ? 'вы ниже рынка' : s.gapBp > 0 ? 'вы выше рынка' : 'вровень'}
-        hintTone={s.gapBp !== null && s.gapBp <= -1000 ? 'warn' : undefined}
+        tone={s.gapBp !== null && s.gapBp <= -1000 ? 'warning' : 'neutral'}
         testId="market-tile-gap"
       />
       <Stat
@@ -333,7 +333,7 @@ function Grid({
   return (
     <section className="market-grid" aria-labelledby="market-grid-title">
       <SectionTitle id="market-grid-title">По ночам</SectionTitle>
-      <Table size="sm" className="market-table" aria-label="Загрузка по ночам: вы и конкуренты" data-testid="market-table">
+      <Table size="sm" density="normal" sticky="column" className="market-table" aria-label="Загрузка по ночам: вы и конкуренты" data-testid="market-table">
         <thead>
           <tr>
             <th scope="col" className="market-table__name">

@@ -84,12 +84,9 @@
     text-align: center;
     vertical-align: middle;
   }
+  /* липкая колонка отелей: общий `Table sticky="column"` (MV8.5 DS1c); здесь только ширина и выравнивание */
   .market-table .market-table__name {
-    position: sticky;
-    left: 0;
-    z-index: var(--layer-sticky);
     min-width: 248px;
-    background: var(--surface-solid);
     text-align: left;
   }
   .market-table__day {

@@ -312,6 +312,8 @@ export class PrismaBarRepository implements BarRepository {
   }
   async sellToFolio(input: BarFolioSaleInput) {
     const propertyId = await this.propertyId();
+    // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-292); без неё начисление выпадало из периодных отчётов
+    const serviceDate = new Date(`${await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name)}T00:00:00Z`);
     return this.prisma.db.$transaction(async (tx) => {
       const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
       if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
@@ -329,7 +331,7 @@ export class PrismaBarRepository implements BarRepository {
         return { kind: 'insufficient_stock' as const, availableUnits: lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n) };
       }
       const revenue = BigInt(product.salePrice) * input.quantityUnits;
-      const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, createdBy: auditUserId() } });
+      const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, serviceDate, createdBy: auditUserId() } });
       const sale = await (tx as any).barSale.create({ data: { propertyId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });

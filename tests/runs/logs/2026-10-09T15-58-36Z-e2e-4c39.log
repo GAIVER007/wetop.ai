@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 09.10.2026 20:58 Алматы · vm
+# коммит 5df00dc (claude/brave-clarke-6gyjif)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/inventory-onboarding.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/housekeeping.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 37 tests using 1 worker
+
+  ✓   1 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (7.8s)
+  ✓   2 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (11.2s)
+  ✓   3 tests/ui/fund-workspace.spec.ts:90:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.8s)
+  ✓   4 tests/ui/fund-workspace.spec.ts:123:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.7s)
+  ✓   5 tests/ui/fund-workspace.spec.ts:144:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (7.2s)
+  ✓   6 tests/ui/fund-workspace.spec.ts:225:1 › AV4: a category without places stays on screen with the nearest availability (2.8s)
+  ✓   7 tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding (7.7s)
+  ✓   8 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (12.0s)
+  ✓   9 tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (9.1s)
+  ✓  10 tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (1.6s)
+  ✓  11 tests/ui/housekeeping.spec.ts:127:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (4.5s)
+  ✓  12 tests/ui/housekeeping.spec.ts:167:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (3.6s)
+  ✓  13 tests/ui/housekeeping.spec.ts:194:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (8.1s)
+  ✓  14 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (4.6s)
+  ✓  15 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (4.4s)
+  ✓  16 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (4.5s)
+  ✓  17 tests/ui/inventory-catalog.spec.ts:100:1 › пустой поиск объясняется, сброс возвращает фонд (1.9s)
+  ✓  18 tests/ui/inventory-catalog.spec.ts:111:3 › каталог адаптивен и доступен: light (21.9s)
+  ✓  19 tests/ui/inventory-catalog.spec.ts:111:3 › каталог адаптивен и доступен: dark (20.0s)
+  ✓  20 tests/ui/inventory-catalog.spec.ts:144:1 › пустой фонд отличается от пустого поиска (1.3s)
+  ✓  21 tests/ui/inventory-catalog.spec.ts:152:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (3.6s)
+  ✓  22 tests/ui/inventory-catalog.spec.ts:174:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (5.4s)
+  ✓  23 tests/ui/inventory-catalog.spec.ts:225:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (4.4s)
+  ✓  24 tests/ui/inventory-catalog.spec.ts:252:1 › панель места появляется при выборе места и исчезает, когда адрес другой; плитки без обрезки (11.7s)
+  ✓  25 tests/ui/inventory-catalog.spec.ts:286:1 › массовые действия: выбор мест и «Назначить уборку» (2.7s)
+  ✓  26 tests/ui/inventory-catalog.spec.ts:313:1 › фото категории: заглушка, выбор из библиотеки с порядком, галерея и сохранение (5.2s)
+  ✓  27 tests/ui/inventory-catalog.spec.ts:352:3 › панель места доступна: light (6.7s)
+  ✓  28 tests/ui/inventory-catalog.spec.ts:352:3 › панель места доступна: dark (6.6s)
+  ✓  29 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (4.4s)
+  ✓  30 tests/ui/inventory-onboarding.spec.ts:37:1 › location and operational filters intersect and survive reload (4.3s)
+  ✓  31 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (19.7s)
+  ✓  32 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.6s)
+  ✓  33 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.5s)
+  ✓  34 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (3.4s)
+  ✓  35 tests/ui/mobile-adaptation.spec.ts:111:1 › узкий телефон: плитки финансов встают в одну колонку (2.0s)
+  ✓  36 tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (11.4s)
+  ✓  37 tests/ui/mobile-adaptation.spec.ts:156:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (14.4s)
+
+  37 passed (4.3m)
+
+# код выхода 0 · 4 мин 22 с

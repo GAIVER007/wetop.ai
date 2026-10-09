@@ -5,7 +5,7 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
@@ -39,7 +39,7 @@ test('организации: филиал создаётся прямо в ра
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'Добавить объект / филиал' })).toHaveCount(

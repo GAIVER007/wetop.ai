@@ -13,7 +13,9 @@ test('касса: простой вход, фильтры применяются
   request,
 }) => {
   await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }),
+  ).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
   await expect(page.getByTestId('finance-operations')).not.toBeVisible();
   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();

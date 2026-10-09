@@ -20,7 +20,7 @@ test('3. одна очередь внимания в панели; выбор ф
   page,
 }) => {
   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
-  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention')).toHaveCount(1);
   await expect(page.locator('#day-attention .attention-list')).toBeVisible();
@@ -103,7 +103,7 @@ test('9. размеры шрифта на главной и в «Аналити�
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/finance');
     const main = page.getByRole('main');
-    await expect(main.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+    await expect(main.getByTestId('owner-risks')).toBeVisible();
 
     // блоки владельца держат утверждённую шкалу; у сводки кассы своё утверждённое оформление 05.10
     for (const block of ['.owner-load', '.biz-today', '.biz-attention'])

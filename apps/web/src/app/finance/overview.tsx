@@ -13,12 +13,12 @@ import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Icon, type IconName } from '../../components/icon';
 import { ShareBar } from '../../components/share-bar';
-import { Badge, Stat, Table } from '../../components/ui';
+import { Alert, Badge, Stat, Table } from '../../components/ui';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { loadBoard, loadPeriod } from './owner-dashboard';
 import { loadDeskDay } from './desk-section';
 import { loadGuardStatus } from './guard-status';
-import { DashboardDetails } from './owner-controls';
+import { DashboardDetails, DashboardRefresh } from './owner-controls';
 import { DayAttention, attentionCount } from './day-attention';
 
 /**
@@ -356,7 +356,13 @@ export async function TodayCard({
         <header className="biz-card__head">
           <h2 id="biz-today-title">Сегодня</h2>
         </header>
-        <p className="biz-card__note">Данные сегодняшнего дня не загрузились</p>
+        <Alert boxed tone="warning" data-testid="desk-error">
+          Данные сегодняшнего дня не загрузились.
+          <div className="owner-error-actions">
+            <DashboardRefresh label="Повторить" />
+            <Link href="/reservations">Открыть брони</Link>
+          </div>
+        </Alert>
       </section>
     );
   const tiles: Array<[string, IconName, number, string]> = [
@@ -534,7 +540,7 @@ export function RecentOperations({
       ) : ops.rows.length === 0 ? (
         <p className="biz-card__note">Операций за период нет</p>
       ) : (
-        <Table size="sm" className="biz-recent__table" aria-label="Последние операции">
+        <Table size="sm" className="biz-recent__table" aria-label="Таблица последних операций">
           <thead>
             <tr>
               <th>Дата и время</th>

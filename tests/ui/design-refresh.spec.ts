@@ -12,7 +12,7 @@ test('финансы: деньги на первом экране, кнопки 
     await page.goto('/finance');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
     await expect(page.getByTestId('biz-revenue')).toBeInViewport();
-    const risks = page.getByRole('region', { name: 'Риски на сегодня' });
+    const risks = page.getByTestId('owner-risks');
     await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
@@ -80,7 +80,7 @@ test('финансы за выбранный период, риски за се�
       .getByRole('link', { name: 'Месяц', exact: true }),
   ).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Риски на сегодня' })).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
   // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
   // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)

@@ -7762,3 +7762,11 @@
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
 | 09.10.2026 18:35 | typecheck | ✅ без ошибок | 45 с | de0cd1e | [лог](logs/2026-10-09T13-35-02Z-typecheck-cb8e.log) |  |
 | 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |
+| 09.10.2026 18:59 | typecheck | ✅ без ошибок | 47 с | c57a637 | [лог](logs/2026-10-09T13-59-36Z-typecheck-1a58.log) |  |
+| 09.10.2026 19:00 | lint | ✅ без ошибок | 38 с | c57a637 | [лог](logs/2026-10-09T14-00-24Z-lint-26fd.log) |  |
+| 09.10.2026 19:01 | unit | ❌ упало 1 из 4177, пропущено 3 | 2 мин 15 с | c57a637 | [лог](logs/2026-10-09T14-01-03Z-unit-3c62.log) | С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 |
+| 09.10.2026 19:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/analyti | ✅ 193 из 193 | 18 мин 15 с | c57a637 | [лог](logs/2026-10-09T14-03-54Z-e2e-7463.log) |  |
+| 09.10.2026 19:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/platform-access.spec.ts tests/ui/pla | ❌ упало 3 из 232 | 31 мин 24 с | c57a637 | [лог](logs/2026-10-09T14-22-10Z-e2e-b344.log) | R2: телефон — списки отбора за «Фильтрами», таблица в первом экране |
+| 09.10.2026 19:53 | e2e (частично: --config tests/beauty-ui/playwright.config.ts --workers=1) | ✅ 11 из 15, пропущено 4 | 1 мин 42 с | c57a637 | [лог](logs/2026-10-09T14-53-34Z-e2e-6e2d.log) |  |
+| 09.10.2026 19:55 | e2e (частично: --config tests/food-ui/playwright.config.ts --workers=1) | ✅ 15 из 19, пропущено 4 | 2 мин 27 с | c57a637 | [лог](logs/2026-10-09T14-55-17Z-e2e-4539.log) |  |
+| 09.10.2026 19:57 | e2e (частично: --config tests/branches-ui/playwright.config.ts --workers=1) | ✅ 39 из 39 | 2 мин 19 с | c57a637 | [лог](logs/2026-10-09T14-57-45Z-e2e-f46e.log) |  |

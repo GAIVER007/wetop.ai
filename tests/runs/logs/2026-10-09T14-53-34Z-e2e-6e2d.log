@@ -1,0 +1,32 @@
+# Сквозные (e2e) · 09.10.2026 19:53 Алматы · vm
+# коммит c57a637 (claude/mv8-5-ds2a-navigation-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete (17.5s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:165:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (6.6s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:202:1 › existing customer can be selected for another appointment without duplication (3.1s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (11.6s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (11.8s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 light, keyboard, axe, no overflow (10.7s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:230:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (11.3s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:311:1 › archived service and employee preserve historical calendar appointments (3.7s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:345:1 › TimeOff from employee drawer, server denial and timezone persisted (7.0s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:397:1 › DS1c: day navigation keeps the previous addresses (2.2s)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:412:1 › Beauty onboarding completion opens Today and resumes there (3.9s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+
+  4 skipped
+  11 passed (1.7m)
+
+# код выхода 0 · 1 мин 42 с

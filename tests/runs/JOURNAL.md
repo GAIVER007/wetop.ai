@@ -7721,3 +7721,11 @@
 | 09.10.2026 17:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts tests/ui/ | ✅ 58 из 58 | 8 мин 17 с | 8940508 +7 | [лог](logs/2026-10-09T12-35-02Z-e2e-fb5b.log) | организации и меню, один поток (общее подставное API) |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
+| 09.10.2026 17:44 | typecheck | ✅ без ошибок | 1 мин 4 с | 072b71f | [лог](logs/2026-10-09T12-44-12Z-typecheck-86fe.log) |  |
+| 09.10.2026 17:45 | lint | ✅ без ошибок | 36 с | 072b71f | [лог](logs/2026-10-09T12-45-20Z-lint-44b1.log) |  |
+| 09.10.2026 17:45 | unit | ❌ упало 1 из 4151, пропущено 3 | 2 мин 9 с | 072b71f | [лог](logs/2026-10-09T12-45-56Z-unit-d541.log) | organizes the menu by tasks: desk screens first, groups only for multi-screen areas |
+| 09.10.2026 17:48 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts) | ✅ 21 из 21 | 3 с | 072b71f +1 | [лог](logs/2026-10-09T12-48-19Z-unit-9c1b.log) |  |
+| 09.10.2026 17:48 | unit | ✅ 4148 из 4151, пропущено 3 | 2 мин 6 с | 072b71f +1 | [лог](logs/2026-10-09T12-48-27Z-unit-dde2.log) |  |
+| 09.10.2026 17:50 | lint | ✅ без ошибок | 38 с | 072b71f +1 | [лог](logs/2026-10-09T12-50-34Z-lint-d0d9.log) |  |
+| 09.10.2026 17:51 | typecheck | ✅ без ошибок | 44 с | 072b71f +1 | [лог](logs/2026-10-09T12-51-13Z-typecheck-b602.log) |  |
+| 09.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts tests/ui/top-menu.spec.ts) | ✅ 18 из 18 | 2 мин 39 с | 072b71f +1 | [лог](logs/2026-10-09T12-52-09Z-e2e-8e7e.log) | финал: организации и меню, один поток |

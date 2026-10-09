@@ -1,0 +1,104 @@
+# Типы (typecheck) · 09.10.2026 22:15 Алматы · vm
+# коммит 61cda9d (claude/quirky-newton-qkhfgz)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(39,20): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'MembershipWhereInput'.
+apps/api/src/accounts/accounts.prisma-repository.ts(52,22): error TS2339: Property 'memberships' does not exist on type '{ id: string; name: string | null; email: string; createdAt: Date; status: UserStatus; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; emailVerifiedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(53,23): error TS2339: Property 'memberships' does not exist on type '{ id: string; name: string | null; email: string; createdAt: Date; status: UserStatus; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; emailVerifiedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(273,35): error TS2339: Property 'firstName' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(273,53): error TS2339: Property 'lastName' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(288,25): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(289,28): error TS2339: Property 'position' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(295,47): error TS2339: Property 'scopes' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(321,35): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(325,20): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(463,44): error TS2551: Property 'membershipScope' does not exist on type 'Db'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(470,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(471,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(521,31): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(526,16): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(528,18): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/auth/auth.service.ts(291,51): error TS2339: Property 'status' does not exist on type '{ organizationId: string; phone: string | null; createdAt: Date; position: string | null; role: MembershipRole; userId: string; }'.
+apps/api/src/auth/auth.service.ts(625,22): error TS2551: Property 'membershipScope' does not exist on type 'Db'. Did you mean 'membership'?
+apps/api/src/auth/auth.service.ts(633,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/auth/auth.service.ts(634,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(59,19): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'PropertyMediaGetPayload'. Did you mean 'PropertyGetPayload'?
+apps/api/src/hotel/property-media.ts(115,39): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(121,51): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(121,82): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(122,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(147,39): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(164,22): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(175,31): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(179,34): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(232,18): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(236,34): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(265,38): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(277,28): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(282,16): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/inventory/category-photos.ts(62,39): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Db'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(113,31): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(118,16): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(120,18): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(133,43): error TS7006: Parameter 'b' implicitly has an 'any' type.
+tests/integration/category-photos.test.ts(85,21): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'PrismaClient'. Did you mean 'accommodationType'?
+tests/integration/category-photos.test.ts(86,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/category-photos.test.ts(102,14): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'PrismaClient'. Did you mean 'accommodationType'?
+tests/integration/category-photos.test.ts(105,14): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'PrismaClient'. Did you mean 'accommodationType'?
+tests/integration/category-photos.test.ts(111,16): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'PrismaClient'. Did you mean 'accommodationType'?
+tests/integration/member-suspension.test.ts(110,19): error TS2339: Property 'status' does not exist on type '{ organizationId: string; phone: string | null; createdAt: Date; position: string | null; role: MembershipRole; userId: string; }'.
+tests/integration/member-suspension.test.ts(110,31): error TS2339: Property 'suspendedAt' does not exist on type '{ organizationId: string; phone: string | null; createdAt: Date; position: string | null; role: MembershipRole; userId: string; }'.
+tests/integration/member-suspension.test.ts(110,48): error TS2339: Property 'suspendedBy' does not exist on type '{ organizationId: string; phone: string | null; createdAt: Date; position: string | null; role: MembershipRole; userId: string; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(39,20): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'MembershipWhereInput'.
+apps/api/src/accounts/accounts.prisma-repository.ts(52,22): error TS2339: Property 'memberships' does not exist on type '{ id: string; name: string | null; email: string; createdAt: Date; status: UserStatus; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; emailVerifiedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(53,23): error TS2339: Property 'memberships' does not exist on type '{ id: string; name: string | null; email: string; createdAt: Date; status: UserStatus; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; emailVerifiedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(273,35): error TS2339: Property 'firstName' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; tokenHash: string; expiresAt: Date; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(273,53): error TS2339: Property 'lastName' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; tokenHash: string; expiresAt: Date; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(288,25): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; tokenHash: string; expiresAt: Date; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(289,28): error TS2339: Property 'position' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; tokenHash: string; expiresAt: Date; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(295,47): error TS2339: Property 'scopes' does not exist on type '{ organizationId: string; id: string; email: string; createdAt: Date; createdBy: string; role: MembershipRole; tokenHash: string; expiresAt: Date; acceptedAt: Date | null; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(321,35): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(325,20): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(463,44): error TS2551: Property 'membershipScope' does not exist on type 'Db'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(470,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(471,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/accounts/accounts.prisma-repository.ts(521,31): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(526,16): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/accounts/accounts.prisma-repository.ts(528,18): error TS2551: Property 'membershipScope' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'membership'?
+apps/api/src/auth/auth.service.ts(291,51): error TS2339: Property 'status' does not exist on type '{ organizationId: string; phone: string | null; createdAt: Date; position: string | null; role: MembershipRole; userId: string; }'.
+apps/api/src/auth/auth.service.ts(625,22): error TS2551: Property 'membershipScope' does not exist on type 'Db'. Did you mean 'membership'?
+apps/api/src/auth/auth.service.ts(633,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/auth/auth.service.ts(634,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(59,19): error TS2724: '"/home/user/wetop.ai/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'PropertyMediaGetPayload'. Did you mean 'PropertyGetPayload'?
+apps/api/src/hotel/property-media.ts(115,39): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(121,51): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(121,82): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(122,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/hotel/property-media.ts(147,39): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(164,22): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(175,31): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(179,34): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(232,18): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(236,34): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(265,38): error TS2339: Property 'propertyMedia' does not exist on type 'Db'.
+apps/api/src/hotel/property-media.ts(277,28): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/hotel/property-media.ts(282,16): error TS2339: Property 'propertyMedia' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/inventory/category-photos.ts(62,39): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Db'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(113,31): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(118,16): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(120,18): error TS2551: Property 'accommodationTypePhoto' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'. Did you mean 'accommodationType'?
+apps/api/src/inventory/category-photos.ts(133,43): error TS7006: Parameter 'b' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/team/team-board.tsx(290,28): error TS2322: Type '"warning"' is not assignable to type 'BadgeTone | undefined'.
+
+# код выхода 1 · 49 с

@@ -1,0 +1,137 @@
+# Модульные (unit) · 09.10.2026 17:21 Алматы · vm
+# коммит 90d323d (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-21-00Z-unit-878d.json' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/lib/navigation-roles.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests | 3 failed) 23ms
+   × organizes the menu by tasks: desk screens first, groups only for multi-screen areas 15ms
+   × phone bottom bar: the four leading tabs, every one a direct tab 3ms
+   × guests live inside the reservations section: no own menu tab, menu highlight stays on it 3ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (18 tests | 1 failed) 33ms
+   ❯ меню по ролям (6)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 2ms
+     × администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 13ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 3ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 1ms
+     ✓ «Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2) 3ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 1ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 1ms
+     ✓ адреса вне меню: настройки продавца и его агенты 1ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 1ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 1ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 1ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 1ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 1ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 1ms
+   ✓ «ИИ-агенты» (S0) (3)
+     ✓ пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 0ms
+     ✓ страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 0ms
+     ✓ каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу 1ms
+   ✓ сотрудники доступны в настройках только владельцу и управляющему 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности
+AssertionError: expected [ '/today', '/chessboard', …(9) ] to deeply equal [ '/today', '/chessboard', …(8) ]
+
+- Expected
++ Received
+
+@@ -1,9 +1,10 @@
+  [
+    "/today",
+    "/chessboard",
+    "/reservations",
++   "/guests",
+    "/finance",
+    "/bar",
+    "/market",
+    "/ai-agents",
+    "/reports",
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:39:36
+     37|
+     38|   it('администратор: работа с гостями, продавец (диалоги), оплаты и ст…
+     39|     expect(hrefs(access('STAFF'))).toEqual([
+       |                                    ^
+     40|       '/today',
+     41|       '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > organizes the menu by tasks: desk screens first, groups only for multi-screen areas
+AssertionError: expected [ 'home', 'chessboard', …(10) ] to deeply equal [ 'home', 'chessboard', …(9) ]
+
+- Expected
++ Received
+
+@@ -1,9 +1,10 @@
+  [
+    "home",
+    "chessboard",
+    "reservations",
++   "guests",
+    "finance",
+    "bar",
+    "sales",
+    "marketing",
+    "reports",
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:5:41
+      3| // Строка вкладок (ADR-134): работа смены одним щелчком, группы только…
+      4| it('organizes the menu by tasks: desk screens first, groups only for m…
+      5|   expect(menuSections.map((s) => s.id)).toEqual([
+       |                                         ^
+      6|     'home',
+      7|     'chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > phone bottom bar: the four leading tabs, every one a direct tab
+AssertionError: expected [ '/today', '/chessboard', …(2) ] to deeply equal [ '/today', '/chessboard', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "/today",
+    "/chessboard",
+    "/reservations",
+-   "/finance",
++   "/guests",
+  ]
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:39:46
+     37| });
+     38| it('phone bottom bar: the four leading tabs, every one a direct tab', …
+     39|   expect(phoneNavigation.map((i) => i.href)).toEqual([
+       |                                              ^
+     40|     '/today',
+     41|     '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > guests live inside the reservations section: no own menu tab, menu highlight stays on it
+AssertionError: expected [ '/today', '/chessboard', …(17) ] to not include '/guests'
+ ❯ apps/web/src/lib/workspace-organization.test.ts:50:71
+     48| // раздел открывается вкладкой на страницах /reservations и /guests, п…
+     49| it('guests live inside the reservations section: no own menu tab, menu…
+     50|   expect(menuSections.flatMap((s) => s.items.map((i) => i.href))).not.…
+       |                                                                       ^
+     51|   expect(activeMenuRoute('/guests')).toBe('/reservations');
+     52|   expect(activeMenuRoute('/guests/birthdays')).toBe('/reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 17 passed (21)
+   Start at  12:21:01
+   Duration  1.95s (transform 88%, import 10%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-21-00Z-unit-878d.json
+
+# код выхода 1 · 3 с

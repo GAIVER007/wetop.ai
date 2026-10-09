@@ -7685,8 +7685,18 @@
 | 09.10.2026 12:57 | typecheck | ❌ ошибок: 5 | 19 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-16Z-typecheck-8c97.log) | TS2307 |
 | 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
+| 09.10.2026 13:38 | unit | ✅ 4145 из 4149, пропущено 4 | 1 мин 13 с | abc7498 | [лог](logs/2026-10-09T08-38-34Z-unit-1f54.log) |  |
+| 09.10.2026 13:43 | integration | ❌ упало 3 из 961, пропущено 9 | 51 с | abc7498 | [лог](logs/2026-10-09T08-43-28Z-integration-8ff0.log) | справочник гостей: отборы визита, число визитов, порядок (integration) раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами |
+| 09.10.2026 13:49 | integration | ❌ упало 1 из 961, пропущено 9 | 51 с | abc7498 +4 | [лог](logs/2026-10-09T08-49-27Z-integration-56ad.log) | inventory editing persistence and isolation commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically |
+| 09.10.2026 13:50 | integration | ✅ 952 из 961, пропущено 9 | 50 с | abc7498 +4 | [лог](logs/2026-10-09T08-50-37Z-integration-6f34.log) |  |
+| 09.10.2026 13:52 | typecheck | ✅ без ошибок | 17 с | abc7498 +8 | [лог](logs/2026-10-09T08-52-47Z-typecheck-d7af.log) |  |
+| 09.10.2026 13:54 | e2e | ❌ упало 2 из 26 | 34 мин 19 с | f78f8c4 | [лог](logs/2026-10-09T08-54-50Z-e2e-3a5a.log) | страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 |
+| 09.10.2026 14:30 | e2e | ✅ 26 из 26 | 54 с | f78f8c4 | [лог](logs/2026-10-09T09-30-18Z-e2e-a5fe.log) |  |
 | 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |
 | 09.10.2026 14:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1) | ✅ 6 из 6 | 48 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-34-55Z-e2e-a29d.log) |  |
+| 09.10.2026 17:19 | typecheck | ✅ без ошибок | 19 с | 7307dea | [лог](logs/2026-10-09T12-19-23Z-typecheck-9ae9.log) |  |
+| 09.10.2026 17:19 | lint | ✅ без ошибок | 12 с | 7307dea | [лог](logs/2026-10-09T12-19-42Z-lint-ff5c.log) |  |
+| 09.10.2026 17:19 | unit | ✅ 4146 из 4150, пропущено 4 | 1 мин 12 с | 7307dea | [лог](logs/2026-10-09T12-19-55Z-unit-e4a4.log) |  |
 | 07.10.2026 17:38 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 8 из 8 | 1 мин 41 с | 867a391 | [лог](logs/2026-10-07T12-38-50Z-e2e-180f.log) | public intro: dark, 320 |
 | 07.10.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ⏹ прерван | 45 с | 867a391 +10 | [лог](logs/2026-10-07T12-42-45Z-e2e-c115.log) |  |
 | 07.10.2026 17:44 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 2 из 8 | 14 с | 867a391 +10 | [лог](logs/2026-10-07T12-44-20Z-e2e-0c60.log) | public intro: dark, 1440 |
@@ -7703,6 +7713,14 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:21 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts) | ❌ упало 4 из 21 | 3 с | 90d323d +2 | [лог](logs/2026-10-09T12-21-00Z-unit-878d.log) | RED: Гости внутрь Броней, меню без своей вкладки |
+| 09.10.2026 17:22 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 90d323d +8 | [лог](logs/2026-10-09T12-22-56Z-unit-a547.log) | GREEN: Гости вкладкой внутри Броней |
+| 09.10.2026 17:26 | typecheck | ✅ без ошибок | 1 мин 10 с | 90d323d +12 | [лог](logs/2026-10-09T12-26-21Z-typecheck-60bf.log) | Гости вкладкой внутри Броней |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 45 с | 90d323d +12 | [лог](logs/2026-10-09T12-27-32Z-lint-7a48.log) | Гости вкладкой внутри Броней |
+| 09.10.2026 17:28 | unit | ✅ 4148 из 4151, пропущено 3 | 2 мин 24 с | 90d323d +8 | [лог](logs/2026-10-09T12-28-23Z-unit-7d9c.log) | Гости вкладкой внутри Броней: полный unit |
+| 09.10.2026 17:31 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/ux-retention.spe | ✅ 37 из 37 | 4 мин 55 с | 90d323d +12 | [лог](logs/2026-10-09T12-31-05Z-e2e-34b1.log) | Гости вкладкой внутри Броней: меню, панель телефона, тур, компактность |
+| 09.10.2026 17:36 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/guests-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-compact.spec.ts tests/ | ❌ упало 2 из 28 | 2 мин 32 с | 90d323d +12 | [лог](logs/2026-10-09T12-36-34Z-e2e-ff1b.log) | Гости вкладкой внутри Броней: экраны раздела после добавления вкладок |
+| 09.10.2026 17:40 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts --workers=1) | ✅ 4 из 4 | 45 с | 90d323d +13 | [лог](logs/2026-10-09T12-40-40Z-e2e-7d0f.log) | Бюджет телефона 515 после вкладок раздела |
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
 | 09.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ❌ упало 3 из 7 | 4 мин 58 с | 8940508 +1 | [лог](logs/2026-10-09T12-20-54Z-e2e-767a.log) | хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных |
 | 09.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts --workers=1) | ✅ 7 из 7 | 45 с | 8940508 +3 | [лог](logs/2026-10-09T12-26-10Z-e2e-f41c.log) |  |
@@ -7712,3 +7730,13 @@
 | 09.10.2026 17:54 | e2e (частично: --config tests/branches-ui/playwright.config.ts today.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 16 с | 7b1bb16 | [лог](logs/2026-10-09T12-54-25Z-e2e-4784.log) |  |
 | 09.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts -g вкладки входа и регистрации --workers=1) | ❌ упало 1 из 1 | 1 мин 7 с | 6332d73 | [лог](logs/2026-10-09T13-28-36Z-e2e-5f1d.log) | вкладки входа и регистрации переключаются без перехода в приложение |
 | 09.10.2026 18:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 15 из 15 | 1 мин 10 с | 6332d73 +1 | [лог](logs/2026-10-09T13-29-48Z-e2e-a8b3.log) |  |
+| 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
+| 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
+| 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
+| 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
+| 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |
+| 09.10.2026 18:00 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 5 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-00-45Z-unit-d69b.log) | RED: автоперемотка release, гейт на пуш кода в main (ADR-152) |
+| 09.10.2026 18:03 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 25 из 25 | 2 с | 9895ded +1 | [лог](logs/2026-10-09T13-03-09Z-unit-d328.log) | GREEN: автоперемотка release и гейт на пуш кода в main |
+| 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
+| 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
+| 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |

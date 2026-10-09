@@ -28,6 +28,7 @@ import {
   parseGuestFilters,
 } from './filters';
 import { FiltersToggle } from '../reservations/filters-toggle';
+import { SectionTabs } from '../reservations/section-tabs';
 import '../directory.css';
 import '../reservations/reservations.css';
 import './guests.css';
@@ -94,6 +95,8 @@ export default async function GuestsPage({
         )
       }
     >
+      {/* «Гости» теперь вкладка раздела «Брони» (09.10.2026): в шапке пункта «Гости» больше нет */}
+      <SectionTabs current="/guests" />
       <nav className="chips" aria-label="Гости по состоянию">
         {SECTIONS.map((s) => (
           <Link

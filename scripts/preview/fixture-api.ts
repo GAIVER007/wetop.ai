@@ -76,10 +76,13 @@ import {
   MarketInputError,
   buildMarketBoard,
   buildNightHistory,
+  buildPriceBoard,
   marketDates,
   parseCompetitorInput,
   parseOccupancyPercent,
+  parsePriceInput,
   type MarketReading,
+  type PriceReading,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -4353,12 +4356,21 @@ interface FixtureCompetitor {
   url: string | null;
   note: string | null;
   active: boolean;
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: 'OCCUPANCY' | 'PRICE' | 'BOTH';
+  refreshHours: number | null;
+  autoRefresh: boolean;
 }
 const marketCompetitors: FixtureCompetitor[] = [];
 let marketReadings: MarketReading[] = [];
+let marketRates: PriceReading[] = [];
 const resetMarket = () => {
   marketCompetitors.length = 0;
   marketReadings = [];
+  marketRates = [];
   salesFixture = { ...SALES_DEFAULT };
 };
 const marketPlus = (iso: string, n: number) => {
@@ -4446,6 +4458,46 @@ function marketRoute(
       });
       return [200, { today, from, days, board, competitors: active }];
     }
+    if (path === '/market/rates' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const from = q.get('from') || today;
+      const days = Number(q.get('days') ?? 14);
+      const asOf = q.get('asOf') || today;
+      const compare = Number(q.get('compare') ?? 1);
+      const dates = marketDates(from, days);
+      const active = marketCompetitors.filter((c) => c.active);
+      const b = buildPriceBoard({
+        dates,
+        asOf,
+        compareDays: compare,
+        competitors: active,
+        readings: marketRates.filter((r) => active.some((c) => c.id === r.competitorId)),
+      });
+      const str = (v: bigint | null) => (v === null ? null : v.toString());
+      return [
+        200,
+        {
+          today,
+          from,
+          days,
+          currency: b.currency ?? 'KZT',
+          board: {
+            competitors: b.competitors.map((c) => ({
+              ...c,
+              avgMinor: str(c.avgMinor),
+              cells: c.cells.map((x) => ({ ...x, priceMinor: str(x.priceMinor) })),
+            })),
+            market: b.market.map((m) => ({ ...m, avgMinor: str(m.avgMinor), minMinor: str(m.minMinor), maxMinor: str(m.maxMinor) })),
+            summary: {
+              marketAvgMinor: str(b.summary.marketAvgMinor),
+              minMinor: str(b.summary.minMinor),
+              maxMinor: str(b.summary.maxMinor),
+              competitorsWithData: b.summary.competitorsWithData,
+            },
+          },
+        },
+      ];
+    }
     if (path === '/market/night' && method === 'GET') {
       if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
       const date = q.get('date') ?? '';
@@ -4468,15 +4520,36 @@ function marketRoute(
         url: input.url ?? null,
         note: input.note ?? null,
         active: true,
+        district: input.district ?? null,
+        category: input.category ?? null,
+        address: input.address ?? null,
+        dataSource: input.dataSource ?? null,
+        monitoring: input.monitoring ?? 'BOTH',
+        refreshHours: input.refreshHours ?? null,
+        autoRefresh: input.autoRefresh ?? false,
       };
       marketCompetitors.push(row);
       return [201, row];
     }
-    const m = /^\/market\/competitors\/([^/]+)(\/occupancy)?$/.exec(path);
+    const m = /^\/market\/competitors\/([^/]+)(\/occupancy|\/rates)?$/.exec(path);
     if (m) {
       if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
       const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
-      if (m[2] && method === 'PUT') {
+      if (m[2] === '/rates' && method === 'PUT') {
+        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!entries.length) return [400, { message: 'entries: список { date, price }' }];
+        const parsed = entries.map((e) => ({ date: String(e['date']), priceMinor: parsePriceInput(e['price']) }));
+        for (const e of parsed) {
+          marketRates = marketRates.filter(
+            (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
+          );
+          if (e.priceMinor !== null)
+            marketRates.push({ competitorId: row.id, stayDate: e.date, observedOn: today, priceMinor: e.priceMinor, currency: 'KZT', source: 'MANUAL' });
+        }
+        return [200, { saved: parsed.filter((e) => e.priceMinor !== null).length, cleared: parsed.filter((e) => e.priceMinor === null).length }];
+      }
+      if (m[2] === '/occupancy' && method === 'PUT') {
         if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
         const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
         if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
@@ -4675,8 +4748,19 @@ createServer(async (req, res) => {
           url: c.url ?? null,
           note: c.note ?? null,
           active: c.active ?? true,
+          district: c.district ?? null,
+          category: c.category ?? null,
+          address: c.address ?? null,
+          dataSource: c.dataSource ?? null,
+          monitoring: c.monitoring ?? 'BOTH',
+          refreshHours: c.refreshHours ?? null,
+          autoRefresh: c.autoRefresh ?? false,
         });
       marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      // цены: priceMinor приходит строкой (JSON не знает BigInt)
+      marketRates = ((body['rates'] as Array<Omit<PriceReading, 'priceMinor'> & { priceMinor: string }> | undefined) ?? []).map(
+        (r) => ({ ...r, priceMinor: BigInt(r.priceMinor) }),
+      );
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {

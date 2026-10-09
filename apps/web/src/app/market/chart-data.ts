@@ -1,9 +1,8 @@
-import type { MarketView } from '../../lib/api';
+import type { MarketRates, MarketView } from '../../lib/api';
 
 /**
- * Данные трёх графиков экрана «Загрузка конкурентов» (SALES2.3). Считаем только то, что уже лежит в таблице:
- * цен у конкурентов нет (ADR-142), поэтому ни «цены по датам», ни «изменения цен» тут не рисуются. Всё в базисных
- * пунктах (8 550 = 85,5 %), пропуск это `null`, а не ноль.
+ * Данные графиков экрана «Загрузка конкурентов» (SALES2.3). Загрузка: всё в базисных пунктах (8 550 = 85,5 %). Цены
+ * (DATA_MODEL §23.1) приходят отдельным запросом и рисуются отдельным графиком. Пропуск это `null`, а не ноль.
  */
 export interface ChartRow {
   date: string;
@@ -55,4 +54,31 @@ export function linePath(
   });
   // одиночная точка между пропусками: M без L не рисуется, добавляем нулевой отрезок
   return d.replace(/M([\d.-]+,[\d.-]+)(?=M|$)/g, 'M$1L$1');
+}
+
+/** Цены рынка по ночам для графика: минорные единицы числом (до сотен миллионов тиын, в Number без потерь), пропуск `null` */
+export interface PriceRow {
+  date: string;
+  avg: number | null;
+  min: number | null;
+  max: number | null;
+  count: number;
+}
+export function buildPriceRows(rates: MarketRates): PriceRow[] {
+  const n = (v: string | null) => (v === null ? null : Number(v));
+  return rates.board.market.map((m) => ({
+    date: m.date,
+    avg: n(m.avgMinor),
+    min: n(m.minMinor),
+    max: n(m.maxMinor),
+    count: m.count,
+  }));
+}
+
+/** Подпись оси цены: «42 тыс.», «950» (в основных единицах валюты) */
+export function shortMoney(minor: number): string {
+  const major = minor / 100;
+  if (major < 1000) return String(Math.round(major));
+  const k = major / 1000;
+  return `${(Number.isInteger(k) ? String(k) : k.toFixed(1)).replace('.', ',')} тыс.`;
 }

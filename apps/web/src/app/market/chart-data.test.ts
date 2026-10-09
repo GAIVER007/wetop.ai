@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MarketView } from '../../lib/api';
-import { buildChartRows, linePath } from './chart-data';
+import { buildChartRows, buildPriceRows, shortMoney, linePath } from './chart-data';
 
 type Board = MarketView['board'];
 const cell = (date: string, bp: number | null, deltaBp: number | null = null) => ({ date, bp, deltaBp, source: null });
@@ -52,5 +52,33 @@ describe('графики «Загрузки конкурентов»: данны
 
   it('одиночная точка между пропусками рисуется точкой, а не пропадает', () => {
     expect(linePath([null, 5, null], (v) => v, (i) => i)).toBe('M1,5L1,5');
+  });
+});
+
+describe('цены рынка для графика', () => {
+  const rates = {
+    today: '2026-10-09',
+    from: '2026-10-09',
+    days: 2,
+    currency: 'KZT',
+    board: {
+      competitors: [],
+      market: [
+        { date: '2026-10-09', avgMinor: '4200000', minMinor: '2800000', maxMinor: '4400000', count: 2 },
+        { date: '2026-10-10', avgMinor: null, minMinor: null, maxMinor: null, count: 0 },
+      ],
+      summary: { marketAvgMinor: '4200000', minMinor: '2800000', maxMinor: '4400000', competitorsWithData: 2 },
+    },
+  } as const;
+  it('строки: числа и пропуск как null, а не ноль', () => {
+    expect(buildPriceRows(rates as never)).toEqual([
+      { date: '2026-10-09', avg: 4_200_000, min: 2_800_000, max: 4_400_000, count: 2 },
+      { date: '2026-10-10', avg: null, min: null, max: null, count: 0 },
+    ]);
+  });
+  it('подпись оси: тысячи сокращены, малое целым', () => {
+    expect(shortMoney(4_200_000)).toBe('42 тыс.');
+    expect(shortMoney(4_250_000)).toBe('42,5 тыс.');
+    expect(shortMoney(95_000)).toBe('950');
   });
 });

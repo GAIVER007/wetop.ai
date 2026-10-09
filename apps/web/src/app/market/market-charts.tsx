@@ -1,13 +1,15 @@
 import { formatOccupancy, formatPoints } from '@pms/domain';
-import type { MarketView } from '../../lib/api';
+import type { MarketRates, MarketView } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { SectionTitle } from '../../components/ui';
-import { buildChartRows, linePath, type ChartRow } from './chart-data';
+import { formatMoney } from '../../lib/money';
+import { buildChartRows, buildPriceRows, linePath, shortMoney, type PriceRow } from './chart-data';
 
 /**
  * Три графика экрана «Загрузка конкурентов» (SALES2.3), чистый SVG без клиентского кода: токены `--chart-*`, подсказка
  * на каждой точке (`<title>`), таблица значений в `<details>` для читалок и клавиатуры. Цен у конкурентов нет
- * (ADR-142), поэтому графики про загрузку, наличие внесённых данных и изменение к прошлому снимку. Линии различаются
+ * (ADR-142), поэтому графики про загрузку, наличие внесённых данных и изменение к прошлому снимку; цены ночей
+ * рисуются четвёртым графиком, когда они внесены (DATA_MODEL §23.1). Линии различаются
  * штрихом и подписью, а не только цветом: цветов у графиков два.
  */
 const W = 720;
@@ -17,7 +19,7 @@ const PLOT = { w: W - PAD.l - PAD.r, h: H - PAD.t - PAD.b };
 
 const pct = (bp: number | null) => (bp === null ? 'нет данных' : formatOccupancy(Math.round(bp / 100) * 100));
 
-function Frame({
+function Frame<R extends { date: string }>({
   title,
   note,
   children,
@@ -28,9 +30,9 @@ function Frame({
   title: string;
   note?: string;
   children: React.ReactNode;
-  rows: ChartRow[];
+  rows: R[];
   testId: string;
-  columns: Array<{ head: string; cell: (r: ChartRow) => string }>;
+  columns: Array<{ head: string; cell: (r: R) => string }>;
 }) {
   return (
     <figure className="market-chart" data-testid={testId}>
@@ -70,7 +72,7 @@ function Frame({
   );
 }
 
-function Axes({ rows, ticks }: { rows: ChartRow[]; ticks: Array<{ y: number; label: string }> }) {
+function Axes({ rows, ticks }: { rows: Array<{ date: string }>; ticks: Array<{ y: number; label: string }> }) {
   const every = rows.length > 20 ? 5 : rows.length > 10 ? 2 : 1;
   const band = PLOT.w / Math.max(rows.length, 1);
   return (
@@ -94,7 +96,7 @@ function Axes({ rows, ticks }: { rows: ChartRow[]; ticks: Array<{ y: number; lab
   );
 }
 
-export function MarketCharts({ board }: { board: MarketView['board'] }) {
+export function MarketCharts({ board, rates }: { board: MarketView['board']; rates?: MarketRates | null }) {
   const rows = buildChartRows(board);
   const n = Math.max(rows.length, 1);
   const band = PLOT.w / n;
@@ -116,6 +118,7 @@ export function MarketCharts({ board }: { board: MarketView['board'] }) {
 
   return (
     <section className="market-charts" aria-label="Графики" data-testid="market-charts">
+      {rates && <PriceChart rates={rates} />}
       <Frame
         testId="market-chart-load"
         title="Загрузка по ночам"
@@ -232,5 +235,84 @@ export function MarketCharts({ board }: { board: MarketView['board'] }) {
         </svg>
       </Frame>
     </section>
+  );
+}
+
+/**
+ * Цены рынка по ночам: средняя и крайние цены соседей из внесённых данных. Ось начинается с нуля не всегда: цены
+ * соседей лежат в узком коридоре, и от нуля линия была бы плоской; подписи оси это показывают прямо.
+ */
+function PriceChart({ rates }: { rates: MarketRates }) {
+  const rows: PriceRow[] = buildPriceRows(rates);
+  const known = rows.flatMap((r) => (r.min === null || r.max === null ? [] : [r.min, r.max]));
+  const n = Math.max(rows.length, 1);
+  const band = PLOT.w / n;
+  const x = (i: number) => Math.round(PAD.l + i * band + band / 2);
+  const lo = known.length ? Math.min(...known) : 0;
+  const hi = known.length ? Math.max(...known) : 1;
+  const pad = Math.max(Math.round((hi - lo) * 0.1), 100);
+  const bottom = Math.max(0, lo - pad);
+  const top = hi + pad;
+  const y = (v: number) => Math.round(PAD.t + PLOT.h - ((v - bottom) / Math.max(top - bottom, 1)) * PLOT.h);
+  const cur = rates.currency ?? 'KZT';
+  const money = (v: number | null) => (v === null ? 'нет данных' : formatMoney(String(v), cur));
+  const series = [
+    { key: 'max', label: 'Самая высокая цена соседа', stroke: 'var(--muted-2)', dash: '2 4', width: 1.5 },
+    { key: 'min', label: 'Самая низкая цена соседа', stroke: 'var(--muted-2)', dash: '8 4', width: 1.5 },
+    { key: 'avg', label: 'Средняя цена рынка', stroke: 'var(--chart-2)', dash: undefined, width: 3 },
+  ] as const;
+  return (
+    <Frame
+      testId="market-chart-price"
+      title="Цены рынка по ночам"
+      note="Цены соседей, которые вы внесли. Это внесённые значения, а не измеренные цены площадок."
+      rows={rows}
+      columns={[
+        { head: 'Средняя', cell: (r) => money(r.avg) },
+        { head: 'Самая низкая', cell: (r) => money(r.min) },
+        { head: 'Самая высокая', cell: (r) => money(r.max) },
+        { head: 'Отелей с ценой', cell: (r) => String(r.count) },
+      ]}
+    >
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Цены рынка по ночам: средняя и крайние" className="market-chart__svg">
+        <Axes
+          rows={rows}
+          ticks={[bottom, Math.round((bottom + top) / 2), top].map((v) => ({ y: y(v), label: shortMoney(v) }))}
+        />
+        {series.map((s) => (
+          <path
+            key={s.key}
+            data-series={s.key}
+            d={linePath(rows.map((r) => r[s.key]), y, x)}
+            fill="none"
+            stroke={s.stroke}
+            strokeWidth={s.width}
+            strokeDasharray={s.dash}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
+        {rows.map((r, i) =>
+          r.avg === null ? null : (
+            <circle key={r.date} cx={x(i)} cy={y(r.avg)} r={3} fill="var(--chart-2)">
+              <title>{`${displayDate(r.date)}: средняя ${money(r.avg)}`}</title>
+            </circle>
+          ),
+        )}
+      </svg>
+      <ul className="market-chart__legend" aria-label="Обозначения">
+        {series
+          .slice()
+          .reverse()
+          .map((s) => (
+            <li key={s.key}>
+              <svg width="28" height="8" aria-hidden="true">
+                <line x1="0" x2="28" y1="4" y2="4" stroke={s.stroke} strokeWidth={s.width} strokeDasharray={s.dash} />
+              </svg>
+              {s.label}
+            </li>
+          ))}
+      </ul>
+    </Frame>
   );
 }

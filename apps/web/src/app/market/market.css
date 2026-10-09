@@ -2,6 +2,58 @@
    Цвет клетки — уровень спроса (Q-258): высокий от 85 %, слабый до 50 %; текст всегда `--text`, цвет только фоном,
    а слово уровня есть в подсказке клетки и в легенде. */
 @layer sections {
+  /* Список конкурентов (SALES2.3b): шапка с отбором и таблица со свежестью данных */
+  .market-list {
+    margin: var(--space-6) 0;
+    min-width: 0;
+  }
+  .market-list__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .market-list__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .market-list__filters .field {
+    margin: 0;
+    white-space: nowrap;
+  }
+  .market-list__filters select.inp {
+    width: auto;
+  }
+  /* скрытая подпись «Действия» (sr-only, position: absolute) без опоры уезжала за край прокрутки и раздвигала страницу */
+  .market-list__table th {
+    position: relative;
+  }
+  .market-list__table td.market-row-actions {
+    display: table-cell;
+    white-space: nowrap;
+  }
+  .market-monitoring {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin: var(--space-4) 0 0;
+  }
+  .market-monitoring legend {
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-medium);
+  }
+  .market-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+  }
+
   .market-controls {
     margin-bottom: var(--space-6);
   }

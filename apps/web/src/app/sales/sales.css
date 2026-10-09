@@ -206,7 +206,7 @@
     background: var(--success-soft);
     color: var(--success);
   }
-  @media (max-width: 1280px) {
+  @media (max-width: 1279px) {
     .kpi-row {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

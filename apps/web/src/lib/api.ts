@@ -3285,6 +3285,34 @@ export interface MarketCompetitor {
   url: string | null;
   note: string | null;
   active: boolean;
+  /** DATA_MODEL §23.1 */
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: MarketMonitoring;
+  refreshHours: number | null;
+  autoRefresh: boolean;
+}
+export type MarketMonitoring = 'OCCUPANCY' | 'PRICE' | 'BOTH';
+/** Цены конкурентов по ночам (DATA_MODEL §23.1): деньги целыми строкой в минорных единицах, нет цены это null */
+export interface MarketRates {
+  today: string;
+  from: string;
+  days: number;
+  currency: string | null;
+  board: {
+    competitors: Array<{
+      id: string;
+      cells: Array<{ date: string; priceMinor: string | null; source: MarketSource | null }>;
+      avgMinor: string | null;
+      /** Десятые доли процента: 50 = +5 % */
+      changePermille: number | null;
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; avgMinor: string | null; minMinor: string | null; maxMinor: string | null; count: number }>;
+    summary: { marketAvgMinor: string | null; minMinor: string | null; maxMinor: string | null; competitorsWithData: number };
+  };
 }
 export interface MarketCell {
   date: string;
@@ -3377,6 +3405,17 @@ export const marketApi = {
     const tail = qs.toString();
     return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
   },
+  rates: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketRates>(`/market/rates${tail ? `?${tail}` : ''}`);
+  },
+  writeRates: (id: string, entries: Array<{ date: string; price: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>('PUT', `/market/competitors/${encodeURIComponent(id)}/rates`, { entries }),
   createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
   updateCompetitor: (id: string, body: unknown) =>
     sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),

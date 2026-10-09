@@ -8,7 +8,7 @@ import {
   type DemandLevel,
 } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { marketApi, type MarketView } from '../../lib/api';
+import { marketApi, type MarketRates, type MarketView } from '../../lib/api';
 import { hotelToday, validDate } from '../../lib/hotel-api';
 import { displayDate, displayDay } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
@@ -29,8 +29,9 @@ import {
   Table,
   cx,
 } from '../../components/ui';
-import { CompetitorButton, NightDrawer, OccupancyButton } from './drawers';
+import { CompetitorButton, NightDrawer } from './drawers';
 import { MarketCharts } from './market-charts';
+import { CompetitorsTable } from './competitors-table';
 import { insightText } from './insight-text';
 import '../directory.css';
 import './market.css';
@@ -79,7 +80,9 @@ export default async function MarketPage({
   const night = sp.night && validDate(sp.night) ? sp.night : null;
   const base = new URLSearchParams({ from, days: String(days), asOf, compare: String(compare) });
   const nightHref = (d: string) => `/market?${base}&night=${d}`;
-  const [loaded, shell, nightLoaded] = await Promise.all([
+  const district = sp.district ?? '';
+  const category = sp.category ?? '';
+  const [loaded, shell, nightLoaded, rates] = await Promise.all([
     marketApi.occupancy({ from, days, asOf, compare }).then(
       (r) => ({ ok: true as const, r }),
       (e: unknown) => {
@@ -97,6 +100,14 @@ export default async function MarketPage({
           },
         )
       : null,
+    // цены вторым, необязательным запросом: сбой не роняет страницу загрузки, график и столбцы цен просто не рисуются
+    marketApi.rates({ from, days, asOf, compare }).then(
+      (r): MarketRates | null => r,
+      (e: unknown) => {
+        unstable_rethrow(e);
+        return null;
+      },
+    ),
   ]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'rates'));
@@ -138,16 +149,26 @@ export default async function MarketPage({
         <>
           <Summary view={view} />
           <Insights view={view} />
-          <MarketCharts board={view.board} />
-          <Grid view={view} editable={editable} nightHref={nightHref} />
+          <CompetitorsTable
+            view={view}
+            rates={rates}
+            today={today}
+            editable={editable}
+            district={district}
+            category={category}
+            keep={[...base.entries()]}
+          />
+          <MarketCharts board={view.board} rates={rates && rates.board.summary.competitorsWithData > 0 ? rates : null} />
+          <Grid view={view} nightHref={nightHref} />
           {night && (
             <NightDrawer date={night} history={nightLoaded} closeHref={`/market?${base}`} />
           )}
         </>
       )}
       <p className="market-note" data-testid="market-source-note">
-        Сейчас загрузку конкурентов вносите вы: процент занятых номеров на ночь, по тому, что видно
-        на их странице бронирования. Автоматический сбор ИИ-агентом готовим. Ваша загрузка берётся
+        Данные о конкурентах сейчас вносите вы или загружаете из файла: процент занятых номеров и цену
+        на ночь. Сайты бронирования мы автоматически не читаем, их условия это запрещают; сбор из
+        разрешённого источника (поставщик данных, обмен между отелями) готовим. Ваша загрузка берётся
         из календаря: занятые места от всех, включая заблокированные.
       </p>
     </Page>
@@ -283,15 +304,12 @@ function Cell({ bp, delta }: { bp: number | null; delta?: number | null | undefi
 
 function Grid({
   view,
-  editable,
   nightHref,
 }: {
   view: MarketView;
-  editable: boolean;
   nightHref: (date: string) => string;
 }) {
   const { board } = view;
-  const byId = new Map(view.competitors.map((c) => [c.id, c]));
   return (
     <section className="market-grid" aria-labelledby="market-grid-title">
       <SectionTitle id="market-grid-title">По ночам</SectionTitle>
@@ -330,7 +348,6 @@ function Grid({
             ))}
           </tr>
           {board.competitors.map((c) => {
-            const full = byId.get(c.id);
             return (
               <tr key={c.id} data-testid={`market-row-${c.id}`}>
                 <th scope="row" className="market-table__name">
@@ -352,12 +369,6 @@ function Grid({
                       .filter(Boolean)
                       .join(', ')}
                   </span>
-                  {editable && full && (
-                    <span className="market-row-actions">
-                      <OccupancyButton competitor={{ id: c.id, name: c.name }} cells={c.cells} />
-                      <CompetitorButton competitor={full} />
-                    </span>
-                  )}
                 </th>
                 {c.cells.map((cell) => (
                   <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} />

@@ -2,18 +2,20 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { formatOccupancy, formatPoints } from '@pms/domain';
 import { useRouter } from 'next/navigation';
-import type { MarketCell, MarketCompetitor, MarketNightHistory } from '../../lib/api';
+import type { MarketCell, MarketCompetitor, MarketNightHistory, MarketRates } from '../../lib/api';
+import { minorToInput } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { useToast } from '../../components/toast';
 import { useConfirm } from '../../components/use-confirm';
-import { Alert, Button, Field, Input, Table, Textarea, cx } from '../../components/ui';
+import { Alert, Button, Field, Input, Select, Table, Textarea, cx } from '../../components/ui';
 import {
   archiveCompetitorAction,
   saveCompetitorAction,
   writeOccupancyAction,
+  writeRatesAction,
   type MarketActionResult,
 } from './actions';
 
@@ -121,6 +123,27 @@ function CompetitorForm({
             data-testid="market-name"
           />
         </Field>
+        <Field label="Район">
+          <Input name="district" maxLength={80} defaultValue={v('district', competitor?.district)} data-testid="market-district" />
+        </Field>
+        <Field label="Тип объекта">
+          <Input
+            name="category"
+            maxLength={60}
+            list="market-categories"
+            placeholder="Отель, хостел, апартаменты"
+            defaultValue={v('category', competitor?.category)}
+            data-testid="market-category"
+          />
+          <datalist id="market-categories">
+            {['Отель 5★', 'Отель 4★', 'Отель 3★', 'Мини-отель', 'Хостел', 'Апартаменты'].map((o) => (
+              <option key={o} value={o} />
+            ))}
+          </datalist>
+        </Field>
+        <Field label="Адрес">
+          <Input name="address" maxLength={200} defaultValue={v('address', competitor?.address)} />
+        </Field>
         <Field label="Расстояние, метров">
           <Input
             name="distanceM"
@@ -138,6 +161,53 @@ function CompetitorForm({
         <Field label="Заметка">
           <Textarea name="note" rows={2} maxLength={500} defaultValue={v('note', competitor?.note)} />
         </Field>
+        <fieldset className="market-monitoring" data-testid="market-monitoring">
+          <legend>Мониторинг</legend>
+          <Field label="Что отслеживать">
+            <Select name="monitoring" defaultValue={v('monitoring', competitor?.monitoring ?? 'BOTH')} data-testid="market-monitoring-kind">
+              <option value="BOTH">Загрузку и цены</option>
+              <option value="OCCUPANCY">Только загрузку</option>
+              <option value="PRICE">Только цены</option>
+            </Select>
+          </Field>
+          <Field label="Источник данных">
+            <Input
+              name="dataSource"
+              maxLength={40}
+              list="market-sources"
+              placeholder="Откуда берёте цифры"
+              defaultValue={v('dataSource', competitor?.dataSource)}
+            />
+            <datalist id="market-sources">
+              {['Вручную', 'Файл CSV', 'Поставщик данных'].map((o) => (
+                <option key={o} value={o} />
+              ))}
+            </datalist>
+          </Field>
+          <Field label="Как часто обновлять">
+            <Select name="refreshHours" defaultValue={v('refreshHours', competitor?.refreshHours)}>
+              <option value="">Не задано</option>
+              {[1, 2, 6, 12, 24].map((h) => (
+                <option key={h} value={h}>
+                  Раз в {pluralRu(h, ['час', 'часа', 'часов'])}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <label className="market-check">
+            <input
+              type="checkbox"
+              name="autoRefresh"
+              defaultChecked={state.values ? state.values['autoRefresh'] === 'on' : (competitor?.autoRefresh ?? false)}
+            />
+            Обновлять автоматически
+          </label>
+          <p className="settings-note" data-testid="market-auto-note">
+            Автоматическое обновление включится, когда подключён разрешённый источник данных. Площадки
+            бронирования мы сами не читаем: их условия это запрещают. Сейчас значения вносите вы, из файла
+            или от поставщика данных.
+          </p>
+        </fieldset>
         <div className="settings-service-actions">
           <Button type="button" tone="secondary" onClick={onClose}>
             Отмена
@@ -210,6 +280,98 @@ export function OccupancyButton({
         </Overlay>
       )}
     </>
+  );
+}
+
+/** «Внести цены»: поле цены на каждую ночь окна, в валюте объекта; пустое поле снимает сегодняшнее значение */
+export function RatesButton({
+  competitor,
+  cells,
+  currency,
+}: {
+  competitor: { id: string; name: string };
+  cells: MarketRates['board']['competitors'][number]['cells'];
+  currency: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        type="button"
+        size="xs"
+        tone="secondary"
+        onClick={() => setOpen(true)}
+        data-testid={`market-rates-${competitor.id}`}
+        aria-label={`Внести цены: ${competitor.name}`}
+      >
+        Внести цены
+      </Button>
+      {open && (
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title={`Цены: ${competitor.name}`}
+          onClose={() => setOpen(false)}
+        >
+          <RatesForm competitor={competitor} cells={cells} currency={currency} onClose={() => setOpen(false)} />
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+function RatesForm({
+  competitor,
+  cells,
+  currency,
+  onClose,
+}: {
+  competitor: { id: string; name: string };
+  cells: MarketRates['board']['competitors'][number]['cells'];
+  currency: string;
+  onClose: () => void;
+}) {
+  const [state, action, pending] = useMarketAction(writeRatesAction, onClose);
+  const sign = currency === 'KZT' ? '₸' : currency;
+  return (
+    <form action={action} className="settings-service-form" data-testid="market-rates-form">
+      {state.error && <Alert boxed>{state.error}</Alert>}
+      <input type="hidden" name="id" value={competitor.id} />
+      <p className="settings-note">
+        Цена за ночь в {sign}, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как
+        изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.
+      </p>
+      <div className="market-entry-grid">
+        {cells.map((c) => {
+          const was = c.priceMinor === null ? '' : minorToInput(c.priceMinor);
+          return (
+            <label key={c.date} className="market-entry">
+              <span className="market-entry__date">{dayLabel(c.date)}</span>
+              <input type="hidden" name={`was:${c.date}`} value={was} />
+              <span className="market-entry__field">
+                <Input
+                  name={`r:${c.date}`}
+                  inputMode="decimal"
+                  defaultValue={state.values?.[`r:${c.date}`] ?? was}
+                  aria-label={`Цена на ${displayDate(c.date, 'numeric')}, ${sign}`}
+                  data-testid={`market-r-${c.date}`}
+                />
+                <span aria-hidden="true">{sign}</span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="market-rates-save">
+          {pending ? 'Сохраняю…' : 'Сохранить'}
+        </Button>
+      </div>
+    </form>
   );
 }
 

@@ -65,6 +65,7 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await page.locator('.topmenu').getByRole('link', { name: 'Загрузка конкурентов' }).click();
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
+  const grid = page.getByTestId('market-table');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Загрузка конкурентов');
   await expect(main.getByTestId('market-empty')).toContainText('Добавьте ближайших конкурентов');
 
@@ -80,12 +81,12 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await form.getByTestId('market-save').click();
   await expect(page.getByText('Конкурент добавлен')).toBeVisible();
 
-  const row = main.getByRole('row', { name: /Отель Тестовый/ });
+  const row = grid.getByRole('row', { name: /Отель Тестовый/ });
   await expect(row).toContainText('300 м');
   await expect(row).toContainText('данных нет');
   await expect(main.getByTestId('market-insights')).toContainText('Нет данных: Отель Тестовый');
 
-  await row.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
+  await main.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
   const entry = page.getByTestId('market-occupancy-form');
   const fields = entry.locator('input[name^="p:"]');
   await fields.nth(0).fill('150');
@@ -110,7 +111,8 @@ test('таблица «вы и рынок»: изменение к вчера, �
   const today = await seed(request);
   await page.goto('/market');
   const main = page.getByRole('main');
-  const altyn = main.getByRole('row', { name: /Отель Алтын/ });
+  const grid = page.getByTestId('market-table');
+  const altyn = grid.getByRole('row', { name: /Отель Алтын/ });
   await expect(altyn).toContainText('92 %');
   await expect(altyn).toContainText('+12 п.п.');
   await expect(altyn).toContainText('ИИ');
@@ -131,18 +133,18 @@ test('таблица «вы и рынок»: изменение к вчера, �
 
   // без сравнения изменения нет
   await page.goto('/market?compare=0');
-  await expect(main.getByRole('row', { name: /Отель Алтын/ })).not.toContainText('п.п.');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).not.toContainText('п.п.');
   // снимок «на вчера»: видно вчерашние 80 %, сегодняшних ещё не было
   await page.goto(`/market?asOf=${plus(today, -1)}&compare=0`);
-  await expect(main.getByRole('row', { name: /Отель Алтын/ })).toContainText('80 %');
-  await expect(main.getByRole('row', { name: /Хостел Сити/ })).toContainText('данных нет');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('80 %');
+  await expect(grid.getByRole('row', { name: /Хостел Сити/ })).toContainText('данных нет');
 
   await page.goto('/market');
   await main.getByTestId('market-edit-00000000-0000-4000-8000-00000000000b').click();
   await page.getByTestId('market-archive').click();
   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Убрать' }).click();
   await expect(page.getByText('Конкурент убран из списка')).toBeVisible();
-  await expect(main.getByRole('row', { name: /Хостел Сити/ })).toHaveCount(0);
+  await expect(grid.getByRole('row', { name: /Хостел Сити/ })).toHaveCount(0);
   await expect(main.getByTestId('market-row-market')).toContainText('92 %');
 });
 
@@ -155,8 +157,9 @@ test('«только чтение»: таблица и подсказки вид
   await control(request, { orgTrialDays: 'ended' });
   await page.goto('/market');
   const main = page.getByRole('main');
+  const grid = page.getByTestId('market-table');
   await expect(page.getByTestId('read-only-banner')).toBeVisible();
-  await expect(main.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
   await expect(main.getByTestId('market-add')).toHaveCount(0);
   await expect(main.getByTestId('market-table').getByRole('button')).toHaveCount(0);
 });
@@ -209,8 +212,9 @@ test('«Заполнить все ночи» ставит одно значен�
   const today = await seed(request);
   await page.goto('/market');
   const main = page.getByRole('main');
-  const city = main.getByRole('row', { name: /Хостел Сити/ });
-  await city.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
+  const grid = page.getByTestId('market-table');
+  const city = grid.getByRole('row', { name: /Хостел Сити/ });
+  await main.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
   const entry = page.getByTestId('market-occupancy-form');
   await entry.getByTestId('market-fill-value').fill('70');
   await entry.getByTestId('market-fill').click();
@@ -222,8 +226,8 @@ test('«Заполнить все ночи» ставит одно значен�
   await expect(city).not.toContainText('95 %');
 
   // у «Алтына» снимок вчера 80 %, сегодня 92 %: без правок «Сохранить» подтверждает сегодняшние 92 %
-  const altyn = main.getByRole('row', { name: /Отель Алтын/ });
-  await altyn.getByRole('button', { name: 'Внести загрузку: Отель Алтын' }).click();
+  const altyn = grid.getByRole('row', { name: /Отель Алтын/ });
+  await main.getByRole('button', { name: 'Внести загрузку: Отель Алтын' }).click();
   await page.getByTestId('market-occupancy-save').click();
   await expect(page.getByText('Загрузка сохранена: 14 ночей')).toBeVisible();
   await expect(altyn).toContainText('92 %');

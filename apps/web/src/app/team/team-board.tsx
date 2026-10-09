@@ -1,11 +1,5 @@
 'use client';
-import {
-  createContext,
-  useContext,
-  useState,
-  useTransition,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useTransition, type ReactNode } from 'react';
 import {
   MEMBERSHIP_ROLES,
   invitableRoles,
@@ -21,6 +15,7 @@ import { displayDate } from '../../lib/display-date';
 import {
   inviteAction,
   removeMemberAction,
+  resendInviteAction,
   revokeInviteAction,
   setMemberDetailsAction,
   setMemberRoleAction,
@@ -119,7 +114,8 @@ function InviteForm({ role, onDone }: { role: MembershipRole; onDone: () => void
         </Field>
       ) : (
         <p className="muted" data-testid="invite-role-fixed">
-          Должность: администратор. Управляющий приглашает администраторов; управляющих приглашает владелец.
+          Должность: администратор. Управляющий приглашает администраторов; управляющих приглашает
+          владелец.
         </p>
       )}
       {error && <Alert>{error}</Alert>}
@@ -204,7 +200,11 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
                 </span>
               </td>
               <td className="settings-col-wide">
-                {m.phone ? <a href={`tel:${m.phone}`}>{m.phone}</a> : <span className="muted">не указан</span>}
+                {m.phone ? (
+                  <a href={`tel:${m.phone}`}>{m.phone}</a>
+                ) : (
+                  <span className="muted">не указан</span>
+                )}
               </td>
               <td className="settings-col-wide">
                 {m.roleEditable ? (
@@ -212,7 +212,9 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
                     aria-label={`Должность: ${who(m)}`}
                     value={m.role}
                     disabled={pending}
-                    onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
+                    onChange={(event) =>
+                      run(() => setMemberRoleAction(m.userId, event.target.value))
+                    }
                   >
                     <option value="MANAGER">{capital(MEMBERSHIP_ROLES.MANAGER)}</option>
                     <option value="STAFF">{capital(MEMBERSHIP_ROLES.STAFF)}</option>
@@ -294,7 +296,9 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
         });
       }}
     >
-      <p className="muted">Права даёт должность из списка (управляющий или администратор), подпись их не меняет.</p>
+      <p className="muted">
+        Права даёт должность из списка (управляющий или администратор), подпись их не меняет.
+      </p>
       <Field label="Телефон">
         <Input
           type="tel"
@@ -347,15 +351,26 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
                 </span>
               </span>
               {i.revocable && (
-                <Button
-                  type="button"
-                  tone="secondary"
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => run(() => revokeInviteAction(i.id))}
-                >
-                  Отозвать
-                </Button>
+                <span className="team-row-actions">
+                  <Button
+                    type="button"
+                    tone="secondary"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() => run(() => resendInviteAction(i.id, i.email, i.role ?? 'STAFF'))}
+                  >
+                    Отправить заново
+                  </Button>
+                  <Button
+                    type="button"
+                    tone="secondary"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() => run(() => revokeInviteAction(i.id))}
+                  >
+                    Отозвать
+                  </Button>
+                </span>
               )}
             </li>
           ))}

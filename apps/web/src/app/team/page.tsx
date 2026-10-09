@@ -5,13 +5,7 @@ import { TeamNavigation } from '../../components/team-navigation';
 import { Page } from '../../components/page';
 import { Notice } from '../../components/ui';
 import { currentMe } from '../../lib/desk-shell';
-import {
-  InviteButton,
-  MembersTable,
-  PendingInvites,
-  TeamProvider,
-  TeamStats,
-} from './team-board';
+import { InviteButton, MembersTable, PendingInvites, TeamProvider, TeamStats } from './team-board';
 import './team.css';
 
 /**

@@ -224,6 +224,25 @@ export async function revokeInviteAction(id: string): Promise<TeamActionResult> 
   return teamAction(async (token) => authApi.revokeInvite(token, id, await clientInfo()));
 }
 
+/**
+ * Отправить приглашение заново (STAFF2.3a): старая ссылка отзывается, на ту же почту уходит новая с тем же сроком в 7
+ * суток и той же ролью. Если новое не ушло, слова об этом: старое уже отозвано.
+ */
+export async function resendInviteAction(
+  id: string,
+  email: string,
+  role: string,
+): Promise<TeamActionResult> {
+  const invited = parseInviteRole(role);
+  if (!invited) return { error: INVITE_ROLE_MESSAGE };
+  const revoked = await revokeInviteAction(id);
+  if (revoked.error) return revoked;
+  const sent = await inviteAction(email, invited);
+  return sent.error
+    ? { error: `Старое приглашение отозвано, новое не отправлено: ${sent.error}` }
+    : { error: null };
+}
+
 /** Отключить сотрудника: членство удаляется, его сеансы в этой организации гаснут */
 export async function removeMemberAction(userId: string): Promise<TeamActionResult> {
   return teamAction(async (token) => authApi.removeMember(token, userId, await clientInfo()));

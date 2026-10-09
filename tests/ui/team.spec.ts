@@ -46,9 +46,7 @@ test('владелец: таблица людей с ролями и датам�
     .locator('.workspace-header .topmenu')
     .getByRole('button', { name: 'Настройки', exact: true })
     .click();
-  await expect(
-    page.locator('.workspace-header .topmenu a[href="/team"]'),
-  ).toBeVisible();
+  await expect(page.locator('.workspace-header .topmenu a[href="/team"]')).toBeVisible();
 });
 
 test('приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа»', async ({ page }) => {
@@ -127,7 +125,10 @@ test('неверный телефон: словами в панели, введ�
   await expect(drawer.getByLabel('Подпись под именем (необязательно)')).toHaveValue('Кассир');
 });
 
-test('управляющий: роль не меняет, приглашает только администраторов', async ({ page, request }) => {
+test('управляющий: роль не меняет, приглашает только администраторов', async ({
+  page,
+  request,
+}) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
   await page.goto('/team');
@@ -213,4 +214,53 @@ test('«Сотрудники и доступ»: сводка по команде
   await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
+});
+
+test('«Роли и права»: вкладка только на чтение, права трёх ролей по таблице API', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  await page
+    .getByRole('navigation', { name: 'Сотрудники и контроль' })
+    .getByRole('link', { name: 'Роли и права' })
+    .click();
+  await expect(page).toHaveURL(/\/team\/roles$/);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
+  await expect(main.getByTestId('roles-row')).toHaveCount(13);
+  const owner = main
+    .getByTestId('roles-row')
+    .filter({ hasText: 'Управляющие, роли и платные расширения' });
+  await expect(owner.locator('td').nth(1)).toHaveText('Да');
+  await expect(owner.locator('td').nth(2)).toHaveText('Нет');
+  await expect(owner.locator('td').nth(3)).toHaveText('Нет');
+  await expect(main.getByRole('button')).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual(
+    [],
+  );
+});
+
+test('«Роли и права»: администратору закрыто', async ({ page, request }) => {
+  await signIn(page);
+  await asRole(request, 'STAFF');
+  await page.goto('/team/roles');
+  await expect(page.getByRole('main')).toContainText('Нет доступа');
+  await expect(page.getByTestId('roles-table')).toHaveCount(0);
+});
+
+test('приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const invites = page.getByRole('main').getByTestId('invite-list');
+  const row = invites.locator('li', { hasText: 'zhdet@example.com' });
+  await expect(row).toContainText('администратор');
+  await row.getByRole('button', { name: 'Отправить заново' }).click();
+  await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toHaveCount(1);
+  await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
+    'администратор',
+  );
 });

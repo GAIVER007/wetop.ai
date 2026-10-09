@@ -7713,6 +7713,17 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:21 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts) | ❌ упало 4 из 21 | 3 с | 90d323d +2 | [лог](logs/2026-10-09T12-21-00Z-unit-878d.log) | RED: Гости внутрь Броней, меню без своей вкладки |
+| 09.10.2026 17:22 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 90d323d +8 | [лог](logs/2026-10-09T12-22-56Z-unit-a547.log) | GREEN: Гости вкладкой внутри Броней |
+| 09.10.2026 17:26 | typecheck | ✅ без ошибок | 1 мин 10 с | 90d323d +12 | [лог](logs/2026-10-09T12-26-21Z-typecheck-60bf.log) | Гости вкладкой внутри Броней |
+| 09.10.2026 17:27 | lint | ✅ без ошибок | 45 с | 90d323d +12 | [лог](logs/2026-10-09T12-27-32Z-lint-7a48.log) | Гости вкладкой внутри Броней |
+| 09.10.2026 17:28 | unit | ✅ 4148 из 4151, пропущено 3 | 2 мин 24 с | 90d323d +8 | [лог](logs/2026-10-09T12-28-23Z-unit-7d9c.log) | Гости вкладкой внутри Броней: полный unit |
+| 09.10.2026 17:31 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/ux-retention.spe | ✅ 37 из 37 | 4 мин 55 с | 90d323d +12 | [лог](logs/2026-10-09T12-31-05Z-e2e-34b1.log) | Гости вкладкой внутри Броней: меню, панель телефона, тур, компактность |
+| 09.10.2026 17:36 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/guests-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-compact.spec.ts tests/ | ❌ упало 2 из 28 | 2 мин 32 с | 90d323d +12 | [лог](logs/2026-10-09T12-36-34Z-e2e-ff1b.log) | Гости вкладкой внутри Броней: экраны раздела после добавления вкладок |
+| 09.10.2026 17:40 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts --workers=1) | ✅ 4 из 4 | 45 с | 90d323d +13 | [лог](logs/2026-10-09T12-40-40Z-e2e-7d0f.log) | Бюджет телефона 515 после вкладок раздела |
 | 09.10.2026 17:15 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 12 с | d0eb1e6 | [лог](logs/2026-10-09T12-15-54Z-unit-16a9.log) |  |
 | 09.10.2026 17:29 | typecheck | ✅ без ошибок | 13 с | a082bde | [лог](logs/2026-10-09T12-29-56Z-typecheck-39d5.log) |  |
 | 09.10.2026 17:30 | lint | ✅ без ошибок | 14 с | a082bde | [лог](logs/2026-10-09T12-30-10Z-lint-acc9.log) |  |
+| 09.10.2026 17:46 | unit (частично: apps/web/src/lib/workspace-organization.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/components/shell/tour-steps.test.ts) | ✅ 29 из 29 | 3 с | 857c4ad | [лог](logs/2026-10-09T12-46-04Z-unit-2b29.log) | после слияния main в ветку Гости/Брони |
+| 09.10.2026 17:46 | typecheck | ✅ без ошибок | 1 мин 10 с | 857c4ad | [лог](logs/2026-10-09T12-46-08Z-typecheck-6feb.log) | после слияния main |
+| 09.10.2026 17:47 | lint | ✅ без ошибок | 46 с | 857c4ad | [лог](logs/2026-10-09T12-47-20Z-lint-db28.log) | после слияния main |

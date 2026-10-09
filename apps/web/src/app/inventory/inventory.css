@@ -489,7 +489,7 @@
   }
   .inv-summary {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     gap: var(--space-4);
     margin: 0;
   }
@@ -502,6 +502,9 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+  }
+  .inv-tile {
+    align-items: center;
   }
   .inv-tile dt {
     display: contents;
@@ -662,6 +665,14 @@
     .inv-summary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-2);
+    }
+    .inv-tile {
+      grid-template-columns: 32px minmax(0, 1fr);
+      overflow-wrap: anywhere;
+    }
+    .inv-tile-icon {
+      width: 32px;
+      height: 32px;
     }
     .inv-tile {
       padding: var(--space-2);
@@ -922,9 +933,6 @@
     grid-template-columns: minmax(0, 1fr) 480px;
     column-gap: var(--space-4);
     align-items: start;
-  }
-  .fund-split:has(.fund-aside) .inv-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .fund-aside .tabs,
   .fund-aside [role='tablist'] {

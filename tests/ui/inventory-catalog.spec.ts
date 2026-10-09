@@ -249,6 +249,40 @@ test('панель места: живущий гость — «живёт», о�
   await expect(free.getByTestId('unit-now')).toHaveText('свободно');
 });
 
+test('панель места появляется при выборе места и исчезает, когда адрес другой; плитки без обрезки', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  for (const width of [1440, 1024, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/inventory');
+    const main = page.getByRole('main');
+    // без выбранного места панели нет
+    await expect(page.getByTestId('unit-aside')).toHaveCount(0);
+    // подписи плиток целиком: ни у одной плитки содержимое не шире самой плитки
+    const clipped = await main.locator('.inv-tile').evaluateAll((tiles) =>
+      tiles.filter((t) => t.scrollWidth > t.clientWidth + 1).length,
+    );
+    expect(clipped).toBe(0);
+    await expect(main.locator('.inv-tile')).toHaveCount(6);
+    if (width === 390) continue;
+    await main.getByRole('link', { name: 'Открыть номер R02', exact: true }).click();
+    await expect(page.getByRole('complementary', { name: 'Номер R02' })).toBeVisible();
+    // выбор другого места меняет панель, не плодит вторую
+    // с клавиатуры: строка таблицы может стоять под липкой шапкой прокручиваемого списка
+    await main.getByRole('link', { name: 'Открыть номер R03', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('complementary', { name: 'Номер R03' })).toBeVisible();
+    await expect(page.getByTestId('unit-aside')).toHaveCount(1);
+    // фильтр меняет адрес: панель уходит вместе с выбором, список остаётся отфильтрованным
+    await main.getByRole('button', { name: 'Койко-места', exact: true }).click();
+    await expect(page).toHaveURL(/\/inventory\?kind=BED$/);
+    await expect(page.getByTestId('unit-aside')).toHaveCount(0);
+    await expect(main.getByTestId('unit-row').first()).toBeVisible();
+  }
+});
+
 test('массовые действия: выбор мест и «Назначить уборку»', async ({ page, request }) => {
   await request.post(`${fixture}/__test/design-seed`);
   await page.goto('/inventory?kind=ROOM');

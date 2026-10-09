@@ -16,6 +16,7 @@ import { nightsBetween, pluralRu } from '../../lib/plural';
 import { DatesToggle } from './dates-toggle';
 import { DensityScope } from './density-toggle';
 import { FiltersToggle } from './filters-toggle';
+import { SectionTabs } from './section-tabs';
 import { PreviewRows } from './preview-rows';
 import { FinanceLine } from './finance-line';
 import { deskShell } from '../../lib/desk-shell';
@@ -175,6 +176,8 @@ export default async function ReservationsPage({
         )
       }
     >
+      {/* «Гости» живут внутри раздела (09.10.2026): вкладки под заголовком, в шапке один пункт «Брони» */}
+      <SectionTabs current="/reservations" />
       <section className="reservations-controls" aria-label="Фильтры броней">
         <ChipGroup as="nav" label="Быстрые виды" className="reservations-views">
           {Object.entries(reservationViews).map(([id, label]) => (

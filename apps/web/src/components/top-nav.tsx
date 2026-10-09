@@ -325,6 +325,7 @@ function BottomNavLinks({
       <Link
         key={n.href}
         href={n.href}
+        // как в шапке и выдвижном меню: на /guests активны «Брони», своего пункта у «Гостей» нет (09.10.2026)
         className={cx(active === n.href && 'is-active')}
         aria-current={active === n.href ? 'page' : undefined}
       >

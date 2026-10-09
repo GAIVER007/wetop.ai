@@ -40,7 +40,8 @@ const HOSPITALITY: Array<[string[], string | null]> = [
     ],
     'reservations>/reservations',
   ],
-  [['/guests', '/guests/123', '/guests/123/preview', '/guests/birthdays'], 'guests>/guests'],
+  // «Гости» живут вкладкой внутри «Броней» (поручение владельца 09.10.2026, после плана DS2)
+  [['/guests', '/guests/123', '/guests/123/preview', '/guests/birthdays'], 'reservations>/reservations'],
   [['/finance'], 'finance>/finance'],
   [['/bar'], 'bar>/bar'],
   [['/inventory', '/rooms', '/rooms/categories', '/rates', '/units/R01'], 'inventory>/inventory'],

@@ -466,7 +466,7 @@ const TEAM: MenuOptions = { label: 'Сотрудники и доступ', match
 
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
- * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
+ * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони) одним щелчком; группы с несколькими
  * экранами («Продажи», «Маркетинг», «Настройки», «Платформа») раскрывают список.
  */
 // Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
@@ -476,8 +476,9 @@ const hospitalityRegistry: MenuSection[] = [
   // задачи смены открываются из «Сегодня» (ADR-145), своего пункта у них нет
   direct('home', '/today', 'today', { match: ['/today', '/tasks'] }),
   direct('chessboard', '/chessboard', 'board'),
-  direct('reservations', '/reservations', 'booking'),
-  direct('guests', '/guests', 'guests'),
+  direct('reservations', '/reservations', 'booking', { match: ['/reservations', '/guests'] }),
+  // «Гости» без своей вкладки в меню: раздел открывается вкладкой внутри «Броней»
+  // (поручение владельца 09.10.2026), адрес /guests и право прежние, подсвечиваются «Брони»
   direct('finance', '/finance', 'money', { label: 'Финансы' }),
   direct('bar', '/bar', 'receipt'),
   {
@@ -605,7 +606,7 @@ export const menuSections: MenuSection[] = visible(hospitalityRegistry);
 export const beautyMenuSections: MenuSection[] = visible(beautyRegistry);
 export const foodMenuSections: MenuSection[] = visible(foodRegistry);
 
-/** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
+/** Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134) */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
   .map((section) => section.items[0]!);

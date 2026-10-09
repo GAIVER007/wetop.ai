@@ -79,7 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
         await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
-        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+        // 450 был замером до вкладок раздела «Брони | Гости» (09.10.2026): ряд с целями касания
+        // 44 px и отступом прибавил ~60 px хрома, замер после него 509, бюджет 515
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(515);
         const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),

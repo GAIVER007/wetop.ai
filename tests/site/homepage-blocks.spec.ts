@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
  * меню шапки и карта разделов на первом экране ведут на эти блоки.
  */
 const BLOCKS = [
-  { id: 'audience', title: /Отели, хостелы и апартаменты/ },
+  { id: 'audience', title: /Разный бизнес. Свои инструменты/ },
   { id: 'features', title: /Что умеет WETOP/ },
   // фишка №1 (ADR-142): сразу за возможностями
   { id: 'market', title: /Загрузка конкурентов/ },
@@ -22,23 +22,20 @@ const BLOCKS = [
 /** Блоки прежних версий главной: абстрактные лозунги, вкладки и дубли возможностей. Их на странице больше нет. */
 const GONE = ['about', 'workflow', 'product-details', 'toolkit', 'control'];
 
-test('новая главная сразу называет гостиничный продукт и дает мобильную навигацию', async ({ page }) => {
+test('главная объясняет платформу и оставляет регистрацию в мобильной шапке', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Управляйте отелем из одного окна',
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Управляйте бизнесом из одного окна',
   );
-  const mobileNav = page.getByRole('navigation', { name: 'Разделы главной' });
-  await expect(mobileNav).toBeVisible();
-  await expect(mobileNav.getByRole('link')).toHaveCount(4);
-  await expect(page.locator('main > div').first()).toHaveCSS('padding-bottom', /[1-9]/);
-
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await expect(mobileNav).toBeHidden();
+  await expect(page.getByRole('navigation', { name: 'Разделы главной' })).toHaveCount(0);
+  await expect(page.locator('.site-header__register')).toBeVisible();
+  await expect(page.locator('.mobile-menu__button')).toBeVisible();
 });
 
-test('блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами', async ({ page }) => {
+test('блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами', async ({
+  page,
+}) => {
   await page.goto('/');
   const ids = await page
     .locator('main section[id]')
@@ -46,10 +43,14 @@ test('блоки идут в заданном порядке, у каждого 
   expect(ids.filter((id) => BLOCKS.some((b) => b.id === id))).toEqual(BLOCKS.map((b) => b.id));
   for (const block of BLOCKS) {
     const section = page.locator(`#${block.id}`);
-    await expect(section.locator('.eyebrow').first(), `надзаголовок #${block.id}`).toBeVisible();
-    await expect(section.getByRole('heading', { level: 2 }), `заголовок #${block.id}`).toContainText(
-      block.title,
-    );
+    await expect(
+      section.locator('.eyebrow, .public-intro__eyebrow').first(),
+      `надзаголовок #${block.id}`,
+    ).toBeVisible();
+    await expect(
+      section.getByRole('heading', { level: 2 }),
+      `заголовок #${block.id}`,
+    ).toContainText(block.title);
   }
   for (const id of GONE) {
     await expect(page.locator(`#${id}`), `старый блок #${id}`).toHaveCount(0);
@@ -81,28 +82,17 @@ test('содержимое блоков видно сразу: без вклад
  * в каждой карточке лежал абзац в три-пять строк, двадцать одинаковых прямоугольников подряд, а две кнопки
  * первого экрана не помещались в колонку и вставали в столбик разной ширины. Эти три проверки держат правку.
  */
-test('первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним', async ({ page }) => {
+test('первый экран: две кнопки в строку, направления сразу после Hero', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const tops = await page
-    .locator('.hero .hero__actions a')
+    .locator('.public-intro__actions a')
     .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-  expect(tops.length, 'кнопок на первом экране две').toBe(2);
-  expect(tops[0], 'кнопки первого экрана встали в столбик').toBe(tops[1]);
-  // три факта под чертой ушли с первого экрана: он и без них в семь уровней
-  await expect(page.locator('.hero .hero__points')).toHaveCount(0);
-
-  // полоса фактов сразу под первым экраном: четыре коротких ответа «что это даёт»
-  const facts = page.locator('.facts__item');
-  await expect(facts).toHaveCount(4);
-  for (const fact of await facts.all()) {
-    await expect(fact.getByRole('heading', { level: 2 })).toBeVisible();
-    expect((await fact.innerText()).length, 'факт должен читаться одним взглядом').toBeLessThan(120);
-  }
-  const order = await page
-    .locator('main section')
-    .evaluateAll((els) => els.map((el) => el.className));
-  expect(order.findIndex((c) => c.includes('facts')), 'полоса фактов идёт сразу за первым экраном').toBe(1);
+  expect(tops).toHaveLength(2);
+  expect(tops[0]).toBe(tops[1]);
+  const ids = await page.locator('main section').evaluateAll((els) => els.map((el) => el.id));
+  expect(ids.slice(0, 2)).toEqual(['product', 'audience']);
+  await expect(page.locator('.facts')).toHaveCount(0);
 });
 
 test('карточки блоков читаются одной фразой, а не абзацем', async ({ page }) => {
@@ -139,22 +129,15 @@ test('ссылка в карточке «Продаж» — пилюля по т
   ).toBeLessThan(Math.round(cardBox.width) - 48);
 });
 
-test('первый экран: карта разделов ведёт на блоки страницы', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+test('первый экран: Today подписан примером и не имитирует кнопки', async ({ page }) => {
   await page.goto('/');
-  const map = page.locator('.hero .product-map');
-  await expect(map).toBeVisible();
-  const tiles = map.getByRole('link');
-  await expect(tiles).toHaveCount(6);
-  for (const word of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
-    await expect(map).toContainText(word);
-  }
-  const hrefs = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-  for (const href of hrefs) expect(['#features', '#sales', '#team', '#ai-sellers']).toContain(href);
-  await expect(map.locator('.vertical-status')).toHaveCount(0);
-  await expect(page.locator('.hero')).toContainText(/Схема разделов/);
-  await tiles.filter({ hasText: 'Продажи' }).click();
-  await expect(page.locator('#sales')).toBeInViewport();
+  const preview = page.locator('.today-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText('Сегодня');
+  await expect(preview.locator('a, button, [role="button"]')).toHaveCount(0);
+  await expect(page.locator('.public-intro__figure')).toContainText(
+    'Пример интерфейса. Данные вымышленные.',
+  );
 });
 
 /**
@@ -165,32 +148,25 @@ test('первый экран: карта разделов ведёт на бл�
 test('на главной нет дорожной карты направлений', async ({ page }) => {
   await page.goto('/');
   const text = await page.locator('main').innerText();
-  for (const word of [
-    'Первое направление',
-    'Следующее направление',
-    'Hospitality',
-    'Beauty',
-    'пока нельзя',
-  ]) {
+  for (const word of ['Первое направление', 'Следующее направление', 'пока нельзя']) {
     expect(text, `слово дорожной карты на главной: ${word}`).not.toContain(word);
   }
 });
 
-test('салоны и студии названы среди тех, кого подключаем, со ссылкой написать', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+test('пилоты обозначены явно, ведут на configured email и существующий AuthDialog', async ({
+  page,
+}) => {
   await page.goto('/');
-  const invite = page.locator('#audience .invite');
-  await expect(invite).toBeVisible();
-  await expect(invite).toContainText(/Салоны и студии/);
-  await expect(invite).toContainText(/подключаем/i);
-  // приглашение ведёт на почту из site.config.ts, а не на регистрацию: салонных функций в системе ещё нет
-  await expect(invite.locator('a[href^="mailto:"]')).toHaveCount(1);
-  await expect(invite.locator('[data-auth="register"]')).toHaveCount(0);
-  // записи, мастера и расписание услуг не обещаются (DESIGN.md §19.9)
-  const text = await page.locator('main').innerText();
-  for (const word of ['журнал записи', 'мастеров', 'онлайн-запись']) {
-    expect(text, `обещание салонной функции: ${word}`).not.toContain(word);
+  const cards = page.locator('.verticals__card');
+  await expect(cards).toHaveCount(3);
+  for (const card of [cards.nth(1), cards.nth(2)]) {
+    await expect(card).not.toContainText(/пилот/i);
+    await expect(card.locator('a[href^="mailto:"]')).toHaveCount(1);
+    await expect(card.locator('[data-auth="register"]')).toHaveCount(1);
+    await expect(card.locator('.verticals__capabilities li')).toHaveCount(6);
   }
+  await expect(cards.nth(1)).not.toContainText(/финанс|эквайринг/i);
+  await expect(cards.nth(2)).not.toContainText(/POS|кухня|доставка|депозит/i);
 });
 
 /**
@@ -213,8 +189,10 @@ test('меню шапки ведёт на блоки, а не на абстра�
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Основная навигация' });
-  const hrefs = await nav.getByRole('link').evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-  expect(hrefs).toEqual(['/#audience', '/#features', '/#sales', '/#start']);
+  const hrefs = await nav
+    .getByRole('link')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+  expect(hrefs).toEqual(['/#product', '/#audience', '/#features', '/#ai-sellers', '/#start']);
 });
 
 test('в текстах главной нет длинного тире и разделителя « · »', async ({ page }) => {
@@ -225,7 +203,9 @@ test('в текстах главной нет длинного тире и ра�
 });
 
 for (const width of [320, 390, 768, 1440]) {
-  test(`главная помещается в ${width} px и открывает регистрацию с первого экрана`, async ({ page }) => {
+  test(`главная помещается в ${width} px и открывает регистрацию с первого экрана`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -237,9 +217,9 @@ for (const width of [320, 390, 768, 1440]) {
       ),
     ).toBeLessThanOrEqual(1);
     // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
-    await page.locator('.hero .hero__actions a[href="#features"]').click();
-    await expect(page.locator('#features')).toBeInViewport();
-    await page.locator('.hero [data-auth="register"]').click();
+    await page.locator('.public-intro__actions a[href="#audience"]').click();
+    await expect(page.locator('#audience')).toBeInViewport();
+    await page.locator('.public-intro [data-auth="register"]').click();
     await expect(page.getByRole('dialog')).toBeVisible();
   });
 }
@@ -258,7 +238,9 @@ test('блоки доступны в обеих темах', async ({ page }) =>
   }
 });
 
-test('FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор', async ({ page }) => {
+test('FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор', async ({
+  page,
+}) => {
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.goto('/');
   await page.getByRole('button', { name: 'Переключить тему' }).click();
@@ -276,7 +258,10 @@ test('«Загрузка конкурентов»: четыре пункта, п
   const block = page.locator('#market');
   await expect(block.locator('.seller-details__steps > li')).toHaveCount(4);
   await expect(block.getByRole('complementary')).toContainText('Пример');
-  await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute('href', /\/market$/);
+  await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute(
+    'href',
+    /\/market$/,
+  );
   await expect(block).toContainText(/готовим/);
   const axe = await new AxeBuilder({ page }).include('#market').analyze();
   expect(axe.violations).toEqual([]);

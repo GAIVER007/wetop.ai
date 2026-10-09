@@ -1,0 +1,279 @@
+# Сквозные (e2e) · 07.10.2026 17:38 Алматы · MacBook-Air-Urij.local
+# коммит 867a391 (codex/public-2-visual-slice-1)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/public-intro.spec.ts'
+[WebServer] (node:85009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:85073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (10.5s)
+(node:85101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (10.1s)
+(node:85134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (10.1s)
+(node:85176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (10.1s)
+(node:85216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (10.2s)
+(node:85228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (10.1s)
+(node:85275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (10.2s)
+(node:85439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (10.6s)
+
+
+  1) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ─────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-320/error-context.md
+
+  2) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ─────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  3) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ─────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-768/error-context.md
+
+  4) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        23 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-1440/error-context.md
+
+  5) tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 ────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-light-320/error-context.md
+
+  6) tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 ────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        23 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-light-390/error-context.md
+
+  7) tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 ────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-light-768/error-context.md
+
+  8) tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 ───────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте отелем из одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Управляйте отелем из одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Управляйте бизнесом из одного окна');
+         |                                                             ^
+      11 |       const header = page.locator('header');
+      12 |       await expect(header.getByRole('link', { name: 'Регистрация', exact: true }).first()).toBeVisible();
+      13 |       const hero = page.locator('.public-intro');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-light-1440/error-context.md
+
+  8 failed
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 ────────────────────────────────
+
+# код выхода 1 · 1 мин 41 с

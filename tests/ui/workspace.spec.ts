@@ -275,7 +275,7 @@ test('показатели за период: готовые отрезки и �
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\?q=/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
   await page.setViewportSize({ width: 390, height: 844 });
   const openMenu = page.getByRole('button', { name: 'Открыть меню' });
   await openMenu.click();
@@ -1047,9 +1047,9 @@ test('удаление документа гостя спрашивают: от�
 test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
   expect(seeded.stays).toBe(40);
-  // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
-  await page.goto('/guests?state=inhouse');
-  const rows = page.locator('.dir-table tbody tr');
+  // «Гости и бронирования» листают по 10, 25 или 50: полный дом помещается на странице в 50 строк (ТЗ §44)
+  await page.goto('/guests?state=inhouse&size=50');
+  const rows = page.getByTestId('guest-row');
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
   await expect(page.getByTestId('guests-meta')).toContainText(`${shown} гост`);
@@ -1073,7 +1073,7 @@ test('настройки услуг: путь к начислению назва
   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
-  await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+  await expect(page.getByTestId('guests-meta')).toContainText('проживает');
 });
 
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {

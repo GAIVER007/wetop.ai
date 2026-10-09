@@ -39,8 +39,8 @@ describe('меню по ролям', () => {
     expect(hrefs(access('STAFF'))).toEqual([
       '/today',
       '/chessboard',
-      // «Гости» стали вкладкой внутри «Броней» (09.10.2026): страница /guests осталась, пункта меню нет
-      '/reservations',
+      // «Гости и бронирования» (09.10.2026): одна вкладка на месте «Броней» и «Гостей»
+      '/guests',
       '/finance',
       '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
@@ -53,7 +53,7 @@ describe('меню по ролям', () => {
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
       'chessboard',
-      'reservations',
+      'guests',
       'finance',
       'sales',
       'reports',

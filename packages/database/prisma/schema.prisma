@@ -131,6 +131,28 @@ model Property {
   checkInTime         String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime        String   @map("check_out_time")
+  /// Карточка объекта (ADR-154, DATA_MODEL §30): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
+  description         String?  @db.VarChar(500)
+  website             String?  @db.VarChar(300)
+  /// Имя в договоре и счёте гостя; пусто, пока не задано, тогда печатается name
+  publicName          String?  @map("public_name") @db.VarChar(200)
+  earlyCheckIn        Boolean  @default(false) @map("early_check_in")
+  lateCheckOut        Boolean  @default(false) @map("late_check_out")
+  childrenAllowed     Boolean  @default(true) @map("children_allowed")
+  petsAllowed         Boolean  @default(false) @map("pets_allowed")
+  smokingAllowed      Boolean  @default(false) @map("smoking_allowed")
+  /// CASH_CARD | CASH | CARD | TRANSFER (CHECK в базе)
+  onsitePayment       String   @default("CASH_CARD") @map("onsite_payment") @db.VarChar(12)
+  /// Подпись правила отмены для карточки (штраф считает тариф, Q-286): FREE_1D | FREE_3D | FREE_7D | NON_REFUNDABLE
+  cancellationRule    String   @default("FREE_1D") @map("cancellation_rule") @db.VarChar(16)
+  /// Подпись залога для карточки: NONE | FIRST_NIGHT | HALF | FULL
+  depositRule         String   @default("NONE") @map("deposit_rule") @db.VarChar(16)
+  minGuestAge         Int      @default(18) @map("min_guest_age") @db.SmallInt
+  quietHoursFrom      String?  @map("quiet_hours_from") @db.VarChar(5)
+  quietHoursTo        String?  @map("quiet_hours_to") @db.VarChar(5)
+  houseRulesNote      String?  @map("house_rules_note") @db.VarChar(500)
+  /// Коды удобств из каталога домена PROPERTY_AMENITIES
+  amenities           String[] @default([])
   /// Platform P1 (ADR-104, DATA_MODEL §18.4, v2.6): родитель объекта — филиал (1:1), NOT NULL с миграции
   /// 20260928000032; новый объект — через createPropertyInChain. organization_id остаётся, пока замок
   /// ADR-061 не переведён на цепочку Location → Business, и совпадает с организацией Business.

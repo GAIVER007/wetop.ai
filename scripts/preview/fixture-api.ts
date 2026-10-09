@@ -885,7 +885,7 @@ function seedAnalyticsHistory() {
  */
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
-let hotelOverrides: Record<string, string | null> = {};
+let hotelOverrides: Record<string, unknown> = {};
 /**
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
@@ -3014,6 +3014,11 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
+      // номера и места по единицам продажи (ADR-154): как считает API
+      capacity: {
+        rooms: units.filter((u) => u.kind === 'ROOM').length,
+        beds: units.filter((u) => u.kind === 'BED').length,
+      },
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
@@ -6767,7 +6772,7 @@ createServer(async (req, res) => {
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
-      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, unknown>) };
       return send(200, {});
     }
     if (path === '/hotel/onboarding' && req.method === 'POST') {

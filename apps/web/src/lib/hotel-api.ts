@@ -23,7 +23,26 @@ export interface HotelSettings {
     currency: string;
     checkInTime: string;
     checkOutTime: string;
+    /** Карточка объекта (ADR-154, DATA_MODEL §30); старый API полей не шлёт, экран берёт умолчания */
+    description?: string | null;
+    website?: string | null;
+    publicName?: string | null;
+    earlyCheckIn?: boolean;
+    lateCheckOut?: boolean;
+    childrenAllowed?: boolean;
+    petsAllowed?: boolean;
+    smokingAllowed?: boolean;
+    onsitePayment?: string;
+    cancellationRule?: string;
+    depositRule?: string;
+    minGuestAge?: number;
+    quietHoursFrom?: string | null;
+    quietHoursTo?: string | null;
+    houseRulesNote?: string | null;
+    amenities?: string[];
   };
+  /** Номера и места по единицам продажи (ADR-013): только чтение; старый API не шлёт */
+  capacity?: { rooms: number; beds: number };
   ratePlans: Array<{
     code: string;
     name: string;

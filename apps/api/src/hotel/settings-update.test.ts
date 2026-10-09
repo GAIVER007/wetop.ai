@@ -44,6 +44,7 @@ function setup(
     auditLog: { create: audit },
     ratePlan: { findMany: vi.fn().mockResolvedValue([]) },
     accommodationType: { count: vi.fn().mockResolvedValue(1) },
+    inventoryUnit: { count: vi.fn().mockResolvedValue(0) },
   };
   const tx = { ...db };
   const service = new HotelService({
@@ -131,5 +132,67 @@ describe('правка сведений гостиницы', () => {
     await as('OWNER', () => same.service.updateSettings({ checkInTime: '14:00' }));
     expect(same.update).not.toHaveBeenCalled();
     expect(same.audit).not.toHaveBeenCalled();
+  });
+
+  /** Карточка объекта (ADR-154, DATA_MODEL §30): те же права, тот же журнал «было/стало» */
+  it('карточка: правила и удобства пишутся одной правкой, в журнале было и стало', async () => {
+    const { service, update, audit } = setup();
+    await as('OWNER', () =>
+      service.updateSettings({
+        petsAllowed: true,
+        minGuestAge: 21,
+        quietHoursFrom: '22:00',
+        quietHoursTo: '08:00',
+        amenities: ['wifi', 'kitchen'],
+      }),
+    );
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'prop-a' },
+      data: {
+        petsAllowed: true,
+        minGuestAge: 21,
+        quietHoursFrom: '22:00',
+        quietHoursTo: '08:00',
+        amenities: ['wifi', 'kitchen'],
+      },
+    });
+    expect(audit).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        action: 'hotel.settings.updated',
+        after: expect.objectContaining({ petsAllowed: true, amenities: ['wifi', 'kitchen'] }),
+      }),
+    });
+  });
+
+  it('карточка: те же удобства повторно не пишутся и в журнал не попадают', async () => {
+    const { service, update, audit } = setup({
+      id: 'prop-a',
+      name: 'Хостел А',
+      organizationId: 'org-a',
+      amenities: ['wifi', 'kitchen'],
+      earlyCheckIn: false,
+    } as never);
+    await as('OWNER', () =>
+      service.updateSettings({ amenities: ['kitchen', 'wifi'], earlyCheckIn: false }),
+    );
+    expect(update).not.toHaveBeenCalled();
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it('карточка: чужой код удобства и возраст вне 0..99 — отказ, ничего не записано', async () => {
+    const { service, update } = setup();
+    await expect(as('OWNER', () => service.updateSettings({ amenities: ['teleport'] }))).rejects.toThrow(
+      /удобств/,
+    );
+    await expect(as('OWNER', () => service.updateSettings({ minGuestAge: 120 }))).rejects.toThrow(/возраст/);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('карточка: администратору правка закрыта так же, как прочие сведения', async () => {
+    const { service, update } = setup();
+    await expect(as('STAFF', () => service.updateSettings({ petsAllowed: true }))).rejects.toThrow(
+      accessDeniedMessage('settings'),
+    );
+    expect(update).not.toHaveBeenCalled();
   });
 });

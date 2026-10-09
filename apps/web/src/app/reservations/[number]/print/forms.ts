@@ -30,6 +30,8 @@ export interface StoredProperty {
   /** v1.7 (ADR-082): контакты объекта для печатных форм */
   phone?: string | null;
   email?: string | null;
+  /** ADR-154: «Публичное имя для документов» из настроек объекта; пусто — печатается название */
+  publicName?: string | null;
   checkInTime: string;
   checkOutTime: string;
 }
@@ -40,10 +42,10 @@ export interface StoredProperty {
  */
 export function propertyParty(
   p: StoredProperty,
-): Required<{ [K in keyof StoredProperty]: string }> {
+): Required<{ [K in keyof Omit<StoredProperty, 'publicName'>]: string }> {
   const or = (v: string | null | undefined) => (v && v.trim() ? v : '___');
   return {
-    name: p.name,
+    name: p.publicName?.trim() || p.name,
     legalName: or(p.legalName),
     bin: or(p.bin),
     address: or(p.address),

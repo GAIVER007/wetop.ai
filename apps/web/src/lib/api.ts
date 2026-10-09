@@ -200,7 +200,7 @@ export const onboardingApi = {
 
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, string | null>) =>
+  update: (patch: Record<string, unknown>) =>
     sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 

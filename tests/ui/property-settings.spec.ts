@@ -34,11 +34,19 @@ test('один заголовок на трёх вкладках, без «Об�
   const main = page.getByRole('main');
   await page.goto('/hotel-settings');
   const tabs = main.getByRole('navigation', { name: 'Настройки объекта', exact: true });
-  await expect(tabs.getByRole('link')).toHaveText(['Основное', 'Проживание', 'Услуги']);
+  await expect(tabs.getByRole('link')).toHaveText([
+    'Основное',
+    'Проживание',
+    'Услуги',
+    'Продажи и каналы',
+    'Документы',
+  ]);
   for (const [tab, check] of [
     ['Основное', 'stored-property'],
     ['Проживание', 'stay-settings'],
     ['Услуги', 'services-table'],
+    ['Продажи и каналы', 'sales-summary'],
+    ['Документы', 'documents-summary'],
   ] as const) {
     await tabs.getByRole('link', { name: tab, exact: true }).click();
     await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute(
@@ -47,9 +55,9 @@ test('один заголовок на трёх вкладках, без «Об�
     );
     await expect(main.getByTestId(check)).toBeVisible();
     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
-    await expect(main.locator('.page__subtitle')).toHaveText('Luxx Aparts');
+    await expect(main.locator('.page__subtitle')).toContainText('Здесь вы настраиваете данные филиала');
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
-    await expect(main.locator('.page__crumbs')).toHaveCount(0);
+    await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
   await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
     'Объект',
@@ -57,11 +65,10 @@ test('один заголовок на трёх вкладках, без «Об�
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
-  for (const section of ['Основная информация', 'Региональные настройки', 'Юридическое лицо'])
+  for (const section of ['Основная информация', 'Расположение и классификация', 'Юридические данные'])
     await expect(general.getByRole('heading', { name: section, level: 2 })).toBeVisible();
-  // часы заезда и выезда — только на «Проживании», на «Основном» их второй раз нет
-  await expect(main.getByTestId('stay-settings')).toHaveCount(0);
-  await expect(main).not.toContainText('14:00');
+  // «Основное» по верстке владельца (ADR-154) содержит и заезд с правилами; «Проживание» показывает их отдельно
+  await expect(main.getByTestId('stay-settings')).toBeVisible();
   await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveCount(0);
 });
 
@@ -71,7 +78,7 @@ test('старые адреса: часы — на «Проживание», п�
   const main = page.getByRole('main');
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings\/stay$/);
-  await expect(main.getByTestId('stay-settings')).toContainText('14:00');
+  await expect(main.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
@@ -92,7 +99,8 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(save).toBeDisabled();
   await expect(state).toHaveText('');
   await expect(form.getByLabel('Название объекта')).toHaveValue('Luxx Aparts');
-  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  // валюта и пояс только для чтения: меняет поддержка (ADR-154: поля стоят, но правки не принимают)
+  await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
 
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await expect(state).toHaveText('• Есть несохранённые изменения');
@@ -100,8 +108,8 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await form.getByLabel('Телефон').fill('+7 700 000 00 00');
   await expect(save).toBeDisabled();
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
-  await form.getByLabel('Юридическое название').fill('ИП «Тестовый»');
-  await form.getByLabel('Страна (код ISO)').fill('KZ');
+  await form.getByLabel('Юридическое лицо').fill('ИП «Тестовый»');
+  await form.getByLabel('Страна (ISO)').selectOption('KZ');
   await form.getByLabel('Город', { exact: true }).fill('Вымышленный город');
   await form.getByLabel('Тип размещения').selectOption('motel');
   await save.click();
@@ -110,8 +118,8 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(main.getByRole('alert')).toHaveCount(0);
   await page.reload();
   await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
-  await expect(form.getByLabel('Юридическое название')).toHaveValue('ИП «Тестовый»');
-  await expect(form.getByLabel('Страна (код ISO)')).toHaveValue('KZ');
+  await expect(form.getByLabel('Юридическое лицо')).toHaveValue('ИП «Тестовый»');
+  await expect(form.getByLabel('Страна (ISO)')).toHaveValue('KZ');
   await expect(form.getByLabel('Город', { exact: true })).toHaveValue('Вымышленный город');
   await expect(form.getByLabel('Тип размещения')).toHaveValue('motel');
 
@@ -158,9 +166,10 @@ test('администратор и «только чтение» видят с�
     await page.goto(path);
     await expect(page.getByTestId('read-only-banner')).toBeVisible();
     await expect(main.getByRole('button', { name: 'Сохранить изменения' })).toHaveCount(0);
-    await expect(main.locator('input')).toHaveCount(0);
+    // поля стоят, но выключены или только для чтения: править нечем
+    await expect(main.locator('input:enabled:not([readonly]):not([type=hidden])')).toHaveCount(0);
   }
-  await expect(main.getByTestId('stay-settings')).toContainText('12:00');
+  await expect(main.getByTestId('stay-settings').getByLabel('Выезд до')).toHaveValue('12:00');
 });
 
 test('данные объекта и каналов помещаются на экране ноутбука', async ({ page }) => {
@@ -168,10 +177,14 @@ test('данные объекта и каналов помещаются на э
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/hotel-settings');
   const form = page.getByTestId('hotel-settings-form');
-  for (const label of ['Тип размещения', 'ИИН/БИН']) {
+  // три колонки по верстке владельца (ADR-154): тип размещения в первом экране, юридические данные ниже
+  for (const [label, bottom] of [
+    ['Тип размещения', 876],
+    ['ИИН/БИН', 1100],
+  ] as const) {
     const box = await form.getByLabel(label).boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.y + box!.height).toBeLessThanOrEqual(876);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(bottom);
   }
 });
 

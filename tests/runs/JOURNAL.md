@@ -7740,3 +7740,5 @@
 | 09.10.2026 18:10 | unit | ✅ 4151 из 4154, пропущено 3 | 2 мин 10 с | 9895ded +1 | [лог](logs/2026-10-09T13-10-22Z-unit-755a.log) | ADR-152: автовыкладка, полный unit |
 | 09.10.2026 18:12 | typecheck | ✅ без ошибок | 47 с | 9895ded +1 | [лог](logs/2026-10-09T13-12-34Z-typecheck-2c84.log) | ADR-152 |
 | 09.10.2026 18:13 | lint | ✅ без ошибок | 44 с | 9895ded +1 | [лог](logs/2026-10-09T13-13-22Z-lint-523c.log) | ADR-152 |
+| 09.10.2026 18:35 | typecheck | ✅ без ошибок | 45 с | de0cd1e | [лог](logs/2026-10-09T13-35-02Z-typecheck-cb8e.log) |  |
+| 09.10.2026 18:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/marketing.spec.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 22 из 22 | 1 мин 38 с | de0cd1e | [лог](logs/2026-10-09T13-35-48Z-e2e-295b.log) |  |

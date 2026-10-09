@@ -393,6 +393,9 @@
     font-weight: var(--weight-semibold);
   }
   /* категория и детализация отчёта (RPT2.2c-3): отдельная строка над плитками */
+  .dash-grid > .pa-wide {
+    grid-column: 1 / -1;
+  }
   .pa-filters {
     margin-bottom: var(--space-4);
   }

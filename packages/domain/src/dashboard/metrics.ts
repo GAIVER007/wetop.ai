@@ -109,6 +109,8 @@ export interface DashboardDailyPoint {
   departures: number;
   /** Начислено за проживание с датой услуги в этот день — то есть по заездам дня */
   revenueMinor: string;
+  /** Выручка за ночь этого дня: цена мест, занятых в эту ночь, поровну по ночам (ADR и RevPAR, ADR-155) */
+  nightRevenueMinor: string;
 }
 /**
  * Брони периода по дате заезда (Q-209): одна Reservation — одна бронь, в каком бы числе мест она ни была.
@@ -155,6 +157,8 @@ export interface DashboardPeriod {
     penaltiesMinor: string;
     adjustmentsMinor: string;
     totalMinor: string;
+    /** Выручка за ночи периода: сумма `nightRevenueMinor` по дням; числитель ADR и RevPAR */
+    nightsMinor: string;
   };
   payments: {
     totalMinor: string;
@@ -239,6 +243,36 @@ function restrictToCategories(
 /** Отбор отчёта поверх типа фонда: категория (код). Источник сюда не входит: загрузка и начисления по источнику не делятся */
 export interface DashboardFilter {
   category?: string;
+}
+
+/**
+ * Выручка за ночи (ADR-155, Q-290, `docs/metrics.md` §2): цена места делится поровну по его ночам, остаток тиынов
+ * достаётся последней ночи, так что сумма по всем ночам равна цене. Берутся действующие проживания; в расчёт идут
+ * только ночи внутри периода. Начисление по дню заезда это другая база («Начислено»), здесь она не участвует.
+ */
+function nightlyRevenue(stays: DashboardStay[], dates: string[]): Map<string, bigint> {
+  const inPeriod = new Set(dates);
+  const out = new Map<string, bigint>();
+  for (const st of stays) {
+    if (inactive.has(st.status) || inactive.has(st.reservationStatus)) continue;
+    const nightsOfStay = Math.max(
+      1,
+      Math.round(
+        (Date.parse(`${st.departureDate}T00:00:00Z`) - Date.parse(`${st.arrivalDate}T00:00:00Z`)) /
+          86_400_000,
+      ),
+    );
+    const base = st.priceMinor / BigInt(nightsOfStay);
+    const rest = st.priceMinor - base * BigInt(nightsOfStay);
+    for (let i = 0; i < nightsOfStay; i += 1) {
+      const date = new Date(Date.parse(`${st.arrivalDate}T00:00:00Z`) + i * 86_400_000)
+        .toISOString()
+        .slice(0, 10);
+      if (!inPeriod.has(date)) continue;
+      out.set(date, (out.get(date) ?? 0n) + base + (i === nightsOfStay - 1 ? rest : 0n));
+    }
+  }
+  return out;
 }
 
 export function buildDashboard(
@@ -333,6 +367,12 @@ export function buildDashboard(
       .filter((ch) => ch.kind === 'ACCOMMODATION' && ch.categoryCode === c.code)
       .reduce((a, ch) => a + ch.amountMinor, 0n);
     const catNights = c.units * nights;
+    const catNightRevenue = [
+      ...nightlyRevenue(
+        input.stays.filter((st) => st.categoryCode === c.code),
+        dates,
+      ).values(),
+    ].reduce((n, v) => n + v, 0n);
     return {
       code: c.code,
       name: c.name,
@@ -345,7 +385,7 @@ export function buildDashboard(
       unassigned: input.unassignedByCategory[c.code] ?? 0,
       percent: percent(occupied, catNights - sumOf('blocked')),
       revenueMinor: s(revenue),
-      adrMinor: divide(revenue, occupied),
+      adrMinor: divide(catNightRevenue, occupied),
     };
   });
 
@@ -353,6 +393,8 @@ export function buildDashboard(
   for (const ch of input.charges)
     if (ch.kind === 'ACCOMMODATION')
       revenueByDay.set(ch.serviceDate, (revenueByDay.get(ch.serviceDate) ?? 0n) + ch.amountMinor);
+  const nightRevenueByDay = nightlyRevenue(input.stays, dates);
+  const nightsRevenue = [...nightRevenueByDay.values()].reduce((n, v) => n + v, 0n);
   const daily = input.days.map((d) => ({
     date: d.date,
     occupied: d.occupied,
@@ -362,6 +404,7 @@ export function buildDashboard(
     arrivals: arrivals.filter((st) => st.arrivalDate === d.date).length,
     departures: departures.filter((st) => st.departureDate === d.date).length,
     revenueMinor: s(revenueByDay.get(d.date) ?? 0n),
+    nightRevenueMinor: s(nightRevenueByDay.get(d.date) ?? 0n),
   }));
 
   const cancelledStays = arrivalsAll.filter((st) => st.status === 'CANCELLED').length;
@@ -393,11 +436,12 @@ export function buildDashboard(
       penaltiesMinor: s(penalties),
       adjustmentsMinor: s(adjustments),
       totalMinor: s(accommodation + services + penalties + adjustments),
+      nightsMinor: s(nightsRevenue),
     },
     payments: { totalMinor: s(paid), count: input.payments.length, byMethod },
     refundsMinor: s(input.refundsMinor),
-    adrMinor: divide(accommodation, occupiedNights),
-    revparMinor: divide(accommodation, unitNights - blockedNights),
+    adrMinor: divide(nightsRevenue, occupiedNights),
+    revparMinor: divide(nightsRevenue, unitNights - blockedNights),
     arrivals: {
       count: arrivals.length,
       guests: arrivals.reduce((n, st) => n + st.adults + st.children, 0),

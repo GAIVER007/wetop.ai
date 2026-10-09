@@ -18,6 +18,7 @@ const day = (
   arrivals,
   departures: 0,
   revenueMinor: rev,
+  nightRevenueMinor: rev,
 });
 
 describe('разбивка дней по неделям и месяцам (RPT2.2c-2)', () => {
@@ -87,5 +88,23 @@ describe('разбивка дней по неделям и месяцам (RPT2.
   it('пустые дни и ноль ночей не дают деления на ноль', () => {
     expect(groupDaily([], 'week')).toEqual([]);
     expect(groupDaily([day('2026-10-05', 0, 0, 0, 0, '0')], 'day')[0]?.percent).toBe(0);
+  });
+
+  it('в корзине ADR и RevPAR считаются из сумм: выручка за ночи на занятые и на доступные ночи', () => {
+    const g = groupDaily(
+      [day('2026-10-05', 2, 2, 1, 0, '300000'), day('2026-10-06', 1, 3, 0, 0, '100000')],
+      'week',
+    );
+    // занято 3, доступно 3 + 5 = 8 (закрытая ночь вычтена), выручка 400 000
+    expect(g[0]).toMatchObject({
+      nightRevenueMinor: '400000',
+      adrMinor: '133333',
+      revparMinor: '50000',
+    });
+  });
+
+  it('нет занятых или доступных ночей: ADR и RevPAR пусты, а не ноль', () => {
+    const g = groupDaily([day('2026-10-05', 0, 0, 4, 0, '0')], 'day');
+    expect(g[0]).toMatchObject({ adrMinor: null, revparMinor: null });
   });
 });

@@ -17,6 +17,12 @@ export interface DashboardBucket {
   arrivals: number;
   departures: number;
   revenueMinor: string;
+  /** Выручка за ночи корзины (ADR-155): числитель ADR и RevPAR */
+  nightRevenueMinor: string;
+  /** ADR корзины: выручка за ночи / занятые ночи; null, если занятых нет */
+  adrMinor: string | null;
+  /** RevPAR корзины: выручка за ночи / доступные ночи (занято и свободно); null, если доступных нет */
+  revparMinor: string | null;
   /** В корзину вошла не вся неделя или не весь месяц */
   partial: boolean;
 }
@@ -56,6 +62,9 @@ export function groupDaily(
       arrivals: 0,
       departures: 0,
       revenueMinor: '0',
+      nightRevenueMinor: '0',
+      adrMinor: null,
+      revparMinor: null,
       partial: false,
       start,
       end,
@@ -67,6 +76,7 @@ export function groupDaily(
     b.arrivals += p.arrivals;
     b.departures += p.departures;
     b.revenueMinor = (BigInt(b.revenueMinor) + BigInt(p.revenueMinor)).toString();
+    b.nightRevenueMinor = (BigInt(b.nightRevenueMinor) + BigInt(p.nightRevenueMinor)).toString();
     out.set(start, b);
   }
   return [...out.values()].map(({ start, end, ...b }) => {
@@ -75,6 +85,9 @@ export function groupDaily(
     return {
       ...b,
       percent: nights > 0 ? Math.round((b.occupied * 1000) / nights) / 10 : 0,
+      adrMinor:
+        b.occupied > 0 ? (BigInt(b.nightRevenueMinor) / BigInt(b.occupied)).toString() : null,
+      revparMinor: nights > 0 ? (BigInt(b.nightRevenueMinor) / BigInt(nights)).toString() : null,
       partial: b.from !== start || b.to !== end,
     };
   });

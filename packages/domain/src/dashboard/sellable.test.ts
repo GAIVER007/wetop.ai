@@ -25,7 +25,21 @@ const input = (): DashboardInput => ({
     },
   ],
   unassignedByCategory: {},
-  stays: [],
+  stays: [
+    {
+      arrivalDate: '2026-10-05',
+      departureDate: '2026-10-07',
+      status: 'CONFIRMED',
+      reservationId: 'R-1',
+      reservationStatus: 'CONFIRMED',
+      adults: 1,
+      children: 0,
+      priceMinor: 600_000n,
+      source: 'WALK_IN',
+      channel: null,
+      categoryCode: 'ROOM',
+    },
+  ],
   charges: [
     {
       kind: 'ACCOMMODATION',
@@ -58,8 +72,8 @@ describe('загрузка по доступным к продаже ночам 
 
   it('RevPAR делится на доступные ночи, а не на весь фонд; ADR прежний', () => {
     const d = buildDashboard(input());
-    expect(d.revparMinor).toBe('100000'); // 600000 / 6
-    expect(d.adrMinor).toBe('150000'); // 600000 / 4
+    expect(d.revparMinor).toBe('100000'); // выручка за ночи 600000 / 6 доступных
+    expect(d.adrMinor).toBe('150000'); // 600000 / 4 занятых
   });
 
   it('всё закрыто: нечего продавать, процент 0, RevPAR пусто', () => {
@@ -124,6 +138,7 @@ describe('загрузка по доступным к продаже ночам 
           arrivals: 0,
           departures: 0,
           revenueMinor: '0',
+          nightRevenueMinor: '0',
         },
         {
           date: '2026-10-06',
@@ -134,6 +149,7 @@ describe('загрузка по доступным к продаже ночам 
           arrivals: 0,
           departures: 0,
           revenueMinor: '0',
+          nightRevenueMinor: '0',
         },
       ],
       'week',

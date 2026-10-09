@@ -156,3 +156,25 @@ test('кольца долей: по категориям и источникам
     await expect(donut.locator('svg')).toHaveAttribute('aria-hidden', 'true');
   }
 });
+
+test('линия ADR и RevPAR: итоги периода в списке, таблица значений для программы чтения, детализация меняет число точек', async ({
+  page,
+}) => {
+  await page.goto('/reports/overview');
+  const chart = page.getByTestId('pa-chart-price');
+  await expect(chart).toBeVisible();
+  await expect(chart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  const legend = chart.locator('.line__legend');
+  await expect(legend).toContainText('ADR');
+  await expect(legend).toContainText('RevPAR');
+  await expect(legend).toContainText('₸');
+  const days = await chart.locator('table tbody tr').count();
+  expect(days).toBeGreaterThan(20);
+  await expect(chart.locator('.line__series--0 path')).not.toHaveCount(0);
+  // вторая линия пунктиром: различие не держится на цвете
+  await expect(chart.locator('.line__series--1 path').first()).toHaveClass(/is-dashed/);
+  await page.goto('/reports/overview?by=week');
+  const weeks = await page.getByTestId('pa-chart-price').locator('table tbody tr').count();
+  expect(weeks).toBeLessThan(days);
+  expect(weeks).toBeGreaterThanOrEqual(4);
+});

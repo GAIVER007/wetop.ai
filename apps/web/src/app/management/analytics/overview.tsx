@@ -6,6 +6,7 @@ import { LoadError } from '../../../components/load-error';
 import { EmptyState, Panel, Skeleton, Table } from '../../../components/ui';
 import { DayBars, type DayBar } from '../../../components/day-bars';
 import { DonutShare } from '../../../components/donut-share';
+import { LineChart } from '../../../components/line-chart';
 import { cx } from '../../../components/ui';
 import { formatInt, formatPercent, sourceLabel, wholeTenge } from '../../../lib/dashboard-format';
 import { displayDate } from '../../../lib/display-date';
@@ -83,6 +84,53 @@ function ReportFilters({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery
         </nav>
       )}
     </section>
+  );
+}
+
+const compactTenge = new Intl.NumberFormat('ru-RU', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+const fullTenge = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+/** Тиыны в тенге для рисунка: только масштаб графика, денежных расчётов здесь нет */
+const toTenge = (minor: string | null) => (minor === null ? null : Number(BigInt(minor) / 100n));
+
+/** ADR и RevPAR линиями по точкам периода (RPT2.2c-3, ADR-155, Q-290): день, неделя или месяц, как выбрана детализация */
+function PricePanel({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery }) {
+  const g = query.granularity ?? 'day';
+  const buckets = groupDaily(c.daily, g);
+  if (c.nights < 2 || buckets.length < 2 || buckets.every((k) => k.adrMinor === null)) return null;
+  const axis = (k: DashboardBucket) =>
+    g === 'month' ? shortMonth(k.from) : `${k.from.slice(8, 10)}.${k.from.slice(5, 7)}`;
+  return (
+    <Panel title="ADR и RevPAR" className="dash-panel pa-wide">
+      <LineChart
+        testId="pa-chart-price"
+        labels={buckets.map((k) =>
+          k.to === k.from ? displayDate(k.from) : `${displayDate(k.from)} — ${displayDate(k.to)}`,
+        )}
+        axisLabels={buckets.map(axis)}
+        format={(v) => `${fullTenge.format(Math.round(v))} ₸`}
+        formatAxis={(v) => `${compactTenge.format(v)} ₸`}
+        series={[
+          {
+            name: 'ADR',
+            values: buckets.map((k) => toTenge(k.adrMinor)),
+            summary: c.adrMinor ? wholeTenge(c.adrMinor) : 'нет данных',
+          },
+          {
+            name: 'RevPAR',
+            values: buckets.map((k) => toTenge(k.revparMinor)),
+            dashed: true,
+            summary: c.revparMinor ? wholeTenge(c.revparMinor) : 'нет данных',
+          },
+        ]}
+      />
+      <p className="muted dash-note">
+        Цена места делится по ночам проживания. ADR: выручка за ночи на занятые ночи, RevPAR: на
+        ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
+      </p>
+    </Panel>
   );
 }
 
@@ -553,6 +601,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
       <div className="dash-grid dash-grid--chart pa-charts">
         <OccupancyPanel c={c} today={today} query={query} />
         <RevenuePanel c={c} today={today} query={query} />
+        <PricePanel c={c} query={query} />
         <SharePanels c={c} />
       </div>
       <details className="pa-details">

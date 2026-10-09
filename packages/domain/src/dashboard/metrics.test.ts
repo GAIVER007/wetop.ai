@@ -154,6 +154,7 @@ describe('buildDashboard', () => {
       penaltiesMinor: '400000',
       adjustmentsMinor: '-50000',
       totalMinor: '4000000',
+      nightsMinor: '2500000',
     });
     expect(d.payments).toEqual({
       totalMinor: '3200000',
@@ -164,9 +165,10 @@ describe('buildDashboard', () => {
       ],
     });
     expect(d.refundsMinor).toBe('100000');
-    // 3 500 000 / 7 ночей = 500 000; / 9 доступных ночей (10 клетко-ночей минус 1 закрытая) = 388 888
-    expect(d.adrMinor).toBe('500000');
-    expect(d.revparMinor).toBe('388888');
+    // выручка за ночи 2 500 000 (R-1 две ночи периода по 1 000 000 и R-2 одна ночь 500 000), ADR-155, Q-290:
+    // / 7 занятых ночей = 357 142; / 9 доступных = 277 777. Начисление на заезде (3 500 000) их не определяет
+    expect(d.adrMinor).toBe('357142');
+    expect(d.revparMinor).toBe('277777');
   });
 
   it('заезды и выезды по датам периода; отмены и незаезды отдельно; гости — взрослые и дети заехавших', () => {
@@ -198,7 +200,7 @@ describe('buildDashboard', () => {
         unassigned: 0,
         percent: 75,
         revenueMinor: '3000000',
-        adrMinor: '1000000',
+        adrMinor: '666666',
       },
       {
         code: 'DORM',
@@ -229,6 +231,7 @@ describe('buildDashboard', () => {
         arrivals: 1,
         departures: 1,
         revenueMinor: '3000000',
+        nightRevenueMinor: '1000000',
       },
       {
         date: '2026-10-06',
@@ -239,6 +242,7 @@ describe('buildDashboard', () => {
         arrivals: 1,
         departures: 0,
         revenueMinor: '500000',
+        nightRevenueMinor: '1500000',
       },
     ]);
   });
@@ -307,8 +311,9 @@ describe('buildDashboard: брони и тип фонда', () => {
     });
     expect(d.revenue.accommodationMinor).toBe('3000000');
     // 3 000 000 / 3 проданные ночи номеров; / (2 номера × 2 ночи)
-    expect(d.adrMinor).toBe('1000000');
-    expect(d.revparMinor).toBe('750000');
+    // R-1 две ночи периода = 2 000 000: / 3 занятые ночи номеров = 666 666; / 4 доступные = 500 000
+    expect(d.adrMinor).toBe('666666');
+    expect(d.revparMinor).toBe('500000');
     expect(d.bookings).toMatchObject({
       total: 1,
       active: 1,

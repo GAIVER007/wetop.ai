@@ -302,7 +302,8 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+  // бронь, начатая до окна: с макета календаря (#317) вместо стрелки в тексте значок «назад» и ночи с плюсом («2+ ночи»)
+  await expect(page.locator('.board-stay-caption').filter({ hasText: /\d\+ ноч/ }).first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
   await boardFilter(page, { category: 'MALE' });

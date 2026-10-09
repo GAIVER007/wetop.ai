@@ -107,8 +107,6 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
-  // Фото категорий номеров, через свою категорию (DATA_MODEL §30, ADR-153, миграция 20261009000070)
-  'accommodation_type_photos',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

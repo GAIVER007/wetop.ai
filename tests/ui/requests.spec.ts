@@ -82,11 +82,13 @@ for (const screen of [
     await request.post(`${API}/__test/reset`);
     await page.goto(screen);
     await page.waitForLoadState('networkidle');
-    const { total, byRequest } = await hits(request);
+    const { byRequest } = await hits(request);
     const seen = JSON.stringify(byRequest);
-    const twice = Object.entries(byRequest).filter(
-      ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
-    );
+    const shell = (key: string) => SHELL.includes(key.split(' ')[1]!.split('?')[0]!);
+    const twice = Object.entries(byRequest).filter(([key, n]) => n > 1 && !shell(key));
+    // опрос оболочки (свежесть каналов) может сходить второй раз за показ, повтор ему разрешён выше; в бюджет экрана
+    // он идёт один раз, иначе итог зависел бы от того, успел ли таймер оболочки сработать до `networkidle`
+    const total = Object.entries(byRequest).reduce((sum, [key, n]) => sum + (shell(key) ? 1 : n), 0);
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,

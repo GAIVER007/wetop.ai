@@ -57,6 +57,8 @@ model Business {
   customers        CustomerBusiness[]
   employees        Employee[]
   beautyServices   BeautyService[]
+  menuCategories   MenuCategory[]
+  menuItems        MenuItem[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -101,6 +103,7 @@ model Location {
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
+  menuItems              LocationMenuItem[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -2910,4 +2913,70 @@ model TableAssignment {
 
   @@index([tableId])
   @@map("table_assignments")
+}
+
+// ───────────────────────── Кухня FS1: меню ресторана (DATA_MODEL §33, ADR-KITCHEN-FS) ─────────────────────────
+// Каталог на Business, переопределения и стоп-лист на Location (паттерн BeautyService + LocationService).
+// Цена integer minor units без налогов реализации; удаления нет, только active=false.
+
+/// Категория меню сети: принадлежит бизнесу, предустановленные названия это подсказки интерфейса
+model MenuCategory {
+  id         String   @id @default(uuid()) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  name       String   @db.VarChar(200)
+  sortOrder  Int      @default(0) @map("sort_order")
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business Business   @relation(fields: [businessId], references: [id])
+  items    MenuItem[]
+
+  @@unique([businessId, name])
+  @@map("menu_categories")
+}
+
+/// Блюдо каталога сети: цена minor units, выход и время готовки для карточки, пометки hit/new
+model MenuItem {
+  id                String   @id @default(uuid()) @db.Uuid
+  businessId        String   @map("business_id") @db.Uuid
+  categoryId        String?  @map("category_id") @db.Uuid
+  name              String   @db.VarChar(200)
+  sku               String?  @db.VarChar(64)
+  description       String?
+  price             BigInt
+  currency          String   @db.VarChar(3)
+  outputWeightGrams Int?     @map("output_weight_grams")
+  prepTimeMinutes   Int?     @map("prep_time_minutes")
+  allergens         String[] @default([])
+  tags              String[] @default([])
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business  Business           @relation(fields: [businessId], references: [id])
+  category  MenuCategory?      @relation(fields: [categoryId], references: [id])
+  locations LocationMenuItem[]
+
+  @@unique([businessId, name])
+  @@index([businessId, categoryId])
+  @@map("menu_items")
+}
+
+/// Блюдо на филиале: enabled скрывает из меню филиала, available=false это стоп-лист,
+/// priceOverride цена филиала; отсутствие строки = видно, в наличии, цена каталога
+model LocationMenuItem {
+  locationId    String   @map("location_id") @db.Uuid
+  menuItemId    String   @map("menu_item_id") @db.Uuid
+  enabled       Boolean  @default(true)
+  available     Boolean  @default(true)
+  priceOverride BigInt?  @map("price_override")
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@id([locationId, menuItemId])
+  @@index([menuItemId])
+  @@map("location_menu_items")
 }

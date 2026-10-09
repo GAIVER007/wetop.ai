@@ -26,7 +26,7 @@ const routes: Record<WebVertical, string[]> = {
     '/management/analytics/channels',
   ],
   BEAUTY: ['/calendar', '/appointments', '/employees', '/services', '/beauty'],
-  FOOD_SERVICE: ['/floor-plan', '/table-reservations', '/dining-areas'],
+  FOOD_SERVICE: ['/floor-plan', '/table-reservations', '/dining-areas', '/kitchen'],
 };
 export function routeVertical(path: string): WebVertical | null {
   for (const vertical of Object.keys(routes) as WebVertical[]) {

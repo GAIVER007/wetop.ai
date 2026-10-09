@@ -91,6 +91,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'service_periods',
   'restaurant_reservations',
   'table_assignments',
+  // Кухня FS1: меню (DATA_MODEL §33), политики в миграции 20261009000078_kitchen_menu
+  'menu_categories',
+  'menu_items',
+  'location_menu_items',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',

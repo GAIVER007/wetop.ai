@@ -7,6 +7,11 @@ import type {
   FoodPage,
   FoodStatus,
   FoodToken,
+  MenuCategory,
+  MenuCategoryInput,
+  MenuItemInput,
+  MenuItemView,
+  MenuLocationInput,
   PeriodInput,
   ReservationInput,
   ReservationPatch,
@@ -55,4 +60,21 @@ export const foodApi = {
     sendJson<RestaurantReservation>('PUT', `${idPath('reservations', id)}/table`, body),
   unassign: (id: string, body: FoodToken) =>
     sendJson<RestaurantReservation>('DELETE', `${idPath('reservations', id)}/table`, body),
+};
+
+// Кухня FS1: меню (DATA_MODEL §33). Пути под /food-service/menu, страницы те же FoodPage.
+export const menuApi = {
+  categories: (cursor?: string) =>
+    getJsonPublic<FoodPage<MenuCategory>>(`${base}/menu/categories${query(cursor)}`),
+  createCategory: (body: MenuCategoryInput) =>
+    sendJson<MenuCategory>('POST', `${base}/menu/categories`, body),
+  updateCategory: (id: string, body: Partial<MenuCategoryInput>) =>
+    sendJson<MenuCategory>('PATCH', idPath('menu/categories', id), body),
+  items: (cursor?: string) =>
+    getJsonPublic<FoodPage<MenuItemView>>(`${base}/menu/items${query(cursor)}`),
+  createItem: (body: MenuItemInput) => sendJson<MenuItemView>('POST', `${base}/menu/items`, body),
+  updateItem: (id: string, body: Partial<MenuItemInput>) =>
+    sendJson<MenuItemView>('PATCH', idPath('menu/items', id), body),
+  setItemLocation: (id: string, body: MenuLocationInput) =>
+    sendJson<MenuItemView>('PUT', `${idPath('menu/items', id)}/location`, body),
 };

@@ -17,6 +17,7 @@ import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
+import { MenuService } from './menu.service';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -83,9 +84,46 @@ export class FoodReservationsController {
     return this.service.unassign(id, b);
   }
 }
+/** Кухня FS1 (DATA_MODEL §33, ADR-KITCHEN-FS): меню сети, переопределения и стоп-лист филиала */
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.menu')
+export class FoodMenuController {
+  constructor(@Inject(MenuService) private readonly service: MenuService) {}
+  @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
+    return this.service.categories(q);
+  }
+  @Post('menu/categories') @Access('settings') createCategory(@Body() b: unknown) {
+    return this.service.createCategory(b);
+  }
+  @Patch('menu/categories/:id') @Access('settings') updateCategory(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateCategory(id, b);
+  }
+  @Get('menu/items') items(@Query() q: Record<string, unknown>) {
+    return this.service.items(q);
+  }
+  @Post('menu/items') @Access('settings') createItem(@Body() b: unknown) {
+    return this.service.createItem(b);
+  }
+  @Patch('menu/items/:id') @Access('settings') updateItem(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateItem(id, b);
+  }
+  @Put('menu/items/:id/location') @Access('settings') setLocation(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.setLocationItem(id, b);
+  }
+}
 @Module({
-  controllers: [FoodCatalogController, FoodReservationsController],
-  providers: [PrismaService, FoodService],
+  controllers: [FoodCatalogController, FoodReservationsController, FoodMenuController],
+  providers: [PrismaService, FoodService, MenuService],
   exports: [FoodService],
 })
 export class FoodModule {}

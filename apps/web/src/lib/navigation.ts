@@ -64,6 +64,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+      // Кухня FS1 (DATA_MODEL §33, ADR-KITCHEN-FS): меню, категории, стоп-лист филиала
+      { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Меню, категории и доступность блюд' },
 
       {
         href: '/calendar',
@@ -523,6 +525,8 @@ export const foodMenuSections: MenuSection[] = [
   direct('today', '/today', 'today', 'Сегодня'),
   direct('floor-plan', '/floor-plan', 'board'),
   direct('table-reservations', '/table-reservations', 'booking'),
+  // «Кухня» четвёртой: попадает в нижнюю панель телефона (первые четыре вкладки)
+  direct('kitchen', '/kitchen', 'kitchen'),
   direct('customers', '/customers', 'guests', 'Гости'),
   direct('dining-areas', '/dining-areas', 'settings'),
   direct('staff', '/staff', 'guests'),

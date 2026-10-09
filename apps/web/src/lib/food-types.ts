@@ -96,3 +96,65 @@ export interface FoodWorkspace extends FoodCatalog {
   canDesk: boolean;
   canProperty: boolean;
 }
+
+// ── Кухня FS1: меню (DATA_MODEL §33, ADR-KITCHEN-FS) ──────────────────────────────────────────
+export interface MenuCategory {
+  id: string;
+  name: string;
+  sortOrder: number;
+  active: boolean;
+}
+export type MenuTag = 'hit' | 'new';
+/** Блюдо каталога с видом текущего филиала: цены строками в minor units */
+export interface MenuItemView {
+  id: string;
+  categoryId: string | null;
+  name: string;
+  sku: string | null;
+  description: string | null;
+  priceMinor: string;
+  currency: string;
+  outputWeightGrams: number | null;
+  prepTimeMinutes: number | null;
+  allergens: string[];
+  tags: MenuTag[];
+  active: boolean;
+  location: {
+    enabled: boolean;
+    available: boolean;
+    priceOverrideMinor: string | null;
+    effectivePriceMinor: string;
+    visible: boolean;
+  };
+}
+export interface MenuCategoryInput {
+  name: string;
+  sortOrder?: number;
+  active?: boolean;
+}
+export interface MenuItemInput {
+  name: string;
+  categoryId?: string | null;
+  sku?: string | null;
+  description?: string | null;
+  price: number;
+  currency: string;
+  outputWeightGrams?: number | null;
+  prepTimeMinutes?: number | null;
+  allergens?: string[];
+  tags?: MenuTag[];
+  active?: boolean;
+}
+export interface MenuLocationInput {
+  enabled?: boolean;
+  available?: boolean;
+  priceOverride?: number | null;
+}
+export interface KitchenWorkspace {
+  categories: MenuCategory[];
+  items: MenuItemView[];
+  currency: string;
+  scopeKey: string;
+  readOnly: boolean;
+  canSettings: boolean;
+}

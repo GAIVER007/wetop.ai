@@ -195,8 +195,11 @@ test('панель места: факты, сейчас и следующее, �
   await expect(drawer.getByTestId('unit-capacity')).toHaveText('2 гостя');
   await expect(drawer.getByTestId('unit-state')).toContainText('заблокирована');
   await expect(drawer.getByTestId('unit-state')).toContainText('ремонт: кондиционер');
+  // «Сейчас» и «Следующее проживание» живут на вкладке «Бронь / Гости»
+  await drawer.getByRole('tab', { name: 'Бронь / Гости' }).click();
   await expect(drawer.getByTestId('unit-now')).toHaveText('свободно');
   await expect(drawer.getByTestId('unit-next')).toContainText('бронь');
+  await drawer.getByRole('tab', { name: 'Информация' }).click();
   // даты блокировки словами, без « · » и сырых 2026-09-28
   await expect(drawer.getByTestId('block-row').first()).not.toContainText(/\d{4}-\d{2}-\d{2}/);
   // под панелью фонд с тем же фильтром: список не перерисовался на пустые параметры адреса панели
@@ -236,11 +239,14 @@ test('панель места: живущий гость — «живёт», о�
     return drawer;
   };
   const living = await open('R08');
+  await living.getByRole('tab', { name: 'Бронь / Гости' }).click();
   await expect(living.getByTestId('unit-now')).toContainText('живёт');
   await expect(living.getByTestId('unit-now')).toContainText('DSG-DESK');
   await page.keyboard.press('Escape');
   // как GET /units/:code — отменённые и незаезды в карточку места не попадают
-  await expect((await open('R07')).getByTestId('unit-now')).toHaveText('свободно');
+  const free = await open('R07');
+  await free.getByRole('tab', { name: 'Бронь / Гости' }).click();
+  await expect(free.getByTestId('unit-now')).toHaveText('свободно');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -260,6 +266,9 @@ for (const theme of ['light', 'dark'] as const) {
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(audit.violations).toEqual([]);
+      await page.screenshot({
+        path: `reports/inventory-design-2026-09-20/unit-panel-${theme}-${width}.png`,
+      });
       await page.keyboard.press('Escape');
     }
   });

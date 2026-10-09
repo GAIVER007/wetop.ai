@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 09.10.2026 19:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/sales2-impl), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/marketing.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (1.3s)
+  ✓   2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (2.3s)
+  ✓   3 tests/ui/marketing.spec.ts:86:1 › хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных (1.3s)
+  ✓   4 tests/ui/marketing.spec.ts:141:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (2.3s)
+  ✓   5 tests/ui/marketing.spec.ts:163:3 › хаб на компьютере и телефоне, доступность: light (2.2s)
+  ✓   6 tests/ui/marketing.spec.ts:163:3 › хаб на компьютере и телефоне, доступность: dark (2.2s)
+  ✓   7 tests/ui/marketing.spec.ts:204:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (2.4s)
+  ✓   8 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.3s)
+  ✓   9 tests/ui/navigation.spec.ts:96:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (1.8s)
+  ✓  10 tests/ui/navigation.spec.ts:123:1 › все пункты меню открывают существующие страницы (12.4s)
+  ✓  11 tests/ui/navigation.spec.ts:171:3 › меню телефона и планшета ровное и доступное: light (2.8s)
+  ✓  12 tests/ui/navigation.spec.ts:171:3 › меню телефона и планшета ровное и доступное: dark (2.2s)
+  ✓  13 tests/ui/navigation.spec.ts:226:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (1.5s)
+  ✓  14 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (1.3s)
+  ✓  15 tests/ui/roles.spec.ts:65:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (3.5s)
+  ✓  16 tests/ui/roles.spec.ts:102:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (1.6s)
+  ✓  17 tests/ui/roles.spec.ts:119:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓  18 tests/ui/roles.spec.ts:156:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (3.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓  19 tests/ui/roles.spec.ts:218:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (3.1s)
+  ✓  20 tests/ui/roles.spec.ts:274:1 › владелец: зовёт управляющего и администратора, меняет роль (1.5s)
+  ✓  21 tests/ui/roles.spec.ts:305:1 › администратор: сотрудниками ведают владелец и управляющий (1.3s)
+  ✓  22 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, light, 1440px (2.9s)
+  ✓  23 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, dark, 1440px (3.1s)
+  ✓  24 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, light, 390px (2.8s)
+  ✓  25 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, dark, 390px (2.8s)
+  ✓  26 tests/ui/top-menu.spec.ts:56:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (3.0s)
+  ✓  27 tests/ui/top-menu.spec.ts:132:1 › вложенные адреса подсвечивают свою вкладку (2.4s)
+  ✓  28 tests/ui/top-menu.spec.ts:168:3 › шапка ровная, без прокрутки вбок и доступная: light (2.9s)
+  ✓  29 tests/ui/top-menu.spec.ts:168:3 › шапка ровная, без прокрутки вбок и доступная: dark (2.5s)
+
+  29 passed (1.4m)
+
+# код выхода 0 · 1 мин 25 с

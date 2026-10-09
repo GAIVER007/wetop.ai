@@ -250,6 +250,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/operations/:id/void': 'refunds',
 
   // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /sales/summary': 'reports',
   'GET /market/occupancy': 'reports',
   'GET /market/night': 'reports',
   'POST /market/competitors': 'rates',

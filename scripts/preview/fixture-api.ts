@@ -4359,12 +4359,62 @@ let marketReadings: MarketReading[] = [];
 const resetMarket = () => {
   marketCompetitors.length = 0;
   marketReadings = [];
+  salesFixture = { ...SALES_DEFAULT };
 };
 const marketPlus = (iso: string, n: number) => {
   const d = new Date(`${iso}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
+/**
+ * Хаб «Продажи» (SALES2.2): сводка периода. Числа по умолчанию задают «текущий» и «прошлый» отрезок;
+ * `POST /__test/sales { offered, booked, revenueMinor, currency }` меняет их (пары [текущий, прошлый]), `reset` возвращает.
+ */
+interface SalesFixture {
+  offered: [number, number];
+  booked: [number, number];
+  revenueMinor: [string, string];
+  currency: string | null;
+}
+const SALES_DEFAULT: SalesFixture = {
+  offered: [8, 10],
+  booked: [3, 2],
+  revenueMinor: ['9000000', '4000000'],
+  currency: 'KZT',
+};
+let salesFixture: SalesFixture = { ...SALES_DEFAULT };
+function salesRoute(path: string, method: string, q: URLSearchParams): [number, unknown] | null {
+  if (path !== '/sales/summary' || method !== 'GET') return null;
+  // синтетический сбой (`POST /__test/control { failPath }`) тот же, что у остальных маршрутов: сюда он доходит раньше общей проверки
+  if (path === failPath || failPath === '*') return [failStatus, { message: 'Синтетический сбой API' }];
+  if (!can(uiRole, 'reports')) return [403, { message: accessDeniedMessage('reports') }];
+  const from = q.get('from') ?? '';
+  const to = q.get('to') ?? '';
+  const dateOk = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
+  if (!dateOk(from) || !dateOk(to) || from > to) return [400, { message: 'Проверьте даты периода' }];
+  const days = (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000 + 1;
+  const [offered, booked, [revenue, revenuePrev]] = emptyFixture
+    ? [[0, 0] as [number, number], [0, 0] as [number, number], ['0', '0'] as [string, string]]
+    : [salesFixture.offered, salesFixture.booked, salesFixture.revenueMinor];
+  const permille = (b: number, o: number) => (o > 0 ? Math.round((b * 1000) / o) : null);
+  const active = marketCompetitors.filter((c) => c.active);
+  const observed = marketReadings
+    .filter((r) => active.some((c) => c.id === r.competitorId))
+    .map((r) => r.observedOn)
+    .sort();
+  return [
+    200,
+    {
+      period: { from, to },
+      previousPeriod: { from: marketPlus(from, -days), to: marketPlus(from, -1) },
+      bookings: { current: booked[0], previous: booked[1] },
+      offers: { current: offered[0], previous: offered[1] },
+      conversionPermille: { current: permille(booked[0], offered[0]), previous: permille(booked[1], offered[1]) },
+      revenue: { currentMinor: revenue, previousMinor: revenuePrev, currency: salesFixture.currency },
+      competitors: { count: active.length, lastObservedOn: observed.at(-1) ?? null },
+    },
+  ];
+}
 /** null — маршрут не рынка; иначе [код, тело] */
 function marketRoute(
   path: string,
@@ -4607,6 +4657,12 @@ createServer(async (req, res) => {
     if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    const salesResponse = salesRoute(path, req.method ?? 'GET', url.searchParams);
+    if (salesResponse) return send(salesResponse[0], salesResponse[1]);
+    if (path === '/__test/sales' && req.method === 'POST') {
+      salesFixture = { ...salesFixture, ...(body as Partial<SalesFixture>) };
+      return send(200, { ok: true });
+    }
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
     if (path === '/__test/market' && req.method === 'POST') {
       resetMarket();

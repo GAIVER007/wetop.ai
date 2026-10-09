@@ -54,7 +54,7 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
   await sales.click();
   const salesList = menu.locator(`#${await sales.getAttribute('aria-controls')}`);
-  await expect(salesList.locator('a')).toHaveText(['Загрузка конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
+  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Загрузка конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
   await expect(menu.getByRole('link', { name: 'Сайт и онлайн-бронирование' })).toHaveCount(0);
 });
 

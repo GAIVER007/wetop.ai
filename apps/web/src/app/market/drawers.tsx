@@ -50,11 +50,14 @@ function useMarketAction(
 export function CompetitorButton({
   competitor,
   primary,
+  defaultOpen,
 }: {
   competitor?: MarketCompetitor | undefined;
   primary?: boolean | undefined;
+  /** Хаб «Продажи» ведёт сюда ссылкой `/market?add=1`: окно нового конкурента открыто сразу */
+  defaultOpen?: boolean | undefined;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen === true);
   const label = competitor ? 'Изменить' : 'Добавить конкурента';
   return (
     <>

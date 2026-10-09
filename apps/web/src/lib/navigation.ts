@@ -255,6 +255,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Продажи',
     items: [
       {
+        // Хаб «Продажи» (SALES2.2, plans/sales2-audit-2026-10-09.md): один вход к конкурентам, ИИ-продавцу и числам
+        href: '/sales',
+        requires: 'reports',
+        label: 'Обзор продаж',
+        icon: 'rates',
+        description: 'Брони из диалогов, выручка, конкуренты и ИИ-продавец на одной странице.',
+      },
+      {
         // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-112)
         href: '/channels',
         requires: 'channels',
@@ -450,6 +458,7 @@ export const menuSections: MenuSection[] = [
     icon: 'rates',
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
+      menuItem('/sales'),
       menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),

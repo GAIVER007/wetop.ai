@@ -7783,3 +7783,8 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
+| 09.10.2026 19:36 | e2e (частично: tests/ui/sales-hub.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 --timeout=180000) | ❌ код выхода 1 | 2 мин 2 с | 485145c +18 | [лог](logs/2026-10-09T14-36-55Z-e2e-af0f.log) | SALES2.2: хаб Продажи |
+| 09.10.2026 19:50 | e2e (частично: tests/ui/sales-hub.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 --timeout=240000) | ❌ упало 2 из 11 | 54 с | 485145c +18 | [лог](logs/2026-10-09T14-50-24Z-e2e-8ff3.log) | SALES2.2: хаб Продажи |
+| 09.10.2026 19:51 | e2e (частично: tests/ui/sales-hub.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 --timeout=240000) | ✅ 11 из 11 | 21 с | 485145c +18 | [лог](logs/2026-10-09T14-51-52Z-e2e-d62e.log) | SALES2.2: хаб Продажи, повтор |
+| 09.10.2026 19:52 | e2e (частично: tests/ui/sales-hub.spec.ts tests/ui/market.spec.ts --config tests/ui/playwright.alt.config.ts --workers=1 --timeout=240000) | ✅ 18 из 18 | 37 с | 485145c +18 | [лог](logs/2026-10-09T14-52-50Z-e2e-f8be.log) | SALES2.2: хаб и рынок |
+| 09.10.2026 19:53 | e2e (частично: tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts tests/ui/marketing.spec.ts --config tests/ui/playwright.alt.config.t | ✅ 29 из 29 | 1 мин 25 с | 485145c +22 | [лог](logs/2026-10-09T14-53-51Z-e2e-ddab.log) | SALES2.2: меню с Обзором продаж |

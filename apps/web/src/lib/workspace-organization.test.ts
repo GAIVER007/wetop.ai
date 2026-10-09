@@ -22,6 +22,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     'settings',
   ]);
   expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
+    '/sales',
     '/market',
     '/channels',
     '/ai-agents',

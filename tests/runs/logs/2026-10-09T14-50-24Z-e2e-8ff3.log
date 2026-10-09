@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 09.10.2026 19:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/sales2-impl), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/sales-hub.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/sales-hub.spec.ts:35:1 › пункт «Обзор продаж» первым в «Продажах»; шесть чисел с изменением к прошлому отрезку (2.0s)
+  ✓   2 tests/ui/sales-hub.spec.ts:61:1 › нет предложений: конверсия это знак пропуска, а не 0 %; нет базы: сравнения нет (764ms)
+  ✘   3 tests/ui/sales-hub.spec.ts:75:1 › сводка не посчиталась: сказано словами, числа броней и конкурентов это пропуск, карточки живы (15.6s)
+  ✓   4 tests/ui/sales-hub.spec.ts:89:1 › период: «7 дней» меняет адрес и подпись, неверные даты в адресе возвращают 30 дней (2.0s)
+  ✓   5 tests/ui/sales-hub.spec.ts:107:1 › расширение «ИИ-продавец» выключено: карточка объясняет, диалоги это пропуск, конкуренты работают (638ms)
+  ✓   6 tests/ui/sales-hub.spec.ts:120:1 › карточка конкурентов: устаревшие данные помечены; «Добавить конкурента» открывает окно (1.5s)
+  ✘   7 tests/ui/sales-hub.spec.ts:139:1 › администратор смены видит хаб, но без кнопки «Настроить»; владелец с ней (15.8s)
+  ✓   8 tests/ui/sales-hub.spec.ts:152:5 › доступность и снимки: light, 1440px (1.8s)
+  ✓   9 tests/ui/sales-hub.spec.ts:152:5 › доступность и снимки: light, 390px (1.5s)
+  ✓  10 tests/ui/sales-hub.spec.ts:152:5 › доступность и снимки: dark, 1440px (1.4s)
+  ✓  11 tests/ui/sales-hub.spec.ts:152:5 › доступность и снимки: dark, 390px (1.5s)
+
+
+  1) tests/ui/sales-hub.spec.ts:75:1 › сводка не посчиталась: сказано словами, числа броней и конкурентов это пропуск, карточки живы 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('sales-summary-error')
+    Expected substring: "Не удалось посчитать"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('sales-summary-error') with timeout 15000ms
+      - waiting for getByTestId('sales-summary-error')
+
+
+      79 |   await request.post(`${API}/__test/control`, { data: { failPath: '/sales/summary' } });
+      80 |   await page.goto('/sales');
+    > 81 |   await expect(page.getByTestId('sales-summary-error')).toContainText('Не удалось посчитать');
+         |                                                         ^
+      82 |   await expect(page.getByTestId('sales-kpi-bookings')).toHaveText('–');
+      83 |   await expect(page.getByTestId('sales-kpi-revenue')).toHaveText('–');
+      84 |   await expect(page.getByTestId('sales-kpi-competitors')).toHaveText('–');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:81:57
+
+    Error Context: test-results/sales-hub-сводка-не-посчит-979c1-в-это-пропуск-карточки-живы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-сводка-не-посчит-979c1-в-это-пропуск-карточки-живы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-сводка-не-посчит-979c1-в-это-пропуск-карточки-живы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/sales-hub.spec.ts:139:1 › администратор смены видит хаб, но без кнопки «Настроить»; владелец с ней 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('sales-card-seller').getByRole('link', { name: 'Настроить' })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('sales-card-seller').getByRole('link', { name: 'Настроить' }) with timeout 15000ms
+      - waiting for getByTestId('sales-card-seller').getByRole('link', { name: 'Настроить' })
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      142 |   await page.goto('/sales');
+      143 |   await expect(page.getByTestId('sales-kpis')).toBeVisible();
+    > 144 |   await expect(page.getByTestId('sales-card-seller').getByRole('link', { name: 'Настроить' })).toHaveCount(0);
+          |                                                                                                ^
+      145 |   await control(request, { role: 'OWNER' });
+      146 |   await page.reload();
+      147 |   await expect(page.getByTestId('sales-card-seller').getByRole('link', { name: 'Настроить' })).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:144:96
+
+    Error Context: test-results/sales-hub-администратор-см-88b0a--«Настроить»-владелец-с-ней/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-администратор-см-88b0a--«Настроить»-владелец-с-ней/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-администратор-см-88b0a--«Настроить»-владелец-с-ней/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/sales-hub.spec.ts:75:1 › сводка не посчиталась: сказано словами, числа броней и конкурентов это пропуск, карточки живы 
+    tests/ui/sales-hub.spec.ts:139:1 › администратор смены видит хаб, но без кнопки «Настроить»; владелец с ней 
+  9 passed (52.8s)
+
+# код выхода 1 · 54 с

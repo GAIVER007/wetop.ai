@@ -1,0 +1,93 @@
+/* Хаб «Продажи» (SALES2.2): период, шесть плиток, две карточки одной высоты. Плотность по DESIGN.md §4: без пустых
+   полей, карточка модуля это заголовок, строка пояснения, факты и две кнопки. */
+@layer sections {
+  .sales-period__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .sales-period__form .field {
+    margin: 0;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .sales-period__chips {
+    margin: 0;
+  }
+  .sales-modules {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .sales-module {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .sales-module__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .sales-module__head h2 {
+    margin: 0;
+  }
+  .sales-module__icon {
+    display: grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .sales-module__text {
+    margin: 0;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .sales-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .sales-facts dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .sales-facts dd {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+  .sales-module__note {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .sales-module__foot {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  @media (max-width: 960px) {
+    .sales-modules {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .sales-facts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

@@ -3347,6 +3347,24 @@ export interface MarketNightHistory {
   }>;
   pickupBp: number | null;
 }
+/** Хаб «Продажи» (SALES2.2): сводка периода; деньги строкой в минорных единицах, неизвестное `null`, а не ноль */
+export interface SalesSummary {
+  period: { from: string; to: string };
+  previousPeriod: { from: string; to: string };
+  bookings: { current: number; previous: number };
+  offers: { current: number; previous: number };
+  conversionPermille: { current: number | null; previous: number | null };
+  revenue: { currentMinor: string; previousMinor: string; currency: string | null };
+  competitors: { count: number; lastObservedOn: string | null };
+}
+
+export const salesApi = {
+  summary: (from: string, to: string) =>
+    getJson<SalesSummary>(
+      `/sales/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+};
+
 export const marketApi = {
   night: (date: string) =>
     getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),

@@ -14,6 +14,7 @@ const routes = [
   // «Гости» без пункта меню с 09.10.2026: раздел открывается вкладкой на странице «Брони»
   '/reservations',
   '/inventory',
+  '/sales',
   '/market',
   '/channels',
   // MKT2: вход в сайт через хаб «Маркетинг» (ADR-149)
@@ -78,6 +79,8 @@ test('меню телефона: работа смены прямыми ссыл
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
   await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');

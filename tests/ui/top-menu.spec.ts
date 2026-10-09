@@ -15,6 +15,7 @@ const routes = [
   // «Гости» без пункта меню с 09.10.2026: раздел открывается вкладкой на странице «Брони»
   '/reservations',
   '/inventory',
+  '/sales',
   '/market',
   '/channels',
   // MKT2: вход в сайт через хаб «Маркетинг», у страниц /website/* своего пункта меню нет
@@ -89,6 +90,9 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(menu.locator('[aria-expanded="true"]')).toHaveCount(1);
   const rates = menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true });
   await expect(rates).toBeVisible();
+  // первым в группе стоит «Обзор продаж», «Загрузка конкурентов» вторая
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(rates).toBeFocused();
   await page.keyboard.press('Enter');

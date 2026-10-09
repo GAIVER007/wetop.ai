@@ -158,7 +158,7 @@ export default async function MarketPage({
       width="wide"
       title="Загрузка конкурентов"
       subtitle={subtitle}
-      actions={editable ? <CompetitorButton primary={empty} /> : undefined}
+      actions={editable ? <CompetitorButton primary={empty} defaultOpen={sp.add === '1'} /> : undefined}
     >
       <Toolbar from={from} days={days} asOf={asOf} compare={compare} today={today} />
       {empty ? (

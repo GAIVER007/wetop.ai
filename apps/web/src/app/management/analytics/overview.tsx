@@ -12,6 +12,7 @@ import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from './params';
 import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
+import { OccupancyTiles } from './occupancy-tiles';
 
 const b = (v: string) => BigInt(v);
 
@@ -149,21 +150,14 @@ function KpiRow({
       data-testid={detail ? 'pa-kpis-detail' : 'pa-kpis'}
     >
       {!detail && (
-        <Tile
-          id="occupancy"
-          label="Загрузка"
-          value={formatPercent(c.occupancy.percent)}
-          hint={
+        <OccupancyTiles
+          c={c}
+          p={p}
+          hint={(o) =>
             single
-              ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
-              : `от доступных к продаже ночей; закрыто для продажи: ${formatInt(c.occupancy.blockedNights)}`
+              ? `занято ${o.occupiedNights} из ${o.sellableNights} мест`
+              : `от доступных к продаже ночей; закрыто для продажи: ${formatInt(o.blockedNights)}`
           }
-          delta={pointsDelta(
-            c.occupancy.percent,
-            prev.occupancy.percent,
-            prev.occupancy.occupiedNights,
-          )}
-          compare={compare}
         />
       )}
       {!detail && (

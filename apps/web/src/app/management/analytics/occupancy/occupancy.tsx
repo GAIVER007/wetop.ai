@@ -8,7 +8,8 @@ import { deltaPoints, formatInt, formatPercent } from '../../../../lib/dashboard
 import { displayDate } from '../../../../lib/display-date';
 import { pluralRu } from '../../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from '../params';
-import { DeltaMark, NO_BASE, Tile, countDelta, pointsDelta } from '../tiles';
+import { OccupancyTiles } from '../occupancy-tiles';
+import { DeltaMark, NO_BASE, Tile, countDelta } from '../tiles';
 
 const addDays = (date: string, n: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
@@ -51,13 +52,12 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
       aria-label="Загрузка фонда"
       data-testid="pa-occupancy-kpis"
     >
-      <Tile
-        id="occupancy"
-        label="Загрузка"
-        value={formatPercent(o.percent)}
-        hint={`занято ${formatInt(o.occupiedNights)} из ${formatInt(o.sellableNights)} ${unit}, доступных к продаже`}
-        delta={pointsDelta(o.percent, prev.occupancy.percent, prev.occupancy.occupiedNights)}
-        compare={compare}
+      <OccupancyTiles
+        c={c}
+        p={p}
+        hint={(k) =>
+          `занято ${formatInt(k.occupiedNights)} из ${formatInt(k.sellableNights)} ${unit}, доступных к продаже`
+        }
       />
       <Tile
         id="occupied"

@@ -215,6 +215,9 @@ app.use(
                 await tx.customer.deleteMany({ where: { organizationId: org } });
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
+                await tx.locationMenuItem.deleteMany({ where: { menuItem: { business: b } } });
+                await tx.menuItem.deleteMany({ where: { business: b } });
+                await tx.menuCategory.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });

@@ -3433,3 +3433,36 @@ CHECK на уровне базы: перечисления `onsite_payment`, `ca
 права `SELECT, INSERT, UPDATE` без `DELETE` отдельной миграцией. Откат `down.sql` снимает таблицу, объекты в хранилище
 остаются. Без `SITE_ASSET_STORAGE=s3` загрузка отвечает 503 словами «Хранилище файлов не включено», чтение отдаёт
 `storage: OFF`.
+
+## 33. Кухня ресторана: меню (FS1, УТВЕРЖДЕНО владельцем 09.10.2026 ответом «да ох давай продолжай» на план; ADR-KITCHEN-FS, Q-KITCHEN-1…Q-KITCHEN-8)
+
+План и границы: `plans/kitchen-food-service-2026-10-09.md`. Утверждены рекомендованные варианты
+всех восьми вопросов Q-KITCHEN. Этот раздел вводит только FS1 (меню); склад кухни, техкарты,
+калькуляция и заказы кухни (FS2…FS5) добавляются в этот раздел отдельными подразделами
+перед своей реализацией, черновик их модели лежит в плане.
+
+Паттерн каталога тот же, что у Beauty (`BeautyService` + `LocationService`): справочник на
+Business, переопределения и доступность на Location, цена снимком в будущих документах.
+Вертикаль только `FOOD_SERVICE`, возможность `food.menu`. Деньги integer minor units.
+
+- `MenuCategory` (`menu_categories`): UUID id, businessId FK, name varchar(200), sortOrder int
+  default 0, active boolean default true, timestamps. Unique(businessId, name). Предустановленные
+  названия категорий из ТЗ это подсказки интерфейса, не строки базы.
+- `MenuItem` (`menu_items`): UUID id, businessId FK, categoryId FK nullable (SET NULL при
+  архиве категории запрещён: категория архивируется флагом, не удаляется), name varchar(200),
+  sku varchar(64) nullable, description text nullable, price BigInt minor units >= 0,
+  currency char(3), outputWeightGrams int nullable > 0, prepTimeMinutes int nullable > 0,
+  allergens text[] default '{}', tags text[] default '{}' (значения `hit`, `new`),
+  active boolean default true, timestamps. Unique(businessId, name); index(businessId, categoryId).
+  Цена указывается без налогов реализации (требование ТЗ §3), налоги не рассчитываются (как Q-BAR-6).
+- `LocationMenuItem` (`location_menu_items`): PK (locationId, menuItemId), enabled boolean
+  default true (видно ли блюдо на филиале), available boolean default true (false = стоп-лист),
+  priceOverride BigInt nullable >= 0, updatedAt. Отсутствие строки = блюдо видно и в наличии
+  по цене каталога (как у `LocationService`).
+
+Инварианты: category.businessId = item.businessId (триггер); location.businessId =
+item.businessId для переопределения (триггер); родительские связи после INSERT неизменяемы
+в API; удаления нет, только `active=false`. RLS через проверенные цепочки владения, все три
+таблицы в `RLS_TENANT_TABLES`. Новые функции закрепляют search_path (current_schema(), public,
+pg_temp). Миграция аддитивная, backfill нет, guarded down отказывает при живых строках меню.
+Права: чтение `desk`, запись `settings` (как справочники бара; владелец может уточнить).

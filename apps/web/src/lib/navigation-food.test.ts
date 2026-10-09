@@ -11,6 +11,7 @@ describe('Food workspace isolation', () => {
       '/today',
       '/floor-plan',
       '/table-reservations',
+      '/kitchen',
       '/customers',
       '/dining-areas',
       '/staff',
@@ -23,11 +24,12 @@ describe('Food workspace isolation', () => {
       '/today',
       '/floor-plan',
       '/table-reservations',
-      '/customers',
+      '/kitchen',
     ]);
     const labels = menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items);
     expect(labels.find((i) => i.href === '/today')?.label).toBe('Сегодня');
     expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
+    expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {
@@ -53,6 +55,7 @@ describe('Food workspace isolation', () => {
   it('identifies isolated routes before API access', () => {
     expect(routeVertical('/floor-plan')).toBe('FOOD_SERVICE');
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
     expect(routeVertical('/calendar')).toBe('BEAUTY');
     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
     expect(routeVertical('/customers')).toBeNull();

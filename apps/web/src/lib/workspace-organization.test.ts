@@ -3,10 +3,10 @@ import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
 // Строка вкладок (ADR-134): работа смены одним щелчком, группы только там, где экранов несколько
 it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
   expect(menuSections.map((s) => s.id)).toEqual([
-    'home',
+    // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
+    'finance',
     'chessboard',
     'guests',
-    'finance',
     'sales',
     'marketing',
     'reports',
@@ -42,13 +42,14 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
 });
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([
-    '/today',
+    '/finance',
     '/chessboard',
     '/guests',
-    '/finance',
+    '/market',
   ]);
-  // «Финансы» в шапке — группа (ADR-157): панель телефона зовёт её именем группы, не «Оплаты и касса»
-  expect(phoneNavigation[3]!.label).toBe('Финансы');
+  // Группы на панели зовутся именем группы, не первым пунктом (ADR-157): «Финансы» и «Продажи»
+  expect(phoneNavigation[0]!.label).toBe('Финансы');
+  expect(phoneNavigation[3]!.label).toBe('Продажи');
 });
 
 // «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,

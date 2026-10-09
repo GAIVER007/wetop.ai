@@ -1,0 +1,116 @@
+# Сквозные (e2e) · 09.10.2026 23:24 Алматы · vm
+# коммит 1b15ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/top-menu.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (3.1s)
+  ✓   2 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.9s)
+  ✓   3 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (2.3s)
+  ✓   4 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.6s)
+  ✓   5 tests/ui/finance-home-merge.spec.ts:126:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (2.1s)
+  ✓   6 tests/ui/finance-home-merge.spec.ts:138:1 › телефон: показатели первым экраном, фильтры достижимы (1.8s)
+  ✓   7 tests/ui/navigation.spec.ts:50:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.7s)
+  ✓   8 tests/ui/navigation.spec.ts:92:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.3s)
+  ✓   9 tests/ui/navigation.spec.ts:119:1 › все пункты меню открывают существующие страницы (19.1s)
+  ✓  10 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: light (4.8s)
+  ✓  11 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: dark (4.7s)
+  ✓  12 tests/ui/navigation.spec.ts:222:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (2.8s)
+  ✓  13 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.9s)
+  ✓  14 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (9.1s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  15 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (5.3s)
+  ✓  16 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  17 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  18 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (7.2s)
+  ✓  19 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.9s)
+  ✓  20 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (3.4s)
+  ✓  21 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.5s)
+  ✓  22 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.6s)
+  ✓  23 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (6.0s)
+  ✓  24 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.5s)
+  ✘  25 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (17.2s)
+  ✓  26 tests/ui/top-menu.spec.ts:120:1 › вложенные адреса подсвечивают свою вкладку (4.3s)
+  ✓  27 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: light (4.2s)
+  ✓  28 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.4s)
+
+
+  1) tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+
+    Error: expect(locator).not.toHaveAttribute(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('link', { name: 'Финансы', exact: true })
+    Expected: not "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toHaveAttribute" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('link', { name: 'Финансы', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('link', { name: 'Финансы', exact: true })
+
+
+      92 |   await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+      93 |   await expect(sales).toHaveClass(/has-current-page/);
+    > 94 |   await expect(menu.getByRole('link', { name: 'Финансы', exact: true })).not.toHaveAttribute(
+         |                                                                              ^
+      95 |     'aria-current',
+      96 |     'page',
+      97 |   );
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:94:78
+
+    Error Context: test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+  27 passed (2.7m)
+
+# код выхода 1 · 2 мин 45 с

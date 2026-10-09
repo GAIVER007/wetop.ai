@@ -25,7 +25,7 @@ test.beforeEach(async ({ request }) => {
 test('меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп', async ({
   page,
 }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   const menu = menuOf(page);
   const marketing = menu.getByRole('button', { name: 'Маркетинг', exact: true });
   await expect(marketing).toHaveAttribute('aria-expanded', 'false');
@@ -226,9 +226,9 @@ test('администратор (без права settings): вкладки «
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await request.post(`${fixture}/__test/control`, { data: { role: 'STAFF' } });
-  await page.goto('/today');
+  await page.goto('/finance');
   const menu = menuOf(page);
   await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).toBeVisible();
   await expect(menu.getByRole('button', { name: 'Маркетинг', exact: true })).toHaveCount(0);
@@ -300,7 +300,7 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/branches');
   const body = main(page);
   await body.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
@@ -314,7 +314,7 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .filter({ hasText: 'Студия MKT3' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  // MV8: стартовая страница всех направлений `/today`
+  // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
   await page.goto('/marketing');
   await expect(page).toHaveURL(/\/today$/);

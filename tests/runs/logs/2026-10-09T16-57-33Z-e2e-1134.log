@@ -1,0 +1,109 @@
+# Сквозные (e2e) · 09.10.2026 21:57 Алматы · vm
+# коммит 45517ba (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/login-access.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.0s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.9s)
+  ✓   3 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.6s)
+  ✓   4 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.5s)
+  ✓   5 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (3.4s)
+  ✓   6 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (6.0s)
+  ✓   7 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (6.1s)
+  ✓   8 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.3s)
+  ✓   9 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (5.3s)
+  ✘  10 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.3s)
+  ✓  11 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+[WebServer] ⨯ ReferenceError: context is not defined
+[WebServer]     at verifyEmailAction (src/app/login/actions.ts:163:43)
+[WebServer]   161 |   // обрывался на полпути: страница успевала отдать каркас до серверного redirect, и человек
+[WebServer]   162 |   // оставался на `/today` без филиала (login-access, 09.10.2026).
+[WebServer] > 163 |   redirect(pilot ? '/register/complete' : context ? '/today' : scopeResolvePath('/today'));
+[WebServer]       |                                           ^
+[WebServer]   164 | }
+[WebServer]   165 |
+[WebServer]   166 | export interface ResendState { {
+[WebServer]   digest: '3068012853'
+[WebServer] }
+  ✘  12 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (18.2s)
+  ✓  13 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (820ms)
+  ✓  14 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.3s)
+  ✓  15 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (2.3s)
+
+
+  1) tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+      150 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      151 |   await page.goto('/login');
+    > 152 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      153 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      154 |   await expect(
+      155 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:152:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3100/finance"
+    Received: "http://127.0.0.1:3100/login/verify?token=<скрыто>"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        34 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/login/verify?token=<скрыто>"
+
+
+      173 |   await expect(dialog(page).getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
+      174 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+    > 175 |   await page.goto('/login/verify?token=<скрыто>');
+          |                      ^
+      176 |   await expect(page).toHaveURL(APP + '/finance');
+      177 |   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
+      178 | });
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:175:22
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+    tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+  13 passed (1.9m)
+
+# код выхода 1 · 1 мин 56 с

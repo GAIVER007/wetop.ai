@@ -1572,7 +1572,7 @@
   .btn--secondary.is-danger {
     color: var(--danger);
   }
-    /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
+  /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
      в --primary-hover (синий фон под красной или жёлтой подписью), находка DS1c. */
   .btn--danger:hover:not(:disabled),
   .btn--warning:hover:not(:disabled),
@@ -3026,9 +3026,10 @@
     cursor: pointer;
   }
   .chip__input {
-    /* поле накрывает чип вместе с рамкой: при inset 0 цель касания была на две рамки ниже чипа (42 из 44 px) */
     position: absolute;
-    inset: -1px;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     margin: 0;
     opacity: 0;
     cursor: pointer;

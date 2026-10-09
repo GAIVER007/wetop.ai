@@ -1,0 +1,82 @@
+# Сквозные (e2e) · 09.10.2026 22:59 Алматы · vm
+# коммит d2e7fc4 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/design-refresh.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/ux-retention.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет (5.6s)
+  ✓   2 tests/ui/design-refresh.spec.ts:32:1 › период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px (4.8s)
+  ✓   3 tests/ui/design-refresh.spec.ts:76:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» (3.5s)
+  ✓   4 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (15.7s)
+  ✓   5 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (15.7s)
+  ✓   6 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (15.5s)
+  ✓   7 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (15.7s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (15.6s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:67:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.8s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:76:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.0s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:91:1 › телефон: сводка и управление оставляют сетку на первом экране (2.0s)
+  ✓  12 tests/ui/mobile-adaptation.spec.ts:110:1 › узкий телефон: плитки финансов встают в одну колонку (1.9s)
+  ✘  13 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (7.9s)
+  ✓  14 tests/ui/mobile-adaptation.spec.ts:154:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (10.1s)
+  ✓  15 tests/ui/top-menu.spec.ts:54:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (3.1s)
+  ✓  16 tests/ui/top-menu.spec.ts:120:1 › вложенные адреса подсвечивают свою вкладку (5.7s)
+  ✓  17 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: light (4.2s)
+  ✓  18 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.3s)
+  ✓  19 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (8.4s)
+  ✓  20 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (2.2s)
+  ✓  21 tests/ui/ux-retention.spec.ts:66:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (828ms)
+  ✓  22 tests/ui/ux-retention.spec.ts:73:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (1.3s)
+  ✓  23 tests/ui/ux-retention.spec.ts:82:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (1.8s)
+  ✓  24 tests/ui/ux-retention.spec.ts:95:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (7.9s)
+
+
+  1) tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+
+    Error: /hotel-settings: цели ниже 44 px — INPUT, INPUT, INPUT, INPUT, INPUT, INPUT, INPUT
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 9
+
+    - Array []
+    + Array [
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    +   "INPUT",
+    + ]
+
+      148 |         .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+      149 |     );
+    > 150 |     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
+          |                                                                      ^
+      151 |   }
+      152 | });
+      153 |
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:150:70
+
+    Error Context: test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+  23 passed (2.8m)
+
+# код выхода 1 · 2 мин 49 с

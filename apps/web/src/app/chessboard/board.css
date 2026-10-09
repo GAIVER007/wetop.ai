@@ -160,18 +160,6 @@
     gap: 8px 16px;
     margin: 0 0 10px;
   }
-  .board-bar .board-range-form {
-    margin: 0;
-    gap: 8px;
-  }
-  .board-range-form .field {
-    margin: 0;
-    gap: 6px;
-  }
-  .board-bar .board-range-form .inp {
-    width: 140px;
-    min-height: 34px;
-  }
   .board-bar .legend {
     margin: 0;
     gap: 10px;
@@ -244,38 +232,72 @@
   .board-period-short {
     display: none;
   }
-  .board-controls .board-date-nav > .btn {
-    margin-left: var(--space-2);
-  }
   .board-controls .board-bar {
     margin-bottom: 0;
     margin-left: auto;
   }
-  .board-controls .board-custom-range {
-    display: contents;
+  .board-period-menu .board-period-label {
+    padding: 0;
   }
-  .board-custom-range-toggle.btn {
+  /* Период — раскрывашка на самой подписи (09.10.2026): готовые отрезки чипами и поля «С» / «По» */
+  .board-period-menu {
+    position: relative;
+  }
+  .board-period-menu > summary {
     display: inline-flex;
-  }
-  .board-controls .board-range-form {
-    display: none;
-    gap: var(--space-2);
-  }
-  .board-controls .board-custom-range[data-open='true'] .board-range-form {
-    display: flex;
-    flex: 1 1 100%;
-    order: 1;
-  }
-  .board-controls:has(.board-custom-range[data-open='true'], .board-help[open]) .board-bar {
-    flex: 1 1 100%;
-    margin-left: 0;
-  }
-  .board-controls .board-range-form .field {
-    gap: var(--space-2);
-  }
-  .board-controls .board-range-form .inp {
+    align-items: center;
+    gap: var(--space-1);
     min-height: var(--control-h);
-    height: var(--control-h);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .board-period-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+  .board-period-menu > summary:hover {
+    background: var(--row-hover);
+  }
+  .board-period-caret {
+    width: 16px;
+    height: 16px;
+    color: var(--muted);
+    rotate: 90deg;
+    transition: rotate 0.12s;
+  }
+  .board-period-menu[open] .board-period-caret {
+    rotate: -90deg;
+  }
+  .board-period-pop {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    /* выше липких частей сетки (у шапки дат и угла мест z-index до 8), ниже шапки страницы */
+    z-index: calc(var(--layer-header) - 1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: min(440px, calc(100vw - var(--space-8, 32px)));
+    padding: var(--space-4);
+    background: var(--surface-solid, var(--surface));
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-floating);
+  }
+  .board-period-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .board-period-form .period-picker {
+    flex: 1 1 auto;
+  }
+  .board-period-form .field {
+    margin: 0;
   }
   .board-controls .board-help summary {
     font-size: var(--text-xs);
@@ -330,20 +352,6 @@
     background: var(--danger-soft);
     color: var(--danger);
   }
-  /* Готовые периоды (7/14/30 дней, месяц) в раскрытых «Датах»: текущий обведён основным цветом */
-  .board-range-form .btn[aria-current='true'],
-  .board-quick-periods .btn[aria-current='true'] {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-  .board-quick-periods {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2);
-    grid-column: 1 / -1;
-  }
-
   /* ── поиск, категория, места, «Фильтры», вид в одну строку (ТЗ v2 §8) ── */
   .board-toolbar {
     gap: var(--space-2) var(--space-4);
@@ -934,22 +942,23 @@
       width: auto;
       margin-left: auto;
     }
-    /* «Даты» и «Помощь» встают в ряд к сегменту 7/14/30, а не отдельной строкой: своей рамки
-   * у .board-bar на телефоне нет, раскрытые формы по-прежнему берут строку целиком (order ниже). */
+    /* «Помощь» встаёт в ряд к стрелкам дат, а не отдельной строкой: своей рамки
+   * у .board-bar на телефоне нет. */
     .board-controls .board-bar {
       display: contents;
     }
-    /* Подсказка остаётся в первой строке рядом со стрелками дат (контракт chessboard-week C1
-   * «не выходит за экран на телефоне»), а сегмент и «Даты» идут во вторую: две строки вместо трёх. */
-    .board-controls .board-period > .seg,
-    .board-controls .board-custom-range > .btn {
-      order: 1;
-    }
     .board-controls .board-date-nav {
       display: grid;
-      grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target) auto;
+      grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target);
       flex: 1 1 auto;
       min-width: 0;
+      /* раскрывашка периода на телефоне считается от всей строки дат, а не от узкой подписи */
+      position: relative;
+    }
+    .board-period-menu {
+      justify-self: center;
+      min-width: 0;
+      position: static;
     }
     .board-period-label {
       font-size: var(--text-sm);
@@ -961,24 +970,14 @@
     .board-period-short {
       display: inline;
     }
-    .board-controls .board-date-nav > .btn {
-      margin-left: 0;
-      padding-left: var(--space-2);
-      padding-right: var(--space-2);
+    /* раскрывашка периода во всю строку дат: на телефоне так ничего не уезжает за экран */
+    .board-period-pop {
+      left: 0;
+      right: 0;
+      width: auto;
     }
-    .board-controls .board-custom-range {
-      display: contents;
-    }
-    .board-custom-range-toggle.btn {
-      display: inline-flex;
-    }
-    .board-controls .board-range-form {
-      display: none;
-    }
-    .board-controls .board-custom-range[data-open='true'] .board-range-form {
-      display: grid;
-      flex: 1 1 100%;
-      order: 2;
+    .board-period-pop .inp {
+      min-height: var(--touch-target);
     }
     .board-controls .board-bar > .board-help {
       width: auto;
@@ -987,9 +986,6 @@
     .board-controls .board-bar > .board-help[open] {
       flex-basis: 100%;
       order: 3;
-    }
-    .board-controls .board-range-form .inp {
-      height: var(--touch-target);
     }
     .board-toolbar {
       padding: var(--space-2);
@@ -1055,20 +1051,12 @@
     .page:has(> .board-wrap) {
       padding-bottom: calc(90px + env(safe-area-inset-bottom));
     }
-    .board-bar .board-range-form {
+    /* в раскрывашке периода поля «С» / «По» на телефоне встают столбиком во всю ширину */
+    .board-period-pop .field {
+      flex: 1 1 100%;
+    }
+    .board-period-pop .inp {
       width: 100%;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .board-bar .board-range-form .inp {
-      width: 100%;
-      min-height: var(--touch-target);
-    }
-    .board-range-form > .btn {
-      grid-column: 1 / -1;
-    }
-    /* Готовые периоды в раскрытых «Датах»: цели нажатия не ниже 44 px (axe target-size) */
-    .board-quick-periods .btn {
-      min-height: var(--touch-target);
     }
     .board-date-nav .icon-button {
       width: var(--touch-target);
@@ -1875,8 +1863,6 @@
     .board-controls {
       gap: var(--space-2);
     }
-    .board-controls .board-date-nav > .btn,
-    .board-controls .board-custom-range-toggle,
     .page:has(> .board-wrap) .page__actions .btn {
       min-height: var(--space-8);
       padding: var(--space-2) var(--space-4);

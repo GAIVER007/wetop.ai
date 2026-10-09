@@ -35,11 +35,11 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     const toggle = main.getByRole('button', { name: 'Фильтры', exact: true });
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(main.getByLabel('Категория в календаре')).toBeHidden();
-    await main.getByRole('button', { name: 'Даты', exact: true }).click();
-    // готовые периоды (7/14/30, месяц) с 09.10 живут в раскрытых «Датах»
+    await page.getByTestId('board-period-button').click();
+    // готовые периоды (7/14/30, месяц) с 09.10 живут в раскрывашке периода
     for (const control of [
-      main.getByLabel('Календарь: с', { exact: true }),
-      main.getByLabel('Календарь: по', { exact: true }),
+      main.getByLabel('Период: с', { exact: true }),
+      main.getByLabel('Период: по', { exact: true }),
       main.getByRole('button', { name: 'Применить', exact: true }),
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
       main.getByRole('link', { name: '7 дней', exact: true }),
@@ -50,8 +50,10 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       expect(box!.height).toBeGreaterThanOrEqual(44);
       expect(box!.width).toBeGreaterThanOrEqual(44);
     }
-    await expect(page.locator('.board-range-form').getByText('С', { exact: true })).toBeVisible();
-    await expect(page.locator('.board-range-form').getByText('По', { exact: true })).toBeVisible();
+    await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
+    await expect(page.locator('.board-period-pop').getByText('По', { exact: true })).toBeVisible();
+    // раскрывашка периода закрывается, чтобы не накрывать кнопку «Фильтры» под ней
+    await page.getByTestId('board-period-button').click();
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
@@ -215,18 +217,18 @@ test('по умолчанию видна текущая неделя с поне
   sunday.setUTCDate(sunday.getUTCDate() + 6);
   await page.goto('/chessboard');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue(
+  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue(
     monday.toISOString().slice(0, 10),
   );
-  await expect(page.getByLabel('Календарь: по', { exact: true })).toHaveValue(
+  await expect(page.getByLabel('Период: по', { exact: true })).toHaveValue(
     sunday.toISOString().slice(0, 10),
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
-  // «7 дней» с 09.10 живёт в раскрытых «Датах» и отмечает текущую неделю
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
+  // «7 дней» с 09.10 живёт в раскрывашке периода и отмечает текущую неделю
+  await page.getByTestId('board-period-button').click();
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'aria-current',
-    'true',
+    'page',
   );
 });

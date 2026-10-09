@@ -31,25 +31,31 @@ test('статусы шахматки понятны без открытия и�
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
   await expect(page.getByTestId('board-legend')).toContainText('проживает');
   await expect(page.locator('.board-help-content')).toBeHidden();
+  // «Сегодня» — чип в раскрывашке периода (09.10.2026), и он ровно один
+  await page.getByTestId('board-period-button').click();
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
 });
 
 test('ручные даты раскрываются с клавиатуры и сбрасываются при смене периода', async ({ page }) => {
   await page.goto('/chessboard');
-  const dates = page.getByRole('button', { name: 'Даты', exact: true });
-  await expect(dates).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByLabel('Календарь: с', { exact: true })).toBeHidden();
-  await dates.focus();
+  // раскрывашка периода (09.10.2026): подпись периода сама кнопка, внутри чипы и поля «С» / «По»
+  const menu = page.locator('.board-period-menu');
+  const opener = page.getByTestId('board-period-button');
+  await expect(menu).toHaveJSProperty('open', false);
+  await expect(page.getByLabel('Период: с', { exact: true })).toBeHidden();
+  await opener.focus();
   await page.keyboard.press('Space');
-  await expect(dates).toHaveAttribute('aria-expanded', 'true');
-  await page.getByLabel('Календарь: с', { exact: true }).fill('2026-10-05');
-  await page.getByLabel('Календарь: по', { exact: true }).fill('2026-10-11');
+  await expect(menu).toHaveJSProperty('open', true);
+  await page.getByLabel('Период: с', { exact: true }).fill('2026-10-05');
+  await page.getByLabel('Период: по', { exact: true }).fill('2026-10-11');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page).toHaveURL('/chessboard?from=2026-10-05&to=2026-10-11');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await expect(dates).toHaveAttribute('aria-expanded', 'false');
+  // после перехода раскрывашка закрыта, поля несут новые даты
+  await expect(menu).toHaveJSProperty('open', false);
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
-  await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue('2026-10-12');
+  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-10-12');
+  await opener.click();
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL('/chessboard');
 });

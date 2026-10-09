@@ -8,11 +8,12 @@ import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
 import { Alert, Button, Legend } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
+import { Chip, ChipGroup } from '../../components/chip';
 import { DateInput } from '../../components/date-field';
+import { PeriodPicker } from '../../components/period-picker';
 import { ChessboardGrid } from './board-grid';
 import { BoardTodayLink } from './board-today-link';
 import { BoardHelp } from './board-help';
-import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
 import { BoardClock } from './board-clock';
@@ -187,10 +188,47 @@ export default async function ChessboardPage({
               >
                 <Icon name="chevron" className="rotate-left" />
               </Link>
-              <span className="board-period-label" title={periodLabel}>
-                <span className="board-period-full">{periodLabel}</span>
-                <span className="board-period-short">{shortPeriodLabel}</span>
-              </span>
+              {/* Период сам раскрывается в выбор дат (поручение владельца 09.10.2026: отдельные
+                «Сегодня» и «Даты» из строки убраны, всё в одном месте): готовые отрезки чипами
+                (rolling 7/14/30, ТЗ «Шахматка v2» §6–7, и месяц) и поля «С» / «По».
+                «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды.
+                Ключ по периоду: после перехода раскрывашка закрыта, поля с новыми датами. */}
+              <details className="board-period-menu" key={`${board.from}-${board.to}`}>
+                <summary data-testid="board-period-button" title={periodLabel}>
+                  <span className="board-period-label">
+                    <span className="board-period-full">{periodLabel}</span>
+                    <span className="board-period-short">{shortPeriodLabel}</span>
+                  </span>
+                  <Icon name="chevron" className="board-period-caret" />
+                </summary>
+                <div className="board-period-pop">
+                  <ChipGroup as="nav" label="Готовые периоды" className="board-period-presets">
+                    <BoardTodayLink />
+                    <Chip size="sm" href={weekHref()} selected={isWeek}>
+                      7 дней
+                    </Chip>
+                    <Chip size="sm" href={window(14)} selected={board.dates.length === 14}>
+                      14 дней
+                    </Chip>
+                    <Chip
+                      size="sm"
+                      href={window(30)}
+                      selected={board.dates.length === 30 && !isMonth}
+                    >
+                      30 дней
+                    </Chip>
+                    <Chip size="sm" href={monthHref()} selected={isMonth}>
+                      Месяц
+                    </Chip>
+                  </ChipGroup>
+                  <form method="get" className="board-period-form">
+                    <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
+                    <Button tone="secondary" type="submit">
+                      Применить
+                    </Button>
+                  </form>
+                </div>
+              </details>
               <Link
                 href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
                 className="icon-button"
@@ -200,29 +238,9 @@ export default async function ChessboardPage({
               >
                 <Icon name="chevron" />
               </Link>
-              <BoardTodayLink />
             </span>
           </div>
           <div className="board-bar">
-            {/* Готовые периоды (rolling 7/14/30, ТЗ «Шахматка v2» §6–7) и календарный месяц
-              живут в раскрывашке «Даты»: из строки управления их убрал владелец 09.10.2026,
-              чтобы шапка календаря стала компактнее. «30 дней» не подсвечивается на месяце
-              из 30 дней: это разные периоды. */}
-            <BoardDateRange
-              key={`${board.from}-${board.to}`}
-              from={board.from}
-              to={board.to}
-              periods={[
-                { href: weekHref(), label: '7 дней', current: isWeek },
-                { href: window(14), label: '14 дней', current: board.dates.length === 14 },
-                {
-                  href: window(30),
-                  label: '30 дней',
-                  current: board.dates.length === 30 && !isMonth,
-                },
-                { href: monthHref(), label: 'Месяц', current: isMonth },
-              ]}
-            />
             <BoardHelp title="Помощь">
               <div className="board-help-content">
                 <p className="note">

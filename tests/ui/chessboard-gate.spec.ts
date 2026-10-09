@@ -39,13 +39,17 @@ test('гейт: светлая тема — полный экран, верх, �
   });
   // заголовок и главное действие
   await page.locator('.page__head').screenshot({ path: `${DIR}/header.png` });
-  // строка дат: стрелки, период, «Сегодня», 7/14/30, «Даты», «? Помощь»
+  // строка дат (09.10.2026): стрелки, период-кнопка, «? Помощь»
   await page.locator('.board-controls').screenshot({ path: `${DIR}/controls.png` });
-  // раскрытые «Даты»: С, По, «Применить» и «Месяц»
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
+  // раскрытый период: чипы «Сегодня», 7/14/30, «Месяц», поля С / По и «Применить»
+  await page.getByTestId('board-period-button').click();
   await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toBeVisible();
-  await page.locator('.board-controls').screenshot({ path: `${DIR}/controls-dates-open.png` });
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
+  await page.screenshot({
+    caret: 'initial',
+    path: `${DIR}/controls-dates-open.png`,
+    clip: { x: 0, y: 0, width: 900, height: 560 },
+  });
+  await page.getByTestId('board-period-button').click();
   // строка поиска и фильтров: поиск, категория, тип места, статусы
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/toolbar.png` });
 

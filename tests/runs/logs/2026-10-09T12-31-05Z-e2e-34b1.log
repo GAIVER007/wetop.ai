@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 09.10.2026 17:31 Алматы · vm
+# коммит 90d323d (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/ux-retention.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/desktop-compact.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 37 tests using 1 worker
+
+  ✓   1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (23.7s)
+  ✓   2 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (2.3s)
+  ✓   3 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (6.2s)
+  ✓   4 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (5.7s)
+  ✓   5 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (5.0s)
+  ✓   6 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (21.0s)
+  ✓   7 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (5.9s)
+  ✓   8 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (5.8s)
+  ✓   9 tests/ui/navigation.spec.ts:223:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (2.8s)
+  ✓  10 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (5.3s)
+  ✓  11 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (6.5s)
+  ✓  12 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.4s)
+  ✓  13 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (7.9s)
+  ✓  14 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  15 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (6.1s)
+  ✓  16 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (9.3s)
+  ✓  17 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (15.8s)
+  ✓  18 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (16.1s)
+  ✓  19 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (15.4s)
+  ✓  20 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (15.5s)
+  ✓  21 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (6.8s)
+  ✓  22 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (6.3s)
+  ✓  23 tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение (6.3s)
+  ✓  24 tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (4.1s)
+  ✓  25 tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать (3.9s)
+  ✓  26 tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца (3.5s)
+  ✓  27 tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей (6.1s)
+  ✓  28 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (7.2s)
+  ✓  29 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (7.1s)
+  ✓  30 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: light (5.1s)
+  ✓  31 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: dark (5.0s)
+  ✓  32 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (6.9s)
+  ✓  33 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (3.7s)
+  ✓  34 tests/ui/ux-retention.spec.ts:66:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (1.9s)
+  ✓  35 tests/ui/ux-retention.spec.ts:73:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (1.3s)
+  ✓  36 tests/ui/ux-retention.spec.ts:81:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (2.3s)
+  ✓  37 tests/ui/ux-retention.spec.ts:94:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (9.5s)
+
+  37 passed (4.9m)
+
+# код выхода 0 · 4 мин 55 с

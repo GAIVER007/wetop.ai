@@ -430,7 +430,7 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
- * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
+ * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони) одним щелчком; группы с несколькими
  * экранами («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
  */
 // Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
@@ -440,7 +440,8 @@ export const menuSections: MenuSection[] = [
   direct('home', '/today', 'today'),
   direct('chessboard', '/chessboard', 'board'),
   direct('reservations', '/reservations', 'booking'),
-  direct('guests', '/guests', 'guests'),
+  // «Гости» без своей вкладки в меню: раздел открывается вкладкой внутри «Броней»
+  // (поручение владельца 09.10.2026), адрес /guests и право прежние
   direct('finance', '/finance', 'money', 'Финансы'),
   direct('bar', '/bar', 'receipt'),
   {
@@ -516,7 +517,7 @@ export const foodMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
-/** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
+/** Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134) */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
   .map((section) => section.items[0]!);
@@ -631,6 +632,8 @@ export function activeMenuRoute(path: string): string | undefined {
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
+  // «Гости» внутри «Броней» (09.10.2026): своего пункта меню нет, подсвечивается вкладка раздела
+  if (route === '/guests') return '/reservations';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   return route;

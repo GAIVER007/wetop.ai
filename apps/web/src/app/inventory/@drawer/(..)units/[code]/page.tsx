@@ -1,8 +1,9 @@
 import { requireVertical } from '../../../../../lib/vertical-guard';
 import { api, unitsApi } from '../../../../../lib/api';
-import { hotelToday } from '../../../../../lib/hotel-api';
+import { hotelClock } from '../../../../../lib/hotel-api';
 import { notFoundOn404 } from '../../../../../lib/page-error';
 import { DockedPanel } from '../../../docked-panel';
+import { channelMarks } from '../../../channel-marks';
 import { UnitPanel } from '../../../unit-panel';
 
 /**
@@ -13,7 +14,9 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
   await requireVertical(['HOSPITALITY']);
   const { code } = await params;
   const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
-  const today = await hotelToday();
+  const clock = await hotelClock();
+  const today = clock.today();
+  const marks = await channelMarks();
   const roomUnits = await api
     .inventoryUnits()
     .then((all) => all.filter((u) => u.roomNumber === unit.roomNumber))
@@ -24,7 +27,15 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
     .catch(() => []);
   return (
     <DockedPanel title={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'} ${unit.code}`}>
-      <UnitPanel unit={unit} today={today} roomUnits={roomUnits} photos={photos} />
+      <UnitPanel
+        unit={unit}
+        today={today}
+        roomUnits={roomUnits}
+        photos={photos}
+        createdAt={clock.full(unit.createdAt)}
+        updatedAt={clock.full(unit.updatedAt)}
+        channels={marks.mapped.includes(unit.accommodationTypeCode) ? marks.channels : []}
+      />
     </DockedPanel>
   );
 }

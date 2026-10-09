@@ -65,5 +65,7 @@ it('роль из формы уходит в API как есть', async () => {
     'novyj@example.invalid',
     'MANAGER',
     expect.anything(),
+    // имя, телефон и область не переданы: пустой объект (DATA_MODEL §30.3)
+    {},
   );
 });

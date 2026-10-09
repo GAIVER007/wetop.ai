@@ -20,6 +20,7 @@
     "test:watch": "vitest",
     "test:record": "tsx tests/tools/cli-record.ts",
     "test:status": "tsx tests/tools/cli-status.ts",
+    "test:journal": "tsx tests/tools/cli-journal.ts",
     "test:schema": "tsx tests/tools/cli-test-schema.ts",
     "db:local": "scripts/ops/local-db.sh",
     "lint": "eslint .",

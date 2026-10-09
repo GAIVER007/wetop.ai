@@ -164,3 +164,27 @@ const fixturePort = process.env['FIXTURE_PORT'];
 export const FIXTURE_API =
   process.env['UI_FIXTURE_API'] ??
   (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');
+
+/**
+ * Окошко «Фильтры» календаря. С 09.10.2026 (образец владельца) категория и «Места» живут в нём, а не
+ * в строке над сеткой: открыть, выбрать и «Применить».
+ */
+export async function openBoardFilters(page: Page) {
+  await page
+    .getByRole('main')
+    .getByRole('button', { name: /^Фильтры( \d+)?$/ })
+    .click();
+  const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
+  await expect(pop).toBeVisible();
+  return pop;
+}
+
+/** Выбрать категорию и/или состояние места в окошке «Фильтры» и применить */
+export async function boardFilter(page: Page, pick: { category?: string; state?: string }) {
+  const pop = await openBoardFilters(page);
+  if (pick.category !== undefined)
+    await pop.getByLabel('Категория в календаре').selectOption(pick.category);
+  if (pick.state !== undefined) await pop.getByLabel('Места в календаре').selectOption(pick.state);
+  await pop.getByRole('button', { name: 'Применить', exact: true }).click();
+  await expect(pop).toBeHidden();
+}

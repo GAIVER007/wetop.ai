@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Browser } from '@playwright/test';
-import type { NightObservation } from '@pms/domain';
+import { competitorPlatform, type NightObservation } from '@pms/domain';
 import type { CollectorApi, CollectorCompetitor, ExtractNight, ReadPage } from './collect';
 
 /**
@@ -29,6 +29,22 @@ export function collectorApi(baseUrl: string, key: string): CollectorApi {
 }
 
 /**
+ * Из текста страницы только то, что нужно для оценки: блок номеров на выбранную ночь. На странице отеля есть отзывы с
+ * именами гостей, это персональные данные: модели и в фикстуры они не уходят. Ostrovok: от «Заезд» до «Расположение»
+ * (разбор 09.10.2026). Не нашли границ: текст до первого упоминания отзывов.
+ */
+export function pageSection(url: string, text: string): string {
+  if (competitorPlatform(url) === 'Ostrovok') {
+    const a = text.indexOf('\nЗаезд\n');
+    const b = a >= 0 ? text.indexOf('\nРасположение\n', a) : -1;
+    if (a >= 0 && b > a) return text.slice(a, b).trim();
+  }
+  const review = text.search(/отзыв|review/i);
+  // режем по началу строки с отзывами: «Guest reviews» не должно оставить «Guest»
+  return (review >= 0 ? text.slice(0, text.lastIndexOf('\n', review) + 1) : text).trim();
+}
+
+/**
  * Страница площадки так, как её видит гость: обычный браузер без маскировки. Проверки площадки (капча, «подтвердите,
  * что вы человек») не обходятся: их увидит модель и сборщик остановится по соседу.
  */
@@ -39,7 +55,7 @@ export function pageReader(browser: Browser): ReadPage {
       const res = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
       // цены и номера подгружаются после разметки; не дождались за 15 с — читаем, что есть
       await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
-      return { status: res?.status() ?? 0, text: await page.innerText('body') };
+      return { status: res?.status() ?? 0, text: pageSection(url, await page.innerText('body')) };
     } finally {
       await page.close();
     }
@@ -88,13 +104,20 @@ export function parseObservation(text: string): NightObservation {
  * ИИ читает текст страницы: распродано ли, сколько номеров ещё можно забронировать. Модель по умолчанию из справочника
  * API (`claude-opus-5-5`), заменяется `MARKET_COLLECT_MODEL`; отказ модели и непонятный ответ дают «не разобрано».
  */
-export function claudeExtractor(client: Anthropic, model: string): ExtractNight {
+export function claudeExtractor(
+  client: Anthropic,
+  model: string,
+  onResponse?: (r: { raw: string | null; inputTokens: number; outputTokens: number }) => void,
+): ExtractNight {
+  // у Haiku серверной запасной модели нет (справочник claude-api), у Opus и Sonnet включаем её по умолчанию
+  const fallback = model.startsWith('claude-haiku')
+    ? {}
+    : { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const };
   return async (text, { name, night }) => {
     const response = await client.beta.messages.create({
       model,
       max_tokens: 8000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
+      ...fallback,
       output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
       system: SYSTEM,
       messages: [
@@ -104,8 +127,9 @@ export function claudeExtractor(client: Anthropic, model: string): ExtractNight 
         },
       ],
     });
-    if (response.stop_reason === 'refusal') return { status: 'unknown', roomsLeft: null };
     const block = response.content.find((b) => b.type === 'text');
-    return block && block.type === 'text' ? parseObservation(block.text) : { status: 'unknown', roomsLeft: null };
+    const raw = response.stop_reason !== 'refusal' && block && block.type === 'text' ? block.text : null;
+    onResponse?.({ raw, inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens });
+    return raw === null ? { status: 'unknown', roomsLeft: null } : parseObservation(raw);
   };
 }

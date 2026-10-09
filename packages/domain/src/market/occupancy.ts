@@ -453,6 +453,11 @@ export function platformNightUrl(url: string, night: string): string | null {
     out.searchParams.set('no_rooms', '1');
     return out.toString();
   }
+  if (platform === 'Ostrovok') {
+    // выдача кладёт в ссылку свою сессию поиска (room, search_chain_id, q): она не нужна и устаревает
+    const ru = (iso: string) => iso.split('-').reverse().join('.');
+    return `${out.origin}${out.pathname}?dates=${ru(night)}-${ru(next)}&guests=2`;
+  }
   if (platform === 'Trip.com') {
     out.searchParams.set('checkIn', night);
     out.searchParams.set('checkOut', next);

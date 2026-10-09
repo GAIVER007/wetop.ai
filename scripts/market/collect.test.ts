@@ -121,6 +121,17 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
   });
 });
 
+describe('блок номеров со страницы', () => {
+  it('Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей', async () => {
+    const { pageSection } = await import('./sources');
+    const page = 'Отель\nОтзывы\nИван П\nВсё понравилось\nЗаезд\n20 окт\nНа нашем сайте осталось 2 номера\n6 фото\nДвухместный номер\nРасположение\nулица 1\nОтзывы гостей\nАнна К';
+    const url = 'https://ostrovok.ru/hotel/kazakhstan/almaty/mid1/x/';
+    expect(pageSection(url, page)).toBe('Заезд\n20 окт\nНа нашем сайте осталось 2 номера\n6 фото\nДвухместный номер');
+    expect(pageSection(url, 'Подтвердите, что вы не робот\nОтзывы\nИван П')).toBe('Подтвердите, что вы не робот');
+    expect(pageSection('https://www.booking.com/hotel/kz/a.html', 'Only 2 rooms left\nGuest reviews\nJohn')).toBe('Only 2 rooms left');
+  });
+});
+
 describe('ответ модели', () => {
   it('принимает только то, что прошло проверку; остаток бывает только у «продаётся»', async () => {
     const { parseObservation } = await import('./sources');

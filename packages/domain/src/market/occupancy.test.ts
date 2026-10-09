@@ -322,8 +322,15 @@ describe('platformNightUrl', () => {
     const t = new URL(platformNightUrl('https://kz.trip.com/hotels/almaty-hotel-detail-1/', '2026-12-31')!);
     expect(t.searchParams.get('checkIn')).toBe('2026-12-31');
     expect(t.searchParams.get('checkOut')).toBe('2027-01-01');
+    // Ostrovok: даты одной строкой «ДД.ММ.ГГГГ-ДД.ММ.ГГГГ», служебные метки выдачи снимаются
+    const o = new URL(
+      platformNightUrl('https://ostrovok.ru/hotel/kazakhstan/almaty/mid1/x/?dates=01.01.2026-02.01.2026&room=s-1&search_chain_id=sr-1&q=354', '2026-10-31')!,
+    );
+    expect(o.searchParams.get('dates')).toBe('31.10.2026-01.11.2026');
+    expect(o.searchParams.get('guests')).toBe('2');
+    expect([...o.searchParams.keys()].sort()).toEqual(['dates', 'guests']);
     // площадка, которую сборщик пока не читает, и не площадка вовсе
-    expect(platformNightUrl('https://ostrovok.ru/hotel/x/', '2026-10-31')).toBeNull();
+    expect(platformNightUrl('https://www.airbnb.com/rooms/1', '2026-10-31')).toBeNull();
     expect(platformNightUrl('https://altyn-hotel.kz/', '2026-10-31')).toBeNull();
   });
 });

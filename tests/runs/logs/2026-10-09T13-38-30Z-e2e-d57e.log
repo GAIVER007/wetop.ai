@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 09.10.2026 18:38 Алматы · vm
+# коммит 2194e1a (claude/serene-newton-q453ps), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-price-nights.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.2s)
+  ✘  2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше (3.8s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 164
+    Received:    300.796875
+
+      39 |   // строкой, под ней шесть карточек в один ряд, затем сетка
+      40 |   expect(bar.height).toBeLessThanOrEqual(56);
+    > 41 |   expect(bar.y + bar.height).toBeLessThanOrEqual(p.y + 1);
+         |                              ^
+      42 |   expect(p.height).toBeLessThanOrEqual(96);
+      43 |   expect(p.y + p.height).toBeLessThanOrEqual(grid.y + 1);
+      44 |   expect(grid.y).toBeLessThanOrEqual(260);
+        at /home/user/wetop.ai/tests/ui/booking-price-nights.spec.ts:41:30
+
+    Error Context: test-results/booking-price-nights-кален-ad60a-д-ней-сетка-начинается-выше/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-ad60a-д-ней-сетка-начинается-выше/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-ad60a-д-ней-сетка-начинается-выше/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше 
+  1 passed (20.0s)
+
+# код выхода 1 · 22 с

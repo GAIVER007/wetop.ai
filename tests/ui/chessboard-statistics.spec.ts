@@ -17,7 +17,7 @@ for (const width of [360, 390, 430]) {
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
     // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
-    await expect(panel.getByText('Задачи')).toHaveCount(0);
+    await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
     const panelBox = await panel.boundingBox();
     expect(panelBox!.height).toBeLessThanOrEqual(280);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();

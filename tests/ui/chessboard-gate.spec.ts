@@ -96,7 +96,11 @@ test('гейт: тёмная тема — полный экран и верх', 
     path: `${DIR}/today-column-dark.png`,
     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
   });
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await page.getByTestId('board-length-button').click();
+  await page
+    .getByRole('navigation', { name: 'Длина периода' })
+    .getByRole('link', { name: '30 дней', exact: true })
+    .click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days-dark.png` });
 });
@@ -126,7 +130,11 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await page.getByTestId('board-length-button').click();
+  await page
+    .getByRole('navigation', { name: 'Длина периода' })
+    .getByRole('link', { name: '30 дней', exact: true })
+    .click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days.png` });
 

@@ -2723,7 +2723,7 @@
   .line__plot {
     position: relative;
     height: 200px;
-    padding-left: 76px;
+    padding-left: var(--space-16);
   }
   .line__plot svg {
     width: 100%;
@@ -2737,7 +2737,7 @@
     padding: 0;
     position: absolute;
     inset: 0 auto 0 0;
-    width: 72px;
+    width: calc(var(--space-16) - var(--space-2));
     display: flex;
     flex-direction: column-reverse;
     justify-content: space-between;
@@ -2778,7 +2778,7 @@
   .line__x {
     display: flex;
     justify-content: space-between;
-    padding-left: 76px;
+    padding-left: var(--space-16);
     font-size: var(--text-xs);
     color: var(--muted);
   }

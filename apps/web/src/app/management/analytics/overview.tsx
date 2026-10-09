@@ -111,7 +111,7 @@ function PricePanel({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery })
         )}
         axisLabels={buckets.map(axis)}
         format={(v) => `${fullTenge.format(Math.round(v))} ₸`}
-        formatAxis={(v) => `${compactTenge.format(v)} ₸`}
+        formatAxis={(v) => compactTenge.format(v)}
         series={[
           {
             name: 'ADR',

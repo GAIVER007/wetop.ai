@@ -180,8 +180,10 @@ for (const theme of ['light', 'dark'] as const) {
             .filter((e) => e.h < 44),
         );
       expect(small, route).toEqual([]);
+      // на /chessboard видимого .seg больше нет (вид строк с 09.10 в окошке «Фильтры»),
+      // поэтому в include добавлена строка календаря .board-toolbar: без единого совпадения axe падает
       const result = await new AxeBuilder({ page })
-        .include('.tabs, .chip-group, .seg, .toolbar')
+        .include('.tabs, .chip-group, .seg, .toolbar, .board-toolbar')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
         .analyze();
       expect(
